@@ -1,5 +1,5 @@
 {
-  "name": "client",
+  "name": "release-client",
   "version": "1.0.0",
   "dependencies": {
     "@dojo/framework": "^4.0.0",
@@ -8,7 +8,7 @@
     "tslib": "~1.8.1"
   },
   "devDependencies": {
-    "@dojo/cli-build-app": "^4.0.0",
+    "@dojo/cli-build-app": "^4.0.5",
     "@dojo/cli-test-intern": "^4.0.0",
     "@types/node": "~9.6.5",
     "typescript": "~2.6.1"
