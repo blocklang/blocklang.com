@@ -23,6 +23,12 @@
 2. 将 BlockLang-Installer 安装在应用服务器上；
 3. 执行 `blocklang-installer register` 命令，输入 Block Lang 平台的 `url` 和项目注册 token，注册成功后为每个 installer 生成唯一的 APP 运行实例 token（22个数字组成的 Base64 UUID），并只将运行实例 token 存在 `config.toml` 文件中（不用存储项目注册 token）；
 4. 执行 `blocklang-installer start` 命令，输入 Block Lang 平台的 `url` 和运行实例 token，从 Block Lang 平台下载 JDK 和 Spring Boot Jar，并在 Block Lang 平台记录下部署日志和软件下载记录，并运行 Spring Boot Jar；
-5. 执行 `blocklang-installer update` 命令，输入 Block Lang 平台的 `url` 和运行实例 token，从 Block Lang 平台下载**最新版**的 Spring Boot Jar，，并在 Block Lang 平台记录下部署日志和软件下载记录，并运行 Spring Boot Jar；
+5. 执行 `blocklang-installer update` 命令，输入 Block Lang 平台的 `url` 和运行实例 token，从 Block Lang 平台下载**最新版**的 Spring Boot Jar，并在 Block Lang 平台记录下部署日志和软件下载记录，并运行 Spring Boot Jar；
 6. 执行 `blocklang-installer unregister` 命令，输入 Block Lang 平台的 `url` 和运行实例 token，来停止 APP 运行实例，并从 `config.toml` 文件中删除对应 installer 注册信息；
 7. 执行 `blocklang-installer list` 命令，显示在 `config.toml` 中存储的所有 installer，包括运行端口、Block Lang 平台的 url 和运行实例 token 等。
+
+## APP 运行实例示意图
+
+下图以集群环境为例，描述出上述各概念之间的关系。
+
+![](images/block_lang_cluster_deploy.png)
