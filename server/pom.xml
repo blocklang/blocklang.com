@@ -51,6 +51,13 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/io.rest-assured/spring-mock-mvc -->
+		<dependency>
+		    <groupId>io.rest-assured</groupId>
+		    <artifactId>spring-mock-mvc</artifactId>
+		    <scope>test</scope>
+		</dependency>
+		
 	</dependencies>
 
 	<build>
