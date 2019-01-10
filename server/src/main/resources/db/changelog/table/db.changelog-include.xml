@@ -3,6 +3,12 @@
 	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
 	
-	<!-- <include file="db/changelog/table/201810221122_create_workshop.xml" /> -->
+	<property dbms="postgresql" name="datetime" value="TIMESTAMP WITH TIME ZONE"/>
+	<property dbms="postgresql" name="clob" value="text"/>
 	
+	<include file="db/changelog/table/201901100838_create_app.xml" />
+	<include file="db/changelog/table/201901101035_create_app_release.xml" />
+	<include file="db/changelog/table/201901101125_create_app_release_relation.xml" />
+	<include file="db/changelog/table/201901101209_create_app_release_file.xml" />
+
 </databaseChangeLog>

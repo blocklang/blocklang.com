@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet author="Zhengwei Jin" id="201901101035" >
+        <createTable tableName="app_release" remarks="应用程序发行版基本信息">
+            <column name="dbid" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="PK_APP_RELEASE"/>
+            </column>
+            <column name="app_id" remarks="应用程序标识" type="int">
+            	<constraints nullable="false"/>
+            </column>
+            <column name="version" remarks="版本" type="varchar(32)" defaultValue="0.1.0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="title" remarks="发行版标题" type="varchar(64)">
+            	<constraints nullable="false"/>
+            </column>
+            <column name="description" remarks="发行版说明" type="${clob}" />
+ 			<column name="release_time" remarks="发布时间" type="${datetime}">
+				<constraints nullable="false" />
+			</column>           
+            <column name="release_method" remarks="发布方法" type="char(2)">
+                <constraints nullable="false"/>
+            </column>           
+			<column name="create_user_id" remarks="创建人标识" type="int">
+				<constraints nullable="false" />
+			</column>
+			<column name="create_time" remarks="创建时间" type="${datetime}">
+				<constraints nullable="false" />
+			</column>
+			<column name="last_update_user_id" remarks="最近修改人标识" type="int" />
+			<column name="last_update_time" remarks="最近修改时间" type="${datetime}" />
+        </createTable>
+        <addUniqueConstraint
+            columnNames="app_id, version"
+            constraintName="UK_APP_ID_VERSION"
+            tableName="app_release" />
+    </changeSet>
+
+</databaseChangeLog>
