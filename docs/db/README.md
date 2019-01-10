@@ -4,13 +4,13 @@
 
 ## 发布
 
-1. PROJECT
-2. APP
-3. APP_RELEASE
-4. APP_RELEASE_RELATION
-5. APP_RELEASE_FILE
-6. WEB_SERVER
-7. INSTALLER
+1. `PROJECT`
+2. `APP`
+3. `APP_RELEASE`
+4. `APP_RELEASE_RELATION`
+5. `APP_RELEASE_FILE`
+6. `WEB_SERVER`
+7. `INSTALLER`
 
 ### `PROJECT` - 项目基本信息
 
@@ -111,6 +111,7 @@
 
 1. `target_os` 的值为：`01` 表示 `linux`，`02` 表示 `windows`，`99` 表示 `any`
 2. `arch` 的值为：`01` 表示 `x86`，`02` 表示 `x86_64`，`99` 表示 `any`
+3. linux 系统的文件名最大长度是255，windows 系统的文件名最大长度是260，所以 `file_name` 的长度是255
 
 ### `WEB_SERVER` - 应用服务器
 
