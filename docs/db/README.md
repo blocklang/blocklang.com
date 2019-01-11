@@ -109,51 +109,60 @@
 
 说明
 
-1. `target_os` 的值为：`01` 表示 `linux`，`02` 表示 `windows`，`99` 表示 `any`
-2. `arch` 的值为：`01` 表示 `x86`，`02` 表示 `x86_64`，`99` 表示 `any`
+1. `target_os` 的值为：`01` 表示 `Unknown`，`02` 表示 `Android`，`03` 表示 `Bitrig`，`04` 表示 `CloudABI`，`05` 表示 `Dragonfly`，`06` 表示 `Emscripten`，`07` 表示 `FreeBSD`，`08` 表示 `Fuchsia`，`09` 表示 `Haiku`，`10` 表示 `iOS`，`11` 表示 `Linux`，`12` 表示 `MacOS`，`13` 表示 `NetBSD`，`14` 表示 `OpenBSD`，`15` 表示 `Redox`，`16` 表示 `Solaris`，`17` 表示 `Windows`，`99` 表示 `Any`
+2. `arch` 的值为：`01` 表示 `Unknown`，`02` 表示 `X86_64`，`03` 表示 `X86`，`04` 表示 `WASM32`，`05` 表示 `SPARC64`，`06` 表示 `S390X`，`07` 表示 `RISCV`，`08` 表示 `POWERPC64`，`09` 表示 `POWERPC`，`10` 表示 `MSP430`，`11` 表示 `MIPS64`，`12` 表示 `MIPS`，`13` 表示 `ASMJS`，`14` 表示 `ARM`，`15` 表示 `AARCH64`，`99` 表示 `Any`
 3. linux 系统的文件名最大长度是255，windows 系统的文件名最大长度是260，所以 `file_name` 的长度是255
+4. 区别：`target_os` 的值为 `linux`，但 `os_type` 的值可具体到 `ubuntu`
+5. 如果是跨平台，则 `target_os` 值为 `Any`
 
 ### `WEB_SERVER` - 应用服务器
 
-| 字段名       | 注释           | 类型   | 长度 | 默认值 | 主键 | 可空 |
-| ------------ | -------------- | ------ | ---- | ------ | ---- | ---- |
-| dbid         | 主键           | int    |      |        | 是   | 否   |
-| server_token | 服务器 token   | string |      |        |      | 否   |
-| ip           | ip 地址        | string |      |        |      | 否   |
-| os_type      | 操作系统类型   | string |      |        |      |      |
-| os_version   | 操作系统版本号 | string |      |        |      |      |
-| arch         | CPU 架构       | string |      |        |      |      |
+| 字段名       | 注释           | 类型    | 长度 | 默认值 | 主键 | 可空 |
+| ------------ | -------------- | ------- | ---- | ------ | ---- | ---- |
+| dbid         | 主键           | int     |      |        | 是   | 否   |
+| server_token | 服务器 token   | varchar | 50   |        |      | 否   |
+| ip           | ip 地址        | varchar | 50   |        |      | 否   |
+| os_type      | 操作系统类型   | char    | 2    | 99     |      | 否   |
+| os_version   | 操作系统版本号 | varchar | 32   |        |      | 否   |
+| arch         | CPU 架构       | char    | 2    | 99     |      | 否   |
 
-* 主键：`PK-`
-* 外键：`FK-`
-* 索引：`UK-`
+约束
+
+* 主键：`PK_WEB_SERVER`
+* 外键：无
+* 索引：`UK_SERVER_TOKEN`，对应字段`server_token`
+
+说明
+
+1. `os_type` 的值为：`01` 表示 `Unknown`，`02` 表示 `Android`，`03` 表示 `Emscripten`，`04` 表示 `Linux`，`05` 表示 `Redhat`，`06` 表示 `Ubuntu`，`07` 表示 `Debian`，`08` 表示 `Arch`，`09` 表示 `Centos`，`10` 表示 `Fedora`，`11` 表示 `Alpine`，`12` 表示 `Macos`，`13` 表示 `Redox`，`14` 表示 `Windows`，`99` 表示 `Any`
+2. `arch` 是编码字段
+3. 注意，比较 `os_type` 时要忽略大小写
+4. `server_token` 的值取服务器的 MAC 地址
 
 ### `INSTALLER` - 安装器信息
 
 | 字段名          | 注释           | 类型   | 长度 | 默认值 | 主键 | 可空 |
 | --------------- | -------------- | ------ | ---- | ------ | ---- | ---- |
 | dbid            | 主键           | int    |      |        | 是   | 否   |
-| web_server_id   | 应用服务器标识 | string |      |        |      | 否   |
-| app_release_id  | app 发布标识   | int    |      |        |      | 否   |
+| web_server_id   | 应用服务器标识 | int |      |        |      | 否   |
+| app_release_id  | app 发行版标识   | int    |      |        |      | 否   |
 | app_run_port    | app 运行端口   | int    |      |        |      | 否   |
-| installer_token | 安装器 token   | string |      |        |      | 否   |
+| installer_token | 安装器 token   | char | 22     |        |      | 否   |
 
-* 主键：`PK-`
-* 外键：`FK-`
-* 索引：`UK-`
+约束
 
-为发布平台编码，如果是跨平台，则值为 any
+* 主键：`PK_INSTALLER`
+* 外键：`FK_WEB_SERVER`，`web_server_id` 对应 `WEB_SERVER` 的 `dbid`
+* 索引：`UK_INSTALLER_TOKEN`，对应字段 `installer_token`
 
-1. 项目 token 信息
-2. 部署项目的服务器信息
-3. 部署项目的运行信息（为后续的一个服务器上部署多个软件做准备）
-4. 部署软件信息
-5. 部署日志
+说明
+
+1. `installer_token` 是22位的 UUID 
 
 部署主机
 部署 runner 实例
 部署软件
-ruuner 实例项目关系
+runner 实例项目关系
 部署软件下载记录
 部署日志
 
