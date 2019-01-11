@@ -115,7 +115,7 @@
 4. 区别：`target_os` 的值为 `linux`，但 `os_type` 的值可具体到 `ubuntu`
 5. 如果是跨平台，则 `target_os` 值为 `Any`
 
-### `WEB_SERVER` - 应用服务器
+### `WEB_SERVER` - 应用服务器信息
 
 | 字段名       | 注释           | 类型    | 长度 | 默认值 | 主键 | 可空 |
 | ------------ | -------------- | ------- | ---- | ------ | ---- | ---- |
@@ -130,7 +130,7 @@
 
 * 主键：`PK_WEB_SERVER`
 * 外键：无
-* 索引：`UK_SERVER_TOKEN`，对应字段`server_token`
+* 索引：`UK_SERVER_TOKEN`，对应字段 `server_token`
 
 说明
 
@@ -139,25 +139,25 @@
 3. 注意，比较 `os_type` 时要忽略大小写
 4. `server_token` 的值取服务器的 MAC 地址
 
-### `INSTALLER` - 安装器信息
+### `INSTALLER` - APP 安装器信息
 
-| 字段名          | 注释           | 类型   | 长度 | 默认值 | 主键 | 可空 |
-| --------------- | -------------- | ------ | ---- | ------ | ---- | ---- |
-| dbid            | 主键           | int    |      |        | 是   | 否   |
-| web_server_id   | 应用服务器标识 | int |      |        |      | 否   |
-| app_release_id  | app 发行版标识   | int    |      |        |      | 否   |
-| app_run_port    | app 运行端口   | int    |      |        |      | 否   |
-| installer_token | 安装器 token   | char | 22     |        |      | 否   |
+| 字段名          | 注释           | 类型 | 长度 | 默认值 | 主键 | 可空 |
+| --------------- | -------------- | ---- | ---- | ------ | ---- | ---- |
+| dbid            | 主键           | int  |      |        | 是   | 否   |
+| web_server_id   | 应用服务器标识 | int  |      |        |      | 否   |
+| app_release_id  | app 发行版标识 | int  |      |        |      | 否   |
+| app_run_port    | app 运行端口   | int  |      | 80     |      | 否   |
+| installer_token | 安装器 token   | char | 22   |        |      | 否   |
 
 约束
 
 * 主键：`PK_INSTALLER`
-* 外键：`FK_WEB_SERVER`，`web_server_id` 对应 `WEB_SERVER` 的 `dbid`
+* 外键：(*未设置*)`FK_WEB_SERVER`，`web_server_id` 对应 `WEB_SERVER` 的 `dbid`；`FK_APP_RELEASE` 对应 `APP_RELEASE` 的 `dbid`
 * 索引：`UK_INSTALLER_TOKEN`，对应字段 `installer_token`
 
 说明
 
-1. `installer_token` 是22位的 UUID 
+1. `installer_token` 是22位的 UUID
 
 部署主机
 部署 runner 实例
