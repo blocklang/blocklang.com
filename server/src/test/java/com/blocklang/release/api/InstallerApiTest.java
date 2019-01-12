@@ -144,20 +144,23 @@ public class InstallerApiTest {
 		appReleaseFile.setFileName("app_window_x86.jar");
 		when(appReleaseFileService.find(eq(appReleaseId), anyString(), anyString())).thenReturn(Optional.of(appReleaseFile));
 		// 获取依赖的软件列表，因为这里的软件只依赖 JDK，所以最好提供获取单个依赖的方法
-		int dependAppReleaseId = 1;
+		int dependAppReleaseId = 2;
 		when(appReleaseRelationService.findSingle(eq(appReleaseId))).thenReturn(Optional.of(dependAppReleaseId));
 		// 获取依赖 APP 的发行版基本信息
 		AppRelease dependAppRelease = new AppRelease();
+		dependAppRelease.setId(dependAppReleaseId);
+		dependAppRelease.setAppId(2);
 		dependAppRelease.setVersion("1.1.1");
 		when(appReleaseService.find(eq(dependAppReleaseId))).thenReturn(Optional.of(dependAppRelease));
 		// 获取依赖 APP 的基本信息
 		App dependApp = new App();
+		dependApp.setId(2);
 		dependApp.setAppName("depend_app");
 		when(appService.find(anyInt())).thenReturn(Optional.of(dependApp));
 		// 获取依赖 APP 的发行版文件信息
 		AppReleaseFile dependAppReleaseFile = new AppReleaseFile();
 		dependAppReleaseFile.setFileName("depend_app_window_x86.jar");
-		when(appReleaseFileService.find(eq(appReleaseId), anyString(), anyString())).thenReturn(Optional.of(dependAppReleaseFile));
+		when(appReleaseFileService.find(eq(dependAppReleaseId), anyString(), anyString())).thenReturn(Optional.of(dependAppReleaseFile));
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -181,6 +184,7 @@ public class InstallerApiTest {
 		RegistrationInfo registration = new RegistrationInfo();
 		registration.setRegistrationToken(registrationToken);
 		registration.setServerToken("server_token");
+		registration.setTargetOs("windows");
 		registration.setOsType("windows");
 		registration.setOsVersion("11");
 		registration.setIp("10.10.10.10");

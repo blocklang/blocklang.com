@@ -22,4 +22,5 @@
 
 ## TODO
 
-1. 学习 Spring boot cache
+1. 集成日志系统
+2. 学习 Spring boot cache
