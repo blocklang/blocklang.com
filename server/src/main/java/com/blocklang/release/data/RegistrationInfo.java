@@ -1,5 +1,7 @@
 package com.blocklang.release.data;
 
+import javax.validation.constraints.NotBlank;
+
 /**
  * Installer 注册信息
  * 
@@ -8,12 +10,20 @@ package com.blocklang.release.data;
  */
 public class RegistrationInfo {
 
+	@NotBlank(message = "注册 Token 不能为空")
 	private String registrationToken;
+	@NotBlank(message = "服务器的 IP 地址不能为空")
 	private String ip;
-	private Integer appRunPort;
+	private Integer appRunPort = 80;
+	@NotBlank(message = "服务器的操作系统具体类型不能为空")
 	private String osType;
+	@NotBlank(message = "服务器的操作系统版本不能为空")
 	private String osVersion;
+	@NotBlank(message = "服务器的操作系统类型不能为空")
+	private String targetOs;
+	@NotBlank(message = "服务器的 CPU 架构不能为空")
 	private String arch;
+	@NotBlank(message = "服务器的 Token 不能为空")
 	private String serverToken;
 
 	public String getRegistrationToken() {
@@ -56,6 +66,14 @@ public class RegistrationInfo {
 		this.osVersion = osVersion;
 	}
 
+	public String getTargetOs() {
+		return targetOs;
+	}
+
+	public void setTargetOs(String targetOs) {
+		this.targetOs = targetOs;
+	}
+
 	public String getArch() {
 		return arch;
 	}
@@ -71,5 +89,4 @@ public class RegistrationInfo {
 	public void setServerToken(String serverToken) {
 		this.serverToken = serverToken;
 	}
-
 }

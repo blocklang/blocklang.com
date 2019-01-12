@@ -12,7 +12,7 @@ public class InstallerInfo {
 	private String appName;
 	private String appVersion;
 	private String appFileName;
-	private String appRunPort;
+	private Integer appRunPort;
 	private String jdkName;
 	private String jdkVersion;
 	private String jdkFileName;
@@ -49,11 +49,11 @@ public class InstallerInfo {
 		this.appFileName = appFileName;
 	}
 
-	public String getAppRunPort() {
+	public Integer getAppRunPort() {
 		return appRunPort;
 	}
 
-	public void setAppRunPort(String appRunPort) {
+	public void setAppRunPort(Integer appRunPort) {
 		this.appRunPort = appRunPort;
 	}
 
