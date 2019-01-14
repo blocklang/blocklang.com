@@ -3,6 +3,7 @@ package com.blocklang.release.api;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.hasItems;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -73,16 +74,17 @@ public class InstallerApiTest {
 		.when()
 			.post("/installers")
 		.then()
-			.statusCode(HttpStatus.SC_BAD_REQUEST);
+			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
+			.body("errors.registrationToken", hasItems("注册 Token 不能为空"));
 	}
 	
 	// 根据注册 token 没有找到 APP
 	@Test
-	public void post_installer_no_content_no_register_token() {
+	public void post_installer_no_register_token() {
 		String registrationToken = "not_exist_register_token";
 		RegistrationInfo registration = prepareParam(registrationToken);
 		
-		when(appService.findByRegistratioToken(eq(registrationToken))).thenReturn(Optional.empty());
+		when(appService.findByRegistrationToken(eq(registrationToken))).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -90,19 +92,22 @@ public class InstallerApiTest {
 		.when()
 			.post("/installers")
 		.then()
-			.statusCode(204);
+			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
+			.body("errors.registrationToken", hasItems("注册 Token `not_exist_register_token` 不存在"));
 	}
 	
-	// 没有找到 APP 的发行版
+	// 注册 Token 存在，但没有找到 APP 的发行版
+	// 出现这种情况，则是往数据库中写数据时逻辑有误。
 	@Test
-	public void post_installer_no_content_no_release_app() {
+	public void post_installer_no_release_app() {
 		String registrationToken = "exist_register_token";
 		RegistrationInfo registration = prepareParam(registrationToken);
 		
 		App app = new App();
 		app.setId(1);
+		app.setAppName("App Name");
 		app.setRegistrationToken(registrationToken);
-		when(appService.findByRegistratioToken(eq(registrationToken))).thenReturn(Optional.of(app));
+		when(appService.findByRegistrationToken(eq(registrationToken))).thenReturn(Optional.of(app));
 		
 		when(appReleaseService.findLatestReleaseApp(app.getId())).thenReturn(Optional.empty());
 		
@@ -112,7 +117,194 @@ public class InstallerApiTest {
 		.when()
 			.post("/installers")
 		.then()
-			.statusCode(204);
+			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
+			.body("errors.globalErrors", hasItems("App Name 尚未发布"));
+	}
+	
+	@Test
+	public void post_installer_no_release_app_file() {
+		String registrationToken = "exist_register_token";
+		RegistrationInfo registration = prepareParam(registrationToken);
+		
+		App app = new App();
+		app.setId(1);
+		app.setAppName("App Name");
+		app.setRegistrationToken(registrationToken);
+		when(appService.findByRegistrationToken(eq(registrationToken))).thenReturn(Optional.of(app));
+		
+		AppRelease appRelease = new AppRelease();
+		appRelease.setId(1);
+		appRelease.setAppId(1);
+		when(appReleaseService.findLatestReleaseApp(app.getId())).thenReturn(Optional.of(appRelease));
+		
+		when(appReleaseFileService.find(anyInt(), anyString(), anyString())).thenReturn(Optional.empty());
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(registration)
+		.when()
+			.post("/installers")
+		.then()
+			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
+			.body("errors.globalErrors", hasItems("App Name 兼容 windows X86 的发行版文件不存在"));
+	}
+	
+	// 注意，依赖的 APP，是先找到 APP 发行版信息，然后再回去找 APP 基本信息
+	@Test
+	public void post_installer_no_depend_app_release_id() {
+		String registrationToken = "exist_register_token";
+		RegistrationInfo registration = prepareParam(registrationToken);
+		
+		App app = new App();
+		app.setId(1);
+		app.setAppName("App Name");
+		app.setRegistrationToken(registrationToken);
+		when(appService.findByRegistrationToken(eq(registrationToken))).thenReturn(Optional.of(app));
+		
+		AppRelease appRelease = new AppRelease();
+		appRelease.setId(1);
+		appRelease.setAppId(1);
+		when(appReleaseService.findLatestReleaseApp(app.getId())).thenReturn(Optional.of(appRelease));
+		
+		AppReleaseFile appReleaseFile = new AppReleaseFile();
+		appReleaseFile.setId(1);
+		appReleaseFile.setAppReleaseId(1);
+		when(appReleaseFileService.find(anyInt(), anyString(), anyString())).thenReturn(Optional.of(appReleaseFile));
+		
+		when(appReleaseRelationService.findSingle(eq(1))).thenReturn(Optional.empty());
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(registration)
+		.when()
+			.post("/installers")
+		.then()
+			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
+			.body("errors.globalErrors", hasItems("App Name 依赖的 JDK 发行版信息不存在"));
+	}
+	
+	@Test
+	public void post_installer_no_depend_app_release() {
+		String registrationToken = "exist_register_token";
+		RegistrationInfo registration = prepareParam(registrationToken);
+		
+		App app = new App();
+		app.setId(1);
+		app.setAppName("App Name");
+		app.setRegistrationToken(registrationToken);
+		when(appService.findByRegistrationToken(eq(registrationToken))).thenReturn(Optional.of(app));
+		
+		AppRelease appRelease = new AppRelease();
+		appRelease.setId(1);
+		appRelease.setAppId(1);
+		when(appReleaseService.findLatestReleaseApp(app.getId())).thenReturn(Optional.of(appRelease));
+		
+		AppReleaseFile appReleaseFile = new AppReleaseFile();
+		appReleaseFile.setId(1);
+		appReleaseFile.setAppReleaseId(1);
+		when(appReleaseFileService.find(anyInt(), anyString(), anyString())).thenReturn(Optional.of(appReleaseFile));
+		
+		when(appReleaseRelationService.findSingle(eq(1))).thenReturn(Optional.of(2));
+		
+		when(appReleaseService.find(eq(2))).thenReturn(Optional.empty());
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(registration)
+		.when()
+			.post("/installers")
+		.then()
+			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
+			.body("errors.globalErrors", hasItems("App Name 依赖的 JDK 发行版信息不存在"));
+	}
+	
+	@Test
+	public void post_installer_no_depend_app_is_not_jdk() {
+		String registrationToken = "exist_register_token";
+		RegistrationInfo registration = prepareParam(registrationToken);
+		
+		App app = new App();
+		app.setId(1);
+		app.setAppName("App Name");
+		app.setRegistrationToken(registrationToken);
+		when(appService.findByRegistrationToken(eq(registrationToken))).thenReturn(Optional.of(app));
+		
+		AppRelease appRelease = new AppRelease();
+		appRelease.setId(1);
+		appRelease.setAppId(1);
+		when(appReleaseService.findLatestReleaseApp(app.getId())).thenReturn(Optional.of(appRelease));
+		
+		AppReleaseFile appReleaseFile = new AppReleaseFile();
+		appReleaseFile.setId(1);
+		appReleaseFile.setAppReleaseId(1);
+		when(appReleaseFileService.find(anyInt(), anyString(), anyString())).thenReturn(Optional.of(appReleaseFile));
+		
+		when(appReleaseRelationService.findSingle(eq(1))).thenReturn(Optional.of(2));
+		
+		AppRelease dependAppRelease = new AppRelease();
+		dependAppRelease.setId(2);
+		dependAppRelease.setAppId(2);
+		when(appReleaseService.find(eq(2))).thenReturn(Optional.of(dependAppRelease));
+		
+		App dependApp = new App();
+		dependApp.setId(2);
+		dependApp.setAppName("xxxx");
+		when(appService.find(eq(2))).thenReturn(Optional.of(dependApp));
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(registration)
+		.when()
+			.post("/installers")
+		.then()
+			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
+			// 当前是根据文件名中是否包含 jdk 字样来确定的
+			.body("errors.globalErrors", hasItems("App Name 的依赖不是有效的 JDK"));
+	}
+	
+	@Test
+	public void post_installer_no_depend_app_release_file() {
+		String registrationToken = "exist_register_token";
+		RegistrationInfo registration = prepareParam(registrationToken);
+		
+		App app = new App();
+		app.setId(1);
+		app.setAppName("App Name");
+		app.setRegistrationToken(registrationToken);
+		when(appService.findByRegistrationToken(eq(registrationToken))).thenReturn(Optional.of(app));
+		
+		AppRelease appRelease = new AppRelease();
+		appRelease.setId(1);
+		appRelease.setAppId(1);
+		when(appReleaseService.findLatestReleaseApp(app.getId())).thenReturn(Optional.of(appRelease));
+		
+		AppReleaseFile appReleaseFile = new AppReleaseFile();
+		appReleaseFile.setId(1);
+		appReleaseFile.setAppReleaseId(1);
+		when(appReleaseFileService.find(anyInt(), anyString(), anyString())).thenReturn(Optional.of(appReleaseFile));
+		
+		when(appReleaseRelationService.findSingle(eq(1))).thenReturn(Optional.of(2));
+		
+		AppRelease dependAppRelease = new AppRelease();
+		dependAppRelease.setId(2);
+		dependAppRelease.setAppId(2);
+		when(appReleaseService.find(eq(2))).thenReturn(Optional.of(dependAppRelease));
+		
+		App dependApp = new App();
+		dependApp.setId(2);
+		dependApp.setAppName("jdk");
+		when(appService.find(eq(2))).thenReturn(Optional.of(dependApp));
+		
+		when(appReleaseFileService.find(eq(2), anyString(), anyString())).thenReturn(Optional.empty());
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(registration)
+		.when()
+			.post("/installers")
+		.then()
+			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
+			.body("errors.globalErrors", hasItems("兼容 windows X86 的 JDK 安装文件不存在"));
 	}
 	
 	@Test
@@ -125,7 +317,7 @@ public class InstallerApiTest {
 		app.setId(1);
 		app.setAppName("App Name");
 		app.setRegistrationToken(registrationToken);
-		when(appService.findByRegistratioToken(eq(registrationToken))).thenReturn(Optional.of(app));
+		when(appService.findByRegistrationToken(eq(registrationToken))).thenReturn(Optional.of(app));
 		// 获取 APP 发行版信息
 		AppRelease appRelease = new AppRelease();
 		int appReleaseId = 1;
@@ -155,11 +347,11 @@ public class InstallerApiTest {
 		// 获取依赖 APP 的基本信息
 		App dependApp = new App();
 		dependApp.setId(2);
-		dependApp.setAppName("depend_app");
+		dependApp.setAppName("jdk_app");
 		when(appService.find(anyInt())).thenReturn(Optional.of(dependApp));
 		// 获取依赖 APP 的发行版文件信息
 		AppReleaseFile dependAppReleaseFile = new AppReleaseFile();
-		dependAppReleaseFile.setFileName("depend_app_window_x86.jar");
+		dependAppReleaseFile.setFileName("jdk_app_window_x86.jar");
 		when(appReleaseFileService.find(eq(dependAppReleaseId), anyString(), anyString())).thenReturn(Optional.of(dependAppReleaseFile));
 		
 		given()
@@ -168,16 +360,16 @@ public class InstallerApiTest {
 		.when()
 			.post("/installers")
 		.then()
-			.statusCode(201)
+			.statusCode(HttpStatus.SC_CREATED)
 			.body(
 				"installerToken", equalTo(installerToken), 
 				"appRunPort", is(80),
 				"appName", equalTo("App Name"),
 				"appVersion", equalTo("0.1.0"),
 				"appFileName", equalTo("app_window_x86.jar"),
-				"jdkName", equalTo("depend_app"),
+				"jdkName", equalTo("jdk_app"),
 				"jdkVersion", equalTo("1.1.1"),
-				"jdkFileName", equalTo("depend_app_window_x86.jar"));
+				"jdkFileName", equalTo("jdk_app_window_x86.jar"));
 	}
 	
 	private RegistrationInfo prepareParam(String registrationToken) {

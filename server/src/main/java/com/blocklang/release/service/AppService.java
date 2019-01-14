@@ -6,7 +6,7 @@ import com.blocklang.release.model.App;
 
 public interface AppService {
 
-	Optional<App> findByRegistratioToken(String registrationToken);
+	Optional<App> findByRegistrationToken(String registrationToken);
 
 	Optional<App> find(int appId);
 

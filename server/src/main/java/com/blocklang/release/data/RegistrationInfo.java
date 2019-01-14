@@ -10,20 +10,20 @@ import javax.validation.constraints.NotBlank;
  */
 public class RegistrationInfo {
 
-	@NotBlank(message = "注册 Token 不能为空")
+	@NotBlank(message = "{NotBlank.registrationToken}")
 	private String registrationToken;
-	@NotBlank(message = "服务器的 IP 地址不能为空")
+	@NotBlank(message = "{NotBlank.ip}")
 	private String ip;
 	private Integer appRunPort = 80;
-	@NotBlank(message = "服务器的操作系统具体类型不能为空")
+	@NotBlank(message = "{NotBlank.osType}")
 	private String osType;
-	@NotBlank(message = "服务器的操作系统版本不能为空")
+	@NotBlank(message = "{NotBlank.osVersion}")
 	private String osVersion;
-	@NotBlank(message = "服务器的操作系统类型不能为空")
+	@NotBlank(message = "{NotBlank.targetOs}")
 	private String targetOs;
-	@NotBlank(message = "服务器的 CPU 架构不能为空")
+	@NotBlank(message = "{NotBlank.arch}")
 	private String arch;
-	@NotBlank(message = "服务器的 Token 不能为空")
+	@NotBlank(message = "{NotBlank.serverToken}")
 	private String serverToken;
 
 	public String getRegistrationToken() {
@@ -89,4 +89,12 @@ public class RegistrationInfo {
 	public void setServerToken(String serverToken) {
 		this.serverToken = serverToken;
 	}
+
+	@Override
+	public String toString() {
+		return "RegistrationInfo [registrationToken=" + registrationToken + ", ip=" + ip + ", appRunPort=" + appRunPort
+				+ ", osType=" + osType + ", osVersion=" + osVersion + ", targetOs=" + targetOs + ", arch=" + arch
+				+ ", serverToken=" + serverToken + "]";
+	}
+	
 }

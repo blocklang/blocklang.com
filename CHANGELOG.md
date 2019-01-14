@@ -20,7 +20,17 @@
 
 1. 设计 `WEB_SERVER`、`INSTALLER` 数据库表
 
-## TODO
+## 2019-01-13
 
 1. 集成日志系统
-2. 学习 Spring boot cache
+2. 集成 i18n 国际化功能
+3. 支持 Bean Validation
+4. 支持自动化测试 WebMVC
+
+## 2019-01-14
+
+1. 完成注册 installer 的 API 层 9 个测试用例和源代码的编写
+
+## TODO
+
+1. 学习 Spring boot cache

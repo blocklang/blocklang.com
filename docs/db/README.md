@@ -159,23 +159,9 @@
 
 1. `installer_token` 是22位的 UUID
 
-部署主机
-部署 runner 实例
-部署软件
-runner 实例项目关系
+## 草稿
+
 部署软件下载记录
 部署日志
-
-部署主机
-软件 app
-软件实例 app-instance
-app-release 记录所有发布版本
-app-dependence  JDK
-
-所有软件文件统一管理，release 版本信息等单独管理？
-
-一个项目支持生成多个 token，这样可支持集群部署等，即一个app实例对应一个 token。
-
 项目在发布时要指定依赖的 JDK 版本
-
 发布的软件可手工上传，也可以走 CI 流程。

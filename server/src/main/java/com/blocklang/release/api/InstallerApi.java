@@ -1,12 +1,13 @@
 package com.blocklang.release.api;
 
-import java.util.Optional;
-
 import javax.validation.Valid;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.blocklang.release.data.InstallerInfo;
 import com.blocklang.release.data.RegistrationInfo;
+import com.blocklang.release.exception.InvalidRequestException;
 import com.blocklang.release.model.App;
 import com.blocklang.release.model.AppRelease;
 import com.blocklang.release.model.AppReleaseFile;
@@ -27,6 +29,8 @@ import com.blocklang.release.service.InstallerService;
 @RequestMapping("/installers")
 public class InstallerApi {
 	
+	private static final Logger logger = LoggerFactory.getLogger(InstallerApi.class);
+	
 	@Autowired
 	private AppService appService;
 	@Autowired
@@ -39,69 +43,94 @@ public class InstallerApi {
 	private AppReleaseRelationService appReleaseRelationService;
 
 	@PostMapping
-	public ResponseEntity<InstallerInfo> newRegister(@Valid @RequestBody RegistrationInfo registrationInfo) {
-		// 判断根据注册 token 是否能获取 APP 信息
-		Optional<App> appOption = appService.findByRegistratioToken(registrationInfo.getRegistrationToken());
-		if (appOption.isEmpty()) {
-			// TODO: 返回精准的提示信息
-			return ResponseEntity.noContent().build();
+	public ResponseEntity<InstallerInfo> newInstaller(
+			@Valid @RequestBody RegistrationInfo registrationInfo,
+			BindingResult bindingResult) {
+		logger.info("==========开始注册 installer==========");
+		if(bindingResult.hasErrors()) {
+			logger.error("注册信息不完整：{}", registrationInfo);
+			throw new InvalidRequestException(bindingResult);
 		}
-		
-		// 判断 APP 是否已发布，如果没有发布，则返回提示信息
-		App app = appOption.get();
-		Optional<AppRelease> appReleaseOption = appReleaseService.findLatestReleaseApp(app.getId());
-		if(appReleaseOption.isEmpty()) {
-			// TODO: 返回精准的提示信息
-			return ResponseEntity.noContent().build();
-		}
-		
-		AppRelease appRelease = appReleaseOption.get();
-		
-		// 注册安装器
-		String installerToken = installerService.save(registrationInfo);
-		// 查询 APP 发行版文件信息
-		Optional<AppReleaseFile> appReleaseFileOption = appReleaseFileService.find(
-				appRelease.getId(),
-				registrationInfo.getTargetOs(), 
-				registrationInfo.getArch());
-		if(appReleaseFileOption.isEmpty()) {
-			// TODO: 返回精准的提示信息
-			return ResponseEntity.noContent().build();
-		}
-		AppReleaseFile appReleaseFile = appReleaseFileOption.get();
-		
-		// 查询 APP 依赖的 JDK 发行版信息
-		// 1. 获取依赖的 APP id
-		Optional<Integer> dependAppReleaseIdOption = appReleaseRelationService.findSingle(appRelease.getId());
-		if(dependAppReleaseIdOption.isEmpty()) {
-			// TODO: 返回精准的提示信息
-			return ResponseEntity.noContent().build();
-		}
+		// 一、获取 APP 信息
+		// 1. 根据注册 token 获取 APP 基本信息
+		App app = appService.findByRegistrationToken(registrationInfo.getRegistrationToken()).orElseThrow(() -> {
+			logger.error("注册 Token `{}` 不存在", registrationInfo.getRegistrationToken());
+			bindingResult.rejectValue("registrationToken", 
+					"NotExist.registrationToken",
+					new Object[] { registrationInfo.getRegistrationToken() }, 
+					null);
+			return new InvalidRequestException(bindingResult);
+		});
+		// 2. 获取 APP 发行版基本信息
+		AppRelease appRelease = appReleaseService.findLatestReleaseApp(app.getId()).orElseThrow(() -> {
+			logger.error("没有找到 App (AppId = {}, AppName = {})的发行版", app.getId(), app.getAppName());
+			bindingResult.reject("NotExist.appRelease", new Object[] {app.getAppName()}, null);
+			return new InvalidRequestException(bindingResult);
+		});
+		// 3. 获取 APP 发行版文件信息
+		AppReleaseFile appReleaseFile = appReleaseFileService
+				.find(appRelease.getId(), registrationInfo.getTargetOs(), registrationInfo.getArch())
+				.orElseThrow(() -> {
+					logger.error("{} 兼容 {} {} 的发行版文件不存在", 
+							app.getAppName(), 
+							registrationInfo.getTargetOs(), 
+							registrationInfo.getArch());
+					bindingResult.reject("NotExist.appReleaseFile", 
+							new Object[] { 
+									app.getAppName(),
+									registrationInfo.getTargetOs(), 
+									registrationInfo.getArch() 
+								}, 
+							null);
+					return new InvalidRequestException(bindingResult);
+				});	
+
+		// 二、查询 APP 依赖的 JDK 发行版信息
+		// 1. 获取依赖的 APP release id
+		Integer dependAppReleaseId = appReleaseRelationService.findSingle(appRelease.getId()).orElseThrow(() -> {
+			logger.error("{} 依赖的 JDK 发行版信息不存在", app.getAppName());
+			bindingResult.reject("NotExist.dependAppRelease", new Object[] { app.getAppName() }, null);
+			return new InvalidRequestException(bindingResult);
+		});
+
 		// 2. 获取依赖的 APP 发行版信息
-		Integer dependAppReleaseId = dependAppReleaseIdOption.get();
-		Optional<AppRelease> dependAppReleaseOption = appReleaseService.find(dependAppReleaseId);
-		if(dependAppReleaseOption.isEmpty()) {
-			// TODO: 返回精准的提示信息
-			return ResponseEntity.noContent().build();
-		}
-		AppRelease dependAppRelease = dependAppReleaseOption.get();
+		AppRelease dependAppRelease = appReleaseService.find(dependAppReleaseId).orElseThrow(() -> {
+			logger.error("{} 依赖的 JDK 发行版信息不存在", app.getAppName());
+			bindingResult.reject("NotExist.dependAppRelease", new Object[] { app.getAppName() }, null);
+			return new InvalidRequestException(bindingResult);
+		});
+
 		// 3. 获取依赖的 APP 基本信息
-		Optional<App> dependAppOption = appService.find(dependAppRelease.getAppId());
-		if(dependAppOption.isEmpty()) {
-			// TODO: 返回精准的提示信息
-			return ResponseEntity.noContent().build();
-		}
-		App dependApp = dependAppOption.get();
+		// 如果能找到发行版，则一定能找到发行版的 APP 基本信息
+		App dependApp = appService.find(dependAppRelease.getAppId())
+				.filter((dapp) -> dapp.getAppName().toLowerCase().contains("jdk"))
+				.orElseThrow(() -> {
+					logger.error("{} 的依赖不是有效的 JDK", app.getAppName());
+					bindingResult.reject("NotMatch.dependApp", new Object[] { app.getAppName() }, null);
+					return new InvalidRequestException(bindingResult);
+				});
+
 		// 4. 获取依赖 APP 的发行版文件信息
-		Optional<AppReleaseFile> dependAppReleaseFileOption = appReleaseFileService.find(
+		AppReleaseFile dependAppReleaseFile = appReleaseFileService.find(
 				dependAppRelease.getId(),
 				registrationInfo.getTargetOs(), 
-				registrationInfo.getArch());
-		if(dependAppReleaseFileOption.isEmpty()) {
-			// TODO: 返回精准的提示信息
-			return ResponseEntity.noContent().build();
-		}
-		AppReleaseFile dependAppReleaseFile = dependAppReleaseFileOption.get();
+				registrationInfo.getArch()).orElseThrow(() -> {
+					logger.error("兼容 {} {} 的 JDK 安装文件不存在", 
+							registrationInfo.getTargetOs(), 
+							registrationInfo.getArch());
+					bindingResult.reject("NotExist.dependAppReleaseFile", 
+							new Object[] { 
+									registrationInfo.getTargetOs(), 
+									registrationInfo.getArch() 
+								}, 
+							null);
+					return new InvalidRequestException(bindingResult);					
+				});
+
+		// 三、注册安装器
+		// 所有校验都通过后，才开始注册安装器
+		String installerToken = installerService.save(registrationInfo);
+		
 		// 返回安装器信息
 		InstallerInfo installerInfo = new InstallerInfo();
 		installerInfo.setInstallerToken(installerToken);
