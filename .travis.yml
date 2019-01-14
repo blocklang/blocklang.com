@@ -1,0 +1,7 @@
+language: java
+jdk:
+  - oraclejdk11
+
+script:
+  - cd server
+  - ./mvnw install -DskipTests=true -Dmaven.javadoc.skip=true -B -V

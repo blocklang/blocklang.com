@@ -1,5 +1,7 @@
 ﻿# BlockLang Release
 
+[![Build Status](https://travis-ci.org/blocklang/blocklang-release.svg?branch=master)](https://travis-ci.org/blocklang/blocklang-release)
+
 Block Lang 软件发布中心。功能包括 dojo 项目和 Spring Boot 项目的配置、编译和构建，以及提供 JDK 和 Spring Boot Jar 的下载服务。
 
 ## REST API
