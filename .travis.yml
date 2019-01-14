@@ -3,7 +3,8 @@ jdk:
   - oraclejdk11
 
 before_install:
+  - cd server
   - chmod +x mvnw
 script:
-  - cd server
+  - ls
   - ./mvnw install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
