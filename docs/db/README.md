@@ -31,18 +31,19 @@
 | dbid               | 主键       | int     |      |        | 是   | 否   |
 | project_id         | 项目标识   | int     |      |        |      | 是   |
 | app_name           | app 名称   | varchar | 32   |        |      | 否   |
-| registration_token | 注册 token | char    | 22   |        |      | 否   |
+| registration_token | 注册 token | char    | 22   |        |      | 是   |
 
 约束
 
 * 主键：`PK_APP`
 * 外键：(*未设置*)`FK_PROJECT`，`PROJECT_ID` 对应 `PROJECT` 表的 `dbid`
-* 索引：`UK_REG_TOKEN`，对应字段 `registration_token`
+* 索引：`UK_REG_TOKEN`，对应字段 `registration_token`；`UK_APP_NAME`，对应字段 `app_name`
 
 说明
 
 1. `registration_token` 是22位的 UUID
 2. `project_id` 字段的值可空，因为有些 APP（如 JDK）是直接上传的，不是根据项目编译的
+3. 当 `project_id` 字段的值为空时，`registration_token` 的值也为空
 
 ### `APP_RELEASE` - 应用程序发行版基本信息
 
@@ -64,7 +65,7 @@
 
 说明
 
-1. `version` 采用语义化版本
+1. `version` 采用语义化版本，自动发布的 APP，必须严格按照时间增加，在保存记录时要添加版本号的校验逻辑，确保新的版本比上一个发布的版本号大
 2. `release_method` 的值为：`01` 表示自动发布，`02` 表示人工上传
 3. 一个 APP 必须至少发布一个版本后，才能注册 installer
 

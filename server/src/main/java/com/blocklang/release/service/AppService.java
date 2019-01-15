@@ -8,6 +8,6 @@ public interface AppService {
 
 	Optional<App> findByRegistrationToken(String registrationToken);
 
-	Optional<App> find(int appId);
+	Optional<App> findById(int appId);
 
 }

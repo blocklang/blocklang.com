@@ -206,7 +206,7 @@ public class InstallerApiTest {
 		
 		when(appReleaseRelationService.findSingle(eq(1))).thenReturn(Optional.of(2));
 		
-		when(appReleaseService.find(eq(2))).thenReturn(Optional.empty());
+		when(appReleaseService.findById(eq(2))).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -244,12 +244,12 @@ public class InstallerApiTest {
 		AppRelease dependAppRelease = new AppRelease();
 		dependAppRelease.setId(2);
 		dependAppRelease.setAppId(2);
-		when(appReleaseService.find(eq(2))).thenReturn(Optional.of(dependAppRelease));
+		when(appReleaseService.findById(eq(2))).thenReturn(Optional.of(dependAppRelease));
 		
 		App dependApp = new App();
 		dependApp.setId(2);
 		dependApp.setAppName("xxxx");
-		when(appService.find(eq(2))).thenReturn(Optional.of(dependApp));
+		when(appService.findById(eq(2))).thenReturn(Optional.of(dependApp));
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -288,12 +288,12 @@ public class InstallerApiTest {
 		AppRelease dependAppRelease = new AppRelease();
 		dependAppRelease.setId(2);
 		dependAppRelease.setAppId(2);
-		when(appReleaseService.find(eq(2))).thenReturn(Optional.of(dependAppRelease));
+		when(appReleaseService.findById(eq(2))).thenReturn(Optional.of(dependAppRelease));
 		
 		App dependApp = new App();
 		dependApp.setId(2);
 		dependApp.setAppName("jdk");
-		when(appService.find(eq(2))).thenReturn(Optional.of(dependApp));
+		when(appService.findById(eq(2))).thenReturn(Optional.of(dependApp));
 		
 		when(appReleaseFileService.find(eq(2), anyString(), anyString())).thenReturn(Optional.empty());
 		
@@ -343,12 +343,12 @@ public class InstallerApiTest {
 		dependAppRelease.setId(dependAppReleaseId);
 		dependAppRelease.setAppId(2);
 		dependAppRelease.setVersion("1.1.1");
-		when(appReleaseService.find(eq(dependAppReleaseId))).thenReturn(Optional.of(dependAppRelease));
+		when(appReleaseService.findById(eq(dependAppReleaseId))).thenReturn(Optional.of(dependAppRelease));
 		// 获取依赖 APP 的基本信息
 		App dependApp = new App();
 		dependApp.setId(2);
 		dependApp.setAppName("jdk_app");
-		when(appService.find(anyInt())).thenReturn(Optional.of(dependApp));
+		when(appService.findById(anyInt())).thenReturn(Optional.of(dependApp));
 		// 获取依赖 APP 的发行版文件信息
 		AppReleaseFile dependAppReleaseFile = new AppReleaseFile();
 		dependAppReleaseFile.setFileName("jdk_app_window_x86.jar");

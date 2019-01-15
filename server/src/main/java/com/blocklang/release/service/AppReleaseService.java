@@ -11,8 +11,8 @@ import com.blocklang.release.model.AppRelease;
  */
 public interface AppReleaseService {
 
+	Optional<AppRelease> findById(int releaseId);
+	
 	Optional<AppRelease> findLatestReleaseApp(Integer appId);
-
-	Optional<AppRelease> find(int releaseId);
 
 }

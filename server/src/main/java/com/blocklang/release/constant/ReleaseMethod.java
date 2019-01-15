@@ -1,6 +1,7 @@
 package com.blocklang.release.constant;
 
 public enum ReleaseMethod {
+	
 	AUTO("01", "自动发布"), UPLOAD("02", "人工上传");
 
 	private final String key;
@@ -12,11 +13,11 @@ public enum ReleaseMethod {
 	}
 
 	public String getKey() {
-		return key;
+		return this.key;
 	}
 
 	public String getValue() {
-		return value;
+		return this.value;
 	}
 
 }

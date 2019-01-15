@@ -94,7 +94,7 @@ public class InstallerApi {
 		});
 
 		// 2. 获取依赖的 APP 发行版信息
-		AppRelease dependAppRelease = appReleaseService.find(dependAppReleaseId).orElseThrow(() -> {
+		AppRelease dependAppRelease = appReleaseService.findById(dependAppReleaseId).orElseThrow(() -> {
 			logger.error("{} 依赖的 JDK 发行版信息不存在", app.getAppName());
 			bindingResult.reject("NotExist.dependAppRelease", new Object[] { app.getAppName() }, null);
 			return new InvalidRequestException(bindingResult);
@@ -102,7 +102,7 @@ public class InstallerApi {
 
 		// 3. 获取依赖的 APP 基本信息
 		// 如果能找到发行版，则一定能找到发行版的 APP 基本信息
-		App dependApp = appService.find(dependAppRelease.getAppId())
+		App dependApp = appService.findById(dependAppRelease.getAppId())
 				.filter((dapp) -> dapp.getAppName().toLowerCase().contains("jdk"))
 				.orElseThrow(() -> {
 					logger.error("{} 的依赖不是有效的 JDK", app.getAppName());
@@ -134,7 +134,7 @@ public class InstallerApi {
 		// 返回安装器信息
 		InstallerInfo installerInfo = new InstallerInfo();
 		installerInfo.setInstallerToken(installerToken);
-		installerInfo.setAppName(app.getAppName());
+		installerInfo.setAppName(app.getAppName()); // 如果是自动，则约定由用户名和项目名组成
 		installerInfo.setAppRunPort(registrationInfo.getAppRunPort());
 		installerInfo.setAppVersion(appRelease.getVersion());
 		installerInfo.setAppFileName(appReleaseFile.getFileName());

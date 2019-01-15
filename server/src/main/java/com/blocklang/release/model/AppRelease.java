@@ -2,24 +2,38 @@ package com.blocklang.release.model;
 
 import java.time.LocalDateTime;
 
+import javax.persistence.Column;
+import javax.persistence.Convert;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
+
 import com.blocklang.release.constant.ReleaseMethod;
+import com.blocklang.release.constant.converter.ReleaseMethodConverter;
 
-public class AppRelease {
-	private Integer id;
+@Entity
+@Table(name = "app_release", uniqueConstraints = @UniqueConstraint(columnNames = { "app_id", "version" }))
+public class AppRelease extends PartialOperateFields{
+
+	private static final long serialVersionUID = 7900341616960175943L;
+	
+	@Column(name = "app_id", nullable = false)
 	private Integer appId;
+	
+	@Column(nullable = false, length = 32)
 	private String version;
+	
+	@Column(nullable = false, length = 64)
 	private String title;
+	
 	private String description;
+	
+	@Column(name = "release_time", nullable = false)
 	private LocalDateTime releaseTime;
+	
+	@Convert(converter = ReleaseMethodConverter.class)
+	@Column(name = "release_method", length = 2, nullable = false)
 	private ReleaseMethod releaseMethod;
-
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
-	}
 
 	public Integer getAppId() {
 		return appId;

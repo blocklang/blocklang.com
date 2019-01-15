@@ -16,7 +16,6 @@ public class InstallerServiceImpl implements InstallerService {
 
 	@Override
 	public String save(RegistrationInfo registrationInfo) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

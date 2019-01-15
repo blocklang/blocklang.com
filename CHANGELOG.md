@@ -31,6 +31,11 @@
 
 1. 完成注册 installer 的 API 层 9 个测试用例和源代码的编写
 2. 支持 travis-ci
+3. 编写 service 层测试用例和实现类
+
+## 2019-01-15
+
+1. 实现 `AppReleaseService` 业务逻辑接口
 
 ## TODO
 
