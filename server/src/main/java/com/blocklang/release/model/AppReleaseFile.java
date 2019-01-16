@@ -1,20 +1,35 @@
 package com.blocklang.release.model;
 
-public class AppReleaseFile {
-	private Integer id;
+import javax.persistence.Column;
+import javax.persistence.Convert;
+import javax.persistence.Entity;
+
+import com.blocklang.release.constant.Arch;
+import com.blocklang.release.constant.TargetOs;
+import com.blocklang.release.constant.converter.ArchConverter;
+import com.blocklang.release.constant.converter.TargetOsConverter;
+
+@Entity
+public class AppReleaseFile extends PartialOperateFields{
+
+	private static final long serialVersionUID = -8705804993013969516L;
+	
+	@Column(name = "app_release_id", nullable = false)
 	private Integer appReleaseId;
-	private String targetOs;
-	private String arch;
+	
+	@Column(name = "target_os", nullable = false, length = 2)
+	@Convert(converter = TargetOsConverter.class)
+	private TargetOs targetOs;
+	
+	@Column(name = "arch", nullable = false, length = 2)
+	@Convert(converter = ArchConverter.class)
+	private Arch arch;
+	
+	@Column(name = "file_name", nullable = false)
 	private String fileName;
+	
+	@Column(name = "file_path", nullable = false)
 	private String filePath;
-
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
-	}
 
 	public Integer getAppReleaseId() {
 		return appReleaseId;
@@ -24,19 +39,19 @@ public class AppReleaseFile {
 		this.appReleaseId = appReleaseId;
 	}
 
-	public String getTargetOs() {
+	public TargetOs getTargetOs() {
 		return targetOs;
 	}
 
-	public void setTargetOs(String targetOs) {
+	public void setTargetOs(TargetOs targetOs) {
 		this.targetOs = targetOs;
 	}
 
-	public String getArch() {
+	public Arch getArch() {
 		return arch;
 	}
 
-	public void setArch(String arch) {
+	public void setArch(Arch arch) {
 		this.arch = arch;
 	}
 

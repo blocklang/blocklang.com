@@ -40,6 +40,7 @@
 ## 2019-01-16
 
 1. 实现 `AppReleaseRelationService` 业务逻辑接口
+2. 实现 `AppReleaseFileService` 业务逻辑接口
 
 ## TODO
 
