@@ -330,7 +330,7 @@ public class InstallerApiTest {
 		when(appReleaseService.findLatestReleaseApp(eq(app.getId()))).thenReturn(Optional.of(appRelease));
 		// 获取 installer token
 		String installerToken = "installer_token";
-		when(installerService.save(any())).thenReturn(installerToken);
+		when(installerService.save(any(), anyInt())).thenReturn(installerToken);
 		// 获取适配操作系统和架构的发行版文件
 		AppReleaseFile appReleaseFile = new AppReleaseFile();
 		appReleaseFile.setFileName("app_window_x86.jar");

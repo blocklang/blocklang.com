@@ -50,4 +50,14 @@ public enum TargetOs {
 				.findFirst()
 				.orElse(TargetOs.UNKNOWN);
 	}
+
+	public static TargetOs fromKey(String key) {
+		if (StringUtils.isBlank(key)) {
+			return TargetOs.UNKNOWN;
+		}
+		return Arrays.stream(TargetOs.values())
+				.filter((each) -> key.equals(each.getValue()))
+				.findFirst()
+				.orElse(TargetOs.UNKNOWN);
+	}
 }

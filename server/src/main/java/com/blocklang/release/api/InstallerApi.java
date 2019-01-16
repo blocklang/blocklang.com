@@ -129,7 +129,7 @@ public class InstallerApi {
 
 		// 三、注册安装器
 		// 所有校验都通过后，才开始注册安装器
-		String installerToken = installerService.save(registrationInfo);
+		String installerToken = installerService.save(registrationInfo, appRelease.getId());
 		
 		// 返回安装器信息
 		InstallerInfo installerInfo = new InstallerInfo();

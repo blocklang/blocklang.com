@@ -48,4 +48,14 @@ public enum Arch {
 				.findFirst()
 				.orElse(Arch.UNKNOWN);
 	}
+
+	public static Arch fromKey(String key) {
+		if (StringUtils.isBlank(key)) {
+			return Arch.UNKNOWN;
+		}
+		return Arrays.stream(Arch.values())
+				.filter((each) -> key.equals(each.getValue()))
+				.findFirst()
+				.orElse(Arch.UNKNOWN);
+	}
 }
