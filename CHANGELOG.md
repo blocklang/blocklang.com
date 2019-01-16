@@ -37,6 +37,10 @@
 
 1. 实现 `AppReleaseService` 业务逻辑接口
 
+## 2019-01-16
+
+1. 实现 `AppReleaseRelationService` 业务逻辑接口
+
 ## TODO
 
 1. 学习 Spring boot cache
