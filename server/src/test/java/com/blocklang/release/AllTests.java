@@ -10,6 +10,7 @@ import com.blocklang.release.service.impl.AppReleaseRelationServiceImplTest;
 import com.blocklang.release.service.impl.AppReleaseServiceImplTest;
 import com.blocklang.release.service.impl.AppServiceImplTest;
 import com.blocklang.release.service.impl.InstallerServiceImplTest;
+import com.blocklang.release.service.impl.WebServerServiceImplTest;
 import com.blocklang.release.util.IdGeneratorTest;
 
 @RunWith(Suite.class)
@@ -27,7 +28,8 @@ import com.blocklang.release.util.IdGeneratorTest;
 	AppReleaseServiceImplTest.class,
 	AppReleaseRelationServiceImplTest.class,
 	AppReleaseFileServiceImplTest.class,
-	InstallerServiceImplTest.class
+	InstallerServiceImplTest.class,
+	WebServerServiceImplTest.class
 })
 public class AllTests {
 

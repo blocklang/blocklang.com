@@ -121,4 +121,5 @@ public class InstallerServiceImplTest extends AbstractServiceTest{
 		assertThat(updatedInstaller.getAppRunPort(), is(8080));
 		
 	}
+
 }
