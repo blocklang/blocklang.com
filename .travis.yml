@@ -2,7 +2,10 @@ language: java
 jdk:
   - oraclejdk11
 
-
+services:
+  - postgresql
+before_script:
+  - psql -c 'create database blocklang;' -U postgres
 
 before_install:
   - cd server
@@ -10,3 +13,6 @@ before_install:
 script:
   - ls
   - ./mvnw install -Dmaven.javadoc.skip=true -B -V
+  - mvn cobertura:cobertura
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
