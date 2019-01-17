@@ -9,10 +9,8 @@ public class IdGeneratorTest {
 
 	@Test
 	public void short_uuid_22_characters() {
-		for(int i = 0; i < 10000; i++) {
-			String uuid = IdGenerator.shortUuid();
-			assertThat(uuid.length() <= 22, is(true));
-		}
+		String uuid = IdGenerator.shortUuid();
+		assertThat(uuid.length() <= 22, is(true));
 	}
 	
 	@Test

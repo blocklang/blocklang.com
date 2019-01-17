@@ -20,6 +20,7 @@ public class AppReleaseFileServiceImpl implements AppReleaseFileService {
 	private static final Logger logger = LoggerFactory.getLogger(AppReleaseFileServiceImpl.class);
 	@Autowired
 	private AppReleaseFileDao appReleaseFileDao;
+
 	@Override
 	public Optional<AppReleaseFile> find(int appReleaseId, TargetOs targetOs, Arch arch) {
 		List<AppReleaseFile> appReleaseFiles = appReleaseFileDao.findByAppReleaseId(appReleaseId);

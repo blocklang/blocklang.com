@@ -13,7 +13,8 @@ import com.blocklang.release.constant.Bot;
 import com.blocklang.release.constant.OsType;
 import com.blocklang.release.dao.InstallerDao;
 import com.blocklang.release.dao.WebServerDao;
-import com.blocklang.release.data.RegistrationInfo;
+import com.blocklang.release.data.NewRegistrationParam;
+import com.blocklang.release.data.UpdateRegistrationParam;
 import com.blocklang.release.model.Installer;
 import com.blocklang.release.model.WebServer;
 import com.blocklang.release.service.InstallerService;
@@ -35,7 +36,7 @@ public class InstallerServiceImpl implements InstallerService {
 	
 	@Transactional
 	@Override
-	public String save(RegistrationInfo registrationInfo, Integer appReleaseId) {
+	public String save(NewRegistrationParam registrationInfo, Integer appReleaseId) {
 		String installerToken = IdGenerator.shortUuid();
 		
 		// 如果 Web Server 未保存，则先保存 Web Server 信息
@@ -84,5 +85,37 @@ public class InstallerServiceImpl implements InstallerService {
 		
 		return installerToken;
 	}
+	
+	@Override
+	public void update(Installer installer, UpdateRegistrationParam registrationInfo) {
+		webServerDao.findById(installer.getWebServerId()).ifPresent((existWebServer) -> {
+			
+			if(!existWebServer.getIp().equals(registrationInfo.getIp()) ||
+					   !existWebServer.getOsType().getValue().equals(registrationInfo.getOsType()) ||
+					   !existWebServer.getOsVersion().equals(registrationInfo.getOsVersion()) ||
+					   !existWebServer.getArch().getValue().equals(registrationInfo.getArch())) {
+				existWebServer.setIp(registrationInfo.getIp());
+				existWebServer.setOsType(OsType.fromValue(registrationInfo.getOsType()));
+				existWebServer.setOsVersion(registrationInfo.getOsVersion());
+				existWebServer.setArch(Arch.fromValue(registrationInfo.getArch()));
+				existWebServer.setLastUpdateUserId(Bot.ID);
+				existWebServer.setLastUpdateTime(LocalDateTime.now());
+				
+				webServerDao.save(existWebServer);
+			}
+		});
+		
+		if(installer.getAppRunPort() != registrationInfo.getAppRunPort()) {
+			installer.setAppRunPort(registrationInfo.getAppRunPort());
+			installerDao.save(installer);
+		}
+		
+	}
+
+	@Override
+	public Optional<Installer> findByInstallerToken(String installerToken) {
+		return installerDao.findByInstallerToken(installerToken);
+	}
+
 
 }

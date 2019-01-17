@@ -1,6 +1,11 @@
 package com.blocklang.release.service;
 
-import com.blocklang.release.data.RegistrationInfo;
+import java.util.Optional;
+
+
+import com.blocklang.release.data.NewRegistrationParam;
+import com.blocklang.release.data.UpdateRegistrationParam;
+import com.blocklang.release.model.Installer;
 
 public interface InstallerService {
 
@@ -11,6 +16,10 @@ public interface InstallerService {
 	 * @param appReleaseId app 发行版标识
 	 * @return 返回安装器 token
 	 */
-	String save(RegistrationInfo registrationInfo, Integer appReleaseId);
+	String save(NewRegistrationParam registrationInfo, Integer appReleaseId);
+
+	Optional<Installer> findByInstallerToken(String installerToken);
+
+	void update(Installer existedInstaller, UpdateRegistrationParam registrationInfo);
 
 }

@@ -8,7 +8,7 @@ import javax.validation.constraints.NotBlank;
  * @author ZhengWei Jin
  *
  */
-public class RegistrationInfo {
+public class NewRegistrationParam {
 
 	@NotBlank(message = "{NotBlank.registrationToken}")
 	private String registrationToken;
