@@ -25,4 +25,9 @@ public class AppServiceImpl implements AppService {
 		return appDao.findById(appId);
 	}
 
+	@Override
+	public Optional<App> findByAppName(String appName) {
+		return appDao.findByAppName(appName);
+	}
+
 }

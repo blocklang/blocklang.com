@@ -10,4 +10,6 @@ public interface AppReleaseDao extends JpaRepository<AppRelease, Integer> {
 
 	Optional<AppRelease> findFirstByAppIdOrderByIdDesc(Integer appId);
 
+	Optional<AppRelease> findByAppIdAndVersion(Integer appId, String version);
+
 }

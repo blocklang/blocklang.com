@@ -51,8 +51,8 @@
 ## 2019-01-18
 
 1. 实现注销 installer 的 REST API
+2. 实现下载软件的 REST API
 
 ## TODO
 
 1. 学习 Spring boot cache
-2. 实现下载软件的 REST API

@@ -1,8 +1,11 @@
 package com.blocklang.release.model;
 
+import java.io.File;
+
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.Transient;
 
 import com.blocklang.release.constant.Arch;
 import com.blocklang.release.constant.TargetOs;
@@ -30,6 +33,9 @@ public class AppReleaseFile extends PartialOperateFields{
 	
 	@Column(name = "file_path", nullable = false)
 	private String filePath;
+	
+	@Transient
+	private String absoluteRootPath;
 
 	public Integer getAppReleaseId() {
 		return appReleaseId;
@@ -69,6 +75,14 @@ public class AppReleaseFile extends PartialOperateFields{
 
 	public void setFilePath(String filePath) {
 		this.filePath = filePath;
+	}
+
+	public String getFullPath() {
+		return absoluteRootPath + File.separator + filePath;
+	}
+	
+	public void setAbsoluteRootPath(String absoluteRootPath) {
+		this.absoluteRootPath = absoluteRootPath;
 	}
 
 }

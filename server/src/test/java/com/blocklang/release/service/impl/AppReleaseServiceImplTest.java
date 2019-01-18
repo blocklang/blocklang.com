@@ -120,4 +120,27 @@ public class AppReleaseServiceImplTest extends AbstractServiceTest{
 		Optional<AppRelease> appReleaseOption = appReleaseService.findLatestReleaseApp(appId);
 		assertThat(appReleaseOption.get().getVersion(), equalTo("0.0.2"));
 	}
+	
+	@Test
+	public void find_by_appId_and_version_no_data() {
+		Optional<AppRelease> appReleaseOption = appReleaseService.findByAppIdAndVersion(1, "0.1.0");
+		assertThat(appReleaseOption.isEmpty(), is(true));
+	}
+	
+	@Test
+	public void find_by_appId_and_version_success() {
+		AppRelease appRelease = new AppRelease();
+		appRelease.setAppId(1);
+		appRelease.setVersion("0.0.1");
+		appRelease.setTitle("title");
+		appRelease.setDescription("description");
+		appRelease.setReleaseTime(LocalDateTime.now());
+		appRelease.setReleaseMethod(ReleaseMethod.AUTO);
+		appRelease.setCreateUserId(1);
+		appRelease.setCreateTime(LocalDateTime.now());
+		appReleaseDao.save(appRelease);
+		
+		Optional<AppRelease> appReleaseOption = appReleaseService.findByAppIdAndVersion(1, "0.0.1");
+		assertThat(appReleaseOption.isPresent(), is(true));
+	}
 }

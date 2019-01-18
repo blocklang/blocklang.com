@@ -15,4 +15,6 @@ public interface AppReleaseService {
 	
 	Optional<AppRelease> findLatestReleaseApp(Integer appId);
 
+	Optional<AppRelease> findByAppIdAndVersion(Integer appId, String version);
+
 }

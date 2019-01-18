@@ -75,4 +75,23 @@ public class AppServiceImplTest extends AbstractServiceTest{
 		Optional<App> appOption = appService.findByRegistrationToken("registration-token");
 		assertThat(appOption.isPresent(), is(true));
 	}
+	
+	@Test
+	public void find_by_name_no_data() {
+		Optional<App> appOption = appService.findByAppName("not-exist-app-name");
+		assertThat(appOption.isEmpty(), is(true));
+	}
+	
+	@Test
+	public void find_by_name_success() {
+		App app = new App();
+		app.setAppName("app");
+		app.setCreateUserId(1);
+		app.setCreateTime(LocalDateTime.now());
+		app.setRegistrationToken("registration-token");
+		appDao.save(app);
+		
+		Optional<App> appOption = appService.findByAppName("app");
+		assertThat(appOption.isPresent(), is(true));
+	}
 }

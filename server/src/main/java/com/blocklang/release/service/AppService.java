@@ -10,4 +10,6 @@ public interface AppService {
 
 	Optional<App> findById(int appId);
 
+	Optional<App> findByAppName(String appName);
+
 }

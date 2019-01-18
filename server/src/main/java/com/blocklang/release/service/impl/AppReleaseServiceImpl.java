@@ -25,4 +25,9 @@ public class AppReleaseServiceImpl implements AppReleaseService {
 		return appReleaseDao.findFirstByAppIdOrderByIdDesc(appId);
 	}
 
+	@Override
+	public Optional<AppRelease> findByAppIdAndVersion(Integer appId, String version) {
+		return appReleaseDao.findByAppIdAndVersion(appId, version);
+	}
+
 }
