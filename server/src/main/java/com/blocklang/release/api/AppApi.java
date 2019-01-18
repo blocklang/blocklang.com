@@ -61,13 +61,3 @@ public class AppApi {
 		throw new ResourceNotFoundException();
 	}
 }
-
-//
-//Path path = Paths.get(file.getAbsolutePath());
-//ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
-//
-//return ResponseEntity.ok()
-//        .headers(headers)
-//        .contentLength(file.length())
-//        .contentType(MediaType.parseMediaType("application/octet-stream"))
-//        .body(resource);
