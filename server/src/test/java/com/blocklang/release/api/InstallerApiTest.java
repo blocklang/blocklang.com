@@ -8,6 +8,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
@@ -915,4 +917,32 @@ public class InstallerApiTest {
 		registration.setJdkVersion("0.1.1");
 		return registration;
 	}
+
+	@Test
+	public void delete_installer_invalid_installer_token() {
+		when(installerService.findByInstallerToken(anyString())).thenReturn(Optional.empty());
+
+		given()
+		.when()
+			.delete("/installers/{installerToken}", "not-exist-installer-token")
+		.then()		
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+		verify(installerService, never()).delete(null);
+	}
+	
+	@Test
+	public void delete_installer_success() {
+		Installer installer = new Installer();
+		installer.setId(1);
+		installer.setInstallerToken("exist-installer-token");
+		when(installerService.findByInstallerToken(eq("exist-installer-token"))).thenReturn(Optional.of(installer));
+
+		given()
+		.when()
+			.delete("/installers/{installerToken}", "exist-installer-token")
+		.then()		
+			.statusCode(HttpStatus.SC_NO_CONTENT);
+		verify(installerService).delete(eq(installer));
+	}
+
 }

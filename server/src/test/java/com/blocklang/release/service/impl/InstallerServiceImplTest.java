@@ -1,10 +1,11 @@
 package com.blocklang.release.service.impl;
 
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -122,4 +123,25 @@ public class InstallerServiceImplTest extends AbstractServiceTest{
 		
 	}
 
+	@Test
+	public void find_by_installer_token_no_data() {
+		Optional<Installer> installerOption = installerDao.findByInstallerToken("not-exist-installer-token");
+		assertThat(installerOption.isEmpty(), is(true));
+	}
+	
+	@Test
+	public void delete_success() {
+		Installer installer = new Installer();
+		installer.setAppReleaseId(1);
+		installer.setAppRunPort(80);
+		installer.setInstallerToken("token");
+		installer.setWebServerId(1);
+		installer.setCreateTime(LocalDateTime.now());
+		installer.setCreateUserId(1);
+		Installer existedInstaller = installerDao.save(installer);
+		assertThat(countRowsInTable("INSTALLER"), is(1));
+		installerService.delete(existedInstaller);
+		installerDao.flush();
+		assertThat(countRowsInTable("INSTALLER"), is(0));
+	}
 }

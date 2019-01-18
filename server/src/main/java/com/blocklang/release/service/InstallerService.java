@@ -22,4 +22,6 @@ public interface InstallerService {
 
 	void update(Installer existedInstaller, UpdateRegistrationParam registrationInfo);
 
+	void delete(Installer installer);
+
 }

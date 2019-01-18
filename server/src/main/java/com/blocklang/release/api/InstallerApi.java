@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,6 +20,7 @@ import com.blocklang.release.data.InstallerInfo;
 import com.blocklang.release.data.NewRegistrationParam;
 import com.blocklang.release.data.UpdateRegistrationParam;
 import com.blocklang.release.exception.InvalidRequestException;
+import com.blocklang.release.exception.ResourceNotFoundException;
 import com.blocklang.release.model.App;
 import com.blocklang.release.model.AppRelease;
 import com.blocklang.release.model.AppReleaseFile;
@@ -278,5 +281,16 @@ public class InstallerApi {
 		installerInfo.setJdkVersion(dependAppRelease.getVersion());
 		installerInfo.setJdkFileName(dependAppReleaseFile.getFileName());
 		return new ResponseEntity<InstallerInfo>(installerInfo, HttpStatus.OK);
+	}
+
+	@DeleteMapping("/{installerToken}")
+	public ResponseEntity<?> deleteInstaller(
+			@PathVariable String installerToken) {
+		
+		logger.info("==========开始注销 installer==========");
+		return installerService.findByInstallerToken(installerToken).map(installer -> {
+			installerService.delete(installer);
+			return ResponseEntity.noContent().build();
+		}).orElseThrow(ResourceNotFoundException::new);
 	}
 }

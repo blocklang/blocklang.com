@@ -31,6 +31,7 @@ public class InstallerServiceImpl implements InstallerService {
 
 	@Autowired
 	private WebServerDao webServerDao;
+	
 	@Autowired
 	private InstallerDao installerDao;
 	
@@ -117,5 +118,9 @@ public class InstallerServiceImpl implements InstallerService {
 		return installerDao.findByInstallerToken(installerToken);
 	}
 
+	@Override
+	public void delete(Installer installer) {
+		installerDao.delete(installer);
+	}
 
 }
