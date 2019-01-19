@@ -102,7 +102,6 @@ public class InstallerServiceImplTest extends AbstractServiceTest{
 		
 		UpdateRegistrationParam registrationInfo = new UpdateRegistrationParam();
 		registrationInfo.setAppRunPort(8080);
-		registrationInfo.setAppVersion("12");
 		registrationInfo.setArch(Arch.X86_64.getValue());
 		registrationInfo.setInstallerToken("installer_token");
 		registrationInfo.setIp("11.11.11.11");

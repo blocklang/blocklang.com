@@ -913,8 +913,6 @@ public class InstallerApiTest {
 		registration.setOsVersion("11");
 		registration.setIp("10.10.10.10");
 		registration.setArch("X86");
-		registration.setAppVersion("0.0.1");
-		registration.setJdkVersion("0.1.1");
 		return registration;
 	}
 

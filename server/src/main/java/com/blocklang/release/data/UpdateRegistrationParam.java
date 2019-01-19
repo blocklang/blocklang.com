@@ -25,10 +25,6 @@ public class UpdateRegistrationParam {
 	private String arch;
 	@NotBlank(message = "{NotBlank.serverToken}")
 	private String serverToken;
-	@NotBlank(message = "{NotBlank.appVersion}")
-	private String appVersion;
-	@NotBlank(message = "{NotBlank.jdkVersion}")
-	private String jdkVersion;
 
 	public String getInstallerToken() {
 		return installerToken;
@@ -93,21 +89,4 @@ public class UpdateRegistrationParam {
 	public void setServerToken(String serverToken) {
 		this.serverToken = serverToken;
 	}
-
-	public String getAppVersion() {
-		return appVersion;
-	}
-
-	public void setAppVersion(String appVersion) {
-		this.appVersion = appVersion;
-	}
-
-	public String getJdkVersion() {
-		return jdkVersion;
-	}
-
-	public void setJdkVersion(String jdkVersion) {
-		this.jdkVersion = jdkVersion;
-	}
-
 }
