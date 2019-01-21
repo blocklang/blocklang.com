@@ -4,11 +4,11 @@
 
 ## 术语
 
-1. 一个 Block Lang APP 由通用的项目模板和项目专有的配置数据和代码组成，即 APP = 项目模板 + 配置数据和代码
-2. **项目模板** 指 Block Lang APP 项目的通用基础代码，分为后端的 Spring Boot 项目模板和前段的 Dojo 项目模板，会包含基础的开发套件
+1. 一个 `Block Lang APP` 由通用的项目模板和项目专有的配置数据和代码组成，即 APP = 项目模板 + 配置数据和代码
+2. `项目模板` - 指 Block Lang APP 项目的通用基础代码，分为后端的 Spring Boot 项目模板和前段的 Dojo 项目模板，会包含基础的开发套件
 3. 项目模板托管在 [blocklang-template](https://github.com/blocklang/blocklang-template) 中，所有对模板代码的修改或升级，都必须修改此仓库中的代码，其他地方则不能修改，只能使用
 4. github 上的代码只能在 feature 分支上修改，然后合并到 develop 分支，只有在正式发布时才合并到 master 分支；而 Block Lang 发布中心只能使用已发布的版本，即用 tag 标注过的版本
-5. 项目相关的配置包括生成 json 数据、代码文件、数据库 liquibase 脚本以及程序描述模型等
+5. `项目相关的配置`包括生成 json 数据、代码文件、数据库 liquibase 脚本以及程序描述模型等
 
 ## 流程
 
@@ -26,7 +26,7 @@
 ```text
 根目录
     |--- template
-    |--- project
+    |--- projects
             |--- {project_name}
 ```
 
