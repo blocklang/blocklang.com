@@ -18,3 +18,18 @@
 4. **构建 Dojo 项目** - 在配置好后，对 Dojo 项目执行 build 操作，生成经过优化和压缩的发布版
 5. **合并** - 将 build 的 Dojo 发布代码合并都 Spring Boot 的 static 文件夹中
 6. **构建 maven 项目** - 使用 `mvnw` 命令构建 Spring boot 项目，生成最终分发的 jar 文件
+
+## 目录结构
+
+代码文件
+
+```text
+根目录
+    |--- template
+    |--- project
+            |--- {project_name}
+```
+
+jar 文件
+
+1. 使用 maven 的目录结构来管理 jar 文件
