@@ -44,7 +44,8 @@ Block Lang 软件发布中心。功能包括 dojo 项目和 Spring Boot 项目�
 
 ## 需求描述
 
-详见[需求](docs/README.md)。
+1. [构建 APP](docs/build.md)
+2. [发布 APP](docs/release.md)
 
 ## 数据库表结构
 
