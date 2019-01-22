@@ -26,8 +26,12 @@
 ```text
 根目录
     |--- template
+            |--- client
+            |--- server
     |--- projects
             |--- {project_name}
+                     |--- client
+                     |--- server
 ```
 
 jar 文件
