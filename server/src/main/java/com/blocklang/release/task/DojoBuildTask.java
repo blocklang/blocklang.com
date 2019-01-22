@@ -14,60 +14,50 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
+public class DojoBuildTask {
 
-public class MavenInstallTask {
-
-	private static final Logger logger = LoggerFactory.getLogger(MavenInstallTask.class);
+	private static final Logger logger = LoggerFactory.getLogger(DojoBuildTask.class);
 	
 	private String projectName;
 	private String version;
-	private String mavenRootPath;
 	private String projectsRootPath;
 	
-	public static void main(String[] args){
-		// 设置工作目录
-		String projectsRootPath = "E:\\data\\temp\\blocklang-release";
-		String mavenRootPath = "C:\\Users\\Administrator\\.m2\\repository";
-		String projectName = "demo_app";
-		String version = "0.0.1-SNAPSHOT";
-		
-		MavenInstallTask installTask = new MavenInstallTask(projectsRootPath, mavenRootPath, projectName, version);
-		installTask.run();
-		
-		String jarFilePath = installTask.getJarFilePath();
-		// TODO: 只有 pom.xml 中的内容调整后，才返回 true
-		System.out.println(Paths.get(jarFilePath).toFile().exists());
+	public static void main(String[] args) {
+		DojoBuildTask task = new DojoBuildTask("E:\\data\\temp\\blocklang-release", "demo_app", "0.0.1");
+		task.run();
 	}
 	
-	public MavenInstallTask(String projectsRootPath, String mavenRootPath, String projectName, String version) {
+	public DojoBuildTask(String projectsRootPath, String projectName, String version) {
 		this.projectsRootPath = projectsRootPath;
-		this.mavenRootPath = mavenRootPath;
 		this.projectName = projectName;
 		this.version = version;
 	}
 	
 	/**
-	 * 执行 <code>./mvnw clean install</code> 命令
+	 * 执行 <code>dojo build --mode dist</code> 命令
 	 * 
 	 * @return
 	 */
 	public boolean run() {
 		Assert.hasLength(this.projectsRootPath, "存放项目的根路径不能为空");
-		Assert.hasLength(this.mavenRootPath, "maven 仓库的根路径不能为空");
 		Assert.hasLength(this.projectName, "项目名不能为空");
 		Assert.hasLength(this.version, "项目版本号不能为空");
 		
 		List<String> commands = new ArrayList<>();
+
 		if(SystemUtils.IS_OS_WINDOWS) {
-			commands.add("mvnw.cmd");
+			commands.add("dojo.cmd");
 		} else {
-			commands.add("mvnw");
+			commands.add("dojo");
 		}
-		commands.add("clean");
-		commands.add("install");
+		commands.add("build");
+		commands.add("--mode");
+		commands.add("dist");
 		
-		ProcessBuilder processBuilder = new ProcessBuilder(commands).directory(Paths.get(this.getProjectRootPath()).toFile());
-		logger.info("开始执行 mvnw clean install 命令");
+		String dojoProjectRootPath = this.getProjectRootPath();
+		ProcessBuilder processBuilder = new ProcessBuilder(commands).directory(Paths.get(dojoProjectRootPath).toFile());
+		logger.info("开始执行 dojo build --mode dist 命令");
+		
 		try {
 			
 			String logFileDir = this.getLogDirectory();
@@ -81,13 +71,12 @@ public class MavenInstallTask {
 			if(process.isAlive()) {
 				process.waitFor();
 			}
-			// 经测试，在 windows 环境下，如果执行失败，则值为 1；如果执行成功，则值为0.
 			int exitValue = process.exitValue();
 			if (exitValue == 0) {
-				logger.info("mvnw clean install 命令执行成功！");
+				logger.info("dojo build --mode dist 命令执行成功！");
 				return true;
 			} else {
-				logger.error("mvnw clean install 命令执行失败！");
+				logger.error("dojo build --mode dist 命令执行失败！");
 				return false;
 			}
 		} catch (IOException | InterruptedException e) {
@@ -96,26 +85,18 @@ public class MavenInstallTask {
 		
 		return false;
 	}
-
-	public String getJarFilePath() {
+	
+	public String getDistDirectory() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(this.mavenRootPath)
+		sb.append(this.getProjectRootPath())
 		  .append(File.separator)
-		  .append("com")
+		  .append("output")
 		  .append(File.separator)
-		  .append("blocklang")
-		  .append(File.separator)
-		  .append(this.projectName)
-		  .append(File.separator)
-		  .append(this.version)
-		  .append(File.separator)
-		  .append(this.projectName)
-		  .append("-")
-		  .append(this.version)
-		  .append(".jar");
+		  .append("dist");
+
 		return sb.toString();
 	}
-	
+
 	private String getLogFileName() {
 		return this.projectName + "-" + this.version + "-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss")) + ".log";
 	}
@@ -123,7 +104,7 @@ public class MavenInstallTask {
 	private String getLogDirectory() {
 		return this.getProjectRootPath() + File.separator + "logs";
 	}
-
+	
 	private String getProjectRootPath() {
 		StringBuilder sb = new StringBuilder(this.projectsRootPath);
 		sb.append(File.separator)
@@ -131,7 +112,7 @@ public class MavenInstallTask {
 		  .append(File.separator)
 		  .append(this.projectName)
 		  .append(File.separator)
-		  .append("server");
+		  .append("client");
 		
 		return sb.toString();
 	}

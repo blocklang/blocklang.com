@@ -12,6 +12,7 @@ import com.blocklang.release.service.impl.AppReleaseServiceImplTest;
 import com.blocklang.release.service.impl.AppServiceImplTest;
 import com.blocklang.release.service.impl.InstallerServiceImplTest;
 import com.blocklang.release.service.impl.WebServerServiceImplTest;
+import com.blocklang.release.task.DojoBuildTaskTest;
 import com.blocklang.release.task.MavenInstallTaskTest;
 import com.blocklang.release.util.IdGeneratorTest;
 
@@ -20,6 +21,7 @@ import com.blocklang.release.util.IdGeneratorTest;
 	// unit test
 	IdGeneratorTest.class,
 	MavenInstallTaskTest.class,
+	DojoBuildTaskTest.class,
 	
 	// api tests
 	InstallerApiTest.class,
