@@ -12,12 +12,14 @@ import com.blocklang.release.service.impl.AppReleaseServiceImplTest;
 import com.blocklang.release.service.impl.AppServiceImplTest;
 import com.blocklang.release.service.impl.InstallerServiceImplTest;
 import com.blocklang.release.service.impl.WebServerServiceImplTest;
+import com.blocklang.release.task.MavenInstallTaskTest;
 import com.blocklang.release.util.IdGeneratorTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
 	// unit test
 	IdGeneratorTest.class,
+	MavenInstallTaskTest.class,
 	
 	// api tests
 	InstallerApiTest.class,

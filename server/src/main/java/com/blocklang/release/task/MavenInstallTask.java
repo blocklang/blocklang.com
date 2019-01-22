@@ -15,9 +15,9 @@ import org.springframework.util.Assert;
 
 import liquibase.util.SystemUtils;
 
-public class InstallTask {
+public class MavenInstallTask {
 
-	private static final Logger logger = LoggerFactory.getLogger(InstallTask.class);
+	private static final Logger logger = LoggerFactory.getLogger(MavenInstallTask.class);
 	
 	private String projectName;
 	private String version;
@@ -31,14 +31,14 @@ public class InstallTask {
 		String projectName = "demo_project";
 		String version = "0.0.1-SNAPSHOT";
 		
-		InstallTask installTask = new InstallTask(projectsRootPath, mavenRootPath, projectName, version);
+		MavenInstallTask installTask = new MavenInstallTask(projectsRootPath, mavenRootPath, projectName, version);
 		installTask.run();
 		
 		String jarFilePath = installTask.getJarFilePath();
 		System.out.println(Paths.get(jarFilePath).toFile().exists());
 	}
 	
-	public InstallTask(String projectsRootPath, String mavenRootPath, String projectName, String version) {
+	public MavenInstallTask(String projectsRootPath, String mavenRootPath, String projectName, String version) {
 		this.projectsRootPath = projectsRootPath;
 		this.mavenRootPath = mavenRootPath;
 		this.projectName = projectName;
