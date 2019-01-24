@@ -63,6 +63,11 @@
 
 1. 实现 ClientDistCopy 命令
 
+## 2019-01-24
+
+1. 重构 build 相关的 Task 类
+2. 将 build 过程中日志都写到一个文件中
+
 ## TODO
 
 1. 学习 Spring boot cache

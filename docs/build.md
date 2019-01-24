@@ -32,6 +32,7 @@
             |--- {project_name}
                      |--- client
                      |--- server
+                     |--- logs
 ```
 
 jar 文件
