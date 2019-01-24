@@ -18,29 +18,29 @@ public class AppBuildContextTest {
 	
 	@Before
 	public void setUp() {
-		context = new AppBuildContext("c:\\blocklang", "c:\\Users\\Administrator\\.m2", "app", "0.0.1");
+		context = new AppBuildContext("c:/blocklang", "c:/Users/Administrator/.m2", "app", "0.0.1");
 	}
 	
 	@Test
 	public void get_client_project_root_directory() {
-		assertThat(context.getClientProjectRootDirectory().compareTo(Paths.get("c:\\blocklang\\projects\\app\\client")), is(0));
+		assertThat(context.getClientProjectRootDirectory().compareTo(Paths.get("c:/blocklang/projects/app/client")), is(0));
 	}
 	
 	@Test
 	public void get_server_project_root_directory() {
-		assertThat(context.getServerProjectRootDirectory().compareTo(Paths.get("c:\\blocklang\\projects\\app\\server")), is(0));
+		assertThat(context.getServerProjectRootDirectory().compareTo(Paths.get("c:/blocklang/projects/app/server")), is(0));
 	}
 	
 	@Test
 	public void get_maven_install_jar_path() {
 		assertThat(
-				context.getMavenInstallJar().compareTo(Paths.get("c:\\Users\\Administrator\\.m2\\repository\\com\\blocklang\\app\\0.0.1\\app-0.0.1.jar")),
+				context.getMavenInstallJar().compareTo(Paths.get("c:/Users/Administrator/.m2/repository/com/blocklang/app/0.0.1/app-0.0.1.jar")),
 				is(0));
 	}
 	
 	@Test
 	public void get_log_directory() {
-		assertThat(context.getLogDirectory().compareTo(Paths.get("c:\\blocklang\\projects\\app\\logs")), is(0));
+		assertThat(context.getLogDirectory().compareTo(Paths.get("c:/blocklang/projects/app/logs")), is(0));
 	}
 	
 	@Test
@@ -62,17 +62,17 @@ public class AppBuildContextTest {
 	
 	@Test
 	public void get_dojo_dist_directory() {
-		assertThat(context.getDojoDistDirectory().compareTo(Paths.get("c:\\blocklang\\projects\\app\\client\\output\\dist")), is(0));
+		assertThat(context.getDojoDistDirectory().compareTo(Paths.get("c:/blocklang/projects/app/client/output/dist")), is(0));
 	}
 	
 	@Test
 	public void get_spring_boot_templates_directory() {
-		assertThat(context.getSpringBootTemplatesDirectory().compareTo(Paths.get("c:\\blocklang\\projects\\app\\server\\src\\main\\resources\\templates")), is(0));
+		assertThat(context.getSpringBootTemplatesDirectory().compareTo(Paths.get("c:/blocklang/projects/app/server/src/main/resources/templates")), is(0));
 	}
 	
 	@Test
 	public void get_spring_boot_static_directory() {
-		assertThat(context.getSpringBootStaticDirectory().compareTo(Paths.get("c:\\blocklang\\projects\\app\\server\\src\\main\\resources\\static")), is(0));
+		assertThat(context.getSpringBootStaticDirectory().compareTo(Paths.get("c:/blocklang/projects/app/server/src/main/resources/static")), is(0));
 	}
 	
 	@Test
