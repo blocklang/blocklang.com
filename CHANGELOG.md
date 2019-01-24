@@ -53,6 +53,19 @@
 1. 实现注销 installer 的 REST API
 2. 实现下载软件的 REST API
 
+## 2019-01-22
+
+1. 实现 MavenInstall 命令
+2. 实现 NpmInstall 命令
+3. 实现 DojoBuild 命令
+
+## 2019-01-23
+
+1. 实现 ClientDistCopy 命令
+
 ## TODO
 
 1. 学习 Spring boot cache
+2. 项目的目录结构，为了便于快速定位文件或切换，可参考windows 文件资源管理器的设计，左侧和顶部的导航设计，
+3. 也参考 eclipse 的文件和目录的关联，实现快速定位目录
+4. github 的目录结构设计虽然简洁，但是浏览文件时，感觉还是颇多不方便
