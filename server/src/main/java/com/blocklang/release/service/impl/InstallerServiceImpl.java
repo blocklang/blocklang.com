@@ -18,7 +18,7 @@ import com.blocklang.release.data.UpdateRegistrationParam;
 import com.blocklang.release.model.Installer;
 import com.blocklang.release.model.WebServer;
 import com.blocklang.release.service.InstallerService;
-import com.blocklang.release.util.IdGenerator;
+import com.blocklang.util.IdGenerator;
 
 /**
  * APP 安装器业务逻辑接口

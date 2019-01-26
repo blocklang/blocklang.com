@@ -14,7 +14,7 @@ import com.blocklang.release.service.impl.AppServiceImplTest;
 import com.blocklang.release.service.impl.InstallerServiceImplTest;
 import com.blocklang.release.service.impl.WebServerServiceImplTest;
 import com.blocklang.release.task.AppBuildContextTest;
-import com.blocklang.release.util.IdGeneratorTest;
+import com.blocklang.util.IdGeneratorTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
