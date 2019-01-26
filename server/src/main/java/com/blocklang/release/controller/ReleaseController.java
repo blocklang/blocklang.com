@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.blocklang.develop.service.ProjectService;
 import com.blocklang.release.data.NewReleaseParam;
 import com.blocklang.release.exception.InvalidRequestException;
 import com.blocklang.release.exception.ResourceNotFoundException;
-import com.blocklang.release.service.ProjectService;
 
 @RestController
 public class ReleaseController {
