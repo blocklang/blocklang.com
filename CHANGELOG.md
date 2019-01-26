@@ -68,6 +68,10 @@
 1. 重构 build 相关的 Task 类
 2. 将 build 过程中日志都写到一个文件中
 
+## 2019-01-26
+
+1. 调整项目结构，从发布中心提升为 block lang 平台
+
 ## TODO
 
 1. 学习 Spring boot cache
