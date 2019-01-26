@@ -5,13 +5,13 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.1.1.RELEASE</version>
+		<version>2.1.2.RELEASE</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.blocklang</groupId>
-	<artifactId>release</artifactId>
+	<artifactId>blocklang</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>release</name>
+	<name>blocklang</name>
 	<description>Block Lang Website</description>
 
 	<properties>

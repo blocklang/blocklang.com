@@ -1,4 +1,4 @@
-package com.blocklang.release;
+package com.blocklang;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;

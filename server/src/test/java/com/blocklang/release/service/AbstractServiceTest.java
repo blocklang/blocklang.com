@@ -9,10 +9,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.jdbc.JdbcTestUtils;
 
-import com.blocklang.release.ReleaseApplication;
+import com.blocklang.BlockLangApplication;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = ReleaseApplication.class)
+@SpringBootTest(classes = BlockLangApplication.class)
 @Transactional
 public class AbstractServiceTest {
 	@Autowired
