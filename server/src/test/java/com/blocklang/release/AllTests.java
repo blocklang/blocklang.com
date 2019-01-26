@@ -6,6 +6,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 import com.blocklang.release.api.AppApiTest;
 import com.blocklang.release.api.InstallerApiTest;
+import com.blocklang.release.controller.ReleaseControllerTest;
 import com.blocklang.release.service.impl.AppReleaseFileServiceImplTest;
 import com.blocklang.release.service.impl.AppReleaseRelationServiceImplTest;
 import com.blocklang.release.service.impl.AppReleaseServiceImplTest;
@@ -26,6 +27,7 @@ import com.blocklang.release.util.IdGeneratorTest;
 	AppApiTest.class,
 	
 	// controller tests
+	ReleaseControllerTest.class,
 	
 	// service tests
 	AppServiceImplTest.class,

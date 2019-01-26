@@ -16,11 +16,11 @@ POST /projects/{owner}/{projectName}/releases
 
 ### Parameters
 
-| Name          | Type     | Description                                            |
-| ------------- | -------- | ------------------------------------------------------ |
-| `tagName`     | `string` | **Required**. 标签名称，必须以 v 字母为前缀，如 v0.1.0 |
-| `name`        | `string` | **Required**. 发行版的名称                             |
-| `description` | `string` | 发行版的描述                                           |
+| Name          | Type     | Description                         |
+| ------------- | -------- | ----------------------------------- |
+| `version`     | `string` | **Required**. 语义化版本，如 v0.1.0 |
+| `name`        | `string` | **Required**. 发行版的名称          |
+| `description` | `string` | 发行版的描述                        |
 
 ### Response
 
@@ -32,11 +32,10 @@ Status: 422 Unprocessable Entity
 
 只有通过以下校验后，才能开始注册：
 
-1. `tagName` 不能为空
+1. `version` 不能为空
 2. `name` 不能为空
-3. `tagName` 不是以 v 字母开头
-4. `tagName` 已被占用
-5. `tagName` 的语义化版本要大于上一个版本
+3. `version` 已被占用
+4. `version` 的值要大于上一个版本
 
 创建成功
 
@@ -44,9 +43,21 @@ Status: 422 Unprocessable Entity
 Status: 201 CREATED
 ```
 
-| Name          | Type     | Description                              |
-| ------------- | -------- | ---------------------------------------- |
-| `id`          | `int`    | 发行版标识                               |
-| `tagName`     | `string` | 标签名称，必须以 v 字母为前缀，如 v0.1.0 |
-| `name`        | `string` | 发行版的名称                             |
-| `description` | `string` | 发行版的描述                             |
+| Name          | Type     | Description           |
+| ------------- | -------- | --------------------- |
+| `id`          | `int`    | 发行版标识            |
+| `version`     | `string` | 语义化版本，如 v0.1.0 |
+| `name`        | `string` | 发行版的名称          |
+| `description` | `string` | 发行版的描述          |
+
+## git 仓库
+
+目录结构
+
+```text
+根目录
+   |--- gitRepo
+          |--- {owner}
+                  |--- {project name}
+
+```

@@ -12,7 +12,7 @@
 	<artifactId>release</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>release</name>
-	<description>Block Lang 软件发布中心</description>
+	<description>Block Lang Website</description>
 
 	<properties>
 		<java.version>11</java.version>
