@@ -27,6 +27,7 @@ public class NpmInstallTask extends AbstractCommandTask {
 		super(appBuildContext);
 	}
 	
+	@Override
 	public boolean run() {
 		List<String> commands = new ArrayList<>();
 		if(SystemUtils.IS_OS_WINDOWS) {

@@ -8,14 +8,12 @@ import java.nio.file.StandardCopyOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ClientDistCopyTask {
+public class ClientDistCopyTask extends AbstractTask{
 
 	private static final Logger logger = LoggerFactory.getLogger(ClientDistCopyTask.class);
 	
-	private AppBuildContext appBuildContext;
-	
 	public ClientDistCopyTask(AppBuildContext appBuildContext) {
-		this.appBuildContext = appBuildContext;
+		super(appBuildContext);
 	}
 
 	/**
@@ -23,6 +21,7 @@ public class ClientDistCopyTask {
 	 * 
 	 * @return 复制成功，返回 <code>true</code>，否则返回 <code>false</code>。
 	 */
+	@Override
 	public boolean run() {
 		logger.info("开始将 dojo dist 文件夹复制到 spring boot 的 static 文件夹中");
 		Path dojoDistDirectory = appBuildContext.getDojoDistDirectory();

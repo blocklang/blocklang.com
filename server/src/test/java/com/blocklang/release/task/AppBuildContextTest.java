@@ -18,7 +18,7 @@ public class AppBuildContextTest {
 	
 	@Before
 	public void setUp() {
-		context = new AppBuildContext("c:/blocklang", "c:/Users/Administrator/.m2", "app", "0.0.1");
+		context = new AppBuildContext("c:/blocklang", "c:/Users/Administrator/.m2", "jack", "app", "0.0.1");
 	}
 	
 	@Test
@@ -78,5 +78,15 @@ public class AppBuildContextTest {
 	@Test
 	public void get_index_file_name() {
 		assertThat(context.getIndexFileName(), equalTo("index.html"));
+	}
+	
+	@Test
+	public void get_git_repository_directory() {
+		assertThat(context.getGitRepositoryDirectory().compareTo(Paths.get("c:/blocklang/gitRepo/jack/app")), is(0));
+	}
+	
+	@Test
+	public void get_tag_name() {
+		assertThat(context.getTagName(), equalTo("v0.0.1"));
 	}
 }

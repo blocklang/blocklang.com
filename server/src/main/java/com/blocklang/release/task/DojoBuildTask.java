@@ -33,6 +33,7 @@ public class DojoBuildTask extends AbstractCommandTask{
 	 * 
 	 * @return
 	 */
+	@Override
 	public boolean run() {
 		List<String> commands = new ArrayList<>();
 

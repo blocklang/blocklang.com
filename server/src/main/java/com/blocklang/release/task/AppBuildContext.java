@@ -9,6 +9,7 @@ import org.springframework.util.Assert;
 
 public class AppBuildContext {
 
+	private String owner;
 	private String projectName;
 	private String version;
 	private String mavenRootPath;
@@ -29,6 +30,18 @@ public class AppBuildContext {
 		this.mavenRootPath = mavenRootPath;
 		this.projectName = projectName;
 		this.version = version;
+	}
+	
+	public AppBuildContext(String projectsRootPath, 
+			String mavenRootPath, 
+			String owner,
+			String projectName, 
+			String version) {
+		this(projectsRootPath, mavenRootPath, projectName, version);
+
+		Assert.hasLength(owner, "项目拥有者的登录名不能为空");
+
+		this.owner = owner;
 	}
 
 	private Path getProjectRootDirectory() {
@@ -82,5 +95,16 @@ public class AppBuildContext {
 	
 	public String getIndexFileName() {
 		return "index.html";
+	}
+
+	public Path getGitRepositoryDirectory() {
+		return Paths.get(this.projectsRootPath, "gitRepo", this.owner, this.projectName);
+	}
+
+	public String getTagName() {
+		if(this.version.startsWith("v")) {
+			return this.version;
+		}
+		return "v" + this.version;
 	}
 }

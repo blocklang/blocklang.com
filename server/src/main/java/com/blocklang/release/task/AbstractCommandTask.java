@@ -9,13 +9,12 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractCommandTask {
+public abstract class AbstractCommandTask extends AbstractTask{
+
 	static final Logger logger = LoggerFactory.getLogger(AbstractCommandTask.class);
 	
-	protected AppBuildContext appBuildContext;
-	
 	public AbstractCommandTask(AppBuildContext appBuildContext) {
-		this.appBuildContext = appBuildContext;
+		super(appBuildContext);
 	}
 
 	protected boolean runCommand(Path workingDirectory, List<String> commands) {
