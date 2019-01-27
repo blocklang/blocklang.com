@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class MavenInstallTask extends AbstractTask{
+public class MavenInstallTask extends AbstractCommandTask{
 
 	private static final Logger logger = LoggerFactory.getLogger(MavenInstallTask.class);
 	

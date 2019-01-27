@@ -7,7 +7,7 @@ import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NpmInstallTask extends AbstractTask {
+public class NpmInstallTask extends AbstractCommandTask {
 
 	static final Logger logger = LoggerFactory.getLogger(NpmInstallTask.class);
 	

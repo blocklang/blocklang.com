@@ -9,12 +9,12 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractTask {
-	static final Logger logger = LoggerFactory.getLogger(AbstractTask.class);
+public abstract class AbstractCommandTask {
+	static final Logger logger = LoggerFactory.getLogger(AbstractCommandTask.class);
 	
 	protected AppBuildContext appBuildContext;
 	
-	public AbstractTask(AppBuildContext appBuildContext) {
+	public AbstractCommandTask(AppBuildContext appBuildContext) {
 		this.appBuildContext = appBuildContext;
 	}
 

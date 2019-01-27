@@ -8,7 +8,7 @@ import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DojoBuildTask extends AbstractTask{
+public class DojoBuildTask extends AbstractCommandTask{
 
 	private static final Logger logger = LoggerFactory.getLogger(DojoBuildTask.class);
 	
