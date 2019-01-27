@@ -4,6 +4,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
+import com.blocklang.git.GitUtilsTest;
 import com.blocklang.release.api.AppApiTest;
 import com.blocklang.release.api.InstallerApiTest;
 import com.blocklang.release.controller.ReleaseControllerTest;
@@ -21,6 +22,7 @@ import com.blocklang.util.IdGeneratorTest;
 	// unit test
 	IdGeneratorTest.class,
 	AppBuildContextTest.class,
+	GitUtilsTest.class,
 	
 	// api tests
 	InstallerApiTest.class,
