@@ -67,8 +67,6 @@ public class ReleaseControllerTest {
 		.then()
 			.statusCode(HttpStatus.SC_NOT_FOUND);
 	}
-	
-	
 
 	private NewReleaseParam prepareNewParam() {
 		NewReleaseParam release = new NewReleaseParam();
