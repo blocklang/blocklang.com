@@ -72,6 +72,11 @@
 
 1. 调整项目结构，从发布中心提升为 block lang 平台
 
+## 2019-01-27
+
+1. 增加一个存储 build 信息的表，用来记录 build 是否成功
+2. 设计 GIT_TAG 和 BUILD 表结构
+
 ## TODO
 
 1. 学习 Spring boot cache
