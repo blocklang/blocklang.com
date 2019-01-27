@@ -16,11 +16,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.blocklang.exception.InvalidRequestException;
+import com.blocklang.exception.ResourceNotFoundException;
 import com.blocklang.release.data.InstallerInfo;
 import com.blocklang.release.data.NewRegistrationParam;
 import com.blocklang.release.data.UpdateRegistrationParam;
-import com.blocklang.release.exception.InvalidRequestException;
-import com.blocklang.release.exception.ResourceNotFoundException;
 import com.blocklang.release.model.App;
 import com.blocklang.release.model.AppRelease;
 import com.blocklang.release.model.AppReleaseFile;

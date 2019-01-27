@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.blocklang.develop.service.ProjectService;
+import com.blocklang.exception.InvalidRequestException;
+import com.blocklang.exception.ResourceNotFoundException;
 import com.blocklang.release.data.NewReleaseParam;
-import com.blocklang.release.exception.InvalidRequestException;
-import com.blocklang.release.exception.ResourceNotFoundException;
 
 @RestController
 public class ReleaseController {

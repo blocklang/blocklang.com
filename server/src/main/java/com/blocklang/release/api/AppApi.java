@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.blocklang.release.exception.ResourceNotFoundException;
+import com.blocklang.exception.ResourceNotFoundException;
 import com.blocklang.release.model.App;
 import com.blocklang.release.model.AppRelease;
 import com.blocklang.release.model.AppReleaseFile;
