@@ -1,15 +1,13 @@
 package com.blocklang.release.task;
 
-import java.io.IOException;
 import java.nio.file.Path;
 
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.blocklang.git.GitUtils;
+import com.blocklang.git.exception.GitTagFailedException;
 
 public class GitTagTask extends AbstractTask{
 
@@ -24,11 +22,10 @@ public class GitTagTask extends AbstractTask{
 	public boolean run() {
 		// 获取已存在的 git 仓库
 		Path gitDir = appBuildContext.getGitRepositoryDirectory().resolve(Constants.DOT_GIT);
-		try (Repository repo = FileRepositoryBuilder.create(gitDir.toFile());
-			 Git git = new Git(repo)){
-			git.tag().setName(appBuildContext.getTagName()).call();
+		try {
+			GitUtils.tagThenReturnCommitId(gitDir, appBuildContext.getTagName(), "");
 			return true;
-		} catch (IOException | GitAPIException e) {
+		} catch (GitTagFailedException e) {
 			logger.error(e.getMessage(), e);
 			return false;
 		}

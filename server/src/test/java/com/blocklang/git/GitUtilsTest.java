@@ -77,7 +77,8 @@ public class GitUtilsTest {
 	public void git_tag_success() throws IOException {
 		// 新建一个 git 仓库
 		File folder = tempFolder.newFolder(gitRepoDirectory);
-		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+		String commitId = GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+		System.out.println(commitId);
 		
 		// 断言仓库的标签数
 		assertThat(GitUtils.getTagCount(folder.toPath()), is(0));

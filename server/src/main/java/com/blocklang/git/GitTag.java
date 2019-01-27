@@ -6,7 +6,10 @@ import java.nio.file.Path;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
 import com.blocklang.git.exception.GitTagFailedException;
@@ -23,11 +26,25 @@ public class GitTag {
 		}
 	}
 
-	public void tag(Path gitRepoPath, String tagName, String message) {
+	public Ref tag(Path gitRepoPath, String tagName, String message) {
 		Path gitDir = gitRepoPath.resolve(Constants.DOT_GIT);
 		try (Repository repo = FileRepositoryBuilder.create(gitDir.toFile());
 			 Git git = new Git(repo)){
-			git.tag().setName(tagName).setMessage(message).call();
+			return git.tag().setName(tagName).setMessage(message).call();
+		} catch (IOException | GitAPIException e) {
+			throw new GitTagFailedException(e);
+		}
+	}
+	
+	public RevCommit tagThenReturnCommit(Path gitRepoPath, String tagName, String message) {
+		Path gitDir = gitRepoPath.resolve(Constants.DOT_GIT);
+		try (Repository repo = FileRepositoryBuilder.create(gitDir.toFile());
+			 Git git = new Git(repo);
+			 RevWalk walk = new RevWalk(repo)){
+			Ref ref =  git.tag().setName(tagName).setMessage(message).call();
+			
+			return walk.parseCommit(ref.getObjectId());
+			
 		} catch (IOException | GitAPIException e) {
 			throw new GitTagFailedException(e);
 		}

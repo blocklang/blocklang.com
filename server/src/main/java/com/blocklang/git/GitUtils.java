@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.RepositoryCache;
 import org.eclipse.jgit.util.FS;
 import org.eclipse.jgit.util.FileUtils;
@@ -91,8 +92,14 @@ public class GitUtils {
 		return gitTag.getCount(gitRepoPath);
 	}
 
-	public static void tag(Path gitRepoPath, String tagName, String message) {
+	public static Ref tag(Path gitRepoPath, String tagName, String message) {
 		GitTag gitTag = new GitTag();
-		gitTag.tag(gitRepoPath, tagName, message);
+		return gitTag.tag(gitRepoPath, tagName, message);
 	}
+	
+	public static String tagThenReturnCommitId(Path gitRepoPath, String tagName, String message) {
+		GitTag gitTag = new GitTag();
+		return gitTag.tagThenReturnCommit(gitRepoPath, tagName, message).getName();
+	}
+
 }
