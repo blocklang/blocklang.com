@@ -1,6 +1,6 @@
 ﻿# BlockLang
 
-[![Build Status](https://travis-ci.org/blocklang/blocklang-release.svg?branch=master)](https://travis-ci.org/blocklang/blocklang-release)
+[![Build Status](https://travis-ci.org/blocklang/blocklang.com.svg?branch=master)](https://travis-ci.org/blocklang/blocklang.com)
 
 Block Lang 平台。
 
