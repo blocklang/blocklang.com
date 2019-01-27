@@ -76,6 +76,7 @@
 
 1. 增加一个存储 build 信息的表，用来记录 build 是否成功
 2. 设计 GIT_TAG 和 BUILD 表结构
+3. 实现 GitTag 命令
 
 ## TODO
 

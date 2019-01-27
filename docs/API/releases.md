@@ -49,15 +49,3 @@ Status: 201 CREATED
 | `version`     | `string` | 语义化版本，如 v0.1.0 |
 | `name`        | `string` | 发行版的名称          |
 | `description` | `string` | 发行版的描述          |
-
-## git 仓库
-
-目录结构
-
-```text
-根目录
-   |--- gitRepo
-          |--- {owner}
-                  |--- {project name}
-
-```

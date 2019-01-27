@@ -33,11 +33,24 @@
                      |--- client
                      |--- server
                      |--- logs
+    |--- gitRepo
+            |--- {owner}
+                     |--- {project_name}
 ```
 
-1. client 文件夹中存放 dojo 项目
-2. server 文件夹中存放 spring boot 项目
-3. logs 文件夹中存放发布日志，一次发布一个日志文件
+文件夹结构说明
+
+1. template - 存放项目模板代码
+   1. client - 存放 dojo 项目模板代码
+   2. server - 存放 spring boot 项目模板代码
+2. projects - 存放编译和构建用的项目代码
+   1. {project_name} - 项目名
+      1. client - 存放 dojo 代码
+      2. server - 存放 spring boot 代码
+      3. logs - 存放编译和构建日志，一次发布一个日志文件
+3. gitRepo - 存放程序模块模型数据的 git 仓库根目录
+   1. {owner} - 仓库拥有者的登录名
+      1. {project_name} - 项目名
 
 ### jar 文件
 
