@@ -6,25 +6,18 @@
 	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-	<changeSet author="Zhengwei Jin" id="201901101035">
-		<createTable tableName="app_release" remarks="应用程序发行版基本信息">
+	<changeSet author="Zhengwei Jin" id="201901281630">
+		<createTable tableName="project_tag" remarks="GIT 仓库附注标签信息">
 			<column name="dbid" type="int" autoIncrement="true">
-				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_APP_RELEASE" />
+				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_PROJECT_TAG" />
 			</column>
-			<column name="app_id" remarks="应用程序标识" type="int">
+			<column name="project_id" remarks="项目标识" type="int">
 				<constraints nullable="false" />
 			</column>
-			<column name="version" remarks="版本" type="varchar(32)" defaultValue="0.1.0">
+			<column name="version" remarks="版本号" type="varchar(32)" defaultValue="0.1.0">
 				<constraints nullable="false" />
 			</column>
-			<column name="title" remarks="发行版标题" type="varchar(64)">
-				<constraints nullable="false" />
-			</column>
-			<column name="description" remarks="发行版说明" type="${clob}" />
-			<column name="release_time" remarks="发布时间" type="${datetime}">
-				<constraints nullable="false" />
-			</column>
-			<column name="release_method" remarks="发布方法" type="char(2)">
+			<column name="git_tag_id" remarks="git 标签标识" type="varchar(50)">
 				<constraints nullable="false" />
 			</column>
 			<column name="create_user_id" remarks="创建人标识" type="int">
@@ -37,8 +30,9 @@
 			<column name="last_update_time" remarks="最近修改时间" type="${datetime}" />
 		</createTable>
 
-		<addUniqueConstraint columnNames="app_id, version"
-			constraintName="UK_APP_ID_VERSION" tableName="app_release" />
+		<addUniqueConstraint
+			columnNames="project_id,version"
+			constraintName="UK_TAG_PROJECT_ID_VERSION" tableName="project_tag" />
 	</changeSet>
 
 </databaseChangeLog>

@@ -1,31 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
-        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
-        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-    <changeSet author="Zhengwei Jin" id="201901101209" >
-        <createTable tableName="app_release_file" remarks="应用程序发行版文件信息">
-            <column name="dbid" type="int" autoIncrement="true">
-                <constraints primaryKey="true" nullable="false" primaryKeyName="PK_APP_RELEASE_FILE"/>
-            </column>
-            <column name="app_release_id" remarks="应用程序发行版标识" type="int">
-            	<constraints nullable="false"/>
-            </column>
-            <column name="target_os" remarks="操作系统类型" type="char(2)" defaultValue="99">
-                <constraints nullable="false"/>
-            </column>
-            <column name="arch" remarks="CPU 架构" type="char(2)" defaultValue="99">
-                <constraints nullable="false"/>
-            </column>            
-            <column name="file_name" remarks="文件名" type="varchar(255)">
-            	<constraints nullable="false"/>
-            </column>
-            <column name="file_path" remarks="文件的存储路径" type="varchar(255)">
-            	<constraints nullable="false"/>
-            </column>         
+	<changeSet author="Zhengwei Jin" id="201901101209">
+		<createTable tableName="app_release_file"
+			remarks="应用程序发行版文件信息">
+			<column name="dbid" type="int" autoIncrement="true">
+				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_APP_RELEASE_FILE" />
+			</column>
+			<column name="app_release_id" remarks="应用程序发行版标识" type="int">
+				<constraints nullable="false" />
+			</column>
+			<column name="target_os" remarks="操作系统类型" type="char(2)" defaultValue="99">
+				<constraints nullable="false" />
+			</column>
+			<column name="arch" remarks="CPU 架构" type="char(2)" defaultValue="99">
+				<constraints nullable="false" />
+			</column>
+			<column name="file_name" remarks="文件名" type="varchar(255)">
+				<constraints nullable="false" />
+			</column>
+			<column name="file_path" remarks="文件的存储路径" type="varchar(255)">
+				<constraints nullable="false" />
+			</column>
 			<column name="create_user_id" remarks="创建人标识" type="int">
 				<constraints nullable="false" />
 			</column>
@@ -34,11 +35,11 @@
 			</column>
 			<column name="last_update_user_id" remarks="最近修改人标识" type="int" />
 			<column name="last_update_time" remarks="最近修改时间" type="${datetime}" />
-        </createTable>
-        <addUniqueConstraint
-            columnNames="app_release_id,target_os,arch"
-            constraintName="UK_RELEASE_OS_ARCH"
-            tableName="app_release_file" />
-    </changeSet>
+		</createTable>
+
+		<addUniqueConstraint
+			columnNames="app_release_id,target_os,arch"
+			constraintName="UK_RELEASE_OS_ARCH" tableName="app_release_file" />
+	</changeSet>
 
 </databaseChangeLog>

@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
-        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
-        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-    <changeSet author="Zhengwei Jin" id="201901110905" >
-        <createTable tableName="installer" remarks="APP 安装器信息">
-            <column name="dbid" type="int" autoIncrement="true">
-                <constraints primaryKey="true" nullable="false" primaryKeyName="PK_INSTALLER"/>
-            </column>
-            <column name="web_server_id" remarks="应用服务器标识" type="int">
-            	<constraints nullable="false" />
-            </column>
-            <column name="app_release_id" remarks="app 发行版标识" type="int">
-                <constraints nullable="false" />
-            </column>
-            <column name="app_run_port" remarks="app 运行端口" type="int" defaultValueNumeric="80">
-                <constraints nullable="false"/>
-            </column>
-            <column name="installer_token" remarks="安装器 token" type="char(22)">
-                <constraints nullable="false"/>
-            </column>     
+	<changeSet author="Zhengwei Jin" id="201901110905">
+		<createTable tableName="installer" remarks="APP 安装器信息">
+			<column name="dbid" type="int" autoIncrement="true">
+				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_INSTALLER" />
+			</column>
+			<column name="web_server_id" remarks="应用服务器标识" type="int">
+				<constraints nullable="false" />
+			</column>
+			<column name="app_release_id" remarks="app 发行版标识" type="int">
+				<constraints nullable="false" />
+			</column>
+			<column name="app_run_port" remarks="app 运行端口" type="int" defaultValueNumeric="80">
+				<constraints nullable="false" />
+			</column>
+			<column name="installer_token" remarks="安装器 token" type="char(22)">
+				<constraints nullable="false" />
+			</column>
 			<column name="create_user_id" remarks="创建人标识" type="int">
 				<constraints nullable="false" />
 			</column>
@@ -31,7 +31,7 @@
 			</column>
 			<column name="last_update_user_id" remarks="最近修改人标识" type="int" />
 			<column name="last_update_time" remarks="最近修改时间" type="${datetime}" />
-        </createTable>
-    </changeSet>
+		</createTable>
+	</changeSet>
 
 </databaseChangeLog>
