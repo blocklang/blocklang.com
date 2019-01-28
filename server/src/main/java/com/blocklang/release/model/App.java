@@ -8,6 +8,7 @@ public class App extends PartialOperateFields{
 
 	private static final long serialVersionUID = 8193183175716557496L;
 	
+	// 如果是上传的 APP，则 projectId 就可能为空
 	@Column(name = "project_id")
 	private Integer projectId;
 	

@@ -42,9 +42,7 @@ public class GitTag {
 			 Git git = new Git(repo);
 			 RevWalk walk = new RevWalk(repo)){
 			Ref ref =  git.tag().setName(tagName).setMessage(message).call();
-			
 			return walk.parseCommit(ref.getObjectId());
-			
 		} catch (IOException | GitAPIException e) {
 			throw new GitTagFailedException(e);
 		}
