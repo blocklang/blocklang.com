@@ -13,5 +13,6 @@
 	<include file="db/changelog/table/201901110857_create_web_server.xml" />
 	<include file="db/changelog/table/201901110905_create_installer.xml" />
 	<include file="db/changelog/table/201901281630_create_project_tag.xml" />
+	<include file="db/changelog/table/201901281804_create_project_build.xml" />
 
 </databaseChangeLog>
