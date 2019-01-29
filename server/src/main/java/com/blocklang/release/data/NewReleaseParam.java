@@ -15,6 +15,8 @@ public class NewReleaseParam {
 	@NotBlank(message = "{NotBlank.releaseName}")
 	private String name;
 	private String description;
+	// 如果用户没有设置，则获取系统支持的最新 jdk
+	private String jdkVersion;
 
 	public String getVersion() {
 		return version;
@@ -40,9 +42,18 @@ public class NewReleaseParam {
 		this.description = description;
 	}
 
-	@Override
-	public String toString() {
-		return "NewReleaseParam [version=" + version + ", name=" + name + ", description=" + description + "]";
+	public String getJdkVersion() {
+		return jdkVersion;
 	}
 
+	public void setJdkVersion(String jdkVersion) {
+		this.jdkVersion = jdkVersion;
+	}
+
+	@Override
+	public String toString() {
+		return "NewReleaseParam [version=" + version + ", name=" + name + ", description=" + description
+				+ ", jdkVersion=" + jdkVersion + "]";
+	}
+	
 }

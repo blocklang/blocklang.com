@@ -13,8 +13,10 @@ public class ProjectTag extends PartialOperateFields {
 
 	@Column(name = "project_id", nullable = false)
 	private Integer projectId;
+	
 	@Column(name = "version", nullable = false, length = 32)
 	private String version;
+	
 	@Column(name = "git_tag_id", nullable = false, length = 50)
 	private String gitTagId;
 

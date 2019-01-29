@@ -2,11 +2,13 @@ package com.blocklang.release.controller;
 
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.Matchers.hasItems;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
@@ -23,8 +25,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.service.ProjectService;
 import com.blocklang.release.data.NewReleaseParam;
+import com.blocklang.release.model.ProjectBuild;
 import com.blocklang.release.model.ProjectTag;
-import com.blocklang.release.service.GitService;
+import com.blocklang.release.service.BuildToolService;
+import com.blocklang.release.service.GitToolService;
 import com.blocklang.release.service.ProjectBuildService;
 import com.blocklang.release.service.ProjectTagService;
 
@@ -48,7 +52,10 @@ public class ReleaseControllerTest {
 	private ProjectBuildService projectBuildService;
 	
 	@MockBean
-	private GitService gitService;
+	private GitToolService gitToolService;
+	
+	@MockBean
+	private BuildToolService buildToolService;
 	
 	@Before
 	public void setUp() {
@@ -119,7 +126,7 @@ public class ReleaseControllerTest {
 		
 		when(projectTagService.find(anyInt(), anyString())).thenReturn(Optional.empty());
 		
-		when(gitService.tag(any())).thenReturn(Optional.empty());
+		when(gitToolService.tag(any())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -144,7 +151,7 @@ public class ReleaseControllerTest {
 		when(projectTagService.find(anyInt(), anyString())).thenReturn(Optional.empty());
 		
 		String tagId = "i-am-git-tag-object-id";
-		when(gitService.tag(any())).thenReturn(Optional.of(tagId));
+		when(gitToolService.tag(any())).thenReturn(Optional.of(tagId));
 		
 		ProjectTag projectTag = new ProjectTag();
 		projectTag.setId(1);
@@ -158,6 +165,46 @@ public class ReleaseControllerTest {
 		
 		verify(projectTagService).save(any());
 		verify(projectBuildService).save(any());
+	}
+	
+	@Test
+	public void post_release_build_success() {
+		NewReleaseParam release = prepareNewParam();
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setCreateUserName("jack");
+		project.setProjectName("demo_project");
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		when(projectTagService.find(anyInt(), anyString())).thenReturn(Optional.empty());
+		
+		ProjectTag projectTag = new ProjectTag();
+		projectTag.setId(2);
+		when(projectTagService.save(any())).thenReturn(projectTag);
+		
+		ProjectBuild projectBuild = new ProjectBuild();
+		projectBuild.setId(3);
+		when(projectBuildService.save(any())).thenReturn(projectBuild);
+		
+		when(buildToolService.runNpmInstall(any())).thenReturn(true);
+		when(buildToolService.runDojoBuild(any())).thenReturn(true);
+		when(buildToolService.copyDojoDistToSpringBoot(any())).thenReturn(true);
+		when(buildToolService.runMavenInstall(any())).thenReturn(true);
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(release)
+		.when()
+			.post("/projects/{owner}/{projectName}/releases", "jack", "demo_project")
+		.then()
+			// TODO：这里使用此 code，感觉不妥，考虑代码中如何更好的表现此逻辑
+			.statusCode(HttpStatus.SC_CREATED)
+			.body("id", is(3), 
+				  "version", equalTo("0.1.0"), 
+				  "name", equalTo("发行版名称"),
+				  "description", equalTo("发行版描述"));
+	
 	}
 
 	private NewReleaseParam prepareNewParam() {

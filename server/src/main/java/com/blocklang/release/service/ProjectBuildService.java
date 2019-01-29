@@ -6,4 +6,6 @@ public interface ProjectBuildService {
 
 	ProjectBuild save(ProjectBuild projectBuild);
 
+	void update(ProjectBuild projectBuild);
+
 }

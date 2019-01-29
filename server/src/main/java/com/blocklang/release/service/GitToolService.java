@@ -4,7 +4,13 @@ import java.util.Optional;
 
 import com.blocklang.release.task.AppBuildContext;
 
-public interface GitService {
+/**
+ * 简单封装 git 操作
+ * 
+ * @author Zhengwei Jin
+ *
+ */
+public interface GitToolService {
 
 	/**
 	 * 为项目的 git 仓库添加标签

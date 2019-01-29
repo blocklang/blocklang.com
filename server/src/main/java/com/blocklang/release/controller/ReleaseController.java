@@ -1,6 +1,8 @@
 package com.blocklang.release.controller;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.validation.Valid;
 
@@ -22,7 +24,8 @@ import com.blocklang.release.constant.BuildResult;
 import com.blocklang.release.data.NewReleaseParam;
 import com.blocklang.release.model.ProjectBuild;
 import com.blocklang.release.model.ProjectTag;
-import com.blocklang.release.service.GitService;
+import com.blocklang.release.service.BuildToolService;
+import com.blocklang.release.service.GitToolService;
 import com.blocklang.release.service.ProjectBuildService;
 import com.blocklang.release.service.ProjectTagService;
 import com.blocklang.release.task.AppBuildContext;
@@ -42,7 +45,10 @@ public class ReleaseController {
 	private ProjectBuildService projectBuildService;
 	
 	@Autowired
-	private GitService gitService;
+	private GitToolService gitService;
+	
+	@Autowired
+	private BuildToolService buildToolService;
 	
 	@PostMapping("projects/{owner}/{projectName}/releases")
 	public ResponseEntity<?> newRelease(
@@ -72,15 +78,19 @@ public class ReleaseController {
 		String projectsRootPath = "E:/data/blocklang"; // TODO: 从系统参数中读取
 		String mavenRootPath = "c:/Users/Administrator/.m2"; // TODO: 从系统参数中读取
 		
-		AppBuildContext context = new AppBuildContext(projectsRootPath, mavenRootPath, owner, projectName, release.getVersion());
+		AppBuildContext appBuildContext = new AppBuildContext(projectsRootPath, mavenRootPath, owner, projectName, release.getVersion());
 		// 为 git 仓库打标签
 		logger.info("开始为 git 仓库打标签");
-		String tagId = gitService.tag(context).orElseThrow(() -> {
+		String tagId = gitService.tag(appBuildContext).orElseThrow(() -> {
 			logger.error("为 Git 仓库添加附注标签失败");
 			bindingResult.reject("Error.gitTag");
 			throw new InvalidRequestException(bindingResult);
 		});
 		logger.info("为 Git 仓库添加附注标签成功");
+		
+		// build 是一个完整的过程，过程中的任何一个环节出错，则该过程就出错
+		// 但不管最终是成功还是失败都是一个结果，而不需要为不同的结果设置不同的状态码
+		// 不论成功或失败，状态码都应该是一个。
 		
 		// 注意：
 		// 后续的数据库存储操作，因为都隶属于孤立的流程节点，
@@ -102,20 +112,42 @@ public class ReleaseController {
 		projectBuild.setProjectTagId(projectTagId);
 		projectBuild.setStartTime(LocalDateTime.now());
 		projectBuild.setBuildResult(BuildResult.STARTED);
-		projectBuildService.save(projectBuild);
+		ProjectBuild savedProjectBuild = projectBuildService.save(projectBuild);
 		
+		// TODO: 考虑将代码放在 controller 中还是 service 中好
 		// 开始对项目进行个性化配置
 		// 1. dojo 项目
 		// 2. spring boot 项目
 		
+		boolean buildSuccess = false;
 		// 开始构建 dojo 项目
 		// 1. 安装依赖
+		buildSuccess = buildToolService.runNpmInstall(appBuildContext);
 		// 2. 构建 dojo 项目
+		if(buildSuccess) {
+			buildSuccess = buildToolService.runDojoBuild(appBuildContext);
+		}
+		
 		// 3. 将发布的 dojo 代码复制到 spring boot 的 static 和 templates 文件夹中
+		if(buildSuccess) {
+			buildSuccess = buildToolService.copyDojoDistToSpringBoot(appBuildContext);
+		}
 		
 		// 开始构建 spring boot 项目
+		if(buildSuccess) {
+			buildSuccess = buildToolService.runMavenInstall(appBuildContext);
+		}
 		
-		return null;
+		// 修改构建状态
+		savedProjectBuild.setEndTime(LocalDateTime.now());
+		savedProjectBuild.setBuildResult(buildSuccess ? BuildResult.PASSED : BuildResult.FAILED);
+		projectBuildService.update(savedProjectBuild);
+		
+		// 构建成功后，存储 APP 发布信息
+		
+		
+		Map<String, Object> data = new HashMap<String, Object>();
+		return ResponseEntity.ok(data);
 		
 	}
 	
