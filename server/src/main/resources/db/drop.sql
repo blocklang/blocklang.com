@@ -6,6 +6,7 @@ drop table installer;
 drop table web_server;
 drop table project_tag;
 drop table project_build;
+drop table project_release_task;
 
 drop table databasechangelog;
 drop table databasechangeloglock;
