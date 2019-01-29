@@ -1,7 +1,10 @@
 package com.blocklang.release.task;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -16,6 +19,7 @@ public class AppBuildContext {
 	private String projectsRootPath;
 	
 	private LocalDateTime startLogTime;
+	private Path logFilePath;
 	
 	public AppBuildContext(String projectsRootPath, 
 			String mavenRootPath, 
@@ -66,15 +70,27 @@ public class AppBuildContext {
 				this.projectName + "-" + this.version + ".jar");
 	}
 
-	public Path getLogDirectory() {
+	private Path getLogDirectory() {
 		return this.getProjectRootDirectory().resolve("logs");
 	}
 	
-	public String getLogFileName() {
+	private String getLogFileName() {
 		if(startLogTime == null) {
 			startLogTime = LocalDateTime.now();
 		}
 		return this.projectName + "-" + this.version + "-" + startLogTime.format(DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss")) + ".log";
+	}
+	
+	public Path getLogFilePath() throws IOException {
+		if(logFilePath == null) {
+			Path logFileDir = this.getLogDirectory();
+			String logFileName = this.getLogFileName();
+			Files.createDirectories(logFileDir);
+			
+			logFilePath = logFileDir.resolve(logFileName);
+		}
+		
+		return logFilePath;
 	}
 
 	public Path getDojoDistDirectory() {
@@ -106,5 +122,9 @@ public class AppBuildContext {
 			return this.version;
 		}
 		return "v" + this.version;
+	}
+	
+	public void log(String message) throws IOException {
+		Files.writeString(getLogFilePath(), message, StandardOpenOption.APPEND);
 	}
 }

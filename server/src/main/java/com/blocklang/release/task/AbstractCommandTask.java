@@ -2,7 +2,6 @@ package com.blocklang.release.task;
 
 import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -21,12 +20,8 @@ public abstract class AbstractCommandTask extends AbstractTask{
 		ProcessBuilder processBuilder = new ProcessBuilder(commands).directory(workingDirectory.toFile());
 		
 		try {
-			
-			Path logFileDir = appBuildContext.getLogDirectory();
-			String logFileName = appBuildContext.getLogFileName();
-			Files.createDirectories(logFileDir);
 			processBuilder.redirectErrorStream(true);
-			processBuilder.redirectOutput(Redirect.appendTo(logFileDir.resolve(logFileName).toFile()));
+			processBuilder.redirectOutput(Redirect.appendTo(appBuildContext.getLogFilePath().toFile()));
 			
 			Process process = processBuilder.start();
 			
