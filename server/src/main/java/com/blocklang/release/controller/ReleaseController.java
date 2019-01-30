@@ -1,15 +1,15 @@
 package com.blocklang.release.controller;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,16 +20,19 @@ import com.blocklang.develop.model.Project;
 import com.blocklang.develop.service.ProjectService;
 import com.blocklang.exception.InvalidRequestException;
 import com.blocklang.exception.ResourceNotFoundException;
-import com.blocklang.release.constant.BuildResult;
-import com.blocklang.release.data.NewReleaseParam;
-import com.blocklang.release.model.ProjectBuild;
+import com.blocklang.release.constant.ReleaseResult;
+import com.blocklang.release.data.NewReleaseTaskParam;
+import com.blocklang.release.model.ProjectReleaseTask;
 import com.blocklang.release.model.ProjectTag;
-import com.blocklang.release.service.BuildToolService;
+import com.blocklang.release.service.BuildService;
 import com.blocklang.release.service.GitToolService;
 import com.blocklang.release.service.ProjectBuildService;
+import com.blocklang.release.service.ProjectReleaseTaskService;
 import com.blocklang.release.service.ProjectTagService;
-import com.blocklang.release.task.AppBuildContext;
 
+import de.skuzzle.semantic.Version;
+
+@EnableAsync
 @RestController
 public class ReleaseController {
 
@@ -42,37 +45,71 @@ public class ReleaseController {
 	private ProjectTagService projectTagService;
 	
 	@Autowired
-	private ProjectBuildService projectBuildService;
+	private ProjectReleaseTaskService projectReleaseTaskService;
 	
 	@Autowired
-	private GitToolService gitService;
-	
-	@Autowired
-	private BuildToolService buildToolService;
+	private BuildService buildService;
 	
 	@PostMapping("projects/{owner}/{projectName}/releases")
-	public ResponseEntity<?> newRelease(
+	public ResponseEntity<ProjectReleaseTask> newRelease(
 			@PathVariable("owner") String owner,
 			@PathVariable("projectName") String projectName,
-			@Valid @RequestBody NewReleaseParam release,
+			@Valid @RequestBody NewReleaseTaskParam releaseTask,
 			BindingResult bindingResult) {
 		if(bindingResult.hasErrors()) {
-			logger.error("发布信息不完整：{}", release);
+			logger.error("发布信息不完整：{}", releaseTask);
+			throw new InvalidRequestException(bindingResult);
+		}
+		
+		if(!Version.isValidVersion(releaseTask.getVersion())) {
+			logger.error("不是有效的语义化版本");
+			bindingResult.rejectValue("version", "NotValid.version");
 			throw new InvalidRequestException(bindingResult);
 		}
 		
 		// 获取项目基本信息
 		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
 		
-		// 获取项目的 git 仓库信息
-		projectTagService.find(project.getId(), release.getVersion()).ifPresent(projectTag -> {
-			logger.error("版本号 {} 已被占用", release.getVersion());
+		// 获取项目的 git 标签信息
+		projectTagService.find(project.getId(), releaseTask.getVersion()).ifPresent(projectTag -> {
+			logger.error("版本号 {} 已被占用", releaseTask.getVersion());
 			bindingResult.rejectValue("version", "Duplicated.version", new Object[] {
-					release.getVersion()
+					releaseTask.getVersion()
 			}, null);
 			throw new InvalidRequestException(bindingResult);
 		});
 		
+		// 获取最新的 git 标签信息
+		projectTagService.findLatestTag(project.getId()).ifPresent(projectTag -> {
+			Version previousVersion = Version.parseVersion(projectTag.getVersion(), true);
+			Version currentVersion = Version.parseVersion(releaseTask.getVersion(), true);
+			if(!currentVersion.isGreaterThan(previousVersion)) {
+				logger.error("版本号应大于项目最新的版本号，但 {} 没有大于 {}", releaseTask.getVersion(), projectTag.getVersion());
+				bindingResult.rejectValue("version", "NotValid.compareVersion", new Object[] {
+						releaseTask.getVersion(), 
+						projectTag.getVersion()}, null);
+				throw new InvalidRequestException(bindingResult);
+			}
+		});
+
+		ProjectReleaseTask task = new ProjectReleaseTask();
+		task.setProjectId(project.getId());
+		task.setVersion(releaseTask.getVersion());
+		task.setTitle(releaseTask.getTitle());
+		task.setDescription(releaseTask.getDescription());
+		task.setJdkAppId(releaseTask.getJdkAppId());
+		task.setStartTime(LocalDateTime.now());
+		task.setReleaseResult(ReleaseResult.STARTED);
+		task.setCreateTime(LocalDateTime.now());
+		task.setCreateUserId(1); // TODO: 从 session 中获取
+		ProjectReleaseTask savedTask = projectReleaseTaskService.save(task);
+		
+		// build 时间较长，放在异步方法中
+		buildService.build(project, savedTask);
+		
+		return new ResponseEntity<ProjectReleaseTask>(savedTask, HttpStatus.CREATED);
+		
+		/**
 		logger.info("==============================");
 		logger.info("开始 build @{}/{} 项目", owner, projectName);
 		String projectsRootPath = "E:/data/blocklang"; // TODO: 从系统参数中读取
@@ -145,9 +182,10 @@ public class ReleaseController {
 		
 		// 构建成功后，存储 APP 发布信息
 		
+		**/
 		
-		Map<String, Object> data = new HashMap<String, Object>();
-		return ResponseEntity.ok(data);
+		
+		
 		
 	}
 	

@@ -10,4 +10,6 @@ public interface ProjectTagService {
 
 	ProjectTag save(ProjectTag projectTag);
 
+	Optional<ProjectTag> findLatestTag(Integer projectId);
+
 }

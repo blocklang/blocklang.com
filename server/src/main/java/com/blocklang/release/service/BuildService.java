@@ -1,5 +1,7 @@
 package com.blocklang.release.service;
 
+import com.blocklang.develop.model.Project;
+import com.blocklang.release.model.ProjectReleaseTask;
 import com.blocklang.release.task.AppBuildContext;
 
 /**
@@ -10,7 +12,7 @@ import com.blocklang.release.task.AppBuildContext;
  * @author Zhengwei Jin
  *
  */
-public interface BuildToolService {
+public interface BuildService {
 
 	/**
 	 * 运行 npm install 命令
@@ -25,5 +27,13 @@ public interface BuildToolService {
 	boolean copyDojoDistToSpringBoot(AppBuildContext appBuildContext);
 
 	boolean runMavenInstall(AppBuildContext appBuildContext);
+	
+	/**
+	 * 构建 block lang 项目，该方法属于异步方法。
+	 * 
+	 * @param project
+	 * @param releaseTask
+	 */
+	void build(Project project, ProjectReleaseTask releaseTask);
 
 }

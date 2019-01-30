@@ -1,6 +1,7 @@
 package com.blocklang.release.data;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 /**
  * 创建发行版时使用的参数
@@ -8,15 +9,16 @@ import javax.validation.constraints.NotBlank;
  * @author Zhengwei Jin
  *
  */
-public class NewReleaseParam {
+public class NewReleaseTaskParam {
 
 	@NotBlank(message = "{NotBlank.version}")
 	private String version;
-	@NotBlank(message = "{NotBlank.releaseName}")
-	private String name;
+	@NotBlank(message = "{NotBlank.releaseTitle}")
+	private String title;
 	private String description;
 	// 如果用户没有设置，则获取系统支持的最新 jdk
-	private String jdkVersion;
+	@NotNull(message = "{NotNull.jdkAppId}")
+	private Integer jdkAppId;
 
 	public String getVersion() {
 		return version;
@@ -26,12 +28,12 @@ public class NewReleaseParam {
 		this.version = version;
 	}
 
-	public String getName() {
-		return name;
+	public String getTitle() {
+		return title;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setTitle(String title) {
+		this.title = title;
 	}
 
 	public String getDescription() {
@@ -42,18 +44,18 @@ public class NewReleaseParam {
 		this.description = description;
 	}
 
-	public String getJdkVersion() {
-		return jdkVersion;
+	public Integer getJdkAppId() {
+		return jdkAppId;
 	}
 
-	public void setJdkVersion(String jdkVersion) {
-		this.jdkVersion = jdkVersion;
+	public void setJdkAppId(Integer jdkAppId) {
+		this.jdkAppId = jdkAppId;
 	}
 
 	@Override
 	public String toString() {
-		return "NewReleaseParam [version=" + version + ", name=" + name + ", description=" + description
-				+ ", jdkVersion=" + jdkVersion + "]";
+		return "NewReleaseParam [version=" + version + ", title=" + title + ", description=" + description
+				+ ", jdkAppId=" + jdkAppId + "]";
 	}
-	
+
 }

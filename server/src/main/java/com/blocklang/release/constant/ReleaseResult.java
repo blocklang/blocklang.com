@@ -4,6 +4,8 @@ import java.util.Arrays;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum ReleaseResult {
 	
 	INITED("01", "Inited"),
@@ -20,6 +22,7 @@ public enum ReleaseResult {
 		this.value = value;
 	}
 
+	@JsonValue
 	public String getKey() {
 		return this.key;
 	}
