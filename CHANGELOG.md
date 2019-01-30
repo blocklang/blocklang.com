@@ -89,6 +89,7 @@
 2. 完成 ReleaseController 的 newRelease 方法
 3. 创建业务逻辑层的实现类，解决 travis-ci 找不到实现 bean 的问题
 4. 实现 `ProjectTagService` 接口
+5. 实现 `ProjectReleaseTaskService` 接口
 
 ## TODO
 
