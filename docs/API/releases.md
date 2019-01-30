@@ -2,6 +2,7 @@
 
 ## 自动化构建并发布 APP
 
+本服务主要用户登记一个项目发布任务，并触发项目发布流程。
 具有项目管理权限的用户才有权创建一个发行版。
 
 APP 的构建是基于git tag 标识的版本信息，在发布过程中会为项目创建一个 tag。
@@ -16,11 +17,12 @@ POST /projects/{owner}/{projectName}/releases
 
 ### Parameters
 
-| Name          | Type     | Description                         |
-| ------------- | -------- | ----------------------------------- |
-| `version`     | `string` | **Required**. 语义化版本，如 v0.1.0 |
-| `name`        | `string` | **Required**. 发行版的名称          |
-| `description` | `string` | 发行版的描述                        |
+| Name          | Type     | Description                        |
+| ------------- | -------- | ---------------------------------- |
+| `version`     | `string` | **Required**. 语义化版本，如 0.1.0 |
+| `title`       | `string` | **Required**. 发行版标题           |
+| `description` | `string` | 发行版描述                         |
+| `jdkAppId`    | `int`    | jdk 的 APP 标识                    |
 
 ### Response
 
@@ -32,10 +34,12 @@ Status: 422 Unprocessable Entity
 
 只有通过以下校验后，才能开始注册：
 
-1. `version` 不能为空
-2. `name` 不能为空
-3. `version` 已被占用
-4. `version` 的值要大于上一个版本
+1. `version` 不能为空字符串
+2. `title` 不能为空字符串
+3. `jdkAppId` 必须选定一个 JDK
+4. `version` 必须是一个有效的语义化标签
+5. `version` 已被占用
+6. `version` 的值要大于上一个版本
 
 创建成功
 
@@ -43,9 +47,14 @@ Status: 422 Unprocessable Entity
 Status: 201 CREATED
 ```
 
-| Name          | Type     | Description           |
-| ------------- | -------- | --------------------- |
-| `id`          | `int`    | 发行版标识            |
-| `version`     | `string` | 语义化版本，如 v0.1.0 |
-| `name`        | `string` | 发行版的名称          |
-| `description` | `string` | 发行版的描述          |
+| Name            | Type     | Description           |
+| --------------- | -------- | --------------------- |
+| `id`            | `int`    | 发行版标识            |
+| `projectId`     | `int`    | 项目标识              |
+| `version`       | `string` | 语义化版本，如 v0.1.0 |
+| `title`         | `string` | 发行版标题            |
+| `description`   | `string` | 发行版描述            |
+| `jdkAppId`      | `string` | JDK APP 标识          |
+| `startTime`     | `string` | 发布开始时间          |
+| `endTime`       | `string` | 发布开始时间          |
+| `releaseResult` | `string` | 发布结果              |
