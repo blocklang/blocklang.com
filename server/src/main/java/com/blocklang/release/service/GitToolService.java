@@ -10,6 +10,7 @@ import com.blocklang.release.task.AppBuildContext;
  * @author Zhengwei Jin
  *
  */
+@Deprecated
 public interface GitToolService {
 
 	/**

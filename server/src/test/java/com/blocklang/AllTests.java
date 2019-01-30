@@ -13,6 +13,7 @@ import com.blocklang.release.service.impl.AppReleaseRelationServiceImplTest;
 import com.blocklang.release.service.impl.AppReleaseServiceImplTest;
 import com.blocklang.release.service.impl.AppServiceImplTest;
 import com.blocklang.release.service.impl.InstallerServiceImplTest;
+import com.blocklang.release.service.impl.ProjectTagServiceImplTest;
 import com.blocklang.release.service.impl.WebServerServiceImplTest;
 import com.blocklang.release.task.AppBuildContextTest;
 import com.blocklang.util.IdGeneratorTest;
@@ -37,7 +38,8 @@ import com.blocklang.util.IdGeneratorTest;
 	AppReleaseRelationServiceImplTest.class,
 	AppReleaseFileServiceImplTest.class,
 	InstallerServiceImplTest.class,
-	WebServerServiceImplTest.class
+	WebServerServiceImplTest.class,
+	ProjectTagServiceImplTest.class
 })
 public class AllTests {
 

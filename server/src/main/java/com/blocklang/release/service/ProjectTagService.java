@@ -8,8 +8,6 @@ public interface ProjectTagService {
 
 	Optional<ProjectTag> find(Integer projectId, String version);
 
-	ProjectTag save(ProjectTag projectTag);
-
 	Optional<ProjectTag> findLatestTag(Integer projectId);
 
 }

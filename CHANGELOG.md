@@ -78,6 +78,18 @@
 2. 设计 GIT_TAG 和 BUILD 表结构
 3. 实现 GitTag 命令
 
+## 2019-01-29
+
+1. 重构 `AppBuildContext` 类
+2. 创建 `PROJECT_RELEASE_TASK` 数据库表
+
+## 2019-01-30
+
+1. 完善 releases.md 文档
+2. 完成 ReleaseController 的 newRelease 方法
+3. 创建业务逻辑层的实现类，解决 travis-ci 找不到实现 bean 的问题
+4. 实现 `ProjectTagService` 接口
+
 ## TODO
 
 1. 学习 Spring boot cache
@@ -87,3 +99,6 @@
 5. 查询系统支持的所有 JDK 版本
 6. 日志详细记录到对应的日志文件中，然后分别开发历史日志读取服务和实时日志跟踪服务
 7. 学习 Spring Boot 的异步方法，并应用到 build 服务中
+8. 编写登记项目发布信息 API，采用异步方法
+9. 编写获取项目发布日志 API
+10. 编写实时读取发布日志 API，采用 websocket
