@@ -1,32 +1,41 @@
 package com.blocklang.release.task;
 
 import java.nio.file.Path;
+import java.util.Optional;
 
 import org.eclipse.jgit.lib.Constants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.eclipse.jgit.lib.Ref;
 
 import com.blocklang.git.GitUtils;
 import com.blocklang.git.exception.GitTagFailedException;
 
 public class GitTagTask extends AbstractTask{
 
-	private Logger logger = LoggerFactory.getLogger(GitTagTask.class);
+	private Path gitDir;
 	
 	public GitTagTask(AppBuildContext appBuildContext) {
 		super(appBuildContext);
+		// 获取已存在的 git 仓库
+		gitDir = appBuildContext.getGitRepositoryDirectory().resolve(Constants.DOT_GIT);
 	}
 
 	// 为 git 仓库打标签
 	@Override
-	public boolean run() {
-		// 获取已存在的 git 仓库
-		Path gitDir = appBuildContext.getGitRepositoryDirectory().resolve(Constants.DOT_GIT);
+	public Optional<String> run() {
 		try {
-			GitUtils.tagThenReturnCommitId(gitDir, appBuildContext.getTagName(), "");
-			return true;
+			Ref tag = GitUtils.tag(gitDir, appBuildContext.getTagName(), "");
+			return Optional.of(tag.getObjectId().getName());
 		} catch (GitTagFailedException e) {
-			logger.error(e.getMessage(), e);
+			appBuildContext.error(e);
+			return Optional.empty();
+		}
+	}
+	
+	public boolean exists() {
+		try {
+			return GitUtils.getTag(gitDir, appBuildContext.getTagName()).map((tag) -> {return true;}).orElse(false);
+		} catch (GitTagFailedException e) {
+			appBuildContext.error(e);
 			return false;
 		}
 	}

@@ -202,6 +202,7 @@
 3. linux 系统的文件名最大长度是255，windows 系统的文件名最大长度是260，所以 `file_name` 的长度是255
 4. 区别：`target_os` 的值为 `linux`，但 `os_type` 的值可具体到 `ubuntu`
 5. 如果是跨平台，则 `target_os` 值为 `Any`
+6. 如果是使用 maven 自动构建的文件，则使用 maven 自动生成的文件名
 
 ### `WEB_SERVER` - 应用服务器信息
 

@@ -2,6 +2,7 @@ package com.blocklang.git;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Optional;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -48,4 +49,13 @@ public class GitTag {
 		}
 	}
 
+	public Optional<Ref> getTag(Path gitRepoPath, String tagName) {
+		Path gitDir = gitRepoPath.resolve(Constants.DOT_GIT);
+		try (Repository repo = FileRepositoryBuilder.create(gitDir.toFile())) {
+			Ref tag = repo.findRef(tagName);
+			return Optional.ofNullable(tag);
+		} catch (IOException e) {
+			throw new GitTagFailedException("get tag by tag name failed", e);
+		}
+	}
 }

@@ -3,16 +3,13 @@ package com.blocklang.release.task;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.lang3.SystemUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public class MavenInstallTask extends AbstractCommandTask{
 
-	private static final Logger logger = LoggerFactory.getLogger(MavenInstallTask.class);
-	
 	public static void main(String[] args){
 		// 设置工作目录
 		String projectsRootPath = "E:\\data\\temp\\blocklang-release";
@@ -39,7 +36,7 @@ public class MavenInstallTask extends AbstractCommandTask{
 	 * @return
 	 */
 	@Override
-	public boolean run() {
+	public Optional<Boolean> run() {
 		List<String> commands = new ArrayList<>();
 		if(SystemUtils.IS_OS_WINDOWS) {
 			commands.add("mvnw.cmd");
@@ -49,15 +46,12 @@ public class MavenInstallTask extends AbstractCommandTask{
 		commands.add("clean");
 		commands.add("install");
 		
-		logger.info("开始执行 mvnw clean install 命令");
-		
 		Path workingDirectory = appBuildContext.getServerProjectRootDirectory();
 		boolean success = runCommand(workingDirectory, commands);
 		if(success) {
-			logger.info("mvnw clean install 命令执行成功！");
+			return Optional.of(true);
 		} else {
-			logger.error("mvnw clean install 命令执行失败！");
+			return Optional.empty();
 		}
-		return success;
 	}
 }

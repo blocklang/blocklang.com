@@ -12,4 +12,6 @@ public interface AppDao extends JpaRepository<App, Integer>{
 
 	Optional<App> findByAppName(String appName);
 
+	Optional<App> findByProjectId(Integer id);
+
 }

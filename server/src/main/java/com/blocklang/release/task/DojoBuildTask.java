@@ -3,15 +3,12 @@ package com.blocklang.release.task;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.lang3.SystemUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class DojoBuildTask extends AbstractCommandTask{
 
-	private static final Logger logger = LoggerFactory.getLogger(DojoBuildTask.class);
-	
 	public static void main(String[] args) {
 		String projectsRootPath = "E:\\data\\temp\\blocklang-release";
 		String mavenRootPath = "C:\\Users\\Administrator\\.m2";
@@ -34,7 +31,7 @@ public class DojoBuildTask extends AbstractCommandTask{
 	 * @return
 	 */
 	@Override
-	public boolean run() {
+	public Optional<Boolean> run() {
 		List<String> commands = new ArrayList<>();
 
 		if(SystemUtils.IS_OS_WINDOWS) {
@@ -46,16 +43,13 @@ public class DojoBuildTask extends AbstractCommandTask{
 		commands.add("--mode");
 		commands.add("dist");
 		
-		logger.info("开始执行 dojo build --mode dist 命令");
-		
 		Path workingDirectory = appBuildContext.getClientProjectRootDirectory();
 		boolean success = runCommand(workingDirectory, commands);
 		if(success) {
-			logger.info("dojo build --mode dist 命令执行成功！");
+			return Optional.of(success);
 		} else {
-			logger.error("dojo build --mode dist 命令执行失败！");
+			return Optional.empty();
 		}
-		return success;
 	}
 	
 }

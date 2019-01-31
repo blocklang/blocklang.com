@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Ref;
@@ -100,6 +101,11 @@ public class GitUtils {
 	public static String tagThenReturnCommitId(Path gitRepoPath, String tagName, String message) {
 		GitTag gitTag = new GitTag();
 		return gitTag.tagThenReturnCommit(gitRepoPath, tagName, message).getName();
+	}
+
+	public static Optional<Ref> getTag(Path gitRepoPath, String tagName) {
+		GitTag gitTag = new GitTag();
+		return gitTag.getTag(gitRepoPath, tagName);
 	}
 
 }

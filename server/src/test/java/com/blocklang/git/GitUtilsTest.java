@@ -8,7 +8,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
+import org.eclipse.jgit.lib.Ref;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -77,8 +79,7 @@ public class GitUtilsTest {
 	public void git_tag_success() throws IOException {
 		// 新建一个 git 仓库
 		File folder = tempFolder.newFolder(gitRepoDirectory);
-		String commitId = GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
-		System.out.println(commitId);
+		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
 		
 		// 断言仓库的标签数
 		assertThat(GitUtils.getTagCount(folder.toPath()), is(0));
@@ -86,6 +87,24 @@ public class GitUtilsTest {
 		GitUtils.tag(folder.toPath(), "v0.1.0", "message");
 		// 断言仓库的标签数
 		assertThat(GitUtils.getTagCount(folder.toPath()), is(1));
+	}
+	
+	@Test
+	public void get_tag_success() throws IOException {
+		// 新建一个 git 仓库
+		File folder = tempFolder.newFolder(gitRepoDirectory);
+		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+		
+		// 为 git 仓库打标签
+		Ref existTag = GitUtils.tag(folder.toPath(), "v0.1.0", "message");
+		// 获取仓库标签
+		// 刚才添加的标签
+		Optional<Ref> getedTag = GitUtils.getTag(folder.toPath(), "v0.1.0");
+		assertThat(existTag.getObjectId().getName(), equalTo(getedTag.get().getObjectId().getName()));
+		
+		// 不存在的标签
+		getedTag = GitUtils.getTag(folder.toPath(), "v0.1.0-1");
+		assertThat(getedTag.isEmpty(), is(true));
 	}
 
 	private void assertContentEquals(Path filePath, String content) throws IOException{

@@ -5,12 +5,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 public class AppBuildContext {
+	
+	private static final Logger logger = LoggerFactory.getLogger(AppBuildContext.class);
 
 	private String owner;
 	private String projectName;
@@ -88,6 +93,9 @@ public class AppBuildContext {
 			Files.createDirectories(logFileDir);
 			
 			logFilePath = logFileDir.resolve(logFileName);
+			if(Files.notExists(logFilePath)) {
+				Files.createFile(logFilePath);
+			}
 		}
 		
 		return logFilePath;
@@ -124,7 +132,53 @@ public class AppBuildContext {
 		return "v" + this.version;
 	}
 	
-	public void log(String message) throws IOException {
-		Files.writeString(getLogFilePath(), message, StandardOpenOption.APPEND);
+	public void info(String pattern, Object... arguments) {
+		String message = null;
+		if(arguments.length == 0) {
+			message = pattern;
+		} else {
+			message = MessageFormat.format(pattern, arguments);
+		}
+		try {
+			Files.writeString(getLogFilePath(), "[INFO] " + message + System.lineSeparator(), StandardOpenOption.APPEND);
+		} catch (IOException e) {
+			logger.error("not found log file", e);
+		}
+	}
+	
+	public void log(String pattern, Object... arguments) {
+		String message = null;
+		if(arguments.length == 0) {
+			message = pattern;
+		} else {
+			message = MessageFormat.format(pattern, arguments);
+		}
+		try {
+			Files.writeString(getLogFilePath(), message + System.lineSeparator(), StandardOpenOption.APPEND);
+		} catch (IOException e) {
+			logger.error("not found log file", e);
+		}
+	}
+
+	public void error(Throwable e) {
+		try {
+			Files.writeString(getLogFilePath(), e.getMessage(), StandardOpenOption.APPEND);
+		} catch (IOException e1) {
+			logger.error("not found log file", e);
+		}
+	}
+	
+	public void error(String pattern, Object... arguments) {
+		String message = null;
+		if(arguments.length == 0) {
+			message = pattern;
+		} else {
+			message = MessageFormat.format(pattern, arguments);
+		}
+		try {
+			Files.writeString(getLogFilePath(), "[ERROR] " + message + System.lineSeparator(), StandardOpenOption.APPEND);
+		} catch (IOException e) {
+			logger.error("not found log file", e);
+		}
 	}
 }

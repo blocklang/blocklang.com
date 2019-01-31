@@ -12,6 +12,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -32,8 +33,6 @@ import com.blocklang.release.data.NewReleaseTaskParam;
 import com.blocklang.release.model.ProjectReleaseTask;
 import com.blocklang.release.model.ProjectTag;
 import com.blocklang.release.service.BuildService;
-import com.blocklang.release.service.GitToolService;
-import com.blocklang.release.service.ProjectBuildService;
 import com.blocklang.release.service.ProjectReleaseTaskService;
 import com.blocklang.release.service.ProjectTagService;
 
@@ -160,7 +159,7 @@ public class ReleaseControllerTest {
 	}
 	
 	@Test
-	public void post_release_started() {
+	public void post_release_started() throws IOException {
 		NewReleaseTaskParam release = prepareNewParam();
 		
 		Project project = new Project();

@@ -2,6 +2,7 @@ package com.blocklang.release.task;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
@@ -28,7 +29,7 @@ public class NpmInstallTask extends AbstractCommandTask {
 	}
 	
 	@Override
-	public boolean run() {
+	public Optional<Boolean> run() {
 		List<String> commands = new ArrayList<>();
 		if(SystemUtils.IS_OS_WINDOWS) {
 			commands.add("cnpm.cmd");
@@ -37,14 +38,11 @@ public class NpmInstallTask extends AbstractCommandTask {
 		}
 		commands.add("install");
 		
-		logger.info("开始执行 cnpm install 命令");
-		boolean success = runCommand(appBuildContext.getClientProjectRootDirectory(), commands);
-		if(success) {
-			logger.info("cnpm install 命令执行成功！");
+		boolean result = runCommand(appBuildContext.getClientProjectRootDirectory(), commands);
+		if(result) {
+			return Optional.of(true);
 		} else {
-			logger.error("cnpm install 命令执行失败！");
+			return Optional.empty();
 		}
-
-		return success;
 	}
 }

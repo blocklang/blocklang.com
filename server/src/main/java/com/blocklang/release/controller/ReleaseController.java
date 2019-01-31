@@ -89,6 +89,8 @@ public class ReleaseController {
 			}
 		});
 
+		Integer currentUserId = 1; // TODO: 从 session 中获取
+		
 		ProjectReleaseTask task = new ProjectReleaseTask();
 		task.setProjectId(project.getId());
 		task.setVersion(releaseTask.getVersion());
@@ -98,92 +100,13 @@ public class ReleaseController {
 		task.setStartTime(LocalDateTime.now());
 		task.setReleaseResult(ReleaseResult.STARTED);
 		task.setCreateTime(LocalDateTime.now());
-		task.setCreateUserId(1); // TODO: 从 session 中获取
+		task.setCreateUserId(currentUserId);
 		ProjectReleaseTask savedTask = projectReleaseTaskService.save(task);
 		
 		// build 时间较长，放在异步方法中
-		buildService.build(project, savedTask);
+		buildService.asyncBuild(project, savedTask);
 		
 		return new ResponseEntity<ProjectReleaseTask>(savedTask, HttpStatus.CREATED);
-		
-		/**
-		logger.info("==============================");
-		logger.info("开始 build @{}/{} 项目", owner, projectName);
-		String projectsRootPath = "E:/data/blocklang"; // TODO: 从系统参数中读取
-		String mavenRootPath = "c:/Users/Administrator/.m2"; // TODO: 从系统参数中读取
-		
-		AppBuildContext appBuildContext = new AppBuildContext(projectsRootPath, mavenRootPath, owner, projectName, release.getVersion());
-		// 为 git 仓库打标签
-		logger.info("开始为 git 仓库打标签");
-		String tagId = gitService.tag(appBuildContext).orElseThrow(() -> {
-			logger.error("为 Git 仓库添加附注标签失败");
-			bindingResult.reject("Error.gitTag");
-			throw new InvalidRequestException(bindingResult);
-		});
-		logger.info("为 Git 仓库添加附注标签成功");
-		
-		// build 是一个完整的过程，过程中的任何一个环节出错，则该过程就出错
-		// 但不管最终是成功还是失败都是一个结果，而不需要为不同的结果设置不同的状态码
-		// 不论成功或失败，状态码都应该是一个。
-		
-		// 注意：
-		// 后续的数据库存储操作，因为都隶属于孤立的流程节点，
-		// 每个节点都有保存失败的情况，不需要放在同一个数据库事务中。
-		
-		// 标签添加成功后，在数据库中记录标签信息
-		ProjectTag projectTag = new ProjectTag();
-		projectTag.setProjectId(project.getId());
-		projectTag.setVersion(release.getVersion());
-		projectTag.setGitTagId(tagId);
-		projectTag.setCreateTime(LocalDateTime.now());
-		projectTag.setCreateUserId(1); // TODO: 从 session 中获取信息
-		Integer projectTagId = projectTagService.save(projectTag).getId();
-		
-		// 开始 build，这里存储构建开始信息
-		ProjectBuild projectBuild = new ProjectBuild();
-		projectBuild.setCreateTime(LocalDateTime.now());
-		projectBuild.setCreateUserId(1); // TODO: 从 session 中获取信息
-		projectBuild.setProjectTagId(projectTagId);
-		projectBuild.setStartTime(LocalDateTime.now());
-		projectBuild.setBuildResult(BuildResult.STARTED);
-		ProjectBuild savedProjectBuild = projectBuildService.save(projectBuild);
-		
-		// TODO: 考虑将代码放在 controller 中还是 service 中好
-		// 开始对项目进行个性化配置
-		// 1. dojo 项目
-		// 2. spring boot 项目
-		
-		boolean buildSuccess = false;
-		// 开始构建 dojo 项目
-		// 1. 安装依赖
-		buildSuccess = buildToolService.runNpmInstall(appBuildContext);
-		// 2. 构建 dojo 项目
-		if(buildSuccess) {
-			buildSuccess = buildToolService.runDojoBuild(appBuildContext);
-		}
-		
-		// 3. 将发布的 dojo 代码复制到 spring boot 的 static 和 templates 文件夹中
-		if(buildSuccess) {
-			buildSuccess = buildToolService.copyDojoDistToSpringBoot(appBuildContext);
-		}
-		
-		// 开始构建 spring boot 项目
-		if(buildSuccess) {
-			buildSuccess = buildToolService.runMavenInstall(appBuildContext);
-		}
-		
-		// 修改构建状态
-		savedProjectBuild.setEndTime(LocalDateTime.now());
-		savedProjectBuild.setBuildResult(buildSuccess ? BuildResult.PASSED : BuildResult.FAILED);
-		projectBuildService.update(savedProjectBuild);
-		
-		// 构建成功后，存储 APP 发布信息
-		
-		**/
-		
-		
-		
-		
 	}
 	
 	// 校验版本号是否被占用

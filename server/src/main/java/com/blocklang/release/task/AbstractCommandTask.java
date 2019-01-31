@@ -30,7 +30,7 @@ public abstract class AbstractCommandTask extends AbstractTask{
 			}
 			return process.exitValue() == 0;
 		} catch (IOException | InterruptedException e) {
-			logger.error(e.getMessage(), e);
+			appBuildContext.error(e);
 		}
 		return false;
 	}
