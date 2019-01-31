@@ -91,6 +91,10 @@
 4. 实现 `ProjectTagService` 接口
 5. 实现 `ProjectReleaseTaskService` 接口
 
+## 2019-01-31
+
+1. 完成 `BuildService#build` 的开发
+
 ## TODO
 
 1. 学习 Spring boot cache
