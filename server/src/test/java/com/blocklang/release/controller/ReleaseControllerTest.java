@@ -198,7 +198,7 @@ public class ReleaseControllerTest {
 					"endTime", is(nullValue()),
 					"releaseResult", equalTo(ReleaseResult.STARTED.getKey()));
 		
-		verify(buildService).build(any(), any());
+		verify(buildService).asyncBuild(any(), any());
 	}
 	
 	private NewReleaseTaskParam prepareNewParam() {
