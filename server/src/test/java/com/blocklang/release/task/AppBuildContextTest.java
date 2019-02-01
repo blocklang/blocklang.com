@@ -91,5 +91,10 @@ public class AppBuildContextTest {
 	public void get_tag_name() {
 		assertThat(context.getTagName(), equalTo("v0.0.1"));
 	}
+	
+	@Test
+	public void get_project_template_directory() {
+		assertThat(context.getProjectTemplateDirectory().compareTo(Paths.get("c:/blocklang/template")), is(0));
+	}
 
 }

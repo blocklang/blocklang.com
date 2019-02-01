@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 
 import org.eclipse.jgit.lib.Constants;
@@ -106,6 +107,29 @@ public class GitUtils {
 	public static Optional<Ref> getTag(Path gitRepoPath, String tagName) {
 		GitTag gitTag = new GitTag();
 		return gitTag.getTag(gitRepoPath, tagName);
+	}
+	
+	/**
+	 * 从远程 git 仓库克隆项目
+	 * 
+	 * @param remoteGitUrl
+	 * @param localFolderPath
+	 */
+	public static void clone(String remoteGitUrl, Path localFolderPath) {
+		GitClone gitClone = new GitClone();
+		gitClone.execute(remoteGitUrl, localFolderPath);
+	}
+	
+	// 暂时不要删除此代码
+	// 用于本地测试 clone 和 pull 方法
+	public static void main(String[] args) {
+		System.out.println();
+		Path path = Paths.get("E:\\data\\blocklang\\template");
+		if(isGitRepo(path)) {
+			pull(path);
+		} else {
+			clone("https://github.com/blocklang/blocklang-template.git", path);
+		}
 	}
 
 }

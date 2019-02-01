@@ -181,4 +181,8 @@ public class AppBuildContext {
 			logger.error("not found log file", e);
 		}
 	}
+
+	public Path getProjectTemplateDirectory() {
+		return Paths.get(this.projectsRootPath, "template");
+	}
 }
