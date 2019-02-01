@@ -1,6 +1,5 @@
 package com.blocklang.release.task;
 
-import java.io.IOException;
 import java.util.Optional;
 
 public abstract class AbstractTask {
@@ -11,5 +10,5 @@ public abstract class AbstractTask {
 		this.appBuildContext = appBuildContext;
 	}
 	
-	public abstract Optional<?> run() throws IOException;
+	public abstract Optional<?> run();
 }

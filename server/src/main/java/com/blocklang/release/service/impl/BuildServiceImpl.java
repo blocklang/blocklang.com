@@ -36,9 +36,11 @@ import com.blocklang.release.service.BuildService;
 import com.blocklang.release.task.AppBuildContext;
 import com.blocklang.release.task.ClientDistCopyTask;
 import com.blocklang.release.task.DojoBuildTask;
+import com.blocklang.release.task.GitSyncProjectTemplateTask;
 import com.blocklang.release.task.GitTagTask;
 import com.blocklang.release.task.MavenInstallTask;
 import com.blocklang.release.task.NpmInstallTask;
+import com.blocklang.release.task.ProjectTemplateCopyTask;
 
 @Service
 public class BuildServiceImpl implements BuildService {
@@ -69,10 +71,13 @@ public class BuildServiceImpl implements BuildService {
 		StopWatch stopWatch = StopWatch.createStarted();
 		String projectsRootPath = "E:/data/blocklang"; // TODO: 从系统参数中读取
 		String mavenRootPath = "c:/Users/Administrator/.m2"; // TODO: 从系统参数中读取
+		// 或 https://gitee.com/blocklang/blocklang-template.git
+		String projectTemplateGitUrl = "https://github.com/blocklang/blocklang-template.git";
 
 		AppBuildContext context = new AppBuildContext(
 				projectsRootPath, 
 				mavenRootPath,
+				projectTemplateGitUrl,
 				project.getCreateUserName(),
 				project.getProjectName(),
 				releaseTask.getVersion());
@@ -82,9 +87,35 @@ public class BuildServiceImpl implements BuildService {
 		
 		boolean success = true;
 		
+		context.info(StringUtils.repeat("-", 45));
+		context.info("一、开始复制项目模板");
+		// 从 master 分支下载或更新项目模板
+		context.info("从远程 git 服务器克隆或拉取最新的源码");
+		GitSyncProjectTemplateTask gitSyncProjectTemplateTask = new GitSyncProjectTemplateTask(context);
+		Optional<Boolean> gitSyncOption = gitSyncProjectTemplateTask.run();
+		success = gitSyncOption.isPresent();
+		if(success) {
+			context.info("完成");
+		} else {
+			context.error("失败");
+		}
+		
+		if(success) {
+			context.info("开始将模板代码复制到项目文件夹中");
+			ProjectTemplateCopyTask copyTask = new ProjectTemplateCopyTask(context);
+			Optional<Boolean> copyTaskOption = copyTask.run();
+			
+			success = copyTaskOption.isPresent();
+		}
+		if(success) {
+			context.info("完成");
+		} else {
+			context.error("失败");
+		}
+		
 		// 在 git 仓库上添加标签
 		context.info(StringUtils.repeat("-", 45));
-		context.info("一、为 git 仓库添加附注标签");
+		context.info("二、为 git 仓库添加附注标签");
 		// 判断 git tag 是否已存在
 		// 如果已存在，则不添加标签，而是直接打印信息，并进行下一个环节
 		Integer projectTagId = null; // 在后续流程中使用。
@@ -145,7 +176,7 @@ public class BuildServiceImpl implements BuildService {
 		
 		if(success) {
 			context.info(StringUtils.repeat("-", 45));
-			context.info("二、开始构建项目");
+			context.info("三、开始构建项目");
 			
 			context.info("往数据库中存储项目构建信息");
 			// 注意，因为每次从新构建，都是全新的开始，所以如果已存在，则删除

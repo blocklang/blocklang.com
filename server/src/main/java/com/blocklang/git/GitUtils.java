@@ -123,7 +123,6 @@ public class GitUtils {
 	// 暂时不要删除此代码
 	// 用于本地测试 clone 和 pull 方法
 	public static void main(String[] args) {
-		System.out.println();
 		Path path = Paths.get("E:\\data\\blocklang\\template");
 		if(isGitRepo(path)) {
 			pull(path);

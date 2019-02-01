@@ -6,6 +6,8 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 
+import org.springframework.util.FileSystemUtils;
+
 public class ClientDistCopyTask extends AbstractTask{
 
 	public ClientDistCopyTask(AppBuildContext appBuildContext) {
@@ -13,7 +15,7 @@ public class ClientDistCopyTask extends AbstractTask{
 	}
 
 	/**
-	 * 
+	 * 将 build 后的 client 端代码复制到 spring boot 对应的文件夹中。
 	 * 
 	 * @return 复制成功，返回 <code>true</code>，否则返回 <code>false</code>。
 	 */
@@ -25,7 +27,9 @@ public class ClientDistCopyTask extends AbstractTask{
 		
 		try {
 			// 将 client/output/dist 文件夹复制到 server/src/main/resources/static
-			Files.copy(dojoDistDirectory, springBootStaticDirectory, StandardCopyOption.REPLACE_EXISTING);
+			FileSystemUtils.deleteRecursively(springBootStaticDirectory);
+			FileSystemUtils.copyRecursively(dojoDistDirectory, springBootStaticDirectory);
+			
 			// 将 server/src/main/resources/static/index.html 移动到 server/src/main/resources/templates/index.html 
 			String indexFileName = appBuildContext.getIndexFileName();
 			Files.move(springBootStaticDirectory.resolve(indexFileName), springBootTemplateDirectory.resolve(indexFileName), StandardCopyOption.REPLACE_EXISTING);

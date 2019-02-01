@@ -20,7 +20,7 @@ public class AppBuildContextTest {
 	
 	@Before
 	public void setUp() {
-		context = new AppBuildContext("c:/blocklang", "c:/Users/Administrator/.m2", "jack", "app", "0.0.1");
+		context = new AppBuildContext("c:/blocklang", "c:/Users/Administrator/.m2", null, "jack", "app", "0.0.1");
 	}
 	
 	@Test
@@ -93,8 +93,12 @@ public class AppBuildContextTest {
 	}
 	
 	@Test
-	public void get_project_template_directory() {
-		assertThat(context.getProjectTemplateDirectory().compareTo(Paths.get("c:/blocklang/template")), is(0));
+	public void get_project_template_client_directory() {
+		assertThat(context.getProjectTemplateClientDirectory().compareTo(Paths.get("c:/blocklang/template/client")), is(0));
 	}
 
+	@Test
+	public void get_project_template_server_directory() {
+		assertThat(context.getProjectTemplateServerDirectory().compareTo(Paths.get("c:/blocklang/template/server")), is(0));
+	}
 }

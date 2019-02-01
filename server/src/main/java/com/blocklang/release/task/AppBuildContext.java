@@ -22,6 +22,7 @@ public class AppBuildContext {
 	private String version;
 	private String mavenRootPath;
 	private String projectsRootPath;
+	private String projectTemplateGitUrl;
 	
 	private LocalDateTime startLogTime;
 	private Path logFilePath;
@@ -43,6 +44,7 @@ public class AppBuildContext {
 	
 	public AppBuildContext(String projectsRootPath, 
 			String mavenRootPath, 
+			String projectTemplateGitUrl,
 			String owner,
 			String projectName, 
 			String version) {
@@ -51,6 +53,7 @@ public class AppBuildContext {
 		Assert.hasLength(owner, "项目拥有者的登录名不能为空");
 
 		this.owner = owner;
+		this.projectTemplateGitUrl = projectTemplateGitUrl;
 	}
 
 	private Path getProjectRootDirectory() {
@@ -121,6 +124,10 @@ public class AppBuildContext {
 		return "index.html";
 	}
 
+	public String getProjectTemplateGitUrl() {
+		return projectTemplateGitUrl;
+	}
+
 	public Path getGitRepositoryDirectory() {
 		return Paths.get(this.projectsRootPath, "gitRepo", this.owner, this.projectName);
 	}
@@ -184,5 +191,13 @@ public class AppBuildContext {
 
 	public Path getProjectTemplateDirectory() {
 		return Paths.get(this.projectsRootPath, "template");
+	}
+
+	public Path getProjectTemplateClientDirectory() {
+		return this.getProjectTemplateDirectory().resolve("client");
+	}
+
+	public Path getProjectTemplateServerDirectory() {
+		return this.getProjectTemplateDirectory().resolve("server");
 	}
 }
