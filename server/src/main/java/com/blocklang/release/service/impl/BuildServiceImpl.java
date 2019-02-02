@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import com.blocklang.Config;
 import com.blocklang.develop.model.Project;
 import com.blocklang.git.GitUtils;
 import com.blocklang.release.constant.Arch;
@@ -69,10 +70,10 @@ public class BuildServiceImpl implements BuildService {
 	@Override
 	public void build(Project project, ProjectReleaseTask releaseTask) {
 		StopWatch stopWatch = StopWatch.createStarted();
-		String projectsRootPath = "E:/data/blocklang"; // TODO: 从系统参数中读取
-		String mavenRootPath = "c:/Users/Administrator/.m2"; // TODO: 从系统参数中读取
-		// 或 https://gitee.com/blocklang/blocklang-template.git
-		String projectTemplateGitUrl = "https://github.com/blocklang/blocklang-template.git";
+
+		String projectsRootPath = Config.BLOCK_LANG_ROOT_PATH;
+		String mavenRootPath = Config.MAVEN_ROOT_PATH;
+		String projectTemplateGitUrl = Config.PROJECT_TEMPLATE_GIT_URL;
 
 		AppBuildContext context = new AppBuildContext(
 				projectsRootPath, 

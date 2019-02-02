@@ -104,10 +104,11 @@
 
 ## 2019-02-02
 
-1. 实现 cm_property，并添加 profile 字段，支持 dev 和 prod 两个值，注意 profile 的值也存在该表中
-2. 数据库表名为 cm_property，但类名为 propertyService
-3. 添加缓存功能，并添加完整的测试用例
-4. 搭建测试环境
+1. 将系统参数移到全局的 `Config` 文件中
+
+## 2019-02-03
+
+1. 搭建测试环境
 
 ## TODO
 
@@ -122,3 +123,5 @@
 9. 编写获取项目发布日志 API
 10. 编写实时读取发布日志 API，采用 websocket
 11. 考虑为 BuildService#build 方法添加全面的自动化测试用例
+12. 实现 cm_property，并添加 profile 字段，支持 dev 和 prod 两个值，注意 profile 的值也存在该表中
+13. 数据库表名为 cm_property，但类名为 propertyService,添加缓存功能，并添加完整的测试用例
