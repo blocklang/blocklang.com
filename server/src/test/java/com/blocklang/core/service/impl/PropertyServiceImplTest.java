@@ -10,6 +10,8 @@ import java.util.Optional;
 import org.hibernate.exception.ConstraintViolationException;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 
 import com.blocklang.core.constant.DataType;
 import com.blocklang.core.dao.PropertyDao;
@@ -24,6 +26,9 @@ public class PropertyServiceImplTest extends AbstractServiceTest{
 	
 	@Autowired
 	private PropertyDao propertyDao;
+	
+	@Autowired
+	private CacheManager cacheManager;
 	
 	@Test
 	public void find_string_value_no_data() {
@@ -87,6 +92,22 @@ public class PropertyServiceImplTest extends AbstractServiceTest{
 		
 		Optional<String> valueOption = propertyService.findStringValue("key");
 		assertThat(valueOption.get(), equalTo("value"));
+	}
+	
+	@Test
+	public void find_string_value_from_cache() {
+		CmProperty property = new CmProperty();
+		property.setKey("key1");
+		property.setValue("value");
+		property.setCreateTime(LocalDateTime.now());
+		property.setCreateUserId(1);
+		property.setDataType(DataType.STRING);
+		propertyDao.save(property);
+		
+		Cache cachedProperties = this.cacheManager.getCache("cm_properties");
+		
+		Optional<String> valueOption = propertyService.findStringValue("key1");
+		assertThat(cachedProperties.get("key1").get(), equalTo(valueOption.get()));
 	}
 	
 }

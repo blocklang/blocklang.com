@@ -2,7 +2,9 @@ package com.blocklang;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 
+@EnableCaching // 启用缓存机制
 @SpringBootApplication
 public class BlockLangApplication {
 

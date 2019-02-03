@@ -111,7 +111,8 @@
 1. 设计 CM_PROPERTY 表结构
 2. 将公共的代码移到 `core` 包中，而不是放在顶级 package 下
 3. 将 git 和 util 包移到 `core` 包中（`core` 包中的内容意味着是公共类）
-4. 实现 `propertyService#findStringValue`，并支持缓存
+4. 实现 `propertyService#findStringValue`
+5. 集成缓存功能，并应用到 `propertyService#findStringValue` 上
 
 ## TODO
 
