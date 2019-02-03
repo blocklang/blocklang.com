@@ -7,11 +7,14 @@ import static org.junit.Assert.assertThat;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import org.hibernate.exception.ConstraintViolationException;
+import org.junit.After;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import com.blocklang.core.constant.DataType;
 import com.blocklang.core.dao.PropertyDao;
@@ -29,6 +32,15 @@ public class PropertyServiceImplTest extends AbstractServiceTest{
 	
 	@Autowired
 	private CacheManager cacheManager;
+	
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
+	
+	@After
+	public void tearDown() {
+		// 为了避免缓存干扰其他测试用例，每次执行后都清空缓存
+		this.cacheManager.getCache("cm_properties").clear();
+	}
 	
 	@Test
 	public void find_string_value_no_data() {
@@ -67,8 +79,10 @@ public class PropertyServiceImplTest extends AbstractServiceTest{
 		assertThat(valueOption.isEmpty(), is(true));
 	}
 
-	@Test(expected = ConstraintViolationException.class)
+	@Test
 	public void find_string_value_not_set_parent_id() {
+		thrown.expect(DataIntegrityViolationException.class);
+		
 		CmProperty property = new CmProperty();
 		property.setKey("key");
 		property.setValue("value");
