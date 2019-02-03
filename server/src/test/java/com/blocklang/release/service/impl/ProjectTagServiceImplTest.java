@@ -10,9 +10,9 @@ import java.util.Optional;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.blocklang.core.service.AbstractServiceTest;
 import com.blocklang.release.dao.ProjectTagDao;
 import com.blocklang.release.model.ProjectTag;
-import com.blocklang.release.service.AbstractServiceTest;
 import com.blocklang.release.service.ProjectTagService;
 
 public class ProjectTagServiceImplTest extends AbstractServiceTest {

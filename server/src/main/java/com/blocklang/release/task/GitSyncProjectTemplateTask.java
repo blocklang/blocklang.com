@@ -3,10 +3,10 @@ package com.blocklang.release.task;
 import java.nio.file.Path;
 import java.util.Optional;
 
-import com.blocklang.git.GitUtils;
-import com.blocklang.git.exception.GitCloneFailedException;
-import com.blocklang.git.exception.GitPullFailedException;
-import com.blocklang.git.exception.GitRepoNotFoundException;
+import com.blocklang.core.git.GitUtils;
+import com.blocklang.core.git.exception.GitCloneFailedException;
+import com.blocklang.core.git.exception.GitPullFailedException;
+import com.blocklang.core.git.exception.GitRepoNotFoundException;
 
 public class GitSyncProjectTemplateTask extends AbstractTask{
 

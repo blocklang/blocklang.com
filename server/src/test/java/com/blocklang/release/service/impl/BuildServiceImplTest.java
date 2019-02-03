@@ -6,13 +6,13 @@ import java.time.LocalDateTime;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.blocklang.core.service.AbstractServiceTest;
 import com.blocklang.develop.model.Project;
 import com.blocklang.release.constant.ReleaseResult;
 import com.blocklang.release.dao.AppDao;
 import com.blocklang.release.dao.ProjectReleaseTaskDao;
 import com.blocklang.release.model.App;
 import com.blocklang.release.model.ProjectReleaseTask;
-import com.blocklang.release.service.AbstractServiceTest;
 import com.blocklang.release.service.BuildService;
 
 public class BuildServiceImplTest extends AbstractServiceTest{

@@ -5,6 +5,8 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import com.blocklang.core.model.PartialIdField;
+
 @Entity
 @Table(name = "app_release_relation", 
 	uniqueConstraints = @UniqueConstraint(columnNames = { "app_release_id", "depend_app_release_id" }))

@@ -13,8 +13,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.blocklang.Config;
+import com.blocklang.core.git.GitUtils;
 import com.blocklang.develop.model.Project;
-import com.blocklang.git.GitUtils;
 import com.blocklang.release.constant.Arch;
 import com.blocklang.release.constant.BuildResult;
 import com.blocklang.release.constant.ReleaseMethod;

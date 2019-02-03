@@ -15,5 +15,7 @@
 	<include file="db/changelog/table/201901281630_create_project_tag.xml" />
 	<include file="db/changelog/table/201901281804_create_project_build.xml" />
 	<include file="db/changelog/table/201901291906_create_project_release_task.xml" />
+	
+	<include file="db/changelog/table/201902031642_create_cm_property.xml" />
 
 </databaseChangeLog>

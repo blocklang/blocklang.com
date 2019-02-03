@@ -3,6 +3,8 @@ package com.blocklang.release.model;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 
+import com.blocklang.core.model.PartialOperateFields;
+
 @Entity
 public class App extends PartialOperateFields{
 

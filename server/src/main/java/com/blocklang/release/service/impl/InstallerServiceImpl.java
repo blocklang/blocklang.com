@@ -8,6 +8,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.blocklang.core.util.IdGenerator;
 import com.blocklang.release.constant.Arch;
 import com.blocklang.release.constant.Bot;
 import com.blocklang.release.constant.OsType;
@@ -18,7 +19,6 @@ import com.blocklang.release.data.UpdateRegistrationParam;
 import com.blocklang.release.model.Installer;
 import com.blocklang.release.model.WebServer;
 import com.blocklang.release.service.InstallerService;
-import com.blocklang.util.IdGenerator;
 
 /**
  * APP 安装器业务逻辑接口

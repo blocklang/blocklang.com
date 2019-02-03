@@ -7,6 +7,7 @@ import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
 
+import com.blocklang.core.model.PartialOperateFields;
 import com.blocklang.release.constant.Arch;
 import com.blocklang.release.constant.TargetOs;
 import com.blocklang.release.constant.converter.ArchConverter;

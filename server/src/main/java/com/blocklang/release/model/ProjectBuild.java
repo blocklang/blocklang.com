@@ -7,6 +7,7 @@ import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import com.blocklang.core.model.PartialOperateFields;
 import com.blocklang.release.constant.BuildResult;
 import com.blocklang.release.constant.converter.BuildResultConverter;
 

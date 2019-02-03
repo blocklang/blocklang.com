@@ -6,8 +6,8 @@ import java.util.Optional;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Ref;
 
-import com.blocklang.git.GitUtils;
-import com.blocklang.git.exception.GitTagFailedException;
+import com.blocklang.core.git.GitUtils;
+import com.blocklang.core.git.exception.GitTagFailedException;
 
 public class GitTagTask extends AbstractTask{
 

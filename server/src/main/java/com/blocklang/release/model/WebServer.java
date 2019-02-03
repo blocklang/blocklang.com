@@ -4,6 +4,7 @@ import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
 
+import com.blocklang.core.model.PartialOperateFields;
 import com.blocklang.release.constant.Arch;
 import com.blocklang.release.constant.OsType;
 import com.blocklang.release.constant.converter.ArchConverter;

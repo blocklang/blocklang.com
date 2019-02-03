@@ -9,9 +9,9 @@ import java.util.Optional;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.blocklang.core.service.AbstractServiceTest;
 import com.blocklang.release.dao.AppDao;
 import com.blocklang.release.model.App;
-import com.blocklang.release.service.AbstractServiceTest;
 import com.blocklang.release.service.AppService;
 
 public class AppServiceImplTest extends AbstractServiceTest{

@@ -9,11 +9,11 @@ import java.util.Optional;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.blocklang.core.service.AbstractServiceTest;
 import com.blocklang.release.constant.Arch;
 import com.blocklang.release.constant.OsType;
 import com.blocklang.release.dao.WebServerDao;
 import com.blocklang.release.model.WebServer;
-import com.blocklang.release.service.AbstractServiceTest;
 import com.blocklang.release.service.WebServerService;
 
 public class WebServerServiceImplTest extends AbstractServiceTest{

@@ -5,6 +5,8 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import com.blocklang.core.model.PartialOperateFields;
+
 @Entity
 @Table(name = "project_tag", uniqueConstraints = @UniqueConstraint(columnNames = { "project_id", "version" }))
 public class ProjectTag extends PartialOperateFields {

@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import com.blocklang.core.model.PartialOperateFields;
 import com.blocklang.release.constant.ReleaseMethod;
 import com.blocklang.release.constant.converter.ReleaseMethodConverter;
 

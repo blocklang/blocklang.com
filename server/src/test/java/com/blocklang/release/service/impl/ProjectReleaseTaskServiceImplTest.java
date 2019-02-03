@@ -9,9 +9,9 @@ import java.time.LocalDateTime;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.blocklang.core.service.AbstractServiceTest;
 import com.blocklang.release.constant.ReleaseResult;
 import com.blocklang.release.model.ProjectReleaseTask;
-import com.blocklang.release.service.AbstractServiceTest;
 import com.blocklang.release.service.ProjectReleaseTaskService;
 
 public class ProjectReleaseTaskServiceImplTest extends AbstractServiceTest{
