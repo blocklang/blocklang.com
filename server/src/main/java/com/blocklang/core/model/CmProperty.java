@@ -1,8 +1,11 @@
 package com.blocklang.core.model;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.Table;
 
 import com.blocklang.core.constant.DataType;
@@ -10,10 +13,15 @@ import com.blocklang.core.constant.converter.DataTypeConverter;
 
 @Entity
 @Table(name = "cm_property")
-public class CmProperty extends PartialIdField{
+public class CmProperty implements Serializable{
+	
+	private static final long serialVersionUID = -3755026562221650543L;
 
-	private static final long serialVersionUID = 5003502231471490342L;
-
+	// 该表中的数据，都是在开发阶段设置的，不需要后期维护，所以不需要设置为自动增长
+	@Id
+	@Column(name = "dbid", updatable = false)
+	private Integer id;
+	
 	@Column(name = "prop_key", nullable = false, length = 32)
 	private String key;
 	
@@ -32,6 +40,14 @@ public class CmProperty extends PartialIdField{
 
 	@Column(name = "parent_id", nullable = false)
 	private Integer parentId = -1;
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
 	public String getKey() {
 		return key;
