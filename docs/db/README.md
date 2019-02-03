@@ -21,6 +21,10 @@
 5. [`WEB_SERVER`](WEB_SERVER.md)
 6. [`INSTALLER`](INSTALLER.md)
 
+## 公共
+
+1. [`CM_PROPERTY`](CM_PROPERTY.md)
+
 ## 草稿
 
 部署软件下载记录

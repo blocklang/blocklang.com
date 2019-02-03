@@ -108,7 +108,10 @@
 
 ## 2019-02-03
 
-1. 搭建测试环境
+1. 设计 CM_PROPERTY 表结构
+2. 将公共的代码移到 `core` 包中，而不是放在顶级 package 下
+3. 将 git 和 util 包移到 `core` 包中（`core` 包中的内容意味着是公共类）
+4. 实现 `propertyService#findStringValue`，并支持缓存
 
 ## TODO
 
@@ -123,5 +126,4 @@
 9. 编写获取项目发布日志 API
 10. 编写实时读取发布日志 API，采用 websocket
 11. 考虑为 BuildService#build 方法添加全面的自动化测试用例
-12. 实现 cm_property，并添加 profile 字段，支持 dev 和 prod 两个值，注意 profile 的值也存在该表中
-13. 数据库表名为 cm_property，但类名为 propertyService,添加缓存功能，并添加完整的测试用例
+12. 搭建测试环境
