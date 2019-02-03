@@ -3,6 +3,6 @@
 	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
 	
-	<!-- <include file="db/changelog/data/201810231400_insert_cm_property_upload_path.xml" /> -->
+	<include file="db/changelog/data/201902031940_insert_cm_property.xml" />
 	
 </databaseChangeLog>

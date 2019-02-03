@@ -113,6 +113,7 @@
 3. 将 git 和 util 包移到 `core` 包中（`core` 包中的内容意味着是公共类）
 4. 实现 `propertyService#findStringValue`
 5. 集成缓存功能，并应用到 `propertyService#findStringValue` 上
+6. 将 `Config` 中的系统参数存到数据库表中，并删除 `Config` 类
 
 ## TODO
 

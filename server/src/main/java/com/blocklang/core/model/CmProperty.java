@@ -10,7 +10,7 @@ import com.blocklang.core.constant.converter.DataTypeConverter;
 
 @Entity
 @Table(name = "cm_property")
-public class CmProperty extends PartialOperateFields{
+public class CmProperty extends PartialIdField{
 
 	private static final long serialVersionUID = 5003502231471490342L;
 

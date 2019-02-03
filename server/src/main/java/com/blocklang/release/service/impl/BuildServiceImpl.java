@@ -12,8 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import com.blocklang.Config;
+import com.blocklang.core.constant.CmPropKey;
 import com.blocklang.core.git.GitUtils;
+import com.blocklang.core.service.PropertyService;
 import com.blocklang.develop.model.Project;
 import com.blocklang.release.constant.Arch;
 import com.blocklang.release.constant.BuildResult;
@@ -67,18 +68,21 @@ public class BuildServiceImpl implements BuildService {
 	@Autowired
 	private AppReleaseFileDao appReleaseFileDao;
 	
+	@Autowired
+	private PropertyService propertyService;
+	
 	@Override
 	public void build(Project project, ProjectReleaseTask releaseTask) {
 		StopWatch stopWatch = StopWatch.createStarted();
 
-		String projectsRootPath = Config.BLOCK_LANG_ROOT_PATH;
-		String mavenRootPath = Config.MAVEN_ROOT_PATH;
-		String projectTemplateGitUrl = Config.PROJECT_TEMPLATE_GIT_URL;
+		String projectsRootPath = propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).get();
+		String mavenRootPath = propertyService.findStringValue(CmPropKey.MAVEN_ROOT_PATH).get();
+		String templateProjectGitUrl = propertyService.findStringValue(CmPropKey.TEMPLATE_PROJECT_GIT_URL).get();
 
 		AppBuildContext context = new AppBuildContext(
 				projectsRootPath, 
 				mavenRootPath,
-				projectTemplateGitUrl,
+				templateProjectGitUrl,
 				project.getCreateUserName(),
 				project.getProjectName(),
 				releaseTask.getVersion());

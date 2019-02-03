@@ -27,14 +27,6 @@
 			<column name="is_valid" remarks="是否有效" type="boolean" >
 				<constraints nullable="false"/>
 			</column>
-			<column name="create_user_id" remarks="创建人标识" type="int">
-				<constraints nullable="false" />
-			</column>
-			<column name="create_time" remarks="创建时间" type="${datetime}">
-				<constraints nullable="false" />
-			</column>
-			<column name="last_update_user_id" remarks="最近修改人标识" type="int" />
-			<column name="last_update_time" remarks="最近修改时间" type="${datetime}" />
 		</createTable>
 
 		<addUniqueConstraint

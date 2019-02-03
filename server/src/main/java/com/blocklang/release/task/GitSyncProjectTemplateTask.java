@@ -21,7 +21,7 @@ public class GitSyncProjectTemplateTask extends AbstractTask{
 			if(GitUtils.isGitRepo(path)) {
 				GitUtils.pull(path);
 			} else {
-				GitUtils.clone(appBuildContext.getProjectTemplateGitUrl(), path);
+				GitUtils.clone(appBuildContext.getTemplateProjectGitUrl(), path);
 			}
 			return Optional.of(true);
 		} catch (GitRepoNotFoundException |GitPullFailedException | GitCloneFailedException e) {

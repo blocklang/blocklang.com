@@ -4,7 +4,6 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.junit.After;
@@ -53,8 +52,6 @@ public class PropertyServiceImplTest extends AbstractServiceTest{
 		CmProperty property = new CmProperty();
 		property.setKey("key");
 		property.setValue("value");
-		property.setCreateTime(LocalDateTime.now());
-		property.setCreateUserId(1);
 		property.setValid(false);
 		property.setDataType(DataType.STRING);
 		propertyDao.save(property);
@@ -68,8 +65,6 @@ public class PropertyServiceImplTest extends AbstractServiceTest{
 		CmProperty property = new CmProperty();
 		property.setKey("key");
 		property.setValue("value");
-		property.setCreateTime(LocalDateTime.now());
-		property.setCreateUserId(1);
 		property.setValid(true);
 		property.setDataType(DataType.STRING);
 		property.setParentId(-2); // not -1
@@ -86,8 +81,6 @@ public class PropertyServiceImplTest extends AbstractServiceTest{
 		CmProperty property = new CmProperty();
 		property.setKey("key");
 		property.setValue("value");
-		property.setCreateTime(LocalDateTime.now());
-		property.setCreateUserId(1);
 		property.setValid(true);
 		property.setDataType(DataType.STRING);
 		property.setParentId(null); // 不能设置为 null
@@ -99,8 +92,6 @@ public class PropertyServiceImplTest extends AbstractServiceTest{
 		CmProperty property = new CmProperty();
 		property.setKey("key");
 		property.setValue("value");
-		property.setCreateTime(LocalDateTime.now());
-		property.setCreateUserId(1);
 		property.setDataType(DataType.STRING);
 		propertyDao.save(property);
 		
@@ -113,8 +104,6 @@ public class PropertyServiceImplTest extends AbstractServiceTest{
 		CmProperty property = new CmProperty();
 		property.setKey("key1");
 		property.setValue("value");
-		property.setCreateTime(LocalDateTime.now());
-		property.setCreateUserId(1);
 		property.setDataType(DataType.STRING);
 		propertyDao.save(property);
 		
