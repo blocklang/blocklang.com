@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://127.0.0.1:5432/blocklang
+    username: postgres
+    password: abc123
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        ddl-auto: none
+        # Fix Postgres JPA Error:
+        # Method org.postgresql.jdbc.PgConnection.createClob() is not yet implemented.
+        temp:
+          use_jdbc_metadata_defaults: false
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.xml
