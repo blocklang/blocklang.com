@@ -115,9 +115,11 @@
 5. 集成缓存功能，并应用到 `propertyService#findStringValue` 上
 6. 将 `Config` 中的系统参数存到数据库表中，并删除 `Config` 类
 
-## 2019-02-04
+## 2019-02-07
 
 1. 集成 Github 登录功能
+2. 支持从环境变量中读取敏感信息
+3. 学习 dojo 的 realworld 项目，了解其中如何控制登录权限
 
 ## TODO
 

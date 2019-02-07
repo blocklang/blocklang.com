@@ -15,3 +15,15 @@ spring:
           use_jdbc_metadata_defaults: false
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml
+
+security:
+  oauth2:
+    client:
+      # 从环境变量中读取
+      clientId: ${GITHUB_CLIENT_ID}
+      clientSecret: ${GITHUB_CLIENT_SECRET}
+      accessTokenUri: https://github.com/login/oauth/access_token
+      userAuthorizationUri: https://github.com/login/oauth/authorize
+      clientAuthenticationScheme: form
+    resource:
+      userInfoUri: https://api.github.com/user
