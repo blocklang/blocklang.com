@@ -6,12 +6,7 @@ import * as css from './styles/Home.m.css';
 export default class Home extends WidgetBase {
 	protected render() {
 		return v('div', { classes: [css.root] }, [
-			v('a', {href: '/login'}, [
-				v('i', {classes: ["fab fa-github fa-lg"]}),
-				' Github 帐号登录'
-			])
+			v('a', { href: '/login' }, [v('i', { classes: ['fab fa-github fa-lg'] }), ' Github 帐号登录'])
 		]);
 	}
 }
-
-//<i class="fab fa-github fa-lg"></i>
