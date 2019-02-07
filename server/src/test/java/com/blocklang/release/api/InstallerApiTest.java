@@ -20,6 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.oauth2.resource.ResourceServerProperties;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -46,6 +47,10 @@ import io.restassured.module.mockmvc.RestAssuredMockMvc;
 @RunWith(SpringRunner.class)
 @WebMvcTest(InstallerApi.class)
 public class InstallerApiTest {
+	
+	// FIXME: 因为运行测试用例时，提示找不到 ResourceServerProperties bean，所以这里尝试mock一个
+	@MockBean
+	private ResourceServerProperties resourceServerProperties;
 	
 	@Autowired
 	private MockMvc mvc;

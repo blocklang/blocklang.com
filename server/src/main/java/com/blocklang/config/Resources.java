@@ -17,7 +17,11 @@ public class Resources {
 		"/**/*.map",
 		"/**/*.map",
 		"/**/*.map",
-		"/errors**" // Spring boot 错误页面
+		"/errors**", // Spring boot 错误页面
+		// 自动安装 APP 的服务接口
+		"/projects/**",
+		"/installers/**",
+		"/apps/**"
 	};
 	
 }
