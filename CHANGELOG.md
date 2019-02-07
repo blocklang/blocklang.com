@@ -120,6 +120,7 @@
 1. 集成 Github 登录功能
 2. 支持从环境变量中读取敏感信息
 3. 学习 dojo 的 realworld 项目，了解其中如何控制登录权限
+4. 第一版使用 bootstrap 默认样式，以便快速构建出能用的模块，后续使用 google material
 
 ## TODO
 
@@ -135,3 +136,5 @@
 10. 编写实时读取发布日志 API，采用 websocket
 11. 考虑为 BuildService#build 方法添加全面的自动化测试用例
 12. 搭建测试环境
+13. 决定开发单页面应用，要坚持积累组件
+14. 使用 google material 重新布局界面

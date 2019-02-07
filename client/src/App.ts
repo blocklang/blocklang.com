@@ -2,6 +2,9 @@ import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
 import { v, w } from '@dojo/framework/widget-core/d';
 import Outlet from '@dojo/framework/routing/Outlet';
 
+import "@fortawesome/fontawesome-free/css/all.min.css";
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 import Menu from './widgets/Menu';
 import Home from './widgets/Home';
 import About from './widgets/About';
