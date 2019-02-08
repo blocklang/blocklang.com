@@ -126,6 +126,7 @@
 
 1. 设计用户表
 2. 改为使用 oauth2-client 集成 github 登录
+3. 在页面中一律使用 `Block Lang`，不再使用 `块语言`
 
 ## TODO
 

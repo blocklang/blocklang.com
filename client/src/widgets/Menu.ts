@@ -9,7 +9,7 @@ export default class Menu extends WidgetBase {
 	protected render() {
 		return v("nav", {classes: ["navbar navbar-expand-lg navbar-light bg-light"]}, [
 			v("div", {classes: "container"}, [
-				w(Link, {to: 'home', classes:["navbar-brand"]}, ["块语言"])
+				w(Link, {to: 'home', classes:["navbar-brand"]}, ["Block Lang"])
 			])
 		]);
 
