@@ -21,6 +21,12 @@
 5. [`WEB_SERVER`](WEB_SERVER.md)
 6. [`INSTALLER`](INSTALLER.md)
 
+## 用户
+
+1. [`USER_INFO`](USER_INFO.md)
+2. [`USER_AVATAR`](USER_AVATAR.md)
+3. [`USER_BIND`](USER_BIND.md)
+
 ## 公共
 
 1. [`CM_PROPERTY`](CM_PROPERTY.md)
