@@ -17,16 +17,11 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.apache.http.HttpStatus;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.oauth2.resource.ResourceServerProperties;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
 
+import com.blocklang.core.test.AbstractControllerTest;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.service.ProjectService;
 import com.blocklang.release.constant.ReleaseResult;
@@ -38,18 +33,9 @@ import com.blocklang.release.service.ProjectReleaseTaskService;
 import com.blocklang.release.service.ProjectTagService;
 
 import io.restassured.http.ContentType;
-import io.restassured.module.mockmvc.RestAssuredMockMvc;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(ReleaseController.class)
-public class ReleaseControllerTest {
-	
-	// FIXME: 因为运行测试用例时，提示找不到 ResourceServerProperties bean，所以这里尝试mock一个
-	@MockBean
-	private ResourceServerProperties resourceServerProperties;
-	
-	@Autowired
-	private MockMvc mvc;
+public class ReleaseControllerTest extends AbstractControllerTest{
 	
 	@MockBean
 	private ProjectService projectService;
@@ -62,11 +48,6 @@ public class ReleaseControllerTest {
 	
 	@MockBean
 	private BuildService buildService;
-	
-	@Before
-	public void setUp() {
-		RestAssuredMockMvc.mockMvc(mvc);
-	}
 	
 	@Test
 	public void post_release_param_is_blank() {

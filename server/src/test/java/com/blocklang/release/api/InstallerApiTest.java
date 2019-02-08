@@ -16,16 +16,11 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.apache.http.HttpStatus;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.oauth2.resource.ResourceServerProperties;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
 
+import com.blocklang.core.test.AbstractControllerTest;
 import com.blocklang.release.constant.ReleaseMethod;
 import com.blocklang.release.data.NewRegistrationParam;
 import com.blocklang.release.data.UpdateRegistrationParam;
@@ -42,18 +37,9 @@ import com.blocklang.release.service.InstallerService;
 import com.blocklang.release.service.WebServerService;
 
 import io.restassured.http.ContentType;
-import io.restassured.module.mockmvc.RestAssuredMockMvc;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(InstallerApi.class)
-public class InstallerApiTest {
-	
-	// FIXME: 因为运行测试用例时，提示找不到 ResourceServerProperties bean，所以这里尝试mock一个
-	@MockBean
-	private ResourceServerProperties resourceServerProperties;
-	
-	@Autowired
-	private MockMvc mvc;
+public class InstallerApiTest extends AbstractControllerTest{
 	
 	@MockBean
 	private AppService appService;
@@ -72,11 +58,6 @@ public class InstallerApiTest {
 	
 	@MockBean
 	private WebServerService webServerService;
-	
-	@Before
-	public void setUp() {
-		RestAssuredMockMvc.mockMvc(mvc);
-	}
 	
 	// 对输入参数进行校验
 	@Test

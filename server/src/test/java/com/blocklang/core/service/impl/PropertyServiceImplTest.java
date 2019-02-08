@@ -18,8 +18,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import com.blocklang.core.constant.DataType;
 import com.blocklang.core.dao.PropertyDao;
 import com.blocklang.core.model.CmProperty;
-import com.blocklang.core.service.AbstractServiceTest;
 import com.blocklang.core.service.PropertyService;
+import com.blocklang.core.test.AbstractServiceTest;
 
 public class PropertyServiceImplTest extends AbstractServiceTest{
 	

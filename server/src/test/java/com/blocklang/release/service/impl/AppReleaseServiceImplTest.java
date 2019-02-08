@@ -12,7 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.blocklang.core.service.AbstractServiceTest;
+import com.blocklang.core.test.AbstractServiceTest;
 import com.blocklang.release.constant.ReleaseMethod;
 import com.blocklang.release.dao.AppReleaseDao;
 import com.blocklang.release.model.AppRelease;

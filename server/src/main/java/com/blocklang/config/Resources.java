@@ -4,7 +4,7 @@ public class Resources {
 
 	public static String[] PUBLIC_URL = {
 		"/", // 首页
-		"/login", // 用户登录
+		"/login**", // 用户登录
 		"/**/*.js", // static 文件夹中的静态资源
 		"/**/*.css",
 		"/**/*.ttf",

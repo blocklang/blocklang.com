@@ -10,7 +10,7 @@ import java.util.Optional;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.blocklang.core.service.AbstractServiceTest;
+import com.blocklang.core.test.AbstractServiceTest;
 import com.blocklang.release.constant.Arch;
 import com.blocklang.release.constant.OsType;
 import com.blocklang.release.dao.InstallerDao;

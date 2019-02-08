@@ -8,7 +8,7 @@ import java.util.Optional;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.blocklang.core.service.AbstractServiceTest;
+import com.blocklang.core.test.AbstractServiceTest;
 import com.blocklang.release.dao.AppReleaseRelationDao;
 import com.blocklang.release.model.AppReleaseRelation;
 import com.blocklang.release.service.AppReleaseRelationService;

@@ -122,6 +122,11 @@
 3. 学习 dojo 的 realworld 项目，了解其中如何控制登录权限
 4. 第一版使用 bootstrap 默认样式，以便快速构建出能用的模块，后续使用 google material
 
+## 2019-02-08
+
+1. 设计用户表
+2. 改为使用 oauth2-client 集成 github 登录
+
 ## TODO
 
 1. 学习 Spring boot cache

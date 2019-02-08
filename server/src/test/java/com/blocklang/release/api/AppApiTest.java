@@ -9,18 +9,13 @@ import java.io.IOException;
 import java.util.Optional;
 
 import org.apache.http.HttpStatus;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.oauth2.resource.ResourceServerProperties;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
 
+import com.blocklang.core.test.AbstractControllerTest;
 import com.blocklang.release.constant.Arch;
 import com.blocklang.release.constant.TargetOs;
 import com.blocklang.release.model.App;
@@ -30,18 +25,8 @@ import com.blocklang.release.service.AppReleaseFileService;
 import com.blocklang.release.service.AppReleaseService;
 import com.blocklang.release.service.AppService;
 
-import io.restassured.module.mockmvc.RestAssuredMockMvc;
-
-@RunWith(SpringRunner.class)
 @WebMvcTest(AppApi.class)
-public class AppApiTest {
-
-	// FIXME: 因为运行测试用例时，提示找不到 ResourceServerProperties bean，所以这里尝试mock一个
-	@MockBean
-	private ResourceServerProperties resourceServerProperties;
-	
-	@Autowired
-	private MockMvc mvc;
+public class AppApiTest extends AbstractControllerTest{
 	
 	@MockBean
 	private AppService appService;
@@ -51,12 +36,7 @@ public class AppApiTest {
 	
 	@MockBean
 	private AppReleaseFileService appReleaseFileService;
-	
-	@Before
-	public void setUp() {
-		RestAssuredMockMvc.mockMvc(mvc);
-	}
-	
+
 	@Test
 	public void should_404_if_app_not_found() {
 		when(appService.findByAppName(anyString())).thenReturn(Optional.empty());
