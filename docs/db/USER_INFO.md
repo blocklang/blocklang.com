@@ -15,6 +15,7 @@
 | location          | 所在地区       | varchar  | 256  |        |      | 是   |
 | website_url       | 个人主页       | varchar  | 128  |        |      | 是   |
 | company           | 公司名称       | varchar  | 128  |        |      | 是   |
+| bio               | 自我介绍       | varchar  | 512  |        |      | 是   |
 | last_sign_in_time | 最近登录时间   | datetime |      |        |      | 是   |
 | create_time       | 创建时间       | datetime |      |        |      | 否   |
 | last_update_time  | 最近修改时间   | datetime |      |        |      | 是   |
