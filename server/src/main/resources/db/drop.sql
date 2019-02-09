@@ -8,6 +8,9 @@ drop table project_tag;
 drop table project_build;
 drop table project_release_task;
 drop table cm_property;
+drop table user_info;
+drop table user_avatar;
+drop table user_bind;
 
 drop table databasechangelog;
 drop table databasechangeloglock;

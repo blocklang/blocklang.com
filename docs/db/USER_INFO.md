@@ -6,11 +6,11 @@
 | ----------------- | -------------- | -------- | ---- | ------ | ---- | ---- |
 | dbid              | 主键           | int      |      |        | 是   | 否   |
 | login_name        | 登录名         | varchar  | 32   |        |      | 否   |
-| nickname          | 昵称           | varchar  | 64   |        |      | 否   |
+| nickname          | 昵称           | varchar  | 64   |        |      | 是   |
 | enabled           | 是否启用       | boolean  |      | false  |      | 否   |
 | is_system_admin   | 是否系统管理员 | boolean  |      | false  |      | 否   |
 | avatar_url        | 用户头像链接   | varchar  | 256  |        |      | 否   |
-| email             | 用户邮箱       | varchar  | 64   |        |      | 是   |
+| email             | 邮箱           | varchar  | 64   |        |      | 是   |
 | mobile            | 手机号码       | varchar  | 11   |        |      | 是   |
 | location          | 所在地区       | varchar  | 256  |        |      | 是   |
 | website_url       | 个人主页       | varchar  | 128  |        |      | 是   |

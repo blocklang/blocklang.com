@@ -17,5 +17,8 @@
 	<include file="db/changelog/table/201901291906_create_project_release_task.xml" />
 	
 	<include file="db/changelog/table/201902031642_create_cm_property.xml" />
+	<include file="db/changelog/table/201902091546_create_user_info.xml" />
+	<include file="db/changelog/table/201902091608_create_user_avatar.xml" />
+	<include file="db/changelog/table/201902091615_create_user_bind.xml" />
 
 </databaseChangeLog>

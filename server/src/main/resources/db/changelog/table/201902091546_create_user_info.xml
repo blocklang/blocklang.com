@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+	<changeSet author="Zhengwei Jin" id="201902091546">
+		<createTable tableName="user_info" remarks="用户信息">
+			<column name="dbid" type="int">
+				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_USER_INFO" />
+			</column>
+			<column name="login_name" remarks="登录名" type="varchar(32)">
+				<constraints nullable="false" unique="true" uniqueConstraintName="UK_LOGIN_NAME"/>
+			</column>
+			<column name="nickname" remarks="昵称" type="varchar(64)" />
+			<column name="enabled" remarks="是否启用" type="boolean" defaultValueBoolean="false">
+				<constraints nullable="false"/>
+			</column>
+			<column name="is_system_admin" remarks="是否系统管理员" type="boolean" defaultValueBoolean="false">
+				<constraints nullable="false"/>
+			</column>
+			<column name="avatar_url" remarks="用户头像链接" type="varchar(256)" >
+				<constraints nullable="false"/>
+			</column>
+			<column name="email" remarks="邮箱" type="varchar(64)" >
+				<constraints unique="true" uniqueConstraintName="UK_EMAIL"/>
+			</column>
+			<column name="mobile" remarks="手机号" type="varchar(11)">
+				<constraints unique="true" uniqueConstraintName="UK_MOBILE"/>
+			</column>
+			<column name="location" remarks="所在地区" type="varchar(256)" ></column>
+			<column name="website_url" remarks="个人主页" type="varchar(128)" ></column>
+			<column name="company" remarks="公司名称" type="varchar(128)" ></column>
+			<column name="last_sign_in_time" remarks="最近登录时间" type="${datetime}" />
+			<column name="create_time" remarks="创建时间" type="${datetime}">
+				<constraints nullable="false" />
+			</column>
+			<column name="last_update_time" remarks="最近修改时间" type="${datetime}" />
+		</createTable>
+	</changeSet>
+
+</databaseChangeLog>

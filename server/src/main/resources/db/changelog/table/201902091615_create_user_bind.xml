@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+	<changeSet author="Zhengwei Jin" id="201902091615">
+		<createTable tableName="user_bind" remarks="用户与社交帐号绑定信息">
+			<column name="dbid" type="int">
+				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_USER_BIND" />
+			</column>
+			<column name="user_id" remarks="用户标识" type="int" >
+				<constraints nullable="false" />
+			</column>
+			<column name="site" remarks="第三方网站标识" type="char(2)" >
+				<constraints nullable="false" />
+			</column>
+			<column name="open_id" remarks="第三方网站用户标识" type="varchar(64)" >
+				<constraints nullable="false" />
+			</column>
+			<column name="create_time" remarks="创建时间" type="${datetime}">
+				<constraints nullable="false" />
+			</column>
+			<column name="last_update_time" remarks="最近修改时间" type="${datetime}" />
+		</createTable>
+		
+		<addUniqueConstraint
+			columnNames="user_id,site"
+			constraintName="UK_USER_ID_SITE" tableName="user_bind" />
+	</changeSet>
+
+</databaseChangeLog>

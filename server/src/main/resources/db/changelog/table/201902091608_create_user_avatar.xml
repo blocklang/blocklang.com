@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+	<changeSet author="Zhengwei Jin" id="201902091608">
+		<createTable tableName="user_avatar" remarks="用户头像信息">
+			<column name="dbid" type="int">
+				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_USER_AVATAR" />
+			</column>
+			<column name="user_id" remarks="用户标识" type="int">
+				<constraints nullable="false" />
+			</column>
+			<column name="avatar_url" remarks="头像链接" type="varchar(256)" >
+				<constraints nullable="false" />
+			</column>
+			<column name="size_type" remarks="尺寸类型" type="CHAR(2)" >
+				<constraints nullable="false" />
+			</column>
+			<column name="create_time" remarks="创建时间" type="${datetime}">
+				<constraints nullable="false" />
+			</column>
+			<column name="last_update_time" remarks="最近修改时间" type="${datetime}" />
+		</createTable>
+		
+		<addUniqueConstraint
+			columnNames="user_id,size_type"
+			constraintName="UK_USER_ID_SIZE_TYPE" tableName="user_avatar" />
+	</changeSet>
+
+</databaseChangeLog>
