@@ -8,7 +8,7 @@
 
 	<changeSet author="Zhengwei Jin" id="201902091546">
 		<createTable tableName="user_info" remarks="用户信息">
-			<column name="dbid" type="int">
+			<column name="dbid" type="int" autoIncrement="true">
 				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_USER_INFO" />
 			</column>
 			<column name="login_name" remarks="登录名" type="varchar(32)">
@@ -30,9 +30,10 @@
 			<column name="mobile" remarks="手机号" type="varchar(11)">
 				<constraints unique="true" uniqueConstraintName="UK_MOBILE"/>
 			</column>
-			<column name="location" remarks="所在地区" type="varchar(256)" ></column>
-			<column name="website_url" remarks="个人主页" type="varchar(128)" ></column>
-			<column name="company" remarks="公司名称" type="varchar(128)" ></column>
+			<column name="location" remarks="所在地区" type="varchar(256)" />
+			<column name="website_url" remarks="个人主页" type="varchar(128)" />
+			<column name="company" remarks="公司名称" type="varchar(128)" />
+			<column name="bio" remarks="自我介绍" type="varchar(512)" />
 			<column name="last_sign_in_time" remarks="最近登录时间" type="${datetime}" />
 			<column name="create_time" remarks="创建时间" type="${datetime}">
 				<constraints nullable="false" />

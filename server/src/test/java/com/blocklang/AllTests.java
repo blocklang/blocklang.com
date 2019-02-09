@@ -5,6 +5,7 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 import com.blocklang.core.git.GitUtilsTest;
+import com.blocklang.core.service.impl.GithubLoginServiceImplTest;
 import com.blocklang.core.service.impl.PropertyServiceImplTest;
 import com.blocklang.core.util.IdGeneratorTest;
 import com.blocklang.release.api.AppApiTest;
@@ -43,7 +44,8 @@ import com.blocklang.release.task.AppBuildContextTest;
 	WebServerServiceImplTest.class,
 	ProjectTagServiceImplTest.class,
 	ProjectReleaseTaskServiceImplTest.class,
-	PropertyServiceImplTest.class
+	PropertyServiceImplTest.class,
+	GithubLoginServiceImplTest.class
 })
 public class AllTests {
 

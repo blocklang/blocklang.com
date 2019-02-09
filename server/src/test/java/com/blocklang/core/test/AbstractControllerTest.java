@@ -14,6 +14,8 @@ import io.restassured.module.mockmvc.RestAssuredMockMvc;
 public class AbstractControllerTest {
 
 	// 添加了 oauth2 后提示没有找到 bean，所以这里 mock 一个
+	// TODO: 学习此测试用例，以找出原因
+	// https://github.com/spring-projects/spring-security/blob/master/samples/boot/oauth2login/src/integration-test/java/org/springframework/security/samples/OAuth2LoginApplicationTests.java
 	@MockBean
 	private ClientRegistrationRepository clientRegistrationRepository;
 	

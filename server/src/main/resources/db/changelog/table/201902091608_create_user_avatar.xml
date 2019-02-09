@@ -8,7 +8,7 @@
 
 	<changeSet author="Zhengwei Jin" id="201902091608">
 		<createTable tableName="user_avatar" remarks="用户头像信息">
-			<column name="dbid" type="int">
+			<column name="dbid" type="int" autoIncrement="true">
 				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_USER_AVATAR" />
 			</column>
 			<column name="user_id" remarks="用户标识" type="int">
