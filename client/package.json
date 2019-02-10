@@ -10,7 +10,7 @@
     "test:functional": "dojo build --mode functional && dojo test --functional --config local",
     "test:all": "dojo build --mode unit && dojo build --mode functional && dojo test --all --config local",
     "precommit": "lint-staged",
-    "prettier": "prettier --write 'src/**/*.ts' 'tests/**/*.ts'"
+    "prettier": "prettier --write 'src/**/*.ts' 'src/**/*.css' 'tests/**/*.ts'"
   },
   "dependencies": {
     "@dojo/framework": "^5.0.0",
@@ -33,7 +33,7 @@
     "prettier": "1.16.4"
   },
   "lint-staged": {
-    "*.{ts,tsx}": [
+    "*.{ts,tsx,css}": [
       "prettier --write",
       "git add"
     ]
@@ -42,7 +42,6 @@
     "singleQuote": true,
     "tabWidth": 4,
     "useTabs": true,
-    "parser": "typescript",
     "printWidth": 120,
     "arrowParens": "always"
   }
