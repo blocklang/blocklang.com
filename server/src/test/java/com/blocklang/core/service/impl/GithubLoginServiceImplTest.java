@@ -71,7 +71,7 @@ public class GithubLoginServiceImplTest extends AbstractServiceTest{
 
 		OAuth2User oauthUser = new DefaultOAuth2User(authorities, userAttributes, "id");
 		
-		Integer userId = githubLoginService.updateUser(accessToken, oauthUser);
+		Integer userId = githubLoginService.updateUser(accessToken, oauthUser).getId();
 		
 		// 断言
 		// 用户基本信息
@@ -122,7 +122,7 @@ public class GithubLoginServiceImplTest extends AbstractServiceTest{
 
 		OAuth2User oauthUser = new DefaultOAuth2User(authorities, userAttributes, "id");
 		
-		Integer userId1 = githubLoginService.updateUser(accessToken, oauthUser);
+		Integer userId1 = githubLoginService.updateUser(accessToken, oauthUser).getId();
 		
 		// 第二次更新（openId 相同）
 		accessToken = new OAuth2AccessToken(TokenType.BEARER, 
@@ -147,7 +147,7 @@ public class GithubLoginServiceImplTest extends AbstractServiceTest{
 
 		oauthUser = new DefaultOAuth2User(authorities, userAttributes, "id");
 		
-		Integer userId2 = githubLoginService.updateUser(accessToken, oauthUser);
+		Integer userId2 = githubLoginService.updateUser(accessToken, oauthUser).getId();
 		
 		assertThat(countRowsInTable("user_info"), is(1));
 		assertThat(userId1, is(userId2));

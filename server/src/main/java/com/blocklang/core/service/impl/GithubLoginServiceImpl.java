@@ -19,7 +19,7 @@ import com.blocklang.core.service.GithubLoginService;
 import com.blocklang.core.service.UserService;
 
 @Service
-public class GithubLoginServiceImpl implements GithubLoginService {
+public class GithubLoginServiceImpl extends AbstractLoginService implements GithubLoginService {
 	
 	@Autowired
 	private UserService userService;
