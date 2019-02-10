@@ -7,8 +7,9 @@ function getProperties(store: Store<State>): MenuProperties {
 	const { get, path } = store;
 
 	return {
-		isAuthenticated: !!get(path('user', 'userId')),
-		loggedUsername: get(path('user', 'loginName'))
+		isAuthenticated: !!get(path('user', 'loginName')),
+		loggedUsername: get(path('user', 'loginName')),
+		loggedAvatarUrl: get(path('user', 'avatarUrl'))
 	};
 }
 
