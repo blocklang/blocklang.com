@@ -19,4 +19,6 @@ public interface UserService {
 	 * @return 新建的用户标识
 	 */
 	Integer create(UserInfo userInfo, UserBind userBind, List<UserAvatar> userAvatars);
+	
+	void update(Integer savedUserId, UserInfo newUserInfo, List<UserAvatar> newUserAvatars);
 }

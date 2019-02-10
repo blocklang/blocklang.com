@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import com.blocklang.core.constant.AvatarSizeType;
 import com.blocklang.core.constant.OauthSite;
+import com.blocklang.core.dao.UserBindDao;
 import com.blocklang.core.model.UserAvatar;
 import com.blocklang.core.model.UserBind;
 import com.blocklang.core.model.UserInfo;
@@ -25,18 +27,30 @@ public class GithubLoginServiceImpl implements GithubLoginService {
 	@Autowired
 	private UserService userService;
 	
+	@Autowired
+	private UserBindDao userBindDao;
+	
 	// TODO: 可将此方法作为接口的默认方法？
 	@Override
 	public int updateUser(OAuth2AccessToken accessToken, OAuth2User oauthUser) {
+		String openId = oauthUser.getName();
 		Map<String, Object> userAttributes = oauthUser.getAttributes();
 		
 		UserInfo userInfo = prepareUser(userAttributes);
 		List<UserAvatar> userAvatars = prepareUserAvatars(userAttributes);
-		UserBind userBind = prepareUserBind(oauthUser.getName());
+		UserBind userBind = prepareUserBind(openId);
 		
-		Integer userId = userService.create(userInfo, userBind, userAvatars);
+		Optional<UserBind> userBindOption = userBindDao.findBySiteAndOpenId(OauthSite.GITHUB, openId);
+		if(userBindOption.isEmpty()) {
+			Integer userId = userService.create(userInfo, userBind, userAvatars);
+			return userId;
+		} else {
+			UserBind savedUserBind = userBindOption.get();
+			Integer savedUserId = savedUserBind.getUserId();
+			userService.update(savedUserId, userInfo, userAvatars);
+			return savedUserId;
+		}
 		
-		return userId;
 	}
 
 	@Override

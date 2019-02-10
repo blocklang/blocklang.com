@@ -10,6 +10,7 @@ import com.blocklang.core.model.UserAvatar;
 import com.blocklang.core.model.UserBind;
 import com.blocklang.core.model.UserInfo;
 
+// TODO: 改为抽象类？
 public interface LoginService {
 
 	/**
