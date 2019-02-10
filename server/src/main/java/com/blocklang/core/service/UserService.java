@@ -16,9 +16,9 @@ public interface UserService {
 	 * @param userInfo 用户基本信息
 	 * @param userBind 用户与第三方社交帐号绑定信息
 	 * @param userAvatars 用户头像信息
-	 * @return 新建的用户标识
+	 * @return 新建的用户信息
 	 */
-	Integer create(UserInfo userInfo, UserBind userBind, List<UserAvatar> userAvatars);
+	UserInfo create(UserInfo userInfo, UserBind userBind, List<UserAvatar> userAvatars);
 	
-	void update(Integer savedUserId, UserInfo newUserInfo, List<UserAvatar> newUserAvatars);
+	UserInfo update(Integer savedUserId, UserInfo newUserInfo, List<UserAvatar> newUserAvatars);
 }

@@ -1,5 +1,8 @@
 package com.blocklang.config;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -8,8 +11,10 @@ import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserServ
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
+import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.GithubLoginService;
 
 @EnableWebSecurity
@@ -42,7 +47,15 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 			OAuth2AccessToken accessToken = userRequest.getAccessToken();
 			
 			if(registrationId.equals("github")) {
-				githubLoginService.updateUser(accessToken, oauthUser);
+				UserInfo userInfo = githubLoginService.updateUser(accessToken, oauthUser);
+				
+				// 将第三方用户信息转换为本网站的用户信息
+				// 这里主要是存储用户 id 等页面上常用信息
+				Map<String, Object> userAttributes = new HashMap<String, Object>();
+				userAttributes.put("id", userInfo.getId());
+				userAttributes.put("loginName", userInfo.getLoginName());
+				userAttributes.put("avatarUrl", userInfo.getAvatarUrl());
+				return new DefaultOAuth2User(oauthUser.getAuthorities(), userAttributes, "id");
 			}
 
 			return oauthUser;

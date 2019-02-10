@@ -28,8 +28,9 @@ public class UserServiceImpl implements UserService {
 	
 	@Transactional
 	@Override
-	public Integer create(UserInfo userInfo, UserBind userBind, List<UserAvatar> userAvatars) {
-		Integer userId = userDao.save(userInfo).getId();
+	public UserInfo create(UserInfo userInfo, UserBind userBind, List<UserAvatar> userAvatars) {
+		UserInfo savedUserInfo = userDao.save(userInfo);
+		Integer userId = savedUserInfo.getId();
 		
 		userAvatars.forEach(userAvatar -> {
 			userAvatar.setUserId(userId);
@@ -38,13 +39,13 @@ public class UserServiceImpl implements UserService {
 		
 		userBind.setUserId(userId);
 		userBindDao.save(userBind);
-		return userId;
+		return savedUserInfo;
 	}
 	
 	@Transactional
 	@Override
-	public void update(Integer savedUserId, UserInfo newUserInfo, List<UserAvatar> newUserAvatars) {
-		userDao.findById(savedUserId).ifPresent(savedUserInfo -> {
+	public UserInfo update(Integer savedUserId, UserInfo newUserInfo, List<UserAvatar> newUserAvatars) {
+		return userDao.findById(savedUserId).map(savedUserInfo -> {
 			savedUserInfo.setLoginName(newUserInfo.getLoginName());
 			savedUserInfo.setNickname(newUserInfo.getNickname());
 			savedUserInfo.setAvatarUrl(newUserInfo.getAvatarUrl());
@@ -57,10 +58,10 @@ public class UserServiceImpl implements UserService {
 			// 重新设置最近登录时间
 			savedUserInfo.setLastSignInTime(LocalDateTime.now());
 			
-			userDao.save(savedUserInfo);
+			UserInfo updatedUserInfo = userDao.save(savedUserInfo);
 			
 			if(newUserAvatars.isEmpty()) {
-				return;
+				return updatedUserInfo;
 			}
 			
 			List<UserAvatar> savedUserAvatars = userAvatarDao.findByUserId(savedUserId);
@@ -74,7 +75,8 @@ public class UserServiceImpl implements UserService {
 			});
 
 			userAvatarDao.saveAll(savedUserAvatars);
-		});
+			return updatedUserInfo;
+		}).orElse(null);
 	}
 	
 }

@@ -19,10 +19,10 @@ public class UserInfo extends PartialIdField{
 	private String nickname;
 	
 	@Column(name="enabled", nullable = false)
-	private boolean enabled = false;
+	private Boolean enabled = false;
 
 	@Column(name="is_system_admin", nullable = false)
-	private boolean admin = false;
+	private Boolean admin = false;
 
 	@Column(name="avatar_url", length = 256, nullable = false)
 	private String avatarUrl;
@@ -49,7 +49,7 @@ public class UserInfo extends PartialIdField{
 	private LocalDateTime lastSignInTime;
 	
 	@Column(name = "create_time", insertable = true, updatable = false, nullable = false)
-	private LocalDateTime createTime = LocalDateTime.now();
+	private LocalDateTime createTime;
 	
 	@Column(name = "last_update_time", insertable = false)
 	private LocalDateTime lastUpdateTime;
@@ -74,7 +74,7 @@ public class UserInfo extends PartialIdField{
 		return enabled;
 	}
 
-	public void setEnabled(boolean enabled) {
+	public void setEnabled(Boolean enabled) {
 		this.enabled = enabled;
 	}
 
@@ -82,7 +82,7 @@ public class UserInfo extends PartialIdField{
 		return admin;
 	}
 
-	public void setAdmin(boolean admin) {
+	public void setAdmin(Boolean admin) {
 		this.admin = admin;
 	}
 
