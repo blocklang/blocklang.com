@@ -8,13 +8,6 @@ Block Lang 平台。
 
 1. 发布中心：功能包括 dojo 项目和 Spring Boot 项目的配置、编译和构建，以及提供 JDK 和 Spring Boot Jar 的下载服务
 
-## 发布中心
-
-### REST API
-
-1. [注册和更新项目信息](https://github.com/blocklang/blocklang-installer/blob/master/docs/API/01_installers.md)
-2. [下载软件](https://github.com/blocklang/blocklang-installer/blob/master/docs/API/02_apps.md)
-
 ## 项目结构
 
 ### Server
@@ -57,3 +50,7 @@ Block Lang 平台。
 
 1. 设计数据库表时常用的[文档模板](docs/db/TEMPLATE.md)；
 2. [数据库表结构](docs/db/README.md)。
+
+## REST API
+
+详见 [API 文档](docs/API/README.md)
