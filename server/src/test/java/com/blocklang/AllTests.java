@@ -4,6 +4,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
+import com.blocklang.core.controller.LoggedUserControllerTest;
 import com.blocklang.core.git.GitUtilsTest;
 import com.blocklang.core.service.impl.GithubLoginServiceImplTest;
 import com.blocklang.core.service.impl.PropertyServiceImplTest;
@@ -34,6 +35,7 @@ import com.blocklang.release.task.AppBuildContextTest;
 	
 	// controller tests
 	ReleaseControllerTest.class,
+	LoggedUserControllerTest.class,
 	
 	// service tests
 	AppServiceImplTest.class,
