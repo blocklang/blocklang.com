@@ -30,7 +30,7 @@ public class BuildServiceImplTest extends AbstractServiceTest{
 	public void build_success() throws IOException {
 		Project project = new Project();
 		project.setId(1);
-		project.setProjectName("demo_project");
+		project.setName("demo_project");
 		project.setCreateUserName("jack");
 		
 		App app = new App();

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+	<changeSet author="Zhengwei Jin" id="201902121149">
+		<createTable tableName="project" remarks="项目基本信息">
+			<column name="dbid" type="int" autoIncrement="true">
+				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_PROJECT" />
+			</column>
+			<column name="project_name" remarks="项目名称" type="varchar(32)" >
+				<constraints nullable="false" />
+			</column>
+			<column name="project_desc" remarks="项目描述" type="varchar(128)"/>
+			<column name="is_private" remarks="是否私有" type="boolean" defaultValueBoolean="false">
+				<constraints nullable="false" />
+			</column>
+			<column name="last_active_time" remarks="最近活动时间" type="${datetime}">
+				<constraints nullable="false" />
+			</column>
+			<column name="avatar_url" remarks="项目 Logo" type="varchar(256)" />
+			<column name="create_user_id" remarks="创建人标识" type="int">
+				<constraints nullable="false" />
+			</column>
+			<column name="create_time" remarks="创建时间" type="${datetime}">
+				<constraints nullable="false" />
+			</column>
+			<column name="last_update_user_id" remarks="最近修改人标识" type="int" />
+			<column name="last_update_time" remarks="最近修改时间" type="${datetime}" />
+		</createTable>
+		
+		<addUniqueConstraint columnNames="project_name,create_user_id"
+			constraintName="UK_PROJECT_NAME_CREATE_USER_ID" tableName="project" />
+	</changeSet>
+
+</databaseChangeLog>

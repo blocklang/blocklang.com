@@ -84,11 +84,11 @@ public class BuildServiceImpl implements BuildService {
 				mavenRootPath,
 				templateProjectGitUrl,
 				project.getCreateUserName(),
-				project.getProjectName(),
+				project.getName(),
 				releaseTask.getVersion());
 
 		context.info(StringUtils.repeat("=", 60));
-		context.info("开始发布 @{0}/{1} 项目", project.getCreateUserName(), project.getProjectName());
+		context.info("开始发布 @{0}/{1} 项目", project.getCreateUserName(), project.getName());
 		
 		boolean success = true;
 		

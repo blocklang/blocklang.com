@@ -21,4 +21,6 @@
 	<include file="db/changelog/table/201902091608_create_user_avatar.xml" />
 	<include file="db/changelog/table/201902091615_create_user_bind.xml" />
 
+	<include file="db/changelog/table/201902121149_create_project.xml" />
+
 </databaseChangeLog>

@@ -11,6 +11,7 @@ drop table cm_property;
 drop table user_info;
 drop table user_avatar;
 drop table user_bind;
+drop table project;
 
 drop table databasechangelog;
 drop table databasechangeloglock;

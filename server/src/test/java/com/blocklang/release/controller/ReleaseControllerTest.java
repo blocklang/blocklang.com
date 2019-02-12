@@ -106,7 +106,7 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 		Project project = new Project();
 		project.setId(1);
 		project.setCreateUserName("jack");
-		project.setProjectName("demo_project");
+		project.setName("demo_project");
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
 		ProjectTag projectTag = new ProjectTag();
@@ -129,7 +129,7 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 		Project project = new Project();
 		project.setId(1);
 		project.setCreateUserName("jack");
-		project.setProjectName("demo_project");
+		project.setName("demo_project");
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
 		when(projectTagService.find(anyInt(), anyString())).thenReturn(Optional.empty());
@@ -156,7 +156,7 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 		Project project = new Project();
 		project.setId(2);
 		project.setCreateUserName("jack");
-		project.setProjectName("demo_project");
+		project.setName("demo_project");
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
 		when(projectTagService.find(anyInt(), anyString())).thenReturn(Optional.empty());
