@@ -2,6 +2,7 @@ import renderer from '@dojo/framework/widget-core/vdom';
 import Registry from '@dojo/framework/widget-core/Registry';
 import { w } from '@dojo/framework/widget-core/d';
 import { Store } from '@dojo/framework/stores/Store';
+import { StateHistory } from '@dojo/framework/routing/history/StateHistory';
 import { registerRouterInjector } from '@dojo/framework/routing/RouterInjector';
 import { registerThemeInjector } from '@dojo/framework/widget-core/mixins/Themed';
 import { registerStoreInjector } from '@dojo/framework/stores/StoreInjector';
@@ -19,7 +20,7 @@ const registry = new Registry();
 getCurrentUserProcess(store)({});
 
 registerStoreInjector(store, { registry });
-registerRouterInjector(routes, registry);
+registerRouterInjector(routes, registry, { HistoryManager: StateHistory });
 registerThemeInjector(dojo, registry);
 
 const r = renderer(() => w(App, {}));

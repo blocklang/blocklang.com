@@ -5,9 +5,28 @@ import { w, v } from '@dojo/framework/widget-core/d';
 import Home from '../../../src/widgets/Home';
 import * as css from '../../../src/widgets/styles/Home.m.css';
 
+import PrivateHome from '../../../src/widgets/user/Home';
+
 describe('Home', () => {
-	it('default renders correctly', () => {
-		const h = harness(() => w(Home, {}));
-		h.expect(() => v('h1', { classes: [css.root] }, ['Home Page']));
+	it('public home', () => {
+		const h = harness(() => w(Home, { isAuthenticated: false }));
+		h.expect(() =>
+			v('div', { classes: [css.root] }, [
+				v('div', { classes: [css.jumbotron, 'jumbotron', 'text-center'] }, [
+					v('h1', { classes: [] }, ['软件拼装工厂']),
+					v('a', { classes: ['btn btn-outline-primary btn-lg my-5'], href: '/oauth2/authorization/github' }, [
+						v('i', { classes: ['fab fa-github fa-lg'] }),
+						' Github 登录'
+					])
+				])
+			])
+		);
+	});
+
+	it('private home', () => {
+		const h = harness(() => w(Home, { isAuthenticated: true, loggedUsername: 'jack' }));
+		h.expect(() =>
+			v('div', { classes: [css.root] }, [w(PrivateHome, { isAuthenticated: true, loggedUsername: 'jack' }, [])])
+		);
 	});
 });

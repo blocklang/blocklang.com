@@ -1,17 +1,16 @@
 import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
 import { v, w } from '@dojo/framework/widget-core/d';
 import Link from '@dojo/framework/routing/Link';
-// import Toolbar from '@dojo/widgets/toolbar';
 
-import * as css from './styles/Menu.m.css';
+import * as css from './styles/Header.m.css';
 
-export interface MenuProperties {
+export interface HeaderProperties {
 	isAuthenticated: boolean;
 	loggedUsername?: string;
 	loggedAvatarUrl?: string;
 }
 
-export default class Menu extends WidgetBase<MenuProperties> {
+export default class Header extends WidgetBase<HeaderProperties> {
 	// 用户未登录时显示
 	private _unauthenticatedMenu() {
 		return [
@@ -45,7 +44,7 @@ export default class Menu extends WidgetBase<MenuProperties> {
 	protected render() {
 		const { isAuthenticated } = this.properties;
 
-		return v('nav', { classes: ['navbar navbar-expand-lg navbar-light bg-light'] }, [
+		return v('nav', { classes: [css.root, 'navbar navbar-expand-lg navbar-light bg-light'] }, [
 			v('div', { classes: 'container' }, [
 				w(Link, { to: 'home', classes: ['navbar-brand'] }, ['Block Lang']),
 				v(

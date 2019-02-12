@@ -1,6 +1,6 @@
 export default [
 	{
-		path: 'home',
+		path: '',
 		outlet: 'home',
 		defaultRoute: true
 	},

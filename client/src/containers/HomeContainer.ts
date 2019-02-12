@@ -1,9 +1,9 @@
 import { Store } from '@dojo/framework/stores/Store';
 import { StoreContainer } from '@dojo/framework/stores/StoreInjector';
-import Header, { HeaderProperties } from '../widgets/Header';
+import Home, { HomeProperties } from '../widgets/Home';
 import { State } from '../interfaces';
 
-function getProperties(store: Store<State>): HeaderProperties {
+function getProperties(store: Store<State>): HomeProperties {
 	const { get, path } = store;
 
 	return {
@@ -13,4 +13,4 @@ function getProperties(store: Store<State>): HeaderProperties {
 	};
 }
 
-export default StoreContainer(Header, 'state', { paths: [['user']], getProperties });
+export default StoreContainer(Home, 'state', { paths: [['user']], getProperties });

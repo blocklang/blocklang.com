@@ -6,7 +6,8 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import MenuContainer from './containers/MenuContainer';
-import Home from './widgets/Home';
+import HomeContainer from './containers/HomeContainer';
+
 import About from './widgets/About';
 import Profile from './widgets/Profile';
 
@@ -17,7 +18,7 @@ export default class App extends WidgetBase {
 		return v('div', { classes: [css.root] }, [
 			w(MenuContainer, {}),
 			v('div', [
-				w(Outlet, { key: 'home', id: 'home', renderer: () => w(Home, {}) }),
+				w(Outlet, { key: 'home', id: 'home', renderer: () => w(HomeContainer, {}) }),
 				w(Outlet, { key: 'about', id: 'about', renderer: () => w(About, {}) }),
 				w(Outlet, { key: 'profile', id: 'profile', renderer: () => w(Profile, { username: 'Dojo User' }) })
 			])
