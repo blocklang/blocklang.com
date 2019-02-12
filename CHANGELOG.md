@@ -146,6 +146,7 @@
 ## 2019-02-12
 
 1. client: 扩展 Home 部件，当用户未登录时显示公共首页，当用户已登录时显示个人首页
+2. 完成注销用户功能
 
 ## TODO
 
@@ -165,3 +166,4 @@
 14. 使用 google material 重新布局界面
 15. 解决添加了 spring security 和 oauth2 后测试用例运行失败的问题，注意只有在运行测试的时候才会报错
 16. 测试用例使用 assertj
+17. 将 github 等第三方网站的 client-id 和 client-security 存到数据库中

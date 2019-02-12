@@ -36,8 +36,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 //		http.authorizeRequests().anyRequest().authenticated().and().oauth2Login().loginPage("/")
 //		.and().oauth2Client();
 		http//.authorizeRequests().antMatchers("/user").permitAll().anyRequest().authenticated().and()
+			.logout()
+				.logoutSuccessUrl("/") // 因为是 single page app，所以注销成功后返回首页
+				.and()
 			.oauth2Login()
-				.loginPage("/").userInfoEndpoint().userService(this.oauth2UserService()); // 因为是 single page app，所以将登录页设置为首页
+				.loginPage("/") // 因为是 single page app，所以将登录页设置为首页
+				.userInfoEndpoint()
+					.userService(this.oauth2UserService());
 	}
 	
 	private OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService() {

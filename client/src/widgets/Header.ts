@@ -28,6 +28,12 @@ export default class Header extends WidgetBase<HeaderProperties> {
 		const { loggedUsername, loggedAvatarUrl } = this.properties;
 		return [
 			v('li', { classes: ['nav-item'] }, [
+				w(Link, { to: '/projects/new', classes: ['nav-link'] }, [
+					v('i', { classes: ['fas fa-plus'] }, []),
+					' 创建项目'
+				])
+			]),
+			v('li', { classes: ['nav-item'] }, [
 				w(Link, { to: `/user/${loggedUsername}`, classes: ['nav-link'] }, [
 					v('img', { classes: [css.avatar], src: `${loggedAvatarUrl}`, width: 20, height: 20 }, []),
 					` ${loggedUsername}`
