@@ -43,8 +43,7 @@ Block Lang 平台。
 
 ## 需求描述
 
-1. [发布中心 - 构建 APP](docs/build.md)
-2. [发布中心 - 发布 APP](docs/release.md)
+详见 [需求文档](docs/spec/README.md)
 
 ## 数据库表结构
 
