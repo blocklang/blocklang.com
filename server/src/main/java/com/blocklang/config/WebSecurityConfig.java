@@ -15,6 +15,7 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
+import com.blocklang.core.constant.OauthSite;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.GithubLoginService;
 
@@ -54,7 +55,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			OAuth2User oauthUser = delegate.loadUser(userRequest);
 			OAuth2AccessToken accessToken = userRequest.getAccessToken();
 			
-			if(registrationId.equals("github")) {
+			if(registrationId.equalsIgnoreCase(OauthSite.GITHUB.getValue())) {
 				UserInfo userInfo = githubLoginService.updateUser(accessToken, oauthUser);
 				
 				// 将第三方用户信息转换为本网站的用户信息
