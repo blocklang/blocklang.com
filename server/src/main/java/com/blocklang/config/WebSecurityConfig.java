@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -17,12 +18,14 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.GithubLoginService;
 
+@Configuration
 @EnableWebSecurity
-public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	private GithubLoginService githubLoginService;
 	
+	// 支持 oauth2 client
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		// We recommend disabling CSRF protection completely only if you are creating a
