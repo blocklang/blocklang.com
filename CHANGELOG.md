@@ -149,6 +149,11 @@
 2. 完成注销用户功能
 3. 调整项目结构，将需求文档放到 `spec` 文件夹中
 
+## 2012-02-13
+
+1. doc: 编写创建项目文档
+2. client: 新增创建项目部件
+
 ## TODO
 
 1. 学习 Spring boot cache
@@ -168,3 +173,4 @@
 15. 解决添加了 spring security 和 oauth2 后测试用例运行失败的问题，注意只有在运行测试的时候才会报错
 16. 测试用例使用 assertj
 17. 将 github 等第三方网站的 client-id 和 client-security 存到数据库中
+18. 使用 SPA 后，怎么控制客户端的权限问题，如怎么控制在用户未登录时，输入 `projects/new` 后不显示创建项目页面

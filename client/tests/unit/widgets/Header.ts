@@ -34,14 +34,14 @@ describe('Header', () => {
 					w(Link, { to: 'home', classes: ['navbar-brand'] }, ['Block Lang']),
 					v('ul', { classes: ['navbar-nav ml-auto'] }, [
 						v('li', { classes: ['nav-item'] }, [
-							w(Link, { to: '/projects/new', classes: ['nav-link'] }, [
+							w(Link, { to: 'new-project', classes: ['nav-link'] }, [
 								v('i', { classes: ['fas fa-plus'] }, []),
 								' 创建项目'
 							])
 						]),
 						v('li', { classes: ['nav-item'] }, [
 							w(Link, { to: '/user/jack', classes: ['nav-link'] }, [
-								v('img', { classes: [css.avatar], src: '#', width: 20, height: 20 }, []),
+								v('img', { classes: ['avatar'], src: '#', width: 20, height: 20 }, []),
 								' jack'
 							])
 						]),

@@ -11,5 +11,9 @@ export default [
 	{
 		path: 'profile',
 		outlet: 'profile'
+	},
+	{
+		path: 'projects/new',
+		outlet: 'new-project'
 	}
 ];
