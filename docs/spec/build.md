@@ -24,7 +24,7 @@
 ### 代码文件
 
 ```text
-根目录
+BlockLang
     |--- template
             |--- client
             |--- server
