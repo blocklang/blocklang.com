@@ -1,5 +1,7 @@
 package com.blocklang.develop.controller;
 
+import java.security.Principal;
+
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.blocklang.core.exception.InvalidRequestException;
+import com.blocklang.core.exception.NoAuthorizationException;
 import com.blocklang.develop.data.CheckProjectNameParam;
 import com.blocklang.develop.service.ProjectService;
 import com.blocklang.release.controller.ReleaseController;
@@ -26,8 +29,13 @@ public class ProjectController {
 	
 	@PostMapping("/projects/check-name")
 	public ResponseEntity<Void> checkProjectName(
+			Principal principal,
 			@Valid @RequestBody CheckProjectNameParam param, 
 			BindingResult bindingResult) {
+		if(principal == null || !principal.getName().equals(param.getOwner())) {
+			throw new NoAuthorizationException();
+		}
+		
 		if(bindingResult.hasErrors()) {
 			logger.error("项目名称校验未通过。");
 			throw new InvalidRequestException(bindingResult);

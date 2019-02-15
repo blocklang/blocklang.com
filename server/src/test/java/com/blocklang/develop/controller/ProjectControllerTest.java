@@ -13,6 +13,7 @@ import org.apache.http.HttpStatus;
 import org.junit.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import com.blocklang.core.service.GithubLoginService;
 import com.blocklang.core.test.AbstractControllerTest;
@@ -32,6 +33,24 @@ public class ProjectControllerTest extends AbstractControllerTest{
 	private ProjectService projectService;
 
 	// 注意，这里的用户名是必填的，且必须是当前登录用户
+	@WithMockUser(username = "other")
+	@Test
+	public void check_name_user_is_unauthorization() {
+		CheckProjectNameParam param = new CheckProjectNameParam();
+		param.setOwner("owner");
+		param.setValue("good-name");
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/check-name")
+		.then()
+			.statusCode(HttpStatus.SC_FORBIDDEN)
+			.body(equalTo(""));
+	}
+	
+	@WithMockUser(username = "owner")
 	@Test
 	public void check_name_is_blank() {
 		CheckProjectNameParam param = new CheckProjectNameParam();
@@ -49,6 +68,7 @@ public class ProjectControllerTest extends AbstractControllerTest{
 					"errors.value.size()", is(1));
 	}
 	
+	@WithMockUser(username = "owner")
 	@Test
 	public void check_name_is_invalid() {
 		CheckProjectNameParam param = new CheckProjectNameParam();
@@ -66,6 +86,7 @@ public class ProjectControllerTest extends AbstractControllerTest{
 					"errors.value.size()", is(1));
 	}
 	
+	@WithMockUser(username = "owner")
 	@Test
 	public void check_name_is_used() {
 		CheckProjectNameParam param = new CheckProjectNameParam();
@@ -89,6 +110,7 @@ public class ProjectControllerTest extends AbstractControllerTest{
 					"errors.value.size()", is(1));
 	}
 	
+	@WithMockUser(username = "owner")
 	@Test
 	public void check_name_pass() {
 		CheckProjectNameParam param = new CheckProjectNameParam();
