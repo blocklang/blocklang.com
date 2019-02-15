@@ -9,6 +9,7 @@ import com.blocklang.core.git.GitUtilsTest;
 import com.blocklang.core.service.impl.GithubLoginServiceImplTest;
 import com.blocklang.core.service.impl.PropertyServiceImplTest;
 import com.blocklang.core.util.IdGeneratorTest;
+import com.blocklang.develop.controller.ProjectControllerTest;
 import com.blocklang.release.api.AppApiTest;
 import com.blocklang.release.api.InstallerApiTest;
 import com.blocklang.release.controller.ReleaseControllerTest;
@@ -34,9 +35,10 @@ import com.blocklang.release.task.AppBuildContextTest;
 	AppApiTest.class,
 	
 	// controller tests
+	ProjectControllerTest.class,
 	ReleaseControllerTest.class,
 	LoggedUserControllerTest.class,
-	
+
 	// service tests
 	AppServiceImplTest.class,
 	AppReleaseServiceImplTest.class,
