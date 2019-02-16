@@ -14,8 +14,10 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 
 import com.blocklang.core.constant.OauthSite;
+import com.blocklang.core.filter.RouterFilter;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.GithubLoginService;
 
@@ -33,6 +35,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		// service that is used by non-browser clients
 		// TODO: 考虑通过将服务拆分到单独项目中，然后打开此功能
 		http.csrf().disable();
+		http.addFilterBefore(new RouterFilter(), AnonymousAuthenticationFilter.class);
 		
 //		http.authorizeRequests().anyRequest().authenticated().and().oauth2Login().loginPage("/")
 //		.and().oauth2Client();
