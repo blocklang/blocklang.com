@@ -15,7 +15,7 @@
 				<constraints nullable="false" />
 			</column>
 			<column name="project_desc" remarks="项目描述" type="varchar(128)"/>
-			<column name="is_private" remarks="是否私有" type="boolean" defaultValueBoolean="false">
+			<column name="is_public" remarks="是否公开" type="boolean" defaultValueBoolean="true">
 				<constraints nullable="false" />
 			</column>
 			<column name="last_active_time" remarks="最近活动时间" type="${datetime}">

@@ -22,8 +22,8 @@ public class Project extends PartialOperateFields{
 	@Column(name = "project_desc", length = 128)
 	private String description;
 
-	@Column(name = "is_private", nullable = false)
-	private Boolean isPrivate;
+	@Column(name = "is_public", nullable = false)
+	private Boolean isPublic;
 
 	@Column(name = "last_active_time", nullable = false)
 	private LocalDateTime lastActiveTime;
@@ -31,6 +31,7 @@ public class Project extends PartialOperateFields{
 	@Column(name="avatar_url", length = 256)
 	private String avatarUrl;
 	
+	// 创建用户的登录名，createUserId 对应的用户名
 	@Transient
 	private String createUserName;
 
@@ -50,12 +51,12 @@ public class Project extends PartialOperateFields{
 		this.description = description;
 	}
 
-	public Boolean getIsPrivate() {
-		return isPrivate;
+	public Boolean getIsPublic() {
+		return isPublic;
 	}
 
-	public void setIsPrivate(Boolean isPrivate) {
-		this.isPrivate = isPrivate;
+	public void setIsPublic(Boolean isPublic) {
+		this.isPublic = isPublic;
 	}
 
 	public LocalDateTime getLastActiveTime() {
