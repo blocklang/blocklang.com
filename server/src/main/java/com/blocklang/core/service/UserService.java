@@ -1,6 +1,7 @@
 package com.blocklang.core.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.blocklang.core.model.UserAvatar;
 import com.blocklang.core.model.UserBind;
@@ -21,4 +22,6 @@ public interface UserService {
 	UserInfo create(UserInfo userInfo, UserBind userBind, List<UserAvatar> userAvatars);
 	
 	UserInfo update(Integer savedUserId, UserInfo newUserInfo, List<UserAvatar> newUserAvatars);
+
+	Optional<UserInfo> findByLoginName(String owner);
 }

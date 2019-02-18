@@ -19,7 +19,7 @@ public class CheckProjectNameParam {
 
 	@NotBlank(message = "{NotBlank.projectName}", groups = {First.class})
 	@Pattern(regexp = "^[a-zA-Z0-9\\-\\w\\.]+$", message = "{NotValid.projectName}", groups = {Second.class})
-	private String value;
+	private String name;
 
 	public String getOwner() {
 		return owner;
@@ -29,12 +29,12 @@ public class CheckProjectNameParam {
 		this.owner = owner;
 	}
 
-	public String getValue() {
-		return value;
+	public String getName() {
+		return name;
 	}
 
-	public void setValue(String value) {
-		this.value = value;
+	public void setName(String name) {
+		this.name = name;
 	}
-	
+
 }

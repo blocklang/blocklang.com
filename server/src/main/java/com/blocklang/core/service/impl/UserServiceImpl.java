@@ -2,6 +2,7 @@ package com.blocklang.core.service.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import javax.transaction.Transactional;
 
@@ -77,6 +78,11 @@ public class UserServiceImpl implements UserService {
 			userAvatarDao.saveAll(savedUserAvatars);
 			return updatedUserInfo;
 		}).orElse(null);
+	}
+
+	@Override
+	public Optional<UserInfo> findByLoginName(String owner) {
+		return userDao.findByLoginName(owner);
 	}
 	
 }

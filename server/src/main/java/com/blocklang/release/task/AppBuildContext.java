@@ -13,15 +13,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
-public class AppBuildContext {
+import com.blocklang.develop.model.ProjectContext;
+
+public class AppBuildContext extends ProjectContext{
 	
 	private static final Logger logger = LoggerFactory.getLogger(AppBuildContext.class);
 
-	private String owner;
-	private String projectName;
 	private String version;
 	private String mavenRootPath;
-	private String projectsRootPath;
 	private String templateProjectGitUrl;
 	
 	private LocalDateTime startLogTime;
@@ -31,9 +30,8 @@ public class AppBuildContext {
 			String mavenRootPath, 
 			String projectName, 
 			String version) {
-		Assert.hasLength(projectsRootPath, "存放项目的根路径不能为空");
+		super(projectName, projectsRootPath);
 		Assert.hasLength(mavenRootPath, "maven 仓库的根路径不能为空");
-		Assert.hasLength(projectName, "项目名不能为空");
 		Assert.hasLength(version, "项目版本号不能为空");
 		
 		this.projectsRootPath = projectsRootPath;
@@ -126,10 +124,6 @@ public class AppBuildContext {
 
 	public String getTemplateProjectGitUrl() {
 		return templateProjectGitUrl;
-	}
-
-	public Path getGitRepositoryDirectory() {
-		return Paths.get(this.projectsRootPath, "gitRepo", this.owner, this.projectName);
 	}
 
 	public String getTagName() {
