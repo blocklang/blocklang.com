@@ -151,7 +151,7 @@ public class ProjectControllerTest extends AbstractControllerTest{
 			.post("/projects/check-name")
 		.then()
 			.statusCode(HttpStatus.SC_OK)
-			.body(equalTo(""));
+			.body(equalTo("{}"));
 	}
 
 	// 因为新建项目和校验项目名称中的校验逻辑完全相同

@@ -1,10 +1,14 @@
 import { commandFactory } from './utils';
-import { NamePayload, DescriptionPayload } from './interfaces';
+import { NamePayload, DescriptionPayload, IsPublicPayload } from './interfaces';
 import { replace } from '@dojo/framework/stores/state/operations';
 import { createProcess } from '@dojo/framework/stores/process';
 import { ValidateStatus } from '../constant';
 
 // TODO: 一个字段一个 process vs 一个对象一个 process，哪个更合理？
+
+const initIsPublicCommand = commandFactory(({path}) => {
+	return [replace(path('projectParam', 'isPublic'), true)];
+});
 
 const nameInputCommand = commandFactory<NamePayload>(async ({ path, get, payload: { name } }) => {
 	const userName = get(path('user', 'loginName')); // 确保用户必须登录
@@ -34,7 +38,7 @@ const nameInputCommand = commandFactory<NamePayload>(async ({ path, get, payload
 		headers: { 'Content-type': 'application/json;charset=UTF-8' },
 		body: JSON.stringify({
 			owner: userName,
-			value: trimedName
+			name: trimedName
 		})
 	});
 	const json = await response.json();
@@ -58,18 +62,27 @@ const descriptionInputCommand = commandFactory<DescriptionPayload>(({ path, payl
 	return [replace(path('projectParam', 'description'), description.trim())];
 });
 
+const isPublicInputCommand = commandFactory<IsPublicPayload>(({path, payload: { isPublic }}) => {
+	return [replace(path('projectParam', 'isPublic'), isPublic)];
+});
+
 const saveProjectCommand = commandFactory(async ({ path, get }) => {
 	const projectParam = get(path('projectParam'));
 	const owner = get(path('user', 'loginName'));
+
+	// 在跳转到新增项目页面时，应设置 isPublic 的初始值为 true
 
 	const response = await fetch('/projects', {
 		method: 'POST',
 		headers: { 'Content-type': 'application/json;charset=UTF-8' },
 		body: JSON.stringify({
 			owner,
-			...projectParam
+			name: projectParam.name,
+			description: projectParam.description,
+			public: projectParam.isPublic
 		})
 	});
+
 	const json = await response.json();
 	if (!response.ok) {
 		// TODO: 在页面上提示保存出错
@@ -84,6 +97,9 @@ const saveProjectCommand = commandFactory(async ({ path, get }) => {
 	];
 });
 
+
+export const initIsPublicProcess = createProcess('init-is-public-input', [initIsPublicCommand]);
 export const nameInputProcess = createProcess('name-input', [nameInputCommand]);
 export const descriptionInputProcess = createProcess('description-input', [descriptionInputCommand]);
+export const isPublicInputProcess = createProcess('is-public-input', [isPublicInputCommand]);
 export const saveProjectProcess = createProcess('save-project', [saveProjectCommand]);

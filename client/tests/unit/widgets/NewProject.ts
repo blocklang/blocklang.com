@@ -15,6 +15,7 @@ describe('NewProject', () => {
 				isPublic: true,
 				onNameInput: () => {},
 				onDescriptionInput: () => {},
+				onIsPublicInput: () => {},
 				onSaveProject: () => {}
 			})
 		);
@@ -74,14 +75,24 @@ describe('NewProject', () => {
 							classes: ['form-check-input'],
 							type: 'radio',
 							id: 'isPublic',
-							value: 'false',
-							checked: true
+							value: 'true',
+							name: 'isPublic',
+							checked: true,
+							onclick: () => {}
 						}),
 						v('label', { classes: ['form-check-label'], for: 'isPublic' }, ['公开']),
 						v('small', { classes: ['form-text text-muted'] }, ['所有访客均可浏览，可邀请用户维护。'])
 					]),
 					v('div', { classes: ['form-check'] }, [
-						v('input', { classes: ['form-check-input'], type: 'radio', id: 'isPrivate', value: 'true' }),
+						v('input', { 
+							classes: ['form-check-input'], 
+							type: 'radio', 
+							id: 'isPrivate', 
+							value: 'false',
+							name: 'isPublic',
+							checked: false,
+							onclick: () => {}
+						}),
 						v('label', { classes: ['form-check-label'], for: 'isPrivate' }, ['私有']),
 						v('small', { classes: ['form-text text-muted'] }, ['仅成员可浏览，可邀请用户浏览和维护。'])
 					]),

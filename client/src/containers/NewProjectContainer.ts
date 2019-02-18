@@ -2,7 +2,7 @@ import { Store } from '@dojo/framework/stores/Store';
 import { StoreContainer } from '@dojo/framework/stores/StoreInjector';
 import NewProject, { NewProjectProperties } from '../widgets/NewProject';
 import { State } from '../interfaces';
-import { nameInputProcess, descriptionInputProcess, saveProjectProcess } from '../processes/projectProcesses';
+import { nameInputProcess, descriptionInputProcess, saveProjectProcess, isPublicInputProcess } from '../processes/projectProcesses';
 
 function getProperties(store: Store<State>): NewProjectProperties {
 	const { get, path } = store;
@@ -16,6 +16,7 @@ function getProperties(store: Store<State>): NewProjectProperties {
 
 		onNameInput: nameInputProcess(store),
 		onDescriptionInput: descriptionInputProcess(store),
+		onIsPublicInput: isPublicInputProcess(store),
 		onSaveProject: saveProjectProcess(store)
 	};
 }

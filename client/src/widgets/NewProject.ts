@@ -6,7 +6,7 @@ import { theme, ThemedMixin } from '@dojo/framework/widget-core/mixins/Themed';
 import * as css from './styles/NewProject.m.css';
 import messageBundle from './nls/main';
 import { WithTarget } from '../interfaces';
-import { NamePayload, DescriptionPayload } from '../processes/interfaces';
+import { NamePayload, DescriptionPayload, IsPublicPayload } from '../processes/interfaces';
 import { ValidateStatus } from '../constant';
 
 export interface NewProjectProperties {
@@ -24,6 +24,7 @@ export interface NewProjectProperties {
 	// event
 	onNameInput: (opts: NamePayload) => void;
 	onDescriptionInput: (opts: DescriptionPayload) => void;
+	onIsPublicInput: (opts: IsPublicPayload) => void;
 	onSaveProject: (opts: object) => void;
 }
 
@@ -131,9 +132,18 @@ export default class NewProject extends ThemedMixin(I18nMixin(WidgetBase))<NewPr
 
 	private _renderIsPublicCheckbox() {
 		const { messages } = this._localizedMessages;
+		const {isPublic = true} = this.properties;
 
 		return v('div', { classes: ['form-check'] }, [
-			v('input', { classes: ['form-check-input'], type: 'radio', id: 'isPublic', value: 'false', checked: true }),
+			v('input', { 
+				classes: ['form-check-input'], 
+				type: 'radio', 
+				id: 'isPublic', 
+				value: 'true', 
+				checked: isPublic,
+				name: 'isPublic',
+				onclick: this._onIsPublicInput
+			}),
 			v('label', { classes: ['form-check-label'], for: 'isPublic' }, [messages.projectPublicLabel]),
 			v('small', { classes: ['form-text text-muted'] }, [messages.projectPublicHelp])
 		]);
@@ -141,9 +151,18 @@ export default class NewProject extends ThemedMixin(I18nMixin(WidgetBase))<NewPr
 
 	private _renderIsPrivateCheckbox() {
 		const { messages } = this._localizedMessages;
+		const {isPublic = true} = this.properties;
 
 		return v('div', { classes: ['form-check'] }, [
-			v('input', { classes: ['form-check-input'], type: 'radio', id: 'isPrivate', value: 'true' }),
+			v('input', { 
+				classes: ['form-check-input'], 
+				type: 'radio', 
+				id: 'isPrivate', 
+				value: 'false',
+				checked: !isPublic,
+				name: 'isPublic',
+				onclick: this._onIsPublicInput
+			}),
 			v('label', { classes: ['form-check-label'], for: 'isPrivate' }, [messages.projectPrivateLabel]),
 			v('small', { classes: ['form-text text-muted'] }, [messages.projectPrivateHelp])
 		]);
@@ -177,5 +196,17 @@ export default class NewProject extends ThemedMixin(I18nMixin(WidgetBase))<NewPr
 
 	private _onSaveProject() {
 		this.properties.onSaveProject({});
+	}
+
+	private _onIsPublicInput(event: MouseEvent) {
+		const radio = event.target as HTMLInputElement;
+		const {value, checked} = radio;
+		let isPublic = true;
+		if(checked){
+			isPublic = value === "true" ? true : false;
+		}else {
+			isPublic = value === "true" ? false : true;
+		}
+		this.properties.onIsPublicInput({isPublic});
 	}
 }

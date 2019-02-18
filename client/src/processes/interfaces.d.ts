@@ -5,3 +5,7 @@ export interface NamePayload {
 export interface DescriptionPayload {
 	description: string;
 }
+
+export interface IsPublicPayload {
+	isPublic: boolean;
+}

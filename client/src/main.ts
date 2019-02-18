@@ -13,6 +13,7 @@ import routes from './routes';
 import App from './App';
 import { State } from './interfaces';
 import { getCurrentUserProcess } from './processes/userProcesses';
+import { initIsPublicProcess } from './processes/projectProcesses';
 
 const store = new Store<State>();
 const registry = new Registry();
@@ -20,8 +21,18 @@ const registry = new Registry();
 getCurrentUserProcess(store)({});
 
 registerStoreInjector(store, { registry });
-registerRouterInjector(routes, registry, { HistoryManager: StateHistory });
+const router = registerRouterInjector(routes, registry, { HistoryManager: StateHistory });
 registerThemeInjector(dojo, registry);
+
+router.on('outlet', ({outlet, action}) => {
+    if(action === 'enter') {
+        switch(outlet.id){
+            case 'new-project':
+                initIsPublicProcess(store)({});
+                break;
+        }
+    }
+});
 
 const r = renderer(() => w(App, {}));
 r.mount({ registry });

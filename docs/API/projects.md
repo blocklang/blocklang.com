@@ -25,7 +25,7 @@ POST /projects/check-name
 | Name    | Type     | Description              |
 | ------- | -------- | ------------------------ |
 | `owner` | `string` | **Required**. 用户登录名 |
-| `value` | `string` | **Required**. 项目名称   |
+| `name` | `string` | **Required**. 项目名称   |
 
 ### Response
 
@@ -38,7 +38,7 @@ Status: 422 Unprocessable Entity
 ```json
 {
     "errors": {
-        "value": ["${filedErrorMessage}"]
+        "name": ["${filedErrorMessage}"]
     }
 }
 ```
