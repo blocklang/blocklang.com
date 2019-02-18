@@ -5,10 +5,26 @@ import { theme, ThemedMixin } from '@dojo/framework/widget-core/mixins/Themed';
 
 import * as css from './styles/NewProject.m.css';
 import messageBundle from './nls/main';
+import { WithTarget } from '../interfaces';
+import { NamePayload, DescriptionPayload } from '../processes/interfaces';
+import { ValidateStatus } from '../constant';
 
 export interface NewProjectProperties {
+	// user
 	loggedUsername: string;
 	loggedAvatarUrl: string;
+	// attr
+	id?: number;
+	name: string;
+	description?: string;
+	isPublic: boolean;
+	// validation
+	nameValidateStatus?: ValidateStatus;
+	nameErrorMessage?: string;
+	// event
+	onNameInput: (opts: NamePayload) => void;
+	onDescriptionInput: (opts: DescriptionPayload) => void;
+	onSaveProject: (opts: object) => void;
 }
 
 @theme(css)
@@ -43,6 +59,12 @@ export default class NewProject extends ThemedMixin(I18nMixin(WidgetBase))<NewPr
 
 	private _renderNameInput(loggedAvatarUrl: string, loggedUsername: string) {
 		const { messages } = this._localizedMessages;
+		const { nameValidateStatus = ValidateStatus.UNVALIDATED, nameErrorMessage } = this.properties;
+
+		const inputClasses = ['form-control'];
+		if (nameValidateStatus === ValidateStatus.INVALID) {
+			inputClasses.push('is-invalid');
+		}
 
 		return v('div', { classes: ['form-group'] }, [
 			v('label', { for: 'projectName' }, [
@@ -68,11 +90,15 @@ export default class NewProject extends ThemedMixin(I18nMixin(WidgetBase))<NewPr
 				v('input', {
 					type: 'text',
 					id: 'projectName',
-					classes: ['form-control'],
+					classes: inputClasses,
 					required: 'required',
 					maxlength: '32',
-					focus: true
-				})
+					focus: true,
+					oninput: this._onNameInput
+				}),
+				nameValidateStatus === ValidateStatus.INVALID
+					? v('div', { classes: ['invalid-tooltip'] }, [`${nameErrorMessage}`])
+					: null
 			]),
 			v('small', { classes: ['form-text text-muted'] }, [
 				messages.projectNameHelp,
@@ -96,7 +122,8 @@ export default class NewProject extends ThemedMixin(I18nMixin(WidgetBase))<NewPr
 					type: 'text',
 					classes: ['form-control'],
 					id: 'projectDesc',
-					maxlength: '64'
+					maxlength: '64',
+					oninput: this._onDescriptionInput
 				})
 			]
 		);
@@ -124,9 +151,31 @@ export default class NewProject extends ThemedMixin(I18nMixin(WidgetBase))<NewPr
 
 	private _renderSaveButton() {
 		const { messages } = this._localizedMessages;
+		const { nameValidateStatus = ValidateStatus.UNVALIDATED } = this.properties;
 
-		return v('button', { type: 'button', classes: ['btn btn-primary'], disabled: true }, [
-			messages.projectSaveLabel
-		]);
+		const disabled = nameValidateStatus === ValidateStatus.VALID ? false : true;
+
+		return v(
+			'button',
+			{
+				type: 'button',
+				classes: ['btn btn-primary'],
+				disabled,
+				onclick: this._onSaveProject
+			},
+			[messages.projectSaveLabel]
+		);
+	}
+
+	private _onNameInput({ target: { value: name } }: WithTarget) {
+		this.properties.onNameInput({ name });
+	}
+
+	private _onDescriptionInput({ target: { value: description } }: WithTarget) {
+		this.properties.onDescriptionInput({ description });
+	}
+
+	private _onSaveProject() {
+		this.properties.onSaveProject({});
 	}
 }

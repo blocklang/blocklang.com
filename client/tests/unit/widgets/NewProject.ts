@@ -7,7 +7,17 @@ import NewProject from '../../../src/widgets/NewProject';
 
 describe('NewProject', () => {
 	it('default renders correctly', () => {
-		const h = harness(() => w(NewProject, { loggedUsername: 'user', loggedAvatarUrl: 'avatar' }));
+		const h = harness(() =>
+			w(NewProject, {
+				loggedUsername: 'user',
+				loggedAvatarUrl: 'avatar',
+				name: 'name',
+				isPublic: true,
+				onNameInput: () => {},
+				onDescriptionInput: () => {},
+				onSaveProject: () => {}
+			})
+		);
 		h.expect(() =>
 			v('div', { classes: [css.root, 'container mt-5'] }, [
 				v('div', [
@@ -39,7 +49,8 @@ describe('NewProject', () => {
 								classes: ['form-control'],
 								required: 'required',
 								maxlength: '32',
-								focus: true
+								focus: true,
+								oninput: () => {}
 							})
 						]),
 						v('small', { classes: ['form-text text-muted'] }, [
@@ -54,7 +65,8 @@ describe('NewProject', () => {
 							type: 'text',
 							classes: ['form-control'],
 							id: 'projectDesc',
-							maxlength: '64'
+							maxlength: '64',
+							oninput: () => {}
 						})
 					]),
 					v('div', { classes: ['form-check'] }, [
@@ -74,7 +86,16 @@ describe('NewProject', () => {
 						v('small', { classes: ['form-text text-muted'] }, ['仅成员可浏览，可邀请用户浏览和维护。'])
 					]),
 					v('hr'),
-					v('button', { type: 'button', classes: ['btn btn-primary'], disabled: true }, ['创建'])
+					v(
+						'button',
+						{
+							type: 'button',
+							classes: ['btn btn-primary'],
+							disabled: true,
+							onclick: () => {}
+						},
+						['创建']
+					)
 				])
 			])
 		);
