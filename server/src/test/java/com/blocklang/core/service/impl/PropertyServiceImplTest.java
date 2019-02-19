@@ -1,8 +1,6 @@
 package com.blocklang.core.service.impl;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
 
@@ -48,7 +46,7 @@ public class PropertyServiceImplTest extends AbstractServiceTest{
 	@Test
 	public void find_string_value_no_data() {
 		Optional<String> valueOption = propertyService.findStringValue("not-exist-key");
-		assertThat(valueOption.isEmpty(), is(true));
+		assertThat(valueOption.isEmpty()).isTrue();
 	}
 	
 	@Test
@@ -62,7 +60,7 @@ public class PropertyServiceImplTest extends AbstractServiceTest{
 		propertyDao.save(property);
 		
 		Optional<String> valueOption = propertyService.findStringValue("key");
-		assertThat(valueOption.isEmpty(), is(true));
+		assertThat(valueOption.isEmpty()).isTrue();
 	}
 	
 	@Test
@@ -77,7 +75,7 @@ public class PropertyServiceImplTest extends AbstractServiceTest{
 		propertyDao.save(property);
 		
 		Optional<String> valueOption = propertyService.findStringValue("key");
-		assertThat(valueOption.isEmpty(), is(true));
+		assertThat(valueOption.isEmpty()).isTrue();
 	}
 
 	@Test
@@ -106,7 +104,7 @@ public class PropertyServiceImplTest extends AbstractServiceTest{
 		propertyDao.save(property);
 		
 		Optional<String> valueOption = propertyService.findStringValue("key");
-		assertThat(valueOption.get(), equalTo("value"));
+		assertThat(valueOption.get()).isEqualTo("value");
 	}
 	
 	@Test
@@ -121,7 +119,7 @@ public class PropertyServiceImplTest extends AbstractServiceTest{
 		Cache cachedProperties = this.cacheManager.getCache("cm_properties");
 		
 		Optional<String> valueOption = propertyService.findStringValue("key1");
-		assertThat(cachedProperties.get("key1").get(), equalTo(valueOption.get()));
+		assertThat(cachedProperties.get("key1").get()).isEqualTo(valueOption.get());
 	}
 	
 }

@@ -1,8 +1,6 @@
 package com.blocklang.release.service.impl;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
 
@@ -32,6 +30,6 @@ public class ProjectReleaseTaskServiceImplTest extends AbstractServiceTest{
 		task.setCreateTime(LocalDateTime.now());
 		task.setCreateUserId(1);
 		
-		assertThat(projectReleaseTaskService.save(task).getId(), is(notNullValue()));
+		assertThat(projectReleaseTaskService.save(task).getId()).isNotNull();
 	}
 }

@@ -1,8 +1,6 @@
 package com.blocklang.core.git;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,8 +12,6 @@ import org.eclipse.jgit.lib.Ref;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-
-import com.blocklang.core.git.GitUtils;
 
 /**
  * git 测试用例
@@ -40,24 +36,24 @@ public class GitUtilsTest {
 	@Test
 	public void is_git_repo_folder_not_exist() throws IOException {
 		File folder = tempFolder.newFolder(gitRepoDirectory);
-		assertThat(GitUtils.isGitRepo(folder.toPath().resolve("not-exist-folder")), is(false));
+		assertThat(GitUtils.isGitRepo(folder.toPath().resolve("not-exist-folder"))).isFalse();
 	}
 	
 	@Test
 	public void is_git_repo_is_not_a_folder() throws IOException {
 		File file = tempFolder.newFile(gitRepoDirectory);
-		assertThat(GitUtils.isGitRepo(file.toPath()), is(false));
+		assertThat(GitUtils.isGitRepo(file.toPath())).isFalse();
 	}
 	
 	@Test
 	public void git_init_success() throws IOException {
 		File folder = tempFolder.newFolder(gitRepoDirectory);
 		
-		assertThat(GitUtils.isGitRepo(folder.toPath()), is(false));
+		assertThat(GitUtils.isGitRepo(folder.toPath())).isFalse();
 		
 		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
 		
-		assertThat(GitUtils.isGitRepo(folder.toPath()), is(true));
+		assertThat(GitUtils.isGitRepo(folder.toPath())).isTrue();
 	}
 	
 	@Test
@@ -66,14 +62,14 @@ public class GitUtilsTest {
 		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
 		
 		// 在初始化时有一次 commit
-		assertThat(GitUtils.getLogCount(folder.toPath()), is(1));
+		assertThat(GitUtils.getLogCount(folder.toPath())).isEqualTo(1);
 		
 		GitUtils.commit(folder.toPath(), "/a/b", "c.txt", "hello", "usera", "usera@email.com", "firstCommit");
-		assertThat(GitUtils.getLogCount(folder.toPath()), is(2));
+		assertThat(GitUtils.getLogCount(folder.toPath())).isEqualTo(2);
 		assertContentEquals(folder.toPath().resolve("a").resolve("b").resolve("c.txt"), "hello");
 		
 		GitUtils.commit(folder.toPath(), "/a/b", "c.txt", "hello world", "usera", "usera@email.com", "secondCommit");
-		assertThat(GitUtils.getLogCount(folder.toPath()), is(3));
+		assertThat(GitUtils.getLogCount(folder.toPath())).isEqualTo(3);
 		assertContentEquals(folder.toPath().resolve("a").resolve("b").resolve("c.txt"), "hello world");
 	}
 	
@@ -84,11 +80,11 @@ public class GitUtilsTest {
 		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
 		
 		// 断言仓库的标签数
-		assertThat(GitUtils.getTagCount(folder.toPath()), is(0));
+		assertThat(GitUtils.getTagCount(folder.toPath())).isEqualTo(0);
 		// 为 git 仓库打标签
 		GitUtils.tag(folder.toPath(), "v0.1.0", "message");
 		// 断言仓库的标签数
-		assertThat(GitUtils.getTagCount(folder.toPath()), is(1));
+		assertThat(GitUtils.getTagCount(folder.toPath())).isEqualTo(1);
 	}
 	
 	@Test
@@ -102,15 +98,15 @@ public class GitUtilsTest {
 		// 获取仓库标签
 		// 刚才添加的标签
 		Optional<Ref> getedTag = GitUtils.getTag(folder.toPath(), "v0.1.0");
-		assertThat(existTag.getObjectId().getName(), equalTo(getedTag.get().getObjectId().getName()));
+		assertThat(existTag.getObjectId().getName()).isEqualTo(getedTag.get().getObjectId().getName());
 		
 		// 不存在的标签
 		getedTag = GitUtils.getTag(folder.toPath(), "v0.1.0-1");
-		assertThat(getedTag.isEmpty(), is(true));
+		assertThat(getedTag.isEmpty()).isTrue();
 	}
 
 	private void assertContentEquals(Path filePath, String content) throws IOException{
-		assertThat(Files.readString(filePath), equalTo(content));
+		assertThat(Files.readString(filePath)).isEqualTo(content);
 	}
 
 }

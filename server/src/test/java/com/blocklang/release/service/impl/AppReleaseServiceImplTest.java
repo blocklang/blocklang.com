@@ -1,8 +1,6 @@
 package com.blocklang.release.service.impl;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -28,7 +26,7 @@ public class AppReleaseServiceImplTest extends AbstractServiceTest{
 	@Test
 	public void find_by_id_no_data() {
 		Optional<AppRelease> appReleaseOption = appReleaseService.findById(1);
-		assertThat(appReleaseOption.isEmpty(), is(true));
+		assertThat(appReleaseOption.isEmpty()).isTrue();
 	}
 	
 	@Test
@@ -45,7 +43,7 @@ public class AppReleaseServiceImplTest extends AbstractServiceTest{
 		appRelease.setCreateTime(LocalDateTime.now());
 		
 		Optional<AppRelease> appReleaseOption = appReleaseService.findById(appReleaseDao.save(appRelease).getId());
-		assertThat(appReleaseOption.isPresent(), is(true));
+		assertThat(appReleaseOption).isPresent();
 	}
 	
 	// 测试枚举类型的数据，存入数据库中的值是编码，而不是说明
@@ -64,14 +62,14 @@ public class AppReleaseServiceImplTest extends AbstractServiceTest{
 		int appReleaseId = appReleaseDao.save(appRelease).getId();
 		
 		Map<String, Object> data = jdbcTemplate.queryForMap("SELECT * FROM APP_RELEASE WHERE DBID = ?", appReleaseId);
-		assertThat(data.get("release_method"), equalTo("01"));
+		assertThat(data.get("release_method")).isEqualTo("01");
 	}
 	
 	@Test
 	public void find_latest_release_app_no_data() {
 		int appId = 1;
 		Optional<AppRelease> appReleaseOption = appReleaseService.findLatestReleaseApp(appId);
-		assertThat(appReleaseOption.isEmpty(), is(true));
+		assertThat(appReleaseOption.isEmpty()).isTrue();
 	}
 	
 	@Test
@@ -89,7 +87,7 @@ public class AppReleaseServiceImplTest extends AbstractServiceTest{
 		appReleaseDao.save(appRelease);
 		
 		Optional<AppRelease> appReleaseOption = appReleaseService.findLatestReleaseApp(appId);
-		assertThat(appReleaseOption.get().getVersion(), equalTo("0.0.1"));
+		assertThat(appReleaseOption.get().getVersion()).isEqualTo("0.0.1");
 	}
 	
 	@Test
@@ -118,13 +116,13 @@ public class AppReleaseServiceImplTest extends AbstractServiceTest{
 		appReleaseDao.save(appRelease);
 		
 		Optional<AppRelease> appReleaseOption = appReleaseService.findLatestReleaseApp(appId);
-		assertThat(appReleaseOption.get().getVersion(), equalTo("0.0.2"));
+		assertThat(appReleaseOption.get().getVersion()).isEqualTo("0.0.2");
 	}
 	
 	@Test
 	public void find_by_appId_and_version_no_data() {
 		Optional<AppRelease> appReleaseOption = appReleaseService.findByAppIdAndVersion(1, "0.1.0");
-		assertThat(appReleaseOption.isEmpty(), is(true));
+		assertThat(appReleaseOption).isEmpty();
 	}
 	
 	@Test
@@ -141,6 +139,6 @@ public class AppReleaseServiceImplTest extends AbstractServiceTest{
 		appReleaseDao.save(appRelease);
 		
 		Optional<AppRelease> appReleaseOption = appReleaseService.findByAppIdAndVersion(1, "0.0.1");
-		assertThat(appReleaseOption.isPresent(), is(true));
+		assertThat(appReleaseOption).isPresent();
 	}
 }

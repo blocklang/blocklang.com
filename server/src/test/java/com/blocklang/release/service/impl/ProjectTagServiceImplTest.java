@@ -1,8 +1,6 @@
 package com.blocklang.release.service.impl;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -25,7 +23,7 @@ public class ProjectTagServiceImplTest extends AbstractServiceTest {
 	@Test
 	public void find_no_data() {
 		Optional<ProjectTag> projectTagOption = projectTagService.find(1, "0.1.0");
-		assertThat(projectTagOption.isEmpty(), is(true));
+		assertThat(projectTagOption).isEmpty();
 	}
 	
 	@Test
@@ -40,13 +38,13 @@ public class ProjectTagServiceImplTest extends AbstractServiceTest {
 		
 		projectTagDao.save(projectTag);
 		Optional<ProjectTag> projectTagOption = projectTagService.find(1, "0.1.0");
-		assertThat(projectTagOption.isPresent(), is(true));
+		assertThat(projectTagOption).isPresent();
 	}
 	
 	@Test
 	public void find_latest_no_data() {
 		Optional<ProjectTag> projectTagOption = projectTagService.findLatestTag(1);
-		assertThat(projectTagOption.isEmpty(), is(true));
+		assertThat(projectTagOption).isEmpty();
 	}
 	
 	@Test
@@ -71,7 +69,7 @@ public class ProjectTagServiceImplTest extends AbstractServiceTest {
 		projectTagDao.save(projectTag);
 		
 		Optional<ProjectTag> projectTagOption = projectTagService.findLatestTag(1);
-		assertThat(projectTagOption.get().getVersion(), equalTo("0.1.1"));
+		assertThat(projectTagOption.get().getVersion()).isEqualTo("0.1.1");
 	}
 	
 	@Test
@@ -96,6 +94,6 @@ public class ProjectTagServiceImplTest extends AbstractServiceTest {
 		projectTagDao.save(projectTag);
 		
 		Optional<ProjectTag> projectTagOption = projectTagService.findLatestTag(1);
-		assertThat(projectTagOption.get().getVersion(), equalTo("0.1.0"));
+		assertThat(projectTagOption.get().getVersion()).isEqualTo("0.1.0");
 	}
 }

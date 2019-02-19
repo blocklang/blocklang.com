@@ -1,11 +1,6 @@
 package com.blocklang.core.service.impl;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.startsWith;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -76,24 +71,25 @@ public class GithubLoginServiceImplTest extends AbstractServiceTest{
 		// 断言
 		// 用户基本信息
 		Optional<UserInfo> userOption = userDao.findById(userId);
-		assertThat(userOption.isPresent(), is(true));
+		assertThat(userOption.isPresent()).isTrue();
 		UserInfo user = userOption.get();
-		assertThat(user.getLoginName(), equalTo("login"));
-		assertThat(user.getNickname(), equalTo("name"));
-		assertThat(user.getCompany(), equalTo("company"));
-		assertThat(user.getWebsiteUrl(), equalTo("blog"));
-		assertThat(user.getLocation(), equalTo("location"));
-		assertThat(user.getEmail(), equalTo("email"));
-		assertThat(user.getBio(), equalTo("bio"));
-		assertThat(user.getAvatarUrl(), equalTo("https://avatars2.githubusercontent.com/u/1?v=4&s=40"));
+		assertThat(user.getLoginName()).isEqualTo("login");
+		assertThat(user.getNickname()).isEqualTo("name");
+		assertThat(user.getCompany()).isEqualTo("company");
+		assertThat(user.getWebsiteUrl()).isEqualTo("blog");
+		assertThat(user.getLocation()).isEqualTo("location");
+		assertThat(user.getEmail()).isEqualTo("email");
+		assertThat(user.getBio()).isEqualTo("bio");
+		assertThat(user.getAvatarUrl()).isEqualTo("https://avatars2.githubusercontent.com/u/1?v=4&s=40");
 		// 用户头像
 		List<UserAvatar> avatars = userAvatarDao.findByUserId(userId);
-		assertThat(avatars.size(), is(3));
-		assertThat(avatars.stream().map(avatar -> avatar.getSizeType().getKey()).collect(Collectors.toList()),
-				hasItem(startsWith("0")));
+		assertThat(avatars.size()).isEqualTo(3);
+		assertThat(avatars.stream().map(avatar -> avatar.getSizeType().getKey()).collect(Collectors.toList())).allMatch(s -> s.startsWith("0"));
+		
+		// hasItem(startsWith("0"))
 		// 用户与社交帐号绑定关系
 		Optional<UserBind> userBindOption = userBindDao.findBySiteAndOpenId(OauthSite.GITHUB, "1");
-		assertThat(userBindOption.get().getUserId(), is(userId));
+		assertThat(userBindOption.get().getUserId()).isEqualTo(userId);
 	}
 	
 	@Test
@@ -149,25 +145,25 @@ public class GithubLoginServiceImplTest extends AbstractServiceTest{
 		
 		Integer userId2 = githubLoginService.updateUser(accessToken, oauthUser).getId();
 		
-		assertThat(countRowsInTable("user_info"), is(1));
-		assertThat(userId1, is(userId2));
+		assertThat(countRowsInTable("user_info")).isEqualTo(1);
+		assertThat(userId1).isEqualTo(userId2);
 		
 		// 断言
 		// 用户基本信息
 		Optional<UserInfo> userOption = userDao.findById(userId2);
-		assertThat(userOption.isPresent(), is(true));
+		assertThat(userOption.isPresent()).isTrue();
 		UserInfo user = userOption.get();
-		assertThat(user.getLoginName(), equalTo("login_2"));
-		assertThat(user.getNickname(), equalTo("name_2"));
-		assertThat(user.getCompany(), equalTo("company_2"));
-		assertThat(user.getWebsiteUrl(), equalTo("blog_2"));
-		assertThat(user.getLocation(), equalTo("location_2"));
-		assertThat(user.getEmail(), equalTo("email_2"));
-		assertThat(user.getBio(), equalTo("bio_2"));
-		assertThat(user.getAvatarUrl(), equalTo("https://avatars2.githubusercontent.com/u/1?v=4_2&s=40"));
+		assertThat(user.getLoginName()).isEqualTo("login_2");
+		assertThat(user.getNickname()).isEqualTo("name_2");
+		assertThat(user.getCompany()).isEqualTo("company_2");
+		assertThat(user.getWebsiteUrl()).isEqualTo("blog_2");
+		assertThat(user.getLocation()).isEqualTo("location_2");
+		assertThat(user.getEmail()).isEqualTo("email_2");
+		assertThat(user.getBio()).isEqualTo("bio_2");
+		assertThat(user.getAvatarUrl()).isEqualTo("https://avatars2.githubusercontent.com/u/1?v=4_2&s=40");
 		// 用户头像
 		List<UserAvatar> avatars = userAvatarDao.findByUserId(userId2);
-		assertThat(avatars.stream().map(avatar -> avatar.getAvatarUrl()).collect(Collectors.toList()), 
-				hasItem(containsString("https://avatars2.githubusercontent.com/u/1?v=4_2&s=")));
+		assertThat(avatars.stream().map(avatar -> avatar.getAvatarUrl()).collect(Collectors.toList()))
+			.allMatch(s -> s.startsWith("https://avatars2.githubusercontent.com/u/1?v=4_2&s="));
 	}
 }

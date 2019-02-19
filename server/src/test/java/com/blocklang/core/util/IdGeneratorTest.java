@@ -1,22 +1,19 @@
 package com.blocklang.core.util;
 
-import static org.junit.Assert.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
-
-import com.blocklang.core.util.IdGenerator;
 
 public class IdGeneratorTest {
 
 	@Test
 	public void short_uuid_22_characters() {
 		String uuid = IdGenerator.shortUuid();
-		assertThat(uuid.length() <= 22, is(true));
+		assertThat(uuid.length()).isLessThanOrEqualTo(22);
 	}
 	
 	@Test
 	public void uuid_32_characters() {
-		assertThat(IdGenerator.uuid().length(), is(32));
+		assertThat(IdGenerator.uuid().length()).isEqualTo(32);
 	}
 }

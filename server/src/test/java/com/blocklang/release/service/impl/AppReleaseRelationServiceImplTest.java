@@ -1,7 +1,6 @@
 package com.blocklang.release.service.impl;
 
-import static org.junit.Assert.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
 
@@ -23,7 +22,7 @@ public class AppReleaseRelationServiceImplTest extends AbstractServiceTest {
 	@Test
 	public void find_single_no_data() {
 		Optional<Integer> dependAppReleaseIdOption = appReleaseRelationService.findSingle(1);
-		assertThat(dependAppReleaseIdOption.isEmpty(), is(true));
+		assertThat(dependAppReleaseIdOption).isEmpty();
 	}
 	
 	@Test
@@ -35,7 +34,7 @@ public class AppReleaseRelationServiceImplTest extends AbstractServiceTest {
 		appReleaseRelationDao.save(appReleaseRelation);
 		
 		Optional<Integer> dependAppReleaseIdOption = appReleaseRelationService.findSingle(appReleaseId);
-		assertThat(dependAppReleaseIdOption.get(), is(2));
+		assertThat(dependAppReleaseIdOption).get().isEqualTo(2);
 	}
 	
 	@Test
@@ -52,6 +51,6 @@ public class AppReleaseRelationServiceImplTest extends AbstractServiceTest {
 		appReleaseRelationDao.save(appReleaseRelation);
 		
 		Optional<Integer> dependAppReleaseIdOption = appReleaseRelationService.findSingle(appReleaseId);
-		assertThat(dependAppReleaseIdOption.isEmpty(), is(true));
+		assertThat(dependAppReleaseIdOption).isEmpty();
 	}
 }

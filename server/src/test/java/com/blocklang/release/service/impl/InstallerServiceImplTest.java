@@ -1,8 +1,6 @@
 package com.blocklang.release.service.impl;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -43,10 +41,10 @@ public class InstallerServiceImplTest extends AbstractServiceTest{
 		registrationInfo.setTargetOs("Linux");
 		
 		String installerToken = installerService.save(registrationInfo, 1);
-		assertThat(installerToken.length() <= 22, is(true));
+		assertThat(installerToken.length()).isLessThanOrEqualTo(22);
 		
-		assertThat(countRowsInTable("WEB_SERVER"), is(1));
-		assertThat(countRowsInTable("INSTALLER"), is(1));
+		assertThat(countRowsInTable("WEB_SERVER")).isEqualTo(1);
+		assertThat(countRowsInTable("INSTALLER")).isEqualTo(1);
 	}
 	
 	@Test
@@ -75,8 +73,8 @@ public class InstallerServiceImplTest extends AbstractServiceTest{
 		
 		installerService.save(registrationInfo, 2);
 		
-		assertThat(countRowsInTable("WEB_SERVER"), is(1));
-		assertThat(countRowsInTable("INSTALLER"), is(2));
+		assertThat(countRowsInTable("WEB_SERVER")).isEqualTo(1);
+		assertThat(countRowsInTable("INSTALLER")).isEqualTo(2);
 	}
 	
 	@Test
@@ -112,20 +110,20 @@ public class InstallerServiceImplTest extends AbstractServiceTest{
 		installerService.update(existedInstaller, registrationInfo);
 		
 		WebServer updatedWebServer = webServerDao.findById(existedWebServer.getId()).get();
-		assertThat(updatedWebServer.getArch(), equalTo(Arch.X86_64));
-		assertThat(updatedWebServer.getOsType(), equalTo(OsType.LINUX));
-		assertThat(updatedWebServer.getOsVersion(), equalTo("v2"));
-		assertThat(updatedWebServer.getIp(), equalTo("11.11.11.11"));
+		assertThat(updatedWebServer.getArch()).isEqualTo(Arch.X86_64);
+		assertThat(updatedWebServer.getOsType()).isEqualTo(OsType.LINUX);
+		assertThat(updatedWebServer.getOsVersion()).isEqualTo("v2");
+		assertThat(updatedWebServer.getIp()).isEqualTo("11.11.11.11");
 		
 		Installer updatedInstaller = installerDao.findById(existedInstaller.getId()).get();
-		assertThat(updatedInstaller.getAppRunPort(), is(8080));
+		assertThat(updatedInstaller.getAppRunPort()).isEqualTo(8080);
 		
 	}
 
 	@Test
 	public void find_by_installer_token_no_data() {
 		Optional<Installer> installerOption = installerDao.findByInstallerToken("not-exist-installer-token");
-		assertThat(installerOption.isEmpty(), is(true));
+		assertThat(installerOption).isEmpty();
 	}
 	
 	@Test
@@ -138,9 +136,9 @@ public class InstallerServiceImplTest extends AbstractServiceTest{
 		installer.setCreateTime(LocalDateTime.now());
 		installer.setCreateUserId(1);
 		Installer existedInstaller = installerDao.save(installer);
-		assertThat(countRowsInTable("INSTALLER"), is(1));
+		assertThat(countRowsInTable("INSTALLER")).isEqualTo(1);
 		installerService.delete(existedInstaller);
 		installerDao.flush();
-		assertThat(countRowsInTable("INSTALLER"), is(0));
+		assertThat(countRowsInTable("INSTALLER")).isEqualTo(0);
 	}
 }

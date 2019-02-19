@@ -1,7 +1,6 @@
 package com.blocklang.release.service.impl;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -25,7 +24,7 @@ public class AppServiceImplTest extends AbstractServiceTest{
 	@Test
 	public void find_by_id_no_data() {
 		Optional<App> appOption = appService.findById(1);
-		assertThat(appOption.isEmpty(), is(true));
+		assertThat(appOption.isEmpty()).isTrue();
 		
 		App app = new App();
 		app.setAppName("app");
@@ -34,7 +33,8 @@ public class AppServiceImplTest extends AbstractServiceTest{
 		appDao.save(app);
 		
 		appOption = appService.findById(app.getId() + 1);
-		assertThat(appOption.isEmpty(), is(true));
+		
+		assertThat(appOption).isEmpty();
 	}
 	
 	@Test
@@ -45,13 +45,13 @@ public class AppServiceImplTest extends AbstractServiceTest{
 		app.setCreateTime(LocalDateTime.now());
 		
 		Optional<App> appOption = appService.findById(appDao.save(app).getId());
-		assertThat(appOption.isPresent(), is(true));
+		assertThat(appOption).isPresent();
 	}
 
 	@Test
 	public void find_by_registration_token_no_data() {
 		Optional<App> appOption = appService.findByRegistrationToken("not-exist-registration-token");
-		assertThat(appOption.isEmpty(), is(true));
+		assertThat(appOption).isEmpty();
 		
 		App app = new App();
 		app.setAppName("app");
@@ -60,7 +60,7 @@ public class AppServiceImplTest extends AbstractServiceTest{
 		appDao.save(app);
 		
 		appOption = appService.findByRegistrationToken("not-exist-registration-token");
-		assertThat(appOption.isEmpty(), is(true));
+		assertThat(appOption).isEmpty();
 	}
 	
 	@Test
@@ -73,13 +73,13 @@ public class AppServiceImplTest extends AbstractServiceTest{
 		appDao.save(app);
 		
 		Optional<App> appOption = appService.findByRegistrationToken("registration-token");
-		assertThat(appOption.isPresent(), is(true));
+		assertThat(appOption).isPresent();
 	}
 	
 	@Test
 	public void find_by_name_no_data() {
 		Optional<App> appOption = appService.findByAppName("not-exist-app-name");
-		assertThat(appOption.isEmpty(), is(true));
+		assertThat(appOption).isEmpty();
 	}
 	
 	@Test
@@ -92,6 +92,6 @@ public class AppServiceImplTest extends AbstractServiceTest{
 		appDao.save(app);
 		
 		Optional<App> appOption = appService.findByAppName("app");
-		assertThat(appOption.isPresent(), is(true));
+		assertThat(appOption).isPresent();
 	}
 }

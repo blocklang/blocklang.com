@@ -1,7 +1,6 @@
 package com.blocklang.release.service.impl;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -26,7 +25,7 @@ public class AppReleaseFileServiceImplTest extends AbstractServiceTest{
 	@Test
 	public void find_no_data() {
 		Optional<AppReleaseFile> appReleaseFileOption = appReleaseFileService.find(1, TargetOs.WINDOWS, Arch.X86);
-		assertThat(appReleaseFileOption.isEmpty(), is(true));
+		assertThat(appReleaseFileOption).isEmpty();
 	}
 	
 	@Test
@@ -43,7 +42,7 @@ public class AppReleaseFileServiceImplTest extends AbstractServiceTest{
 		appReleaseFileDao.save(appReleaseFile);
 		
 		Optional<AppReleaseFile> appReleaseFileOption = appReleaseFileService.find(1, TargetOs.WINDOWS, Arch.X86);
-		assertThat(appReleaseFileOption.isEmpty(), is(true));
+		assertThat(appReleaseFileOption).isEmpty();
 	}
 	
 	@Test
@@ -60,7 +59,7 @@ public class AppReleaseFileServiceImplTest extends AbstractServiceTest{
 		appReleaseFileDao.save(appReleaseFile);
 		
 		Optional<AppReleaseFile> appReleaseFileOption = appReleaseFileService.find(1, TargetOs.LINUX, Arch.X86_64);
-		assertThat(appReleaseFileOption.isEmpty(), is(true));
+		assertThat(appReleaseFileOption).isEmpty();
 	}
 	
 	@Test
@@ -77,7 +76,7 @@ public class AppReleaseFileServiceImplTest extends AbstractServiceTest{
 		appReleaseFileDao.save(appReleaseFile);
 		
 		Optional<AppReleaseFile> appReleaseFileOption = appReleaseFileService.find(1, TargetOs.WINDOWS, Arch.X86_64);
-		assertThat(appReleaseFileOption.isEmpty(), is(true));
+		assertThat(appReleaseFileOption).isEmpty();
 	}
 	
 	@Test
@@ -94,7 +93,7 @@ public class AppReleaseFileServiceImplTest extends AbstractServiceTest{
 		appReleaseFileDao.save(appReleaseFile);
 		
 		Optional<AppReleaseFile> appReleaseFileOption = appReleaseFileService.find(1, TargetOs.LINUX, Arch.X86);
-		assertThat(appReleaseFileOption.isPresent(), is(true));
+		assertThat(appReleaseFileOption).isPresent();
 	}
 	
 	@Test
@@ -111,7 +110,7 @@ public class AppReleaseFileServiceImplTest extends AbstractServiceTest{
 		appReleaseFileDao.save(appReleaseFile);
 		
 		Optional<AppReleaseFile> appReleaseFileOption = appReleaseFileService.find(1, TargetOs.LINUX, Arch.X86);
-		assertThat(appReleaseFileOption.isPresent(), is(true));
+		assertThat(appReleaseFileOption).isPresent();
 	}
 	
 	@Test
@@ -128,7 +127,7 @@ public class AppReleaseFileServiceImplTest extends AbstractServiceTest{
 		appReleaseFileDao.save(appReleaseFile);
 		
 		Optional<AppReleaseFile> appReleaseFileOption = appReleaseFileService.find(1, TargetOs.LINUX, Arch.X86);
-		assertThat(appReleaseFileOption.isPresent(), is(true));
+		assertThat(appReleaseFileOption).isPresent();
 	}
 	
 	@Test
@@ -145,7 +144,7 @@ public class AppReleaseFileServiceImplTest extends AbstractServiceTest{
 		appReleaseFileDao.save(appReleaseFile);
 		
 		Optional<AppReleaseFile> appReleaseFileOption = appReleaseFileService.find(1, TargetOs.LINUX, Arch.X86);
-		assertThat(appReleaseFileOption.isPresent(), is(true));
+		assertThat(appReleaseFileOption).isPresent();
 	}
 	
 	// 注意，要忽略大小写
@@ -163,6 +162,6 @@ public class AppReleaseFileServiceImplTest extends AbstractServiceTest{
 		appReleaseFileDao.save(appReleaseFile);
 		
 		Optional<AppReleaseFile> appReleaseFileOption = appReleaseFileService.find(1, "LiNuX", "x86");
-		assertThat(appReleaseFileOption.isPresent(), is(true));
+		assertThat(appReleaseFileOption).isPresent();
 	}
 }

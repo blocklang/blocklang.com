@@ -1,7 +1,6 @@
 package com.blocklang.release.service.impl;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -26,7 +25,7 @@ public class WebServerServiceImplTest extends AbstractServiceTest{
 	@Test
 	public void find_by_id_no_data() {
 		Optional<WebServer> webServerOption = webServerService.findById(1);
-		assertThat(webServerOption.isEmpty(), is(true));
+		assertThat(webServerOption).isEmpty();
 	}
 	
 	@Test
@@ -43,6 +42,6 @@ public class WebServerServiceImplTest extends AbstractServiceTest{
 		webServerDao.save(webServer);
 		
 		Optional<WebServer> webServerOption = webServerService.findById(webServer.getId());
-		assertThat(webServerOption.isPresent(), is(true));
+		assertThat(webServerOption).isPresent();
 	}
 }

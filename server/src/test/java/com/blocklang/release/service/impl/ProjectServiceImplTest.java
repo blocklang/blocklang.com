@@ -49,7 +49,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 	@Test
 	public void find_no_data() {
 		Optional<Project> projectOption = projectService.find("not-exist-owner", "not-exist-name");
-		assertThat(projectOption.isEmpty()).isTrue();
+		assertThat(projectOption).isEmpty();
 	}
 	
 	@Test
@@ -72,7 +72,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		projectDao.save(project);
 		
 		Optional<Project> projectOption = projectService.find("user_name", "project_name");
-		assertThat(projectOption.isPresent()).isTrue();
+		assertThat(projectOption).isPresent();
 	}
 	
 	@Test

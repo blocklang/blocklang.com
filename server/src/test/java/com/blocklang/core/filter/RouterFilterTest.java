@@ -1,9 +1,6 @@
 package com.blocklang.core.filter;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 
@@ -27,7 +24,7 @@ public class RouterFilterTest {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
 		routerFilter.doFilter(request, response, chain);
-		assertThat(response.getForwardedUrl(), equalTo("/"));
+		assertThat(response.getForwardedUrl()).isEqualTo("/");
 	}
 	
 	@Test
@@ -47,11 +44,11 @@ public class RouterFilterTest {
 			}
 			
 		};
-		assertThat(request.getAttribute("a"), is(nullValue()));
+		assertThat(request.getAttribute("a")).isNull();;
 		routerFilter.doFilter(request, response, chain);
 		// 即没有做处理，依然是 a.js
-		assertThat(response.getForwardedUrl(), is(nullValue()));
-		assertThat(request.getAttribute("a"), equalTo("1"));
+		assertThat(response.getForwardedUrl()).isNull();;
+		assertThat(request.getAttribute("a")).isEqualTo("1");
 	}
 	
 	@Test
@@ -63,7 +60,7 @@ public class RouterFilterTest {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
 		routerFilter.doFilter(request, response, chain);
-		assertThat(response.getForwardedUrl(), equalTo("/a.js"));
+		assertThat(response.getForwardedUrl()).isEqualTo("/a.js");
 	}
 	
 	@Test
@@ -75,7 +72,7 @@ public class RouterFilterTest {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
 		routerFilter.doFilter(request, response, chain);
-		assertThat(response.getForwardedUrl(), equalTo("/src/a.js"));
+		assertThat(response.getForwardedUrl()).isEqualTo("/src/a.js");
 	}
 	
 	@Test
@@ -95,11 +92,11 @@ public class RouterFilterTest {
 			}
 			
 		};
-		assertThat(request.getAttribute("a"), is(nullValue()));
+		assertThat(request.getAttribute("a")).isNull();;
 		routerFilter.doFilter(request, response, chain);
 		// 即没有做处理，依然是 /src/a.js
-		assertThat(response.getForwardedUrl(), is(nullValue()));
-		assertThat(request.getAttribute("a"), equalTo("1"));
+		assertThat(response.getForwardedUrl()).isNull();;
+		assertThat(request.getAttribute("a")).isEqualTo("1");
 	}
 	
 	@Test
@@ -111,7 +108,7 @@ public class RouterFilterTest {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
 		routerFilter.doFilter(request, response, chain);
-		assertThat(response.getForwardedUrl(), is(nullValue()));
+		assertThat(response.getForwardedUrl()).isNull();;
 	}
 
 	@Test
@@ -123,7 +120,7 @@ public class RouterFilterTest {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
 		routerFilter.doFilter(request, response, chain);
-		assertThat(response.getForwardedUrl(), equalTo("/projects/zhangsan/my-project"));
+		assertThat(response.getForwardedUrl()).isEqualTo("/projects/zhangsan/my-project");
 	}
 	
 	@Test
@@ -135,7 +132,7 @@ public class RouterFilterTest {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
 		routerFilter.doFilter(request, response, chain);
-		assertThat(response.getForwardedUrl(), equalTo("/projects/zhangsan/my-project/a/b"));
+		assertThat(response.getForwardedUrl()).isEqualTo("/projects/zhangsan/my-project/a/b");
 	}
 	
 	@Test
@@ -147,6 +144,6 @@ public class RouterFilterTest {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
 		routerFilter.doFilter(request, response, chain);
-		assertThat(response.getForwardedUrl(), equalTo("/users/zhangsan"));
+		assertThat(response.getForwardedUrl()).isEqualTo("/users/zhangsan");
 	}
 }
