@@ -60,14 +60,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			
 			if(registrationId.equalsIgnoreCase(OauthSite.GITHUB.getValue())) {
 				UserInfo userInfo = githubLoginService.updateUser(accessToken, oauthUser);
-				
 				// 将第三方用户信息转换为本网站的用户信息
 				// 这里主要是存储用户 id 等页面上常用信息
 				Map<String, Object> userAttributes = new HashMap<String, Object>();
 				userAttributes.put("id", userInfo.getId());
 				userAttributes.put("loginName", userInfo.getLoginName());
 				userAttributes.put("avatarUrl", userInfo.getAvatarUrl());
-				return new DefaultOAuth2User(oauthUser.getAuthorities(), userAttributes, "id");
+				// 经过反复考虑，这里设置 loginName 而不是设置 id
+				// 首先将 loginName 加上唯一约束后，使用 byLoginName 和 byId 获取用户信息的效果是一样的
+				// 这样在写代码时，不要做各种转换
+				return new DefaultOAuth2User(oauthUser.getAuthorities(), userAttributes, "loginName");
 			}
 
 			return oauthUser;

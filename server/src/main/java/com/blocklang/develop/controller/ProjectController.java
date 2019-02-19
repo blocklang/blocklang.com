@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -74,23 +73,9 @@ public class ProjectController {
 	}
 
 	private void validateOwner(Principal principal, String owner) {
-		if(principal == null) {
+		if(principal == null || !principal.getName().equals(owner)) {
 			throw new NoAuthorizationException();
 		}
-		
-		if(OAuth2AuthenticationToken.class.isInstance(principal)) {
-			OAuth2AuthenticationToken token = (OAuth2AuthenticationToken)principal;
-			Map<String, Object> userAttributes = token.getPrincipal().getAttributes();
-			// 因为客户端并不需要显示登录用户的登录标识，所以不返回 userId
-			
-			String loginName = userAttributes.get("loginName").toString();
-			if(loginName.equals(owner)) {
-				return;
-			}
-		}
-
-		throw new NoAuthorizationException();
-		
 	}
 	
 	private void validateProjectName(BindingResult bindingResult, CheckProjectNameParam param) {
