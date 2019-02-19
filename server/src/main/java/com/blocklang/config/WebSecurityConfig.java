@@ -17,6 +17,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 
 import com.blocklang.core.constant.OauthSite;
+import com.blocklang.core.constant.WebSite;
 import com.blocklang.core.filter.RouterFilter;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.GithubLoginService;
@@ -41,10 +42,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 //		.and().oauth2Client();
 		http//.authorizeRequests().antMatchers("/user").permitAll().anyRequest().authenticated().and()
 			.logout()
-				.logoutSuccessUrl("/") // 因为是 single page app，所以注销成功后返回首页
+				.logoutSuccessUrl(WebSite.HOME_URL) // 因为是 single page app，所以注销成功后返回首页
 				.and()
 			.oauth2Login()
-				.loginPage("/") // 因为是 single page app，所以将登录页设置为首页
+				.loginPage(WebSite.HOME_URL) // 因为是 single page app，所以将登录页设置为首页
 				.userInfoEndpoint()
 					.userService(this.oauth2UserService());
 	}

@@ -113,4 +113,40 @@ public class RouterFilterTest {
 		routerFilter.doFilter(request, response, chain);
 		assertThat(response.getForwardedUrl(), is(nullValue()));
 	}
+
+	@Test
+	public void filter_forward_to_prepend_projects_1() throws IOException, ServletException {
+		RouterFilter routerFilter = new RouterFilter();
+		
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/zhangsan/my-project");
+		request.setServletPath("/zhangsan/my-project");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockFilterChain chain = new MockFilterChain();
+		routerFilter.doFilter(request, response, chain);
+		assertThat(response.getForwardedUrl(), equalTo("/projects/zhangsan/my-project"));
+	}
+	
+	@Test
+	public void filter_forward_to_prepend_projects_2() throws IOException, ServletException {
+		RouterFilter routerFilter = new RouterFilter();
+		
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/zhangsan/my-project/a/b");
+		request.setServletPath("/zhangsan/my-project/a/b");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockFilterChain chain = new MockFilterChain();
+		routerFilter.doFilter(request, response, chain);
+		assertThat(response.getForwardedUrl(), equalTo("/projects/zhangsan/my-project/a/b"));
+	}
+	
+	@Test
+	public void filter_forward_to_prepend_users() throws IOException, ServletException {
+		RouterFilter routerFilter = new RouterFilter();
+		
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/zhangsan");
+		request.setServletPath("/zhangsan");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockFilterChain chain = new MockFilterChain();
+		routerFilter.doFilter(request, response, chain);
+		assertThat(response.getForwardedUrl(), equalTo("/users/zhangsan"));
+	}
 }
