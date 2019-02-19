@@ -7,7 +7,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 import MenuContainer from './containers/MenuContainer';
 import HomeContainer from './containers/HomeContainer';
-import NewProjectContainer from './containers/NewProjectContainer';
+import NewProjectContainer from './containers/project/NewProjectContainer';
 
 import About from './widgets/About';
 import Profile from './widgets/Profile';

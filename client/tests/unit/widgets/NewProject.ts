@@ -3,7 +3,7 @@ import harness from '@dojo/framework/testing/harness';
 import { w, v } from '@dojo/framework/widget-core/d';
 
 import * as css from '../../../src/widgets/styles/NewProject.m.css';
-import NewProject from '../../../src/widgets/NewProject';
+import NewProject from '../../../src/widgets/project/NewProject';
 
 describe('NewProject', () => {
 	it('default renders correctly', () => {
@@ -84,10 +84,10 @@ describe('NewProject', () => {
 						v('small', { classes: ['form-text text-muted'] }, ['所有访客均可浏览，可邀请用户维护。'])
 					]),
 					v('div', { classes: ['form-check'] }, [
-						v('input', { 
-							classes: ['form-check-input'], 
-							type: 'radio', 
-							id: 'isPrivate', 
+						v('input', {
+							classes: ['form-check-input'],
+							type: 'radio',
+							id: 'isPrivate',
 							value: 'false',
 							name: 'isPublic',
 							checked: false,
