@@ -22,5 +22,7 @@
 	<include file="db/changelog/table/201902091615_create_user_bind.xml" />
 
 	<include file="db/changelog/table/201902121149_create_project.xml" />
+	<include file="db/changelog/table/201902201222_create_project_resource.xml" />
+	<include file="db/changelog/table/201902201602_create_project_file.xml" />
 
 </databaseChangeLog>

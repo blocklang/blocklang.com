@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+	<changeSet author="Zhengwei Jin" id="201902201602">
+		<createTable tableName="project_file" remarks="项目文件">
+			<column name="dbid" type="int" autoIncrement="true">
+				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_PROJECT_FILE" />
+			</column>
+			<column name="project_resource_id" remarks="项目资源标识" type="int" >
+				<constraints nullable="false" unique="true" uniqueConstraintName="UK_PROJECT_RESOURCE_ID"/>
+			</column>
+			<column name="file_type" remarks="文件类型" type="char(2)">
+				<constraints nullable="false" />
+			</column>
+			<column name="content" remarks="内容" type="${clob}" />
+		</createTable>
+	</changeSet>
+
+</databaseChangeLog>

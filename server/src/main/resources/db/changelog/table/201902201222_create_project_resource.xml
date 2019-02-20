@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+	<changeSet author="Zhengwei Jin" id="201902201222">
+		<createTable tableName="project_resource" remarks="项目资源">
+			<column name="dbid" type="int" autoIncrement="true">
+				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_PROJECT_RESOURCE" />
+			</column>
+			<column name="project_id" remarks="项目标识" type="int" >
+				<constraints nullable="false" />
+			</column>
+			<column name="resource_key" remarks="资源标识" type="varchar(32)">
+				<constraints nullable="false" />
+			</column>
+			<column name="resource_name" remarks="资源名称" type="varchar(32)">
+				<constraints nullable="false" />
+			</column>
+			<column name="resource_desc" remarks="资源描述" type="varchar(64)"/>
+			<column name="resource_type" remarks="资源类型" type="char(2)">
+				<constraints nullable="false" />
+			</column>
+			<column name="app_type" remarks="程序类型" type="char(2)">
+				<constraints nullable="false" />
+			</column>
+			<column name="parent_id" remarks="父标识" type="int">
+				<constraints nullable="false" />
+			</column>
+			<column name="seq" remarks="排序" type="int">
+				<constraints nullable="false" />
+			</column>
+			<column name="create_user_id" remarks="创建人标识" type="int">
+				<constraints nullable="false" />
+			</column>
+			<column name="create_time" remarks="创建时间" type="${datetime}">
+				<constraints nullable="false" />
+			</column>
+			<column name="last_update_user_id" remarks="最近修改人标识" type="int" />
+			<column name="last_update_time" remarks="最近修改时间" type="${datetime}" />
+		</createTable>
+		
+		<addUniqueConstraint columnNames="project_id,resource_key,resource_type,app_type,parent_id"
+			constraintName="UK_PROJECT_ID_RES_KEY_TYPE_APP_PARENT" tableName="project_resource" />
+	</changeSet>
+
+</databaseChangeLog>

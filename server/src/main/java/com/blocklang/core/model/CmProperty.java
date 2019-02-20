@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.blocklang.core.constant.Constant;
 import com.blocklang.core.constant.DataType;
 import com.blocklang.core.constant.converter.DataTypeConverter;
 
@@ -39,7 +40,7 @@ public class CmProperty implements Serializable{
 	private boolean valid = true;
 
 	@Column(name = "parent_id", nullable = false)
-	private Integer parentId = -1;
+	private Integer parentId = Constant.TREE_ROOT_ID;
 
 	public Integer getId() {
 		return id;
