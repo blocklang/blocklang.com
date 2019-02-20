@@ -5,6 +5,7 @@
 ## 开发
 
 1. [`PROJECT`](PROJECT.md)
+2. [`PROJECT_RESOURCE`](PROJECT_RESOURCE.md)
 
 ## 构建
 
