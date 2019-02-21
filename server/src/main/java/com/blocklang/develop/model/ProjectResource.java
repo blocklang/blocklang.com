@@ -24,11 +24,8 @@ public class ProjectResource extends PartialOperateFields{
 	 * 首页
 	 */
 	public static final String MAIN_KEY = "main";
-	
 	public static final String MAIN_NAME = "首页";
-	
 	public static final String README_KEY = "README";
-	
 	public static final String README_NAME = "README.md";
 
 	@Column(name = "project_id", nullable = false)

@@ -139,6 +139,10 @@ GET /projects/{owner}/{projectName}/tree/{pathId}
 
 ### Response
 
+```text
+Status: 200 OK
+```
+
 返回一个数组
 
 | 属性名             | 类型       | 描述           |

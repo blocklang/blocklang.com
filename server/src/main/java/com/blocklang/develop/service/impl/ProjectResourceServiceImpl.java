@@ -1,5 +1,7 @@
 package com.blocklang.develop.service.impl;
 
+import java.util.List;
+
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,12 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 	@Override
 	public ProjectResource insert(ProjectResource resource) {
 		return projectResourceDao.save(resource);
+	}
+
+	@Override
+	public List<ProjectResource> findChildren(int projectId, int resourceId) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

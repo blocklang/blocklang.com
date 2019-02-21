@@ -5,11 +5,14 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.apache.http.HttpStatus;
@@ -25,6 +28,8 @@ import com.blocklang.core.test.AbstractControllerTest;
 import com.blocklang.develop.data.CheckProjectNameParam;
 import com.blocklang.develop.data.NewProjectParam;
 import com.blocklang.develop.model.Project;
+import com.blocklang.develop.model.ProjectResource;
+import com.blocklang.develop.service.ProjectResourceService;
 import com.blocklang.develop.service.ProjectService;
 
 import io.restassured.http.ContentType;
@@ -34,10 +39,10 @@ public class ProjectControllerTest extends AbstractControllerTest{
 	
 	@MockBean
 	private GithubLoginService githubLoginService;
-	
 	@MockBean
 	private ProjectService projectService;
-	
+	@MockBean
+	private ProjectResourceService projectResourceService;
 	@MockBean
 	private UserService userService;
 
@@ -212,4 +217,160 @@ public class ProjectControllerTest extends AbstractControllerTest{
 					"id", is(notNullValue()));
 	}
 	
+	// 如果是公开项目，则匿名用户也能访问
+	@Test
+	public void get_tree_anonymous_user_public_project_success() {
+		String owner = "owner";
+		String projectName = "public-project";
+		int pathId = -1;
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(true);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		List<ProjectResource> resources = new ArrayList<ProjectResource>();
+		when(projectResourceService.findChildren(anyInt(), anyInt())).thenReturn(resources);
+
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/tree/{pathId}", owner, projectName, pathId)
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body("size()", equalTo(0));
+	}
+	
+	@Test
+	public void get_tree_public_project_invalid_path_id_fail() {
+		String owner = "owner";
+		String projectName = "public-project";
+		String pathId = "a"; // must be integer
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(true);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		List<ProjectResource> resources = new ArrayList<ProjectResource>();
+		when(projectResourceService.findChildren(anyInt(), anyInt())).thenReturn(resources);
+
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/tree/{pathId}", owner, projectName, pathId)
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	// 如果是私有项目，则匿名用户不能访问
+	@Test
+	public void get_tree_anonymous_user_private_project_fail() {
+		String owner = "owner";
+		String projectName = "public-project";
+		int pathId = -1;
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(false);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		List<ProjectResource> resources = new ArrayList<ProjectResource>();
+		when(projectResourceService.findChildren(anyInt(), anyInt())).thenReturn(resources);
+
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/tree/{pathId}", owner, projectName, pathId)
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	@WithMockUser("other")
+	@Test
+	public void get_tree_logged_user_not_owned_public_project_success() {
+		String owner = "owner";
+		String projectName = "public-project";
+		int pathId = -1;
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(true);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		List<ProjectResource> resources = new ArrayList<ProjectResource>();
+		when(projectResourceService.findChildren(anyInt(), anyInt())).thenReturn(resources);
+
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/tree/{pathId}", owner, projectName, pathId)
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body("size()", equalTo(0));
+	}
+	
+	@WithMockUser("owner")
+	@Test
+	public void get_tree_logged_user_self_public_project_success() {
+		String owner = "owner";
+		String projectName = "public-project";
+		int pathId = -1;
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(true);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		List<ProjectResource> resources = new ArrayList<ProjectResource>();
+		when(projectResourceService.findChildren(anyInt(), anyInt())).thenReturn(resources);
+
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/tree/{pathId}", owner, projectName, pathId)
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body("size()", equalTo(0));
+	}
+	
+	@WithMockUser("other")
+	@Test
+	public void get_tree_logged_user_not_owned_private_project_fail() {
+		String owner = "owner";
+		String projectName = "public-project";
+		int pathId = -1;
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(false);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		List<ProjectResource> resources = new ArrayList<ProjectResource>();
+		when(projectResourceService.findChildren(anyInt(), anyInt())).thenReturn(resources);
+
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/tree/{pathId}", owner, projectName, pathId)
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	@WithMockUser("owner")
+	@Test
+	public void get_tree_logged_user_self_private_project_success() {
+		String owner = "owner";
+		String projectName = "public-project";
+		int pathId = -1;
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(false);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		List<ProjectResource> resources = new ArrayList<ProjectResource>();
+		when(projectResourceService.findChildren(anyInt(), anyInt())).thenReturn(resources);
+
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/tree/{pathId}", owner, projectName, pathId)
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body("size()", equalTo(0));
+	}
 }
