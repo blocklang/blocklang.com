@@ -8,6 +8,6 @@ public interface ProjectResourceService {
 
 	ProjectResource insert(ProjectResource resource);
 
-	List<ProjectResource> findChildren(int projectId, int resourceId);
+	List<ProjectResource> findChildren(int projectId, int parentResourceId);
 
 }

@@ -83,6 +83,7 @@ public class ProjectServiceImpl implements ProjectService {
 		// 生成入口模块：Main 页面
 		ProjectResource resource = createMainProgram(project.getId(), createTime, createUserId);
 		// 此方法中实现了应用模板功能
+		// TODO: 是否需要将应用模板逻辑，单独提取出来？
 		projectResourceService.insert(resource);
 		
 		// 生成 README.md 文件

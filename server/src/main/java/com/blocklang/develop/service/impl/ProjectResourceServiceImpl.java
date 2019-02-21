@@ -2,8 +2,6 @@ package com.blocklang.develop.service.impl;
 
 import java.util.List;
 
-import javax.transaction.Transactional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,16 +15,15 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 	@Autowired
 	private ProjectResourceDao projectResourceDao;
 	
-	@Transactional
+	//@Transactional
 	@Override
 	public ProjectResource insert(ProjectResource resource) {
 		return projectResourceDao.save(resource);
 	}
 
 	@Override
-	public List<ProjectResource> findChildren(int projectId, int resourceId) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<ProjectResource> findChildren(int projectId, int parentResourceId) {
+		return projectResourceDao.findByProjectIdAndParentIdOrderByResourceTypeAscSeqAsc(projectId, parentResourceId);
 	}
 
 }
