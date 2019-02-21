@@ -7,6 +7,10 @@
   - [创建项目](#%E5%88%9B%E5%BB%BA%E9%A1%B9%E7%9B%AE)
     - [Parameters](#parameters-1)
     - [Response](#response-1)
+  - [查看项目的目录结构](#%E6%9F%A5%E7%9C%8B%E9%A1%B9%E7%9B%AE%E7%9A%84%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84)
+    - [Parameters](#parameters-2)
+    - [Response](#response-2)
+  - [查看项目中的一个对象](#%E6%9F%A5%E7%9C%8B%E9%A1%B9%E7%9B%AE%E4%B8%AD%E7%9A%84%E4%B8%80%E4%B8%AA%E5%AF%B9%E8%B1%A1)
 
 ## 校验项目名称
 
@@ -25,7 +29,7 @@ POST /projects/check-name
 | Name    | Type     | Description              |
 | ------- | -------- | ------------------------ |
 | `owner` | `string` | **Required**. 用户登录名 |
-| `name` | `string` | **Required**. 项目名称   |
+| `name`  | `string` | **Required**. 项目名称   |
 
 ### Response
 
@@ -116,3 +120,53 @@ Status: 201 CREATED
 | `createUserId`     | `int`      | 创建用户标识   |
 | `lastUpdateTime`   | `datetime` | 最近修改时间   |
 | `lastUpdateUserId` | `int`      | 最近修改人标识 |
+
+## 查看项目的目录结构
+
+逐层获取项目的结构。如果当前层级是目录（或者叫）分组，则获取分组下的直属内容列表。
+
+```text
+GET /projects/{owner}/{projectName}/tree/{pathId}
+```
+
+### Parameters
+
+| Name          | Type     | Description               |
+| ------------- | -------- | ------------------------- |
+| `owner`       | `string` | **Required**. 用户登录名  |
+| `projectName` | `string` | **Required**. 项目名称    |
+| `pathId`      | `string` | 当前目录的标识，默认为 -1 |
+
+### Response
+
+返回一个数组
+
+| 属性名             | 类型       | 描述           |
+| ------------------ | ---------- | -------------- |
+| `id`               | `int`      | 记录标识       |
+| `key`              | `string`   | 资源标识       |
+| `name`             | `string`   | 资源名称       |
+| `description`      | `string`   | 资源描述       |
+| `resource_type`    | `string`   | 资源类型       |
+| `parent_id`        | `int`      | 父标识         |
+| `seq`              | `int`      | 排序           |
+| `createTime`       | `datetime` | 创建时间       |
+| `createUserId`     | `int`      | 创建用户标识   |
+| `lastUpdateTime`   | `datetime` | 最近修改时间   |
+| `lastUpdateUserId` | `int`      | 最近修改人标识 |
+
+如果没有找到此目录结构或者用户没有访问权限，则
+
+```text
+Status: 404 Not Found
+```
+
+## 查看项目中的一个对象
+
+如果当前层级是程序模块（叶节点）等，则获取文件的内容。
+
+```text
+GET /projects/{owner}/{projectName}/blob/{path}
+```
+
+TODO: 同步获取 README 文件
