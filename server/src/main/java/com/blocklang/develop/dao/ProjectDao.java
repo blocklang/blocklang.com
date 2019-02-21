@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.blocklang.develop.model.Project;
 
-public interface ProjectDao extends JpaRepository<Project, Integer>{
+public interface ProjectDao extends JpaRepository<Project, Integer> {
 
 	Optional<Project> findByCreateUserIdAndName(Integer id, String projectName);
 

@@ -22,7 +22,7 @@ public interface ProjectService {
 	 * 包括以下步骤：
 	 * <ol>
 	 * <li>在数据库中保存项目基本信息
-	 * <li>在数据库中存储 APP 基本信息
+	 * <li>在数据库中保存 APP 基本信息
 	 * <li>为项目生成默认模块：Main 页面
 	 * <li>为项目生成 README.md 文件
 	 * <li>创建一个 git 仓库

@@ -56,6 +56,11 @@ public class GitUtils {
 		return gitInit.execute(gitRepoPath, gitUserName, gitUserMail);
 	}
 	
+	public static GitInit beginInit(Path gitRepoPath, String gitUserName, String gitUserMail) {
+		GitInit gitInit = new GitInit(gitRepoPath, gitUserName, gitUserMail);
+		return gitInit;
+	}
+	
 	public static String commit(
 			Path gitRootPath, 
 			String relativePath,

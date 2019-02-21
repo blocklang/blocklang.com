@@ -11,7 +11,8 @@ public enum AppType {
 	IOS("03", "Web"),
 	WECHAT_MINI_APP("04", "微信小程序"),
 	ALIPAY_MINI_APP("05", "支付宝小程序"),
-	QUICK_APP("06", "快应用");
+	QUICK_APP("06", "快应用"),
+	UNKNOWN("99", "Unknown");
 
 	private final String key;
 	private final String value;
@@ -31,21 +32,21 @@ public enum AppType {
 	
 	public static AppType fromValue(String value) {
 		if (StringUtils.isBlank(value)) {
-			return null;
+			return UNKNOWN;
 		}
 		return Arrays.stream(AppType.values())
 				.filter((each) -> value.toLowerCase().equals(each.getValue().toLowerCase()))
 				.findFirst()
-				.orElse(null);
+				.orElse(UNKNOWN);
 	}
 
 	public static AppType fromKey(String key) {
 		if (StringUtils.isBlank(key)) {
-			return null;
+			return UNKNOWN;
 		}
 		return Arrays.stream(AppType.values())
 				.filter((each) -> key.equals(each.getValue()))
 				.findFirst()
-				.orElse(null);
+				.orElse(UNKNOWN);
 	}
 }

@@ -19,18 +19,29 @@ import com.blocklang.develop.constant.converter.ProjectResourceTypeConverter;
 public class ProjectResource extends PartialOperateFields{
 
 	private static final long serialVersionUID = -7591405398132869438L;
+	
+	/**
+	 * 首页
+	 */
+	public static final String MAIN_KEY = "main";
+	
+	public static final String MAIN_NAME = "首页";
+	
+	public static final String README_KEY = "README";
+	
+	public static final String README_NAME = "README.md";
 
 	@Column(name = "project_id", nullable = false)
 	private Integer projectId;
 	
 	@Column(name = "resource_key", nullable = false, length = 32)
-	private String resourceKey;
+	private String key;
 	
 	@Column(name = "resource_name", nullable = false, length = 32)
-	private String resourceName;
+	private String name;
 	
 	@Column(name = "resource_desc", length = 64)
-	private String resourceDesc;
+	private String description;
 
 	@Convert(converter = ProjectResourceTypeConverter.class)
 	@Column(name = "resource_type", nullable = false, length = 2)
@@ -54,28 +65,28 @@ public class ProjectResource extends PartialOperateFields{
 		this.projectId = projectId;
 	}
 
-	public String getResourceKey() {
-		return resourceKey;
+	public String getKey() {
+		return key;
 	}
 
-	public void setResourceKey(String resourceKey) {
-		this.resourceKey = resourceKey;
+	public void setKey(String key) {
+		this.key = key;
 	}
 
-	public String getResourceName() {
-		return resourceName;
+	public String getName() {
+		return name;
 	}
 
-	public void setResourceName(String resourceName) {
-		this.resourceName = resourceName;
+	public void setName(String name) {
+		this.name = name;
 	}
 
-	public String getResourceDesc() {
-		return resourceDesc;
+	public String getDescription() {
+		return description;
 	}
 
-	public void setResourceDesc(String resourceDesc) {
-		this.resourceDesc = resourceDesc;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	public ProjectResourceType getResourceType() {

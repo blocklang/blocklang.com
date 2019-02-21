@@ -57,6 +57,14 @@ public class GitUtilsTest {
 	}
 	
 	@Test
+	public void git_init_with_files_success() throws IOException {
+		File folder = tempFolder.newFolder(gitRepoDirectory);
+		
+		GitUtils.beginInit(folder.toPath(), gitUserName, gitUserMail).addFile("a.txt", "Hello").commit("first commit");
+		assertContentEquals(folder.toPath().resolve("a.txt"), "Hello");
+	}
+	
+	@Test
 	public void git_commit_success() throws IOException {
 		File folder = tempFolder.newFolder(gitRepoDirectory);
 		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
