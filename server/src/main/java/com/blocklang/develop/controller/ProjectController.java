@@ -28,6 +28,7 @@ import com.blocklang.develop.data.CheckProjectNameParam;
 import com.blocklang.develop.data.NewProjectParam;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectResource;
+import com.blocklang.develop.service.ProjectFileService;
 import com.blocklang.develop.service.ProjectResourceService;
 import com.blocklang.develop.service.ProjectService;
 
@@ -40,6 +41,8 @@ public class ProjectController {
 	private ProjectService projectService;
 	@Autowired
 	private ProjectResourceService projectResourceService;
+	@Autowired
+	private ProjectFileService projectFileService;
 	@Autowired
 	private UserService userService;
 	
@@ -129,4 +132,27 @@ public class ProjectController {
 			return ResponseEntity.ok(tree);
 		}).orElseThrow(ResourceNotFoundException::new);
 	}
+	
+	@GetMapping("/projects/{owner}/{projectName}/readme")
+	public ResponseEntity<String> getReadme(
+			Principal user,
+			@PathVariable String owner,
+			@PathVariable String projectName) {
+		
+		return projectService.find(owner, projectName).flatMap(project -> {
+			
+			if(!project.getIsPublic()) {
+				// 1. 用户未登录时不能访问私有项目
+				// 2. 用户虽然登录，但是不是项目的拥有者且没有访问权限，则不能访问
+				if((user == null) || (user!= null && !owner.equals(user.getName()))) {
+					throw new ResourceNotFoundException();
+				}
+			}
+			
+			return projectFileService.findReadme(project.getId());
+		}).map(projectFile -> {
+			return ResponseEntity.ok(projectFile.getContent());
+		}).orElseThrow(ResourceNotFoundException::new);
+	}
+	
 }

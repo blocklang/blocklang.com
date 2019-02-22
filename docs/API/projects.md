@@ -11,6 +11,9 @@
     - [Parameters](#parameters-2)
     - [Response](#response-2)
   - [查看项目中的一个对象](#%E6%9F%A5%E7%9C%8B%E9%A1%B9%E7%9B%AE%E4%B8%AD%E7%9A%84%E4%B8%80%E4%B8%AA%E5%AF%B9%E8%B1%A1)
+  - [获取项目的 README 文件](#%E8%8E%B7%E5%8F%96%E9%A1%B9%E7%9B%AE%E7%9A%84-readme-%E6%96%87%E4%BB%B6)
+    - [Parameters](#parameters-3)
+    - [Response](#response-3)
 
 ## 校验项目名称
 
@@ -173,4 +176,25 @@ Status: 404 Not Found
 GET /projects/{owner}/{projectName}/blob/{path}
 ```
 
-TODO: 同步获取 README 文件
+## 获取项目的 README 文件
+
+默认为每个项目创建一个 `README.md` 文件。
+
+```text
+GET /projects/{owner}/{projectName}/readme
+```
+
+### Parameters
+
+| Name          | Type     | Description               |
+| ------------- | -------- | ------------------------- |
+| `owner`       | `string` | **Required**. 用户登录名  |
+| `projectName` | `string` | **Required**. 项目名称    |
+
+### Response
+
+```text
+Status: 200 OK
+```
+
+返回的是一段文本，不是 json 对象。返回的是 README.md 文档的内容。

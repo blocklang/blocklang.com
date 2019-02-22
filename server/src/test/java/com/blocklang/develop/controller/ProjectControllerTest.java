@@ -28,7 +28,9 @@ import com.blocklang.core.test.AbstractControllerTest;
 import com.blocklang.develop.data.CheckProjectNameParam;
 import com.blocklang.develop.data.NewProjectParam;
 import com.blocklang.develop.model.Project;
+import com.blocklang.develop.model.ProjectFile;
 import com.blocklang.develop.model.ProjectResource;
+import com.blocklang.develop.service.ProjectFileService;
 import com.blocklang.develop.service.ProjectResourceService;
 import com.blocklang.develop.service.ProjectService;
 
@@ -43,6 +45,8 @@ public class ProjectControllerTest extends AbstractControllerTest{
 	private ProjectService projectService;
 	@MockBean
 	private ProjectResourceService projectResourceService;
+	@MockBean
+	private ProjectFileService projectFileService;
 	@MockBean
 	private UserService userService;
 
@@ -265,7 +269,7 @@ public class ProjectControllerTest extends AbstractControllerTest{
 	@Test
 	public void get_tree_anonymous_user_private_project_fail() {
 		String owner = "owner";
-		String projectName = "public-project";
+		String projectName = "private-project";
 		int pathId = -1;
 		
 		Project project = new Project();
@@ -333,7 +337,7 @@ public class ProjectControllerTest extends AbstractControllerTest{
 	@Test
 	public void get_tree_logged_user_not_owned_private_project_fail() {
 		String owner = "owner";
-		String projectName = "public-project";
+		String projectName = "private-project";
 		int pathId = -1;
 		
 		Project project = new Project();
@@ -355,7 +359,7 @@ public class ProjectControllerTest extends AbstractControllerTest{
 	@Test
 	public void get_tree_logged_user_self_private_project_success() {
 		String owner = "owner";
-		String projectName = "public-project";
+		String projectName = "private-project";
 		int pathId = -1;
 		
 		Project project = new Project();
@@ -372,5 +376,147 @@ public class ProjectControllerTest extends AbstractControllerTest{
 		.then()
 			.statusCode(HttpStatus.SC_OK)
 			.body("size()", equalTo(0));
+	}
+	
+	
+	// 获取 readme，也需要权限校验
+	@Test
+	public void get_readme_anonymous_user_from_public_project_success() {
+		String owner = "owner";
+		String projectName = "public-project";
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(true);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		ProjectFile projectFile = new ProjectFile();
+		projectFile.setContent("# public-project");
+		when(projectFileService.findReadme(anyInt())).thenReturn(Optional.of(projectFile));
+		
+		given()
+			.contentType(ContentType.TEXT)
+		.when()
+			.get("/projects/{owner}/{projectName}/readme", owner, projectName)
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body(equalTo("# public-project"));
+	}
+	
+	@Test
+	public void get_readme_anonymous_user_from_private_project_fail() {
+		String owner = "owner";
+		String projectName = "private-project";
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(false);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		ProjectFile projectFile = new ProjectFile();
+		projectFile.setContent("# private-project");
+		when(projectFileService.findReadme(anyInt())).thenReturn(Optional.of(projectFile));
+		
+		given()
+			.contentType(ContentType.TEXT)
+		.when()
+			.get("/projects/{owner}/{projectName}/readme", owner, projectName)
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	@WithMockUser("other")
+	@Test
+	public void get_readme_logged_user_from_other_public_project_success() {
+		String owner = "owner";
+		String projectName = "public-project";
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(true);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		ProjectFile projectFile = new ProjectFile();
+		projectFile.setContent("# public-project");
+		when(projectFileService.findReadme(anyInt())).thenReturn(Optional.of(projectFile));
+		
+		given()
+			.contentType(ContentType.TEXT)
+		.when()
+			.get("/projects/{owner}/{projectName}/readme", owner, projectName)
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body(equalTo("# public-project"));
+	}
+	
+	@WithMockUser("owner")
+	@Test
+	public void get_readme_logged_user_from_self_public_project_success() {
+		String owner = "owner";
+		String projectName = "public-project";
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(true);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		ProjectFile projectFile = new ProjectFile();
+		projectFile.setContent("# public-project");
+		when(projectFileService.findReadme(anyInt())).thenReturn(Optional.of(projectFile));
+		
+		given()
+			.contentType(ContentType.TEXT)
+		.when()
+			.get("/projects/{owner}/{projectName}/readme", owner, projectName)
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body(equalTo("# public-project"));
+	}
+	
+	@WithMockUser("other")
+	@Test
+	public void get_readme_logged_user_from_other_private_project_fail() {
+		String owner = "owner";
+		String projectName = "private-project";
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(false);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		ProjectFile projectFile = new ProjectFile();
+		projectFile.setContent("# private-project");
+		when(projectFileService.findReadme(anyInt())).thenReturn(Optional.of(projectFile));
+		
+		given()
+			.contentType(ContentType.TEXT)
+		.when()
+			.get("/projects/{owner}/{projectName}/readme", owner, projectName)
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	@WithMockUser("owner")
+	@Test
+	public void get_readme_logged_user_from_self_private_project_fail() {
+		String owner = "owner";
+		String projectName = "private-project";
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(false);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		ProjectFile projectFile = new ProjectFile();
+		projectFile.setContent("# private-project");
+		when(projectFileService.findReadme(anyInt())).thenReturn(Optional.of(projectFile));
+		
+		given()
+			.contentType(ContentType.TEXT)
+		.when()
+			.get("/projects/{owner}/{projectName}/readme", owner, projectName)
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body(equalTo("# private-project"));
 	}
 }
