@@ -11,6 +11,7 @@ import com.blocklang.core.service.impl.GithubLoginServiceImplTest;
 import com.blocklang.core.service.impl.PropertyServiceImplTest;
 import com.blocklang.core.util.IdGeneratorTest;
 import com.blocklang.develop.controller.ProjectControllerTest;
+import com.blocklang.develop.service.impl.ProjectFileServiceImplTest;
 import com.blocklang.develop.service.impl.ProjectResourceServiceImplTest;
 import com.blocklang.develop.service.impl.ProjectServiceImplTest;
 import com.blocklang.release.api.AppApiTest;
@@ -51,6 +52,7 @@ import com.blocklang.release.task.AppBuildContextTest;
 	WebServerServiceImplTest.class,
 	ProjectServiceImplTest.class,
 	ProjectResourceServiceImplTest.class,
+	ProjectFileServiceImplTest.class,
 	ProjectTagServiceImplTest.class,
 	ProjectReleaseTaskServiceImplTest.class,
 	PropertyServiceImplTest.class,
