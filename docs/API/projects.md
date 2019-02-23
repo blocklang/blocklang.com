@@ -14,6 +14,9 @@
   - [获取项目的 README 文件](#%E8%8E%B7%E5%8F%96%E9%A1%B9%E7%9B%AE%E7%9A%84-readme-%E6%96%87%E4%BB%B6)
     - [Parameters](#parameters-3)
     - [Response](#response-3)
+  - [查看我的项目](#%E6%9F%A5%E7%9C%8B%E6%88%91%E7%9A%84%E9%A1%B9%E7%9B%AE)
+    - [Parameters](#parameters-4)
+    - [Response](#response-4)
 
 ## 校验项目名称
 
@@ -198,3 +201,44 @@ Status: 200 OK
 ```
 
 返回的是一段文本，不是 json 对象。返回的是 README.md 文档的内容。
+
+## 查看我的项目
+
+查看我（即登录用户）有权访问的项目，包括我创建的项目，我参与的项目等。
+
+```text
+GET /user/projects
+```
+
+### Parameters
+
+无
+
+### Response
+
+如果用户登录，则返回
+
+```text
+Status: 200 OK
+```
+
+一个数组
+
+| 属性名             | 类型       | 描述           |
+| ------------------ | ---------- | -------------- |
+| `id`               | `int`      | 记录标识       |
+| `name`             | `string`   | 项目名称       |
+| `description`      | `string`   | 项目描述       |
+| `isPublic`         | `boolean`  | 是否公开       |
+| `lastActiveTime`   | `datetime` | 最近活动时间   |
+| `createUserName`   | `string`   | 创建用户名     |
+| `createTime`       | `datetime` | 创建时间       |
+| `createUserId`     | `int`      | 创建用户标识   |
+| `lastUpdateTime`   | `datetime` | 最近修改时间   |
+| `lastUpdateUserId` | `int`      | 最近修改人标识 |
+
+如果用户未登录，则返回
+
+```text
+Status: 403 Forbidden
+```

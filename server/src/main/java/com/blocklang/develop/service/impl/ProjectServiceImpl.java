@@ -1,7 +1,10 @@
 package com.blocklang.develop.service.impl;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,13 +18,16 @@ import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.PropertyService;
 import com.blocklang.core.service.UserService;
 import com.blocklang.core.util.IdGenerator;
+import com.blocklang.develop.constant.AccessLevel;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.constant.FileType;
 import com.blocklang.develop.constant.ProjectResourceType;
+import com.blocklang.develop.dao.ProjectAuthorizationDao;
 import com.blocklang.develop.dao.ProjectDao;
 import com.blocklang.develop.dao.ProjectFileDao;
 import com.blocklang.develop.data.ProgramModel;
 import com.blocklang.develop.model.Project;
+import com.blocklang.develop.model.ProjectAuthorization;
 import com.blocklang.develop.model.ProjectContext;
 import com.blocklang.develop.model.ProjectFile;
 import com.blocklang.develop.model.ProjectResource;
@@ -43,6 +49,8 @@ public class ProjectServiceImpl implements ProjectService {
 	private AppDao appDao;
 	@Autowired
 	private ProjectFileDao projectFileDao;
+	@Autowired
+	private ProjectAuthorizationDao projectAuthorizationDao;
 	@Autowired
 	private PropertyService propertyService;
 	@Autowired
@@ -69,6 +77,14 @@ public class ProjectServiceImpl implements ProjectService {
 		
 		LocalDateTime createTime = project.getCreateTime();
 		Integer createUserId = project.getCreateUserId();
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setProjectId(savedProject.getId());
+		auth.setUserId(user.getId());
+		auth.setAccessLevel(AccessLevel.ADMIN); // 项目创建者具有管理员权限
+		auth.setCreateTime(LocalDateTime.now());
+		auth.setCreateUserId(createUserId);
+		projectAuthorizationDao.save(auth);
 		
 		// 保存 APP 基本信息
 		App app = new App();
@@ -167,6 +183,11 @@ public class ProjectServiceImpl implements ProjectService {
 		projectFileDao.save(readme);
 	}
 
-
+	@Override
+	public List<Project> findCanAccessProjectsByUserId(Integer userId) {
+		return projectAuthorizationDao.findAllByUserId(userId).stream().flatMap(projectAuthoriation -> {
+			return projectDao.findById(projectAuthoriation.getProjectId()).stream();
+		}).sorted(Comparator.comparing(Project::getLastActiveTime).reversed()).collect(Collectors.toList());
+	}
 
 }

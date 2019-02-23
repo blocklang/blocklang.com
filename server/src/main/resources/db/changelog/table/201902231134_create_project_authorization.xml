@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+	<changeSet author="Zhengwei Jin" id="201902231134">
+		<createTable tableName="project_authorization" remarks="项目授权信息">
+			<column name="dbid" type="int" autoIncrement="true">
+				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_PROJECT_AUTHORIZATION" />
+			</column>
+			<column name="user_id" remarks="用户标识" type="int" >
+				<constraints nullable="false"/>
+			</column>
+			<column name="project_id" remarks="项目标识" type="int" >
+				<constraints nullable="false"/>
+			</column>
+			<column name="access_level" remarks="访问级别" type="char(2)">
+				<constraints nullable="false" />
+			</column>
+			<column name="create_user_id" remarks="创建人标识" type="int">
+				<constraints nullable="false" />
+			</column>
+			<column name="create_time" remarks="创建时间" type="${datetime}">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+		
+		<addUniqueConstraint columnNames="user_id,project_id,access_level"
+			constraintName="UK_PROJECT_AUTHORIZATION_ON_USER_ID_PROJECT_ID_ACCESS_LEVEL" 
+			tableName="project_authorization" />
+	</changeSet>
+
+</databaseChangeLog>

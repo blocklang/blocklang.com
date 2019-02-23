@@ -378,7 +378,6 @@ public class ProjectControllerTest extends AbstractControllerTest{
 			.body("size()", equalTo(0));
 	}
 	
-	
 	// 获取 readme，也需要权限校验
 	@Test
 	public void get_readme_anonymous_user_from_public_project_success() {
@@ -519,4 +518,32 @@ public class ProjectControllerTest extends AbstractControllerTest{
 			.statusCode(HttpStatus.SC_OK)
 			.body(equalTo("# private-project"));
 	}
+
+	@Test
+	public void get_logged_user_projects_not_login() {
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/user/projects")
+		.then()
+			.statusCode(HttpStatus.SC_FORBIDDEN);
+	}
+	
+	@WithMockUser("owner")
+	@Test
+	public void get_logged_user_projects_success() {
+		UserInfo user = new UserInfo();
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
+		
+		List<Project> projects = new ArrayList<Project>();
+		when(projectService.findCanAccessProjectsByUserId(anyInt())).thenReturn(projects);
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/user/projects")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body("size()", is(0));
+	}
+	
 }

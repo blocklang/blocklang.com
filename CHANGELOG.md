@@ -194,6 +194,16 @@
 2. 实现 `ProjectResourceService#findChildren` 方法
 3. 测试用例中的 assertThat 完全迁移到 assertj
 
+## 2019-02-22
+
+1. 编写获取 README 内容的 REST API 文档
+2. 实现获取 README 内容的 REST API
+
+## 2019-02-23
+
+1. 实现查询用户有权访问的项目 REST API
+2. 实现客户端
+
 ## TODO
 
 1. 项目的目录结构，为了便于快速定位文件或切换，可参考windows 文件资源管理器的设计，左侧和顶部的导航设计
@@ -218,3 +228,4 @@
 20. 支持多人协作维护同一个项目
 21. 添加应用模板功能
 22. 之前的设计中，pane 应该是 program 的子节点，但这样不利于共用，是否可考虑与 program 放在同一层级？或者将 pane 看作用户自定义部件？
+23. 支持实时编辑

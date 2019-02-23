@@ -7,6 +7,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.Rule;
@@ -22,10 +24,13 @@ import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.PropertyService;
 import com.blocklang.core.test.AbstractServiceTest;
+import com.blocklang.develop.constant.AccessLevel;
+import com.blocklang.develop.dao.ProjectAuthorizationDao;
 import com.blocklang.develop.dao.ProjectDao;
 import com.blocklang.develop.dao.ProjectFileDao;
 import com.blocklang.develop.dao.ProjectResourceDao;
 import com.blocklang.develop.model.Project;
+import com.blocklang.develop.model.ProjectAuthorization;
 import com.blocklang.develop.model.ProjectContext;
 import com.blocklang.develop.model.ProjectResource;
 import com.blocklang.develop.service.ProjectService;
@@ -53,6 +58,9 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 	
 	@Autowired
 	private ProjectFileDao projectFileDao;
+	
+	@Autowired
+	private ProjectAuthorizationDao projectAuthorizationDao;
 	
 	@MockBean
 	private PropertyService propertyService;
@@ -114,6 +122,11 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		// 项目基本信息已保存
 		assertThat(projectDao.findById(projectId).get()).hasNoNullFieldsOrPropertiesExcept("lastUpdateUserId", "lastUpdateTime", "avatarUrl");
 		
+		// 项目授权信息已保存，项目创建者具有 admin 权限
+		assertThat(projectAuthorizationDao.findAllByUserId(userId)).hasSize(1).allMatch(projectAuth -> {
+			return projectAuth.getAccessLevel() == AccessLevel.ADMIN && projectAuth.getCreateUserId() == userId;
+		});
+		
 		// APP 基本信息已保存
 		assertThat(appDao.findByProjectId(projectId).get()).hasNoNullFieldsOrPropertiesExcept("lastUpdateUserId", "lastUpdateTime");
 		
@@ -150,4 +163,83 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		assertThat(Files.readString(context.getGitRepositoryDirectory().resolve("README.md"))).isEqualTo(expectedReadmeContext);
 	}
 	
+	@Test
+	public void find_can_access_projects_created_no_data() {
+		List<Project> projects = projectService.findCanAccessProjectsByUserId(1);
+		assertThat(projects).isEmpty();
+	}
+	
+	@Test
+	public void find_can_access_projects_created_success() {
+		Project project = new Project();
+		project.setName("project_name");
+		project.setIsPublic(true);
+		project.setDescription("description");
+		project.setLastActiveTime(LocalDateTime.now());
+		project.setCreateUserId(1);
+		project.setCreateTime(LocalDateTime.now());
+		project.setCreateUserName("user_name");
+		
+		Integer savedProjectId = projectDao.save(project).getId();
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setProjectId(savedProjectId);
+		auth.setUserId(1);
+		auth.setAccessLevel(AccessLevel.ADMIN); // 项目创建者具有管理员权限
+		auth.setCreateTime(LocalDateTime.now());
+		auth.setCreateUserId(1);
+		projectAuthorizationDao.save(auth);
+		
+		List<Project> projects = projectService.findCanAccessProjectsByUserId(1);
+		assertThat(projects).hasSize(1);
+		
+		projects = projectService.findCanAccessProjectsByUserId(2);
+		assertThat(projects).isEmpty();
+	}
+	
+	@Test
+	public void find_can_access_projects_order_by_last_active_time_desc() {
+		// 第一条记录
+		Project project = new Project();
+		project.setName("project_name");
+		project.setIsPublic(true);
+		project.setDescription("description");
+		project.setLastActiveTime(LocalDateTime.now());
+		project.setCreateUserId(1);
+		project.setCreateTime(LocalDateTime.now());
+		project.setCreateUserName("user_name");
+		
+		Integer savedProjectId = projectDao.save(project).getId();
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setProjectId(savedProjectId);
+		auth.setUserId(1);
+		auth.setAccessLevel(AccessLevel.ADMIN);
+		auth.setCreateTime(LocalDateTime.now());
+		auth.setCreateUserId(1);
+		projectAuthorizationDao.save(auth);
+		
+		// 第二条记录
+		project = new Project();
+		project.setName("project_name_2");
+		project.setIsPublic(true);
+		project.setDescription("description");
+		project.setLastActiveTime(LocalDateTime.now().plusSeconds(1));
+		project.setCreateUserId(1);
+		project.setCreateTime(LocalDateTime.now());
+		project.setCreateUserName("user_name");
+		
+		savedProjectId = projectDao.save(project).getId();
+		
+		auth = new ProjectAuthorization();
+		auth.setProjectId(savedProjectId);
+		auth.setUserId(1);
+		auth.setAccessLevel(AccessLevel.ADMIN);
+		auth.setCreateTime(LocalDateTime.now());
+		auth.setCreateUserId(1);
+		projectAuthorizationDao.save(auth);
+	
+		List<Project> projects = projectService.findCanAccessProjectsByUserId(1);
+		assertThat(projects).hasSize(2).isSortedAccordingTo(Comparator.comparing(Project::getLastActiveTime).reversed());
+	}
 }

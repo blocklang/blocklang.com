@@ -1,5 +1,6 @@
 package com.blocklang.develop.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import com.blocklang.core.model.UserInfo;
@@ -36,5 +37,20 @@ public interface ProjectService {
 	 * @return 已持久化的 project
 	 */
 	Project create(UserInfo userInfo, Project project);
+
+	/**
+	 * 获取用户有权访问的项目
+	 * 
+	 * 有三种权限：read、write、admin。
+	 * 
+	 * 已支持：
+	 * <ol>
+	 * <li>用户创建的项目，拥有 admin 权限
+	 * </ol>
+	 * 
+	 * @param userId 用户标识
+	 * @return 项目清单，默认按照项目最近活动时间倒排
+	 */
+	List<Project> findCanAccessProjectsByUserId(Integer userId);
 
 }

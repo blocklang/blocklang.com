@@ -155,4 +155,14 @@ public class ProjectController {
 		}).orElseThrow(ResourceNotFoundException::new);
 	}
 	
+	@GetMapping("/user/projects")
+	public ResponseEntity<List<Project>> getYourProjects(Principal principal) {
+		if(principal == null) {
+			throw new NoAuthorizationException();
+		}
+		
+		return userService.findByLoginName(principal.getName()).map(user -> {
+			return ResponseEntity.ok(projectService.findCanAccessProjectsByUserId(user.getId()));
+		}).orElseThrow(NoAuthorizationException::new);
+	}
 }

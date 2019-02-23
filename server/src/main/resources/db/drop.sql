@@ -12,6 +12,9 @@ drop table user_info;
 drop table user_avatar;
 drop table user_bind;
 drop table project;
+drop table project_resource;
+drop table project_file;
+drop table project_authorization;
 
 drop table databasechangelog;
 drop table databasechangeloglock;
