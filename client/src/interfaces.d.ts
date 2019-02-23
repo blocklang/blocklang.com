@@ -9,8 +9,19 @@ export interface ResourceBased {
 	loaded: boolean;
 }
 
+/**
+ * 统一在此处存储错误信息
+ */
 export interface Errors {
 	[index: string]: string[];
+}
+
+/**
+ * 存储路由信息，用编程方式调整路由
+ */
+export interface Routing {
+	outlet: string;
+	params: { [index: string]: string };
 }
 
 /**
@@ -53,6 +64,7 @@ export interface ProjectInputValidation {
 
 export interface State {
 	errors: Errors;
+	routing: Routing;
 	user: User;
 	projectParam: ProjectParam;
 	projectInputValidation: ProjectInputValidation;

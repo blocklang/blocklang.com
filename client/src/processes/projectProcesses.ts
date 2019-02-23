@@ -6,7 +6,7 @@ import { ValidateStatus } from '../constant';
 
 // TODO: 一个字段一个 process vs 一个对象一个 process，哪个更合理？
 
-const initIsPublicCommand = commandFactory(({path}) => {
+const initIsPublicCommand = commandFactory(({ path }) => {
 	return [replace(path('projectParam', 'isPublic'), true)];
 });
 
@@ -46,7 +46,7 @@ const nameInputCommand = commandFactory<NamePayload>(async ({ path, get, payload
 		console.log(response, json);
 
 		result.push(replace(path('projectInputValidation', 'nameValidateStatus'), ValidateStatus.INVALID));
-		result.push(replace(path('projectInputValidation', 'nameErrorMessage'), json.errors.value));
+		result.push(replace(path('projectInputValidation', 'nameErrorMessage'), json.errors.name));
 		return result;
 	}
 
@@ -62,7 +62,7 @@ const descriptionInputCommand = commandFactory<DescriptionPayload>(({ path, payl
 	return [replace(path('projectParam', 'description'), description.trim())];
 });
 
-const isPublicInputCommand = commandFactory<IsPublicPayload>(({path, payload: { isPublic }}) => {
+const isPublicInputCommand = commandFactory<IsPublicPayload>(({ path, payload: { isPublic } }) => {
 	return [replace(path('projectParam', 'isPublic'), isPublic)];
 });
 
@@ -93,10 +93,11 @@ const saveProjectCommand = commandFactory(async ({ path, get }) => {
 	return [
 		replace(path('project'), json),
 		// 清空输入参数
-		replace(path('projectParam'), undefined)
+		replace(path('projectParam'), undefined),
+		replace(path('routing', 'outlet'), 'view-project'),
+		replace(path('routing', 'params'), { owner: get(path('user', 'loginName')), project: projectParam.name })
 	];
 });
-
 
 export const initIsPublicProcess = createProcess('init-is-public-input', [initIsPublicCommand]);
 export const nameInputProcess = createProcess('name-input', [nameInputCommand]);

@@ -15,5 +15,9 @@ export default [
 	{
 		path: 'projects/new',
 		outlet: 'new-project'
+	},
+	{
+		path: '{owner}/{project}',
+		outlet: 'view-project'
 	}
 ];
