@@ -2,8 +2,8 @@ const { describe, it } = intern.getInterface('bdd');
 import harness from '@dojo/framework/testing/harness';
 import { w, v } from '@dojo/framework/widget-core/d';
 
-import * as css from '../../../src/widgets/styles/NewProject.m.css';
-import NewProject from '../../../src/widgets/project/NewProject';
+import * as css from '../../../src/pages/project/NewProject.m.css';
+import NewProject from '../../../src/pages/project/NewProject';
 
 describe('NewProject', () => {
 	it('default renders correctly', () => {

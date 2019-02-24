@@ -4,7 +4,7 @@ import I18nMixin from '@dojo/framework/widget-core/mixins/I18n';
 import { theme, ThemedMixin } from '@dojo/framework/widget-core/mixins/Themed';
 import Link from '@dojo/framework/routing/Link';
 
-import * as css from './styles/Header.m.css';
+import * as css from './Header.m.css';
 
 export interface HeaderProperties {
 	isAuthenticated: boolean;
@@ -12,7 +12,7 @@ export interface HeaderProperties {
 	loggedAvatarUrl?: string;
 }
 
-import messageBundle from './nls/main';
+import messageBundle from '../nls/main';
 
 @theme(css)
 export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderProperties> {

@@ -2,7 +2,7 @@ import ThemedMixin, { theme } from '@dojo/framework/widget-core/mixins/Themed';
 import I18nMixin from '@dojo/framework/widget-core/mixins/I18n';
 import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
 
-import * as css from '../styles/ViewProject.m.css';
+import * as css from './ViewProject.m.css';
 import { v } from '@dojo/framework/widget-core/d';
 
 export interface ViewProjectProperties {

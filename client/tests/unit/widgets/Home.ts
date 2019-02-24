@@ -2,10 +2,10 @@ const { describe, it } = intern.getInterface('bdd');
 import harness from '@dojo/framework/testing/harness';
 import { w, v } from '@dojo/framework/widget-core/d';
 
-import Home from '../../../src/widgets/Home';
-import * as css from '../../../src/widgets/styles/Home.m.css';
+import Home from '../../../src/pages/Home';
+import * as css from '../../../src/pages/Home.m.css';
 
-import PrivateHome from '../../../src/widgets/user/Home';
+import PrivateHome from '../../../src/pages/user/Home';
 
 describe('Home', () => {
 	it('public home', () => {

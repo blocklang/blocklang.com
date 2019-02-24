@@ -4,7 +4,7 @@ import { v, w } from '@dojo/framework/widget-core/d';
 import Link from '@dojo/framework/routing/Link';
 
 import Header from '../../../src/widgets/Header';
-import * as css from '../../../src/widgets/styles/Header.m.css';
+import * as css from '../../../src/widgets/Header.m.css';
 
 describe('Header', () => {
 	it('user not logged in', () => {

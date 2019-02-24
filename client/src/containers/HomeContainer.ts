@@ -1,6 +1,6 @@
 import { Store } from '@dojo/framework/stores/Store';
 import { StoreContainer } from '@dojo/framework/stores/StoreInjector';
-import Home, { HomeProperties } from '../widgets/Home';
+import Home, { HomeProperties } from '../pages/Home';
 import { State } from '../interfaces';
 
 function getProperties(store: Store<State>): HomeProperties {

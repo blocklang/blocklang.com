@@ -3,8 +3,8 @@ import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
 import I18nMixin from '@dojo/framework/widget-core/mixins/I18n';
 import { theme, ThemedMixin } from '@dojo/framework/widget-core/mixins/Themed';
 
-import * as css from '../styles/NewProject.m.css';
-import messageBundle from '../nls/main';
+import * as css from './NewProject.m.css';
+import messageBundle from '../../nls/main';
 import { WithTarget } from '../../interfaces';
 import { NamePayload, DescriptionPayload, IsPublicPayload } from '../../processes/interfaces';
 import { ValidateStatus } from '../../constant';

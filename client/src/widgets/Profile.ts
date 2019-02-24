@@ -1,7 +1,7 @@
 import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
 import { v } from '@dojo/framework/widget-core/d';
 
-import * as css from './styles/Profile.m.css';
+import * as css from './Profile.m.css';
 
 export interface ProfileProperties {
 	username: string;

@@ -3,10 +3,10 @@ import { v, w } from '@dojo/framework/widget-core/d';
 import I18nMixin from '@dojo/framework/widget-core/mixins/I18n';
 import { theme, ThemedMixin } from '@dojo/framework/widget-core/mixins/Themed';
 
-import * as css from './styles/Home.m.css';
+import * as css from './Home.m.css';
 
 import PrivateHome from './user/Home';
-import messageBundle from './nls/main';
+import messageBundle from '../nls/main';
 
 export interface HomeProperties {
 	isAuthenticated: boolean;

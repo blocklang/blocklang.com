@@ -3,7 +3,7 @@ import harness from '@dojo/framework/testing/harness';
 import { w, v } from '@dojo/framework/widget-core/d';
 
 import Profile from '../../../src/widgets/Profile';
-import * as css from '../../../src/widgets/styles/Profile.m.css';
+import * as css from '../../../src/widgets/Profile.m.css';
 
 describe('Profile', () => {
 	it('default renders correctly', () => {

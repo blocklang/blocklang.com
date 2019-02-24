@@ -2,7 +2,7 @@ import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
 import { v, w } from '@dojo/framework/widget-core/d';
 import Outlet from '@dojo/framework/routing/Outlet';
 
-import MenuContainer from './containers/MenuContainer';
+import HeaderContainer from './containers/HeaderContainer';
 import HomeContainer from './containers/HomeContainer';
 import NewProjectContainer from './containers/project/NewProjectContainer';
 import ViewProjectContainer from './containers/project/ViewProjectContainer';
@@ -17,7 +17,7 @@ import * as css from './App.m.css';
 export default class App extends WidgetBase {
 	protected render() {
 		return v('div', { classes: [css.root] }, [
-			w(MenuContainer, {}),
+			w(HeaderContainer, {}),
 			v('div', [
 				w(Outlet, { key: 'home', id: 'home', renderer: () => w(HomeContainer, {}) }),
 				w(Outlet, { key: 'new-project', id: 'new-project', renderer: () => w(NewProjectContainer, {}) }),

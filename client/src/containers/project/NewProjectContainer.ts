@@ -1,6 +1,6 @@
 import { Store } from '@dojo/framework/stores/Store';
 import { StoreContainer } from '@dojo/framework/stores/StoreInjector';
-import NewProject, { NewProjectProperties } from '../../widgets/project/NewProject';
+import NewProject, { NewProjectProperties } from '../../pages/project/NewProject';
 import { State } from '../../interfaces';
 import {
 	nameInputProcess,

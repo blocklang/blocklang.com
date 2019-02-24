@@ -1,5 +1,5 @@
 import Store from '@dojo/framework/stores/Store';
-import ViewProject, { ViewProjectProperties } from '../../widgets/project/ViewProject';
+import ViewProject, { ViewProjectProperties } from '../../pages/project/ViewProject';
 import { State } from '../../interfaces';
 import { StoreContainer } from '@dojo/framework/stores/StoreInjector';
 
