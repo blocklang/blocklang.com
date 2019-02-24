@@ -7,11 +7,13 @@ import * as css from './Home.m.css';
 
 import PrivateHome from './user/Home';
 import messageBundle from '../nls/main';
+import { Project } from '../interfaces';
 
 export interface HomeProperties {
 	isAuthenticated: boolean;
 	loggedUsername?: string;
 	loggedAvatarUrl?: string;
+	projects: Project[];
 }
 
 /**

@@ -3,6 +3,7 @@ export default {
 		// common
 		requiredLabel: '(必填)',
 		dot: '。',
+		new: '创建',
 		// header
 		blockLang: 'Block Lang',
 		loginGithub: 'Github 登录',
@@ -10,6 +11,14 @@ export default {
 		logout: '退出',
 		// home
 		blockLangIntro: '软件拼装工厂',
+		// private home
+		canAccessProjectsCardTitle: '项目',
+		noProjectMessage: '请创建您的第一个项目',
+		privateProjectTitle: '私有项目',
+		noActivityMessageHeader: '没有动态',
+		noActivityMessageHelpTitle: '如何才会出现动态？',
+		noActivityMessageHelp1: '1. 收藏项目后，会显示项目动态；',
+		noActivityMessageHelp2: '2. 关注好友后，会显示好友动态。',
 		// newProject
 		newProjectHelp: '项目包含页面、页面分组、页面模板以及变更历史等。',
 		projectNameLabel: '名称',

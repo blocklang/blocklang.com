@@ -69,4 +69,5 @@ export interface State {
 	projectParam: ProjectParam;
 	projectInputValidation: ProjectInputValidation;
 	project: Project;
+	canAccessProjects: Project[];
 }

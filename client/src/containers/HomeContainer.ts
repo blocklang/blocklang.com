@@ -9,7 +9,8 @@ function getProperties(store: Store<State>): HomeProperties {
 	return {
 		isAuthenticated: !!get(path('user', 'loginName')),
 		loggedUsername: get(path('user', 'loginName')),
-		loggedAvatarUrl: get(path('user', 'avatarUrl'))
+		loggedAvatarUrl: get(path('user', 'avatarUrl')),
+		projects: get(path('canAccessProjects'))
 	};
 }
 

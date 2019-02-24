@@ -15,6 +15,7 @@ import { State } from './interfaces';
 import { getCurrentUserProcess } from './processes/userProcesses';
 import { initIsPublicProcess } from './processes/projectProcesses';
 import { changeRouteProcess } from './processes/routeProcesses';
+import { initPrivateHomeProcess } from './processes/homeProcesses';
 
 const store = new Store<State>();
 const registry = new Registry();
@@ -33,6 +34,11 @@ router.on('outlet', ({ outlet, action }) => {
 			case 'new-project':
 				initIsPublicProcess(store)({});
 				break;
+			case 'home':
+				const isAuthenticated = !!store.get(store.path('user', 'loginName'));
+				if (isAuthenticated) {
+					initPrivateHomeProcess(store)({});
+				}
 		}
 	}
 });

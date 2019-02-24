@@ -65,9 +65,9 @@ Block Lang 平台。
 4. `src/interfaces.d.ts` - 存放数据结构
 5. `src/routes.ts` - 存放路由配置信息
 6. `src/containers/**` - 存放 container 部件
-7. `src/pages/**` - 存放页面级别的部件
-8. `src/widgets/**` - 存放通用部件，页面级别的部件是基于通用部件搭建的
-9. `src/processes/**` - dojo store 处理逻辑，用户查询和修改 store 中的数据
+7. `src/processes/**` - dojo store 处理逻辑，用户查询和修改 store 中的数据
+8. `src/pages/**` - 存放页面级别的部件
+9. `src/widgets/**` - 存放通用部件，页面级别的部件是基于通用部件搭建的
 10. `src/nls/**` - 存放国际化文件
 11. `tests/unit/**` - 存放单元测试用例
 12. `tests/functional/**` - 存放集成测试用例
