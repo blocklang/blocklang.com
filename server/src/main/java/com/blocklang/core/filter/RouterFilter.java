@@ -1,6 +1,7 @@
 package com.blocklang.core.filter;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.Arrays;
 
 import javax.servlet.Filter;
@@ -54,50 +55,31 @@ public class RouterFilter implements Filter{
 		System.out.println("context path:" + httpServletRequest.getContextPath());
 		System.out.println("pathInfo:" + httpServletRequest.getPathInfo());
 		
+		String filenameExtension = UriUtils.extractFileExtension(servletPath);
+		
 		// 当按下浏览器的 F5，刷新 Single Page Application 的任一页面时，都跳转到首页
-		if(ArrayUtils.contains(Resources.ROUTES, servletPath)) {
+		if(ArrayUtils.contains(Resources.ROUTES, servletPath) || (StringUtils.isBlank(filenameExtension) && needPrependServlet(servletPath))) {
 			request.getRequestDispatcher(WebSite.HOME_URL).forward(request, response);
 			return;
 		}
 		
-		String filenameExtension = UriUtils.extractFileExtension(servletPath);
+		// 以下代码为转换资源文件的路径
 		if(StringUtils.isNotBlank(filenameExtension) && ArrayUtils.contains(Resources.PUBLIC_FILE_EXTENSIONS, filenameExtension)) {
-			// 注意：使用 StringUtils.split 会剔除第一个数值为空字符串的元素
-			String[] pathSegment = StringUtils.split(servletPath, "/");
-			
-			// 去除掉 servletPath 中的 servlet name 部分
-			boolean hasServlet = false;
-			// 1. 先判断是否存在 servlet
-			if(pathSegment.length > 0) {
-				String servlet = pathSegment[0];
-				hasServlet = ArrayUtils.contains(Resources.SERVLET_NAMES, servlet);
-			}
-			
-			// 2. 移除 servlet 名
-			if(hasServlet && pathSegment.length > 1) {
-				String[] trimedPathSegment = Arrays.copyOfRange(pathSegment, 1, pathSegment.length);
-				String trimedPath = String.join("/", trimedPathSegment);
-				request.getRequestDispatcher("/" + trimedPath).forward(request, response);
+			String referer = httpServletRequest.getHeader("referer");
+			if(referer == null) {
+				chain.doFilter(request, response);
 				return;
 			}
-		}
-		
-		if(StringUtils.isBlank(filenameExtension) && needPrependServlet(servletPath)) {
-			String newUrl = "";
-			
-			// 确保 servletPath 以 / 开头，是否默认都已经以 / 开头了呢？
-			// TODO: 如果一个版本之后，程序不会出错，则删除此段注释掉的代码
-//			if(!servletPath.startsWith("/")) {
-//				servletPath = "/" + servletPath;
-//			}
-			
-			if(StringUtils.split(servletPath, "/").length == 1) {// 如 “/zhangsan”
-				newUrl = "/users" + servletPath;
-			}else{ // 一段的都留给 users，大于等于两段的都是 projects 的，如 “/zhangsan/my-project”
-				newUrl = "/projects" + servletPath;
-			}
-			
-			request.getRequestDispatcher(newUrl).forward(request, response);
+			URI refererUri = URI.create(referer);
+			String[] pathes = StringUtils.split(refererUri.getPath(), "/");
+			String urlRewrite = Arrays.stream(pathes).reduce(servletPath, (result, item) -> {
+				String removed = "/" + item;
+				if(result.startsWith(removed)) {
+					return result.substring(removed.length());
+				}
+				return result;
+			});
+			request.getRequestDispatcher(urlRewrite).forward(request, response);
 			return;
 		}
 		
