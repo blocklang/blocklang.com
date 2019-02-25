@@ -171,29 +171,36 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void find_can_access_projects_created_success() {
+		UserInfo userInfo = new UserInfo();
+		userInfo.setLoginName("user_name");
+		userInfo.setAvatarUrl("avatar_url");
+		userInfo.setEmail("email");
+		userInfo.setMobile("mobile");
+		userInfo.setCreateTime(LocalDateTime.now());
+		Integer userId = userDao.save(userInfo).getId();
+		
 		Project project = new Project();
 		project.setName("project_name");
 		project.setIsPublic(true);
 		project.setDescription("description");
 		project.setLastActiveTime(LocalDateTime.now());
-		project.setCreateUserId(1);
+		project.setCreateUserId(userId);
 		project.setCreateTime(LocalDateTime.now());
-		project.setCreateUserName("user_name");
 		
 		Integer savedProjectId = projectDao.save(project).getId();
 		
 		ProjectAuthorization auth = new ProjectAuthorization();
 		auth.setProjectId(savedProjectId);
-		auth.setUserId(1);
+		auth.setUserId(userId);
 		auth.setAccessLevel(AccessLevel.ADMIN); // 项目创建者具有管理员权限
 		auth.setCreateTime(LocalDateTime.now());
-		auth.setCreateUserId(1);
+		auth.setCreateUserId(userId);
 		projectAuthorizationDao.save(auth);
 		
-		List<Project> projects = projectService.findCanAccessProjectsByUserId(1);
-		assertThat(projects).hasSize(1);
+		List<Project> projects = projectService.findCanAccessProjectsByUserId(userId);
+		assertThat(projects).hasSize(1).allMatch(each -> each.getCreateUserName().equals("user_name"));
 		
-		projects = projectService.findCanAccessProjectsByUserId(2);
+		projects = projectService.findCanAccessProjectsByUserId(userId + 1);
 		assertThat(projects).isEmpty();
 	}
 	

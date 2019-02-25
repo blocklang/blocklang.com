@@ -1,12 +1,9 @@
 package com.blocklang.develop.data;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 public class NewProjectParam extends CheckProjectNameParam{
 	
 	private String description;
 	
-	@JsonProperty("public")
 	private Boolean isPublic;
 	
 	public String getDescription() {

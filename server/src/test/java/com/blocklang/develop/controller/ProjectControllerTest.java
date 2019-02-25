@@ -546,4 +546,30 @@ public class ProjectControllerTest extends AbstractControllerTest{
 			.body("size()", is(0));
 	}
 	
+	@Test
+	public void get_project_not_exist() {
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{project}", "zhangsan", "my-project")
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	@Test
+	public void get_project_success() {
+		Project project = new Project();
+		project.setName("my-project");
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{project}", "zhangsan", "my-project")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body("name", equalTo("my-project"));
+	}
 }

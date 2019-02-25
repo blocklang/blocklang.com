@@ -23,5 +23,7 @@ public interface UserService {
 	
 	UserInfo update(Integer savedUserId, UserInfo newUserInfo, List<UserAvatar> newUserAvatars);
 
-	Optional<UserInfo> findByLoginName(String owner);
+	Optional<UserInfo> findByLoginName(String loginName);
+
+	Optional<UserInfo> findById(Integer userId);
 }

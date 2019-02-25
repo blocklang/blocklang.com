@@ -185,9 +185,16 @@ public class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	public List<Project> findCanAccessProjectsByUserId(Integer userId) {
-		return projectAuthorizationDao.findAllByUserId(userId).stream().flatMap(projectAuthoriation -> {
+		List<Project> projects = projectAuthorizationDao.findAllByUserId(userId).stream().flatMap(projectAuthoriation -> {
 			return projectDao.findById(projectAuthoriation.getProjectId()).stream();
 		}).sorted(Comparator.comparing(Project::getLastActiveTime).reversed()).collect(Collectors.toList());
+		
+		projects.forEach(each -> {
+			String loginName = userService.findById(each.getCreateUserId()).map(UserInfo::getLoginName).orElse(null);
+			each.setCreateUserName(loginName);
+		});
+		
+		return projects;
 	}
 
 }

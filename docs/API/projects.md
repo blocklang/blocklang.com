@@ -17,6 +17,9 @@
   - [查看我的项目](#%E6%9F%A5%E7%9C%8B%E6%88%91%E7%9A%84%E9%A1%B9%E7%9B%AE)
     - [Parameters](#parameters-4)
     - [Response](#response-4)
+  - [查看一个项目](#%E6%9F%A5%E7%9C%8B%E4%B8%80%E4%B8%AA%E9%A1%B9%E7%9B%AE)
+    - [Parameters](#parameters-5)
+    - [Response](#response-5)
 
 ## 校验项目名称
 
@@ -82,7 +85,7 @@ POST /projects
 | `owner`       | `string`  | **Required**. 用户登录名 |
 | `name`        | `string`  | **Required**. 项目名称   |
 | `description` | `string`  | 项目描述                 |
-| `public`      | `boolean` | 是否公开                 |
+| `isPublic`      | `boolean` | 是否公开                 |
 
 ### Response
 
@@ -157,8 +160,8 @@ Status: 200 OK
 | `key`              | `string`   | 资源标识       |
 | `name`             | `string`   | 资源名称       |
 | `description`      | `string`   | 资源描述       |
-| `resource_type`    | `string`   | 资源类型       |
-| `parent_id`        | `int`      | 父标识         |
+| `resourceType`    | `string`   | 资源类型       |
+| `parentId`        | `int`      | 父标识         |
 | `seq`              | `int`      | 排序           |
 | `createTime`       | `datetime` | 创建时间       |
 | `createUserId`     | `int`      | 创建用户标识   |
@@ -223,6 +226,48 @@ Status: 200 OK
 ```
 
 一个数组
+
+| 属性名             | 类型       | 描述           |
+| ------------------ | ---------- | -------------- |
+| `id`               | `int`      | 记录标识       |
+| `name`             | `string`   | 项目名称       |
+| `description`      | `string`   | 项目描述       |
+| `isPublic`         | `boolean`  | 是否公开       |
+| `lastActiveTime`   | `datetime` | 最近活动时间   |
+| `createUserName`   | `string`   | 创建用户名     |
+| `createTime`       | `datetime` | 创建时间       |
+| `createUserId`     | `int`      | 创建用户标识   |
+| `lastUpdateTime`   | `datetime` | 最近修改时间   |
+| `lastUpdateUserId` | `int`      | 最近修改人标识 |
+
+如果用户未登录，则返回
+
+```text
+Status: 403 Forbidden
+```
+
+## 查看一个项目
+
+查看指定的项目。
+
+```text
+GET /projects/{owner}/{projectName}
+```
+
+### Parameters
+
+| Name          | Type     | Description               |
+| ------------- | -------- | ------------------------- |
+| `owner`       | `string` | **Required**. 用户登录名  |
+| `projectName` | `string` | **Required**. 项目名称    |
+
+### Response
+
+如果用户登录，则返回
+
+```text
+Status: 200 OK
+```
 
 | 属性名             | 类型       | 描述           |
 | ------------------ | ---------- | -------------- |

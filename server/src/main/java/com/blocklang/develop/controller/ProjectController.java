@@ -165,4 +165,13 @@ public class ProjectController {
 			return ResponseEntity.ok(projectService.findCanAccessProjectsByUserId(user.getId()));
 		}).orElseThrow(NoAuthorizationException::new);
 	}
+
+	@GetMapping("/projects/{owner}/{projectName}")
+	public ResponseEntity<Project> getProject(
+			@PathVariable String owner,
+			@PathVariable String projectName) {
+		return projectService.find(owner, projectName).map(project -> {
+			return ResponseEntity.ok(project);
+		}).orElseThrow(ResourceNotFoundException::new);
+	}
 }

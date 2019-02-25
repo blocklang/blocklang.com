@@ -24,7 +24,7 @@ public class LoggedUserController {
 	@GetMapping("/user")
 	public ResponseEntity<Map<String, Object>> index(Principal principal) {
 		Map<String, Object> user = new HashMap<String, Object>();
-		if (principal != null) { 
+		if (principal != null) {
 			if(OAuth2AuthenticationToken.class.isInstance(principal)) {
 				OAuth2AuthenticationToken token = (OAuth2AuthenticationToken)principal;
 				Map<String, Object> userAttributes = token.getPrincipal().getAttributes();

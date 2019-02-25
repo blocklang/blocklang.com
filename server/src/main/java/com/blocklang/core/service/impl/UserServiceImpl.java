@@ -84,5 +84,10 @@ public class UserServiceImpl implements UserService {
 	public Optional<UserInfo> findByLoginName(String owner) {
 		return userDao.findByLoginName(owner);
 	}
+
+	@Override
+	public Optional<UserInfo> findById(Integer userId) {
+		return userDao.findById(userId);
+	}
 	
 }
