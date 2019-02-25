@@ -98,7 +98,7 @@ export default class NewProject extends ThemedMixin(I18nMixin(WidgetBase))<NewPr
 					oninput: this._onNameInput
 				}),
 				nameValidateStatus === ValidateStatus.INVALID
-					? v('div', { classes: ['invalid-tooltip'] }, [`${nameErrorMessage}`])
+					? v('div', { classes: ['invalid-tooltip'], innerHTML: `${nameErrorMessage}` })
 					: null
 			]),
 			v('small', { classes: ['form-text text-muted'] }, [
