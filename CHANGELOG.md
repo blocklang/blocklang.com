@@ -207,6 +207,15 @@
 
 1. Client: 创建个人首页中的“我能访问的项目”卡片
 
+## 2019-02-26
+
+1. 新增 MarkdownPreview 部件
+
+## 2019-02-27
+
+1. Client: 创建查看项目页面
+2. 为 ProjectResource 扩展 icon 和 resourceType 等字段
+
 ## TODO
 
 1. 项目的目录结构，为了便于快速定位文件或切换，可参考windows 文件资源管理器的设计，左侧和顶部的导航设计
@@ -235,3 +244,4 @@
 24. <https://blocklang.com/blocklang> 这个用户名要平台专用
 25. 【bug】经过 route 跳转到一个页面后，需要点击三次才能回退到上一个页面
 26. 支持在个人首页的项目 card 中添加过滤功能，即添加一个搜索框
+27. 使用 dojo 路由后，可提供用户友好的 url，不再需要在服务器端的 filter 中做处理

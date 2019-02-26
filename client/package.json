@@ -20,7 +20,13 @@
     "@fortawesome/fontawesome-free": "^5.7.1",
     "bootstrap": "^4.3.1",
     "jquery": "^3.3.1",
-    "popper.js": "^1.14.7"
+    "popper.js": "^1.14.7",
+    "marked": "^0.6.1",
+    "@types/marked": "^0.6.1",
+    "highlight.js": "^9.15.5",
+    "@types/highlight.js": "^9.12.3",
+    "dompurify": "^1.0.10",
+    "@types/dompurify": "^0.0.32"
   },
   "devDependencies": {
     "@dojo/cli": "^5.0.0",
