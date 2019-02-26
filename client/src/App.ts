@@ -8,7 +8,7 @@ import NewProjectContainer from './containers/project/NewProjectContainer';
 import ViewProjectContainer from './containers/project/ViewProjectContainer';
 
 import About from './widgets/About';
-import Profile from './widgets/Profile';
+import Profile from './pages/user/Profile';
 
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -23,7 +23,7 @@ export default class App extends WidgetBase {
 				w(Outlet, { key: 'new-project', id: 'new-project', renderer: () => w(NewProjectContainer, {}) }),
 				w(Outlet, { key: 'view-project', id: 'view-project', renderer: () => w(ViewProjectContainer, {}) }),
 				w(Outlet, { key: 'about', id: 'about', renderer: () => w(About, {}) }),
-				w(Outlet, { key: 'profile', id: 'profile', renderer: () => w(Profile, { username: 'Dojo User' }) })
+				w(Outlet, { key: 'profile', id: 'profile', renderer: () => w(Profile, { username: 'Block Lang' }) })
 			])
 		]);
 	}

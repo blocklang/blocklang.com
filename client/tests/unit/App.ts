@@ -6,7 +6,7 @@ import { w } from '@dojo/framework/widget-core/d';
 //import Menu from '../../src/widgets/Menu';
 import HomeContainer from '../../src/containers/HomeContainer';
 import About from '../../src/widgets/About';
-import Profile from '../../src/widgets/Profile';
+import Profile from '../../src/pages/user/Profile';
 
 import App from '../../src/App';
 //import * as css from '../../src/App.m.css';

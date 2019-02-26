@@ -13,6 +13,7 @@ export interface HeaderProperties {
 }
 
 import messageBundle from '../nls/main';
+import { baseUrl } from '../config';
 
 @theme(css)
 export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderProperties> {
@@ -23,8 +24,8 @@ export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderPro
 		const { messages } = this._localizedMessages;
 
 		return [
-			v('li', { classes: ['nav-item'] }, [
-				v('a', { classes: ['nav-link'], href: '/oauth2/authorization/github' }, [
+			v('li', { key: 'li-0', classes: ['nav-item'] }, [
+				v('a', { classes: ['nav-link'], href: `${baseUrl}/oauth2/authorization/github` }, [
 					v('i', { classes: ['fab fa-github'] }, []),
 					` ${messages.loginGithub}`
 				])
@@ -38,20 +39,20 @@ export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderPro
 		const { messages } = this._localizedMessages;
 
 		return [
-			v('li', { classes: ['nav-item'] }, [
+			v('li', { key: 'li-0', classes: ['nav-item'] }, [
 				w(Link, { to: 'new-project', classes: ['nav-link'] }, [
 					v('i', { classes: ['fas fa-plus'] }, []),
 					` ${messages.newProject}`
 				])
 			]),
-			v('li', { classes: ['nav-item'] }, [
-				w(Link, { to: `/user/${loggedUsername}`, classes: ['nav-link'] }, [
+			v('li', { key: 'li-1', classes: ['nav-item'] }, [
+				w(Link, { to: `profile`, params: { user: `${loggedUsername}` }, classes: ['nav-link'] }, [
 					v('img', { classes: ['avatar'], src: `${loggedAvatarUrl}`, width: 20, height: 20 }, []),
 					` ${loggedUsername}`
 				])
 			]),
-			v('li', { classes: ['nav-item'] }, [
-				v('a', { classes: ['nav-link'], title: `${messages.logout}`, href: '/logout' }, [
+			v('li', { key: 'li-2', classes: ['nav-item'] }, [
+				v('a', { classes: ['nav-link'], title: `${messages.logout}`, href: `${baseUrl}/logout` }, [
 					v('i', { classes: ['fas fa-sign-out-alt'] }, [])
 				])
 			])

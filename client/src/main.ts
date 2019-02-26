@@ -13,7 +13,7 @@ import routes from './routes';
 import App from './App';
 import { State } from './interfaces';
 import { getCurrentUserProcess } from './processes/userProcesses';
-import { initIsPublicProcess } from './processes/projectProcesses';
+import { initForNewProjectProcess, initForViewProjectProcess } from './processes/projectProcesses';
 import { changeRouteProcess } from './processes/routeProcesses';
 import { initPrivateHomeProcess } from './processes/homeProcesses';
 
@@ -31,14 +31,22 @@ registerThemeInjector(dojo, registry);
 router.on('outlet', ({ outlet, action }) => {
 	if (action === 'enter') {
 		switch (outlet.id) {
-			case 'new-project':
-				initIsPublicProcess(store)({});
-				break;
 			case 'home':
-				const isAuthenticated = !!store.get(store.path('user', 'loginName'));
-				if (isAuthenticated) {
-					initPrivateHomeProcess(store)({});
-				}
+				// const isAuthenticated = !!store.get(store.path('user', 'loginName'));
+				getCurrentUserProcess(store)({}).then(function() {
+					const isAuthenticated = !!store.get(store.path('user', 'loginName'));
+					if (isAuthenticated) {
+						initPrivateHomeProcess(store)({});
+					}
+				});
+
+				break;
+			case 'new-project':
+				initForNewProjectProcess(store)({});
+				break;
+			case 'view-project':
+				initForViewProjectProcess(store)({ owner: outlet.params.owner, project: outlet.params.project });
+				break;
 		}
 	}
 });

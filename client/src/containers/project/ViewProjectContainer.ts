@@ -8,12 +8,12 @@ function getProperties(store: Store<State>): ViewProjectProperties {
 
 	return {
 		loggedUsername: get(path('user', 'loginName')),
-		name: get(path('project', 'name')),
-		isPublic: get(path('project', 'isPublic'))
+		project: get(path('project')),
+		projectResources: get(path('projectResources'))
 	};
 }
 
 export default StoreContainer(ViewProject, 'state', {
-	paths: [['user'], ['project']],
+	paths: [['user'], ['project'], ['projectResources']],
 	getProperties
 });

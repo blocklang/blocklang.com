@@ -9,7 +9,7 @@ export default [
 		outlet: 'about'
 	},
 	{
-		path: 'profile',
+		path: '{user}',
 		outlet: 'profile'
 	},
 	{

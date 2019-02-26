@@ -47,19 +47,34 @@ export interface ProjectParam {
 export interface Project {
 	id: number;
 	name: string;
-	description: string;
+	description?: string;
 	isPublic: boolean;
 	lastActiveTime: string;
 	createUserName: string;
 	createTime: string;
 	createUserId: number;
-	lastUpdateTime: string;
-	lastUpdateUserId: number;
+	lastUpdateTime?: string;
+	lastUpdateUserId?: number;
 }
 
 export interface ProjectInputValidation {
 	nameValidateStatus: ValidateStatus;
 	nameErrorMessage: string;
+}
+
+export interface ProjectResource {
+	id: number;
+	key: string;
+	name: string;
+	description: string;
+	resourceType: string;
+	parentId: number;
+	seq: number;
+	createTime: string;
+	createUserId: number;
+	lastUpdateTime: string;
+	lastUpdateUserId: number;
+	icon: string; // 图标样式类
 }
 
 export interface State {
@@ -70,4 +85,5 @@ export interface State {
 	projectInputValidation: ProjectInputValidation;
 	project: Project;
 	canAccessProjects: Project[];
+	projectResources: ProjectResource[];
 }

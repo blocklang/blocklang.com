@@ -10,8 +10,8 @@ function getProperties(store: Store<State>): HomeProperties {
 		isAuthenticated: !!get(path('user', 'loginName')),
 		loggedUsername: get(path('user', 'loginName')),
 		loggedAvatarUrl: get(path('user', 'avatarUrl')),
-		projects: get(path('canAccessProjects'))
+		canAccessProjects: get(path('canAccessProjects'))
 	};
 }
 
-export default StoreContainer(Home, 'state', { paths: [['user']], getProperties });
+export default StoreContainer(Home, 'state', { paths: [['user'], ['canAccessProjects']], getProperties });

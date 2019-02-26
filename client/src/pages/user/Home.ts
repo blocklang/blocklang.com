@@ -19,7 +19,7 @@ export default class Home extends ThemedMixin(I18nMixin(WidgetBase))<HomePropert
 
 	protected render() {
 		const { messages } = this._localizedMessages;
-		const { projects = [] } = this.properties;
+		const { canAccessProjects = [] } = this.properties;
 		return v('div', { classes: ['container mt-4'] }, [
 			v('div', { classes: ['row'] }, [
 				v('div', { classes: ['col-md-8'] }, this._renderEmptyActivity()),
@@ -34,7 +34,9 @@ export default class Home extends ThemedMixin(I18nMixin(WidgetBase))<HomePropert
 						v(
 							'ul',
 							{ classes: ['list-group list-group-flush'] },
-							projects.length === 0 ? this._renderEmptyProject() : this._renderProjects(projects)
+							canAccessProjects.length === 0
+								? this._renderEmptyProject()
+								: this._renderProjects(canAccessProjects)
 						)
 					])
 				])

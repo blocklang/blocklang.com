@@ -3,9 +3,10 @@ import { NamePayload, DescriptionPayload, IsPublicPayload } from './interfaces';
 import { replace } from '@dojo/framework/stores/state/operations';
 import { createProcess } from '@dojo/framework/stores/process';
 import { ValidateStatus } from '../constant';
+import { baseUrl } from '../config';
 
 // TODO: 一个字段一个 process vs 一个对象一个 process，哪个更合理？
-
+/************************* new project ****************************/
 const initIsPublicCommand = commandFactory(({ path }) => {
 	return [replace(path('projectParam', 'isPublic'), true)];
 });
@@ -33,7 +34,7 @@ const nameInputCommand = commandFactory<NamePayload>(async ({ path, get, payload
 	}
 
 	// 服务器端校验，校验登录用户下是否存在该项目名
-	const response = await fetch('/projects/check-name', {
+	const response = await fetch(`${baseUrl}/projects/check-name`, {
 		method: 'POST',
 		headers: { 'Content-type': 'application/json;charset=UTF-8' },
 		body: JSON.stringify({
@@ -71,15 +72,12 @@ const saveProjectCommand = commandFactory(async ({ path, get }) => {
 	const owner = get(path('user', 'loginName'));
 
 	// 在跳转到新增项目页面时，应设置 isPublic 的初始值为 true
-
-	const response = await fetch('/projects', {
+	const response = await fetch(`${baseUrl}/projects`, {
 		method: 'POST',
 		headers: { 'Content-type': 'application/json;charset=UTF-8' },
 		body: JSON.stringify({
 			owner,
-			name: projectParam.name,
-			description: projectParam.description,
-			public: projectParam.isPublic
+			...projectParam
 		})
 	});
 
@@ -99,8 +97,36 @@ const saveProjectCommand = commandFactory(async ({ path, get }) => {
 	];
 });
 
-export const initIsPublicProcess = createProcess('init-is-public-input', [initIsPublicCommand]);
+/************************* view project ****************************/
+const getProjectCommand = commandFactory(async ({ path, get, payload: { owner, project } }) => {
+	const response = await fetch(`${baseUrl}/projects/${owner}/${project}`);
+	const json = await response.json();
+	if (!response.ok) {
+		console.log(response, json);
+		return [replace(path('project'), {})];
+	}
+
+	console.log(response, json);
+	return [replace(path('project'), json)];
+});
+
+const getProjectResourcesCommand = commandFactory(async ({ path, get, payload: { owner, project, pathId = -1 } }) => {
+	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/tree/${pathId}`);
+	const json = await response.json();
+	if (!response.ok) {
+		return [replace(path('projectResources'), [])];
+	}
+
+	return [replace(path('projectResources'), json)];
+});
+
+export const initForNewProjectProcess = createProcess('init-for-new-project', [initIsPublicCommand]);
 export const nameInputProcess = createProcess('name-input', [nameInputCommand]);
 export const descriptionInputProcess = createProcess('description-input', [descriptionInputCommand]);
 export const isPublicInputProcess = createProcess('is-public-input', [isPublicInputCommand]);
 export const saveProjectProcess = createProcess('save-project', [saveProjectCommand]);
+
+export const initForViewProjectProcess = createProcess('init-for-view-project', [
+	getProjectCommand,
+	getProjectResourcesCommand
+]);

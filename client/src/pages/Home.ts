@@ -8,12 +8,14 @@ import * as css from './Home.m.css';
 import PrivateHome from './user/Home';
 import messageBundle from '../nls/main';
 import { Project } from '../interfaces';
+import { baseUrl } from '../config';
+import MarkdownPreview from '../widgets/markdown-preview';
 
 export interface HomeProperties {
 	isAuthenticated: boolean;
 	loggedUsername?: string;
 	loggedAvatarUrl?: string;
-	projects: Project[];
+	canAccessProjects: Project[];
 }
 
 /**
@@ -36,12 +38,13 @@ export default class Home extends ThemedMixin(I18nMixin(WidgetBase))<HomePropert
 	private _renderPublicHome() {
 		const { messages } = this._localizedMessages;
 
-		return v('div', { classes: [css.jumbotron, 'jumbotron', 'text-center'] }, [
+		return v('div', { classes: [css.jumbotron, 'mt-5', 'jumbotron', 'text-center'] }, [
 			v('h1', { classes: [] }, [messages.blockLangIntro]),
-			v('a', { classes: ['btn btn-outline-primary btn-lg my-5'], href: '/oauth2/authorization/github' }, [
-				v('i', { classes: ['fab fa-github fa-lg'] }),
-				` ${messages.loginGithub}`
-			])
+			v(
+				'a',
+				{ classes: ['btn btn-outline-primary btn-lg my-5'], href: `${baseUrl}/oauth2/authorization/github` },
+				[v('i', { classes: ['fab fa-github fa-lg'] }), ` ${messages.loginGithub}`]
+			)
 		]);
 	}
 
