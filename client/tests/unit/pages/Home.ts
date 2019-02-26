@@ -9,7 +9,7 @@ import PrivateHome from '../../../src/pages/user/Home';
 
 describe('Home', () => {
 	it('public home', () => {
-		const h = harness(() => w(Home, { isAuthenticated: false }));
+		const h = harness(() => w(Home, { isAuthenticated: false, canAccessProjects: [] }));
 		h.expect(() =>
 			v('div', { classes: [css.root] }, [
 				v('div', { classes: [css.jumbotron, 'jumbotron', 'text-center'] }, [
@@ -24,9 +24,11 @@ describe('Home', () => {
 	});
 
 	it('private home', () => {
-		const h = harness(() => w(Home, { isAuthenticated: true, loggedUsername: 'jack' }));
+		const h = harness(() => w(Home, { isAuthenticated: true, loggedUsername: 'jack', canAccessProjects: [] }));
 		h.expect(() =>
-			v('div', { classes: [css.root] }, [w(PrivateHome, { isAuthenticated: true, loggedUsername: 'jack' }, [])])
+			v('div', { classes: [css.root] }, [
+				w(PrivateHome, { isAuthenticated: true, loggedUsername: 'jack', canAccessProjects: [] }, [])
+			])
 		);
 	});
 });
