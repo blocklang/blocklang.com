@@ -64,13 +64,14 @@ Block Lang 平台。
 3. `src/App.ts` - 在这里使用项目中的组件组装 APP
 4. `src/interfaces.d.ts` - 存放数据结构
 5. `src/routes.ts` - 存放路由配置信息
-6. `src/containers/**` - 存放 container 部件
-7. `src/processes/**` - dojo store 处理逻辑，用户查询和修改 store 中的数据
-8. `src/pages/**` - 存放页面级别的部件
-9. `src/widgets/**` - 存放通用部件，页面级别的部件是基于通用部件搭建的
-10. `src/nls/**` - 存放国际化文件
-11. `tests/unit/**` - 存放单元测试用例
-12. `tests/functional/**` - 存放集成测试用例
+6. `src/config.ts` - 存放项目配置信息
+7. `src/containers/**` - 存放 container 部件
+8. `src/processes/**` - dojo store 处理逻辑，用户查询和修改 store 中的数据
+9. `src/pages/**` - 存放页面级别的部件
+10. `src/widgets/**` - 存放通用部件，页面级别的部件是基于通用部件搭建的
+11. `src/nls/**` - 存放国际化文件
+12. `tests/unit/**` - 存放单元测试用例
+13. `tests/functional/**` - 存放集成测试用例
 
 ## 需求描述
 
