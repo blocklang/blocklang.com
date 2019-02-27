@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.blocklang.core.model.UserInfo;
+import com.blocklang.develop.data.GitCommitInfo;
 import com.blocklang.develop.model.Project;
 
 public interface ProjectService {
@@ -53,4 +54,5 @@ public interface ProjectService {
 	 */
 	List<Project> findCanAccessProjectsByUserId(Integer userId);
 
+	Optional<GitCommitInfo> findLatestCommitInfo(Project project, String relativeFilePath);
 }

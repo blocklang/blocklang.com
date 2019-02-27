@@ -26,6 +26,7 @@ import com.blocklang.core.service.GithubLoginService;
 import com.blocklang.core.service.UserService;
 import com.blocklang.core.test.AbstractControllerTest;
 import com.blocklang.develop.data.CheckProjectNameParam;
+import com.blocklang.develop.data.GitCommitInfo;
 import com.blocklang.develop.data.NewProjectParam;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectFile;
@@ -571,5 +572,43 @@ public class ProjectControllerTest extends AbstractControllerTest{
 		.then()
 			.statusCode(HttpStatus.SC_OK)
 			.body("name", equalTo("my-project"));
+	}
+
+	@Test
+	public void get_latest_commit_info_at_root() {
+		Project project = new Project();
+		project.setName("my-project");
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		GitCommitInfo commitInfo = new GitCommitInfo();
+		commitInfo.setShortMessage("message");
+		when(projectService.findLatestCommitInfo(any(), anyString())).thenReturn(Optional.of(commitInfo));
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{project}/latest-commit", "zhangsan", "my-project")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body("shortMessage", equalTo("message"));
+	}
+	
+	@Test
+	public void get_latest_commit_info_at_sub_folder() {
+		Project project = new Project();
+		project.setName("my-project");
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		GitCommitInfo commitInfo = new GitCommitInfo();
+		commitInfo.setShortMessage("message");
+		when(projectService.findLatestCommitInfo(any(), anyString())).thenReturn(Optional.of(commitInfo));
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{project}/latest-commit/a", "zhangsan", "my-project")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body("shortMessage", equalTo("message"));
 	}
 }

@@ -26,9 +26,11 @@ import com.blocklang.core.service.PropertyService;
 import com.blocklang.core.test.AbstractServiceTest;
 import com.blocklang.develop.constant.AccessLevel;
 import com.blocklang.develop.dao.ProjectAuthorizationDao;
+import com.blocklang.develop.dao.ProjectCommitDao;
 import com.blocklang.develop.dao.ProjectDao;
 import com.blocklang.develop.dao.ProjectFileDao;
 import com.blocklang.develop.dao.ProjectResourceDao;
+import com.blocklang.develop.data.GitCommitInfo;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectAuthorization;
 import com.blocklang.develop.model.ProjectContext;
@@ -61,6 +63,9 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 	
 	@Autowired
 	private ProjectAuthorizationDao projectAuthorizationDao;
+	
+	@Autowired
+	private ProjectCommitDao projectCommitDao;
 	
 	@MockBean
 	private PropertyService propertyService;
@@ -146,6 +151,9 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		// 测试时将 projectsRootPath 导向到 junit 的临时文件夹
 		ProjectContext context = new ProjectContext("user_name", "project_name", rootFolder.getPath());
 		assertThat(GitUtils.isGitRepo(context.getGitRepositoryDirectory())).isTrue();
+		
+		// 在创建一个仓库时，会执行一个 git commit，此操作也保存在 project_commit 中
+		assertThat(projectCommitDao.findAllByProjectIdAndBranchOrderByCommitTimeDesc(projectId, "master").get(0)).hasNoNullFieldsOrPropertiesExcept("fullMessage");
 		
 		// TODO: 确认已将应用的模板也保存到了 git 仓库中
 		// 为了便于测试，可能要将 applyTemplate 方法单独提取出来
@@ -248,5 +256,34 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 	
 		List<Project> projects = projectService.findCanAccessProjectsByUserId(1);
 		assertThat(projects).hasSize(2).isSortedAccordingTo(Comparator.comparing(Project::getLastActiveTime).reversed());
+	}
+
+	@Test
+	public void find_latest_commit_success() throws IOException {
+		UserInfo userInfo = new UserInfo();
+		userInfo.setLoginName("user_name");
+		userInfo.setAvatarUrl("avatar_url");
+		userInfo.setEmail("email");
+		userInfo.setMobile("mobile");
+		userInfo.setCreateTime(LocalDateTime.now());
+		Integer userId = userDao.save(userInfo).getId();
+		
+		Project project = new Project();
+		project.setName("project_name");
+		project.setIsPublic(true);
+		project.setDescription("description");
+		project.setLastActiveTime(LocalDateTime.now());
+		project.setCreateUserId(userId);
+		project.setCreateTime(LocalDateTime.now());
+		project.setCreateUserName("user_name");
+		
+		File rootFolder = tempFolder.newFolder();
+		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.getPath()));
+		
+		Project savedProject = projectService.create(userInfo, project);
+		
+		GitCommitInfo commitInfo = projectService.findLatestCommitInfo(savedProject, null).get();
+		assertThat(commitInfo.getShortMessage()).isEqualTo("First Commit");
+		assertThat(commitInfo.getUserName()).isEqualTo("user_name");
 	}
 }

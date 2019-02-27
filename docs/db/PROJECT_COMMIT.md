@@ -20,7 +20,7 @@ Block Lang 采用第二种方式。
 | commit_user_id | commit 用户标识  | int      |      |        |      | 否   |
 | commit_time    | commit 时间      | datetime |      |        |      | 否   |
 | short_message  | 提交内容概要说明 | varchar  | 128  |        |      | 否   |
-| full_message   | 提交内容详细说明 | varchar  | 128  |        |      | 否   |
+| full_message   | 提交内容详细说明 | text     |      |        |      | 是   |
 | create_user_id | 创建人标识       | int      |      |        |      | 否   |
 | create_time    | 创建时间         | datetime |      |        |      | 否   |
 
@@ -28,7 +28,7 @@ Block Lang 采用第二种方式。
 
 * 主键：`PK_PROJECT_COMMIT`
 * 外键：(*未设置*)`FK_PROJECT_COMMIT`，`PROJECT_ID` 对应 `PROJECT` 表的 `dbid`
-* 索引：`UK_PROJECT_COMMENT_ON_PROJECT_ID_BRANCH_COMMIT_ID`，对应字段 `project_id`、`branch`、`commit_id`
+* 索引：`UK_PROJECT_COMMIT_ON_PROJECT_ID_BRANCH_COMMIT_ID`，对应字段 `project_id`、`branch`、`commit_id`；`IDX_PROJECT_COMMIT_ON_COMMIT_TIME`，对应字段 `commit_time`
 
 ## 说明
 

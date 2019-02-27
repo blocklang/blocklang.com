@@ -39,8 +39,13 @@
 		</createTable>
 		
 		<addUniqueConstraint columnNames="project_id,branch,commit_id"
-			constraintName="UK_PROJECT_COMMENT_ON_PROJECT_ID_BRANCH_COMMIT_ID"
+			constraintName="UK_PROJECT_COMMIT_ON_PROJECT_ID_BRANCH_COMMIT_ID"
 			tableName="project_commit" />
+
+		<createIndex indexName="IDX_PROJECT_COMMIT_ON_COMMIT_TIME"
+			tableName="project_commit">
+			<column name="commit_time" />
+		</createIndex>
 	</changeSet>
 
 </databaseChangeLog>

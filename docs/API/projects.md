@@ -20,6 +20,9 @@
   - [查看一个项目](#%E6%9F%A5%E7%9C%8B%E4%B8%80%E4%B8%AA%E9%A1%B9%E7%9B%AE)
     - [Parameters](#parameters-5)
     - [Response](#response-5)
+  - [获取最近提交信息](#%E8%8E%B7%E5%8F%96%E6%9C%80%E8%BF%91%E6%8F%90%E4%BA%A4%E4%BF%A1%E6%81%AF)
+    - [Parameters](#parameters-6)
+    - [Response](#response-6)
 
 ## 校验项目名称
 
@@ -85,7 +88,7 @@ POST /projects
 | `owner`       | `string`  | **Required**. 用户登录名 |
 | `name`        | `string`  | **Required**. 项目名称   |
 | `description` | `string`  | 项目描述                 |
-| `isPublic`      | `boolean` | 是否公开                 |
+| `isPublic`    | `boolean` | 是否公开                 |
 
 ### Response
 
@@ -263,7 +266,7 @@ GET /projects/{owner}/{projectName}
 
 ### Response
 
-如果用户登录，则返回
+如果项目存在，则返回
 
 ```text
 Status: 200 OK
@@ -282,8 +285,44 @@ Status: 200 OK
 | `lastUpdateTime`   | `datetime` | 最近修改时间   |
 | `lastUpdateUserId` | `int`      | 最近修改人标识 |
 
-如果用户未登录，则返回
+如果项目不存在，则返回
 
 ```text
-Status: 403 Forbidden
+Status: 404 Not Found
+```
+
+## 获取最近提交信息
+
+```text
+GET /projects/{owner}/{projectName}/latest-commit
+```
+
+### Parameters
+
+| Name          | Type     | Description               |
+| ------------- | -------- | ------------------------- |
+| `owner`       | `string` | **Required**. 用户登录名  |
+| `projectName` | `string` | **Required**. 项目名称    |
+
+### Response
+
+如果有权访问此项目，则返回
+
+```text
+Status: 200 OK
+```
+
+| 属性名         | 类型      | 描述         |
+| -------------- | --------- | ------------ |
+| `id`           | `int`     | 记录标识     |
+| `commitTime`   | `string`  | 提交时间     |
+| `shortMessage` | `string`  | 概要信息     |
+| `fullMessage`  | `boolean` | 详情         |
+| `userName`     | `string`  | 用户名       |
+| `avatarUrl`    | `string`  | 用户头像链接 |
+
+如果无权访问此项目，则返回
+
+```text
+Status: 404 Not Found
 ```

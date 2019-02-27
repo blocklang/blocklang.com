@@ -1,11 +1,16 @@
 package com.blocklang.develop.service.impl;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,11 +28,14 @@ import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.constant.FileType;
 import com.blocklang.develop.constant.ProjectResourceType;
 import com.blocklang.develop.dao.ProjectAuthorizationDao;
+import com.blocklang.develop.dao.ProjectCommitDao;
 import com.blocklang.develop.dao.ProjectDao;
 import com.blocklang.develop.dao.ProjectFileDao;
+import com.blocklang.develop.data.GitCommitInfo;
 import com.blocklang.develop.data.ProgramModel;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectAuthorization;
+import com.blocklang.develop.model.ProjectCommit;
 import com.blocklang.develop.model.ProjectContext;
 import com.blocklang.develop.model.ProjectFile;
 import com.blocklang.develop.model.ProjectResource;
@@ -52,6 +60,8 @@ public class ProjectServiceImpl implements ProjectService {
 	@Autowired
 	private ProjectAuthorizationDao projectAuthorizationDao;
 	@Autowired
+	private ProjectCommitDao projectCommitDao;
+	@Autowired
 	private PropertyService propertyService;
 	@Autowired
 	private ProjectResourceService projectResourceService;
@@ -74,6 +84,7 @@ public class ProjectServiceImpl implements ProjectService {
 		
 		// 保存项目基本信息
 		Project savedProject = projectDao.save(project);
+		Integer projectId = savedProject.getId();
 		
 		LocalDateTime createTime = project.getCreateTime();
 		Integer createUserId = project.getCreateUserId();
@@ -120,11 +131,24 @@ public class ProjectServiceImpl implements ProjectService {
 					logger.error("转换 json 失败", e);
 				}
 				
-				GitUtils
+				String commitMessage = "First Commit";
+				String commitId = GitUtils
 					.beginInit(context.getGitRepositoryDirectory(), user.getLoginName(), user.getEmail())
 					.addFile(ProjectResource.README_NAME, readMeContent)
 					.addFile(ProjectResource.MAIN_KEY + ".ui.json", mainPageJsonString)
-					.commit("First Commit");
+					.commit(commitMessage);
+				
+				ProjectCommit commit = new ProjectCommit();
+				commit.setCommitId(commitId);
+				commit.setCommitUserId(createUserId);
+				commit.setCommitTime(LocalDateTime.now());
+				commit.setProjectId(projectId);
+				commit.setBranch(Constants.MASTER);
+				commit.setShortMessage(commitMessage);
+				commit.setCreateUserId(createUserId);
+				commit.setCreateTime(LocalDateTime.now());
+				
+				projectCommitDao.save(commit);
 			}catch (RuntimeException e) {
 				logger.error(String.format("为项目 {} 初始创建 git 仓库失败", appName), e);
 			}
@@ -197,4 +221,30 @@ public class ProjectServiceImpl implements ProjectService {
 		return projects;
 	}
 
+	@Override
+	public Optional<GitCommitInfo> findLatestCommitInfo(Project project, String relativeFilePath) {
+		Optional<GitCommitInfo> commitOption = propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).map(rootDir -> {
+			ProjectContext context = new ProjectContext(project.getCreateUserName(), project.getName(), rootDir);
+			RevCommit commit = GitUtils.getLatestCommit(context.getGitRepositoryDirectory(), Objects.toString(relativeFilePath, ""));
+			String commitId = commit.getName();
+			
+			GitCommitInfo commitInfo = new GitCommitInfo();
+			commitInfo.setCommitTime(Instant.ofEpochSecond(commit.getCommitTime()).atZone(ZoneId.systemDefault()).toLocalDateTime());
+			commitInfo.setShortMessage(commit.getShortMessage());
+			commitInfo.setFullMessage(commit.getFullMessage());
+			commitInfo.setId(commitId);
+			return commitInfo;
+		});
+		
+		commitOption.ifPresent(commitInfo -> {
+			projectCommitDao.findByProjectIdAndBranchAndCommitId(project.getId(), Constants.MASTER, commitInfo.getId()).flatMap(projectCommit -> {
+				return userService.findById(projectCommit.getCommitUserId());
+			}).ifPresent(user -> {
+				commitInfo.setUserName(user.getLoginName());
+				commitInfo.setAvatarUrl(user.getAvatarUrl());
+			});
+		});
+		
+		return commitOption;
+	}
 }
