@@ -5,13 +5,18 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Optional;
 
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.RepositoryCache;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.util.FS;
 import org.eclipse.jgit.util.FileUtils;
+
+import com.blocklang.develop.data.GitCommitInfo;
 
 /**
  * git 帮助类，本工具类适合每次对 git 仓库做一个操作。
@@ -61,6 +66,17 @@ public class GitUtils {
 		return gitInit;
 	}
 	
+	/**
+	 * 
+	 * @param gitRootPath
+	 * @param relativePath 项目仓库根目录的路径，不要以 “/” 开头
+	 * @param fileName
+	 * @param fileContent
+	 * @param authorName
+	 * @param authorMail
+	 * @param commitMessage
+	 * @return
+	 */
 	public static String commit(
 			Path gitRootPath, 
 			String relativePath,
@@ -123,6 +139,38 @@ public class GitUtils {
 	public static void clone(String remoteGitUrl, Path localFolderPath) {
 		GitClone gitClone = new GitClone();
 		gitClone.execute(remoteGitUrl, localFolderPath);
+	}
+	
+	/**
+	 * 获取 master 分支根目录上的最近一次提交
+	 * 
+	 * @param gitRepoPath
+	 * @return 提交信息
+	 */
+	public static RevCommit getLatestCommit(Path gitRepoPath) {
+		GitCommit commit = new GitCommit();
+		return commit.getLatestCommit(gitRepoPath);
+	}
+
+	/**
+	 * 获取 master 分支指定目录上的最近一次提交
+	 * 
+	 * @param gitRepoPath
+	 * @return 提交信息
+	 */
+	public static RevCommit getLatestCommit(Path gitRepoPath, String relativeFilePath) {
+		GitCommit commit = new GitCommit();
+		return commit.getLatestCommit(gitRepoPath, relativeFilePath);
+	}
+	
+	public static GitCommitInfo getLatestCommitInfo(Path gitRepoPath, String relativeFilePath) {
+		RevCommit commit = getLatestCommit(gitRepoPath, relativeFilePath);
+		GitCommitInfo commitInfo = new GitCommitInfo();
+		commitInfo.setCommitTime(Instant.ofEpochSecond(commit.getCommitTime()).atZone(ZoneId.systemDefault()).toLocalDateTime());
+		commitInfo.setShortMessage(commit.getShortMessage());
+		commitInfo.setFullMessage(commit.getFullMessage());
+		commitInfo.setId(commit.getName());
+		return commitInfo;
 	}
 	
 	// 暂时不要删除此代码

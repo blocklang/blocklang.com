@@ -88,7 +88,7 @@ public class GitInit {
 	}
 
 	/**
-	 * 初始化git仓库
+	 * 初始化git仓库，初始化完成后，会进行一次提交
 	 * 
 	 * @param gitRepoPath 仓库路径，绝对路径
 	 * @param gitUserName 用户名

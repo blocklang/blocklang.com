@@ -67,7 +67,12 @@ public class GitCommit {
 			String fileName, 
 			String fileContent){
 		try{
-			Path folder = gitRepoPath.resolve(Paths.get("", relativePath.split("/")));
+			Path folder = null;
+			if(StringUtils.isBlank(relativePath)) {
+				folder = gitRepoPath;
+			}else {
+				folder = gitRepoPath.resolve(Paths.get("", relativePath.split("/")));
+			}
 			
 			if(Files.notExists(folder)){
 				Files.createDirectories(folder);

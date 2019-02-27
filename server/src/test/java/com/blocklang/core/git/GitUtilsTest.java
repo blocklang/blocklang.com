@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.util.Optional;
 
 import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -112,6 +113,37 @@ public class GitUtilsTest {
 		getedTag = GitUtils.getTag(folder.toPath(), "v0.1.0-1");
 		assertThat(getedTag.isEmpty()).isTrue();
 	}
+	
+	@Test
+	public void get_latest_commit_at_root() throws IOException {
+		// 新建一个 git 仓库
+		File folder = tempFolder.newFolder(gitRepoDirectory);
+		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+		
+		GitUtils.commit(folder.toPath(), null, "a.txt", "hello", gitUserName, gitUserMail, "commit 1");
+		RevCommit latestCommit = GitUtils.getLatestCommit(folder.toPath());
+		assertThat(latestCommit.getFullMessage()).isEqualTo("commit 1");
+		
+		GitUtils.commit(folder.toPath(), null, "a.txt", "hello world", gitUserName, gitUserMail, "commit 2");
+		latestCommit = GitUtils.getLatestCommit(folder.toPath());
+		assertThat(latestCommit.getFullMessage()).isEqualTo("commit 2");
+	}
+	
+	@Test
+	public void get_latest_commit_at_sub_folder() throws IOException {
+		// 新建一个 git 仓库
+		File folder = tempFolder.newFolder(gitRepoDirectory);
+		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+		
+		GitUtils.commit(folder.toPath(), "a", "a.txt", "hello", gitUserName, gitUserMail, "commit 1");
+		RevCommit latestCommit = GitUtils.getLatestCommit(folder.toPath(), "a");
+		assertThat(latestCommit.getFullMessage()).isEqualTo("commit 1");
+		
+		GitUtils.commit(folder.toPath(), "a", "a.txt", "hello world", gitUserName, gitUserMail, "commit 2");
+		latestCommit = GitUtils.getLatestCommit(folder.toPath(), "a");
+		assertThat(latestCommit.getFullMessage()).isEqualTo("commit 2");
+	}
+
 
 	private void assertContentEquals(Path filePath, String content) throws IOException{
 		assertThat(Files.readString(filePath)).isEqualTo(content);
