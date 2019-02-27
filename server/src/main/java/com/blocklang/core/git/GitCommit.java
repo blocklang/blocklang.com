@@ -10,9 +10,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.blocklang.core.git.exception.FileCreateOrUpdateFailedException;
 import com.blocklang.core.git.exception.GitCommitFailedException;
@@ -20,6 +25,8 @@ import com.blocklang.core.git.exception.GitRepoNotFoundException;
 
 public class GitCommit {
 
+	private static final Logger logger = LoggerFactory.getLogger(GitCommit.class);
+	
 	/**
 	 * git commit操作
 	 * 
@@ -86,5 +93,53 @@ public class GitCommit {
 		}catch(IOException e){
 			throw new FileCreateOrUpdateFailedException(e);
 		}
+	}
+	
+	public RevCommit getLatestCommit(Path gitRepoPath) {
+		File gitDir = gitRepoPath.resolve(Constants.DOT_GIT).toFile();
+		String branch = Constants.MASTER;
+		
+		try (Repository repository = FileRepositoryBuilder.create(gitDir);
+				RevWalk walk = new RevWalk(repository)) {
+			Ref head = repository.findRef(branch);
+
+			RevCommit commit = walk.parseCommit(head.getObjectId());
+			walk.dispose();
+			return commit;
+		} catch (IOException e) {
+			logger.error("获取最新提交信息失败", e);
+		}
+		return null;
+	}
+
+	public RevCommit getLatestCommit(Path gitRepoPath, String relativeFilePath) {
+		File gitDir = gitRepoPath.resolve(Constants.DOT_GIT).toFile();
+		String branch = Constants.MASTER;
+		
+		try (Repository repository = FileRepositoryBuilder.create(gitDir);
+				RevWalk walk = new RevWalk(repository);
+				Git git = new Git(repository)) {
+			Ref head = repository.findRef(branch);
+			
+			if(StringUtils.isBlank(relativeFilePath)) {
+				RevCommit commit = walk.parseCommit(head.getObjectId());
+				walk.dispose();
+				return commit;
+			}
+			
+			ObjectId objectId = null;
+			if(head == null){
+				objectId = repository.resolve(branch);
+			}else{
+				objectId = head.getObjectId();
+			}
+
+			RevCommit commit = walk.parseCommit(objectId);
+			Iterable<RevCommit> csIterable = git.log().add(commit.getId()).addPath(relativeFilePath).setMaxCount(1).call();
+			return csIterable.iterator().next();
+		} catch (IOException | GitAPIException e) {
+			logger.error("获取最新提交信息失败", e);
+		}
+		return null;
 	}
 }
