@@ -6,13 +6,15 @@ import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import com.blocklang.core.model.PartialIdField;
 import com.blocklang.develop.constant.AccessLevel;
 import com.blocklang.develop.constant.converter.AccessLevelConverter;
 
 @Entity
-@Table(name = "project_authorization")
+@Table(name = "project_authorization",
+	uniqueConstraints = @UniqueConstraint(columnNames = { "user_id", "project_id", "access_level" }))
 public class ProjectAuthorization extends PartialIdField{
 
 	private static final long serialVersionUID = -6231422105829149918L;
