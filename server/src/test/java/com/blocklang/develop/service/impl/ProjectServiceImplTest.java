@@ -138,11 +138,25 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		// 已创建入口程序模块
 		// 传入 Main，首字母大写是为了测试忽略大小写
 		assertThat(projectResourceDao.findByProjectIdAndParentIdAndKeyIgnoreCase(projectId, Constant.TREE_ROOT_ID, "Main").get())
-			.hasNoNullFieldsOrPropertiesExcept("lastUpdateUserId", "lastUpdateTime", "description");
+			.hasNoNullFieldsOrPropertiesExcept(
+					"lastUpdateUserId", 
+					"lastUpdateTime", 
+					"description",
+					"latestCommitId",
+					"latestShortMessage",
+					"latestFullMessage",
+					"latestCommitTime");
 		
 		// 已在项目资源表中登记 README.md 文件
 		ProjectResource readmeResource = projectResourceDao.findByProjectIdAndParentIdAndKeyIgnoreCase(projectId, Constant.TREE_ROOT_ID, "ReAdMe").get();
-		assertThat(readmeResource).hasNoNullFieldsOrPropertiesExcept("lastUpdateUserId", "lastUpdateTime", "description");
+		assertThat(readmeResource).hasNoNullFieldsOrPropertiesExcept(
+				"lastUpdateUserId", 
+				"lastUpdateTime", 
+				"description",
+				"latestCommitId",
+				"latestShortMessage",
+				"latestFullMessage",
+				"latestCommitTime");
 		
 		// 已在项目文件表中保存 README.md 文件
 		assertThat(projectFileDao.findByProjectResourceId(readmeResource.getId()).get()).hasNoNullFieldsOrProperties();

@@ -146,6 +146,16 @@ public class GitUtilsTest {
 	}
 	
 	@Test
+	public void get_files_in_invalid_repo() throws IOException {
+		// 新建一个 git 仓库
+		File folder = tempFolder.newFolder(gitRepoDirectory);
+
+		List<GitFileInfo> gitFiles = GitUtils.getFiles(folder.toPath(), null);
+		
+		assertThat(gitFiles).isEmpty();
+	}
+	
+	@Test
 	public void get_files_at_root() throws IOException {
 		// 新建一个 git 仓库
 		File folder = tempFolder.newFolder(gitRepoDirectory);

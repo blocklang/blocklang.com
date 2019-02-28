@@ -234,7 +234,7 @@ public class ProjectControllerTest extends AbstractControllerTest{
 		project.setIsPublic(true);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		List<ProjectResource> resources = new ArrayList<ProjectResource>();
-		when(projectResourceService.findChildren(anyInt(), anyInt())).thenReturn(resources);
+		when(projectResourceService.findChildren(any(), anyInt())).thenReturn(resources);
 
 		given()
 			.contentType(ContentType.JSON)
@@ -256,7 +256,7 @@ public class ProjectControllerTest extends AbstractControllerTest{
 		project.setIsPublic(true);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		List<ProjectResource> resources = new ArrayList<ProjectResource>();
-		when(projectResourceService.findChildren(anyInt(), anyInt())).thenReturn(resources);
+		when(projectResourceService.findChildren(any(), anyInt())).thenReturn(resources);
 
 		given()
 			.contentType(ContentType.JSON)
@@ -278,7 +278,7 @@ public class ProjectControllerTest extends AbstractControllerTest{
 		project.setIsPublic(false);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		List<ProjectResource> resources = new ArrayList<ProjectResource>();
-		when(projectResourceService.findChildren(anyInt(), anyInt())).thenReturn(resources);
+		when(projectResourceService.findChildren(any(), anyInt())).thenReturn(resources);
 
 		given()
 			.contentType(ContentType.JSON)
@@ -300,7 +300,7 @@ public class ProjectControllerTest extends AbstractControllerTest{
 		project.setIsPublic(true);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		List<ProjectResource> resources = new ArrayList<ProjectResource>();
-		when(projectResourceService.findChildren(anyInt(), anyInt())).thenReturn(resources);
+		when(projectResourceService.findChildren(any(), anyInt())).thenReturn(resources);
 
 		given()
 			.contentType(ContentType.JSON)
@@ -323,7 +323,7 @@ public class ProjectControllerTest extends AbstractControllerTest{
 		project.setIsPublic(true);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		List<ProjectResource> resources = new ArrayList<ProjectResource>();
-		when(projectResourceService.findChildren(anyInt(), anyInt())).thenReturn(resources);
+		when(projectResourceService.findChildren(any(), anyInt())).thenReturn(resources);
 
 		given()
 			.contentType(ContentType.JSON)
@@ -346,7 +346,7 @@ public class ProjectControllerTest extends AbstractControllerTest{
 		project.setIsPublic(false);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		List<ProjectResource> resources = new ArrayList<ProjectResource>();
-		when(projectResourceService.findChildren(anyInt(), anyInt())).thenReturn(resources);
+		when(projectResourceService.findChildren(any(), anyInt())).thenReturn(resources);
 
 		given()
 			.contentType(ContentType.JSON)
@@ -368,7 +368,7 @@ public class ProjectControllerTest extends AbstractControllerTest{
 		project.setIsPublic(false);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		List<ProjectResource> resources = new ArrayList<ProjectResource>();
-		when(projectResourceService.findChildren(anyInt(), anyInt())).thenReturn(resources);
+		when(projectResourceService.findChildren(any(), anyInt())).thenReturn(resources);
 
 		given()
 			.contentType(ContentType.JSON)

@@ -1,9 +1,12 @@
 package com.blocklang.develop.model;
 
+import java.time.LocalDateTime;
+
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import com.blocklang.core.constant.Constant;
@@ -53,6 +56,15 @@ public class ProjectResource extends PartialOperateFields{
 
 	@Column(name = "seq", nullable = false)
 	private Integer seq;
+	
+	@Transient
+	private String latestCommitId;
+	@Transient
+	private String latestShortMessage;
+	@Transient
+	private String latestFullMessage;
+	@Transient
+	private LocalDateTime latestCommitTime;
 
 	public Integer getProjectId() {
 		return projectId;
@@ -116,6 +128,38 @@ public class ProjectResource extends PartialOperateFields{
 
 	public void setSeq(Integer seq) {
 		this.seq = seq;
+	}
+
+	public String getLatestCommitId() {
+		return latestCommitId;
+	}
+
+	public void setLatestCommitId(String latestCommitId) {
+		this.latestCommitId = latestCommitId;
+	}
+
+	public String getLatestShortMessage() {
+		return latestShortMessage;
+	}
+
+	public void setLatestShortMessage(String latestShortMessage) {
+		this.latestShortMessage = latestShortMessage;
+	}
+
+	public String getLatestFullMessage() {
+		return latestFullMessage;
+	}
+
+	public void setLatestFullMessage(String latestFullMessage) {
+		this.latestFullMessage = latestFullMessage;
+	}
+
+	public LocalDateTime getLatestCommitTime() {
+		return latestCommitTime;
+	}
+
+	public void setLatestCommitTime(LocalDateTime latestCommitTime) {
+		this.latestCommitTime = latestCommitTime;
 	}
 	
 }

@@ -41,6 +41,10 @@ public class GitFile {
 	public List<GitFileInfo> execute() {
 		List<GitFileInfo> files = new ArrayList<GitFileInfo>();
 		File gitDir = gitRepoPath.resolve(Constants.DOT_GIT).toFile();
+		if(!gitDir.exists()) {
+			return files;
+		}
+		
 		String branch = Constants.R_HEADS + Constants.MASTER;
 		
 		try(Repository repository = FileRepositoryBuilder.create(gitDir);
