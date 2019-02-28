@@ -580,6 +580,8 @@ public class ProjectControllerTest extends AbstractControllerTest{
 		project.setName("my-project");
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
+		when(projectResourceService.findParentPath(anyInt())).thenReturn("");
+		
 		GitCommitInfo commitInfo = new GitCommitInfo();
 		commitInfo.setShortMessage("message");
 		when(projectService.findLatestCommitInfo(any(), anyString())).thenReturn(Optional.of(commitInfo));
@@ -587,7 +589,7 @@ public class ProjectControllerTest extends AbstractControllerTest{
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/projects/{owner}/{project}/latest-commit", "zhangsan", "my-project")
+			.get("/projects/{owner}/{project}/latest-commit/{pathId}", "zhangsan", "my-project", "-1")
 		.then()
 			.statusCode(HttpStatus.SC_OK)
 			.body("shortMessage", equalTo("message"));
@@ -599,6 +601,8 @@ public class ProjectControllerTest extends AbstractControllerTest{
 		project.setName("my-project");
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
+		when(projectResourceService.findParentPath(anyInt())).thenReturn("a");
+		
 		GitCommitInfo commitInfo = new GitCommitInfo();
 		commitInfo.setShortMessage("message");
 		when(projectService.findLatestCommitInfo(any(), anyString())).thenReturn(Optional.of(commitInfo));
@@ -606,7 +610,7 @@ public class ProjectControllerTest extends AbstractControllerTest{
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/projects/{owner}/{project}/latest-commit/a", "zhangsan", "my-project")
+			.get("/projects/{owner}/{project}/latest-commit/{pathId}", "zhangsan", "my-project", "1")
 		.then()
 			.statusCode(HttpStatus.SC_OK)
 			.body("shortMessage", equalTo("message"));

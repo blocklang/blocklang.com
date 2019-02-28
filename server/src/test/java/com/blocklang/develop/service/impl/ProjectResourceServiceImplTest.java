@@ -102,6 +102,12 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	}
 	
 	@Test
+	public void find_parent_path_at_root() {
+		String path = projectResourceService.findParentPath(-1);
+		assertThat(path).isEmpty();
+	}
+	
+	@Test
 	public void find_parent_path_success() {
 		ProjectResource resource = new ProjectResource();
 		resource.setProjectId(1);

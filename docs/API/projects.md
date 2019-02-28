@@ -143,11 +143,11 @@ GET /projects/{owner}/{projectName}/tree/{pathId}
 
 ### Parameters
 
-| Name          | Type     | Description               |
-| ------------- | -------- | ------------------------- |
-| `owner`       | `string` | **Required**. 用户登录名  |
-| `projectName` | `string` | **Required**. 项目名称    |
-| `pathId`      | `string` | 当前目录的标识，默认为 -1 |
+| Name          | Type     | Description                   |
+| ------------- | -------- | ----------------------------- |
+| `owner`       | `string` | **Required**. 用户登录名      |
+| `projectName` | `string` | **Required**. 项目名称        |
+| `pathId`      | `string` | 当前目录的标识，-1 表示根结点 |
 
 ### Response
 
@@ -294,15 +294,16 @@ Status: 404 Not Found
 ## 获取最近提交信息
 
 ```text
-GET /projects/{owner}/{projectName}/latest-commit
+GET /projects/{owner}/{projectName}/latest-commit/{pathId}
 ```
 
 ### Parameters
 
-| Name          | Type     | Description               |
-| ------------- | -------- | ------------------------- |
-| `owner`       | `string` | **Required**. 用户登录名  |
-| `projectName` | `string` | **Required**. 项目名称    |
+| Name          | Type     | Description                   |
+| ------------- | -------- | ----------------------------- |
+| `owner`       | `string` | **Required**. 用户登录名      |
+| `projectName` | `string` | **Required**. 项目名称        |
+| `pathId`      | `string` | 当前目录的标识，-1 表示根结点 |
 
 ### Response
 

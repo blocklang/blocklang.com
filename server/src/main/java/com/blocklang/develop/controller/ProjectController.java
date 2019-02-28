@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
@@ -21,7 +20,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.blocklang.core.controller.SpringMvcUtil;
 import com.blocklang.core.exception.InvalidRequestException;
 import com.blocklang.core.exception.NoAuthorizationException;
 import com.blocklang.core.exception.ResourceNotFoundException;
@@ -178,13 +176,22 @@ public class ProjectController {
 		}).orElseThrow(ResourceNotFoundException::new);
 	}
 	
-	@GetMapping("/projects/{owner}/{projectName}/latest-commit/**")
+	@GetMapping("/projects/{owner}/{projectName}/latest-commit/{pathId}")
 	public ResponseEntity<GitCommitInfo> getLatestCommit(
 			@PathVariable String owner,
 			@PathVariable String projectName,
-			HttpServletRequest req) {
+			@PathVariable String pathId) {
+		
+		Integer resourceId;
+		try {
+			resourceId = Integer.valueOf(pathId);
+		} catch (NumberFormatException e) {
+			logger.error("无法将 ‘" + pathId + "’ 转换为数字", e);
+			throw new ResourceNotFoundException();
+		}
+		
 		return projectService.find(owner, projectName).flatMap(project -> {
-			String filePath = SpringMvcUtil.getRestUrl(req, 4);
+			String filePath = projectResourceService.findParentPath(resourceId);
 			project.setCreateUserName(owner);
 			return projectService.findLatestCommitInfo(project, filePath);
 		}).map(commitInfo -> {
