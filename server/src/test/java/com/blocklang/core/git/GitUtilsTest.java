@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 
 import org.eclipse.jgit.lib.Ref;
@@ -143,8 +144,68 @@ public class GitUtilsTest {
 		latestCommit = GitUtils.getLatestCommit(folder.toPath(), "a");
 		assertThat(latestCommit.getFullMessage()).isEqualTo("commit 2");
 	}
+	
+	@Test
+	public void get_files_at_root() throws IOException {
+		// 新建一个 git 仓库
+		File folder = tempFolder.newFolder(gitRepoDirectory);
+		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+		
+		String commitId1 = GitUtils.commit(folder.toPath(), null, "1.txt", "hello", gitUserName, gitUserMail, "commit 1");
+		String commitId2 = GitUtils.commit(folder.toPath(), null, "2.txt", "world", gitUserName, gitUserMail, "commit 2");
+		
+		List<GitFileInfo> gitFiles = GitUtils.getFiles(folder.toPath(), null);
 
+		assertThat(gitFiles).hasSize(2).anyMatch(gitFile -> {
+			return gitFile.isFolder() == false &&
+					gitFile.getCommitId().equals(commitId1) &&
+					gitFile.getLatestShortMessage().equals("commit 1") &&
+					gitFile.getLatestFullMessage().equals("commit 1") &&
+					gitFile.getName().equals("1.txt") &&
+					gitFile.getPath().equals("1.txt") &&
+					gitFile.getLatestCommitTime() != null;
+		}).anyMatch(gitFile -> {
+			return gitFile.isFolder() == false &&
+					gitFile.getCommitId().equals(commitId2) &&
+					gitFile.getLatestShortMessage().equals("commit 2") &&
+					gitFile.getLatestFullMessage().equals("commit 2") &&
+					gitFile.getName().equals("2.txt") &&
+					gitFile.getPath().equals("2.txt") &&
+					gitFile.getLatestCommitTime() != null;
+		});
+		
+	}
+	
+	@Test
+	public void get_files_at_sub_folder() throws IOException {
+		// 新建一个 git 仓库
+		File folder = tempFolder.newFolder(gitRepoDirectory);
+		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+		
+		String commitId1 = GitUtils.commit(folder.toPath(), "a", "1.txt", "hello", gitUserName, gitUserMail, "commit 1");
+		String commitId2 = GitUtils.commit(folder.toPath(), "a", "2.txt", "world", gitUserName, gitUserMail, "commit 2");
+		
+		List<GitFileInfo> gitFiles = GitUtils.getFiles(folder.toPath(), "a");
 
+		assertThat(gitFiles).hasSize(2).anyMatch(gitFile -> {
+			return gitFile.isFolder() == false &&
+					gitFile.getCommitId().equals(commitId1) &&
+					gitFile.getLatestShortMessage().equals("commit 1") &&
+					gitFile.getLatestFullMessage().equals("commit 1") &&
+					gitFile.getName().equals("1.txt") &&
+					gitFile.getPath().equals("a/1.txt") &&
+					gitFile.getLatestCommitTime() != null;
+		}).anyMatch(gitFile -> {
+			return gitFile.isFolder() == false &&
+					gitFile.getCommitId().equals(commitId2) &&
+					gitFile.getLatestShortMessage().equals("commit 2") &&
+					gitFile.getLatestFullMessage().equals("commit 2") &&
+					gitFile.getName().equals("2.txt") &&
+					gitFile.getPath().equals("a/2.txt") &&
+					gitFile.getLatestCommitTime() != null;
+		});
+	}
+	
 	private void assertContentEquals(Path filePath, String content) throws IOException{
 		assertThat(Files.readString(filePath)).isEqualTo(content);
 	}

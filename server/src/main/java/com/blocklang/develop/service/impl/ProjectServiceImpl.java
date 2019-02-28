@@ -1,8 +1,6 @@
 package com.blocklang.develop.service.impl;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -22,6 +20,7 @@ import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.PropertyService;
 import com.blocklang.core.service.UserService;
+import com.blocklang.core.util.DateUtil;
 import com.blocklang.core.util.IdGenerator;
 import com.blocklang.develop.constant.AccessLevel;
 import com.blocklang.develop.constant.AppType;
@@ -229,7 +228,7 @@ public class ProjectServiceImpl implements ProjectService {
 			String commitId = commit.getName();
 			
 			GitCommitInfo commitInfo = new GitCommitInfo();
-			commitInfo.setCommitTime(Instant.ofEpochSecond(commit.getCommitTime()).atZone(ZoneId.systemDefault()).toLocalDateTime());
+			commitInfo.setCommitTime(DateUtil.ofSecond(commit.getCommitTime()));
 			commitInfo.setShortMessage(commit.getShortMessage());
 			commitInfo.setFullMessage(commit.getFullMessage());
 			commitInfo.setId(commitId);

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Optional;
 
 import org.eclipse.jgit.lib.Constants;
@@ -157,6 +158,11 @@ public class GitUtils {
 	public static RevCommit getLatestCommit(Path gitRepoPath, String relativeFilePath) {
 		GitCommit commit = new GitCommit();
 		return commit.getLatestCommit(gitRepoPath, relativeFilePath);
+	}
+	
+	public static List<GitFileInfo> getFiles(Path gitRepoPath, String relativeDir) {
+		GitFile file = new GitFile(gitRepoPath, relativeDir);
+		return file.execute();
 	}
 	
 	// 暂时不要删除此代码
