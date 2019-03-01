@@ -9,7 +9,7 @@ import PrivateHome from './user/Home';
 import messageBundle from '../nls/main';
 import { Project } from '../interfaces';
 import { baseUrl } from '../config';
-import MarkdownPreview from '../widgets/markdown-preview';
+import FontAwesomeIcon from '../widgets/fontawesome-icon';
 
 export interface HomeProperties {
 	isAuthenticated: boolean;
@@ -43,7 +43,7 @@ export default class Home extends ThemedMixin(I18nMixin(WidgetBase))<HomePropert
 			v(
 				'a',
 				{ classes: ['btn btn-outline-primary btn-lg my-5'], href: `${baseUrl}/oauth2/authorization/github` },
-				[v('i', { classes: ['fab fa-github fa-lg'] }), ` ${messages.loginGithub}`]
+				[w(FontAwesomeIcon, { icon: ['fab', 'github'], size: 'lg' }), ` ${messages.loginGithub}`]
 			)
 		]);
 	}

@@ -9,6 +9,7 @@ import * as css from './Home.m.css';
 import Link from '@dojo/framework/routing/Link';
 import messageBundle from '../../nls/main';
 import { Project } from '../../interfaces';
+import FontAwesomeIcon from '../../widgets/fontawesome-icon';
 
 /**
  * 个人首页
@@ -28,7 +29,7 @@ export default class Home extends ThemedMixin(I18nMixin(WidgetBase))<HomePropert
 						v('div', { classes: ['card-header'] }, [
 							`${messages.canAccessProjectsCardTitle}`,
 							w(Link, { to: 'new-project', classes: ['float-right'], title: `${messages.newProject}` }, [
-								v('i', { classes: ['fas fa-plus'] })
+								w(FontAwesomeIcon, { icon: 'plus' })
 							])
 						]),
 						v(
@@ -72,7 +73,7 @@ export default class Home extends ThemedMixin(I18nMixin(WidgetBase))<HomePropert
 		return [
 			v('li', { classes: ['list-group-item'] }, [
 				v('div', { classes: ['text-center'] }, [
-					v('i', { classes: ['fas fa-info-circle text-muted'] }),
+					w(FontAwesomeIcon, { icon: 'info-circle', className: 'text-muted' }),
 					` ${messages.noProjectMessage}`
 				])
 			])
@@ -92,7 +93,12 @@ export default class Home extends ThemedMixin(I18nMixin(WidgetBase))<HomePropert
 				' ',
 				project.isPublic
 					? null
-					: v('i', { classes: ['fas fa-lock fa-xs text-muted'], title: `${privateProjectTitle}` })
+					: w(FontAwesomeIcon, {
+							icon: 'lock',
+							size: 'xs',
+							className: 'text-muted',
+							title: `${privateProjectTitle}`
+					  })
 			]);
 		});
 	}

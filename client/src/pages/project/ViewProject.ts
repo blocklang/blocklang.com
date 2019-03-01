@@ -7,12 +7,16 @@ import { v, w } from '@dojo/framework/widget-core/d';
 
 import messageBundle from '../../nls/main';
 import Link from '@dojo/framework/routing/Link';
-import { Project, ProjectResource } from '../../interfaces';
+import { Project, ProjectResource, CommitInfo } from '../../interfaces';
+import Moment from '../../widgets/moment';
+import FontAwesomeIcon from '../../widgets/fontawesome-icon';
 
 export interface ViewProjectProperties {
 	loggedUsername: string;
 	project: Project;
 	projectResources: ProjectResource[];
+	latestCommitInfo: CommitInfo;
+	readme?: string;
 }
 
 @theme(css)
@@ -38,8 +42,10 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 				v('li', { classes: ['breadcrumb-item'] }, [
 					isPublic
 						? null
-						: v('i', {
-								classes: ['fas fa-lock text-muted fa-xs mr-1'],
+						: w(FontAwesomeIcon, {
+								icon: 'lock',
+								size: 'xs',
+								className: 'text-muted mr-1',
 								title: `${messages.privateProjectTitle}`
 						  }),
 					w(Link, { to: 'profile', params: { user: loggedUsername } }, [`${loggedUsername}`])
@@ -54,23 +60,24 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 	}
 
 	private _renderTable() {
-		const { projectResources } = this.properties;
-		// const lastCommitUser:any = {loginName: 'jack'};
-		// const lastCommitMessage = "last commit messae";
+		const { messages } = this._localizedMessages;
+		const { projectResources, latestCommitInfo } = this.properties;
 		return v('div', { classes: ['card'] }, [
 			// 最近提交信息区
-			// 下一版本支持
-			// v('div', {classes: ['card-header']}, [
-			// 	// 最近更新项目的用户信息
-			// 	w(Link, {to: 'profile', params: {user: lastCommitUser.loginName}, classes: ['mr-1']}, [
-			// 		v('img', {width: 20, height: 20, classes: ['avatar'], src: `${lastCommitUser.avatarUrl}`}),
-			// 		`${lastCommitUser.loginName}`
-			// 	]),
-			// 	// 最近更新说明，这里取最近 commit 信息？
-			// 	// 如果取 commit 信息的话，与最近修改人就可能不是同一个人
-			// 	// 但是如果是最近修改的话，并没有最近修改信息可以显示。
-			// 	v('span', [`${lastCommitMessage}`])
-			// ])
+			v('div', { classes: ['card-header', 'text-muted', 'px-2', 'border-bottom-0', css.recentCommit] }, [
+				// 最近提交的用户信息
+				w(Link, { to: 'profile', params: { user: latestCommitInfo.loginName }, classes: ['mr-1'] }, [
+					v('img', { width: 20, height: 20, classes: ['avatar'], src: `${latestCommitInfo.avatarUrl}` }),
+					`${latestCommitInfo.loginName}`
+				]),
+				// 最近提交说明
+				v('span', [`${latestCommitInfo.shortMessage}`]),
+				// 最近提交时间
+				v('span', { classes: ['float-right'] }, [
+					`${messages.latestCommitLabel}`,
+					w(Moment, { datetime: latestCommitInfo.commitTime })
+				])
+			]),
 
 			v('table', { classes: ['table', 'table-hover'] }, [v('tbody', this._renderTr(projectResources))])
 		]);
@@ -99,8 +106,8 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 		const canEditProject = false;
 		return v('div', { classes: ['card mt-3'] }, [
 			v('div', { classes: ['card-header'] }, [
-				v('div', {}, [v('i', { classes: ['fas fa-book-open'] }), ` ${projectFile.name}`]),
-				canEditProject ? w(Link, { to: '' }, [v('i', { classes: 'fas fa-edit' })]) : null
+				v('div', {}, [w(FontAwesomeIcon, { icon: 'book-open' }), ` ${projectFile.name}`]),
+				canEditProject ? w(Link, { to: '' }, [w(FontAwesomeIcon, { icon: 'edit' })]) : null
 			]),
 			v('div', { classes: ['card-body markdown-body'] }, [
 				// 这里放解析后的html，使用 innerHTM 赋值

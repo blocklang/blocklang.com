@@ -120,6 +120,16 @@ const getProjectResourcesCommand = commandFactory(async ({ path, get, payload: {
 	return [replace(path('projectResources'), json)];
 });
 
+const getLatestCommitInfoCommand = commandFactory(async ({ path, get, payload: { owner, project, pathId = -1 } }) => {
+	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/latest-commit/${pathId}`);
+	const json = await response.json();
+	if (!response.ok) {
+		return [replace(path('latestCommitInfo'), {})];
+	}
+
+	return [replace(path('latestCommitInfo'), json)];
+});
+
 export const initForNewProjectProcess = createProcess('init-for-new-project', [initIsPublicCommand]);
 export const nameInputProcess = createProcess('name-input', [nameInputCommand]);
 export const descriptionInputProcess = createProcess('description-input', [descriptionInputCommand]);
@@ -128,5 +138,6 @@ export const saveProjectProcess = createProcess('save-project', [saveProjectComm
 
 export const initForViewProjectProcess = createProcess('init-for-view-project', [
 	getProjectCommand,
+	getLatestCommitInfoCommand,
 	getProjectResourcesCommand
 ]);

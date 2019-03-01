@@ -14,6 +14,7 @@ export interface HeaderProperties {
 
 import messageBundle from '../nls/main';
 import { baseUrl } from '../config';
+import FontAwesomeIcon from './fontawesome-icon';
 
 @theme(css)
 export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderProperties> {
@@ -26,7 +27,7 @@ export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderPro
 		return [
 			v('li', { key: 'li-0', classes: ['nav-item'] }, [
 				v('a', { classes: ['nav-link'], href: `${baseUrl}/oauth2/authorization/github` }, [
-					v('i', { classes: ['fab fa-github'] }, []),
+					w(FontAwesomeIcon, { icon: ['fab', 'github'] }),
 					` ${messages.loginGithub}`
 				])
 			])
@@ -41,7 +42,7 @@ export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderPro
 		return [
 			v('li', { key: 'li-0', classes: ['nav-item'] }, [
 				w(Link, { to: 'new-project', classes: ['nav-link'] }, [
-					v('i', { classes: ['fas fa-plus'] }, []),
+					w(FontAwesomeIcon, { icon: 'plus' }),
 					` ${messages.newProject}`
 				])
 			]),
@@ -53,7 +54,7 @@ export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderPro
 			]),
 			v('li', { key: 'li-2', classes: ['nav-item'] }, [
 				v('a', { classes: ['nav-link'], title: `${messages.logout}`, href: `${baseUrl}/logout` }, [
-					v('i', { classes: ['fas fa-sign-out-alt'] }, [])
+					w(FontAwesomeIcon, { icon: 'sign-out-alt' })
 				])
 			])
 		];

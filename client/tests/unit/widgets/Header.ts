@@ -5,6 +5,7 @@ import Link from '@dojo/framework/routing/Link';
 
 import Header from '../../../src/widgets/Header';
 import * as css from '../../../src/widgets/Header.m.css';
+import FontAwesomeIcon from '../../../src/widgets/fontawesome-icon';
 
 describe('Header', () => {
 	it('user not logged in', () => {
@@ -16,7 +17,7 @@ describe('Header', () => {
 					v('ul', { classes: ['navbar-nav ml-auto'] }, [
 						v('li', { classes: ['nav-item'] }, [
 							v('a', { classes: ['nav-link'], href: '/oauth2/authorization/github' }, [
-								v('i', { classes: ['fab fa-github'] }, []),
+								w(FontAwesomeIcon, { icon: ['fab', 'github'] }),
 								' Github 登录'
 							])
 						])
@@ -35,7 +36,7 @@ describe('Header', () => {
 					v('ul', { classes: ['navbar-nav ml-auto'] }, [
 						v('li', { classes: ['nav-item'] }, [
 							w(Link, { to: 'new-project', classes: ['nav-link'] }, [
-								v('i', { classes: ['fas fa-plus'] }, []),
+								w(FontAwesomeIcon, { icon: 'plus' }),
 								' 创建项目'
 							])
 						]),
@@ -47,7 +48,7 @@ describe('Header', () => {
 						]),
 						v('li', { classes: ['nav-item'] }, [
 							v('a', { classes: ['nav-link'], title: '退出', href: '/logout' }, [
-								v('i', { classes: ['fas fa-sign-out-alt'] }, [])
+								w(FontAwesomeIcon, { icon: 'sign-out-alt' })
 							])
 						])
 					])

@@ -3,10 +3,6 @@ import { v } from '@dojo/framework/widget-core/d';
 import { ThemedMixin, theme, ThemedProperties } from '@dojo/framework/widget-core/mixins/Themed';
 import { customElement } from '@dojo/framework/widget-core/decorators/customElement';
 
-// import {marked} from 'marked';
-// import hljs from 'highlight.js';
-// import DOMPurify from 'dompurify';
-
 import * as marked from 'marked';
 import * as hljs from 'highlight.js';
 import * as DOMPurify from 'dompurify';

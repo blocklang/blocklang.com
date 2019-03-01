@@ -10,8 +10,18 @@ import ViewProjectContainer from './containers/project/ViewProjectContainer';
 import About from './widgets/About';
 import Profile from './pages/user/Profile';
 
-import '@fortawesome/fontawesome-free/css/all.min.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faGithub } from '@fortawesome/free-brands-svg-icons/faGithub';
+
+import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
+import { faBookOpen } from '@fortawesome/free-solid-svg-icons/faBookOpen';
+import { faEdit } from '@fortawesome/free-solid-svg-icons/faEdit';
+import { faInfoCircle } from '@fortawesome/free-solid-svg-icons/faInfoCircle';
+import { faLock } from '@fortawesome/free-solid-svg-icons/faLock';
+import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons/faSignOutAlt';
+
+library.add(faGithub, faPlus, faBookOpen, faEdit, faInfoCircle, faLock, faSignOutAlt);
+
 import * as css from './App.m.css';
 
 export default class App extends WidgetBase {

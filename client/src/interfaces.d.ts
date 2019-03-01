@@ -77,6 +77,13 @@ export interface ProjectResource {
 	icon: string; // 图标样式类
 }
 
+export interface CommitInfo extends User {
+	id: string;
+	commitTime: string;
+	shortMessage: string;
+	fullMessage: string;
+}
+
 export interface State {
 	errors: Errors;
 	routing: Routing;
@@ -86,4 +93,5 @@ export interface State {
 	project: Project;
 	canAccessProjects: Project[];
 	projectResources: ProjectResource[];
+	latestCommitInfo: CommitInfo;
 }

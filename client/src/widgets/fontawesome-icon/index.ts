@@ -62,6 +62,8 @@ export interface FontAwesomeIconProperties {
 	symbol?: FaSymbol;
 	transform?: string | Transform;
 	title?: string;
+	// 新增字段
+	className?: string;
 }
 
 export default class FontAwesomeIcon extends WidgetBase<FontAwesomeIconProperties> {
@@ -93,7 +95,8 @@ export default class FontAwesomeIcon extends WidgetBase<FontAwesomeIconPropertie
 			spin = false,
 			symbol = false,
 			title = '',
-			transform: transformArgs = null
+			transform: transformArgs = null,
+			className = ''
 		} = this.properties;
 
 		const classesLookup: { [key: string]: boolean } = {
@@ -110,7 +113,10 @@ export default class FontAwesomeIcon extends WidgetBase<FontAwesomeIconPropertie
 			[`fa-pull-${pull}`]: pull !== null
 		};
 
-		const classes: string[] = Object.keys(classesLookup).filter((key: string) => classesLookup[key]);
+		const classes: string[] = [
+			...Object.keys(classesLookup).filter((key: string) => classesLookup[key]),
+			...className.split(' ')
+		];
 
 		const iconLookup = this.normalizeIconArgs(iconArgs);
 		const transform = objectWithKey(

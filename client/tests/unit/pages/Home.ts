@@ -6,6 +6,7 @@ import Home from '../../../src/pages/Home';
 import * as css from '../../../src/pages/Home.m.css';
 
 import PrivateHome from '../../../src/pages/user/Home';
+import FontAwesomeIcon from '../../../src/widgets/fontawesome-icon';
 
 describe('Home', () => {
 	it('public home', () => {
@@ -15,7 +16,7 @@ describe('Home', () => {
 				v('div', { classes: [css.jumbotron, 'jumbotron', 'text-center'] }, [
 					v('h1', { classes: [] }, ['软件拼装工厂']),
 					v('a', { classes: ['btn btn-outline-primary btn-lg my-5'], href: '/oauth2/authorization/github' }, [
-						v('i', { classes: ['fab fa-github fa-lg'] }),
+						w(FontAwesomeIcon, { icon: ['fab', 'github'], size: 'lg' }),
 						' Github 登录'
 					])
 				])

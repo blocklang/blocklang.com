@@ -9,7 +9,8 @@ function getProperties(store: Store<State>): ViewProjectProperties {
 	return {
 		loggedUsername: get(path('user', 'loginName')),
 		project: get(path('project')),
-		projectResources: get(path('projectResources'))
+		projectResources: get(path('projectResources')),
+		latestCommitInfo: get(path('latestCommitInfo'))
 	};
 }
 
