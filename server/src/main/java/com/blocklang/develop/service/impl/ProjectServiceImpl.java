@@ -74,6 +74,9 @@ public class ProjectServiceImpl implements ProjectService {
 	public Optional<Project> find(String userName, String projectName) {
 		return userService.findByLoginName(userName).flatMap(user -> {
 			return projectDao.findByCreateUserIdAndName(user.getId(), projectName);
+		}).map(project -> {
+			project.setCreateUserName(userName);
+			return project;
 		});
 	}
 

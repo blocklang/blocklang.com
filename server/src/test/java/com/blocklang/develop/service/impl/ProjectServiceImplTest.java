@@ -97,6 +97,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		
 		Optional<Project> projectOption = projectService.find("user_name", "project_name");
 		assertThat(projectOption).isPresent();
+		assertThat(projectOption.get().getCreateUserName()).isEqualTo("user_name");
 	}
 	
 	@Test
