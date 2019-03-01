@@ -179,10 +179,36 @@
   dependencies:
     tslib "~1.8.1"
 
-"@fortawesome/fontawesome-free@^5.7.1":
-  version "5.7.1"
-  resolved "http://registry.npm.taobao.org/@fortawesome/fontawesome-free/download/@fortawesome/fontawesome-free-5.7.1.tgz#e4bdc6fd2a7b5a41d5b599bcb62cf22c78f7f535"
-  integrity sha1-5L3G/Sp7WkHVtZm8tizyLHj39TU=
+"@fortawesome/fontawesome-common-types@^0.2.15":
+  version "0.2.15"
+  resolved "http://registry.npm.taobao.org/@fortawesome/fontawesome-common-types/download/@fortawesome/fontawesome-common-types-0.2.15.tgz#16af950653083d1e3064061de9f8e5e3b579f688"
+  integrity sha1-Fq+VBlMIPR4wZAYd6fjl47V59og=
+
+"@fortawesome/fontawesome-free@^5.7.2":
+  version "5.7.2"
+  resolved "http://registry.npm.taobao.org/@fortawesome/fontawesome-free/download/@fortawesome/fontawesome-free-5.7.2.tgz#1498c3eb78ee7c78c5488418707de90aaf58d5d7"
+  integrity sha1-FJjD63jufHjFSIQYcH3pCq9Y1dc=
+
+"@fortawesome/fontawesome-svg-core@^1.2.15":
+  version "1.2.15"
+  resolved "http://registry.npm.taobao.org/@fortawesome/fontawesome-svg-core/download/@fortawesome/fontawesome-svg-core-1.2.15.tgz#368f9fc7e8e8d8636495dc7483f97510f920ba97"
+  integrity sha1-No+fx+jo2GNkldx0g/l1EPkgupc=
+  dependencies:
+    "@fortawesome/fontawesome-common-types" "^0.2.15"
+
+"@fortawesome/free-brands-svg-icons@^5.7.2":
+  version "5.7.2"
+  resolved "http://registry.npm.taobao.org/@fortawesome/free-brands-svg-icons/download/@fortawesome/free-brands-svg-icons-5.7.2.tgz#80ea37f12d22a281a5eadcd0cd3c870683e5dec1"
+  integrity sha1-gOo38S0iooGl6tzQzTyHBoPl3sE=
+  dependencies:
+    "@fortawesome/fontawesome-common-types" "^0.2.15"
+
+"@fortawesome/free-solid-svg-icons@^5.7.2":
+  version "5.7.2"
+  resolved "http://registry.npm.taobao.org/@fortawesome/free-solid-svg-icons/download/@fortawesome/free-solid-svg-icons-5.7.2.tgz#9ec2ed353d630092a8e19cc8aae2f716572963e5"
+  integrity sha1-nsLtNT1jAJKo4ZzIquL3FlcpY+U=
+  dependencies:
+    "@fortawesome/fontawesome-common-types" "^0.2.15"
 
 "@iamstarkov/listr-update-renderer@0.4.1":
   version "0.4.1"
@@ -1333,11 +1359,6 @@ boom@0.4.x:
   integrity sha1-emNune1O/O+xnO9JR6PGffrukRs=
   dependencies:
     hoek "0.9.x"
-
-bootstrap@^4.3.1:
-  version "4.3.1"
-  resolved "http://registry.npm.taobao.org/bootstrap/download/bootstrap-4.3.1.tgz#280ca8f610504d99d7b6b4bfc4b68cec601704ac"
-  integrity sha1-KAyo9hBQTZnXtrS/xLaM7GAXBKw=
 
 boxen@^0.5.1:
   version "0.5.1"
@@ -5473,11 +5494,6 @@ jpeg-js@^0.2.0:
   resolved "http://registry.npm.taobao.org/jpeg-js/download/jpeg-js-0.2.0.tgz#53e448ec9d263e683266467e9442d2c5a2ef5482"
   integrity sha1-U+RI7J0mPmgyZkZ+lELSxaLvVII=
 
-jquery@^3.3.1:
-  version "3.3.1"
-  resolved "http://registry.npm.taobao.org/jquery/download/jquery-3.3.1.tgz#958ce29e81c9790f31be7792df5d4d95fc57fbca"
-  integrity sha1-lYzinoHJeQ8xvneS311NlfxX+8o=
-
 js-beautify@^1.8.9:
   version "1.8.9"
   resolved "http://registry.npm.taobao.org/js-beautify/download/js-beautify-1.8.9.tgz#08e3c05ead3ecfbd4f512c3895b1cda76c87d523"
@@ -6445,6 +6461,11 @@ mkdirp@0.5.1, mkdirp@0.5.x, mkdirp@^0.5.0, mkdirp@^0.5.1, mkdirp@~0.5.0, mkdirp@
   dependencies:
     minimist "0.0.8"
 
+moment@^2.24.0:
+  version "2.24.0"
+  resolved "http://registry.npm.taobao.org/moment/download/moment-2.24.0.tgz#0d055d53f5052aa653c9f6eb68bb5d12bf5c2b5b"
+  integrity sha1-DQVdU/UFKqZTyfbraLtdEr9cK1s=
+
 move-concurrently@^1.0.1:
   version "1.0.1"
   resolved "http://registry.npm.taobao.org/move-concurrently/download/move-concurrently-1.0.1.tgz#be2c005fda32e0b29af1f05d7c4b33214c701f92"
@@ -7303,11 +7324,6 @@ pngjs@^3.0.0:
   version "3.3.3"
   resolved "http://registry.npm.taobao.org/pngjs/download/pngjs-3.3.3.tgz#85173703bde3edac8998757b96e5821d0966a21b"
   integrity sha1-hRc3A73j7ayJmHV7luWCHQlmohs=
-
-popper.js@^1.14.7:
-  version "1.14.7"
-  resolved "http://registry.npm.taobao.org/popper.js/download/popper.js-1.14.7.tgz#e31ec06cfac6a97a53280c3e55e4e0c860e7738e"
-  integrity sha1-4x7AbPrGqXpTKAw+VeTgyGDnc44=
 
 portfinder@^1.0.13:
   version "1.0.20"

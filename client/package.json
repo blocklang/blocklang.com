@@ -17,16 +17,16 @@
     "@dojo/themes": "^5.0.0",
     "@dojo/widgets": "^5.0.0",
     "tslib": "~1.8.1",
-    "@fortawesome/fontawesome-free": "^5.7.1",
-    "bootstrap": "^4.3.1",
-    "jquery": "^3.3.1",
-    "popper.js": "^1.14.7",
+    "@fortawesome/fontawesome-svg-core": "^1.2.15",
+    "@fortawesome/free-solid-svg-icons": "^5.7.2",
+    "@fortawesome/free-brands-svg-icons": "^5.7.2",
     "marked": "^0.6.1",
     "@types/marked": "^0.6.1",
     "highlight.js": "^9.15.5",
     "@types/highlight.js": "^9.12.3",
     "dompurify": "^1.0.10",
-    "@types/dompurify": "^0.0.32"
+    "@types/dompurify": "^0.0.32",
+    "moment": "^2.24.0"
   },
   "devDependencies": {
     "@dojo/cli": "^5.0.0",
