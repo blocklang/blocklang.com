@@ -2,7 +2,8 @@
 body {
 	margin: 0;
 	padding: 0;
-	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-family: tahoma, arial, 'Hiragino Sans GB', 'Microsoft YaHei', 微软雅黑, sans-serif;
+	font-size: 14px;
 }
 
 .avatar {
