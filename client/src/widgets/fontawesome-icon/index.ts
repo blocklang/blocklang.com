@@ -63,7 +63,7 @@ export interface FontAwesomeIconProperties {
 	transform?: string | Transform;
 	title?: string;
 	// 新增字段
-	className?: string;
+	classes?: string[];
 }
 
 export default class FontAwesomeIcon extends WidgetBase<FontAwesomeIconProperties> {
@@ -96,7 +96,7 @@ export default class FontAwesomeIcon extends WidgetBase<FontAwesomeIconPropertie
 			symbol = false,
 			title = '',
 			transform: transformArgs = null,
-			className = ''
+			classes = []
 		} = this.properties;
 
 		const classesLookup: { [key: string]: boolean } = {
@@ -113,9 +113,9 @@ export default class FontAwesomeIcon extends WidgetBase<FontAwesomeIconPropertie
 			[`fa-pull-${pull}`]: pull !== null
 		};
 
-		const classes: string[] = [
+		const iconClasses: string[] = [
 			...Object.keys(classesLookup).filter((key: string) => classesLookup[key]),
-			...className.split(' ')
+			...classes
 		];
 
 		const iconLookup = this.normalizeIconArgs(iconArgs);
@@ -130,7 +130,7 @@ export default class FontAwesomeIcon extends WidgetBase<FontAwesomeIconPropertie
 		let maskLookup = objectWithKey('mask', mask);
 
 		const renderedIcon = icon(iconLookup, {
-			classes,
+			classes: iconClasses,
 			...transform,
 			...maskLookup,
 			symbol,
