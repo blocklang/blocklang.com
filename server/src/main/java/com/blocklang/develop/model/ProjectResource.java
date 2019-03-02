@@ -1,6 +1,7 @@
 package com.blocklang.develop.model;
 
 import java.time.LocalDateTime;
+import java.util.Locale;
 
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -9,12 +10,18 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.util.Assert;
+
 import com.blocklang.core.constant.Constant;
 import com.blocklang.core.model.PartialOperateFields;
 import com.blocklang.develop.constant.AppType;
+import com.blocklang.develop.constant.IconClass;
 import com.blocklang.develop.constant.ProjectResourceType;
 import com.blocklang.develop.constant.converter.AppTypeConverter;
 import com.blocklang.develop.constant.converter.ProjectResourceTypeConverter;
+import com.nimbusds.oauth2.sdk.util.StringUtils;
 
 @Entity
 @Table(name = "project_resource", 
@@ -160,6 +167,89 @@ public class ProjectResource extends PartialOperateFields{
 
 	public void setLatestCommitTime(LocalDateTime latestCommitTime) {
 		this.latestCommitTime = latestCommitTime;
+	}
+
+	public Boolean isMain() {
+		// 约定根目录下的 main 模块为入口模块
+		return Constant.TREE_ROOT_ID.equals(parentId) && MAIN_KEY.equals(key);
+	}
+
+	public Boolean isTemplet() {
+		return ProjectResourceType.PROGRAM_TEMPLET.equals(this.resourceType);
+	}
+
+	public Boolean isFunction() {
+		return ProjectResourceType.FUNCTION.equals(this.resourceType);
+	}
+
+	public Boolean isProgram() {
+		return ProjectResourceType.PROGRAM.equals(this.resourceType);
+	}
+
+	public Boolean isReadme() {
+		return README_KEY.equals(this.key) && ProjectResourceType.FILE.equals(this.resourceType);
+	}
+
+	public Boolean isService() {
+		return ProjectResourceType.SERVICE.equals(this.resourceType);
+	}
+
+	public String getIcon() {
+		if(isProgram()) {
+			if(isMain()) {
+				return IconClass.HOME;
+			}
+			return AppType.getIcon(this.appType);
+		}
+		
+		if(isFunction()) {
+			return IconClass.FUNCTION;
+		}
+		if(isTemplet()) {
+			return IconClass.TEMPLET;
+		}
+		if(isReadme()) {
+			return IconClass.README;
+		}
+		if(isService()) {
+			return IconClass.SERVICE;
+		}
+		return null;
+
+	}
+
+	@Transient
+	private MessageSource messageSource;
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+	
+	public String getTitle() {
+		Assert.notNull(this.messageSource, "不能为空");
+
+		String i18nKey = "";
+		if(isProgram()) {
+			if(isMain()) {
+				i18nKey = "resourceTitle.main";
+			}else {
+				i18nKey = "resourceTitle.program";
+			}
+		} else if(isFunction()) {
+			i18nKey = "resourceTitle.function";
+		} else if(isTemplet()) {
+			i18nKey = "resourceTitle.templet";
+		} else if(isReadme()) {
+			i18nKey = "resourceTitle.readme";
+		}else if(isService()) {
+			i18nKey = "resourceTitle.service";
+		}
+		
+		if(StringUtils.isBlank(i18nKey)) {
+			return "";
+		}
+		
+		Locale locale = LocaleContextHolder.getLocale();
+		return messageSource.getMessage(i18nKey, null, locale);
 	}
 	
 }

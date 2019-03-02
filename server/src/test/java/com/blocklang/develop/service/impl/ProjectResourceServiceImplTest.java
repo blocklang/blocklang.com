@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 
 import com.blocklang.core.constant.Constant;
 import com.blocklang.core.test.AbstractServiceTest;
@@ -24,6 +25,9 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	
 	@Autowired
 	private ProjectResourceDao projectResourceDao;
+	
+	@Autowired
+	private MessageSource messageSource;
 	
 	@Test
 	public void find_children_no_data() {
@@ -147,5 +151,63 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		
 		String path = projectResourceService.findParentPath(savedResourceId);
 		assertThat(path).isEqualTo("key1/key2/key3");
+	}
+	
+	// 因为 getTitle 方法用到了 spring 的国际化帮助类，因为需要注入，所以将测试类放在 service 中
+	@Test
+	public void get_title_main() {
+		ProjectResource resource = new ProjectResource();
+		resource.setParentId(Constant.TREE_ROOT_ID);
+		resource.setResourceType(ProjectResourceType.PROGRAM);
+		resource.setKey(ProjectResource.MAIN_KEY);
+		resource.setMessageSource(messageSource);
+		
+		assertThat(resource.getTitle()).isEqualTo("首页");
+	}
+	
+	@Test
+	public void get_title_page() {
+		ProjectResource resource = new ProjectResource();
+		resource.setResourceType(ProjectResourceType.PROGRAM);
+		resource.setMessageSource(messageSource);
+		
+		assertThat(resource.getTitle()).isEqualTo("页面");
+	}
+	
+	@Test
+	public void get_title_group() {
+		ProjectResource resource = new ProjectResource();
+		resource.setResourceType(ProjectResourceType.FUNCTION);
+		resource.setMessageSource(messageSource);
+		
+		assertThat(resource.getTitle()).isEqualTo("分组");
+	}
+	
+	@Test
+	public void get_title_templet() {
+		ProjectResource resource = new ProjectResource();
+		resource.setResourceType(ProjectResourceType.PROGRAM_TEMPLET);
+		resource.setMessageSource(messageSource);
+		
+		assertThat(resource.getTitle()).isEqualTo("模板");
+	}
+	
+	@Test
+	public void get_title_readme() {
+		ProjectResource resource = new ProjectResource();
+		resource.setResourceType(ProjectResourceType.FILE);
+		resource.setKey(ProjectResource.README_KEY);
+		resource.setMessageSource(messageSource);
+		
+		assertThat(resource.getTitle()).isEqualTo("README");
+	}
+	
+	@Test
+	public void get_title_service() {
+		ProjectResource resource = new ProjectResource();
+		resource.setResourceType(ProjectResourceType.SERVICE);
+		resource.setMessageSource(messageSource);
+		
+		assertThat(resource.getTitle()).isEqualTo("服务");
 	}
 }

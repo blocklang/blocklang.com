@@ -10,5 +10,5 @@ public abstract class Constant {
 	/**
 	 * 树状结构的根结点，BlockLang 中具有树状结构的数据表中的根结点标识统一为 -1
 	 */
-	public static final int TREE_ROOT_ID = -1;
+	public static final Integer TREE_ROOT_ID = -1;
 }

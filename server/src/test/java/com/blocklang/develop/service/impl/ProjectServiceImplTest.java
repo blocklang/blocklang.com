@@ -146,7 +146,8 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 					"latestCommitId",
 					"latestShortMessage",
 					"latestFullMessage",
-					"latestCommitTime");
+					"latestCommitTime",
+					"messageSource");
 		
 		// 已在项目资源表中登记 README.md 文件
 		ProjectResource readmeResource = projectResourceDao.findByProjectIdAndParentIdAndKeyIgnoreCase(projectId, Constant.TREE_ROOT_ID, "ReAdMe").get();
@@ -157,7 +158,8 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 				"latestCommitId",
 				"latestShortMessage",
 				"latestFullMessage",
-				"latestCommitTime");
+				"latestCommitTime",
+				"messageSource");
 		
 		// 已在项目文件表中保存 README.md 文件
 		assertThat(projectFileDao.findByProjectResourceId(readmeResource.getId()).get()).hasNoNullFieldsOrProperties();
