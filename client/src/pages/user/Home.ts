@@ -5,6 +5,7 @@ import { HomeProperties } from '../Home';
 import I18nMixin from '@dojo/framework/widget-core/mixins/I18n';
 import { theme, ThemedMixin } from '@dojo/framework/widget-core/mixins/Themed';
 
+import * as c from '../../className';
 import * as css from './Home.m.css';
 import Link from '@dojo/framework/routing/Link';
 import messageBundle from '../../nls/main';
@@ -21,20 +22,20 @@ export default class Home extends ThemedMixin(I18nMixin(WidgetBase))<HomePropert
 	protected render() {
 		const { messages } = this._localizedMessages;
 		const { canAccessProjects = [] } = this.properties;
-		return v('div', { classes: ['container mt-4'] }, [
-			v('div', { classes: ['row'] }, [
-				v('div', { classes: ['col-md-8'] }, this._renderEmptyActivity()),
-				v('div', { classes: ['col-md-4'] }, [
-					v('div', { classes: ['card'] }, [
-						v('div', { classes: ['card-header'] }, [
+		return v('div', { classes: [c.container, c.mt_4] }, [
+			v('div', { classes: [c.row] }, [
+				v('div', { classes: [c.col_md_8] }, this._renderEmptyActivity()),
+				v('div', { classes: [c.col_md_4] }, [
+					v('div', { classes: [c.card] }, [
+						v('div', { classes: [c.card_header] }, [
 							`${messages.canAccessProjectsCardTitle}`,
-							w(Link, { to: 'new-project', classes: ['float-right'], title: `${messages.newProject}` }, [
+							w(Link, { to: 'new-project', classes: [c.float_right], title: `${messages.newProject}` }, [
 								w(FontAwesomeIcon, { icon: 'plus' })
 							])
 						]),
 						v(
 							'ul',
-							{ classes: ['list-group list-group-flush'] },
+							{ classes: [c.list_group, c.list_group_flush] },
 							canAccessProjects.length === 0
 								? this._renderEmptyProject()
 								: this._renderProjects(canAccessProjects)
@@ -56,10 +57,10 @@ export default class Home extends ThemedMixin(I18nMixin(WidgetBase))<HomePropert
 		} = this._localizedMessages;
 
 		return [
-			v('div', { classes: [css.newsfeedPlaceholder, 'px-5 pt-5 pb-3'] }, [
-				v('h2', { classes: ['text-center mb-5'] }, [`${noActivityMessageHeader}`]),
+			v('div', { classes: [css.newsfeedPlaceholder, c.px_5, c.pt_5, c.pb_3] }, [
+				v('h2', { classes: [c.text_center, c.mb_5] }, [`${noActivityMessageHeader}`]),
 				v('h5', [`${noActivityMessageHelpTitle}`]),
-				v('ul', { classes: ['list-unstyled'] }, [
+				v('ul', { classes: [c.list_unstyled] }, [
 					v('li', [`${noActivityMessageHelp1}`]),
 					v('li', [`${noActivityMessageHelp2}`])
 				])
@@ -71,9 +72,9 @@ export default class Home extends ThemedMixin(I18nMixin(WidgetBase))<HomePropert
 		const { messages } = this._localizedMessages;
 
 		return [
-			v('li', { classes: ['list-group-item'] }, [
-				v('div', { classes: ['text-center'] }, [
-					w(FontAwesomeIcon, { icon: 'info-circle', className: 'text-muted' }),
+			v('li', { classes: [c.list_group_item] }, [
+				v('div', { classes: [c.text_center] }, [
+					w(FontAwesomeIcon, { icon: 'info-circle', classes: [c.text_muted] }),
 					` ${messages.noProjectMessage}`
 				])
 			])
@@ -86,7 +87,7 @@ export default class Home extends ThemedMixin(I18nMixin(WidgetBase))<HomePropert
 		} = this._localizedMessages;
 
 		return projects.map((project) => {
-			return v('li', { classes: ['list-group-item'] }, [
+			return v('li', { classes: [c.list_group_item] }, [
 				w(Link, { to: 'view-project', params: { owner: project.createUserName, project: project.name } }, [
 					`${project.createUserName}/${project.name}`
 				]),
@@ -96,7 +97,7 @@ export default class Home extends ThemedMixin(I18nMixin(WidgetBase))<HomePropert
 					: w(FontAwesomeIcon, {
 							icon: 'lock',
 							size: 'xs',
-							className: 'text-muted',
+							classes: [c.text_muted],
 							title: `${privateProjectTitle}`
 					  })
 			]);

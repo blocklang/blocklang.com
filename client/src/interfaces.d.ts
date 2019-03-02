@@ -77,11 +77,13 @@ export interface ProjectResource {
 	icon: string; // 图标样式类
 }
 
-export interface CommitInfo extends User {
+export interface CommitInfo {
 	id: string;
 	commitTime: string;
 	shortMessage: string;
 	fullMessage: string;
+	userName: string;
+	avatarUrl: string;
 }
 
 export interface State {

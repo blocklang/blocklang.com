@@ -12,3 +12,26 @@
 .recentCommit {
 	font-size: 12px;
 }
+
+td.icon {
+	color: rgba(3, 47, 98, 0.55);
+	padding-left: 10px;
+	padding-right: 2px;
+	width: 17px;
+}
+
+td.content {
+	max-width: 180px;
+}
+
+td.message {
+	max-width: 442px;
+	overflow: hidden;
+	padding-left: 10px;
+}
+
+td.age {
+	text-align: right;
+	white-space: nowrap;
+	width: 125px;
+}

@@ -11,7 +11,15 @@ import About from './widgets/About';
 import Profile from './pages/user/Profile';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
+
 import { faGithub } from '@fortawesome/free-brands-svg-icons/faGithub';
+import { faFolder } from '@fortawesome/free-solid-svg-icons/faFolder';
+import { faSquare } from '@fortawesome/free-solid-svg-icons/faSquare';
+import { faFirefox } from '@fortawesome/free-brands-svg-icons/faFirefox';
+import { faAndroid } from '@fortawesome/free-brands-svg-icons/faAndroid';
+import { faApple } from '@fortawesome/free-brands-svg-icons/faApple';
+import { faWeixin } from '@fortawesome/free-brands-svg-icons/faWeixin';
+import { faAlipay } from '@fortawesome/free-brands-svg-icons/faAlipay';
 
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
 import { faBookOpen } from '@fortawesome/free-solid-svg-icons/faBookOpen';
@@ -19,8 +27,29 @@ import { faEdit } from '@fortawesome/free-solid-svg-icons/faEdit';
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons/faInfoCircle';
 import { faLock } from '@fortawesome/free-solid-svg-icons/faLock';
 import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons/faSignOutAlt';
+import { faHome } from '@fortawesome/free-solid-svg-icons/faHome';
+import { faNewspaper } from '@fortawesome/free-solid-svg-icons/faNewspaper';
+import { faPlug } from '@fortawesome/free-solid-svg-icons/faPlug';
 
-library.add(faGithub, faPlus, faBookOpen, faEdit, faInfoCircle, faLock, faSignOutAlt);
+library.add(
+	faGithub,
+	faFirefox,
+	faAndroid,
+	faApple,
+	faWeixin,
+	faAlipay,
+	faPlus,
+	faBookOpen,
+	faEdit,
+	faInfoCircle,
+	faLock,
+	faSignOutAlt,
+	faHome,
+	faFolder,
+	faSquare,
+	faNewspaper,
+	faPlug
+);
 
 import * as css from './App.m.css';
 

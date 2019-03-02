@@ -3,6 +3,7 @@ import { v, w } from '@dojo/framework/widget-core/d';
 import I18nMixin from '@dojo/framework/widget-core/mixins/I18n';
 import { theme, ThemedMixin } from '@dojo/framework/widget-core/mixins/Themed';
 
+import * as c from '../className';
 import * as css from './Home.m.css';
 
 import PrivateHome from './user/Home';
@@ -38,11 +39,14 @@ export default class Home extends ThemedMixin(I18nMixin(WidgetBase))<HomePropert
 	private _renderPublicHome() {
 		const { messages } = this._localizedMessages;
 
-		return v('div', { classes: [css.jumbotron, 'mt-5', 'jumbotron', 'text-center'] }, [
+		return v('div', { classes: [css.jumbotron, c.mt_5, c.jumbotron, c.text_center] }, [
 			v('h1', { classes: [] }, [messages.blockLangIntro]),
 			v(
 				'a',
-				{ classes: ['btn btn-outline-primary btn-lg my-5'], href: `${baseUrl}/oauth2/authorization/github` },
+				{
+					classes: [c.btn, c.btn_outline_primary, c.btn_lg, c.my_5],
+					href: `${baseUrl}/oauth2/authorization/github`
+				},
 				[w(FontAwesomeIcon, { icon: ['fab', 'github'], size: 'lg' }), ` ${messages.loginGithub}`]
 			)
 		]);
