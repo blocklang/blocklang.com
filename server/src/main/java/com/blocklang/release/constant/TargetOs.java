@@ -56,7 +56,7 @@ public enum TargetOs {
 			return TargetOs.UNKNOWN;
 		}
 		return Arrays.stream(TargetOs.values())
-				.filter((each) -> key.equals(each.getValue()))
+				.filter((each) -> key.equals(each.getKey()))
 				.findFirst()
 				.orElse(TargetOs.UNKNOWN);
 	}

@@ -44,7 +44,7 @@ public enum ProjectResourceType {
 			return null;
 		}
 		return Arrays.stream(ProjectResourceType.values())
-				.filter((each) -> key.equals(each.getValue()))
+				.filter((each) -> key.equals(each.getKey()))
 				.findFirst()
 				.orElse(null);
 	}

@@ -53,7 +53,7 @@ public enum OsType {
 			return OsType.UNKNOWN;
 		}
 		return Arrays.stream(OsType.values())
-				.filter((each) -> key.equals(each.getValue()))
+				.filter((each) -> key.equals(each.getKey()))
 				.findFirst()
 				.orElse(OsType.UNKNOWN);
 	}

@@ -40,7 +40,7 @@ public enum DataType {
 			return null;
 		}
 		return Arrays.stream(DataType.values())
-				.filter((each) -> key.equals(each.getValue()))
+				.filter((each) -> key.equals(each.getKey()))
 				.findFirst()
 				.orElse(null);
 	}

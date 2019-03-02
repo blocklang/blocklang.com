@@ -46,7 +46,7 @@ public enum ReleaseResult {
 			return ReleaseResult.INITED;
 		}
 		return Arrays.stream(ReleaseResult.values())
-				.filter((each) -> key.equals(each.getValue()))
+				.filter((each) -> key.equals(each.getKey()))
 				.findFirst()
 				.orElse(ReleaseResult.INITED);
 	}

@@ -41,7 +41,7 @@ public enum AvatarSizeType {
 			return null;
 		}
 		return Arrays.stream(AvatarSizeType.values())
-				.filter((each) -> key.equals(each.getValue()))
+				.filter((each) -> key.equals(each.getKey()))
 				.findFirst()
 				.orElse(null);
 	}

@@ -45,8 +45,28 @@ public enum AppType {
 			return UNKNOWN;
 		}
 		return Arrays.stream(AppType.values())
-				.filter((each) -> key.equals(each.getValue()))
+				.filter((each) -> key.equals(each.getKey()))
 				.findFirst()
 				.orElse(UNKNOWN);
+	}
+
+	public static String getIcon(AppType appType) {
+		switch (appType) {
+			case WEB:
+				return IconClass.WEB;
+			case ANDROID:
+				return IconClass.ANDROID;
+			case IOS:
+				return IconClass.IOS;
+			case WECHAT_MINI_APP:
+				return IconClass.WECHAT;
+			case ALIPAY_MINI_APP:
+				return IconClass.ALIPAY;
+			case QUICK_APP:
+				return IconClass.QUICK_APP;
+			default:
+				return "";
+		}
+			
 	}
 }

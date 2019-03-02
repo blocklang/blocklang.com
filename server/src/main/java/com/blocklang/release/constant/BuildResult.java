@@ -43,7 +43,7 @@ public enum BuildResult {
 			return BuildResult.INITED;
 		}
 		return Arrays.stream(BuildResult.values())
-				.filter((each) -> key.equals(each.getValue()))
+				.filter((each) -> key.equals(each.getKey()))
 				.findFirst()
 				.orElse(BuildResult.INITED);
 	}

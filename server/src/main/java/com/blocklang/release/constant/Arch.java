@@ -54,7 +54,7 @@ public enum Arch {
 			return Arch.UNKNOWN;
 		}
 		return Arrays.stream(Arch.values())
-				.filter((each) -> key.equals(each.getValue()))
+				.filter((each) -> key.equals(each.getKey()))
 				.findFirst()
 				.orElse(Arch.UNKNOWN);
 	}

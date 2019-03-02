@@ -41,7 +41,7 @@ public enum AccessLevel {
 			return null;
 		}
 		return Arrays.stream(AccessLevel.values())
-				.filter((each) -> key.equals(each.getValue()))
+				.filter((each) -> key.equals(each.getKey()))
 				.findFirst()
 				.orElse(null);
 	}

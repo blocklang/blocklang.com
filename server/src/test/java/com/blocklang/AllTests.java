@@ -10,7 +10,9 @@ import com.blocklang.core.git.GitUtilsTest;
 import com.blocklang.core.service.impl.GithubLoginServiceImplTest;
 import com.blocklang.core.service.impl.PropertyServiceImplTest;
 import com.blocklang.core.util.IdGeneratorTest;
+import com.blocklang.develop.constant.AppTypeTest;
 import com.blocklang.develop.controller.ProjectControllerTest;
+import com.blocklang.develop.model.ProjectResourceTest;
 import com.blocklang.develop.service.impl.ProjectFileServiceImplTest;
 import com.blocklang.develop.service.impl.ProjectResourceServiceImplTest;
 import com.blocklang.develop.service.impl.ProjectServiceImplTest;
@@ -58,7 +60,14 @@ import com.blocklang.release.task.AppBuildContextTest;
 	PropertyServiceImplTest.class,
 	GithubLoginServiceImplTest.class,
 	
-	RouterFilterTest.class
+	// model
+	ProjectResourceTest.class,
+	
+	// filter
+	RouterFilterTest.class,
+	
+	// constant
+	AppTypeTest.class
 	
 })
 public class AllTests {
