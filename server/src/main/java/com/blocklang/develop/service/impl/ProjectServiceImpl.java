@@ -110,14 +110,10 @@ public class ProjectServiceImpl implements ProjectService {
 		appDao.save(app);
 		
 		// 生成入口模块：Main 页面
-		ProjectResource resource = createMainProgram(project.getId(), createTime, createUserId);
-		// 此方法中实现了应用模板功能
-		// TODO: 是否需要将应用模板逻辑，单独提取出来？
-		projectResourceService.insert(resource);
-		
+		ProjectResource mainProgram = createMainProgram(project.getId(), createTime, createUserId);
 		// 生成 README.md 文件
 		String readMeContent = "# "+ project.getName() + "\r\n" + "\r\n" + "**TODO: 在这里添加项目介绍，帮助感兴趣的人快速了解您的项目。**";
-		createReadmeFile(project.getId(), readMeContent, createTime, createUserId);
+		ProjectResource readme = createReadmeFile(project.getId(), readMeContent, createTime, createUserId);
 		
 		// 创建 git 仓库
 		propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).ifPresent(rootDir -> {
@@ -136,8 +132,8 @@ public class ProjectServiceImpl implements ProjectService {
 				String commitMessage = "First Commit";
 				String commitId = GitUtils
 					.beginInit(context.getGitRepositoryDirectory(), user.getLoginName(), user.getEmail())
-					.addFile(ProjectResource.README_NAME, readMeContent)
-					.addFile(ProjectResource.MAIN_KEY + ".ui.json", mainPageJsonString)
+					.addFile(readme.getFileName(), readMeContent)
+					.addFile(mainProgram.getFileName(), mainPageJsonString)
 					.commit(commitMessage);
 				
 				ProjectCommit commit = new ProjectCommit();
@@ -185,10 +181,14 @@ public class ProjectServiceImpl implements ProjectService {
 		// TODO: 空模板，也可称为默认模板，空模板中也可能有内容，如只显示“Hello World”，
 		// 因此，后续要添加应用模板功能，不要再注释掉此行代码
 		// resource.setTempletId(projectResourceService.getEmptyTemplet().getId());
-		return resource;
+		
+		
+		// 此方法中实现了应用模板功能
+				// TODO: 是否需要将应用模板逻辑，单独提取出来？
+		return projectResourceService.insert(resource);
 	}
 	
-	private void createReadmeFile(Integer projectId, String readMeContent, LocalDateTime createTime, Integer createUserId) {
+	private ProjectResource createReadmeFile(Integer projectId, String readMeContent, LocalDateTime createTime, Integer createUserId) {
 		ProjectResource resource = new ProjectResource();
 		resource.setProjectId(projectId);
 		resource.setKey(ProjectResource.README_KEY);
@@ -207,6 +207,8 @@ public class ProjectServiceImpl implements ProjectService {
 		readme.setFileType(FileType.MARKDOWN);
 		readme.setContent(readMeContent);
 		projectFileDao.save(readme);
+		
+		return savedProjectResource;
 	}
 
 	@Override

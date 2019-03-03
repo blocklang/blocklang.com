@@ -176,7 +176,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		// 为了便于测试，可能要将 applyTemplate 方法单独提取出来
 		
 		// 确认 git 仓库中有 main.json 文件，并比较其内容
-		assertThat(Files.readString(context.getGitRepositoryDirectory().resolve("main.ui.json")))
+		assertThat(Files.readString(context.getGitRepositoryDirectory().resolve("main.page.json")))
 			.contains("resource")
 			.contains("uiModel")
 			.contains("view")

@@ -10,7 +10,7 @@ public enum ProjectResourceType {
 	PROGRAM("02", "程序模块"),
 	PANE("03", "面板"),
 	PROGRAM_TEMPLET("04", "程序模块模板"),
-	FILE("05", "文件类型"),
+	FILE("05", "文件"),
 	SERVICE("06", "服务"); // REST API
 
 	private final String key;

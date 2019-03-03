@@ -171,7 +171,7 @@ public class ProjectResource extends PartialOperateFields{
 
 	public Boolean isMain() {
 		// 约定根目录下的 main 模块为入口模块
-		return Constant.TREE_ROOT_ID.equals(parentId) && MAIN_KEY.equals(key);
+		return Constant.TREE_ROOT_ID.equals(parentId) && isProgram() && MAIN_KEY.equals(key);
 	}
 
 	public Boolean isTemplet() {
@@ -187,11 +187,15 @@ public class ProjectResource extends PartialOperateFields{
 	}
 
 	public Boolean isReadme() {
-		return README_KEY.equals(this.key) && ProjectResourceType.FILE.equals(this.resourceType);
+		return isFile() && README_KEY.equals(this.key);
 	}
 
 	public Boolean isService() {
 		return ProjectResourceType.SERVICE.equals(this.resourceType);
+	}
+	
+	public Boolean isFile() {
+		return ProjectResourceType.FILE.equals(this.resourceType);
 	}
 
 	public String getIcon() {
@@ -250,6 +254,23 @@ public class ProjectResource extends PartialOperateFields{
 		
 		Locale locale = LocaleContextHolder.getLocale();
 		return messageSource.getMessage(i18nKey, null, locale);
+	}
+
+	public String getFileName() {
+		if(isProgram()) {
+			return this.key + ".page.json";
+		}
+		if(isTemplet()) {
+			return this.key + ".page.tmpl.json";
+		}
+		if(isFile()) {
+			return this.name;
+		}
+		if(isService()) {
+			return this.key + ".api.json";
+		}
+		
+		return "";
 	}
 	
 }

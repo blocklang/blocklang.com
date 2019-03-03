@@ -52,7 +52,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 		List<ProjectResource> result = projectResourceDao.findByProjectIdAndParentIdOrderByResourceTypeAscSeqAsc(project.getId(), parentResourceId);
 		
 		result.forEach(resource -> {
-			GitFileInfo fileInfo = fileMap.get(resource.getName());
+			GitFileInfo fileInfo = fileMap.get(resource.getFileName());
 			if(fileInfo != null) {
 				resource.setLatestCommitId(fileInfo.getCommitId());
 				resource.setLatestCommitTime(fileInfo.getLatestCommitTime());

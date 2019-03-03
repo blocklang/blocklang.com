@@ -13,6 +13,7 @@ public class ProjectResourceTest {
 	@Test
 	public void is_main_program_success() {
 		ProjectResource resource = new ProjectResource();
+		resource.setResourceType(ProjectResourceType.PROGRAM);
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		resource.setKey(ProjectResource.MAIN_KEY);
 		
@@ -59,6 +60,14 @@ public class ProjectResourceTest {
 		resource.setResourceType(ProjectResourceType.PROGRAM);
 		
 		assertThat(resource.isProgram()).isTrue();
+	}
+	
+	@Test
+	public void is_file() {
+		ProjectResource resource = new ProjectResource();
+		resource.setResourceType(ProjectResourceType.FILE);
+		
+		assertThat(resource.isFile()).isTrue();
 	}
 	
 	@Test
@@ -205,6 +214,42 @@ public class ProjectResourceTest {
 		resource.setResourceType(ProjectResourceType.SERVICE);
 		
 		assertThat(resource.getIcon()).isEqualTo("fas plug");
+	}
+	
+	@Test
+	public void get_file_name_program() {
+		ProjectResource resource = new ProjectResource();
+		resource.setKey("key");
+		resource.setResourceType(ProjectResourceType.PROGRAM);
+		
+		assertThat(resource.getFileName()).isEqualTo("key.page.json");
+	}
+	
+	@Test
+	public void get_file_name_program_template() {
+		ProjectResource resource = new ProjectResource();
+		resource.setKey("key");
+		resource.setResourceType(ProjectResourceType.PROGRAM_TEMPLET);
+		
+		assertThat(resource.getFileName()).isEqualTo("key.page.tmpl.json");
+	}
+	
+	@Test
+	public void get_file_name_service() {
+		ProjectResource resource = new ProjectResource();
+		resource.setKey("key");
+		resource.setResourceType(ProjectResourceType.SERVICE);
+		
+		assertThat(resource.getFileName()).isEqualTo("key.api.json");
+	}
+	
+	@Test
+	public void get_file_name_file() {
+		ProjectResource resource = new ProjectResource();
+		resource.setName("name.x");
+		resource.setResourceType(ProjectResourceType.FILE);
+		
+		assertThat(resource.getFileName()).isEqualTo("name.x");
 	}
 
 }
