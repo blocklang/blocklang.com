@@ -1,4 +1,5 @@
 import { ValidateStatus } from './constant';
+import { StringLiteral } from 'babel-types';
 
 // 注意：一些公共信息，要做成全局变量，不然会存储很多无用的信息
 
@@ -75,6 +76,11 @@ export interface ProjectResource {
 	lastUpdateTime: string;
 	lastUpdateUserId: number;
 	icon: string; // 图标样式类
+	title: string;
+	latestCommitId: string;
+	latestShortMessage: string;
+	latestFullMessage: string;
+	latestCommitTime: string;
 }
 
 export interface CommitInfo {
@@ -96,4 +102,5 @@ export interface State {
 	canAccessProjects: Project[];
 	projectResources: ProjectResource[];
 	latestCommitInfo: CommitInfo;
+	readme: string;
 }

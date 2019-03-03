@@ -1,8 +1,11 @@
-/**************custom******************* */
+/**************main.css******************* */
 export const avatar: string = 'avatar';
+export const css_truncate: string = 'css-truncate';
+export const css_truncate_target: string = 'css-truncate-target';
+
 export const markdown_body: string = 'markdown-body';
 
-/*****************bootstrap**************** */
+/*****************bootstrap.css**************** */
 // common
 export const active: string = 'active';
 
@@ -105,6 +108,9 @@ export const text_info: string = 'text-info';
 //     flex
 export const d_flex: string = 'd_flex';
 export const d_inline_flex: string = 'd-inline-flex';
+
+//     screen reader
+export const sr_only: string = 'sr-only';
 
 //     spacing
 //     1. margin

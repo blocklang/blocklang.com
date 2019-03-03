@@ -10,11 +10,12 @@ function getProperties(store: Store<State>): ViewProjectProperties {
 		loggedUsername: get(path('user', 'loginName')),
 		project: get(path('project')),
 		projectResources: get(path('projectResources')),
-		latestCommitInfo: get(path('latestCommitInfo'))
+		latestCommitInfo: get(path('latestCommitInfo')),
+		readme: get(path('readme'))
 	};
 }
 
 export default StoreContainer(ViewProject, 'state', {
-	paths: [['user'], ['project'], ['projectResources']],
+	paths: [['user'], ['project'], ['projectResources'], ['readme']],
 	getProperties
 });

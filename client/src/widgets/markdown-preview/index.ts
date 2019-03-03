@@ -49,7 +49,7 @@ export class MarkdownPreviewBase<P extends MarkdownPreviewProperties = MarkdownP
 	protected render() {
 		const { value = '' } = this.properties;
 		const innerHTML = DOMPurify.sanitize(marked(value));
-		return v('article', { classes: ['markdown-body'], innerHTML });
+		return v('article', { innerHTML });
 	}
 }
 
