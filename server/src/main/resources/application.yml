@@ -22,7 +22,13 @@ spring:
           github:
             client-id: 6979d9b09aece54ff960
             client-secret: 9892875165b26db23601e59e75fddcca4ce36514
-
+server:
+  tomcat:
+    uri-encoding: UTF-8
+    compression: on
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain,application/javascript,text/css,image/jpg,image/png,image/gif
 # security:
 #   oauth2:
 #     client:
