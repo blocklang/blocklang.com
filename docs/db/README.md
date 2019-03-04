@@ -2,6 +2,8 @@
 
 本文档存储 Block Lang 平台的数据库表结构清单。
 
+文档排版参见[表结构模板说明](_TEMPLATE.md)
+
 ## 开发
 
 1. [`PROJECT`](PROJECT.md)
@@ -22,8 +24,12 @@
 2. [`APP_RELEASE`](APP_RELEASE.md)
 3. [`APP_RELEASE_RELATION`](APP_RELEASE_RELATION.md)
 4. [`APP_RELEASE_FILE`](APP_RELEASE_FILE.md)
-5. [`WEB_SERVER`](WEB_SERVER.md)
-6. [`INSTALLER`](INSTALLER.md)
+
+## 部署
+
+1. [`PROJECT_DEPLOY`](PROJECT_DEPLOY.md)
+2. [`WEB_SERVER`](WEB_SERVER.md)
+3. [`INSTALLER`](INSTALLER.md)
 
 ## 用户
 

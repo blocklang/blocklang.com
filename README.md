@@ -79,7 +79,7 @@ Block Lang 平台。
 
 ## 数据库表结构
 
-1. 设计数据库表时常用的[文档模板](docs/db/TEMPLATE.md)；
+1. 设计数据库表时常用的[文档模板](docs/db/_TEMPLATE.md)；
 2. [数据库表结构](docs/db/README.md)。
 
 ## REST API

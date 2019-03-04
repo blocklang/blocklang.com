@@ -10,6 +10,7 @@
 | os_type      | 操作系统类型   | char    | 2    | 99     |      | 否   |
 | os_version   | 操作系统版本号 | varchar | 32   |        |      | 否   |
 | arch         | CPU 架构       | char    | 2    | 99     |      | 否   |
+| user_id      | 所属用户标识   | int     |      |        |      | 否   |
 
 ## 约束
 
