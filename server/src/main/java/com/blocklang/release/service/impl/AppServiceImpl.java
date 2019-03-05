@@ -14,11 +14,6 @@ public class AppServiceImpl implements AppService {
 
 	@Autowired
 	private AppDao appDao;
-	
-	@Override
-	public Optional<App> findByRegistrationToken(String registrationToken) {
-		return appDao.findByRegistrationToken(registrationToken);
-	}
 
 	@Override
 	public Optional<App> findById(int appId) {
@@ -28,6 +23,11 @@ public class AppServiceImpl implements AppService {
 	@Override
 	public Optional<App> findByAppName(String appName) {
 		return appDao.findByAppName(appName);
+	}
+
+	@Override
+	public Optional<App> findByProjectId(Integer projectId) {
+		return appDao.findByProjectId(projectId);
 	}
 
 }

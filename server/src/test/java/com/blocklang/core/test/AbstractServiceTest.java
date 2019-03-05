@@ -15,6 +15,7 @@ import com.blocklang.BlockLangApplication;
 @SpringBootTest(classes = BlockLangApplication.class)
 @Transactional
 public class AbstractServiceTest {
+
 	@Autowired
 	protected JdbcTemplate jdbcTemplate;
 

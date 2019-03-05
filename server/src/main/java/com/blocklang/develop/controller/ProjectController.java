@@ -24,12 +24,15 @@ import org.springframework.web.bind.annotation.RestController;
 import com.blocklang.core.exception.InvalidRequestException;
 import com.blocklang.core.exception.NoAuthorizationException;
 import com.blocklang.core.exception.ResourceNotFoundException;
+import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.UserService;
 import com.blocklang.develop.data.CheckProjectNameParam;
 import com.blocklang.develop.data.GitCommitInfo;
 import com.blocklang.develop.data.NewProjectParam;
 import com.blocklang.develop.model.Project;
+import com.blocklang.develop.model.ProjectDeploy;
 import com.blocklang.develop.model.ProjectResource;
+import com.blocklang.develop.service.ProjectDeployService;
 import com.blocklang.develop.service.ProjectFileService;
 import com.blocklang.develop.service.ProjectResourceService;
 import com.blocklang.develop.service.ProjectService;
@@ -45,6 +48,8 @@ public class ProjectController {
 	private ProjectResourceService projectResourceService;
 	@Autowired
 	private ProjectFileService projectFileService;
+	@Autowired
+	private ProjectDeployService projectDeployService;
 	@Autowired
 	private UserService userService;
 	@Autowired
@@ -203,5 +208,23 @@ public class ProjectController {
 		}).map(commitInfo -> {
 			return ResponseEntity.ok(commitInfo);
 		}).orElseThrow(ResourceNotFoundException::new);
+	}
+	
+	@GetMapping("/projects/{owner}/{projectName}/deploy_setting")
+	public ResponseEntity<ProjectDeploy> getDeploySetting(
+			Principal principal,
+			@PathVariable String owner,
+			@PathVariable String projectName) {
+		if(principal == null) {
+			throw new NoAuthorizationException();
+		}
+		
+		UserInfo user = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
+		
+		return projectService.find(owner, projectName).flatMap(project -> {
+			return projectDeployService.findOrCreate(project.getId(), user.getId());
+		}).map(deploy -> {
+			return ResponseEntity.ok(deploy);
+		}).orElse(ResponseEntity.ok(new ProjectDeploy()));
 	}
 }

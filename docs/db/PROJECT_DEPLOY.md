@@ -8,6 +8,7 @@
 | project_id         | 项目标识   | int  |      |        |      | 否   |
 | user_id            | 用户标识   | int  |      |        |      | 否   |
 | registration_token | 注册 token | char | 22   |        |      | 否   |
+| deploy_state       | 部署状态   | char | 2    | 01     |      | 否   |
 
 ## 约束
 
@@ -18,3 +19,4 @@
 ## 说明
 
 1. `registration_token` 是22位的 UUID
+2. `deploy_state` 的值为：`01` 表示 `未部署`，

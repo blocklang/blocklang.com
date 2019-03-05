@@ -32,6 +32,11 @@ Block Lang 平台。
 3. `com.blocklang.release` - 软件发布
 4. `com.blocklang.core` - 通用功能
 
+依赖关系：
+
+1. `database`、`develop`、`release` 可依赖 `core` 包
+2. `database`、`develop`、`release` 包之间不要互相依赖
+
 #### `src/main/java` 目录
 
 1. `controller` - 存放本项目专用的 HTTP 服务

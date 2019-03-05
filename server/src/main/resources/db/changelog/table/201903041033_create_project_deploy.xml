@@ -6,27 +6,21 @@
 	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-	<changeSet author="Zhengwei Jin" id="201901110857">
-		<createTable tableName="web_server" remarks="应用服务器信息">
+	<changeSet author="Zhengwei Jin" id="201903041033">
+		<createTable tableName="project_deploy" remarks="项目部署信息">
 			<column name="dbid" type="int" autoIncrement="true">
-				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_WEB_SERVER" />
+				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_PROJECT_DEPLOY" />
 			</column>
-			<column name="server_token" remarks="服务器 token" type="varchar(50)">
-				<constraints nullable="false" uniqueConstraintName="UK_SERVER_TOKEN" unique="true" />
-			</column>
-			<column name="ip" remarks="ip 地址" type="varchar(50)">
+			<column name="project_id" remarks="项目标识" type="int">
 				<constraints nullable="false" />
 			</column>
-			<column name="os_type" remarks="操作系统类型" type="char(2)" defaultValue="99">
+			<column name="user_id" remarks="用户标识" type="int">
 				<constraints nullable="false" />
 			</column>
-			<column name="os_version" remarks="操作系统版本号" type="varchar(32)">
-				<constraints nullable="false" />
+			<column name="registration_token" remarks="注册 token" type="char(22)">
+				<constraints nullable="false" uniqueConstraintName="UK_PROJECT_DEPLOY_ON_REG_TOKEN" unique="true" />
 			</column>
-			<column name="arch" remarks="CPU 架构" type="char(2)" defaultValue="99">
-				<constraints nullable="false" />
-			</column>
-			<column name="user_id" remarks="所属用户标识" type="int">
+			<column name="deploy_state" remarks="部署状态" type="char(2)" defaultValue="01">
 				<constraints nullable="false" />
 			</column>
 			<column name="create_user_id" remarks="创建人标识" type="int">
@@ -38,6 +32,9 @@
 			<column name="last_update_user_id" remarks="最近修改人标识" type="int" />
 			<column name="last_update_time" remarks="最近修改时间" type="${datetime}" />
 		</createTable>
+		<addUniqueConstraint columnNames="project_id,user_id,registration_token"
+			constraintName="UK_PROJECT_DEPLOY_ON_PROJECT_ID_USER_ID_REG_TOKEN"
+			tableName="project_deploy" />
 	</changeSet>
 
 </databaseChangeLog>

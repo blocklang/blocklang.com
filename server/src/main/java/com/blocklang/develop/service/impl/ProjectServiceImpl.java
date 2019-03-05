@@ -21,7 +21,6 @@ import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.PropertyService;
 import com.blocklang.core.service.UserService;
 import com.blocklang.core.util.DateUtil;
-import com.blocklang.core.util.IdGenerator;
 import com.blocklang.develop.constant.AccessLevel;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.constant.FileType;
@@ -106,7 +105,6 @@ public class ProjectServiceImpl implements ProjectService {
 		app.setProjectId(savedProject.getId());
 		app.setCreateUserId(createUserId);
 		app.setCreateTime(createTime);
-		app.setRegistrationToken(IdGenerator.shortUuid());
 		appDao.save(app);
 		
 		// 生成入口模块：Main 页面

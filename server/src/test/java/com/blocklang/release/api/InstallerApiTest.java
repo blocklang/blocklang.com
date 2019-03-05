@@ -22,6 +22,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import com.blocklang.core.service.GithubLoginService;
 import com.blocklang.core.test.AbstractControllerTest;
+import com.blocklang.develop.model.ProjectDeploy;
+import com.blocklang.develop.service.ProjectDeployService;
 import com.blocklang.release.constant.ReleaseMethod;
 import com.blocklang.release.data.NewRegistrationParam;
 import com.blocklang.release.data.UpdateRegistrationParam;
@@ -45,6 +47,9 @@ public class InstallerApiTest extends AbstractControllerTest{
 	// 因为 config 中的 githubLoginService 没有创建 bean，所以这里 mock 一个
 	@MockBean
 	private GithubLoginService githubLoginService;
+	
+	@MockBean
+	private ProjectDeployService projectDeployService;
 	
 	@MockBean
 	private AppService appService;
@@ -78,13 +83,13 @@ public class InstallerApiTest extends AbstractControllerTest{
 			.body("errors.registrationToken", hasItems("注册 Token 不能为空"));
 	}
 	
-	// 根据注册 token 没有找到 APP
+	// 根据注册 token 没有找到 Deploy 配置信息
 	@Test
 	public void post_installer_no_register_token() {
 		String registrationToken = "not_exist_register_token";
 		NewRegistrationParam registration = prepareNewParam(registrationToken);
 		
-		when(appService.findByRegistrationToken(eq(registrationToken))).thenReturn(Optional.empty());
+		when(projectDeployService.findByRegistrationToken(eq(registrationToken))).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -96,6 +101,28 @@ public class InstallerApiTest extends AbstractControllerTest{
 			.body("errors.registrationToken", hasItems("注册 Token `not_exist_register_token` 不存在"));
 	}
 	
+	@Test
+	public void post_installer_no_app() {
+		String registrationToken = "not_exist_register_token";
+		NewRegistrationParam registration = prepareNewParam(registrationToken);
+		
+		ProjectDeploy deploy = new ProjectDeploy();
+		deploy.setRegistrationToken("a");
+		deploy.setProjectId(1);
+		when(projectDeployService.findByRegistrationToken(eq(registrationToken))).thenReturn(Optional.of(deploy));
+		
+		when(appService.findByProjectId(eq(1))).thenReturn(Optional.empty());
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(registration)
+		.when()
+			.post("/installers")
+		.then()
+			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
+			.body("errors.globalErrors", hasItems("没有找到项目(ProjectId = 1)的 APP 基本信息"));
+	}
+	
 	// 注册 Token 存在，但没有找到 APP 的发行版
 	// 出现这种情况，则是往数据库中写数据时逻辑有误。
 	@Test
@@ -103,11 +130,15 @@ public class InstallerApiTest extends AbstractControllerTest{
 		String registrationToken = "exist_register_token";
 		NewRegistrationParam registration = prepareNewParam(registrationToken);
 		
+		ProjectDeploy deploy = new ProjectDeploy();
+		deploy.setRegistrationToken("a");
+		deploy.setProjectId(1);
+		when(projectDeployService.findByRegistrationToken(eq(registrationToken))).thenReturn(Optional.of(deploy));
+		
 		App app = new App();
 		app.setId(1);
 		app.setAppName("App Name");
-		app.setRegistrationToken(registrationToken);
-		when(appService.findByRegistrationToken(eq(registrationToken))).thenReturn(Optional.of(app));
+		when(appService.findByProjectId(eq(1))).thenReturn(Optional.of(app));
 		
 		when(appReleaseService.findLatestReleaseApp(app.getId())).thenReturn(Optional.empty());
 		
@@ -126,11 +157,15 @@ public class InstallerApiTest extends AbstractControllerTest{
 		String registrationToken = "exist_register_token";
 		NewRegistrationParam registration = prepareNewParam(registrationToken);
 		
+		ProjectDeploy deploy = new ProjectDeploy();
+		deploy.setRegistrationToken("a");
+		deploy.setProjectId(1);
+		when(projectDeployService.findByRegistrationToken(eq(registrationToken))).thenReturn(Optional.of(deploy));
+		
 		App app = new App();
 		app.setId(1);
 		app.setAppName("App Name");
-		app.setRegistrationToken(registrationToken);
-		when(appService.findByRegistrationToken(eq(registrationToken))).thenReturn(Optional.of(app));
+		when(appService.findByProjectId(eq(1))).thenReturn(Optional.of(app));
 		
 		AppRelease appRelease = new AppRelease();
 		appRelease.setId(1);
@@ -155,11 +190,15 @@ public class InstallerApiTest extends AbstractControllerTest{
 		String registrationToken = "exist_register_token";
 		NewRegistrationParam registration = prepareNewParam(registrationToken);
 		
+		ProjectDeploy deploy = new ProjectDeploy();
+		deploy.setRegistrationToken("a");
+		deploy.setProjectId(1);
+		when(projectDeployService.findByRegistrationToken(eq(registrationToken))).thenReturn(Optional.of(deploy));
+		
 		App app = new App();
 		app.setId(1);
 		app.setAppName("App Name");
-		app.setRegistrationToken(registrationToken);
-		when(appService.findByRegistrationToken(eq(registrationToken))).thenReturn(Optional.of(app));
+		when(appService.findByProjectId(eq(1))).thenReturn(Optional.of(app));
 		
 		AppRelease appRelease = new AppRelease();
 		appRelease.setId(1);
@@ -188,11 +227,15 @@ public class InstallerApiTest extends AbstractControllerTest{
 		String registrationToken = "exist_register_token";
 		NewRegistrationParam registration = prepareNewParam(registrationToken);
 		
+		ProjectDeploy deploy = new ProjectDeploy();
+		deploy.setRegistrationToken("a");
+		deploy.setProjectId(1);
+		when(projectDeployService.findByRegistrationToken(eq(registrationToken))).thenReturn(Optional.of(deploy));
+		
 		App app = new App();
 		app.setId(1);
 		app.setAppName("App Name");
-		app.setRegistrationToken(registrationToken);
-		when(appService.findByRegistrationToken(eq(registrationToken))).thenReturn(Optional.of(app));
+		when(appService.findByProjectId(eq(1))).thenReturn(Optional.of(app));
 		
 		AppRelease appRelease = new AppRelease();
 		appRelease.setId(1);
@@ -223,11 +266,15 @@ public class InstallerApiTest extends AbstractControllerTest{
 		String registrationToken = "exist_register_token";
 		NewRegistrationParam registration = prepareNewParam(registrationToken);
 		
+		ProjectDeploy deploy = new ProjectDeploy();
+		deploy.setRegistrationToken("a");
+		deploy.setProjectId(1);
+		when(projectDeployService.findByRegistrationToken(eq(registrationToken))).thenReturn(Optional.of(deploy));
+		
 		App app = new App();
 		app.setId(1);
 		app.setAppName("App Name");
-		app.setRegistrationToken(registrationToken);
-		when(appService.findByRegistrationToken(eq(registrationToken))).thenReturn(Optional.of(app));
+		when(appService.findByProjectId(eq(1))).thenReturn(Optional.of(app));
 		
 		AppRelease appRelease = new AppRelease();
 		appRelease.setId(1);
@@ -267,11 +314,15 @@ public class InstallerApiTest extends AbstractControllerTest{
 		String registrationToken = "exist_register_token";
 		NewRegistrationParam registration = prepareNewParam(registrationToken);
 		
+		ProjectDeploy deploy = new ProjectDeploy();
+		deploy.setRegistrationToken("a");
+		deploy.setProjectId(1);
+		when(projectDeployService.findByRegistrationToken(eq(registrationToken))).thenReturn(Optional.of(deploy));
+		
 		App app = new App();
 		app.setId(1);
 		app.setAppName("App Name");
-		app.setRegistrationToken(registrationToken);
-		when(appService.findByRegistrationToken(eq(registrationToken))).thenReturn(Optional.of(app));
+		when(appService.findByProjectId(eq(1))).thenReturn(Optional.of(app));
 		
 		AppRelease appRelease = new AppRelease();
 		appRelease.setId(1);
@@ -312,12 +363,16 @@ public class InstallerApiTest extends AbstractControllerTest{
 		String registrationToken = "exist_register_token";
 		NewRegistrationParam registration = prepareNewParam(registrationToken);
 		
+		ProjectDeploy deploy = new ProjectDeploy();
+		deploy.setRegistrationToken("a");
+		deploy.setUserId(11);
+		deploy.setProjectId(1);
+		when(projectDeployService.findByRegistrationToken(eq(registrationToken))).thenReturn(Optional.of(deploy));
 		// 获取 APP 基本信息
 		App app = new App();
 		app.setId(1);
 		app.setAppName("App Name");
-		app.setRegistrationToken(registrationToken);
-		when(appService.findByRegistrationToken(eq(registrationToken))).thenReturn(Optional.of(app));
+		when(appService.findByProjectId(eq(1))).thenReturn(Optional.of(app));
 		// 获取 APP 发行版信息
 		AppRelease appRelease = new AppRelease();
 		int appReleaseId = 1;
@@ -354,7 +409,7 @@ public class InstallerApiTest extends AbstractControllerTest{
 		
 		// 获取 installer token
 		String installerToken = "installer_token";
-		when(installerService.save(any(), anyInt())).thenReturn(installerToken);
+		when(installerService.save(any(), anyInt(), eq(deploy.getUserId()))).thenReturn(installerToken);
 		
 		given()
 			.contentType(ContentType.JSON)

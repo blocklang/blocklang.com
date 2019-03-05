@@ -37,7 +37,7 @@ public class InstallerServiceImpl implements InstallerService {
 	
 	@Transactional
 	@Override
-	public String save(NewRegistrationParam registrationInfo, Integer appReleaseId) {
+	public String save(NewRegistrationParam registrationInfo, Integer appReleaseId, Integer userId) {
 		String installerToken = IdGenerator.shortUuid();
 		
 		// 如果 Web Server 未保存，则先保存 Web Server 信息
@@ -51,6 +51,7 @@ public class InstallerServiceImpl implements InstallerService {
 			newWebServer.setOsType(OsType.fromValue(registrationInfo.getOsType()));
 			newWebServer.setOsVersion(registrationInfo.getOsVersion());
 			newWebServer.setArch(Arch.fromValue(registrationInfo.getArch()));
+			newWebServer.setUserId(userId);
 			newWebServer.setCreateUserId(Bot.ID);
 			newWebServer.setCreateTime(LocalDateTime.now());
 			webServerId = webServerDao.save(newWebServer).getId();

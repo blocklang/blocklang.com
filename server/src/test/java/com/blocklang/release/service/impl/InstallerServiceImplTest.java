@@ -40,7 +40,7 @@ public class InstallerServiceImplTest extends AbstractServiceTest{
 		registrationInfo.setServerToken("server_01");
 		registrationInfo.setTargetOs("Linux");
 		
-		String installerToken = installerService.save(registrationInfo, 1);
+		String installerToken = installerService.save(registrationInfo, 1, 2);
 		assertThat(installerToken.length()).isLessThanOrEqualTo(22);
 		
 		assertThat(countRowsInTable("WEB_SERVER")).isEqualTo(1);
@@ -59,7 +59,7 @@ public class InstallerServiceImplTest extends AbstractServiceTest{
 		registrationInfo.setServerToken("server_01");
 		registrationInfo.setTargetOs("Linux");
 		
-		installerService.save(registrationInfo, 1);
+		installerService.save(registrationInfo, 1, 2);
 		
 		registrationInfo = new NewRegistrationParam();
 		registrationInfo.setAppRunPort(8081);
@@ -71,7 +71,7 @@ public class InstallerServiceImplTest extends AbstractServiceTest{
 		registrationInfo.setServerToken("server_01");
 		registrationInfo.setTargetOs("Linux");
 		
-		installerService.save(registrationInfo, 2);
+		installerService.save(registrationInfo, 2, 2);
 		
 		assertThat(countRowsInTable("WEB_SERVER")).isEqualTo(1);
 		assertThat(countRowsInTable("INSTALLER")).isEqualTo(2);
@@ -87,6 +87,7 @@ public class InstallerServiceImplTest extends AbstractServiceTest{
 		webServer.setServerToken("server_token");
 		webServer.setCreateUserId(1);
 		webServer.setCreateTime(LocalDateTime.now());
+		webServer.setUserId(1);
 		WebServer existedWebServer = webServerDao.save(webServer);
 		
 		Installer installer = new Installer();

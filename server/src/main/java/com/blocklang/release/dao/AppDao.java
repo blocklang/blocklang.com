@@ -8,8 +8,6 @@ import com.blocklang.release.model.App;
 
 public interface AppDao extends JpaRepository<App, Integer> {
 
-	Optional<App> findByRegistrationToken(String registrationToken);
-
 	Optional<App> findByAppName(String appName);
 
 	Optional<App> findByProjectId(Integer id);

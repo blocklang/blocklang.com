@@ -23,6 +23,9 @@
   - [获取最近提交信息](#%E8%8E%B7%E5%8F%96%E6%9C%80%E8%BF%91%E6%8F%90%E4%BA%A4%E4%BF%A1%E6%81%AF)
     - [Parameters](#parameters-6)
     - [Response](#response-6)
+  - [获取部署配置信息](#%E8%8E%B7%E5%8F%96%E9%83%A8%E7%BD%B2%E9%85%8D%E7%BD%AE%E4%BF%A1%E6%81%AF)
+    - [Parameters](#parameters-7)
+    - [Response](#response-7)
 
 ## 校验项目名称
 
@@ -326,4 +329,40 @@ Status: 200 OK
 
 ```text
 Status: 404 Not Found
+```
+
+## 获取部署配置信息
+
+根据登录用户和项目信息生成部署配置信息，如 `registration_token`
+
+```text
+GET /projects/{owner}/{projectName}/deploy_setting
+```
+
+### Parameters
+
+| Name          | Type     | Description                   |
+| ------------- | -------- | ----------------------------- |
+| `owner`       | `string` | **Required**. 用户登录名      |
+| `projectName` | `string` | **Required**. 项目名称        |
+
+### Response
+
+如果用户登录，则返回
+
+```text
+Status: 200 OK
+```
+
+| 属性名              | 类型     | 描述         |
+| ------------------- | -------- | ------------ |
+| `id`                | `int`    | 记录标识     |
+| `projectId`         | `int`    | 项目标识     |
+| `userId`            | `int`    | 部署用户标识 |
+| `registrationToken` | `string` | 注册 Token   |
+
+如果用户未登录，则返回
+
+```text
+Status: 403 Forbidden
 ```

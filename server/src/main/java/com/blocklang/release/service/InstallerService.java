@@ -14,9 +14,10 @@ public interface InstallerService {
 	 * 
 	 * @param registrationInfo 注册信息
 	 * @param appReleaseId app 发行版标识
+	 * @param userId 要部署此项目的用户标识
 	 * @return 返回安装器 token
 	 */
-	String save(NewRegistrationParam registrationInfo, Integer appReleaseId);
+	String save(NewRegistrationParam registrationInfo, Integer appReleaseId, Integer userId);
 
 	Optional<Installer> findByInstallerToken(String installerToken);
 

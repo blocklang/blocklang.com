@@ -11,12 +11,11 @@
 			<column name="dbid" type="int" autoIncrement="true">
 				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_APP" />
 			</column>
-			<column name="project_id" remarks="项目标识" type="int" />
+			<column name="project_id" remarks="项目标识" type="int" >
+				<constraints uniqueConstraintName="UK_APP_ON_PROJECT_ID" unique="true" />
+			</column>
 			<column name="app_name" remarks="app 名称" type="varchar(32)">
 				<constraints nullable="false" uniqueConstraintName="UK_APP_NAME" unique="true" />
-			</column>
-			<column name="registration_token" remarks="注册 token" type="char(22)">
-				<constraints uniqueConstraintName="UK_REG_TOKEN" unique="true" />
 			</column>
 			<column name="create_user_id" remarks="创建人标识" type="int">
 				<constraints nullable="false" />

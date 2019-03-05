@@ -47,33 +47,34 @@ public class AppServiceImplTest extends AbstractServiceTest{
 		Optional<App> appOption = appService.findById(appDao.save(app).getId());
 		assertThat(appOption).isPresent();
 	}
-
+	
 	@Test
-	public void find_by_registration_token_no_data() {
-		Optional<App> appOption = appService.findByRegistrationToken("not-exist-registration-token");
-		assertThat(appOption).isEmpty();
-		
-		App app = new App();
-		app.setAppName("app");
-		app.setCreateUserId(1);
-		app.setCreateTime(LocalDateTime.now());
-		appDao.save(app);
-		
-		appOption = appService.findByRegistrationToken("not-exist-registration-token");
-		assertThat(appOption).isEmpty();
+	public void find_by_project_id_no_data() {
+		assertThat(appService.findByProjectId(1)).isEmpty();
 	}
 	
 	@Test
-	public void find_by_registration_token_success() {
+	public void find_by_project_id_project_id_is_null() {
 		App app = new App();
 		app.setAppName("app");
 		app.setCreateUserId(1);
 		app.setCreateTime(LocalDateTime.now());
-		app.setRegistrationToken("registration-token");
+		app.setProjectId(null);
 		appDao.save(app);
 		
-		Optional<App> appOption = appService.findByRegistrationToken("registration-token");
-		assertThat(appOption).isPresent();
+		assertThat(appService.findByProjectId(1)).isEmpty();
+	}
+	
+	@Test
+	public void find_by_project_id_success() {
+		App app = new App();
+		app.setAppName("app");
+		app.setCreateUserId(1);
+		app.setCreateTime(LocalDateTime.now());
+		app.setProjectId(1);
+		appDao.save(app);
+		
+		assertThat(appService.findByProjectId(1)).isPresent();
 	}
 	
 	@Test
@@ -88,7 +89,6 @@ public class AppServiceImplTest extends AbstractServiceTest{
 		app.setAppName("app");
 		app.setCreateUserId(1);
 		app.setCreateTime(LocalDateTime.now());
-		app.setRegistrationToken("registration-token");
 		appDao.save(app);
 		
 		Optional<App> appOption = appService.findByAppName("app");

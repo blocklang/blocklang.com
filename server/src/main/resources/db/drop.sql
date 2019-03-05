@@ -16,6 +16,7 @@ drop table project_resource;
 drop table project_file;
 drop table project_authorization;
 drop table project_commit;
+drop table project_deploy;
 
 drop table databasechangelog;
 drop table databasechangeloglock;

@@ -29,8 +29,10 @@ import com.blocklang.develop.data.CheckProjectNameParam;
 import com.blocklang.develop.data.GitCommitInfo;
 import com.blocklang.develop.data.NewProjectParam;
 import com.blocklang.develop.model.Project;
+import com.blocklang.develop.model.ProjectDeploy;
 import com.blocklang.develop.model.ProjectFile;
 import com.blocklang.develop.model.ProjectResource;
+import com.blocklang.develop.service.ProjectDeployService;
 import com.blocklang.develop.service.ProjectFileService;
 import com.blocklang.develop.service.ProjectResourceService;
 import com.blocklang.develop.service.ProjectService;
@@ -50,6 +52,8 @@ public class ProjectControllerTest extends AbstractControllerTest{
 	private ProjectFileService projectFileService;
 	@MockBean
 	private UserService userService;
+	@MockBean
+	private ProjectDeployService projectDeployService;
 
 	@Test
 	public void check_name_user_is_unauthorization_not_login() {
@@ -614,5 +618,42 @@ public class ProjectControllerTest extends AbstractControllerTest{
 		.then()
 			.statusCode(HttpStatus.SC_OK)
 			.body("shortMessage", equalTo("message"));
+	}
+
+	@Test
+	public void get_deploy_setting_user_not_login() {
+		given()
+		.contentType(ContentType.JSON)
+	.when()
+		.get("/projects/{owner}/{project}/deploy_setting", "zhangsan", "my-project")
+	.then()
+		.statusCode(HttpStatus.SC_FORBIDDEN);
+	}
+	
+	@WithMockUser("logged_user")
+	@Test
+	public void get_deploy_setting_user_login() {
+		Project project = new Project();
+		project.setName("my-project");
+		project.setId(1);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		// 登录用户信息
+		UserInfo user = new UserInfo();
+		user.setLoginName("logged_user");
+		user.setId(1);
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
+		
+		ProjectDeploy deploy = new ProjectDeploy();
+		deploy.setRegistrationToken("a");
+		when(projectDeployService.findOrCreate(anyInt(), anyInt())).thenReturn(Optional.of(deploy));
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{project}/deploy_setting", "zhangsan", "my-project")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body("registrationToken", equalTo("a"));
 	}
 }

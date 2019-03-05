@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.blocklang.core.exception.InvalidRequestException;
 import com.blocklang.core.exception.ResourceNotFoundException;
+import com.blocklang.develop.model.ProjectDeploy;
+import com.blocklang.develop.service.ProjectDeployService;
 import com.blocklang.release.data.InstallerInfo;
 import com.blocklang.release.data.NewRegistrationParam;
 import com.blocklang.release.data.UpdateRegistrationParam;
@@ -51,6 +53,8 @@ public class InstallerApi {
 	private AppReleaseRelationService appReleaseRelationService;
 	@Autowired
 	private WebServerService webServerService;
+	@Autowired
+	private ProjectDeployService projectDeployService;
 
 	@PostMapping
 	public ResponseEntity<InstallerInfo> newInstaller(
@@ -62,8 +66,8 @@ public class InstallerApi {
 			throw new InvalidRequestException(bindingResult);
 		}
 		// 一、获取 APP 信息
-		// 1. 根据注册 token 获取 APP 基本信息
-		App app = appService.findByRegistrationToken(registrationInfo.getRegistrationToken()).orElseThrow(() -> {
+		// 1. 根据注册 token 获取部署信息
+		ProjectDeploy deploy = projectDeployService.findByRegistrationToken(registrationInfo.getRegistrationToken()).orElseThrow(() -> {
 			logger.error("注册 Token `{}` 不存在", registrationInfo.getRegistrationToken());
 			bindingResult.rejectValue("registrationToken", 
 					"NotExist.registrationToken",
@@ -71,13 +75,22 @@ public class InstallerApi {
 					null);
 			return new InvalidRequestException(bindingResult);
 		});
-		// 2. 获取 APP 发行版基本信息
+		
+		// 2. 根据项目标识获取 APP 基本信息
+		App app = appService.findByProjectId(deploy.getProjectId()).orElseThrow(() -> {
+			logger.error("没有找到项目(ProjectId = {})的 APP 基本信息", deploy.getProjectId());
+			bindingResult.reject("NotExist.app.byProjectId",
+					new Object[] { deploy.getProjectId() },
+					null);
+			return new InvalidRequestException(bindingResult);
+		});
+		// 3. 获取 APP 发行版基本信息
 		AppRelease appRelease = appReleaseService.findLatestReleaseApp(app.getId()).orElseThrow(() -> {
 			logger.error("没有找到 App (AppId = {}, AppName = {})的发行版", app.getId(), app.getAppName());
 			bindingResult.reject("NotExist.appRelease", new Object[] {app.getAppName()}, null);
 			return new InvalidRequestException(bindingResult);
 		});
-		// 3. 获取 APP 发行版文件信息
+		// 4. 获取 APP 发行版文件信息
 		AppReleaseFile appReleaseFile = appReleaseFileService
 				.find(appRelease.getId(), registrationInfo.getTargetOs(), registrationInfo.getArch())
 				.orElseThrow(() -> {
@@ -139,7 +152,7 @@ public class InstallerApi {
 
 		// 三、注册安装器
 		// 所有校验都通过后，才开始注册安装器
-		String installerToken = installerService.save(registrationInfo, appRelease.getId());
+		String installerToken = installerService.save(registrationInfo, appRelease.getId(), deploy.getUserId());
 		
 		// 返回安装器信息
 		InstallerInfo installerInfo = new InstallerInfo();

@@ -31,6 +31,9 @@ public class WebServer extends PartialOperateFields {
 	@Convert(converter = ArchConverter.class)
 	@Column(name = "arch", length = 2, nullable = false)
 	private Arch arch;
+	
+	@Column(name = "user_id", nullable = false)
+	private Integer userId;
 
 	public String getServerToken() {
 		return serverToken;
@@ -70,6 +73,14 @@ public class WebServer extends PartialOperateFields {
 
 	public void setArch(Arch arch) {
 		this.arch = arch;
+	}
+
+	public Integer getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Integer userId) {
+		this.userId = userId;
 	}
 
 }

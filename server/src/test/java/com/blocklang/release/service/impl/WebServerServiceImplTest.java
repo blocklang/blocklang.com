@@ -36,6 +36,7 @@ public class WebServerServiceImplTest extends AbstractServiceTest{
 		webServer.setOsType(OsType.UNKNOWN);
 		webServer.setOsVersion("v1");
 		webServer.setServerToken("server_token");
+		webServer.setUserId(1);
 		webServer.setCreateUserId(1);
 		webServer.setCreateTime(LocalDateTime.now());
 		

@@ -14,7 +14,7 @@
 
 * 主键：`PK_APP`
 * 外键：(*未设置*)`FK_PROJECT`，`PROJECT_ID` 对应 `PROJECT` 表的 `dbid`
-* 索引：`UK_APP_NAME`，对应字段 `app_name`
+* 索引：`UK_APP_NAME`，对应字段 `app_name`；`UK_APP_ON_PROJECT_ID`，对应字段 `project_id`
 
 ## 说明
 

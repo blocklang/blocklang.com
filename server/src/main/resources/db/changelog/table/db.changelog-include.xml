@@ -26,5 +26,7 @@
 	<include file="db/changelog/table/201902201602_create_project_file.xml" />
 	<include file="db/changelog/table/201902231134_create_project_authorization.xml" />
 	<include file="db/changelog/table/201902271255_create_project_commit.xml" />
+	
+	<include file="db/changelog/table/201903041033_create_project_deploy.xml" />
 
 </databaseChangeLog>
