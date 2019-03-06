@@ -89,26 +89,55 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 							'aria-expanded': 'false',
 							id: 'dropdownDeployButton'
 						},
-						['aa']
+						[`${messages.deployLabel}`]
 					),
 					v(
 						'div',
 						{
-							classes: [c.dropdown_menu, c.dropdown_menu_right],
+							classes: [c.dropdown_menu, c.dropdown_menu_right, c.p_2, css.deployMenu],
 							'aria-labelledby': 'dropdownDeployButton',
-							styles: { width: '352px' }
+							styles: { width: '370px' },
+							onclick: this._onClickMenuInside
 						},
 						[
-							v('ul', { classes: [c.list_unstyled, c.p_2], onclick: this._onClickMenuInside }, [
+							v('h6', [
+								'部署到您的主机',
+								v(
+									'div',
+									{
+										classes: [c.btn_group, c.btn_group_toggle, c.btn_group_sm, c.float_right],
+										role: 'group'
+									},
+									[
+										v(
+											'button',
+											{ type: 'button', classes: [c.btn, c.btn_outline_primary, c.active] },
+											['Linux']
+										),
+										v('button', { type: 'button', classes: [c.btn, c.btn_outline_primary] }, [
+											'Windows'
+										])
+									]
+								)
+							]),
+							v('ol', { classes: [c.px_3, c.mb_0] }, [
+								v('li', ['下载并安装 ', v('a', { href: '#' }, ['Blocklang-installer'])]),
 								v('li', [
-									'下载 ',
-									v('a', { href: '#' }, ['Windows']),
-									' 版或 ',
-									v('a', { href: '#' }, ['Linux']),
-									' 版安装器'
+									'执行',
+									v('code', ['./blocklang-installer register']),
+									'命令注册主机',
+									v('ol', { classes: [c.px_3] }, [
+										v('li', ['指定 URL 为', v('code', ['https://blocklang.com'])]),
+										v('li', ['指定注册 Token 为', v('code', ['xxxx'])]),
+										v('li', ['设置运行端口 <port>'])
+									])
 								]),
-								v('li', ['在项目', v('a', { href: '#' }, ['发布']), '后']),
-								v('li', [v('div', ['执行以下命令，注册部署主机']), v('pre', [v('code', [''])])])
+								v('li', [
+									'执行',
+									v('code', ['./blocklang-installer run --port <port>']),
+									'命令启动服务'
+								]),
+								v('li', ['在浏览器中访问', v('code', ['http://<ip>:<port>'])])
 							])
 						]
 					)

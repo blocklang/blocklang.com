@@ -44,3 +44,16 @@ td.age {
 	white-space: nowrap;
 	width: 125px;
 }
+
+.deployMenu {
+	font-size: 12px;
+}
+
+code {
+	background-color: rgba(27, 31, 35, 0.05);
+	border-radius: 3px;
+	margin: 0;
+	padding: 0.2em 0.4em;
+	font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, Courier, monospace;
+	font-size: 12px;
+}

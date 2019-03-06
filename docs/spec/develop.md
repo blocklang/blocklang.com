@@ -32,3 +32,21 @@ git 仓库中的文件命名规范：
 2. 程序模块模板：`{key}.page.tmpl.json`
 3. 服务：`{key}.api.json`
 4. 文件：`{name}`
+
+## 项目部署
+
+提示信息
+
+```text
+部署到您的主机(help icon) Linux/Windows
+
+1. 下载并<安装> <blocklang-installer>
+2. 执行 `./blocklang-installer register` 命令注册服务器
+    1. 指定URL 为 `https://blocklang.com`
+    2. 指定注册 token 为 `xxxxxdsx`
+    3. 设置运行端口 <port>
+3. 执行 `./blocklang-installer run --port <port>` 命令启动服务
+4. 在浏览器中访问 http://<ip>:<port>
+```
+
+将发布的 Linux 和 Windows 安装器上传到 <https://gitee.com> 网站，支持从 <https://gitee.com> 下载安装器

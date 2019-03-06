@@ -354,12 +354,15 @@ GET /projects/{owner}/{projectName}/deploy_setting
 Status: 200 OK
 ```
 
-| 属性名              | 类型     | 描述         |
-| ------------------- | -------- | ------------ |
-| `id`                | `int`    | 记录标识     |
-| `projectId`         | `int`    | 项目标识     |
-| `userId`            | `int`    | 部署用户标识 |
-| `registrationToken` | `string` | 注册 Token   |
+| 属性名                | 类型     | 描述                          |
+| --------------------- | -------- | ----------------------------- |
+| `id`                  | `int`    | 记录标识                      |
+| `projectId`           | `int`    | 项目标识                      |
+| `userId`              | `int`    | 部署用户标识                  |
+| `registrationToken`   | `string` | 注册 Token                    |
+| `url`                 | `string` | 注册 API 链接                 |
+| `installerLinuxUrl`   | `string` | linux 版 installer 下载地址   |
+| `installerWindowsUrl` | `string` | windows 版 installer 下载地址 |
 
 如果用户未登录，则返回
 

@@ -62,6 +62,9 @@ export const btn_block: string = 'btn-block';
 
 //      button group
 export const btn_group: string = 'btn-group';
+export const btn_group_sm: string = 'btn-group-sm';
+export const btn_group_lg: string = 'btn-group-lg';
+export const btn_group_toggle: string = 'btn-group-toggle';
 
 //      card
 export const card: string = 'card';

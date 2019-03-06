@@ -6,3 +6,4 @@ export const icon: string;
 export const content: string;
 export const message: string;
 export const age: string;
+export const deployMenu: string;
