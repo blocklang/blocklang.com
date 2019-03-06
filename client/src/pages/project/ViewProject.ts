@@ -17,7 +17,6 @@ import 'highlight.js/styles/github.css';
 
 import * as c from '../../className';
 import * as css from './ViewProject.m.css';
-
 export interface ViewProjectProperties {
 	loggedUsername: string;
 	project: Project;
@@ -33,6 +32,7 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 	protected render() {
 		return v('div', { classes: [css.root, c.container] }, [
 			this._renderHeader(),
+			this._renderNavigation(),
 			this._renderTable(),
 			this._renderReadme()
 		]);
@@ -65,6 +65,61 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 				])
 			])
 		]);
+	}
+
+	private _renderNavigation() {
+		const { messages } = this._localizedMessages;
+
+		return v('div', { classes: [c.d_flex, c.justify_content_end, c.mb_2] }, [
+			v('div', { classes: [] }, [
+				// 发布按钮，后面显示发布次数
+				w(Link, { to: 'list-release', classes: [c.btn, c.btn_outline_secondary, c.btn_sm] }, [
+					`${messages.releaseLabel} `,
+					v('span', { classes: [c.badge, c.badge_light] }, ['0'])
+				]),
+				// 部署按钮，显示部署步骤
+				v('div', { classes: [c.btn_group, c.ml_2] }, [
+					v(
+						'button',
+						{
+							classes: [c.btn, c.btn_outline_secondary, c.dropdown_toggle, c.btn_sm],
+							type: 'button',
+							'data-toggle': 'dropdown',
+							'aria-haspopup': 'true',
+							'aria-expanded': 'false',
+							id: 'dropdownDeployButton'
+						},
+						['aa']
+					),
+					v(
+						'div',
+						{
+							classes: [c.dropdown_menu, c.dropdown_menu_right],
+							'aria-labelledby': 'dropdownDeployButton',
+							styles: { width: '352px' }
+						},
+						[
+							v('ul', { classes: [c.list_unstyled, c.p_2], onclick: this._onClickMenuInside }, [
+								v('li', [
+									'下载 ',
+									v('a', { href: '#' }, ['Windows']),
+									' 版或 ',
+									v('a', { href: '#' }, ['Linux']),
+									' 版安装器'
+								]),
+								v('li', ['在项目', v('a', { href: '#' }, ['发布']), '后']),
+								v('li', [v('div', ['执行以下命令，注册部署主机']), v('pre', [v('code', [''])])])
+							])
+						]
+					)
+				])
+			])
+		]);
+	}
+
+	// 当点击菜单内部时，不自动关闭此菜单
+	private _onClickMenuInside(event: any) {
+		event.stopPropagation();
 	}
 
 	private _renderTable() {

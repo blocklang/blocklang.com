@@ -27,7 +27,10 @@
     "dompurify": "^1.0.10",
     "@types/dompurify": "^0.0.32",
     "moment": "^2.24.0",
-    "github-markdown-css": "^3.0.1"
+    "github-markdown-css": "^3.0.1",
+    "bootstrap": "^4.3.1",
+    "jquery": "^3.3.1",
+    "popper.js": "^1.14.7"
   },
   "devDependencies": {
     "@dojo/cli": "^5.0.0",

@@ -30,6 +30,8 @@ export default {
 		projectPrivateHelp: '仅成员可浏览，可邀请用户浏览和维护。',
 		projectSaveLabel: '创建',
 		// view project
-		latestCommitLabel: '最近提交于'
+		latestCommitLabel: '最近提交于',
+		releaseLabel: '发布',
+		deployLabel: '部署'
 	}
 };

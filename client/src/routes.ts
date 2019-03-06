@@ -19,5 +19,9 @@ export default [
 	{
 		path: '{owner}/{project}',
 		outlet: 'view-project'
+	},
+	{
+		path: '{owner}/{project}/releases',
+		outlet: 'list-release'
 	}
 ];

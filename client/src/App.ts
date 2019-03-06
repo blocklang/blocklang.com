@@ -10,6 +10,8 @@ import ViewProjectContainer from './containers/project/ViewProjectContainer';
 import About from './widgets/About';
 import Profile from './pages/user/Profile';
 
+import 'bootstrap';
+
 import { library } from '@fortawesome/fontawesome-svg-core';
 
 import { faGithub } from '@fortawesome/free-brands-svg-icons/faGithub';

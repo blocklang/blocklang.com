@@ -8,6 +8,7 @@ export const markdown_body: string = 'markdown-body';
 /*****************bootstrap.css**************** */
 // common
 export const active: string = 'active';
+export const show: string = 'show';
 
 // Layout
 //     container
@@ -30,6 +31,11 @@ export const float_right: string = 'float-right';
 export const float_none: string = 'float-none';
 
 // Component
+//      badge
+export const badge: string = 'badge';
+export const badge_light: string = 'badge-light';
+export const badge_secondary: string = 'badge-secondary';
+
 //      breadcrumb
 export const breadcrumb: string = 'breadcrumb';
 export const breadcrumb_item: string = 'breadcrumb-item';
@@ -47,13 +53,27 @@ export const btn_dark: string = 'btn-dark';
 export const btn_link: string = 'btn-link';
 
 export const btn_outline_primary: string = 'btn-outline-primary';
+export const btn_outline_secondary: string = 'btn-outline-secondary';
 
 export const btn_lg: string = 'btn-lg';
+export const btn_sm: string = 'btn-sm';
+
+export const btn_block: string = 'btn-block';
+
+//      button group
+export const btn_group: string = 'btn-group';
 
 //      card
 export const card: string = 'card';
 export const card_header: string = 'card-header';
 export const card_body: string = 'card-body';
+
+//      dropdown
+export const dropdown: string = 'dropdown';
+export const dropdown_toggle: string = 'dropdown-toggle';
+export const dropdown_menu: string = 'dropdown-menu';
+export const dropdown_item: string = 'dropdown-item';
+export const dropdown_menu_right: string = 'dropdown-menu-right';
 
 //      forms
 export const form_text: string = 'form-text';
@@ -106,8 +126,13 @@ export const text_muted: string = 'text-muted';
 export const text_info: string = 'text-info';
 
 //     flex
-export const d_flex: string = 'd_flex';
+export const d_flex: string = 'd-flex';
 export const d_inline_flex: string = 'd-inline-flex';
+export const justify_content_start = 'justify-content-start';
+export const justify_content_end = 'justify-content-end';
+export const justify_content_center = 'justify-content-center';
+export const justify_content_between = 'justify-content-between';
+export const justify_content_around = 'justify-content-around';
 
 //     screen reader
 export const sr_only: string = 'sr-only';
