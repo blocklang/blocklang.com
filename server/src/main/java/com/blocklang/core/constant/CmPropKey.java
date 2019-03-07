@@ -15,4 +15,10 @@ public abstract class CmPropKey {
 	public final static String MAVEN_ROOT_PATH = "maven.root.path";
 	
 	public final static String TEMPLATE_PROJECT_GIT_URL = "template.project.git.url";
+
+	public static final String INSTALL_API_ROOT_URL = "install.api.root.url";
+
+	public static final String INSTALLER_LINUX_URL = "installer.linux.url";
+
+	public static final String INSTALLER_WINDOWS_URL = "installer.windows.url";
 }

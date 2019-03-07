@@ -4,5 +4,6 @@
 	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
 	
 	<include file="db/changelog/data/201902031940_insert_cm_property.xml" />
+	<include file="db/changelog/data/201903072140_insert_cm_property_installer.xml" />
 	
 </databaseChangeLog>

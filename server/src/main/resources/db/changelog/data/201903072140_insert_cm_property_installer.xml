@@ -1,0 +1,39 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+	<changeSet author="Zhengwei Jin" id="201903072140">
+		<insert tableName="cm_property">
+			<column name="dbid" valueNumeric="4" />
+			<column name="prop_key" value="install.api.root.url" />
+			<column name="prop_value" value="https://blocklang.com" />
+			<column name="prop_desc" value="安装 API 的网址" />
+			<column name="parent_id" valueNumeric="-1" />
+			<column name="data_type" value="01" />
+			<column name="is_valid" valueBoolean="true" />
+		</insert>
+		
+		<insert tableName="cm_property">
+			<column name="dbid" valueNumeric="5" />
+			<column name="prop_key" value="installer.linux.url" />
+			<column name="prop_value" value="https://github.com/blocklang/blocklang-installer/releases/download/v0.1.0/installer.exe" />
+			<column name="prop_desc" value="Linux 版安装器的下载地址" />
+			<column name="parent_id" valueNumeric="-1" />
+			<column name="data_type" value="01" />
+			<column name="is_valid" valueBoolean="true" />
+		</insert>
+		
+		<insert tableName="cm_property">
+			<column name="dbid" valueNumeric="6" />
+			<column name="prop_key" value="installer.windows.url" />
+			<column name="prop_value" value="https://github.com/blocklang/blocklang-installer/releases/download/v0.1.0/installer.exe" />
+			<column name="prop_desc" value="Windows 版安装器的下载地址" />
+			<column name="parent_id" valueNumeric="-1" />
+			<column name="data_type" value="01" />
+			<column name="is_valid" valueBoolean="true" />
+		</insert>
+		
+	</changeSet>
+</databaseChangeLog>

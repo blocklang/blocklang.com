@@ -24,4 +24,11 @@ public class PropertyServieImpl implements PropertyService {
 		return property.map(CmProperty::getValue);
 	}
 
+	@Override
+	public String findStringValue(String key, String defaultValue) {
+		return propertyDao.findByKeyAndParentIdAndValid(key, Constant.TREE_ROOT_ID, true)
+				.map(CmProperty::getValue)
+				.orElse(defaultValue);
+	}
+
 }

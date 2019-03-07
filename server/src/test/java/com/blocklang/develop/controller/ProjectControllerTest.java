@@ -21,10 +21,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 
+import com.blocklang.core.constant.CmPropKey;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.GithubLoginService;
+import com.blocklang.core.service.PropertyService;
 import com.blocklang.core.service.UserService;
 import com.blocklang.core.test.AbstractControllerTest;
+import com.blocklang.develop.constant.DeployState;
 import com.blocklang.develop.data.CheckProjectNameParam;
 import com.blocklang.develop.data.GitCommitInfo;
 import com.blocklang.develop.data.NewProjectParam;
@@ -54,6 +57,8 @@ public class ProjectControllerTest extends AbstractControllerTest{
 	private UserService userService;
 	@MockBean
 	private ProjectDeployService projectDeployService;
+	@MockBean
+	private PropertyService propertyService;
 
 	@Test
 	public void check_name_user_is_unauthorization_not_login() {
@@ -646,7 +651,12 @@ public class ProjectControllerTest extends AbstractControllerTest{
 		
 		ProjectDeploy deploy = new ProjectDeploy();
 		deploy.setRegistrationToken("a");
+		deploy.setDeployState(DeployState.UNDEPLOY);
 		when(projectDeployService.findOrCreate(anyInt(), anyInt())).thenReturn(Optional.of(deploy));
+		
+		when(propertyService.findStringValue(eq(CmPropKey.INSTALL_API_ROOT_URL), anyString())).thenReturn("b");
+		when(propertyService.findStringValue(eq(CmPropKey.INSTALLER_WINDOWS_URL))).thenReturn(Optional.of("c"));
+		when(propertyService.findStringValue(eq(CmPropKey.INSTALLER_LINUX_URL))).thenReturn(Optional.of("d"));
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -654,6 +664,9 @@ public class ProjectControllerTest extends AbstractControllerTest{
 			.get("/projects/{owner}/{project}/deploy_setting", "zhangsan", "my-project")
 		.then()
 			.statusCode(HttpStatus.SC_OK)
-			.body("registrationToken", equalTo("a"));
+			.body("registrationToken", equalTo("a"),
+					"url", equalTo("b"),
+					"installerWindowsUrl", equalTo("c"),
+					"installerLinuxUrl", equalTo("d"));
 	}
 }

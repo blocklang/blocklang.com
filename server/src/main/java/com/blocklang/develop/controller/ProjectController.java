@@ -21,16 +21,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.blocklang.core.constant.CmPropKey;
 import com.blocklang.core.exception.InvalidRequestException;
 import com.blocklang.core.exception.NoAuthorizationException;
 import com.blocklang.core.exception.ResourceNotFoundException;
 import com.blocklang.core.model.UserInfo;
+import com.blocklang.core.service.PropertyService;
 import com.blocklang.core.service.UserService;
 import com.blocklang.develop.data.CheckProjectNameParam;
+import com.blocklang.develop.data.DeploySetting;
 import com.blocklang.develop.data.GitCommitInfo;
 import com.blocklang.develop.data.NewProjectParam;
 import com.blocklang.develop.model.Project;
-import com.blocklang.develop.model.ProjectDeploy;
 import com.blocklang.develop.model.ProjectResource;
 import com.blocklang.develop.service.ProjectDeployService;
 import com.blocklang.develop.service.ProjectFileService;
@@ -54,6 +56,8 @@ public class ProjectController {
 	private UserService userService;
 	@Autowired
 	private MessageSource messageSource;
+	@Autowired
+	private PropertyService propertyService;
 	
 	@PostMapping("/projects/check-name")
 	public ResponseEntity<Map<String, Object>> checkProjectName(
@@ -211,7 +215,7 @@ public class ProjectController {
 	}
 	
 	@GetMapping("/projects/{owner}/{projectName}/deploy_setting")
-	public ResponseEntity<ProjectDeploy> getDeploySetting(
+	public ResponseEntity<DeploySetting> getDeploySetting(
 			Principal principal,
 			@PathVariable String owner,
 			@PathVariable String projectName) {
@@ -221,10 +225,31 @@ public class ProjectController {
 		
 		UserInfo user = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
 		
+		String url = propertyService.findStringValue(CmPropKey.INSTALL_API_ROOT_URL, "https://blocklang.com");
+		String installerLinuxUrl = propertyService.findStringValue(CmPropKey.INSTALLER_LINUX_URL).orElseThrow(() -> {
+			logger.error("请在系统参数中配置 Linux 版安装器的下载地址");
+			return new ResourceNotFoundException();
+		});
+		String installerWindowsUrl = propertyService.findStringValue(CmPropKey.INSTALLER_WINDOWS_URL).orElseThrow(() -> {
+			logger.error("请在系统参数中配置 Windows 版安装器的下载地址");
+			return new ResourceNotFoundException();
+		});
+		
 		return projectService.find(owner, projectName).flatMap(project -> {
 			return projectDeployService.findOrCreate(project.getId(), user.getId());
 		}).map(deploy -> {
-			return ResponseEntity.ok(deploy);
-		}).orElse(ResponseEntity.ok(new ProjectDeploy()));
+			DeploySetting deploySetting = new DeploySetting();
+			deploySetting.setId(deploy.getId());
+			deploySetting.setUserId(deploy.getUserId());
+			deploySetting.setProjectId(deploy.getProjectId());
+			deploySetting.setRegistrationToken(deploy.getRegistrationToken());
+			deploySetting.setDeployState(deploy.getDeployState().getKey());
+			
+			deploySetting.setUrl(url);
+			deploySetting.setInstallerLinuxUrl(installerLinuxUrl);
+			deploySetting.setInstallerWindowsUrl(installerWindowsUrl);
+			
+			return ResponseEntity.ok(deploySetting);
+		}).orElse(ResponseEntity.ok(new DeploySetting()));
 	}
 }

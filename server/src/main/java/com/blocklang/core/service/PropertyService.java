@@ -11,5 +11,7 @@ public interface PropertyService {
 	 * @return 字符串类型的属性值
 	 */
 	Optional<String> findStringValue(String key);
+	
+	String findStringValue(String key, String defaultValue);
 
 }

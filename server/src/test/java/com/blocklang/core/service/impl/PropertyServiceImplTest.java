@@ -122,4 +122,8 @@ public class PropertyServiceImplTest extends AbstractServiceTest{
 		assertThat(cachedProperties.get("key1").get()).isEqualTo(valueOption.get());
 	}
 	
+	@Test
+	public void find_string_value_default_value() {
+		assertThat(propertyService.findStringValue("not-exist_key", "a")).isEqualTo("a");
+	}
 }
