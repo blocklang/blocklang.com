@@ -6,7 +6,7 @@ import { v, w } from '@dojo/framework/widget-core/d';
 
 import messageBundle from '../../nls/main';
 import Link from '@dojo/framework/routing/Link';
-import { Project, ProjectResource, CommitInfo } from '../../interfaces';
+import { Project, ProjectResource, CommitInfo, DeployInfo } from '../../interfaces';
 import Moment from '../../widgets/moment';
 import FontAwesomeIcon from '../../widgets/fontawesome-icon';
 import { IconName, IconPrefix } from '@fortawesome/fontawesome-svg-core';
@@ -23,6 +23,7 @@ export interface ViewProjectProperties {
 	projectResources: ProjectResource[];
 	latestCommitInfo: CommitInfo;
 	readme?: string;
+	userDeployInfo: DeployInfo;
 }
 
 @theme(css)
@@ -91,59 +92,153 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 						},
 						[`${messages.deployLabel}`]
 					),
-					v(
-						'div',
-						{
-							classes: [c.dropdown_menu, c.dropdown_menu_right, c.p_2, css.deployMenu],
-							'aria-labelledby': 'dropdownDeployButton',
-							styles: { width: '370px' },
-							onclick: this._onClickMenuInside
-						},
-						[
-							v('h6', [
-								'部署到您的主机',
-								v(
-									'div',
-									{
-										classes: [c.btn_group, c.btn_group_toggle, c.btn_group_sm, c.float_right],
-										role: 'group'
-									},
-									[
-										v(
-											'button',
-											{ type: 'button', classes: [c.btn, c.btn_outline_primary, c.active] },
-											['Linux']
-										),
-										v('button', { type: 'button', classes: [c.btn, c.btn_outline_primary] }, [
-											'Windows'
-										])
-									]
-								)
-							]),
-							v('ol', { classes: [c.px_3, c.mb_0] }, [
-								v('li', ['下载并安装 ', v('a', { href: '#' }, ['Blocklang-installer'])]),
-								v('li', [
-									'执行',
-									v('code', ['./blocklang-installer register']),
-									'命令注册主机',
-									v('ol', { classes: [c.px_3] }, [
-										v('li', ['指定 URL 为', v('code', ['https://blocklang.com'])]),
-										v('li', ['指定注册 Token 为', v('code', ['xxxx'])]),
-										v('li', ['设置运行端口 <port>'])
-									])
-								]),
-								v('li', [
-									'执行',
-									v('code', ['./blocklang-installer run --port <port>']),
-									'命令启动服务'
-								]),
-								v('li', ['在浏览器中访问', v('code', ['http://<ip>:<port>'])])
-							])
-						]
-					)
+					this._activeOs === 'linux'
+						? this._renderDeployDropdownForLinux()
+						: this._renderDeployDropdownForWindows()
 				])
 			])
 		]);
+	}
+
+	private _renderDeployDropdownForLinux() {
+		const { userDeployInfo } = this.properties;
+
+		return v(
+			'div',
+			{
+				classes: [c.dropdown_menu, c.dropdown_menu_right, c.p_2, css.deployMenu],
+				'aria-labelledby': 'dropdownDeployButton',
+				styles: { width: '365px' },
+				onclick: this._onClickMenuInside
+			},
+			[
+				v('h6', [
+					'部署到您的主机',
+					v(
+						'div',
+						{
+							classes: [c.btn_group, c.btn_group_toggle, c.btn_group_sm, c.ml_2],
+							role: 'group'
+						},
+						[
+							v(
+								'button',
+								{
+									type: 'button',
+									classes: [c.btn, c.btn_outline_primary, c.active, css.btnSmall],
+									onclick: this._onSelectLinux
+								},
+								['Linux']
+							),
+							v(
+								'button',
+								{
+									type: 'button',
+									classes: [c.btn, c.btn_outline_primary, css.btnSmall],
+									onclick: this._onSelectWindows
+								},
+								['Windows']
+							)
+						]
+					)
+				]),
+				v('ol', { classes: [c.pl_3, c.mb_0] }, [
+					v('li', [
+						'下载并安装 ',
+						v('a', { href: `${userDeployInfo.installerLinuxUrl}` }, ['Blocklang-installer'])
+					]),
+					v('li', [
+						'执行',
+						v('code', ['./blocklang-installer register']),
+						'命令注册主机',
+						v('ol', { classes: [c.pl_3] }, [
+							v('li', ['指定 URL 为', v('code', [`${userDeployInfo.url}`])]),
+							v('li', ['指定注册 Token 为', v('code', [`${userDeployInfo.registrationToken}`])]),
+							v('li', ['设置运行端口 <port>'])
+						])
+					]),
+					v('li', ['执行', v('code', ['./blocklang-installer run --port <port>']), '命令启动服务']),
+					v('li', ['在浏览器中访问', v('code', ['http://<ip>:<port>'])])
+				])
+			]
+		);
+	}
+
+	// TODO: 国际化
+	private _renderDeployDropdownForWindows() {
+		const { userDeployInfo } = this.properties;
+
+		return v(
+			'div',
+			{
+				classes: [c.dropdown_menu, c.dropdown_menu_right, c.p_2, css.deployMenu],
+				'aria-labelledby': 'dropdownDeployButton',
+				styles: { width: '365px' },
+				onclick: this._onClickMenuInside
+			},
+			[
+				v('h6', [
+					'部署到您的主机',
+					v(
+						'div',
+						{
+							classes: [c.btn_group, c.btn_group_toggle, c.btn_group_sm, c.ml_2],
+							role: 'group'
+						},
+						[
+							v(
+								'button',
+								{
+									type: 'button',
+									classes: [c.btn, c.btn_outline_primary, css.btnSmall],
+									onclick: this._onSelectLinux
+								},
+								['Linux']
+							),
+							v(
+								'button',
+								{
+									type: 'button',
+									classes: [c.btn, c.btn_outline_primary, c.active, css.btnSmall],
+									onclick: this._onSelectWindows
+								},
+								['Windows']
+							)
+						]
+					)
+				]),
+				v('ol', { classes: [c.pl_3, c.mb_0] }, [
+					v('li', [
+						'下载并安装 ',
+						v('a', { href: `${userDeployInfo.installerWindowsUrl}` }, ['Blocklang-installer'])
+					]),
+					v('li', [
+						'执行',
+						v('code', ['blocklang-installer.exe register']),
+						'命令注册主机',
+						v('ol', { classes: [c.pl_3] }, [
+							v('li', ['指定 URL 为', v('code', [`${userDeployInfo.url}`])]),
+							v('li', ['指定注册 Token 为', v('code', [`${userDeployInfo.registrationToken}`])]),
+							v('li', ['设置运行端口 <port>'])
+						])
+					]),
+					v('li', ['执行', v('code', ['blocklang-installer.exe run --port <port>']), '命令启动服务']),
+					v('li', ['在浏览器中访问', v('code', ['http://<ip>:<port>'])])
+				])
+			]
+		);
+	}
+
+	private _activeOs: string = 'linux'; // linux/windows
+
+	private _onSelectLinux() {
+		this._activeOs = 'linux';
+		this.invalidate();
+	}
+
+	private _onSelectWindows() {
+		this._activeOs = 'windows';
+		this.invalidate();
 	}
 
 	// 当点击菜单内部时，不自动关闭此菜单

@@ -363,6 +363,7 @@ Status: 200 OK
 | `url`                 | `string` | 注册 API 链接                 |
 | `installerLinuxUrl`   | `string` | linux 版 installer 下载地址   |
 | `installerWindowsUrl` | `string` | windows 版 installer 下载地址 |
+| `deployState`         | `string` | 部署状态                      |
 
 如果用户未登录，则返回
 

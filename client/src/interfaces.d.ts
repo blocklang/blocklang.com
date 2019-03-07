@@ -92,6 +92,17 @@ export interface CommitInfo {
 	avatarUrl: string;
 }
 
+export interface DeployInfo {
+	id: number;
+	projectId: number;
+	userId: number;
+	url: string;
+	registrationToken: string;
+	installerLinuxUrl: string;
+	installerWindowsUrl: string;
+	deployState: string;
+}
+
 export interface State {
 	errors: Errors;
 	routing: Routing;
@@ -103,4 +114,5 @@ export interface State {
 	projectResources: ProjectResource[];
 	latestCommitInfo: CommitInfo;
 	readme: string;
+	userDeployInfo: DeployInfo;
 }

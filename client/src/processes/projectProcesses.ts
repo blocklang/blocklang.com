@@ -140,6 +140,16 @@ const getProjectReadmeCommand = commandFactory(async ({ path, get, payload: { ow
 	return [replace(path('readme'), readmeContent)];
 });
 
+const getDeployInfoCommand = commandFactory(async ({ path, get, payload: { owner, project } }) => {
+	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/deploy_setting`);
+	const userDeployInfo = await response.json();
+	if (!response.ok) {
+		return [replace(path('userDeployInfo'), undefined)];
+	}
+
+	return [replace(path('userDeployInfo'), userDeployInfo)];
+});
+
 export const initForNewProjectProcess = createProcess('init-for-new-project', [initIsPublicCommand]);
 export const nameInputProcess = createProcess('name-input', [nameInputCommand]);
 export const descriptionInputProcess = createProcess('description-input', [descriptionInputCommand]);
@@ -150,5 +160,6 @@ export const initForViewProjectProcess = createProcess('init-for-view-project', 
 	getProjectCommand,
 	getLatestCommitInfoCommand,
 	getProjectResourcesCommand,
-	getProjectReadmeCommand
+	getProjectReadmeCommand,
+	getDeployInfoCommand
 ]);
