@@ -138,6 +138,47 @@ public class RouterFilterTest {
 	}
 	
 	@Test
+	public void filter_get_js_source_map() throws IOException, ServletException {
+		RouterFilter routerFilter = new RouterFilter();
+		
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/projects/a.js");
+		request.setServletPath("/projects/a.js");
+		request.addHeader("referer", "/projects/new");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockFilterChain chain = new MockFilterChain();
+		routerFilter.doFilter(request, response, chain);
+		
+		request = new MockHttpServletRequest("GET", "/projects/a.js.map");
+		request.setServletPath("/projects/a.js.map");
+		response = new MockHttpServletResponse();
+		chain = new MockFilterChain();
+		routerFilter.doFilter(request, response, chain);
+		
+		assertThat(response.getForwardedUrl()).isEqualTo("/a.js.map");
+	}
+	
+	// 注意：文件为 source map 时，referer 的值为 null
+	@Test
+	public void filter_get_css_source_map() throws IOException, ServletException {
+		RouterFilter routerFilter = new RouterFilter();
+		
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/projects/a.css");
+		request.setServletPath("/projects/a.css");
+		request.addHeader("referer", "/projects/new");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockFilterChain chain = new MockFilterChain();
+		routerFilter.doFilter(request, response, chain);
+		
+		request = new MockHttpServletRequest("GET", "/projects/a.css.map");
+		request.setServletPath("/projects/a.css.map");
+		response = new MockHttpServletResponse();
+		chain = new MockFilterChain();
+		routerFilter.doFilter(request, response, chain);
+		
+		assertThat(response.getForwardedUrl()).isEqualTo("/a.css.map");
+	}
+	
+	@Test
 	public void filter_forward_to_user_servlet() throws IOException, ServletException {
 		RouterFilter routerFilter = new RouterFilter();
 		

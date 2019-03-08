@@ -3,6 +3,8 @@ package com.blocklang.core.filter;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -32,6 +34,14 @@ import com.blocklang.core.constant.WebSite;
  */
 // 已在 SecurityConfig 中手动注入该 Filter，在此处不需使用 @Component("routerFilter") 方式注入
 public class RouterFilter implements Filter{
+
+	private Map<String, String> sourceMap;
+	
+	// 因为在 Spring boot 中不会执行 Filter#init 和 Filter#destroy 方法
+	// 所以将初始化操作放在构造函数中。
+	public RouterFilter() {
+		sourceMap = new HashMap<String, String>();
+	}
 
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -66,7 +76,17 @@ public class RouterFilter implements Filter{
 		// 以下代码为转换资源文件的路径
 		if(StringUtils.isNotBlank(filenameExtension) && ArrayUtils.contains(Resources.PUBLIC_FILE_EXTENSIONS, filenameExtension)) {
 			String referer = httpServletRequest.getHeader("referer");
+			
 			if(referer == null) {
+				// 因为访问 js.map 和 css.map 时，referer 的值为 null，但依然需要解析
+				if(filenameExtension.equals("map")) {
+					String sourceMapName = org.springframework.util.StringUtils.getFilename(servletPath);
+					String sourceName = sourceMapName.substring(0, sourceMapName.length() - ".map".length());
+					String sourceMapPath = sourceMap.get(sourceName) + ".map";
+					request.getRequestDispatcher(sourceMapPath).forward(request, response);
+					return;
+				}
+				
 				chain.doFilter(request, response);
 				return;
 			}
@@ -79,6 +99,15 @@ public class RouterFilter implements Filter{
 				}
 				return result;
 			});
+			
+			// cache for source map
+			if(filenameExtension.equals("css") || filenameExtension.equals("js")) {
+				String fileName = org.springframework.util.StringUtils.getFilename(servletPath);
+				if(!sourceMap.containsKey(fileName)) {
+					sourceMap.put(fileName, urlRewrite);
+				}
+			}
+			
 			request.getRequestDispatcher(urlRewrite).forward(request, response);
 			return;
 		}
