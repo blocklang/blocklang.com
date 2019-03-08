@@ -1,14 +1,6 @@
 .root {
 }
 
-.projectHeader {
-	padding-left: 0px;
-	padding-top: 0px;
-	padding-bottom: 0px;
-	margin-bottom: 0px;
-	background-color: transparent;
-}
-
 .recentCommit {
 	font-size: 12px;
 }

@@ -73,10 +73,11 @@ Block Lang 平台。
 7. `src/containers/**` - 存放 container 部件
 8. `src/processes/**` - dojo store 处理逻辑，用户查询和修改 store 中的数据
 9. `src/pages/**` - 存放页面级别的部件
-10. `src/widgets/**` - 存放通用部件，页面级别的部件是基于通用部件搭建的
-11. `src/nls/**` - 存放国际化文件
-12. `tests/unit/**` - 存放单元测试用例
-13. `tests/functional/**` - 存放集成测试用例
+10. `src/pages/widgets/**` - 存放页面中共用的业务相关部件
+11. `src/widgets/**` - 存放通用部件，页面级别的部件是基于通用部件搭建的
+12. `src/nls/**` - 存放国际化文件
+13. `tests/unit/**` - 存放单元测试用例
+14. `tests/functional/**` - 存放集成测试用例
 
 ## 需求描述
 

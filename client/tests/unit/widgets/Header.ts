@@ -3,8 +3,8 @@ import harness from '@dojo/framework/testing/harness';
 import { v, w } from '@dojo/framework/widget-core/d';
 import Link from '@dojo/framework/routing/Link';
 
-import Header from '../../../src/widgets/Header';
-import * as css from '../../../src/widgets/Header.m.css';
+import Header from '../../../src/pages/Header';
+import * as css from '../../../src/pages/Header.m.css';
 import FontAwesomeIcon from '../../../src/widgets/fontawesome-icon';
 
 describe('Header', () => {

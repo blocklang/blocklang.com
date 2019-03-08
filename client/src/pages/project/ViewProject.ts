@@ -21,6 +21,7 @@ import { ProjectPathPayload } from '../../processes/interfaces';
 
 import * as $ from 'jquery';
 import Spinner from '../../widgets/spinner';
+import ProjectHeader from '../widgets/ProjectHeader';
 
 export interface ViewProjectProperties {
 	loggedUsername: string;
@@ -46,32 +47,12 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 	}
 
 	private _renderHeader() {
-		const { messages } = this._localizedMessages;
 		const {
-			project: { name, isPublic, createUserName }
-		} = this.properties;
-		return v('div', { classes: [c.mt_4, c.mb_3] }, [
-			v('nav', { classes: [c.d_inline_flex], 'aria-label': 'breadcrumb' }, [
-				v('ol', { classes: [css.projectHeader, c.breadcrumb] }, [
-					v('li', { classes: [c.breadcrumb_item] }, [
-						isPublic
-							? null
-							: w(FontAwesomeIcon, {
-									icon: 'lock',
-									size: 'xs',
-									classes: [c.text_muted, c.mr_1],
-									title: `${messages.privateProjectTitle}`
-							  }),
-						w(Link, { to: 'profile', params: { user: createUserName } }, [`${createUserName}`])
-					]),
-					v('li', { classes: [c.breadcrumb_item, c.active] }, [
-						w(Link, { to: 'view-project', params: { owner: createUserName, project: name } }, [
-							v('strong', [`${name}`])
-						])
-					])
-				])
-			])
-		]);
+			messages: { privateProjectTitle }
+		} = this._localizedMessages;
+		const { project } = this.properties;
+
+		return w(ProjectHeader, { project, privateProjectTitle });
 	}
 
 	private _renderNavigation() {
