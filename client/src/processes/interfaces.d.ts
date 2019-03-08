@@ -16,3 +16,8 @@ export interface DescriptionPayload {
 export interface IsPublicPayload {
 	isPublic: boolean;
 }
+
+export interface ProjectPathPayload {
+	owner: string;
+	project: string;
+}

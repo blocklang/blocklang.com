@@ -120,6 +120,9 @@ export const bg_light: string = 'bg-light';
 export const navbar_brand: string = 'navbar-brand';
 export const navbar_nav: string = 'navbar-nav';
 
+//      spinner
+export const spinner_border: string = 'spinner-border';
+
 // Utilities
 //     border
 export const border_bottom_0: string = 'border-bottom-0';
@@ -128,9 +131,18 @@ export const border_bottom_0: string = 'border-bottom-0';
 export const text_muted: string = 'text-muted';
 export const text_info: string = 'text-info';
 
-//     flex
+//     display
+export const d_none: string = 'd-none';
+export const d_inline: string = 'd-inline';
+export const d_inline_block: string = 'd-inline-block';
+export const d_block: string = 'd-block';
+export const d_table: string = 'd-table';
+export const d_table_cell: string = 'd-table-cell';
+export const d_table_row: string = 'd-table-row';
 export const d_flex: string = 'd-flex';
 export const d_inline_flex: string = 'd-inline-flex';
+
+//     flex
 export const justify_content_start = 'justify-content-start';
 export const justify_content_end = 'justify-content-end';
 export const justify_content_center = 'justify-content-center';

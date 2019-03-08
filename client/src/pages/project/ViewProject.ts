@@ -2,7 +2,7 @@ import ThemedMixin, { theme } from '@dojo/framework/widget-core/mixins/Themed';
 import I18nMixin from '@dojo/framework/widget-core/mixins/I18n';
 import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
 
-import { v, w } from '@dojo/framework/widget-core/d';
+import { v, w, dom } from '@dojo/framework/widget-core/d';
 
 import messageBundle from '../../nls/main';
 import Link from '@dojo/framework/routing/Link';
@@ -17,6 +17,11 @@ import 'highlight.js/styles/github.css';
 
 import * as c from '../../className';
 import * as css from './ViewProject.m.css';
+import { ProjectPathPayload } from '../../processes/interfaces';
+
+import * as $ from 'jquery';
+import Spinner from '../../widgets/spinner';
+
 export interface ViewProjectProperties {
 	loggedUsername: string;
 	project: Project;
@@ -24,6 +29,7 @@ export interface ViewProjectProperties {
 	latestCommitInfo: CommitInfo;
 	readme?: string;
 	userDeployInfo: DeployInfo;
+	onGetDeployInfo: (opt: ProjectPathPayload) => void;
 }
 
 @theme(css)
@@ -79,157 +85,210 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 					v('span', { classes: [c.badge, c.badge_light] }, ['0'])
 				]),
 				// 部署按钮，显示部署步骤
-				v('div', { classes: [c.btn_group, c.ml_2] }, [
+				this._renderDeployButton()
+			])
+		]);
+	}
+
+	/**
+	 * 渲染部署按钮
+	 */
+	private _renderDeployButton() {
+		const { messages } = this._localizedMessages;
+		const { loggedUsername } = this.properties;
+		const isAuth: boolean = !!loggedUsername;
+
+		if (isAuth) {
+			return v('div', { classes: [c.btn_group, c.ml_2] }, [
+				v(
+					'button',
+					{
+						classes: [c.btn, c.btn_outline_secondary, c.dropdown_toggle, c.btn_sm],
+						type: 'button',
+						'data-toggle': 'dropdown',
+						'aria-haspopup': 'true',
+						'aria-expanded': 'false',
+						id: 'dropdownDeployButton',
+						onclick: this._onDeployButtonClick
+					},
+					[`${messages.deployLabel}`]
+				),
+
+				this._renderDeployDropdownMenu()
+			]);
+		} else {
+			const node = document.createElement('span');
+			const vnode = dom(
+				{
+					node,
+					props: {
+						classes: [c.d_inline_block],
+						tabIndex: 0,
+						title: messages.deployNotLoginTip
+					},
+					attrs: {
+						'data-toggle': 'tooltip'
+					},
+					onAttach: () => {
+						// 使用 dom 函数，就是为了调用 tooltip 方法
+						// 因为 $ 中没有 bootstrap 的 tooltip 方法
+						// 因为 bootstrap 默认没有初始化 tooltip
+						($(node) as any).tooltip();
+					}
+				},
+				[
 					v(
 						'button',
 						{
 							classes: [c.btn, c.btn_outline_secondary, c.dropdown_toggle, c.btn_sm],
 							type: 'button',
-							'data-toggle': 'dropdown',
-							'aria-haspopup': 'true',
-							'aria-expanded': 'false',
-							id: 'dropdownDeployButton'
+							styles: { pointerEvents: 'none' },
+							disabled: true
 						},
 						[`${messages.deployLabel}`]
-					),
-					this._activeOs === 'linux'
-						? this._renderDeployDropdownForLinux()
-						: this._renderDeployDropdownForWindows()
-				])
+					)
+				]
+			);
+			return v('div', { classes: [c.btn_group, c.ml_2] }, [vnode]);
+		}
+	}
+
+	private _onDeployButtonClick() {
+		const { project } = this.properties;
+		this.properties.onGetDeployInfo &&
+			this.properties.onGetDeployInfo({ owner: project.createUserName, project: project.name });
+	}
+
+	private _renderDeployDropdownMenu() {
+		const { userDeployInfo } = this.properties;
+
+		return v(
+			'div',
+			{
+				classes: [c.dropdown_menu, c.dropdown_menu_right, c.p_2, css.deployMenu],
+				'aria-labelledby': 'dropdownDeployButton',
+				styles: { width: '365px' },
+				onclick: this._onClickMenuInside
+			},
+			userDeployInfo
+				? this._activeOs === 'linux'
+					? this._renderDeployDropdownMenuForLinux(userDeployInfo)
+					: this._renderDeployDropdownMenuForWindows(userDeployInfo)
+				: this._renderEmptyDeployDropdownMenu()
+		);
+	}
+
+	private _renderDeployDropdownMenuForLinux(userDeployInfo: DeployInfo) {
+		return [
+			v('h6', [
+				'部署到您的主机',
+				v(
+					'div',
+					{
+						classes: [c.btn_group, c.btn_group_toggle, c.btn_group_sm, c.ml_2],
+						role: 'group'
+					},
+					[
+						v(
+							'button',
+							{
+								type: 'button',
+								classes: [c.btn, c.btn_outline_primary, c.active, css.btnSmall],
+								onclick: this._onSelectLinux
+							},
+							['Linux']
+						),
+						v(
+							'button',
+							{
+								type: 'button',
+								classes: [c.btn, c.btn_outline_primary, css.btnSmall],
+								onclick: this._onSelectWindows
+							},
+							['Windows']
+						)
+					]
+				)
+			]),
+			v('ol', { classes: [c.pl_3, c.mb_0] }, [
+				v('li', [
+					'下载并安装 ',
+					v('a', { href: `${userDeployInfo.installerLinuxUrl}` }, ['Blocklang-installer'])
+				]),
+				v('li', [
+					'执行',
+					v('code', ['./blocklang-installer register']),
+					'命令注册主机',
+					v('ol', { classes: [c.pl_3] }, [
+						v('li', ['指定 URL 为', v('code', [`${userDeployInfo.url}`])]),
+						v('li', ['指定注册 Token 为', v('code', [`${userDeployInfo.registrationToken}`])]),
+						v('li', ['设置运行端口 <port>'])
+					])
+				]),
+				v('li', ['执行', v('code', ['./blocklang-installer run --port <port>']), '命令启动服务']),
+				v('li', ['在浏览器中访问', v('code', ['http://<ip>:<port>'])])
 			])
-		]);
-	}
-
-	private _renderDeployDropdownForLinux() {
-		const { userDeployInfo } = this.properties;
-
-		return v(
-			'div',
-			{
-				classes: [c.dropdown_menu, c.dropdown_menu_right, c.p_2, css.deployMenu],
-				'aria-labelledby': 'dropdownDeployButton',
-				styles: { width: '365px' },
-				onclick: this._onClickMenuInside
-			},
-			[
-				v('h6', [
-					'部署到您的主机',
-					v(
-						'div',
-						{
-							classes: [c.btn_group, c.btn_group_toggle, c.btn_group_sm, c.ml_2],
-							role: 'group'
-						},
-						[
-							v(
-								'button',
-								{
-									type: 'button',
-									classes: [c.btn, c.btn_outline_primary, c.active, css.btnSmall],
-									onclick: this._onSelectLinux
-								},
-								['Linux']
-							),
-							v(
-								'button',
-								{
-									type: 'button',
-									classes: [c.btn, c.btn_outline_primary, css.btnSmall],
-									onclick: this._onSelectWindows
-								},
-								['Windows']
-							)
-						]
-					)
-				]),
-				v('ol', { classes: [c.pl_3, c.mb_0] }, [
-					v('li', [
-						'下载并安装 ',
-						v('a', { href: `${userDeployInfo.installerLinuxUrl}` }, ['Blocklang-installer'])
-					]),
-					v('li', [
-						'执行',
-						v('code', ['./blocklang-installer register']),
-						'命令注册主机',
-						v('ol', { classes: [c.pl_3] }, [
-							v('li', ['指定 URL 为', v('code', [`${userDeployInfo.url}`])]),
-							v('li', ['指定注册 Token 为', v('code', [`${userDeployInfo.registrationToken}`])]),
-							v('li', ['设置运行端口 <port>'])
-						])
-					]),
-					v('li', ['执行', v('code', ['./blocklang-installer run --port <port>']), '命令启动服务']),
-					v('li', ['在浏览器中访问', v('code', ['http://<ip>:<port>'])])
-				])
-			]
-		);
-	}
-
-	// TODO: 国际化
-	private _renderDeployDropdownForWindows() {
-		const { userDeployInfo } = this.properties;
-
-		return v(
-			'div',
-			{
-				classes: [c.dropdown_menu, c.dropdown_menu_right, c.p_2, css.deployMenu],
-				'aria-labelledby': 'dropdownDeployButton',
-				styles: { width: '365px' },
-				onclick: this._onClickMenuInside
-			},
-			[
-				v('h6', [
-					'部署到您的主机',
-					v(
-						'div',
-						{
-							classes: [c.btn_group, c.btn_group_toggle, c.btn_group_sm, c.ml_2],
-							role: 'group'
-						},
-						[
-							v(
-								'button',
-								{
-									type: 'button',
-									classes: [c.btn, c.btn_outline_primary, css.btnSmall],
-									onclick: this._onSelectLinux
-								},
-								['Linux']
-							),
-							v(
-								'button',
-								{
-									type: 'button',
-									classes: [c.btn, c.btn_outline_primary, c.active, css.btnSmall],
-									onclick: this._onSelectWindows
-								},
-								['Windows']
-							)
-						]
-					)
-				]),
-				v('ol', { classes: [c.pl_3, c.mb_0] }, [
-					v('li', [
-						'下载并安装 ',
-						v('a', { href: `${userDeployInfo.installerWindowsUrl}` }, ['Blocklang-installer'])
-					]),
-					v('li', [
-						'执行',
-						v('code', ['blocklang-installer.exe register']),
-						'命令注册主机',
-						v('ol', { classes: [c.pl_3] }, [
-							v('li', ['指定 URL 为', v('code', [`${userDeployInfo.url}`])]),
-							v('li', ['指定注册 Token 为', v('code', [`${userDeployInfo.registrationToken}`])]),
-							v('li', ['设置运行端口 <port>'])
-						])
-					]),
-					v('li', ['执行', v('code', ['blocklang-installer.exe run --port <port>']), '命令启动服务']),
-					v('li', ['在浏览器中访问', v('code', ['http://<ip>:<port>'])])
-				])
-			]
-		);
+		];
 	}
 
 	private _activeOs: string = 'linux'; // linux/windows
+	// TODO: 国际化
+	private _renderDeployDropdownMenuForWindows(userDeployInfo: DeployInfo) {
+		return [
+			v('h6', [
+				'部署到您的主机',
+				v(
+					'div',
+					{
+						classes: [c.btn_group, c.btn_group_toggle, c.btn_group_sm, c.ml_2],
+						role: 'group'
+					},
+					[
+						v(
+							'button',
+							{
+								type: 'button',
+								classes: [c.btn, c.btn_outline_primary, css.btnSmall],
+								onclick: this._onSelectLinux
+							},
+							['Linux']
+						),
+						v(
+							'button',
+							{
+								type: 'button',
+								classes: [c.btn, c.btn_outline_primary, c.active, css.btnSmall],
+								onclick: this._onSelectWindows
+							},
+							['Windows']
+						)
+					]
+				)
+			]),
+			v('ol', { classes: [c.pl_3, c.mb_0] }, [
+				v('li', [
+					'下载并安装 ',
+					v('a', { href: `${userDeployInfo.installerWindowsUrl}` }, ['Blocklang-installer'])
+				]),
+				v('li', [
+					'执行',
+					v('code', ['blocklang-installer.exe register']),
+					'命令注册主机',
+					v('ol', { classes: [c.pl_3] }, [
+						v('li', ['指定 URL 为', v('code', [`${userDeployInfo.url}`])]),
+						v('li', ['指定注册 Token 为', v('code', [`${userDeployInfo.registrationToken}`])]),
+						v('li', ['设置运行端口 <port>'])
+					])
+				]),
+				v('li', ['执行', v('code', ['blocklang-installer.exe run --port <port>']), '命令启动服务']),
+				v('li', ['在浏览器中访问', v('code', ['http://<ip>:<port>'])])
+			])
+		];
+	}
+
+	private _renderEmptyDeployDropdownMenu() {
+		return [w(Spinner, {})];
+	}
 
 	private _onSelectLinux() {
 		this._activeOs = 'linux';
@@ -279,9 +338,12 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 
 	private _renderResources() {
 		const { projectResources } = this.properties;
-		return v('table', { classes: [c.table, c.table_hover, c.mb_0] }, [
-			v('tbody', projectResources.map((resource) => this._renderTr(resource)))
-		]);
+
+		return projectResources
+			? v('table', { classes: [c.table, c.table_hover, c.mb_0] }, [
+					v('tbody', projectResources.map((resource) => this._renderTr(resource)))
+			  ])
+			: w(Spinner, {});
 	}
 
 	private _renderTr(projectResource: ProjectResource) {

@@ -160,6 +160,6 @@ export const initForViewProjectProcess = createProcess('init-for-view-project', 
 	getProjectCommand,
 	getLatestCommitInfoCommand,
 	getProjectResourcesCommand,
-	getProjectReadmeCommand,
-	getDeployInfoCommand
+	getProjectReadmeCommand
 ]);
+export const getUserDeployInfoProcess = createProcess('get-user-deploy-info', [getDeployInfoCommand]);

@@ -32,6 +32,7 @@ export default {
 		// view project
 		latestCommitLabel: '最近提交于',
 		releaseLabel: '发布',
-		deployLabel: '部署'
+		deployLabel: '部署',
+		deployNotLoginTip: '用户登录后才能部署此项目'
 	}
 };
