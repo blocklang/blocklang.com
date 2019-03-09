@@ -15,7 +15,8 @@
 
 ## 软件发布服务
 
-1. [发布软件](releases.md)
+1. [发布软件](./release/create_a_release.md)
+2. [获取项目的发布列表](./release/list_releases_for_a_project.md)
 
 ## 用户服务
 
