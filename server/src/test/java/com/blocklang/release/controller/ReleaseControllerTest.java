@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Optional;
 
 import org.apache.http.HttpStatus;
@@ -294,5 +295,33 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 //	
 //	}
 
+	@Test
+	public void list_release_that_project_is_not_exist() {
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/releases", "jack", "demo_project")
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+
+	@Test
+	public void list_release_success() {
+		Project project = new Project();
+		project.setId(1);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		when(projectReleaseTaskService.findAllByProjectId(anyInt())).thenReturn(Collections.emptyList());
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/releases", "jack", "demo_project")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body("size()", equalTo(0));
+	}
 
 }

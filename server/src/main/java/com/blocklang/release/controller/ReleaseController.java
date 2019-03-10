@@ -1,6 +1,7 @@
 package com.blocklang.release.controller;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import javax.validation.Valid;
 
@@ -11,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -110,4 +112,16 @@ public class ReleaseController {
 	}
 	
 	// 校验版本号是否被占用
+	
+	@GetMapping("projects/{owner}/{projectName}/releases")
+	public ResponseEntity<List<ProjectReleaseTask>> listRelease(
+			@PathVariable("owner") String owner,
+			@PathVariable("projectName") String projectName) {
+		
+		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
+		
+		List<ProjectReleaseTask> releases = projectReleaseTaskService.findAllByProjectId(project.getId());
+		return ResponseEntity.ok(releases);
+		
+	}
 }
