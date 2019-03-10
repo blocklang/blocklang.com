@@ -23,5 +23,9 @@ export default [
 	{
 		path: '{owner}/{project}/releases',
 		outlet: 'list-release'
+	},
+	{
+		path: '{owner}/{project}/releases/new',
+		outlet: 'new-release'
 	}
 ];

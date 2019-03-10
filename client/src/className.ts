@@ -125,7 +125,17 @@ export const spinner_border: string = 'spinner-border';
 
 // Utilities
 //     border
+export const border: string = 'border';
+export const border_top: string = 'border-top';
+export const border_right: string = 'border-right';
+export const border_bottom: string = 'border-bottom';
+export const border_left: string = 'border-left';
+
+export const border_0: string = 'border-0';
+export const border_top_0: string = 'border-top-0';
+export const border_right_0: string = 'border-right-0';
 export const border_bottom_0: string = 'border-bottom-0';
+export const border_left_0: string = 'border-left-0';
 
 //     color
 export const text_muted: string = 'text-muted';
@@ -160,7 +170,7 @@ export const mt_2: string = 'mt-2';
 export const mt_3: string = 'mt-3';
 export const mt_4: string = 'mt-4';
 export const mt_5: string = 'mt-5';
-export const mt_auto: string = 'mt_auto';
+export const mt_auto: string = 'mt-auto';
 
 export const mb_0: string = 'mb-0';
 export const mb_1: string = 'mb-1';
@@ -168,7 +178,7 @@ export const mb_2: string = 'mb-2';
 export const mb_3: string = 'mb-3';
 export const mb_4: string = 'mb-4';
 export const mb_5: string = 'mb-5';
-export const mb_auto: string = 'mb_auto';
+export const mb_auto: string = 'mb-auto';
 
 export const ml_0: string = 'ml-0';
 export const ml_1: string = 'ml-1';
@@ -176,7 +186,7 @@ export const ml_2: string = 'ml-2';
 export const ml_3: string = 'ml-3';
 export const ml_4: string = 'ml-4';
 export const ml_5: string = 'ml-5';
-export const ml_auto: string = 'ml_auto';
+export const ml_auto: string = 'ml-auto';
 
 export const mr_0: string = 'mr-0';
 export const mr_1: string = 'mr-1';
@@ -184,7 +194,7 @@ export const mr_2: string = 'mr-2';
 export const mr_3: string = 'mr-3';
 export const mr_4: string = 'mr-4';
 export const mr_5: string = 'mr-5';
-export const mr_auto: string = 'mr_auto';
+export const mr_auto: string = 'mr-auto';
 
 export const mx_0: string = 'mx-0';
 export const mx_1: string = 'mx-1';
@@ -192,7 +202,7 @@ export const mx_2: string = 'mx-2';
 export const mx_3: string = 'mx-3';
 export const mx_4: string = 'mx-4';
 export const mx_5: string = 'mx-5';
-export const mx_auto: string = 'mx_auto';
+export const mx_auto: string = 'mx-auto';
 
 export const my_0: string = 'my-0';
 export const my_1: string = 'my-1';
@@ -200,7 +210,7 @@ export const my_2: string = 'my-2';
 export const my_3: string = 'my-3';
 export const my_4: string = 'my-4';
 export const my_5: string = 'my-5';
-export const my_auto: string = 'my_auto';
+export const my_auto: string = 'my-auto';
 
 export const m_0: string = 'm-0';
 export const m_1: string = 'm-1';
@@ -208,7 +218,7 @@ export const m_2: string = 'm-2';
 export const m_3: string = 'm-3';
 export const m_4: string = 'm-4';
 export const m_5: string = 'm-5';
-export const m_auto: string = 'm_auto';
+export const m_auto: string = 'm-auto';
 
 //      2. padding
 export const pt_0: string = 'pt-0';

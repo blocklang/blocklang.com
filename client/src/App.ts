@@ -32,6 +32,7 @@ import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons/faSignOutAlt';
 import { faHome } from '@fortawesome/free-solid-svg-icons/faHome';
 import { faNewspaper } from '@fortawesome/free-solid-svg-icons/faNewspaper';
 import { faPlug } from '@fortawesome/free-solid-svg-icons/faPlug';
+import { faTag } from '@fortawesome/free-solid-svg-icons/faTag';
 
 library.add(
 	faGithub,
@@ -50,10 +51,12 @@ library.add(
 	faFolder,
 	faSquare,
 	faNewspaper,
-	faPlug
+	faPlug,
+	faTag
 );
 
 import * as css from './App.m.css';
+import ListReleaseContainer from './containers/release/ListReleaseContainer';
 
 export default class App extends WidgetBase {
 	protected render() {
@@ -63,6 +66,7 @@ export default class App extends WidgetBase {
 				w(Outlet, { key: 'home', id: 'home', renderer: () => w(HomeContainer, {}) }),
 				w(Outlet, { key: 'new-project', id: 'new-project', renderer: () => w(NewProjectContainer, {}) }),
 				w(Outlet, { key: 'view-project', id: 'view-project', renderer: () => w(ViewProjectContainer, {}) }),
+				w(Outlet, { key: 'list-release', id: 'list-release', renderer: () => w(ListReleaseContainer, {}) }),
 				w(Outlet, { key: 'about', id: 'about', renderer: () => w(About, {}) }),
 				w(Outlet, { key: 'profile', id: 'profile', renderer: () => w(Profile, { username: 'Block Lang' }) })
 			])

@@ -33,6 +33,12 @@ export default {
 		latestCommitLabel: '最近提交于',
 		releaseLabel: '发布',
 		deployLabel: '部署',
-		deployNotLoginTip: '用户登录后才能部署此项目'
+		deployNotLoginTip: '用户登录后才能部署此项目',
+		// list release
+		releaseText: '发行版',
+		noReleaseTitle: '没有发行版本',
+		newReleaseText: '创建发行版',
+		releaseDescription:
+			'在发布项目时，会为项目添加版本号，并为此版本构建出一个可安装的文件。建议从 0.1.0 版本开始。'
 	}
 };

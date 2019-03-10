@@ -98,7 +98,7 @@ const saveProjectCommand = commandFactory(async ({ path, get }) => {
 });
 
 /************************* view project ****************************/
-const getProjectCommand = commandFactory(async ({ path, get, payload: { owner, project } }) => {
+export const getProjectCommand = commandFactory(async ({ path, get, payload: { owner, project } }) => {
 	const response = await fetch(`${baseUrl}/projects/${owner}/${project}`);
 	const json = await response.json();
 	if (!response.ok) {

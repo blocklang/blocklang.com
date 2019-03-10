@@ -17,6 +17,7 @@
 
 1. [发布软件](./release/create_a_release.md)
 2. [获取项目的发布列表](./release/list_releases_for_a_project.md)
+3. [获取 JDK 列表](./release/list_jdks.md)
 
 ## 用户服务
 

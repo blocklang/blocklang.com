@@ -16,6 +16,7 @@ import { getCurrentUserProcess } from './processes/userProcesses';
 import { initForNewProjectProcess, initForViewProjectProcess } from './processes/projectProcesses';
 import { changeRouteProcess } from './processes/routeProcesses';
 import { initPrivateHomeProcess } from './processes/homeProcesses';
+import { initForProjectReleasesProcess } from './processes/releaseProcesses';
 
 const store = new Store<State>();
 
@@ -45,6 +46,9 @@ router.on('outlet', ({ outlet, action }) => {
 				break;
 			case 'view-project':
 				initForViewProjectProcess(store)({ owner: outlet.params.owner, project: outlet.params.project });
+				break;
+			case 'list-release':
+				initForProjectReleasesProcess(store)({ owner: outlet.params.owner, project: outlet.params.project });
 				break;
 		}
 	}

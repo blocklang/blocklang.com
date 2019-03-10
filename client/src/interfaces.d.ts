@@ -103,6 +103,8 @@ export interface DeployInfo {
 	deployState: string;
 }
 
+export interface Release {}
+
 export interface State {
 	errors: Errors;
 	routing: Routing;
@@ -115,4 +117,5 @@ export interface State {
 	latestCommitInfo: CommitInfo;
 	readme: string;
 	userDeployInfo: DeployInfo;
+	releases: Release[];
 }
