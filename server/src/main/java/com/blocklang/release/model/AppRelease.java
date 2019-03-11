@@ -6,6 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import com.blocklang.core.model.PartialOperateFields;
@@ -35,6 +36,9 @@ public class AppRelease extends PartialOperateFields{
 	@Convert(converter = ReleaseMethodConverter.class)
 	@Column(name = "release_method", length = 2, nullable = false)
 	private ReleaseMethod releaseMethod;
+	
+	@Transient
+	private String name;
 
 	public Integer getAppId() {
 		return appId;
@@ -84,4 +88,11 @@ public class AppRelease extends PartialOperateFields{
 		this.releaseMethod = releaseMethod;
 	}
 
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
 }

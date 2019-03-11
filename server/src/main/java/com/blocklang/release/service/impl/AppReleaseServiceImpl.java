@@ -1,10 +1,13 @@
 package com.blocklang.release.service.impl;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.blocklang.release.dao.AppDao;
 import com.blocklang.release.dao.AppReleaseDao;
 import com.blocklang.release.model.AppRelease;
 import com.blocklang.release.service.AppReleaseService;
@@ -14,6 +17,8 @@ public class AppReleaseServiceImpl implements AppReleaseService {
 
 	@Autowired
 	private AppReleaseDao appReleaseDao;
+	@Autowired
+	private AppDao appDao;
 	
 	@Override
 	public Optional<AppRelease> findById(int releaseId) {
@@ -28,6 +33,19 @@ public class AppReleaseServiceImpl implements AppReleaseService {
 	@Override
 	public Optional<AppRelease> findByAppIdAndVersion(Integer appId, String version) {
 		return appReleaseDao.findByAppIdAndVersion(appId, version);
+	}
+
+	@Override
+	public List<AppRelease> findByAppName(String appName) {
+		List<AppRelease> result = appDao.findByAppName(appName).map(app -> {
+			return appReleaseDao.findByAppIdOrderByIdDesc(app.getId());
+		}).orElse(Collections.emptyList());
+		
+		result.forEach(release -> {
+			release.setName(appName);
+		});
+		
+		return result;
 	}
 
 }

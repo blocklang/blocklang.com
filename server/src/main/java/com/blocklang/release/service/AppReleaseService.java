@@ -1,5 +1,6 @@
 package com.blocklang.release.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import com.blocklang.release.model.AppRelease;
@@ -16,5 +17,7 @@ public interface AppReleaseService {
 	Optional<AppRelease> findLatestReleaseApp(Integer appId);
 
 	Optional<AppRelease> findByAppIdAndVersion(Integer appId, String version);
+
+	List<AppRelease> findByAppName(String appName);
 
 }

@@ -19,6 +19,7 @@ import com.blocklang.develop.service.impl.ProjectResourceServiceImplTest;
 import com.blocklang.develop.service.impl.ProjectServiceImplTest;
 import com.blocklang.release.api.AppApiTest;
 import com.blocklang.release.api.InstallerApiTest;
+import com.blocklang.release.controller.AppControllerTest;
 import com.blocklang.release.controller.ReleaseControllerTest;
 import com.blocklang.release.service.impl.AppReleaseFileServiceImplTest;
 import com.blocklang.release.service.impl.AppReleaseRelationServiceImplTest;
@@ -45,6 +46,7 @@ import com.blocklang.release.task.AppBuildContextTest;
 	ProjectControllerTest.class,
 	ReleaseControllerTest.class,
 	LoggedUserControllerTest.class,
+	AppControllerTest.class,
 
 	// service tests
 	AppServiceImplTest.class,
