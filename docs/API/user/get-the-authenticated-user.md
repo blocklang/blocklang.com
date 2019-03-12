@@ -1,16 +1,14 @@
-# 用户登录服务
-
-## 获取登录用户信息
+# 获取登录用户信息
 
 ```text
 GET /user
 ```
 
-### Parameters
+## Parameters
 
 无
 
-### Response
+## Response
 
 用户未登录
 
