@@ -23,8 +23,9 @@
 
 ## 软件发布服务
 
-1. [发布软件](./projects/release/create-a-release.md)
-2. [获取项目的发布列表](./projects/release/list-releases-for-a-project.md)
+1. [校验发布版本号](./projects/release/check-version.md)
+2. [发布软件](./projects/release/create-a-release.md)
+3. [获取项目的发布列表](./projects/release/list-releases-for-a-project.md)
 
 ## 软件安装服务
 

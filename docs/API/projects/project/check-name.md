@@ -7,10 +7,12 @@
 3. 登录用户下是否已存在该项目名
 
 ```text
-POST /projects/check-name
+POST /projects/check-name?owner={owner}&name={name}
 ```
 
 ## Parameters
+
+Query
 
 | Name    | Type     | Description              |
 | ------- | -------- | ------------------------ |
