@@ -6,6 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import com.blocklang.core.model.PartialOperateFields;
@@ -29,8 +30,8 @@ public class ProjectReleaseTask extends PartialOperateFields{
 	
 	private String description;
 	
-	@Column(name = "jdk_app_id", nullable = false)
-	private Integer jdkAppId;
+	@Column(name = "jdk_release_id", nullable = false)
+	private Integer jdkReleaseId;
 	
 	@Column(name = "start_time", nullable = false)
 	private LocalDateTime startTime;
@@ -41,6 +42,9 @@ public class ProjectReleaseTask extends PartialOperateFields{
 	@Convert(converter = ReleaseResultConverter.class)
 	@Column(name = "release_result", length = 2, nullable = false)	
 	private ReleaseResult releaseResult;
+	
+	@Transient
+	private String jdkName;
 
 	public Integer getProjectId() {
 		return projectId;
@@ -74,12 +78,12 @@ public class ProjectReleaseTask extends PartialOperateFields{
 		this.description = description;
 	}
 
-	public Integer getJdkAppId() {
-		return jdkAppId;
+	public Integer getJdkReleaseId() {
+		return jdkReleaseId;
 	}
 
-	public void setJdkAppId(Integer jdkAppId) {
-		this.jdkAppId = jdkAppId;
+	public void setJdkReleaseId(Integer jdkReleaseId) {
+		this.jdkReleaseId = jdkReleaseId;
 	}
 
 	public LocalDateTime getStartTime() {
@@ -104,6 +108,14 @@ public class ProjectReleaseTask extends PartialOperateFields{
 
 	public void setReleaseResult(ReleaseResult releaseResult) {
 		this.releaseResult = releaseResult;
+	}
+
+	public String getJdkName() {
+		return jdkName;
+	}
+
+	public void setJdkName(String jdkName) {
+		this.jdkName = jdkName;
 	}
 	
 }

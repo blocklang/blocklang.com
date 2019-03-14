@@ -313,7 +313,7 @@ public class BuildServiceImpl implements BuildService {
 			// 3. 存储 APP_RELEASE_RELATION
 			AppReleaseRelation relation = new AppReleaseRelation();
 			relation.setAppReleaseId(appRelease.getId());
-			relation.setDependAppReleaseId(releaseTask.getJdkAppId());
+			relation.setDependAppReleaseId(releaseTask.getJdkReleaseId());
 			appReleaseRelationDao.save(relation);
 			
 			// 4. 存储 APP_RELEASE_FILE

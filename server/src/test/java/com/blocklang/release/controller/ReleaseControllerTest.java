@@ -2,6 +2,7 @@ package com.blocklang.release.controller;
 
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -21,12 +22,16 @@ import org.apache.http.HttpStatus;
 import org.junit.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.test.context.support.WithMockUser;
 
+import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.GithubLoginService;
+import com.blocklang.core.service.UserService;
 import com.blocklang.core.test.AbstractControllerTest;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.service.ProjectService;
 import com.blocklang.release.constant.ReleaseResult;
+import com.blocklang.release.data.CheckReleaseVersionParam;
 import com.blocklang.release.data.NewReleaseTaskParam;
 import com.blocklang.release.model.ProjectReleaseTask;
 import com.blocklang.release.model.ProjectTag;
@@ -55,6 +60,10 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 	@MockBean
 	private BuildService buildService;
 	
+	@MockBean
+	private UserService userService;
+	
+	@WithMockUser(username = "owner")
 	@Test
 	public void post_release_param_is_blank() {
 		NewReleaseTaskParam release = new NewReleaseTaskParam();
@@ -65,11 +74,12 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 			.post("/projects/{owner}/{projectName}/releases", "jack", "demo_project")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
-			.body("errors.version", hasItems("版本不能为空"), 
+			.body("errors.version", hasItems("版本号不能为空"), 
 				  "errors.title", hasItems("发行版标题不能为空"),
-				  "errors.jdkAppId", hasItems("必须选择 JDK 版本"));
+				  "errors.jdkReleaseId", hasItems("必须选择 JDK 版本"));
 	}
 	
+	@WithMockUser(username = "owner")
 	@Test
 	public void post_release_invalid_version() {
 		NewReleaseTaskParam release = prepareNewParam();
@@ -82,9 +92,10 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 			.post("/projects/{owner}/{projectName}/releases", "jack", "demo_project")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
-			.body("errors.version", hasItems("不是有效的语义化版本"));
+			.body("errors.version", hasItems("不是有效的<a href=\"https://semver.org/lang/zh-CN/\">语义化版本</a>"));
 	}	
 	
+	@WithMockUser(username = "owner")
 	@Test
 	public void post_release_project_not_exist() {
 		NewReleaseTaskParam release = prepareNewParam();
@@ -100,6 +111,7 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 			.statusCode(HttpStatus.SC_NOT_FOUND);
 	}
 	
+	@WithMockUser(username = "owner")
 	@Test
 	public void post_release_version_is_used() {
 		NewReleaseTaskParam release = prepareNewParam();
@@ -113,6 +125,10 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 		ProjectTag projectTag = new ProjectTag();
 		when(projectTagService.find(anyInt(), anyString())).thenReturn(Optional.of(projectTag));
 		
+		ProjectTag latestTag = new ProjectTag();
+		latestTag.setVersion("0.1.1");
+		when(projectTagService.findLatestTag(anyInt())).thenReturn(Optional.of(latestTag));
+		
 		given()
 			.contentType(ContentType.JSON)
 			.body(release)
@@ -120,9 +136,10 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 			.post("/projects/{owner}/{projectName}/releases", "jack", "demo_project")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
-			.body("errors.version", hasItems("版本号 0.1.0 已被占用"));
+			.body("errors.version", hasItems("版本号<strong>0.1.0</strong>已被占用，最新发布的版本号是<strong>0.1.1</strong>"));
 	}
 	
+	@WithMockUser(username = "owner")
 	@Test
 	public void post_release_version_not_greater_than_previous() {
 		NewReleaseTaskParam release = prepareNewParam();
@@ -147,9 +164,10 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 			.post("/projects/{owner}/{projectName}/releases", "jack", "demo_project")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
-			.body("errors.version", hasItems("版本号应大于项目最新的版本号，但 0.1.0 没有大于 0.1.1"));
+			.body("errors.version", hasItems("要大于最新发布的版本号<strong>0.1.1</strong>"));
 	}
 	
+	@WithMockUser(username = "owner")
 	@Test
 	public void post_release_started() throws IOException {
 		NewReleaseTaskParam release = prepareNewParam();
@@ -162,13 +180,16 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 		
 		when(projectTagService.find(anyInt(), anyString())).thenReturn(Optional.empty());
 		
+		UserInfo currentUser = new UserInfo();
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(currentUser));
+		
 		ProjectReleaseTask task = new ProjectReleaseTask();
 		task.setId(1);
 		task.setProjectId(project.getId());
 		task.setVersion("0.1.0");
 		task.setTitle("发行版标题");
 		task.setDescription("发行版描述");
-		task.setJdkAppId(3);
+		task.setJdkReleaseId(3);
 		task.setStartTime(LocalDateTime.now());
 		task.setReleaseResult(ReleaseResult.STARTED);
 		when(projectReleaseTaskService.save(any())).thenReturn(task);
@@ -185,7 +206,7 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 					"version", equalTo("0.1.0"),
 					"title", equalTo("发行版标题"),
 					"description", equalTo("发行版描述"),
-					"jdkAppId", is(3),
+					"jdkReleaseId", is(3),
 					"startTime", is(notNullValue()),
 					"endTime", is(nullValue()),
 					"releaseResult", equalTo(ReleaseResult.STARTED.getKey()));
@@ -198,7 +219,7 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 		release.setVersion("0.1.0");
 		release.setTitle("发行版名称");
 		release.setDescription("发行版描述");
-		release.setJdkAppId(22);
+		release.setJdkReleaseId(22);
 		return release;
 	}
 //	
@@ -322,6 +343,145 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 		.then()
 			.statusCode(HttpStatus.SC_OK)
 			.body("size()", equalTo(0));
+	}
+	
+	@Test
+	public void check_version_user_is_unauthorization_not_login() {
+		CheckReleaseVersionParam param = new CheckReleaseVersionParam();
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/{owner}/{projectName}/releases/check-version", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_FORBIDDEN)
+			.body(equalTo(""));
+	}
+	
+	@WithMockUser(username = "owner")
+	@Test
+	public void check_version_is_blank() {
+		CheckReleaseVersionParam param = new CheckReleaseVersionParam();
+		param.setVersion(" "); // 有一个空格
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/{owner}/{projectName}/releases/check-version", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
+			.body("errors.version", hasItem("版本号不能为空"),
+					"errors.version.size()", is(1));
+	}
+	
+	@WithMockUser(username = "owner")
+	@Test
+	public void check_version_is_not_a_valid_semantic_versioning() {
+		CheckReleaseVersionParam param = new CheckReleaseVersionParam();
+		param.setVersion("not-a-sematic-version");
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/{owner}/{projectName}/releases/check-version", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
+			.body("errors.version", hasItem("不是有效的<a href=\"https://semver.org/lang/zh-CN/\">语义化版本</a>"),
+					"errors.version.size()", is(1));
+	}
+	
+	@WithMockUser(username = "owner")
+	@Test
+	public void check_version_is_used() {
+		CheckReleaseVersionParam param = new CheckReleaseVersionParam();
+		param.setVersion("0.1.0");
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setCreateUserName("jack");
+		project.setName("demo_project");
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		ProjectTag projectTag = new ProjectTag();
+		when(projectTagService.find(anyInt(), anyString())).thenReturn(Optional.of(projectTag));
+		
+		ProjectTag latestTag = new ProjectTag();
+		latestTag.setVersion("0.1.1");
+		when(projectTagService.findLatestTag(anyInt())).thenReturn(Optional.of(latestTag));
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/{owner}/{projectName}/releases/check-version", "jack", "demo_project")
+		.then()
+			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
+			.body("errors.version", hasItems("版本号<strong>0.1.0</strong>已被占用，最新发布的版本号是<strong>0.1.1</strong>"));
+	}
+	
+	@WithMockUser(username = "owner")
+	@Test
+	public void check_version_not_greater_than_previous() {
+		CheckReleaseVersionParam param = new CheckReleaseVersionParam();
+		param.setVersion("0.1.0");
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setCreateUserName("jack");
+		project.setName("demo_project");
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		// 版本号没有被占用
+		when(projectTagService.find(anyInt(), anyString())).thenReturn(Optional.empty());
+		
+		// 但版本号没有大于最新版本号
+		ProjectTag tag = new ProjectTag();
+		tag.setId(1);
+		tag.setVersion("0.1.1");
+		when(projectTagService.findLatestTag(anyInt())).thenReturn(Optional.of(tag));
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/{owner}/{projectName}/releases/check-version", "jack", "demo_project")
+		.then()
+			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
+			.body("errors.version", hasItems("要大于最新发布的版本号<strong>0.1.1</strong>"));
+	}
+	
+	@WithMockUser(username = "owner")
+	@Test
+	public void check_version_pass() {
+		CheckReleaseVersionParam param = new CheckReleaseVersionParam();
+		param.setVersion("0.1.0");
+
+		Project project = new Project();
+		project.setId(1);
+		project.setCreateUserName("jack");
+		project.setName("demo_project");
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		// 版本号没有被占用
+		when(projectTagService.find(anyInt(), anyString())).thenReturn(Optional.empty());
+		
+		// 但版本号没有大于最新版本号
+		ProjectTag tag = new ProjectTag();
+		tag.setId(1);
+		tag.setVersion("0.0.1");
+		when(projectTagService.findLatestTag(anyInt())).thenReturn(Optional.of(tag));
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/{owner}/{projectName}/releases/check-version", "jack", "demo_project")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body(equalTo(""));
 	}
 
 }

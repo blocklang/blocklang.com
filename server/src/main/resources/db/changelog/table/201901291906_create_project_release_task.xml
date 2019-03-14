@@ -21,7 +21,7 @@
 				<constraints nullable="false" />
 			</column>
 			<column name="description" remarks="发行版说明" type="${clob}" />
-			<column name="jdk_app_id" remarks="jdk 标识" type="int">
+			<column name="jdk_release_id" remarks="jdk 发行版标识" type="int">
 				<constraints nullable="false"/>
 			</column>
 			<column name="start_time" remarks="开始时间" type="${datetime}">

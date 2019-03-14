@@ -44,7 +44,7 @@ public class BuildServiceImplTest extends AbstractServiceTest{
 		task.setProjectId(1);
 		task.setTitle("title");
 		task.setDescription("description");
-		task.setJdkAppId(2);
+		task.setJdkReleaseId(2);
 		task.setVersion("0.0.1");
 		task.setStartTime(LocalDateTime.now());
 		task.setReleaseResult(ReleaseResult.STARTED);

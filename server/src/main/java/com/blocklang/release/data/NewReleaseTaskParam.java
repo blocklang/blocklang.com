@@ -17,8 +17,8 @@ public class NewReleaseTaskParam {
 	private String title;
 	private String description;
 	// 如果用户没有设置，则获取系统支持的最新 jdk
-	@NotNull(message = "{NotNull.jdkAppId}")
-	private Integer jdkAppId;
+	@NotNull(message = "{NotNull.jdkReleaseId}")
+	private Integer jdkReleaseId;
 
 	public String getVersion() {
 		return version;
@@ -44,18 +44,18 @@ public class NewReleaseTaskParam {
 		this.description = description;
 	}
 
-	public Integer getJdkAppId() {
-		return jdkAppId;
+	public Integer getJdkReleaseId() {
+		return jdkReleaseId;
 	}
 
-	public void setJdkAppId(Integer jdkAppId) {
-		this.jdkAppId = jdkAppId;
+	public void setJdkReleaseId(Integer jdkReleaseId) {
+		this.jdkReleaseId = jdkReleaseId;
 	}
 
 	@Override
 	public String toString() {
 		return "NewReleaseParam [version=" + version + ", title=" + title + ", description=" + description
-				+ ", jdkAppId=" + jdkAppId + "]";
+				+ ", jdkReleaseId=" + jdkReleaseId + "]";
 	}
 
 }

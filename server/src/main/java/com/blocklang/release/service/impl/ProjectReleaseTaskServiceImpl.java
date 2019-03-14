@@ -9,6 +9,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
+import com.blocklang.release.dao.AppDao;
+import com.blocklang.release.dao.AppReleaseDao;
 import com.blocklang.release.dao.ProjectReleaseTaskDao;
 import com.blocklang.release.model.ProjectReleaseTask;
 import com.blocklang.release.service.ProjectReleaseTaskService;
@@ -18,6 +20,10 @@ public class ProjectReleaseTaskServiceImpl implements ProjectReleaseTaskService 
 
 	@Autowired
 	private ProjectReleaseTaskDao projectReleaseTaskDao;
+	@Autowired
+	private AppReleaseDao appReleaseDao;
+	@Autowired
+	private AppDao appDao;
 	
 	@Override
 	public ProjectReleaseTask save(ProjectReleaseTask projectReleaseTask) {
@@ -27,7 +33,15 @@ public class ProjectReleaseTaskServiceImpl implements ProjectReleaseTaskService 
 	@Override
 	public List<ProjectReleaseTask> findAllByProjectId(Integer projectId) {
 		Pageable pageable = PageRequest.of(0, 100, Sort.by(Direction.DESC, "createTime"));
-		return projectReleaseTaskDao.findAllByProjectId(projectId, pageable);
+		List<ProjectReleaseTask> result = projectReleaseTaskDao.findAllByProjectId(projectId, pageable);
+		result.forEach(task -> {
+			appReleaseDao.findById(task.getJdkReleaseId()).flatMap(release -> {
+				return appDao.findById(release.getAppId());
+			}).ifPresent(app -> {
+				task.setJdkName(app.getAppName());
+			});;
+		});
+		return result;
 	}
 
 }
