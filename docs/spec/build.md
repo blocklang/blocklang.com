@@ -21,6 +21,8 @@
 
 ## 目录结构
 
+程序中使用相对目录，这样程序处理起来更灵活。
+
 ### 代码文件
 
 ```text
@@ -36,6 +38,9 @@ BlockLang
     |--- gitRepo
             |--- {owner}
                      |--- {project_name}
+    |--- thirdParty
+            |--- {version}
+                     |--- {file_name}
 ```
 
 文件夹结构说明
@@ -51,7 +56,13 @@ BlockLang
 3. gitRepo - 存放程序模块模型数据的 git 仓库根目录
    1. {owner} - 仓库拥有者的登录名
       1. {project_name} - 项目名
+4. thirdParty - 存放第三方 APP，如 JDK 文件
+   1. {version} - 版本号
+      1. {file_name} - 文件名
 
 ### jar 文件
 
-1. 使用 maven 的目录结构来管理 jar 文件
+我们称生成后的 jar 文件为 APP。APP 中还包括来自第三方的 APP，如 JDK
+
+1. 使用 maven 的目录结构来管理根据项目生成的 jar 文件
+2. 第三方 APP 放在 thirdParty 文件夹
