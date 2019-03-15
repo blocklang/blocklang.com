@@ -1,0 +1,17 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+	<changeSet author="Zhengwei Jin" id="201903150656">
+		<sql dbms="postgresql">
+		INSERT INTO app(app_name, create_user_id, create_time) VALUES ('jdk', -1, now());
+		INSERT INTO app_release(app_id, version, title, release_time, release_method, create_user_id, create_time)
+			VALUES (currval('app_dbid_seq'), '11.0.2', 'jdk-11.0.2', now(),'01', -1, now());
+		INSERT INTO app_release_file(app_release_id, target_os, arch, file_name, file_path, create_user_id, create_time)
+			VALUES (currval('app_release_dbid_seq'), '17', '02', 'jdk-11.0.2_windows-x64_bin.zip', 'BlockLang/thirdParty/11.0.2/jdk-11.0.2_windows-x64_bin.zip', -1, now());
+		</sql>
+		
+	</changeSet>
+</databaseChangeLog>
