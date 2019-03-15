@@ -57,6 +57,7 @@ library.add(
 
 import * as css from './App.m.css';
 import ListReleaseContainer from './containers/release/ListReleaseContainer';
+import NewReleaseContainer from './containers/release/NewReleaseContainer';
 
 export default class App extends WidgetBase {
 	protected render() {
@@ -67,6 +68,7 @@ export default class App extends WidgetBase {
 				w(Outlet, { key: 'new-project', id: 'new-project', renderer: () => w(NewProjectContainer, {}) }),
 				w(Outlet, { key: 'view-project', id: 'view-project', renderer: () => w(ViewProjectContainer, {}) }),
 				w(Outlet, { key: 'list-release', id: 'list-release', renderer: () => w(ListReleaseContainer, {}) }),
+				w(Outlet, { key: 'new-release', id: 'new-release', renderer: () => w(NewReleaseContainer, {}) }),
 				w(Outlet, { key: 'about', id: 'about', renderer: () => w(About, {}) }),
 				w(Outlet, { key: 'profile', id: 'profile', renderer: () => w(Profile, { username: 'Block Lang' }) })
 			])

@@ -103,7 +103,29 @@ export interface DeployInfo {
 	deployState: string;
 }
 
-export interface Release {}
+export interface ProjectRelease {}
+
+export interface ProjectReleaseParam {
+	id: number;
+	version: string;
+	jdkReleaseId: number;
+	title: string;
+	description: string;
+}
+
+// 对应 app release
+export interface JdkInfo {
+	id: number;
+	name: string;
+	version: string;
+}
+
+export interface ReleaseInputValidation {
+	versionValidateStatus: ValidateStatus;
+	versionErrorMessage: string;
+	titleValidateStatus?: ValidateStatus;
+	titleErrorMessage?: string;
+}
 
 export interface State {
 	errors: Errors;
@@ -117,5 +139,10 @@ export interface State {
 	latestCommitInfo: CommitInfo;
 	readme: string;
 	userDeployInfo: DeployInfo;
-	releases: Release[];
+
+	projectRelease: ProjectRelease;
+	releases: ProjectRelease[];
+	jdks: JdkInfo[];
+	releaseInputValidation: ReleaseInputValidation;
+	projectReleaseParam: ProjectReleaseParam;
 }

@@ -181,7 +181,7 @@ export default class NewProject extends ThemedMixin(I18nMixin(WidgetBase))<NewPr
 				type: 'button',
 				classes: [c.btn, c.btn_primary],
 				disabled,
-				onclick: this._onSaveProject
+				onclick: disabled ? undefined : this._onSaveProject
 			},
 			[messages.projectSaveLabel]
 		);

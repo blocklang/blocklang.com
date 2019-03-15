@@ -17,8 +17,10 @@ export const container: string = 'container';
 //     grid
 export const row: string = 'row';
 export const cell: string = 'cell';
-export const col_md_8: string = 'col-md-8';
+export const col_4: string = 'col-4';
+export const col_8: string = 'col-8';
 export const col_md_4: string = 'col-md-4';
+export const col_md_8: string = 'col-md-8';
 
 // Content
 //     table
@@ -158,6 +160,17 @@ export const justify_content_end = 'justify-content-end';
 export const justify_content_center = 'justify-content-center';
 export const justify_content_between = 'justify-content-between';
 export const justify_content_around = 'justify-content-around';
+
+//     position
+export const position_static: string = 'position-static';
+export const position_relative: string = 'position-relative';
+export const position_absolute: string = 'position-absolute';
+export const position_fixed: string = 'position-fixed';
+export const position_sticky: string = 'position-sticky';
+
+export const fixed_top: string = 'fixed-top';
+export const fixed_bottom: string = 'fixed-bottom';
+export const sticky_top: string = 'sticky-top';
 
 //     screen reader
 export const sr_only: string = 'sr-only';
