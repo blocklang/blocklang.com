@@ -31,7 +31,7 @@ public class AppReleaseServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void find_by_id_no_data() {
-		Optional<AppRelease> appReleaseOption = appReleaseService.findById(1);
+		Optional<AppRelease> appReleaseOption = appReleaseService.findById(9999);
 		assertThat(appReleaseOption.isEmpty()).isTrue();
 	}
 	
@@ -73,7 +73,7 @@ public class AppReleaseServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void find_latest_release_app_no_data() {
-		int appId = 1;
+		int appId = 9999;
 		Optional<AppRelease> appReleaseOption = appReleaseService.findLatestReleaseApp(appId);
 		assertThat(appReleaseOption.isEmpty()).isTrue();
 	}

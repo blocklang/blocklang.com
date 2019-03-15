@@ -65,7 +65,7 @@ public class AppReleaseFileServiceImplTest extends AbstractServiceTest{
 	@Test
 	public void find_not_match_target_os_and_arch() {
 		AppReleaseFile appReleaseFile = new AppReleaseFile();
-		appReleaseFile.setAppReleaseId(1);
+		appReleaseFile.setAppReleaseId(9999);
 		appReleaseFile.setTargetOs(TargetOs.LINUX);
 		appReleaseFile.setArch(Arch.X86);
 		appReleaseFile.setFileName("file_name");
@@ -75,7 +75,7 @@ public class AppReleaseFileServiceImplTest extends AbstractServiceTest{
 		
 		appReleaseFileDao.save(appReleaseFile);
 		
-		Optional<AppReleaseFile> appReleaseFileOption = appReleaseFileService.find(1, TargetOs.WINDOWS, Arch.X86_64);
+		Optional<AppReleaseFile> appReleaseFileOption = appReleaseFileService.find(9999, TargetOs.WINDOWS, Arch.X86_64);
 		assertThat(appReleaseFileOption).isEmpty();
 	}
 	

@@ -23,7 +23,8 @@ public class AppServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void find_by_id_no_data() {
-		Optional<App> appOption = appService.findById(1);
+		// 这里使用 9999，因为初始数据已经使用 1 作为 appId
+		Optional<App> appOption = appService.findById(9999);
 		assertThat(appOption.isEmpty()).isTrue();
 		
 		App app = new App();
