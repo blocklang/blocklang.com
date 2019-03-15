@@ -2,7 +2,9 @@ package com.blocklang.release.controller;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.validation.Valid;
@@ -59,7 +61,7 @@ public class ReleaseController {
 	@Autowired
 	private BuildService buildService;
 	
-	@PostMapping("projects/{owner}/{projectName}/releases")
+	@PostMapping("/projects/{owner}/{projectName}/releases")
 	public ResponseEntity<ProjectReleaseTask> newRelease(
 			Principal principal,
 			@PathVariable("owner") String owner,
@@ -95,8 +97,8 @@ public class ReleaseController {
 	}
 	
 	// 校验版本号
-	@PostMapping("projects/{owner}/{projectName}/releases/check-version")
-	public ResponseEntity<Void> checkVersion(
+	@PostMapping("/projects/{owner}/{projectName}/releases/check-version")
+	public ResponseEntity<Map<String, String>> checkVersion(
 			Principal principal,
 			@PathVariable("owner") String owner,
 			@PathVariable("projectName") String projectName,
@@ -105,7 +107,7 @@ public class ReleaseController {
 		String version = param.getVersion();
 		Validator validator = new Validator();
 		validator.validateReleaseVersion(principal, owner, projectName, version, bindingResult);
-		return ResponseEntity.ok().build();
+		return ResponseEntity.ok(new HashMap<String, String>());
 	}
 
 	private class Validator {
@@ -160,8 +162,6 @@ public class ReleaseController {
 			});
 		}
 	}
-	
-	
 	
 	@GetMapping("projects/{owner}/{projectName}/releases")
 	public ResponseEntity<List<ProjectReleaseTask>> listRelease(

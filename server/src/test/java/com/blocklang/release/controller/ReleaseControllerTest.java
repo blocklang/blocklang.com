@@ -92,7 +92,7 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 			.post("/projects/{owner}/{projectName}/releases", "jack", "demo_project")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
-			.body("errors.version", hasItems("不是有效的<a href=\"https://semver.org/lang/zh-CN/\">语义化版本</a>"));
+			.body("errors.version", hasItems("不是有效的<a href=\"https://semver.org/lang/zh-CN/\" target=\"_blank\">语义化版本</a>"));
 	}	
 	
 	@WithMockUser(username = "owner")
@@ -389,7 +389,7 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 			.post("/projects/{owner}/{projectName}/releases/check-version", "jack", "project")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
-			.body("errors.version", hasItem("不是有效的<a href=\"https://semver.org/lang/zh-CN/\">语义化版本</a>"),
+			.body("errors.version", hasItem("不是有效的<a href=\"https://semver.org/lang/zh-CN/\" target=\"_blank\">语义化版本</a>"),
 					"errors.version.size()", is(1));
 	}
 	
@@ -481,7 +481,7 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 			.post("/projects/{owner}/{projectName}/releases/check-version", "jack", "demo_project")
 		.then()
 			.statusCode(HttpStatus.SC_OK)
-			.body(equalTo(""));
+			.body(equalTo("{}"));
 	}
 
 }
