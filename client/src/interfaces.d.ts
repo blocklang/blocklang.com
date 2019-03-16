@@ -103,7 +103,20 @@ export interface DeployInfo {
 	deployState: string;
 }
 
-export interface ProjectRelease {}
+type ReleaseResult = '01' | '02' | '03' | '04' | '05';
+
+// 对应 release task
+export interface ProjectRelease {
+	version: string;
+	releaseResult: ReleaseResult;
+	title: string;
+	description: string;
+	createUserName: string;
+	createUserAvatarUrl: string;
+	createTime: string;
+	jdkName: string;
+	jdkVersion: string;
+}
 
 export interface ProjectReleaseParam {
 	id: number;

@@ -22,6 +22,7 @@ import { faAndroid } from '@fortawesome/free-brands-svg-icons/faAndroid';
 import { faApple } from '@fortawesome/free-brands-svg-icons/faApple';
 import { faWeixin } from '@fortawesome/free-brands-svg-icons/faWeixin';
 import { faAlipay } from '@fortawesome/free-brands-svg-icons/faAlipay';
+import { faJava } from '@fortawesome/free-brands-svg-icons/faJava';
 
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
 import { faBookOpen } from '@fortawesome/free-solid-svg-icons/faBookOpen';
@@ -33,6 +34,11 @@ import { faHome } from '@fortawesome/free-solid-svg-icons/faHome';
 import { faNewspaper } from '@fortawesome/free-solid-svg-icons/faNewspaper';
 import { faPlug } from '@fortawesome/free-solid-svg-icons/faPlug';
 import { faTag } from '@fortawesome/free-solid-svg-icons/faTag';
+import { faClock } from '@fortawesome/free-solid-svg-icons/faClock';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons/faSpinner';
+import { faTimes } from '@fortawesome/free-solid-svg-icons/faTimes';
+import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
+import { faBan } from '@fortawesome/free-solid-svg-icons/faBan';
 
 library.add(
 	faGithub,
@@ -41,6 +47,7 @@ library.add(
 	faApple,
 	faWeixin,
 	faAlipay,
+	faJava,
 	faPlus,
 	faBookOpen,
 	faEdit,
@@ -52,7 +59,12 @@ library.add(
 	faSquare,
 	faNewspaper,
 	faPlug,
-	faTag
+	faTag,
+	faClock,
+	faSpinner,
+	faTimes,
+	faCheck,
+	faBan
 );
 
 import * as css from './App.m.css';

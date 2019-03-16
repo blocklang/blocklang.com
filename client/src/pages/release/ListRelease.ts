@@ -2,14 +2,20 @@ import { v, w } from '@dojo/framework/widget-core/d';
 import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
 import I18nMixin from '@dojo/framework/widget-core/mixins/I18n';
 import { theme, ThemedMixin } from '@dojo/framework/widget-core/mixins/Themed';
-
-import * as c from '../../className';
-import * as css from './ListRelease.m.css';
 import messageBundle from '../../nls/main';
 import ProjectHeader from '../widgets/ProjectHeader';
 import { Project, ProjectRelease } from '../../interfaces';
 import FontAwesomeIcon from '../../widgets/fontawesome-icon';
 import Link from '@dojo/framework/routing/Link';
+import Spinner from '../../widgets/spinner';
+import { IconName } from '@fortawesome/fontawesome-svg-core';
+import MarkdownPreview from '../../widgets/markdown-preview';
+import Moment from '../../widgets/moment';
+
+import 'github-markdown-css/github-markdown.css';
+import 'highlight.js/styles/github.css';
+import * as c from '../../className';
+import * as css from './ListRelease.m.css';
 
 export interface ListReleaseProperties {
 	project: Project;
@@ -21,11 +27,18 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 	private _localizedMessages = this.localizeBundle(messageBundle);
 
 	protected render() {
-		const { releases = [] } = this.properties;
-		return v('div', { classes: [css.root, c.container] }, [
-			this._renderHeader(),
-			releases.length === 0 ? this._renderEmptyReleases() : this._renderReleases(releases)
-		]);
+		return v('div', { classes: [css.root, c.container] }, [this._renderHeader(), this._renderReleasePart()]);
+	}
+
+	private _renderReleasePart() {
+		const { releases } = this.properties;
+		if (releases === undefined) {
+			return w(Spinner, {});
+		}
+		if (releases.length === 0) {
+			return this._renderEmptyReleases();
+		}
+		return this._renderReleases(releases);
 	}
 
 	private _renderHeader() {
@@ -76,25 +89,118 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 
 	private _renderReleases(releases: ProjectRelease[]) {
 		const {
-			messages: { releaseText }
+			messages: { releaseText, newReleaseText }
 		} = this._localizedMessages;
 		const {
 			project: { createUserName, name }
 		} = this.properties;
 
-		return v('div', { classes: [c.container], styles: { maxWidth: '700px' } }, [
-			v('div', { classes: [c.pb_4] }, [
-				w(
-					Link,
-					{
-						classes: [c.btn, c.btn_info],
-						to: 'list-release',
-						params: { owner: createUserName, project: name }
-					},
-					[`${releaseText}`]
-				)
+		return v('div', [
+			v('div', { classes: [c.pb_4, c.d_flex, c.justify_content_between] }, [
+				v('div', {}, [
+					w(
+						Link,
+						{
+							classes: [c.btn, c.btn_info],
+							to: 'list-release',
+							params: { owner: createUserName, project: name }
+						},
+						[`${releaseText}`]
+					)
+				]),
+				v('div', { classes: [] }, [
+					w(
+						Link,
+						{
+							classes: [c.btn, c.btn_outline_secondary],
+							to: 'new-release',
+							params: { owner: createUserName, project: name }
+						},
+						[`${newReleaseText}`]
+					)
+				])
 			]),
-			v('div', {}, [])
+			v(
+				'div',
+				{ classes: [c.border_top] },
+				releases.map((release) => {
+					return this._renderItem(release);
+				})
+			)
+		]);
+	}
+
+	private _renderItem(release: ProjectRelease) {
+		const releaseResult = release.releaseResult;
+		let resultClasses = '';
+		let spin = false;
+		let resultText = '';
+		let icon: IconName = 'clock';
+		if (releaseResult === '01') {
+			resultClasses = c.text_muted;
+			resultText = '准备';
+			icon = 'clock';
+		} else if (releaseResult === '02') {
+			spin = true;
+			resultClasses = c.text_warning;
+			resultText = '发布中';
+			icon = 'spinner';
+		} else if (releaseResult === '03') {
+			resultClasses = c.text_danger;
+			resultText = '失败';
+			icon = 'times';
+		} else if (releaseResult === '04') {
+			resultClasses = c.text_success;
+			resultText = '成功';
+			icon = 'check';
+		} else if (releaseResult === '05') {
+			resultClasses = c.text_muted;
+			resultText = '取消';
+			icon = 'ban';
+		}
+
+		return v('div', { classes: [c.row] }, [
+			v('div', { classes: [c.col_3, c.text_right, c.py_4] }, [
+				v('ul', { classes: [c.list_unstyled, c.mt_2] }, [
+					v('li', { classes: [c.mb_1] }, [
+						w(FontAwesomeIcon, { icon: 'tag', classes: [c.text_muted] }),
+						` ${release.version}`
+					]),
+					v('li', { classes: [c.mb_1, resultClasses] }, [
+						w(FontAwesomeIcon, { icon, spin }),
+						` ${resultText}`
+					])
+				])
+			]),
+			v('div', { classes: [c.col_9, css.releaseMainSection, c.py_4] }, [
+				// header
+				v('h2', { classes: [] }, [`${release.title}`]),
+				v('div', { classes: [c.mb_4] }, [
+					v('small', { classes: [c.text_muted] }, [
+						w(Link, { to: `${release.createUserName}` }, [
+							v(
+								'img',
+								{ classes: [c.avatar], src: `${release.createUserAvatarUrl}`, width: 20, height: 20 },
+								[]
+							),
+							' ',
+							v('strong', [`${release.createUserName}`])
+						]),
+						' 发布于 ',
+						w(Moment, { datetime: release.createTime })
+					])
+				]),
+				// 介绍
+				release.description
+					? v('div', { classes: [c.markdown_body] }, [w(MarkdownPreview, { value: release.description })])
+					: null,
+				// jdk
+				v('hr'),
+				v('div', { classes: [c.text_muted, c.my_4] }, [
+					w(FontAwesomeIcon, { icon: ['fab', 'java'], size: '2x' }),
+					` ${release.jdkName}_${release.jdkVersion} `
+				])
+			])
 		]);
 	}
 }

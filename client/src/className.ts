@@ -21,6 +21,8 @@ export const col_4: string = 'col-4';
 export const col_8: string = 'col-8';
 export const col_md_4: string = 'col-md-4';
 export const col_md_8: string = 'col-md-8';
+export const col_3: string = 'col-3';
+export const col_9: string = 'col-9';
 
 // Content
 //     table
@@ -140,8 +142,19 @@ export const border_bottom_0: string = 'border-bottom-0';
 export const border_left_0: string = 'border-left-0';
 
 //     color
-export const text_muted: string = 'text-muted';
+export const text_primary: string = 'text-primary';
+export const text_secondary: string = 'text-secondary';
+export const text_success: string = 'text-success';
+export const text_danger: string = 'text-danger';
+export const text_warning: string = 'text-warning';
 export const text_info: string = 'text-info';
+export const text_light: string = 'text-light';
+export const text_dark: string = 'text-dark';
+export const text_body: string = 'text-body';
+export const text_muted: string = 'text-muted';
+export const text_white: string = 'text-white';
+export const text_black_50: string = 'text-black-50';
+export const text_white_50: string = 'text-white-50';
 
 //     display
 export const d_none: string = 'd-none';
