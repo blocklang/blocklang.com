@@ -45,6 +45,12 @@ public class ProjectReleaseTask extends PartialOperateFields{
 	
 	@Transient
 	private String jdkName;
+	@Transient
+	private String jdkVersion;
+	@Transient
+	private String createUserName;
+	@Transient
+	private String createUserAvatarUrl;
 
 	public Integer getProjectId() {
 		return projectId;
@@ -116,6 +122,30 @@ public class ProjectReleaseTask extends PartialOperateFields{
 
 	public void setJdkName(String jdkName) {
 		this.jdkName = jdkName;
+	}
+
+	public String getJdkVersion() {
+		return jdkVersion;
+	}
+
+	public void setJdkVersion(String jdkVersion) {
+		this.jdkVersion = jdkVersion;
+	}
+
+	public String getCreateUserName() {
+		return createUserName;
+	}
+
+	public void setCreateUserName(String createUserName) {
+		this.createUserName = createUserName;
+	}
+
+	public String getCreateUserAvatarUrl() {
+		return createUserAvatarUrl;
+	}
+
+	public void setCreateUserAvatarUrl(String createUserAvatarUrl) {
+		this.createUserAvatarUrl = createUserAvatarUrl;
 	}
 	
 }

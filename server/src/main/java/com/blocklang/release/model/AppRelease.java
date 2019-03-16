@@ -38,7 +38,7 @@ public class AppRelease extends PartialOperateFields{
 	private ReleaseMethod releaseMethod;
 	
 	@Transient
-	private String name;
+	private String name; // app name
 
 	public Integer getAppId() {
 		return appId;
@@ -95,4 +95,5 @@ public class AppRelease extends PartialOperateFields{
 	public void setName(String name) {
 		this.name = name;
 	}
+
 }

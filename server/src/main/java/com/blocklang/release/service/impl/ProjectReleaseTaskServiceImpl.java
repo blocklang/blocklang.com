@@ -9,6 +9,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
+import com.blocklang.core.service.UserService;
 import com.blocklang.release.dao.AppDao;
 import com.blocklang.release.dao.AppReleaseDao;
 import com.blocklang.release.dao.ProjectReleaseTaskDao;
@@ -24,6 +25,8 @@ public class ProjectReleaseTaskServiceImpl implements ProjectReleaseTaskService 
 	private AppReleaseDao appReleaseDao;
 	@Autowired
 	private AppDao appDao;
+	@Autowired
+	private UserService userService;
 	
 	@Override
 	public ProjectReleaseTask save(ProjectReleaseTask projectReleaseTask) {
@@ -36,10 +39,15 @@ public class ProjectReleaseTaskServiceImpl implements ProjectReleaseTaskService 
 		List<ProjectReleaseTask> result = projectReleaseTaskDao.findAllByProjectId(projectId, pageable);
 		result.forEach(task -> {
 			appReleaseDao.findById(task.getJdkReleaseId()).flatMap(release -> {
+				task.setJdkVersion(release.getVersion());
 				return appDao.findById(release.getAppId());
 			}).ifPresent(app -> {
 				task.setJdkName(app.getAppName());
-			});;
+			});
+			userService.findById(task.getCreateUserId()).ifPresent(user -> {
+				task.setCreateUserName(user.getLoginName());
+				task.setCreateUserAvatarUrl(user.getAvatarUrl());
+			});
 		});
 		return result;
 	}
