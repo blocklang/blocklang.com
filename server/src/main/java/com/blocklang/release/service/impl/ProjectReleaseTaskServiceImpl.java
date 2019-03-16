@@ -52,4 +52,9 @@ public class ProjectReleaseTaskServiceImpl implements ProjectReleaseTaskService 
 		return result;
 	}
 
+	@Override
+	public Long count(Integer projectId) {
+		return projectReleaseTaskDao.countByProjectId(projectId);
+	}
+
 }

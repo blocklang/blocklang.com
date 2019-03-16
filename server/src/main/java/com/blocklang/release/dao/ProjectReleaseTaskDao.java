@@ -11,4 +11,6 @@ public interface ProjectReleaseTaskDao extends JpaRepository<ProjectReleaseTask,
 
 	List<ProjectReleaseTask> findAllByProjectId(Integer projectId, Pageable pageable);
 
+	Long countByProjectId(Integer projectId);
+
 }

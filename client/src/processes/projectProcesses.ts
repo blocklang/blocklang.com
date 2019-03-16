@@ -98,7 +98,7 @@ const saveProjectCommand = commandFactory(async ({ path, get }) => {
 });
 
 /************************* view project ****************************/
-export const getProjectCommand = commandFactory(async ({ path, get, payload: { owner, project } }) => {
+export const getProjectCommand = commandFactory(async ({ path, payload: { owner, project } }) => {
 	const response = await fetch(`${baseUrl}/projects/${owner}/${project}`);
 	const json = await response.json();
 	if (!response.ok) {
@@ -110,7 +110,7 @@ export const getProjectCommand = commandFactory(async ({ path, get, payload: { o
 	return [replace(path('project'), json)];
 });
 
-const getProjectResourcesCommand = commandFactory(async ({ path, get, payload: { owner, project, pathId = -1 } }) => {
+const getProjectResourcesCommand = commandFactory(async ({ path, payload: { owner, project, pathId = -1 } }) => {
 	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/tree/${pathId}`);
 	const json = await response.json();
 	if (!response.ok) {
@@ -120,7 +120,7 @@ const getProjectResourcesCommand = commandFactory(async ({ path, get, payload: {
 	return [replace(path('projectResources'), json)];
 });
 
-const getLatestCommitInfoCommand = commandFactory(async ({ path, get, payload: { owner, project, pathId = -1 } }) => {
+const getLatestCommitInfoCommand = commandFactory(async ({ path, payload: { owner, project, pathId = -1 } }) => {
 	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/latest-commit/${pathId}`);
 	const json = await response.json();
 	if (!response.ok) {
@@ -130,7 +130,7 @@ const getLatestCommitInfoCommand = commandFactory(async ({ path, get, payload: {
 	return [replace(path('latestCommitInfo'), json)];
 });
 
-const getProjectReadmeCommand = commandFactory(async ({ path, get, payload: { owner, project } }) => {
+const getProjectReadmeCommand = commandFactory(async ({ path, payload: { owner, project } }) => {
 	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/readme`);
 	const readmeContent = await response.text();
 	if (!response.ok) {
@@ -140,7 +140,7 @@ const getProjectReadmeCommand = commandFactory(async ({ path, get, payload: { ow
 	return [replace(path('readme'), readmeContent)];
 });
 
-const getDeployInfoCommand = commandFactory(async ({ path, get, payload: { owner, project } }) => {
+const getDeployInfoCommand = commandFactory(async ({ path, payload: { owner, project } }) => {
 	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/deploy_setting`);
 	const userDeployInfo = await response.json();
 	if (!response.ok) {
@@ -148,6 +148,16 @@ const getDeployInfoCommand = commandFactory(async ({ path, get, payload: { owner
 	}
 
 	return [replace(path('userDeployInfo'), userDeployInfo)];
+});
+
+const getReleaseCountCommand = commandFactory(async ({ path, payload: { owner, project } }) => {
+	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/stats/releases`);
+	const data = await response.json();
+	if (!response.ok) {
+		return [replace(path('releaseCount'), undefined)];
+	}
+
+	return [replace(path('releaseCount'), data.total)];
 });
 
 export const initForNewProjectProcess = createProcess('init-for-new-project', [initIsPublicCommand]);
@@ -160,6 +170,7 @@ export const initForViewProjectProcess = createProcess('init-for-view-project', 
 	getProjectCommand,
 	getLatestCommitInfoCommand,
 	getProjectResourcesCommand,
-	getProjectReadmeCommand
+	getProjectReadmeCommand,
+	getReleaseCountCommand
 ]);
 export const getUserDeployInfoProcess = createProcess('get-user-deploy-info', [getDeployInfoCommand]);

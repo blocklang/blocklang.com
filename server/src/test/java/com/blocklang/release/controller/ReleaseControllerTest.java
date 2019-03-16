@@ -484,4 +484,34 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 			.body(equalTo("{}"));
 	}
 
+	@Test
+	public void get_release_count_project_not_exist() {
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/stats/releases", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	// TODO: 只有有访问权限的用户，才能访问项目的统计数据
+	// 如某些私有项目
+	@Test
+	public void get_release_count_success() {
+		Project project = new Project();
+		project.setId(1);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		when(projectReleaseTaskService.count(anyInt())).thenReturn(1l);
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/stats/releases", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body("total", equalTo(1));
+	}
+	
 }

@@ -10,4 +10,6 @@ public interface ProjectReleaseTaskService {
 
 	List<ProjectReleaseTask> findAllByProjectId(Integer projectId);
 
+	Long count(Integer projectId);
+
 }

@@ -134,4 +134,26 @@ public class ProjectReleaseTaskServiceImplTest extends AbstractServiceTest{
 			.hasFieldOrPropertyWithValue("createUserAvatarUrl", "avatar_url");
 	}
 	
+	@Test
+	public void count_equal_to_0() {
+		assertThat(projectReleaseTaskService.count(1)).isEqualTo(0);
+	}
+	
+	@Test
+	public void count_equal_to_1() {
+		ProjectReleaseTask task = new ProjectReleaseTask();
+		task.setProjectId(1);
+		task.setVersion("0.0.1");
+		task.setTitle("title1");
+		task.setDescription("description1");
+		task.setJdkReleaseId(2);
+		task.setStartTime(LocalDateTime.now());
+		task.setReleaseResult(ReleaseResult.STARTED);
+		task.setCreateTime(LocalDateTime.now().minusSeconds(1));
+		task.setCreateUserId(1);
+		
+		projectReleaseTaskService.save(task);
+		
+		assertThat(projectReleaseTaskService.count(1)).isEqualTo(1);
+	}
 }

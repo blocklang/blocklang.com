@@ -210,4 +210,5 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		
 		assertThat(resource.getTitle()).isEqualTo("服务");
 	}
+
 }

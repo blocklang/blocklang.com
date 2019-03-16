@@ -30,6 +30,7 @@ export interface ViewProjectProperties {
 	latestCommitInfo: CommitInfo;
 	readme?: string;
 	userDeployInfo: DeployInfo;
+	releaseCount: number;
 	onGetDeployInfo: (opt: ProjectPathPayload) => void;
 }
 
@@ -57,13 +58,14 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 
 	private _renderNavigation() {
 		const { messages } = this._localizedMessages;
+		const { releaseCount = 0 } = this.properties;
 
 		return v('div', { classes: [c.d_flex, c.justify_content_end, c.mb_2] }, [
 			v('div', { classes: [] }, [
 				// 发布按钮，后面显示发布次数
 				w(Link, { to: 'list-release', classes: [c.btn, c.btn_outline_secondary, c.btn_sm] }, [
 					`${messages.releaseLabel} `,
-					v('span', { classes: [c.badge, c.badge_light] }, ['0'])
+					v('span', { classes: [c.badge, c.badge_light] }, [`${releaseCount}`])
 				]),
 				// 部署按钮，显示部署步骤
 				this._renderDeployButton()
@@ -309,6 +311,7 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 			]),
 			// 最近提交说明
 			v('span', [`${latestCommitInfo.shortMessage}`]),
+			' ',
 			// 最近提交时间
 			v('span', { classes: [c.float_right] }, [
 				`${messages.latestCommitLabel}`,

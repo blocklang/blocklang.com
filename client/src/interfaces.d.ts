@@ -158,4 +158,5 @@ export interface State {
 	jdks: JdkInfo[];
 	releaseInputValidation: ReleaseInputValidation;
 	projectReleaseParam: ProjectReleaseParam;
+	releaseCount: number;
 }

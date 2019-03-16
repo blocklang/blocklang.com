@@ -172,6 +172,18 @@ public class ReleaseController {
 		
 		List<ProjectReleaseTask> releases = projectReleaseTaskService.findAllByProjectId(project.getId());
 		return ResponseEntity.ok(releases);
+	}
+	
+	@GetMapping("projects/{owner}/{projectName}/stats/releases")
+	public ResponseEntity<Map<String, Long>> getReleaseCount(
+			@PathVariable("owner") String owner,
+			@PathVariable("projectName") String projectName) {
 		
+		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
+		
+		Long count = projectReleaseTaskService.count(project.getId());
+		Map<String, Long> result = new HashMap<String, Long>();
+		result.put("total", count);
+		return ResponseEntity.ok(result);
 	}
 }

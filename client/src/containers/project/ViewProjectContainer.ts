@@ -14,11 +14,12 @@ function getProperties(store: Store<State>): ViewProjectProperties {
 		latestCommitInfo: get(path('latestCommitInfo')),
 		readme: get(path('readme')),
 		userDeployInfo: get(path('userDeployInfo')),
+		releaseCount: get(path('releaseCount')),
 		onGetDeployInfo: getUserDeployInfoProcess(store)
 	};
 }
 
 export default StoreContainer(ViewProject, 'state', {
-	paths: [['user'], ['project'], ['projectResources'], ['readme'], ['userDeployInfo']],
+	paths: [['user'], ['project'], ['projectResources'], ['readme'], ['userDeployInfo'], ['releaseCount']],
 	getProperties
 });
