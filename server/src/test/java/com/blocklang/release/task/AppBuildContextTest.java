@@ -2,17 +2,24 @@ package com.blocklang.release.task;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 public class AppBuildContextTest {
 
 	private AppBuildContext context;
+	
+	@Rule
+	public TemporaryFolder tempFolder = new TemporaryFolder();
 	
 	@Before
 	public void setUp() {
@@ -93,5 +100,15 @@ public class AppBuildContextTest {
 	@Test
 	public void get_project_template_server_directory() {
 		assertThat(context.getProjectTemplateServerDirectory().compareTo(Paths.get("c:/blocklang/template/server"))).isEqualTo(0);
+	}
+	
+	@Test
+	public void error_append_new_line() throws IOException {
+		File logFolder = tempFolder.newFolder("logs");
+		context = new AppBuildContext(logFolder.getPath(), "c:/Users/Administrator/.m2", null, "jack", "app", "0.0.1");
+		
+		context.error(new Exception("message"));
+		assertThat(Files.readString(context.getLogFilePath())).contains(System.lineSeparator());
+		
 	}
 }

@@ -90,9 +90,9 @@ public class AppBuildContext extends ProjectContext{
 	public Path getLogFilePath() throws IOException {
 		if(logFilePath == null) {
 			Path logFileDir = this.getLogDirectory();
-			String logFileName = this.getLogFileName();
 			Files.createDirectories(logFileDir);
-			
+
+			String logFileName = this.getLogFileName();
 			logFilePath = logFileDir.resolve(logFileName);
 			if(Files.notExists(logFilePath)) {
 				Files.createFile(logFilePath);
@@ -163,7 +163,7 @@ public class AppBuildContext extends ProjectContext{
 
 	public void error(Throwable e) {
 		try {
-			Files.writeString(getLogFilePath(), e.getMessage(), StandardOpenOption.APPEND);
+			Files.writeString(getLogFilePath(), e.getMessage() + System.lineSeparator(), StandardOpenOption.APPEND);
 		} catch (IOException e1) {
 			logger.error("not found log file", e);
 		}
