@@ -183,6 +183,14 @@ public class AppBuildContext extends ProjectContext{
 		}
 	}
 
+	public void println() {
+		try {
+			Files.writeString(getLogFilePath(), System.lineSeparator(), StandardOpenOption.APPEND);
+		} catch (IOException e) {
+			logger.error("not found log file", e);
+		}
+	}
+
 	public Path getProjectTemplateDirectory() {
 		return Paths.get(this.projectsRootPath, "template");
 	}
@@ -194,4 +202,5 @@ public class AppBuildContext extends ProjectContext{
 	public Path getProjectTemplateServerDirectory() {
 		return this.getProjectTemplateDirectory().resolve("server");
 	}
+
 }

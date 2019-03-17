@@ -41,8 +41,8 @@ import com.blocklang.release.task.DojoBuildTask;
 import com.blocklang.release.task.GitSyncProjectTemplateTask;
 import com.blocklang.release.task.GitTagTask;
 import com.blocklang.release.task.MavenInstallTask;
-import com.blocklang.release.task.NpmInstallTask;
 import com.blocklang.release.task.ProjectTemplateCopyTask;
+import com.blocklang.release.task.YarnTask;
 
 @Service
 public class BuildServiceImpl implements BuildService {
@@ -202,9 +202,13 @@ public class BuildServiceImpl implements BuildService {
 		// 开始构建 dojo 项目
 		// 1. 安装依赖
 		if(success) {
-			context.info("开始执行 cnpm install 命令");
-			NpmInstallTask npmInstallTask = new NpmInstallTask(context);
-			success = npmInstallTask.run().isPresent();
+			// 因为使用 npm 或 cnpm 会出现 package 下载不全的问题，所以改为 yarn
+			context.info("开始执行 yarn 命令");
+			YarnTask yarnTask = new YarnTask(context);
+			success = yarnTask.run().isPresent();
+			
+			// 日志文件中增加一个换行符
+			context.println();
 			if(success) {
 				context.info("完成");
 			}else {
@@ -219,6 +223,9 @@ public class BuildServiceImpl implements BuildService {
 			
 			DojoBuildTask dojoBuildTask = new DojoBuildTask(context);
 			success = dojoBuildTask.run().isPresent();
+			
+			// 日志文件中增加一个换行符
+			context.println();
 			if(success) {
 				context.info("完成");
 			}else {

@@ -22,7 +22,7 @@ public abstract class AbstractCommandTask extends AbstractTask{
 		try {
 			processBuilder.redirectErrorStream(true);
 			processBuilder.redirectOutput(Redirect.appendTo(appBuildContext.getLogFilePath().toFile()));
-			
+
 			Process process = processBuilder.start();
 			
 			if(process.isAlive()) {

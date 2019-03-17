@@ -94,6 +94,16 @@ Block Lang 平台。
 
 ## 安装
 
+### 安装环境
+
+1. 安装 JDK
+2. 安装 git
+3. 安装 nodeJs
+4. 安装 yarn
+5. 配置 xxx
+
+### 安装 blocklang 软件
+
 1. 进入 `client` 文件夹，执行 `npm run build` 生成发布文件（存在 `output/dist` 文件夹中）
 2. 将 `client/output/dist` 中的文件复制到 `server/src/main/java/resources/static` 文件夹中
 3. 将 `server/src/main/java/resources/static/index.html` 移到 `server/src/main/java/resources/templates` 文件夹中
