@@ -174,7 +174,7 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 			]),
 			v('div', { classes: [c.col_9, css.releaseMainSection, c.py_4] }, [
 				// header
-				v('h2', { classes: [] }, [`${release.title}`]),
+				v('h2', { classes: [resultClasses] }, [`${release.title}`]),
 				v('div', { classes: [c.mb_4] }, [
 					v('small', { classes: [c.text_muted] }, [
 						w(Link, { to: `${release.createUserName}` }, [
