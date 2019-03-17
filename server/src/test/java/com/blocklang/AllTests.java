@@ -30,12 +30,14 @@ import com.blocklang.release.service.impl.ProjectReleaseTaskServiceImplTest;
 import com.blocklang.release.service.impl.ProjectTagServiceImplTest;
 import com.blocklang.release.service.impl.WebServerServiceImplTest;
 import com.blocklang.release.task.AppBuildContextTest;
+import com.blocklang.release.task.GitTagTaskTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
 	// unit test
 	IdGeneratorTest.class,
 	AppBuildContextTest.class,
+	GitTagTaskTest.class,
 	GitUtilsTest.class,
 	
 	// api tests

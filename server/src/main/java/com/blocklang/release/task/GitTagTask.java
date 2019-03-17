@@ -3,7 +3,6 @@ package com.blocklang.release.task;
 import java.nio.file.Path;
 import java.util.Optional;
 
-import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Ref;
 
 import com.blocklang.core.git.GitUtils;
@@ -16,7 +15,7 @@ public class GitTagTask extends AbstractTask{
 	public GitTagTask(AppBuildContext appBuildContext) {
 		super(appBuildContext);
 		// 获取已存在的 git 仓库
-		gitDir = appBuildContext.getGitRepositoryDirectory().resolve(Constants.DOT_GIT);
+		gitDir = appBuildContext.getGitRepositoryDirectory();
 	}
 
 	// 为 git 仓库打标签
