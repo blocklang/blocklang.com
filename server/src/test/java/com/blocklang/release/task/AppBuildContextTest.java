@@ -46,7 +46,7 @@ public class AppBuildContextTest {
 	
 	@Test
 	public void get_maven_install_jar_path() {
-		assertThat(context.getMavenInstallJar().compareTo(Paths.get("c:/Users/Administrator/.m2/repository/com/blocklang/app/0.0.1/app-0.0.1.jar"))).isEqualTo(0);
+		assertThat(context.getMavenInstallJar().compareTo(Paths.get("c:/Users/Administrator/.m2/repository/com/blocklang/jack/app/0.0.1/app-0.0.1.jar"))).isEqualTo(0);
 	}
 	
 	@Test

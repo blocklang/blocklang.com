@@ -71,4 +71,4 @@ maven 的 jar 文件命名规范：
 
 1. groupId: com.blocklang.{userName}
 2. artifactId: {projectName}
-3. jar 文件名为 `{projectName}-{version}-SNAPSHOT.jar`
+3. jar 文件名为 `{projectName}-{version}.jar`
