@@ -118,7 +118,7 @@ export default class NewRelease extends ThemedMixin(I18nMixin(WidgetBase))<NewRe
 			]),
 			v('small', { classes: [c.form_text, c.text_muted] }, [
 				'请使用',
-				v('a', { href: 'https://semver.org/lang/zh-CN/', target: '_blank' }, ['语义化版本']),
+				v('a', { href: 'https://semver.org/lang/zh-CN/', target: '_blank', tabIndex: -1 }, ['语义化版本']),
 				'。如用于生产环境为',
 				v('strong', { classes: [c.text_info] }, ['0.1.0']),
 				'，非生产环境为',
