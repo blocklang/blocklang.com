@@ -41,6 +41,7 @@ import com.blocklang.release.task.DojoBuildTask;
 import com.blocklang.release.task.GitSyncProjectTemplateTask;
 import com.blocklang.release.task.GitTagTask;
 import com.blocklang.release.task.MavenInstallTask;
+import com.blocklang.release.task.MavenPomConfigTask;
 import com.blocklang.release.task.ProjectTemplateCopyTask;
 import com.blocklang.release.task.YarnTask;
 
@@ -79,13 +80,18 @@ public class BuildServiceImpl implements BuildService {
 		String mavenRootPath = propertyService.findStringValue(CmPropKey.MAVEN_ROOT_PATH).get();
 		String templateProjectGitUrl = propertyService.findStringValue(CmPropKey.TEMPLATE_PROJECT_GIT_URL).get();
 
+		// 默认从 11.0.2 开始"
+		String jdkVersion = appReleaseDao.findById(releaseTask.getJdkReleaseId()).map(AppRelease::getVersion).orElse("11.0.2");;
+		
 		AppBuildContext context = new AppBuildContext(
 				projectsRootPath, 
 				mavenRootPath,
 				templateProjectGitUrl,
 				project.getCreateUserName(),
 				project.getName(),
-				releaseTask.getVersion());
+				releaseTask.getVersion(),
+				project.getDescription(),
+				jdkVersion);
 
 		context.info(StringUtils.repeat("=", 60));
 		context.info("开始发布 @{0}/{1} 项目", project.getCreateUserName(), project.getName());
@@ -177,27 +183,37 @@ public class BuildServiceImpl implements BuildService {
 			}
 		}
 		
+		// 开始对项目进行个性化配置
+		if(success) {
+			context.info(StringUtils.repeat("-", 45));
+			context.info("三、开始配置项目");
+			// TODO: 
+			// 1. dojo 项目
+			context.info("1. 开始配置 dojo 项目");
+			context.info("====未实现====");
+			// 2. spring boot 项目
+			context.info("2. 开始配置 spring boot 项目");
+			MavenPomConfigTask pomConfigTask = new MavenPomConfigTask(context);
+			success = pomConfigTask.run().isPresent();
+			
+			if(success) {
+				context.info("完成");
+			}else {
+				context.error("失败");
+			}
+		}
+		
 		Integer projectBuildId = null;
 		
 		if(success) {
 			context.info(StringUtils.repeat("-", 45));
-			context.info("三、开始构建项目");
+			context.info("四、开始构建项目");
 			
 			context.info("往数据库中存储项目构建信息");
 			// 注意，因为每次从新构建，都是全新的开始，所以如果已存在，则删除
 			projectBuildId = saveProjectBuild(releaseTask, projectTagId);
 			context.info("完成");
 		}
-		
-		// 开始对项目进行个性化配置
-		if(success) {
-			context.info("开始配置项目");
-			context.info("====未实现====");
-			// TODO: 
-			// 1. dojo 项目
-			// 2. spring boot 项目
-		}
-
 
 		// 开始构建 dojo 项目
 		// 1. 安装依赖

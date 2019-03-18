@@ -15,6 +15,8 @@ import org.springframework.util.Assert;
 
 import com.blocklang.develop.model.ProjectContext;
 
+import de.skuzzle.semantic.Version;
+
 public class AppBuildContext extends ProjectContext{
 	
 	private static final Logger logger = LoggerFactory.getLogger(AppBuildContext.class);
@@ -22,6 +24,7 @@ public class AppBuildContext extends ProjectContext{
 	private String version;
 	private String mavenRootPath;
 	private String templateProjectGitUrl;
+	private String jdkVersion;
 	
 	private LocalDateTime startLogTime;
 	private Path logFilePath;
@@ -45,13 +48,17 @@ public class AppBuildContext extends ProjectContext{
 			String templateProjectGitUrl,
 			String owner,
 			String projectName, 
-			String version) {
+			String version,
+			String description,
+			String jdkVersion) {
 		this(projectsRootPath, mavenRootPath, projectName, version);
 
 		Assert.hasLength(owner, "项目拥有者的登录名不能为空");
 
 		this.owner = owner;
 		this.templateProjectGitUrl = templateProjectGitUrl;
+		super.description = description;
+		this.jdkVersion = jdkVersion;
 	}
 
 	private Path getProjectRootDirectory() {
@@ -65,13 +72,18 @@ public class AppBuildContext extends ProjectContext{
 	public Path getServerProjectRootDirectory() {
 		return this.getProjectRootDirectory().resolve("server");
 	}
+	
+	public Path getMavenPomFile() {
+		return this.getServerProjectRootDirectory().resolve("pom.xml");
+	}
 
 	public Path getMavenInstallJar() {
 		return Paths.get(this.mavenRootPath, 
 				"repository", 
 				"com", 
 				"blocklang", 
-				this.projectName, 
+				this.owner, 
+				this.projectName,
 				this.version,
 				this.projectName + "-" + this.version + ".jar");
 	}
@@ -203,4 +215,11 @@ public class AppBuildContext extends ProjectContext{
 		return this.getProjectTemplateDirectory().resolve("server");
 	}
 
+	public String getVersion() {
+		return version;
+	}
+	
+	public int getJdkMajorVersion() {
+		return Version.parseVersion(this.jdkVersion).getMajor();
+	}
 }

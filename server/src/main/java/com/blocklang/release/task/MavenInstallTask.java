@@ -7,7 +7,6 @@ import java.util.Optional;
 
 import org.apache.commons.lang3.SystemUtils;
 
-
 public class MavenInstallTask extends AbstractCommandTask{
 
 	public static void main(String[] args){

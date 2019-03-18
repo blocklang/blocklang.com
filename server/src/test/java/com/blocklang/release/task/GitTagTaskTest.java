@@ -21,7 +21,15 @@ public class GitTagTaskTest {
 	@Test
 	public void tag_success() throws IOException {
 		File folder = tempFolder.newFolder(gitRepoDirectory);
-		AppBuildContext context = new AppBuildContext(folder.getPath(), "c:/Users/Administrator/.m2", null, "jack", "app", "0.0.1");
+		AppBuildContext context = new AppBuildContext(
+				folder.getPath(), 
+				"c:/Users/Administrator/.m2", 
+				null, 
+				"jack", 
+				"app", 
+				"0.0.1", 
+				"description",
+				"jdk_version");
 		
 		GitUtils.init(context.getGitRepositoryDirectory(), "jack", "a@a.com");
 		

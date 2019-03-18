@@ -23,7 +23,15 @@ public class AppBuildContextTest {
 	
 	@Before
 	public void setUp() {
-		context = new AppBuildContext("c:/blocklang", "c:/Users/Administrator/.m2", null, "jack", "app", "0.0.1");
+		context = new AppBuildContext(
+				"c:/blocklang", 
+				"c:/Users/Administrator/.m2", 
+				null, 
+				"jack", 
+				"app", 
+				"0.0.1", 
+				"description",
+				"11.0.2");
 	}
 	
 	@Test
@@ -103,12 +111,31 @@ public class AppBuildContextTest {
 	}
 	
 	@Test
+	public void get_jdk_major_version() {
+		assertThat(context.getJdkMajorVersion()).isEqualTo(11);
+	}
+	
+	@Test
 	public void error_append_new_line() throws IOException {
 		File logFolder = tempFolder.newFolder("logs");
-		context = new AppBuildContext(logFolder.getPath(), "c:/Users/Administrator/.m2", null, "jack", "app", "0.0.1");
+		context = new AppBuildContext(
+				logFolder.getPath(), 
+				"c:/Users/Administrator/.m2", 
+				null, 
+				"jack", 
+				"app", 
+				"0.0.1", 
+				"description",
+				"jdk_version");
 		
 		context.error(new Exception("message"));
 		assertThat(Files.readString(context.getLogFilePath())).contains(System.lineSeparator());
-		
 	}
+	
+	@Test
+	public void get_maven_pom_file_path() {
+		Path pom = context.getMavenPomFile();
+		assertThat(pom.getFileName().toString()).endsWith("pom.xml");
+	}
+	
 }

@@ -66,3 +66,9 @@ BlockLang
 
 1. 使用 maven 的目录结构来管理根据项目生成的 jar 文件
 2. 第三方 APP 放在 thirdParty 文件夹
+
+maven 的 jar 文件命名规范：
+
+1. groupId: com.blocklang.{userName}
+2. artifactId: {projectName}
+3. jar 文件名为 `{projectName}-{version}-SNAPSHOT.jar`
