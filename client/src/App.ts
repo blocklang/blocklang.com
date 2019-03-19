@@ -6,6 +6,9 @@ import HeaderContainer from './containers/HeaderContainer';
 import HomeContainer from './containers/HomeContainer';
 import NewProjectContainer from './containers/project/NewProjectContainer';
 import ViewProjectContainer from './containers/project/ViewProjectContainer';
+import ListReleaseContainer from './containers/release/ListReleaseContainer';
+import NewReleaseContainer from './containers/release/NewReleaseContainer';
+import ViewDocumentContainer from './containers/help/ViewDocumentContainer';
 
 import About from './widgets/About';
 import Profile from './pages/user/Profile';
@@ -68,8 +71,6 @@ library.add(
 );
 
 import * as css from './App.m.css';
-import ListReleaseContainer from './containers/release/ListReleaseContainer';
-import NewReleaseContainer from './containers/release/NewReleaseContainer';
 
 export default class App extends WidgetBase {
 	protected render() {
@@ -81,6 +82,7 @@ export default class App extends WidgetBase {
 				w(Outlet, { key: 'view-project', id: 'view-project', renderer: () => w(ViewProjectContainer, {}) }),
 				w(Outlet, { key: 'list-release', id: 'list-release', renderer: () => w(ListReleaseContainer, {}) }),
 				w(Outlet, { key: 'new-release', id: 'new-release', renderer: () => w(NewReleaseContainer, {}) }),
+				w(Outlet, { key: 'docs', id: 'docs', renderer: () => w(ViewDocumentContainer, {}) }),
 				w(Outlet, { key: 'about', id: 'about', renderer: () => w(About, {}) }),
 				w(Outlet, { key: 'profile', id: 'profile', renderer: () => w(Profile, { username: 'Block Lang' }) })
 			])

@@ -140,6 +140,10 @@ export interface ReleaseInputValidation {
 	titleErrorMessage?: string;
 }
 
+export interface Help {
+	content: string;
+}
+
 export interface State {
 	errors: Errors;
 	routing: Routing;
@@ -159,4 +163,6 @@ export interface State {
 	releaseInputValidation: ReleaseInputValidation;
 	projectReleaseParam: ProjectReleaseParam;
 	releaseCount: number;
+
+	help: Help;
 }

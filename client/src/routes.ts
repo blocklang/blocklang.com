@@ -27,5 +27,9 @@ export default [
 	{
 		path: '{owner}/{project}/releases/new',
 		outlet: 'new-release'
+	},
+	{
+		path: 'docs/{fileName}',
+		outlet: 'docs'
 	}
 ];

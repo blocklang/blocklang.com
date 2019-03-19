@@ -23,6 +23,8 @@ export const col_md_4: string = 'col-md-4';
 export const col_md_8: string = 'col-md-8';
 export const col_3: string = 'col-3';
 export const col_9: string = 'col-9';
+export const col_2: string = 'col-2';
+export const col_10: string = 'col-10';
 
 // Content
 //     table
@@ -111,6 +113,7 @@ export const jumbotron_fluid: string = 'jumbotron-fluid';
 export const list_unstyled: string = 'list-unstyled';
 
 //      navs
+export const nav: string = 'nav';
 export const nav_item: string = 'nav-item';
 export const nav_link: string = 'nav-link';
 
@@ -168,6 +171,8 @@ export const d_flex: string = 'd-flex';
 export const d_inline_flex: string = 'd-inline-flex';
 
 //     flex
+export const flex_column: string = 'flex-column';
+
 export const justify_content_start = 'justify-content-start';
 export const justify_content_end = 'justify-content-end';
 export const justify_content_center = 'justify-content-center';

@@ -7,10 +7,11 @@ function getProperties(store: Store<State>): HeaderProperties {
 	const { get, path } = store;
 
 	return {
+		routing: get(path('routing', 'outlet')),
 		isAuthenticated: !!get(path('user', 'loginName')),
 		loggedUsername: get(path('user', 'loginName')),
 		loggedAvatarUrl: get(path('user', 'avatarUrl'))
 	};
 }
 
-export default StoreContainer(Header, 'state', { paths: [['user']], getProperties });
+export default StoreContainer(Header, 'state', { paths: [['user'], ['routing']], getProperties });

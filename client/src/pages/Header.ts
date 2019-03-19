@@ -8,6 +8,7 @@ import * as c from '../className';
 import * as css from './Header.m.css';
 
 export interface HeaderProperties {
+	routing: string;
 	isAuthenticated: boolean;
 	loggedUsername?: string;
 	loggedAvatarUrl?: string;
@@ -62,7 +63,7 @@ export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderPro
 	}
 
 	protected render() {
-		const { isAuthenticated } = this.properties;
+		const { isAuthenticated, routing } = this.properties;
 		const { messages } = this._localizedMessages;
 
 		const rootClasses = [css.root, c.navbar, c.navbar_expand_lg];
@@ -72,9 +73,27 @@ export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderPro
 			rootClasses.push(c.navbar_light, c.bg_light);
 		}
 
+		let docsMenuActive = false;
+		if (routing === 'docs') {
+			docsMenuActive = true;
+		}
+
 		return v('nav', { classes: rootClasses }, [
 			v('div', { classes: [c.container] }, [
 				w(Link, { to: 'home', classes: [c.navbar_brand] }, [messages.blockLang]),
+				v('ul', { classes: [c.navbar_nav, c.mr_auto] }, [
+					v('li', { classes: [c.nav_item] }, [
+						w(
+							Link,
+							{
+								classes: [c.nav_link, docsMenuActive ? c.active : null],
+								to: 'docs',
+								params: { fileName: 'getting-started' }
+							},
+							['教程']
+						)
+					])
+				]),
 				v(
 					'ul',
 					{ classes: [c.navbar_nav, c.ml_auto] },

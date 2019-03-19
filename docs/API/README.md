@@ -41,3 +41,4 @@
 ## 教程
 
 1. [查看一个文档](./docs/get-a-document.md)
+2. [获取文档中的一个图片](./docs/get-a-image.md)

@@ -17,6 +17,7 @@ import { initForNewProjectProcess, initForViewProjectProcess } from './processes
 import { changeRouteProcess } from './processes/routeProcesses';
 import { initPrivateHomeProcess } from './processes/homeProcesses';
 import { initForListReleasesProcess, initForNewReleaseProcess } from './processes/releaseProcesses';
+import { initForViewDocumentProcess } from './processes/documentProcess';
 
 const store = new Store<State>();
 
@@ -53,6 +54,8 @@ router.on('outlet', ({ outlet, action }) => {
 			case 'new-release':
 				initForNewReleaseProcess(store)({ owner: outlet.params.owner, project: outlet.params.project });
 				break;
+			case 'docs':
+				initForViewDocumentProcess(store)({ fileName: outlet.params.fileName });
 		}
 	}
 });
