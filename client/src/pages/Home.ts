@@ -41,14 +41,24 @@ export default class Home extends ThemedMixin(I18nMixin(WidgetBase))<HomePropert
 
 		return v('div', { classes: [css.jumbotron, c.mt_5, c.jumbotron, c.text_center] }, [
 			v('h1', { classes: [] }, [messages.blockLangIntro]),
-			v(
-				'a',
-				{
-					classes: [c.btn, c.btn_outline_primary, c.btn_lg, c.my_5],
-					href: `${baseUrl}/oauth2/authorization/github`
-				},
-				[w(FontAwesomeIcon, { icon: ['fab', 'github'], size: 'lg' }), ` ${messages.loginGithub}`]
-			)
+			v('p', [
+				v(
+					'a',
+					{
+						classes: [css.loginButton, c.btn, c.btn_outline_primary, c.btn_lg, c.my_5, c.mr_2],
+						href: `${baseUrl}/oauth2/authorization/github`
+					},
+					[w(FontAwesomeIcon, { icon: ['fab', 'github'], size: 'lg' }), ` ${messages.loginGithub}`]
+				),
+				v(
+					'a',
+					{
+						classes: [css.loginButton, c.btn, c.btn_outline_primary, c.btn_lg, c.my_5],
+						href: `${baseUrl}/oauth2/authorization/qq`
+					},
+					[w(FontAwesomeIcon, { icon: ['fab', 'qq'], size: 'lg' }), ` ${messages.loginQq}`]
+				)
+			])
 		]);
 	}
 

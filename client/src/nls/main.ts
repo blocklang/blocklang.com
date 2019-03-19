@@ -7,6 +7,7 @@ export default {
 		// header
 		blockLang: 'Block Lang',
 		loginGithub: 'Github 登录',
+		loginQq: 'QQ 登录',
 		newProject: '创建项目',
 		logout: '退出',
 		// home

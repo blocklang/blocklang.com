@@ -18,8 +18,7 @@ import 'bootstrap';
 import { library } from '@fortawesome/fontawesome-svg-core';
 
 import { faGithub } from '@fortawesome/free-brands-svg-icons/faGithub';
-import { faFolder } from '@fortawesome/free-solid-svg-icons/faFolder';
-import { faSquare } from '@fortawesome/free-solid-svg-icons/faSquare';
+import { faQq } from '@fortawesome/free-brands-svg-icons/faQq';
 import { faFirefox } from '@fortawesome/free-brands-svg-icons/faFirefox';
 import { faAndroid } from '@fortawesome/free-brands-svg-icons/faAndroid';
 import { faApple } from '@fortawesome/free-brands-svg-icons/faApple';
@@ -27,6 +26,8 @@ import { faWeixin } from '@fortawesome/free-brands-svg-icons/faWeixin';
 import { faAlipay } from '@fortawesome/free-brands-svg-icons/faAlipay';
 import { faJava } from '@fortawesome/free-brands-svg-icons/faJava';
 
+import { faFolder } from '@fortawesome/free-solid-svg-icons/faFolder';
+import { faSquare } from '@fortawesome/free-solid-svg-icons/faSquare';
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
 import { faBookOpen } from '@fortawesome/free-solid-svg-icons/faBookOpen';
 import { faEdit } from '@fortawesome/free-solid-svg-icons/faEdit';
@@ -45,6 +46,7 @@ import { faBan } from '@fortawesome/free-solid-svg-icons/faBan';
 
 library.add(
 	faGithub,
+	faQq,
 	faFirefox,
 	faAndroid,
 	faApple,

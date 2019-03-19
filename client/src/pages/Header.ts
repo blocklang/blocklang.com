@@ -32,6 +32,12 @@ export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderPro
 					w(FontAwesomeIcon, { icon: ['fab', 'github'] }),
 					` ${messages.loginGithub}`
 				])
+			]),
+			v('li', { key: 'li-1', classes: [c.nav_item] }, [
+				v('a', { classes: [c.nav_link], href: `${baseUrl}/oauth2/authorization/qq` }, [
+					w(FontAwesomeIcon, { icon: ['fab', 'qq'] }),
+					` ${messages.loginQq}`
+				])
 			])
 		];
 	}
