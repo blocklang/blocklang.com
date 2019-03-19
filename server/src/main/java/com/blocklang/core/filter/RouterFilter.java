@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -15,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.web.util.UriTemplate;
 import org.springframework.web.util.UriUtils;
 
 import com.blocklang.core.constant.WebSite;
@@ -36,11 +39,15 @@ import com.blocklang.core.constant.WebSite;
 public class RouterFilter implements Filter{
 
 	private Map<String, String> sourceMap;
+	private List<UriTemplate> routerTemplates;
 	
 	// 因为在 Spring boot 中不会执行 Filter#init 和 Filter#destroy 方法
 	// 所以将初始化操作放在构造函数中。
 	public RouterFilter() {
 		sourceMap = new HashMap<String, String>();
+		routerTemplates = Arrays.stream(Resources.ROUTES).map(route -> {
+			return new UriTemplate(route);
+		}).collect(Collectors.toList());
 	}
 
 	@Override
@@ -65,18 +72,30 @@ public class RouterFilter implements Filter{
 		System.out.println("context path:" + httpServletRequest.getContextPath());
 		System.out.println("pathInfo:" + httpServletRequest.getPathInfo());
 		
-		String filenameExtension = UriUtils.extractFileExtension(servletPath);
+		if(servletPath.startsWith("/raw/docs")) {
+			chain.doFilter(request, response);
+			return;
+		}
 		
+		String filenameExtension = UriUtils.extractFileExtension(servletPath);
+		String referer = httpServletRequest.getHeader("referer");
 		// 当按下浏览器的 F5，刷新 Single Page Application 的任一页面时，都跳转到首页
-		if(ArrayUtils.contains(Resources.ROUTES, servletPath) || (StringUtils.isBlank(filenameExtension) && needPrependServlet(servletPath))) {
+		// 如果是浏览器刷新，则 referer 的值必为 null
+		String finalServletPath = servletPath;
+		boolean routerMatched = routerTemplates.stream().anyMatch(uriTemplate -> uriTemplate.matches(finalServletPath));
+		// 注意，可以确定刷新浏览器时，referer 的值为 null
+		// 所以当 referer 的值为 null 时，可断定是通过刷新浏览器或在浏览器输入框中输入地址请求的；
+		// 当 referer 的值不为 null 时，是通过 Fetch API 请求的。
+		// 而通过浏览器请求的，一律跳转到首页。
+		if(referer == null && 
+				StringUtils.isBlank(filenameExtension) &&
+				(routerMatched || needPrependServlet(servletPath))) {
 			request.getRequestDispatcher(WebSite.HOME_URL).forward(request, response);
 			return;
 		}
 		
 		// 以下代码为转换资源文件的路径
 		if(StringUtils.isNotBlank(filenameExtension) && ArrayUtils.contains(Resources.PUBLIC_FILE_EXTENSIONS, filenameExtension)) {
-			String referer = httpServletRequest.getHeader("referer");
-			
 			if(referer == null) {
 				// 因为访问 js.map 和 css.map 时，referer 的值为 null，但依然需要解析
 				if(filenameExtension.equals("map")) {

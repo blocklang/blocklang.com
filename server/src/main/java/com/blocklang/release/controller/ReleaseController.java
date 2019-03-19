@@ -163,7 +163,7 @@ public class ReleaseController {
 		}
 	}
 	
-	@GetMapping("projects/{owner}/{projectName}/releases")
+	@GetMapping("/projects/{owner}/{projectName}/releases")
 	public ResponseEntity<List<ProjectReleaseTask>> listRelease(
 			@PathVariable("owner") String owner,
 			@PathVariable("projectName") String projectName) {
@@ -174,7 +174,7 @@ public class ReleaseController {
 		return ResponseEntity.ok(releases);
 	}
 	
-	@GetMapping("projects/{owner}/{projectName}/stats/releases")
+	@GetMapping("/projects/{owner}/{projectName}/stats/releases")
 	public ResponseEntity<Map<String, Long>> getReleaseCount(
 			@PathVariable("owner") String owner,
 			@PathVariable("projectName") String projectName) {

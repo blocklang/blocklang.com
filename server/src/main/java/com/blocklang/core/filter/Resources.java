@@ -18,7 +18,8 @@ public abstract class Resources {
 	 * 在 dojo route 中登记的 route，这些 url 会显示在浏览器地址栏，然后按下浏览器的 F5 键刷新。
 	 */
 	public static final String[] ROUTES = new String[] {
-		"/projects/new"
+		"/projects/new",
+		"/docs/{fileName}"
 	};
 
 	public static final String[] PUBLIC_URL = {
@@ -50,7 +51,8 @@ public abstract class Resources {
 		// 以下是本项目内专用的 Controller
 		"projects",                        // 项目管理
 		"users",                           // 用户管理
-		"user"                             // 登录用户信息
+		"user",                            // 登录用户信息
+		"docs"                             // 帮助文档
 		
 //		"/session", // 用户登录
 //		"/mocksession", // 开发环境下，模拟用户登录

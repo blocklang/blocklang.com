@@ -37,3 +37,7 @@
 
 1. [获取登录用户信息](./user/get-the-authenticated-user.md)
 2. [查看我的项目](./user/list-my-projects.md)
+
+## 教程
+
+1. [查看一个文档](./docs/get-a-document.md)

@@ -272,7 +272,7 @@
 21. 添加应用模板功能
 22. 之前的设计中，pane 应该是 program 的子节点，但这样不利于共用，是否可考虑与 program 放在同一层级？或者将 pane 看作用户自定义部件？
 23. 支持实时编辑
-24. <https://blocklang.com/blocklang> 这个用户名要平台专用
+24. <https://blocklang.com/blocklang> 这个用户名要平台专用，raw、blocklang、admin 等不允许用户注册
 25. 【bug】经过 route 跳转到一个页面后，需要点击三次才能回退到上一个页面
 26. 支持在个人首页的项目 card 中添加过滤功能，即添加一个搜索框
 27. 使用 dojo 路由后，可提供用户友好的 url，不再需要在服务器端的 filter 中做处理

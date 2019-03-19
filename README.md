@@ -53,6 +53,7 @@ Block Lang 平台。
 1. `db/changelog/data` - 存放初始化数据
 2. `db/changelog/table` - 存放变更的表脚本
 3. `db/db.sql` - 存放建库脚本
+4. `help/` - 存放帮助文档
 
 ### Client
 

@@ -225,4 +225,30 @@ public class RouterFilterTest {
 		routerFilter.doFilter(request, response, chain);
 		assertThat(response.getForwardedUrl()).isEqualTo("/");
 	}
+	
+	@Test
+	public void filter_docs_to_home() throws IOException, ServletException {
+		RouterFilter routerFilter = new RouterFilter();
+		
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/docs/getting-started");
+		request.setServletPath("/docs/getting-started");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockFilterChain chain = new MockFilterChain();
+		routerFilter.doFilter(request, response, chain);
+		assertThat(response.getForwardedUrl()).isEqualTo("/");
+	}
+	
+	// 当 fetch 的 url 与 router 相同时，需要添加 header 信息以区分
+	@Test
+	public void filter_docs_get_content() throws IOException, ServletException {
+		RouterFilter routerFilter = new RouterFilter();
+		
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/docs/getting-started");
+		request.setServletPath("/docs/getting-started");
+		request.addHeader("referer", "/docs/getting-started");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockFilterChain chain = new MockFilterChain();
+		routerFilter.doFilter(request, response, chain);
+		assertThat(response.getForwardedUrl()).isNull();;
+	}
 }
