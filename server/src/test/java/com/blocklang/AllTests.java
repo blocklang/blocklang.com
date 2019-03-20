@@ -4,6 +4,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
+import com.blocklang.core.controller.DocumentControllerTest;
 import com.blocklang.core.controller.LoggedUserControllerTest;
 import com.blocklang.core.filter.RouterFilterTest;
 import com.blocklang.core.git.GitUtilsTest;
@@ -25,6 +26,7 @@ import com.blocklang.release.service.impl.AppReleaseFileServiceImplTest;
 import com.blocklang.release.service.impl.AppReleaseRelationServiceImplTest;
 import com.blocklang.release.service.impl.AppReleaseServiceImplTest;
 import com.blocklang.release.service.impl.AppServiceImplTest;
+import com.blocklang.release.service.impl.BuildServiceImplTest;
 import com.blocklang.release.service.impl.InstallerServiceImplTest;
 import com.blocklang.release.service.impl.ProjectReleaseTaskServiceImplTest;
 import com.blocklang.release.service.impl.ProjectTagServiceImplTest;
@@ -34,6 +36,8 @@ import com.blocklang.release.task.GitTagTaskTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
+	BlockLangApplicationTests.class,
+	
 	// unit test
 	IdGeneratorTest.class,
 	AppBuildContextTest.class,
@@ -49,6 +53,7 @@ import com.blocklang.release.task.GitTagTaskTest;
 	ReleaseControllerTest.class,
 	LoggedUserControllerTest.class,
 	AppControllerTest.class,
+	DocumentControllerTest.class,
 
 	// service tests
 	AppServiceImplTest.class,
@@ -65,6 +70,7 @@ import com.blocklang.release.task.GitTagTaskTest;
 	PropertyServiceImplTest.class,
 	GithubLoginServiceImplTest.class,
 	ProjectDeployServiceImplTest.class,
+	BuildServiceImplTest.class,
 	
 	// model
 	ProjectResourceTest.class,
