@@ -89,5 +89,10 @@ public class UserServiceImpl implements UserService {
 	public Optional<UserInfo> findById(Integer userId) {
 		return userDao.findById(userId);
 	}
+
+	@Override
+	public UserInfo update(UserInfo newUserInfo) {
+		return userDao.save(newUserInfo);
+	}
 	
 }

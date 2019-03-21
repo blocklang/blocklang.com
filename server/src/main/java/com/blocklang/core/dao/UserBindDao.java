@@ -9,6 +9,6 @@ import com.blocklang.core.model.UserBind;
 
 public interface UserBindDao extends JpaRepository<UserBind, Integer>{
 
-	Optional<UserBind> findBySiteAndOpenId(OauthSite github, String openId);
+	Optional<UserBind> findBySiteAndOpenId(OauthSite oauthSite, String openId);
 
 }

@@ -21,6 +21,8 @@ public interface UserService {
 	 */
 	UserInfo create(UserInfo userInfo, UserBind userBind, List<UserAvatar> userAvatars);
 	
+	UserInfo update(UserInfo newUserInfo);
+	
 	UserInfo update(Integer savedUserId, UserInfo newUserInfo, List<UserAvatar> newUserAvatars);
 
 	Optional<UserInfo> findByLoginName(String loginName);

@@ -35,6 +35,24 @@ export interface User {
 	avatarUrl: string;
 }
 
+export interface ProfileParam {
+	id: number;
+	avatarUrl: string;
+	nickname: string;
+	websiteUrl: string;
+	company: string;
+	location: string;
+	bio: string;
+}
+
+/**
+ * 用户个人资料
+ */
+export interface Profile extends ProfileParam {
+	loginName: string;
+	email: string;
+}
+
 /**
  * 项目 form 表单输入信息
  */
@@ -147,7 +165,12 @@ export interface Help {
 export interface State {
 	errors: Errors;
 	routing: Routing;
+
 	user: User;
+	profileParam: ProfileParam;
+	profile: Profile;
+	profileUpdateSuccessMessage: string;
+
 	projectParam: ProjectParam;
 	projectInputValidation: ProjectInputValidation;
 	project: Project;

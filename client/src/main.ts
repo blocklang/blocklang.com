@@ -12,7 +12,7 @@ import '@dojo/themes/dojo/index.css';
 import routes from './routes';
 import App from './App';
 import { State } from './interfaces';
-import { getCurrentUserProcess } from './processes/userProcesses';
+import { getCurrentUserProcess, initForUserProfileProcess } from './processes/userProcesses';
 import { initForNewProjectProcess, initForViewProjectProcess } from './processes/projectProcesses';
 import { changeRouteProcess } from './processes/routeProcesses';
 import { initPrivateHomeProcess } from './processes/homeProcesses';
@@ -56,6 +56,8 @@ router.on('outlet', ({ outlet, action }) => {
 				break;
 			case 'docs':
 				initForViewDocumentProcess(store)({ fileName: outlet.params.fileName });
+			case 'settings-profile':
+				initForUserProfileProcess(store)({});
 		}
 	}
 });

@@ -29,4 +29,15 @@ Status: 403 Forbidden
 Status: 200 OK
 ```
 
+| Name         | Type     | Description |
+| ------------ | -------- | ----------- |
+| `id`         | `number` | 用户标识    |
+| `login_name` | `string` | 用户登录名  |
+| `nickname`   | `string` | 用户昵称    |
+| `email`      | `string` | 用户邮箱    |
+| `websiteUrl` | `string` | 个人主页    |
+| `company`    | `string` | 公司名称    |
+| `location`   | `string` | 所在地区    |
+| `bio`        | `string` | 自我介绍    |
+
 界面上显示：“用户信息更新成功”。

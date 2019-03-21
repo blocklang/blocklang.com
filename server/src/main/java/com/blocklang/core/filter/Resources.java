@@ -19,7 +19,8 @@ public abstract class Resources {
 	 */
 	public static final String[] ROUTES = new String[] {
 		"/projects/new",
-		"/docs/{fileName}"
+		"/docs/{fileName}",
+		"/settings/profile"
 	};
 
 	public static final String[] PUBLIC_URL = {

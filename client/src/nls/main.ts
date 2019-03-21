@@ -9,6 +9,8 @@ export default {
 		loginGithub: 'Github 登录',
 		loginQq: 'QQ 登录',
 		newProject: '创建项目',
+		userSetting: '个人设置',
+		userHome: '个人主页',
 		logout: '退出',
 		// home
 		blockLangIntro: '软件拼装工厂',
@@ -43,6 +45,19 @@ export default {
 		releaseTitle: '标题',
 		releaseDescription: '介绍',
 		// docs
-		gettingStartedLabel: '快速上手'
+		gettingStartedLabel: '快速上手',
+
+		// user setting
+		publicProfile: '个人资料',
+		nickName: '昵称',
+		email: '邮箱',
+		emailHelpText: '仅自己可见，不会对外公开。',
+		websiteUrl: '个人主页',
+		websiteUrlHelpText: '如：个人博客、Github、微博等。',
+		company: '公司',
+		location: '地址',
+		bio: '自我介绍',
+		userSettingSaveButton: '保存',
+		userProfileSaveSuccessMessage: '个人资料修改成功！'
 	}
 };

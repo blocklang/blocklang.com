@@ -35,3 +35,23 @@ export interface TitlePayload {
 export interface JdkReleaseIdPayload {
 	jdkReleaseId: number;
 }
+
+export interface NicknamePayload {
+	nickname: string;
+}
+
+export interface WebsiteUrlPayload {
+	websiteUrl: string;
+}
+
+export interface CompanyPayload {
+	company: string;
+}
+
+export interface LocationPayload {
+	location: string;
+}
+
+export interface BioPayload {
+	bio: string;
+}

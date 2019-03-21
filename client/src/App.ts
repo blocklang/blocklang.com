@@ -9,9 +9,9 @@ import ViewProjectContainer from './containers/project/ViewProjectContainer';
 import ListReleaseContainer from './containers/release/ListReleaseContainer';
 import NewReleaseContainer from './containers/release/NewReleaseContainer';
 import ViewDocumentContainer from './containers/help/ViewDocumentContainer';
+import SettingContainer from './containers/user/SettingContainer';
 
 import About from './widgets/About';
-import Profile from './pages/user/Profile';
 
 import 'bootstrap';
 
@@ -43,6 +43,8 @@ import { faSpinner } from '@fortawesome/free-solid-svg-icons/faSpinner';
 import { faTimes } from '@fortawesome/free-solid-svg-icons/faTimes';
 import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
 import { faBan } from '@fortawesome/free-solid-svg-icons/faBan';
+import { faCog } from '@fortawesome/free-solid-svg-icons/faCog';
+import { faUser } from '@fortawesome/free-solid-svg-icons/faUser';
 
 library.add(
 	faGithub,
@@ -69,7 +71,9 @@ library.add(
 	faSpinner,
 	faTimes,
 	faCheck,
-	faBan
+	faBan,
+	faCog,
+	faUser
 );
 
 import * as css from './App.m.css';
@@ -86,7 +90,7 @@ export default class App extends WidgetBase {
 				w(Outlet, { key: 'new-release', id: 'new-release', renderer: () => w(NewReleaseContainer, {}) }),
 				w(Outlet, { key: 'docs', id: 'docs', renderer: () => w(ViewDocumentContainer, {}) }),
 				w(Outlet, { key: 'about', id: 'about', renderer: () => w(About, {}) }),
-				w(Outlet, { key: 'profile', id: 'profile', renderer: () => w(Profile, { username: 'Block Lang' }) })
+				w(Outlet, { key: 'settings-profile', id: 'settings-profile', renderer: () => w(SettingContainer, {}) })
 			])
 		]);
 	}

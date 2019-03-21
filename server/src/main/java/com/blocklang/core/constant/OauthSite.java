@@ -7,7 +7,8 @@ import org.apache.commons.lang3.StringUtils;
 public enum OauthSite {
 	
 	GITHUB("10", "Github"),
-	WECHAT("11", "WeChat");
+	WECHAT("11", "WeChat"),
+	QQ("12", "QQ");
 
 	private final String key;
 	private final String value;

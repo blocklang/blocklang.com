@@ -9,6 +9,8 @@ export const markdown_body: string = 'markdown-body';
 // common
 export const active: string = 'active';
 export const show: string = 'show';
+export const close: string = 'close';
+export const fade: string = 'fade';
 
 // Layout
 //     container
@@ -37,6 +39,21 @@ export const float_right: string = 'float-right';
 export const float_none: string = 'float-none';
 
 // Component
+//      alert
+export const alert: string = 'alert';
+export const alert_primary: string = 'alert-primary';
+export const alert_secondary: string = 'alert-secondary';
+export const alert_success: string = 'alert-success';
+export const alert_danger: string = 'alert-danger';
+export const alert_warning: string = 'alert-warning';
+export const alert_info: string = 'alert-info';
+export const alert_light: string = 'alert-light';
+export const alert_dark: string = 'alert-dark';
+
+export const alert_link: string = 'alert-link';
+export const alert_heading: string = 'alert-heading';
+export const alert_dismissible: string = 'alert-dismissible';
+
 //      badge
 export const badge: string = 'badge';
 export const badge_light: string = 'badge-light';
@@ -83,11 +100,13 @@ export const dropdown_toggle: string = 'dropdown-toggle';
 export const dropdown_menu: string = 'dropdown-menu';
 export const dropdown_item: string = 'dropdown-item';
 export const dropdown_menu_right: string = 'dropdown-menu-right';
+export const dropdown_divider: string = 'dropdown-divider';
 
 //      forms
 export const form_text: string = 'form-text';
 export const needs_validation: string = 'needs-validation';
 export const form_control: string = 'form-control';
+export const form_control_plaintext: string = 'form-control-plaintext';
 export const is_invalid: string = 'is-invalid';
 export const form_group: string = 'form-group';
 export const invalid_tooltip: string = 'invalid-tooltip';

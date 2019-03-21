@@ -54,15 +54,36 @@ export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderPro
 					` ${messages.newProject}`
 				])
 			]),
-			v('li', { key: 'li-1', classes: [c.nav_item] }, [
-				w(Link, { to: `profile`, params: { user: `${loggedUsername}` }, classes: [c.nav_link] }, [
-					v('img', { classes: [c.avatar], src: `${loggedAvatarUrl}`, width: 20, height: 20 }, []),
-					` ${loggedUsername}`
-				])
-			]),
-			v('li', { key: 'li-2', classes: [c.nav_item] }, [
-				v('a', { classes: [c.nav_link], title: `${messages.logout}`, href: `${baseUrl}/logout` }, [
-					w(FontAwesomeIcon, { icon: 'sign-out-alt' })
+			v('li', { key: 'li-1', classes: [c.nav_item, c.dropdown] }, [
+				v(
+					'a',
+					{
+						classes: [c.dropdown_toggle, c.nav_item, c.nav_link],
+						href: '#',
+						'data-toggle': 'dropdown',
+						id: 'dropdownUser',
+						'aria-haspopup': true,
+						'aria-expanded': false
+					},
+					[v('img', { classes: [c.avatar], src: `${loggedAvatarUrl}`, width: 20, height: 20 })]
+				),
+				v('div', { classes: [css.menu, c.dropdown_menu], 'aria-labelledby': 'dropdownUser' }, [
+					v('p', { classes: [c.pl_4, c.py_1, c.mb_0, c.text_muted] }, [v('strong', [`${loggedUsername}`])]),
+					v('div', { classes: [c.dropdown_divider] }),
+					w(Link, { to: 'profile', params: { user: `${loggedUsername}` }, classes: [c.dropdown_item] }, [
+						w(FontAwesomeIcon, { icon: 'user', classes: [c.mr_2] }),
+						`${messages.userHome}`
+					]),
+					v('div', { classes: [c.dropdown_divider] }),
+
+					w(Link, { to: 'settings-profile', classes: [c.dropdown_item] }, [
+						w(FontAwesomeIcon, { icon: 'cog', classes: [c.mr_2] }),
+						`${messages.userSetting}`
+					]),
+					v('a', { classes: [c.dropdown_item], href: `${baseUrl}/logout` }, [
+						w(FontAwesomeIcon, { icon: 'sign-out-alt', classes: [c.mr_2] }),
+						`${messages.logout}`
+					])
 				])
 			])
 		];

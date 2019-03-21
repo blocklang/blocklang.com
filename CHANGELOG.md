@@ -288,3 +288,4 @@
 37. check 系列 controller，其中使用的是 POST，但是 API 文档中将参数放在 url 中，不妥
 38. 当不同页面之间跳转时，要相应调整页面的标题，即浏览器 tab 页上显示的标题
 39. 引入支持编辑 markdown 文件的编辑器，应用到发布说明等页面
+40. 支持 <https://learnsolid.cn/>

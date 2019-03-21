@@ -31,5 +31,9 @@ export default [
 	{
 		path: 'docs/{fileName}',
 		outlet: 'docs'
+	},
+	{
+		path: 'settings/profile',
+		outlet: 'settings-profile'
 	}
 ];
