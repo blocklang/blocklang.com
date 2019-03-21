@@ -77,6 +77,7 @@ library.add(
 );
 
 import * as css from './App.m.css';
+import Footer from './pages/Footer';
 
 export default class App extends WidgetBase {
 	protected render() {
@@ -91,7 +92,8 @@ export default class App extends WidgetBase {
 				w(Outlet, { key: 'docs', id: 'docs', renderer: () => w(ViewDocumentContainer, {}) }),
 				w(Outlet, { key: 'about', id: 'about', renderer: () => w(About, {}) }),
 				w(Outlet, { key: 'settings-profile', id: 'settings-profile', renderer: () => w(SettingContainer, {}) })
-			])
+			]),
+			w(Footer, {})
 		]);
 	}
 }
