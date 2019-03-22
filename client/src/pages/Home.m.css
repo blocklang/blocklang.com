@@ -1,4 +1,13 @@
-.root {
+@media screen and (min-width: 992px) {
+	.root {
+		height: 460px;
+	}
+}
+
+@media screen and (min-width: 1400px) {
+	.root {
+		height: 860px;
+	}
 }
 
 .jumbotron {
