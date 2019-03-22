@@ -64,7 +64,7 @@ public class RouterFilter implements Filter{
 		System.out.println("===============================================");
 		System.out.println("===============================================");
 		System.out.println("servlet path = " + servletPath);
-		httpServletRequest.getHeaderNames().asIterator().forEachRemaining(name -> System.out.println(name));
+		httpServletRequest.getHeaderNames().asIterator().forEachRemaining(name -> System.out.println(name + " = " + httpServletRequest.getHeader(name)));
 		
 		System.out.println("host:" + httpServletRequest.getHeader("host"));
 		System.out.println("referer:" + httpServletRequest.getHeader("referer"));
