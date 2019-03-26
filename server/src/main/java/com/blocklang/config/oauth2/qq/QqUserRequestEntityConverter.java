@@ -28,7 +28,6 @@ public class QqUserRequestEntityConverter implements Converter<OAuth2UserRequest
 				.queryParams(this.buildQueryParameters(userRequest))
 				.build()
 				.toUri();
-		System.out.println("----user uri: " + uri.toString());
 		return new RequestEntity<>(headers, httpMethod, uri);
 	}
 	

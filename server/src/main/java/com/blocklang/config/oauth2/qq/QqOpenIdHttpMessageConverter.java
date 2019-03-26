@@ -29,7 +29,6 @@ public class QqOpenIdHttpMessageConverter extends AbstractHttpMessageConverter<O
 	protected OAuth2OpenIdResponse readInternal(Class<? extends OAuth2OpenIdResponse> clazz,
 			HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
 		String body = StreamUtils.copyToString(inputMessage.getBody(), Charset.defaultCharset());
-		System.out.println("----response body: " + body);
 		String jsonString = body.substring(10, body.length() - 2);
 		try {
 			return objectMapper.readValue(jsonString, OAuth2OpenIdResponse.class);
@@ -44,7 +43,5 @@ public class QqOpenIdHttpMessageConverter extends AbstractHttpMessageConverter<O
 			throws IOException, HttpMessageNotWritableException {
 		// Do nothing
 	}
-
-
 
 }

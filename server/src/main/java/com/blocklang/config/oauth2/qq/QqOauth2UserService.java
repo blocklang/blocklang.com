@@ -1,18 +1,15 @@
 package com.blocklang.config.oauth2.qq;
 
-import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.oauth2.client.http.OAuth2ErrorResponseErrorHandler;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -57,16 +54,7 @@ public class QqOauth2UserService implements OAuth2UserService<OAuth2UserRequest,
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 		Assert.notNull(userRequest, "userRequest cannot be null");
 		// 获取 openId
-		System.out.println("load open id start");
-		String openId;
-		try {
-			openId = this.loadOpenId(userRequest);
-		}catch(OAuth2AuthenticationException e) {
-			
-			e.printStackTrace();
-			
-			throw e;
-		}
+		String openId = this.loadOpenId(userRequest);
 		// userRequest 中的 additionalParameters 是不能直接修改的，
 		// 因此这里重新创建一个 Oauth2UserRequest 对象，并在其中加入 openId
 		Map<String, Object> additionalParameters = new HashMap<String, Object>();
@@ -100,8 +88,6 @@ public class QqOauth2UserService implements OAuth2UserService<OAuth2UserRequest,
 		}
 		
 		OAuth2OpenIdResponse openIdResponse = response.getBody();
-		System.out.println("---- openIdResponse:" + openIdResponse.getOpenid());
-		
 		return openIdResponse.getOpenid();
 	}
 
@@ -113,14 +99,7 @@ public class QqOauth2UserService implements OAuth2UserService<OAuth2UserRequest,
 		restTemplate.setErrorHandler(new OAuth2ErrorResponseErrorHandler());
 		service.setRestOperations(restTemplate);
 		service.setRequestEntityConverter(new QqUserRequestEntityConverter());
-		System.out.println("-----qq load user, AdditionalParameters: " + userRequest.getAdditionalParameters());
-		try {
-			return service.loadUser(userRequest);
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-		
+		return service.loadUser(userRequest);
 	}
 	
 }

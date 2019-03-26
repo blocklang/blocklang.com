@@ -22,11 +22,6 @@ public class QqUserHttpMessageConverter extends AbstractGenericHttpMessageConver
 	private ObjectMapper objectMapper;
 	public QqUserHttpMessageConverter(String openId) {
 		super(MediaType.valueOf("text/html;charset=utf-8"));
-		
-		System.out.println("qq user http message converter create");
-		this.getSupportedMediaTypes().forEach(mediaType -> {
-			System.out.println(mediaType.toString());
-		});
 		this.openId = openId;
 		this.objectMapper = Jackson2ObjectMapperBuilder.json().build();
 	}
@@ -40,7 +35,6 @@ public class QqUserHttpMessageConverter extends AbstractGenericHttpMessageConver
 	@Override
 	protected Map<String, Object> readInternal(Class<? extends Map<String, Object>> clazz,
 			HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
-		System.out.println("---- readInternal");
 		String body = StreamUtils.copyToString(inputMessage.getBody(), Charset.defaultCharset());
 
 		try {
@@ -63,20 +57,5 @@ public class QqUserHttpMessageConverter extends AbstractGenericHttpMessageConver
 	protected void writeInternal(Map<String, Object> t, Type type, HttpOutputMessage outputMessage)
 			throws IOException, HttpMessageNotWritableException {
 		// Do nothing
-		
 	}
-
-	@Override
-	public boolean canRead(Class<?> clazz, MediaType mediaType) {
-		System.out.println("can read? ");
-		boolean canRead = super.canRead(clazz, mediaType);
-		System.out.println(canRead);
-		return true;
-	}
-
-
-
-
-
-
 }

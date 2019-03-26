@@ -1,15 +1,13 @@
-package com.blocklang.config;
+package com.blocklang.config.oauth2;
 
 import java.net.URI;
 
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.RequestEntity;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequestEntityConverter;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.LinkedMultiValueMap;
@@ -26,51 +24,23 @@ public class CustomOAuth2AuthorizationCodeGrantRequestEntityConverter implements
 		defaultConverter = new OAuth2AuthorizationCodeGrantRequestEntityConverter();
 	}
 
-	/**
-	 * Returns the {@link RequestEntity} used for the Access Token Request.
-	 *
-	 * @param authorizationCodeGrantRequest the authorization code grant request
-	 * @return the {@link RequestEntity} used for the Access Token Request
-	 */
 	@Override
 	public RequestEntity<?> convert(OAuth2AuthorizationCodeGrantRequest authorizationCodeGrantRequest) {
 		ClientRegistration clientRegistration = authorizationCodeGrantRequest.getClientRegistration();
 		String registrationId = authorizationCodeGrantRequest.getClientRegistration().getRegistrationId();
-		RequestEntity<?> entity = defaultConverter.convert(authorizationCodeGrantRequest);
-		if(registrationId.equalsIgnoreCase(OauthSite.GITHUB.getValue())) {
-			return entity;
-		}else if(registrationId.equalsIgnoreCase(OauthSite.QQ.getValue())) {
-			
+		
+		if(registrationId.equalsIgnoreCase(OauthSite.QQ.getValue())) {
+			// QQ 互联使用的是 GET 请求
 			MultiValueMap<String, String> queryParameters = this.buildQueryParameters(authorizationCodeGrantRequest);
-			URI uri = UriComponentsBuilder.fromUriString(clientRegistration.getProviderDetails().getTokenUri()).queryParams(queryParameters)
-			.build()
-			.toUri();
-			
-			System.out.println("convert: " + uri);
+			URI uri = UriComponentsBuilder.fromUriString(clientRegistration.getProviderDetails().getTokenUri())
+					.queryParams(queryParameters).build().toUri();
 			return new RequestEntity<>(HttpMethod.GET, uri);
 		}
 		
-		 
-//		ClientRegistration clientRegistration = authorizationCodeGrantRequest.getClientRegistration();
-//
-//		HttpHeaders headers = OAuth2AuthorizationGrantRequestEntityUtils.getTokenRequestHeaders(clientRegistration);
-//		MultiValueMap<String, String> formParameters = this.buildFormParameters(authorizationCodeGrantRequest);
-//		URI uri = UriComponentsBuilder.fromUriString(clientRegistration.getProviderDetails().getTokenUri())
-//				.build()
-//				.toUri();
-//
-//		return new RequestEntity<>(formParameters, headers, HttpMethod.POST, uri);
-		
-		return entity;
-		
+		// Github 等使用的是 POST 请求
+		return defaultConverter.convert(authorizationCodeGrantRequest);		
 	}
 
-	/**
-	 * Returns a {@link MultiValueMap} of the form parameters used for the Access Token Request body.
-	 *
-	 * @param authorizationCodeGrantRequest the authorization code grant request
-	 * @return a {@link MultiValueMap} of the form parameters used for the Access Token Request body
-	 */
 	private MultiValueMap<String, String> buildQueryParameters(OAuth2AuthorizationCodeGrantRequest authorizationCodeGrantRequest) {
 		ClientRegistration clientRegistration = authorizationCodeGrantRequest.getClientRegistration();
 		OAuth2AuthorizationExchange authorizationExchange = authorizationCodeGrantRequest.getAuthorizationExchange();
