@@ -1,4 +1,4 @@
-package com.blocklang.config.oauth2.qq;
+package com.blocklang.core.oauth2.qq;
 
 import java.io.IOException;
 import java.lang.reflect.Type;

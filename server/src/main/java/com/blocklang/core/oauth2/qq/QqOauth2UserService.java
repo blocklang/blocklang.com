@@ -1,4 +1,4 @@
-package com.blocklang.config.oauth2.qq;
+package com.blocklang.core.oauth2.qq;
 
 import java.util.Arrays;
 import java.util.Collections;

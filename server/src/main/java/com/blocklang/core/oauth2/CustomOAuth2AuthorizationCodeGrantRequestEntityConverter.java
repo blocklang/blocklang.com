@@ -1,4 +1,4 @@
-package com.blocklang.config.oauth2;
+package com.blocklang.core.oauth2;
 
 import java.net.URI;
 

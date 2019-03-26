@@ -1,4 +1,4 @@
-package com.blocklang.config.oauth2;
+package com.blocklang.core.oauth2;
 
 import java.util.Arrays;
 
@@ -13,7 +13,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenRespon
 import org.springframework.security.oauth2.core.http.converter.OAuth2AccessTokenResponseHttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
-import com.blocklang.config.oauth2.qq.QqAccessTokenResponseHttpMessageConverter;
+import com.blocklang.core.oauth2.qq.QqAccessTokenResponseHttpMessageConverter;
 
 public class CustomOAuth2AccessTokenResponseClient implements OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest>{
 

@@ -1,4 +1,4 @@
-package com.blocklang.config.oauth2.qq;
+package com.blocklang.core.oauth2.qq;
 
 public interface QqOAuth2ParameterNames {
 	String OPEN_ID = "openid";

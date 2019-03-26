@@ -7,8 +7,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 
-import com.blocklang.config.oauth2.CustomOAuth2AccessTokenResponseClient;
-import com.blocklang.config.oauth2.CustomOAuth2UserService;
+import com.blocklang.core.oauth2.CustomOAuth2AccessTokenResponseClient;
+import com.blocklang.core.oauth2.CustomOAuth2UserService;
 import com.blocklang.core.constant.WebSite;
 import com.blocklang.core.filter.RouterFilter;
 import com.blocklang.core.service.GithubLoginService;

@@ -1,4 +1,4 @@
-package com.blocklang.config.oauth2;
+package com.blocklang.core.oauth2;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,9 +11,9 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
-import com.blocklang.config.oauth2.qq.QqOauth2UserService;
 import com.blocklang.core.constant.OauthSite;
 import com.blocklang.core.model.UserInfo;
+import com.blocklang.core.oauth2.qq.QqOauth2UserService;
 import com.blocklang.core.service.GithubLoginService;
 import com.blocklang.core.service.QqLoginService;
 
