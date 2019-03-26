@@ -10,42 +10,42 @@ import org.springframework.stereotype.Service;
 
 import com.blocklang.core.constant.AvatarSizeType;
 import com.blocklang.core.constant.OauthSite;
-import com.blocklang.core.dao.UserBindDao;
 import com.blocklang.core.model.UserAvatar;
 import com.blocklang.core.model.UserInfo;
-import com.blocklang.core.service.GithubLoginService;
-import com.blocklang.core.service.UserService;
+import com.blocklang.core.service.QqLoginService;
+import com.blocklang.core.util.UrlUtil;
 
 @Service
-public class GithubLoginServiceImpl extends AbstractLoginService implements GithubLoginService {
-	
+public class QqLoginServiceImpl extends AbstractLoginService implements QqLoginService {
+
 	@Override
 	public OauthSite getOauthSite() {
-		return OauthSite.GITHUB;
+		return OauthSite.QQ;
 	}
 
 	@Override
 	public List<UserAvatar> prepareUserAvatars(Map<String, Object> userAttributes) {
-		String avatarUrl = Objects.toString(userAttributes.get("avatar_url"), "");
-		
 		List<UserAvatar> list = new ArrayList<UserAvatar>();
 		
 		UserAvatar smallAvatar = new UserAvatar();
 		smallAvatar.setSizeType(AvatarSizeType.SMALL);
 		smallAvatar.setCreateTime(LocalDateTime.now());
-		smallAvatar.setAvatarUrl(getSmallAvatarUrl(avatarUrl));
+		String smallAvatarUrl = UrlUtil.trimHttpInUrl(Objects.toString(userAttributes.get("figureurl"), ""));
+		smallAvatar.setAvatarUrl(smallAvatarUrl);
 		list.add(smallAvatar);
 		
 		UserAvatar mediumAvatar = new UserAvatar();
 		mediumAvatar.setSizeType(AvatarSizeType.MEDIUM);
 		mediumAvatar.setCreateTime(LocalDateTime.now());
-		mediumAvatar.setAvatarUrl(getMediumAvatarUrl(avatarUrl));
+		String mediumAvatarUrl = UrlUtil.trimHttpInUrl(Objects.toString(userAttributes.get("figureurl_1"), ""));
+		mediumAvatar.setAvatarUrl(mediumAvatarUrl);
 		list.add(mediumAvatar);
 		
 		UserAvatar largeAvatar = new UserAvatar();
 		largeAvatar.setSizeType(AvatarSizeType.LARGE);
 		largeAvatar.setCreateTime(LocalDateTime.now());
-		largeAvatar.setAvatarUrl(getLargeAvatarUrl(avatarUrl));
+		String largeAvatarUrl = UrlUtil.trimHttpInUrl(Objects.toString(userAttributes.get("figureurl_2"), ""));
+		largeAvatar.setAvatarUrl(largeAvatarUrl);
 		list.add(largeAvatar);
 		
 		return list;
@@ -55,11 +55,12 @@ public class GithubLoginServiceImpl extends AbstractLoginService implements Gith
 	public UserInfo prepareUser(Map<String, Object> userAttributes) {
 		UserInfo userInfo = new UserInfo();
 		userInfo.setLoginName(Objects.toString(userAttributes.get("login"), null));
-		userInfo.setNickname(Objects.toString(userAttributes.get("name"), null));
+		userInfo.setNickname(Objects.toString(userAttributes.get("nickname"), null));
 		userInfo.setEnabled(true);
 		userInfo.setAdmin(false);
-		userInfo.setAvatarUrl(getSmallAvatarUrl(Objects.toString(userAttributes.get("avatar_url"), null)));
-		userInfo.setEmail(Objects.toString(userAttributes.get("email")));
+		String smallAvatarUrl = UrlUtil.trimHttpInUrl(Objects.toString(userAttributes.get("figureurl"), ""));
+		userInfo.setAvatarUrl(smallAvatarUrl);
+		userInfo.setEmail(Objects.toString(userAttributes.get("email"), null));
 		userInfo.setLocation(Objects.toString(userAttributes.get("location"), null));
 		userInfo.setEmail(Objects.toString(userAttributes.get("email"), null));
 		userInfo.setWebsiteUrl(Objects.toString(userAttributes.get("blog"), null));
@@ -69,32 +70,20 @@ public class GithubLoginServiceImpl extends AbstractLoginService implements Gith
 		userInfo.setLastSignInTime(LocalDateTime.now()); // 设置最近登录时间。
 		return userInfo;
 	}
-	
+
 	@Override
-	public String getSmallAvatarUrl(String avatarUrl) {
-		if(avatarUrl == null) {
-			return null;
-		}
-		
-		return avatarUrl + "&s=40";
+	protected String getSmallAvatarUrl(String avatarUrl) {
+		return null;
 	}
 
 	@Override
-	public String getMediumAvatarUrl(String avatarUrl) {
-		if(avatarUrl == null) {
-			return null;
-		}
-		
-		return avatarUrl + "&s=200";
+	protected String getMediumAvatarUrl(String avatarUrl) {
+		return null;
 	}
-	
+
 	@Override
-	public String getLargeAvatarUrl(String avatarUrl) {
-		if(avatarUrl == null) {
-			return null;
-		}
-		
-		return avatarUrl + "&s=460";
+	protected String getLargeAvatarUrl(String avatarUrl) {
+		return null;
 	}
 
 }

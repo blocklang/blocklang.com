@@ -1,9 +1,12 @@
 package com.blocklang.core.service.impl;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
@@ -22,6 +25,12 @@ import com.blocklang.core.service.UserService;
  */
 public abstract class AbstractLoginService {
 
+	@Autowired
+	protected UserService userService;
+	
+	@Autowired
+	protected UserBindDao userBindDao;
+	
 	public UserInfo updateUser(OAuth2AccessToken accessToken, OAuth2User oauthUser) {
 		String openId = oauthUser.getName();
 		Map<String, Object> userAttributes = oauthUser.getAttributes();
@@ -30,27 +39,31 @@ public abstract class AbstractLoginService {
 		List<UserAvatar> userAvatars = prepareUserAvatars(userAttributes);
 		UserBind userBind = prepareUserBind(openId);
 		
-		Optional<UserBind> userBindOption = getUserBindDao().findBySiteAndOpenId(getOauthSite(), openId);
+		Optional<UserBind> userBindOption = userBindDao.findBySiteAndOpenId(getOauthSite(), openId);
 		if(userBindOption.isEmpty()) {
-			return getUserService().create(userInfo, userBind, userAvatars);
+			return userService.create(userInfo, userBind, userAvatars);
 		} else {
 			Integer savedUserId = userBindOption.get().getUserId();
-			return getUserService().update(savedUserId, userInfo, userAvatars);
+			return userService.update(savedUserId, userInfo, userAvatars);
 		}
+	}
+	
+	public UserBind prepareUserBind(String openId) {
+		UserBind userBind = new UserBind();
+		userBind.setSite(getOauthSite());
+		userBind.setOpenId(Objects.toString(openId, null));
+		userBind.setCreateTime(LocalDateTime.now());
+		return userBind;
 	}
 	
 	protected abstract UserInfo prepareUser(Map<String, Object> thirdPartyUser);
 	protected abstract List<UserAvatar> prepareUserAvatars(Map<String, Object> thirdPartyUser);
-	protected abstract UserBind prepareUserBind(String openId);
+	
 	
 	protected abstract String getSmallAvatarUrl(String avatarUrl);
 	protected abstract String getMediumAvatarUrl(String avatarUrl);
 	protected abstract String getLargeAvatarUrl(String avatarUrl);
 	
 	protected abstract OauthSite getOauthSite();
-	
-	protected abstract UserService getUserService();
-	
-	protected abstract UserBindDao getUserBindDao();
 	
 }

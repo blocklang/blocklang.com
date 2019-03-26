@@ -10,7 +10,9 @@ import com.blocklang.core.filter.RouterFilterTest;
 import com.blocklang.core.git.GitUtilsTest;
 import com.blocklang.core.service.impl.GithubLoginServiceImplTest;
 import com.blocklang.core.service.impl.PropertyServiceImplTest;
+import com.blocklang.core.service.impl.QqLoginServiceImplTest;
 import com.blocklang.core.util.IdGeneratorTest;
+import com.blocklang.core.util.UrlUtilTest;
 import com.blocklang.develop.constant.AppTypeTest;
 import com.blocklang.develop.controller.ProjectControllerTest;
 import com.blocklang.develop.model.ProjectResourceTest;
@@ -43,6 +45,7 @@ import com.blocklang.release.task.GitTagTaskTest;
 	AppBuildContextTest.class,
 	GitTagTaskTest.class,
 	GitUtilsTest.class,
+	UrlUtilTest.class,
 	
 	// api tests
 	InstallerApiTest.class,
@@ -69,6 +72,7 @@ import com.blocklang.release.task.GitTagTaskTest;
 	ProjectReleaseTaskServiceImplTest.class,
 	PropertyServiceImplTest.class,
 	GithubLoginServiceImplTest.class,
+	QqLoginServiceImplTest.class,
 	ProjectDeployServiceImplTest.class,
 	BuildServiceImplTest.class,
 	
