@@ -129,6 +129,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 				Locale locale = LocaleContextHolder.getLocale();
 				userAttributes.put("loginNameErrorMessage", messageSource.getMessage(code, new Object[] {},locale));
 				userAttributes.put("temp", true);
+				userAttributes.put("loginName", "temp-login-name"); // 因为 loginName 的值不能为空，所以设置一个临时值。
 				// 经过反复考虑，这里设置 loginName 而不是设置 id
 				// 首先将 loginName 加上唯一约束后，使用 byLoginName 和 byId 获取用户信息的效果是一样的
 				// 这样在写代码时，不要做各种转换

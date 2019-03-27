@@ -27,7 +27,7 @@ export default class Footer extends ThemedMixin(I18nMixin(WidgetBase))<FooterPro
 				]
 			},
 			[
-				v('div', ['© 2019 BlockLang ']),
+				v('div', [`© ${new Date().getFullYear()} BlockLang `]),
 				v('div', [
 					v('a', { href: 'https://github.com/blocklang', classes: [c.text_muted], title: 'github' }, [
 						w(FontAwesomeIcon, { icon: ['fab', 'github'] })

@@ -32,7 +32,16 @@ export interface Routing {
 export interface User {
 	userId: number;
 	loginName: string;
+	nickname: string;
 	avatarUrl: string;
+}
+
+export interface ThirdPartyUser {
+	loginName: string;
+	nickname: string;
+	avatarUrl: string;
+	needCompleteUserInfo: boolean;
+	loginNameErrorMessage: string;
 }
 
 export interface ProfileParam {
@@ -43,6 +52,7 @@ export interface ProfileParam {
 	company: string;
 	location: string;
 	bio: string;
+	loginName: string;
 }
 
 /**
@@ -158,6 +168,11 @@ export interface ReleaseInputValidation {
 	titleErrorMessage?: string;
 }
 
+export interface UserInputValidation {
+	loginNameValidateStatus?: ValidateStatus;
+	loginNameErrorMessage?: string;
+}
+
 export interface Help {
 	content: string;
 }
@@ -166,10 +181,12 @@ export interface State {
 	errors: Errors;
 	routing: Routing;
 
+	thirdPartyUser: ThirdPartyUser;
 	user: User;
 	profileParam: ProfileParam;
 	profile: Profile;
 	profileUpdateSuccessMessage: string;
+	userInputValidation: UserInputValidation;
 
 	projectParam: ProjectParam;
 	projectInputValidation: ProjectInputValidation;

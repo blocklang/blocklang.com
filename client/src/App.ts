@@ -10,6 +10,8 @@ import ListReleaseContainer from './containers/release/ListReleaseContainer';
 import NewReleaseContainer from './containers/release/NewReleaseContainer';
 import ViewDocumentContainer from './containers/help/ViewDocumentContainer';
 import SettingContainer from './containers/user/SettingContainer';
+import CompleteUserInfoContainer from './containers/CompleteUserInfoContainer';
+import Footer from './pages/Footer';
 
 import About from './widgets/About';
 
@@ -77,7 +79,6 @@ library.add(
 );
 
 import * as css from './App.m.css';
-import Footer from './pages/Footer';
 
 export default class App extends WidgetBase {
 	protected render() {
@@ -85,6 +86,11 @@ export default class App extends WidgetBase {
 			w(HeaderContainer, {}),
 			v('div', [
 				w(Outlet, { key: 'home', id: 'home', renderer: () => w(HomeContainer, {}) }),
+				w(Outlet, {
+					key: 'complete-user-info',
+					id: 'complete-user-info',
+					renderer: () => w(CompleteUserInfoContainer, {})
+				}),
 				w(Outlet, { key: 'new-project', id: 'new-project', renderer: () => w(NewProjectContainer, {}) }),
 				w(Outlet, { key: 'view-project', id: 'view-project', renderer: () => w(ViewProjectContainer, {}) }),
 				w(Outlet, { key: 'list-release', id: 'list-release', renderer: () => w(ListReleaseContainer, {}) }),

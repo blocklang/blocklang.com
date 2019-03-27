@@ -1,6 +1,7 @@
 package com.blocklang.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -31,6 +32,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	private UserService userService;
 	@Autowired
 	private PropertyService propertyService;
+	@Autowired
+	private MessageSource messageSource;
 	
 	// 支持 oauth2 client
 	@Override
@@ -53,7 +56,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 					.accessTokenResponseClient(new CustomOAuth2AccessTokenResponseClient())
 				.and()
 				.userInfoEndpoint()
-					.userService(new CustomOAuth2UserService(githubLoginService, qqLoginService, userService, userBindService, propertyService));
+					.userService(new CustomOAuth2UserService(
+							githubLoginService, 
+							qqLoginService, 
+							userService, 
+							userBindService, 
+							propertyService,
+							messageSource));
 
 	}
 

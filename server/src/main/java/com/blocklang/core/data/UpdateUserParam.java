@@ -7,6 +7,8 @@ public class UpdateUserParam {
 	private String company;
 	private String location;
 	private String bio;
+	private String loginName;
+	
 	public Integer getId() {
 		return id;
 	}
@@ -42,6 +44,12 @@ public class UpdateUserParam {
 	}
 	public void setBio(String bio) {
 		this.bio = bio;
+	}
+	public String getLoginName() {
+		return loginName;
+	}
+	public void setLoginName(String loginName) {
+		this.loginName = loginName;
 	}
 	
 }

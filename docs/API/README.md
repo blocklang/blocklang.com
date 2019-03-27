@@ -35,10 +35,12 @@
 
 ## 用户服务
 
-1. [获取登录用户简要信息](./user/get-the-authenticated-user.md)
-2. [获取登录用户详细信息](./user/get-user-profile.md)
-3. [查看我的项目](./user/list-my-projects.md)
-4. [修改用户信息](./user/update-user-profile.md)
+1. [校验用户登录名](./user/check-login-name.md)
+2. [完善用户信息](./user/complete-user-info.md)
+3. [获取登录用户简要信息](./user/get-the-authenticated-user.md)
+4. [获取登录用户详细信息](./user/get-user-profile.md)
+5. [查看我的项目](./user/list-my-projects.md)
+6. [修改用户信息](./user/update-user-profile.md)
 
 ## 教程
 

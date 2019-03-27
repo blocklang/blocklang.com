@@ -9,8 +9,16 @@ export default [
 		outlet: 'about'
 	},
 	{
+		path: 'user/completeUserInfo',
+		outlet: 'complete-user-info'
+	},
+	{
 		path: '{user}',
 		outlet: 'profile'
+	},
+	{
+		path: 'settings/profile',
+		outlet: 'settings-profile'
 	},
 	{
 		path: 'projects/new',
@@ -31,9 +39,5 @@ export default [
 	{
 		path: 'docs/{fileName}',
 		outlet: 'docs'
-	},
-	{
-		path: 'settings/profile',
-		outlet: 'settings-profile'
 	}
 ];

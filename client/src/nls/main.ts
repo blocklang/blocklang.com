@@ -58,6 +58,13 @@ export default {
 		location: '地址',
 		bio: '自我介绍',
 		userSettingSaveButton: '保存',
-		userProfileSaveSuccessMessage: '个人资料修改成功！'
+		userProfileSaveSuccessMessage: '个人资料修改成功！',
+
+		// complete user info
+		loginName: '登录名',
+		completeUserInfoTip: '请完善用户信息',
+		loginNameHelpText:
+			'只能包含英文字母、数字、中划线（-）或下划线（_），只能以英文字母或数字开头或结尾，不区分大小写。',
+		ok: '完成'
 	}
 };

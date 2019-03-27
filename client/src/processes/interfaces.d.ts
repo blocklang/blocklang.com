@@ -40,6 +40,10 @@ export interface NicknamePayload {
 	nickname: string;
 }
 
+export interface LoginNamePayload {
+	loginName: string;
+}
+
 export interface WebsiteUrlPayload {
 	websiteUrl: string;
 }

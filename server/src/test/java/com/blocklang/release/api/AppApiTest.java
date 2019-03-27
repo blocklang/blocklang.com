@@ -15,7 +15,6 @@ import org.junit.rules.TemporaryFolder;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import com.blocklang.core.service.GithubLoginService;
 import com.blocklang.core.test.AbstractControllerTest;
 import com.blocklang.release.constant.Arch;
 import com.blocklang.release.constant.TargetOs;
