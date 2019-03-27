@@ -23,7 +23,15 @@ public interface UserService {
 	
 	UserInfo update(UserInfo newUserInfo);
 	
-	UserInfo update(Integer savedUserId, UserInfo newUserInfo, List<UserAvatar> newUserAvatars);
+	/**
+	 * 
+	 * @param savedUserId
+	 * @param newUserInfo
+	 * @param newUserAvatars
+	 * @param excludeUserInfoFields 目前只支持排除 loginName
+	 * @return
+	 */
+	UserInfo update(Integer savedUserId, UserInfo newUserInfo, List<UserAvatar> newUserAvatars, String... excludeUserInfoFields);
 
 	Optional<UserInfo> findByLoginName(String loginName);
 

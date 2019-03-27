@@ -21,4 +21,6 @@ public abstract class CmPropKey {
 	public static final String INSTALLER_LINUX_URL = "installer.linux.url";
 
 	public static final String INSTALLER_WINDOWS_URL = "installer.windows.url";
+
+	public static final String PLATFORM_KEYWORDS = "platform.keywords";
 }

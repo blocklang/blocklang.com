@@ -1,6 +1,7 @@
 package com.blocklang.core.service.impl;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,24 +31,38 @@ public class UserServiceImpl implements UserService {
 	@Transactional
 	@Override
 	public UserInfo create(UserInfo userInfo, UserBind userBind, List<UserAvatar> userAvatars) {
+		userInfo.setCreateTime(LocalDateTime.now());
+		userInfo.setLastSignInTime(LocalDateTime.now()); // 设置最近登录时间。
 		UserInfo savedUserInfo = userDao.save(userInfo);
 		Integer userId = savedUserInfo.getId();
 		
 		userAvatars.forEach(userAvatar -> {
+			userAvatar.setCreateTime(LocalDateTime.now());
 			userAvatar.setUserId(userId);
 		});
 		userAvatarDao.saveAll(userAvatars);
 		
 		userBind.setUserId(userId);
+		userBind.setCreateTime(LocalDateTime.now());
+		
 		userBindDao.save(userBind);
 		return savedUserInfo;
 	}
 	
 	@Transactional
 	@Override
-	public UserInfo update(Integer savedUserId, UserInfo newUserInfo, List<UserAvatar> newUserAvatars) {
+	public UserInfo update(Integer savedUserId, UserInfo newUserInfo, List<UserAvatar> newUserAvatars, String... excludeUserInfoFields) {
+		boolean excludeLoginName = false;
+		if(excludeUserInfoFields != null && Arrays.stream(excludeUserInfoFields).anyMatch(item -> item.equals("loginName"))) {
+			excludeLoginName = true;
+		}
+		
+		boolean finalExcludeLoginName = excludeLoginName;
 		return userDao.findById(savedUserId).map(savedUserInfo -> {
-			savedUserInfo.setLoginName(newUserInfo.getLoginName());
+			if(!finalExcludeLoginName) {
+				savedUserInfo.setLoginName(newUserInfo.getLoginName());
+			}
+			
 			savedUserInfo.setNickname(newUserInfo.getNickname());
 			savedUserInfo.setAvatarUrl(newUserInfo.getAvatarUrl());
 			savedUserInfo.setEmail(newUserInfo.getEmail());

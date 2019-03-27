@@ -1,6 +1,9 @@
 package com.blocklang.core.service;
 
+import java.util.List;
 import java.util.Optional;
+
+import com.blocklang.core.model.CmProperty;
 
 public interface PropertyService {
 
@@ -13,5 +16,7 @@ public interface PropertyService {
 	Optional<String> findStringValue(String key);
 	
 	String findStringValue(String key, String defaultValue);
+
+	List<CmProperty> findAllByParentKey(String parentKey);
 
 }

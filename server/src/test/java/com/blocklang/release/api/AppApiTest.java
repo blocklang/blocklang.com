@@ -28,11 +28,7 @@ import com.blocklang.release.service.AppService;
 
 @WebMvcTest(AppApi.class)
 public class AppApiTest extends AbstractControllerTest{
-	
-	// 因为 config 中的 githubLoginService 没有创建 bean，所以这里 mock 一个
-	@MockBean
-	private GithubLoginService githubLoginService;
-	
+
 	@MockBean
 	private AppService appService;
 	

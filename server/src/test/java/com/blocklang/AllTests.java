@@ -6,11 +6,14 @@ import org.junit.runners.Suite.SuiteClasses;
 
 import com.blocklang.core.controller.DocumentControllerTest;
 import com.blocklang.core.controller.LoggedUserControllerTest;
+import com.blocklang.core.controller.UserValidatorTest;
 import com.blocklang.core.filter.RouterFilterTest;
 import com.blocklang.core.git.GitUtilsTest;
 import com.blocklang.core.service.impl.GithubLoginServiceImplTest;
 import com.blocklang.core.service.impl.PropertyServiceImplTest;
 import com.blocklang.core.service.impl.QqLoginServiceImplTest;
+import com.blocklang.core.service.impl.UserBindServiceImplTest;
+import com.blocklang.core.service.impl.UserServiceImplTest;
 import com.blocklang.core.util.IdGeneratorTest;
 import com.blocklang.core.util.UrlUtilTest;
 import com.blocklang.develop.constant.AppTypeTest;
@@ -47,6 +50,8 @@ import com.blocklang.release.task.GitTagTaskTest;
 	GitUtilsTest.class,
 	UrlUtilTest.class,
 	
+	UserValidatorTest.class,
+	
 	// api tests
 	InstallerApiTest.class,
 	AppApiTest.class,
@@ -75,6 +80,8 @@ import com.blocklang.release.task.GitTagTaskTest;
 	QqLoginServiceImplTest.class,
 	ProjectDeployServiceImplTest.class,
 	BuildServiceImplTest.class,
+	UserServiceImplTest.class,
+	UserBindServiceImplTest.class,
 	
 	// model
 	ProjectResourceTest.class,

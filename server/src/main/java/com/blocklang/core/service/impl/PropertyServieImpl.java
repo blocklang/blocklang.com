@@ -1,5 +1,7 @@
 package com.blocklang.core.service.impl;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,16 @@ public class PropertyServieImpl implements PropertyService {
 		return propertyDao.findByKeyAndParentIdAndValid(key, Constant.TREE_ROOT_ID, true)
 				.map(CmProperty::getValue)
 				.orElse(defaultValue);
+	}
+
+	@Override
+	@Cacheable(value = "cm_properties")
+	public List<CmProperty> findAllByParentKey(String parentKey) {
+		Optional<CmProperty> parentPropOption = propertyDao.findByKeyAndParentIdAndValid(parentKey, Constant.TREE_ROOT_ID, true);
+		if(parentPropOption.isPresent()) {
+			return propertyDao.findAllByParentId(parentPropOption.get().getId());
+		}
+		return Collections.emptyList();
 	}
 
 }

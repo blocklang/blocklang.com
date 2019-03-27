@@ -1,12 +1,12 @@
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://pgm-2ze9a80ozt4i63ea14790.pg.rds.aliyuncs.com:3433/blocklang
-    username: blocklang
-    password: blocklang%46
-    # url: jdbc:postgresql://127.0.0.1:5432/blocklang
-    # username: postgres
-    # password: abc123
+    # url: jdbc:postgresql://pgm-2ze9a80ozt4i63ea14790.pg.rds.aliyuncs.com:3433/blocklang
+    # username: blocklang
+    # password: blocklang%46
+    url: jdbc:postgresql://127.0.0.1:5432/blocklang
+    username: postgres
+    password: abc123
   jpa:
     show-sql: true
     properties:

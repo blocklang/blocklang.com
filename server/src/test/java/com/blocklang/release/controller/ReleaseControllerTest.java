@@ -25,8 +25,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 
 import com.blocklang.core.model.UserInfo;
-import com.blocklang.core.service.GithubLoginService;
-import com.blocklang.core.service.UserService;
 import com.blocklang.core.test.AbstractControllerTest;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.service.ProjectService;
@@ -43,25 +41,15 @@ import io.restassured.http.ContentType;
 
 @WebMvcTest(ReleaseController.class)
 public class ReleaseControllerTest extends AbstractControllerTest{
-	
-	// 因为 config 中的 githubLoginService 没有创建 bean，所以这里 mock 一个
-	@MockBean
-	private GithubLoginService githubLoginService;
-	
+
 	@MockBean
 	private ProjectService projectService;
-	
 	@MockBean
 	private ProjectReleaseTaskService projectReleaseTaskService;
-	
 	@MockBean
 	private ProjectTagService projectTagService;
-	
 	@MockBean
 	private BuildService buildService;
-	
-	@MockBean
-	private UserService userService;
 	
 	@WithMockUser(username = "owner")
 	@Test

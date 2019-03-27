@@ -1,17 +1,15 @@
 package com.blocklang.core.service.impl;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import com.blocklang.core.constant.OauthSite;
 import com.blocklang.core.dao.UserBindDao;
+import com.blocklang.core.data.AccountInfo;
 import com.blocklang.core.model.UserAvatar;
 import com.blocklang.core.model.UserBind;
 import com.blocklang.core.model.UserInfo;
@@ -31,7 +29,7 @@ public abstract class AbstractLoginService {
 	@Autowired
 	protected UserBindDao userBindDao;
 	
-	public UserInfo updateUser(OAuth2AccessToken accessToken, OAuth2User oauthUser) {
+	public AccountInfo getThirdPartyUser(OAuth2User oauthUser) {
 		String openId = oauthUser.getName();
 		Map<String, Object> userAttributes = oauthUser.getAttributes();
 		
@@ -39,31 +37,24 @@ public abstract class AbstractLoginService {
 		List<UserAvatar> userAvatars = prepareUserAvatars(userAttributes);
 		UserBind userBind = prepareUserBind(openId);
 		
-		Optional<UserBind> userBindOption = userBindDao.findBySiteAndOpenId(getOauthSite(), openId);
-		if(userBindOption.isEmpty()) {
-			return userService.create(userInfo, userBind, userAvatars);
-		} else {
-			Integer savedUserId = userBindOption.get().getUserId();
-			return userService.update(savedUserId, userInfo, userAvatars);
-		}
+		return new AccountInfo(userInfo, userAvatars, userBind);
 	}
-	
+
+	// 准备数据时，不要放创建时间，要在保存时添加
 	public UserBind prepareUserBind(String openId) {
 		UserBind userBind = new UserBind();
 		userBind.setSite(getOauthSite());
 		userBind.setOpenId(Objects.toString(openId, null));
-		userBind.setCreateTime(LocalDateTime.now());
+		
 		return userBind;
 	}
 	
 	protected abstract UserInfo prepareUser(Map<String, Object> thirdPartyUser);
 	protected abstract List<UserAvatar> prepareUserAvatars(Map<String, Object> thirdPartyUser);
 	
-	
 	protected abstract String getSmallAvatarUrl(String avatarUrl);
 	protected abstract String getMediumAvatarUrl(String avatarUrl);
 	protected abstract String getLargeAvatarUrl(String avatarUrl);
 	
 	protected abstract OauthSite getOauthSite();
-	
 }

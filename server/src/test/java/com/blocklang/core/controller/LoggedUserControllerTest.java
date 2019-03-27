@@ -3,8 +3,8 @@ package com.blocklang.core.controller;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
@@ -15,25 +15,16 @@ import java.util.Optional;
 import org.apache.http.HttpStatus;
 import org.junit.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 
 import com.blocklang.core.data.UpdateUserParam;
 import com.blocklang.core.model.UserInfo;
-import com.blocklang.core.service.GithubLoginService;
-import com.blocklang.core.service.UserService;
 import com.blocklang.core.test.AbstractControllerTest;
 
 import io.restassured.http.ContentType;
 
 @WebMvcTest(LoggedUserController.class)
 public class LoggedUserControllerTest extends AbstractControllerTest{
-
-	// 因为 config 中的 githubLoginService 没有创建 bean，所以这里 mock 一个
-	@MockBean
-	private GithubLoginService githubLoginService;
-	@MockBean
-	private UserService userService;
 	
 	@Test
 	public void get_logged_user_not_logged() {

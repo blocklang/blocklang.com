@@ -2,6 +2,7 @@ package com.blocklang.core.service.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.After;
@@ -125,5 +126,37 @@ public class PropertyServiceImplTest extends AbstractServiceTest{
 	@Test
 	public void find_string_value_default_value() {
 		assertThat(propertyService.findStringValue("not-exist_key", "a")).isEqualTo("a");
+	}
+	
+	@Test
+	public void find_all_by_parent_key_not_exist() {
+		List<CmProperty> result = propertyService.findAllByParentKey("not-exist-key");
+		assertThat(result).isEmpty();
+	}
+	
+	@Test
+	public void find_all_by_parent_key_success() {
+		String parentKey = "key1";
+		String parentValue = "value1";
+		CmProperty parentProp = new CmProperty();
+		parentProp.setId(MAX_ID - 1);
+		parentProp.setDataType(DataType.STRING);
+		parentProp.setKey(parentKey);
+		parentProp.setValue(parentValue);
+		Integer parentId = propertyDao.save(parentProp).getId();
+		
+		String childKey = "childkey1";
+		String childValue = "childvalue1";
+		CmProperty childProp = new CmProperty();
+		childProp.setId(MAX_ID);
+		childProp.setDataType(DataType.STRING);
+		childProp.setKey(childKey);
+		childProp.setValue(childValue);
+		childProp.setParentId(parentId);
+		propertyDao.save(childProp);
+		
+		List<CmProperty> result = propertyService.findAllByParentKey("key1");
+		assertThat(result).hasSize(1);
+		assertThat(result.get(0).getValue()).isEqualTo("childvalue1");
 	}
 }

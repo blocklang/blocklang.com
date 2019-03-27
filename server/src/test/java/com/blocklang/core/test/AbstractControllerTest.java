@@ -8,6 +8,12 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.blocklang.core.service.GithubLoginService;
+import com.blocklang.core.service.PropertyService;
+import com.blocklang.core.service.QqLoginService;
+import com.blocklang.core.service.UserBindService;
+import com.blocklang.core.service.UserService;
+
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 
 @RunWith(SpringRunner.class)
@@ -18,6 +24,18 @@ public class AbstractControllerTest {
 	// https://github.com/spring-projects/spring-security/blob/master/samples/boot/oauth2login/src/integration-test/java/org/springframework/security/samples/OAuth2LoginApplicationTests.java
 	@MockBean
 	private ClientRegistrationRepository clientRegistrationRepository;
+	
+	// 以下 bean 在 WebSecurityConfig 类中要使用，但是在运行测试用例时找不到 bean，所以这里统一 mock
+	@MockBean
+	private GithubLoginService githubLoginService;
+	@MockBean
+	private QqLoginService qqLoginService;
+	@MockBean
+	protected UserBindService userBindService;
+	@MockBean
+	protected UserService userService;
+	@MockBean
+	protected PropertyService propertyService;
 	
 	@Autowired
 	private MockMvc mvc;

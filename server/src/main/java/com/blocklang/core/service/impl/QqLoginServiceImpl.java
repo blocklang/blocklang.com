@@ -1,6 +1,5 @@
 package com.blocklang.core.service.impl;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,38 +22,12 @@ public class QqLoginServiceImpl extends AbstractLoginService implements QqLoginS
 		return OauthSite.QQ;
 	}
 
-	@Override
-	public List<UserAvatar> prepareUserAvatars(Map<String, Object> userAttributes) {
-		List<UserAvatar> list = new ArrayList<UserAvatar>();
-		
-		UserAvatar smallAvatar = new UserAvatar();
-		smallAvatar.setSizeType(AvatarSizeType.SMALL);
-		smallAvatar.setCreateTime(LocalDateTime.now());
-		String smallAvatarUrl = UrlUtil.trimHttpInUrl(Objects.toString(userAttributes.get("figureurl"), ""));
-		smallAvatar.setAvatarUrl(smallAvatarUrl);
-		list.add(smallAvatar);
-		
-		UserAvatar mediumAvatar = new UserAvatar();
-		mediumAvatar.setSizeType(AvatarSizeType.MEDIUM);
-		mediumAvatar.setCreateTime(LocalDateTime.now());
-		String mediumAvatarUrl = UrlUtil.trimHttpInUrl(Objects.toString(userAttributes.get("figureurl_1"), ""));
-		mediumAvatar.setAvatarUrl(mediumAvatarUrl);
-		list.add(mediumAvatar);
-		
-		UserAvatar largeAvatar = new UserAvatar();
-		largeAvatar.setSizeType(AvatarSizeType.LARGE);
-		largeAvatar.setCreateTime(LocalDateTime.now());
-		String largeAvatarUrl = UrlUtil.trimHttpInUrl(Objects.toString(userAttributes.get("figureurl_2"), ""));
-		largeAvatar.setAvatarUrl(largeAvatarUrl);
-		list.add(largeAvatar);
-		
-		return list;
-	}
-
+	// 准备数据时，不要包含创建时间和最近登录时间，要放在保存方法中
 	@Override
 	public UserInfo prepareUser(Map<String, Object> userAttributes) {
 		UserInfo userInfo = new UserInfo();
-		userInfo.setLoginName(Objects.toString(userAttributes.get("login"), null));
+		// qq 互联中没有 loginName 信息
+		// userInfo.setLoginName(Objects.toString(userAttributes.get("login"), null));
 		userInfo.setNickname(Objects.toString(userAttributes.get("nickname"), null));
 		userInfo.setEnabled(true);
 		userInfo.setAdmin(false);
@@ -66,9 +39,33 @@ public class QqLoginServiceImpl extends AbstractLoginService implements QqLoginS
 		userInfo.setWebsiteUrl(Objects.toString(userAttributes.get("blog"), null));
 		userInfo.setCompany(Objects.toString(userAttributes.get("company"), null));
 		userInfo.setBio(Objects.toString(userAttributes.get("bio"), null));
-		userInfo.setCreateTime(LocalDateTime.now());
-		userInfo.setLastSignInTime(LocalDateTime.now()); // 设置最近登录时间。
 		return userInfo;
+	}
+	
+	// 准备数据时，不要放创建时间，要放在保存方法中
+	@Override
+	public List<UserAvatar> prepareUserAvatars(Map<String, Object> userAttributes) {
+		List<UserAvatar> list = new ArrayList<UserAvatar>();
+		
+		UserAvatar smallAvatar = new UserAvatar();
+		smallAvatar.setSizeType(AvatarSizeType.SMALL);
+		String smallAvatarUrl = UrlUtil.trimHttpInUrl(Objects.toString(userAttributes.get("figureurl"), ""));
+		smallAvatar.setAvatarUrl(smallAvatarUrl);
+		list.add(smallAvatar);
+		
+		UserAvatar mediumAvatar = new UserAvatar();
+		mediumAvatar.setSizeType(AvatarSizeType.MEDIUM);
+		String mediumAvatarUrl = UrlUtil.trimHttpInUrl(Objects.toString(userAttributes.get("figureurl_1"), ""));
+		mediumAvatar.setAvatarUrl(mediumAvatarUrl);
+		list.add(mediumAvatar);
+		
+		UserAvatar largeAvatar = new UserAvatar();
+		largeAvatar.setSizeType(AvatarSizeType.LARGE);
+		String largeAvatarUrl = UrlUtil.trimHttpInUrl(Objects.toString(userAttributes.get("figureurl_2"), ""));
+		largeAvatar.setAvatarUrl(largeAvatarUrl);
+		list.add(largeAvatar);
+		
+		return list;
 	}
 
 	@Override

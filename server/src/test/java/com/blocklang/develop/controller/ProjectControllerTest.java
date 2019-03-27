@@ -23,9 +23,6 @@ import org.springframework.security.test.context.support.WithMockUser;
 
 import com.blocklang.core.constant.CmPropKey;
 import com.blocklang.core.model.UserInfo;
-import com.blocklang.core.service.GithubLoginService;
-import com.blocklang.core.service.PropertyService;
-import com.blocklang.core.service.UserService;
 import com.blocklang.core.test.AbstractControllerTest;
 import com.blocklang.develop.constant.DeployState;
 import com.blocklang.develop.data.CheckProjectNameParam;
@@ -44,9 +41,7 @@ import io.restassured.http.ContentType;
 
 @WebMvcTest(ProjectController.class)
 public class ProjectControllerTest extends AbstractControllerTest{
-	
-	@MockBean
-	private GithubLoginService githubLoginService;
+
 	@MockBean
 	private ProjectService projectService;
 	@MockBean
@@ -54,11 +49,7 @@ public class ProjectControllerTest extends AbstractControllerTest{
 	@MockBean
 	private ProjectFileService projectFileService;
 	@MockBean
-	private UserService userService;
-	@MockBean
 	private ProjectDeployService projectDeployService;
-	@MockBean
-	private PropertyService propertyService;
 
 	@Test
 	public void check_name_user_is_unauthorization_not_login() {

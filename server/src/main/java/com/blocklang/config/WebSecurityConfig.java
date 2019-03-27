@@ -7,12 +7,15 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 
-import com.blocklang.core.oauth2.CustomOAuth2AccessTokenResponseClient;
-import com.blocklang.core.oauth2.CustomOAuth2UserService;
 import com.blocklang.core.constant.WebSite;
 import com.blocklang.core.filter.RouterFilter;
+import com.blocklang.core.oauth2.CustomOAuth2AccessTokenResponseClient;
+import com.blocklang.core.oauth2.CustomOAuth2UserService;
 import com.blocklang.core.service.GithubLoginService;
+import com.blocklang.core.service.PropertyService;
 import com.blocklang.core.service.QqLoginService;
+import com.blocklang.core.service.UserBindService;
+import com.blocklang.core.service.UserService;
 
 @Configuration
 @EnableWebSecurity
@@ -22,6 +25,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	private GithubLoginService githubLoginService;
 	@Autowired
 	private QqLoginService qqLoginService;
+	@Autowired
+	private UserBindService userBindService;
+	@Autowired
+	private UserService userService;
+	@Autowired
+	private PropertyService propertyService;
 	
 	// 支持 oauth2 client
 	@Override
@@ -44,7 +53,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 					.accessTokenResponseClient(new CustomOAuth2AccessTokenResponseClient())
 				.and()
 				.userInfoEndpoint()
-					.userService(new CustomOAuth2UserService(githubLoginService, qqLoginService));
+					.userService(new CustomOAuth2UserService(githubLoginService, qqLoginService, userService, userBindService, propertyService));
 
 	}
 
