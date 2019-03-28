@@ -37,15 +37,17 @@ public class MavenInstallTask extends AbstractCommandTask{
 	@Override
 	public Optional<Boolean> run() {
 		List<String> commands = new ArrayList<>();
+		Path workingDirectory = appBuildContext.getServerProjectRootDirectory();
 		if(SystemUtils.IS_OS_WINDOWS) {
 			commands.add("mvnw.cmd");
 		} else {
-			commands.add("mvnw");
+			// 在 linux 系统下，为 mvnw 添加可执行权限
+			workingDirectory.resolve("mvnw").toFile().setExecutable(true);
+			commands.add("./mvnw");
 		}
 		commands.add("clean");
 		commands.add("install");
 		
-		Path workingDirectory = appBuildContext.getServerProjectRootDirectory();
 		boolean success = runCommand(workingDirectory, commands);
 		if(success) {
 			return Optional.of(true);
