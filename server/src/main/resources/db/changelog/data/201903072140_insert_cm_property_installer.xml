@@ -14,26 +14,5 @@
 			<column name="data_type" value="01" />
 			<column name="is_valid" valueBoolean="true" />
 		</insert>
-		
-		<insert tableName="cm_property">
-			<column name="dbid" valueNumeric="5" />
-			<column name="prop_key" value="installer.linux.url" />
-			<column name="prop_value" value="https://github.com/blocklang/blocklang-installer/releases/download/v0.1.0/installer.exe" />
-			<column name="prop_desc" value="Linux 版安装器的下载地址" />
-			<column name="parent_id" valueNumeric="-1" />
-			<column name="data_type" value="01" />
-			<column name="is_valid" valueBoolean="true" />
-		</insert>
-		
-		<insert tableName="cm_property">
-			<column name="dbid" valueNumeric="6" />
-			<column name="prop_key" value="installer.windows.url" />
-			<column name="prop_value" value="https://github.com/blocklang/blocklang-installer/releases/download/v0.1.0/installer.exe" />
-			<column name="prop_desc" value="Windows 版安装器的下载地址" />
-			<column name="parent_id" valueNumeric="-1" />
-			<column name="data_type" value="01" />
-			<column name="is_valid" valueBoolean="true" />
-		</insert>
-		
 	</changeSet>
 </databaseChangeLog>

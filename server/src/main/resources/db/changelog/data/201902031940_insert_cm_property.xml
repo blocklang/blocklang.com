@@ -11,7 +11,7 @@
 			<!-- 
 			<column name="prop_value" value="E:/data/blocklang" />
 			 -->
-			<column name="prop_value" value="/home/blocklang" />
+			<column name="prop_value" value="/home/blocklang/data" />
 			<column name="prop_desc" value="BlockLang 站点资源根目录" />
 			<column name="parent_id" valueNumeric="-1" />
 			<column name="data_type" value="01" />
@@ -24,7 +24,7 @@
 			<!-- 
 			<column name="prop_value" value="c:/Users/Administrator/.m2" />
 			-->
-			<column name="prop_value" value="/home/.m2" />
+			<column name="prop_value" value="/root/.m2" />
 			<column name="prop_desc" value="Maven 仓库根目录" />
 			<column name="parent_id" valueNumeric="-1" />
 			<column name="data_type" value="01" />
