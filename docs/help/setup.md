@@ -51,6 +51,10 @@ dojo --version
 
 ### 配置
 
+1. 构建 windows 版和 linux 版的 blocklang-installer
+2. 下载 oracle jdk 11.0.2
+3. 将 blocklang-installer 和 oracle jdk 上传到服务器指定的文件夹中
+
 ### 启动
 
 ```sh

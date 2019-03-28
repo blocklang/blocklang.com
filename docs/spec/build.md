@@ -38,9 +38,10 @@ BlockLang
     |--- gitRepo
             |--- {owner}
                      |--- {project_name}
-    |--- thirdParty
-            |--- {version}
-                     |--- {file_name}
+    |--- apps
+            |--- {app_name}
+                     |--- {version}
+                              |--- {file_name}
 ```
 
 文件夹结构说明
@@ -56,16 +57,22 @@ BlockLang
 3. gitRepo - 存放程序模块模型数据的 git 仓库根目录
    1. {owner} - 仓库拥有者的登录名
       1. {project_name} - 项目名
-4. thirdParty - 存放第三方 APP，如 JDK 文件
-   1. {version} - 版本号
-      1. {file_name} - 文件名
+4. apps - 存放本平台中使用的软件，如 oracle jdk 和 blocklang-installer
+   1. {app_name} - app 名称
+      1. {version} - 版本号
+         1. {file_name} - 文件名
 
-### jar 文件
+### App
 
-我们称生成后的 jar 文件为 APP。APP 中还包括来自第三方的 APP，如 JDK
+BlockLang 平台中统一管理两类 APP
 
-1. 使用 maven 的目录结构来管理根据项目生成的 jar 文件
-2. 第三方 APP 放在 thirdParty 文件夹
+1. BlockLang 中的项目发布后生成的 jar 文件，使用 maven 的目录结构管理；
+2. BlockLang 平台中使用的软件，如 oracle jdk 和 blocklang-installer，放在 `apps` 文件夹中
+
+目前平台中使用两款软件：
+
+1. oracle jdk，app 名约定为 `jdk`
+2. BlockLang Installer，app 名约定为 `blocklang-installer`
 
 maven 的 jar 文件命名规范：
 
