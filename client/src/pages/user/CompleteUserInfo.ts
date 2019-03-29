@@ -48,9 +48,8 @@ export default class CompleteUserInfo extends ThemedMixin(I18nMixin(WidgetBase))
 		return v('div', { classes: [c.container, c.mt_5], styles: { maxWidth: '700px' } }, [
 			v('div', [
 				v('h4', [
-					v('img', { classes: [c.avatar], src: `${avatarUrl}`, width: 20, height: 20 }, [
-						` ${nickname} ${messages.completeUserInfoTip}`
-					])
+					v('img', { classes: [c.avatar], src: `${avatarUrl}`, width: 20, height: 20 }),
+					` ${nickname} ${messages.completeUserInfoTip}`
 				]),
 				v('hr')
 			]),
