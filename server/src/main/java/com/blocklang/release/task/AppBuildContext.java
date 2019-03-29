@@ -22,24 +22,23 @@ public class AppBuildContext extends ProjectContext{
 	private static final Logger logger = LoggerFactory.getLogger(AppBuildContext.class);
 
 	private String version;
-	private String mavenRootPath;
+	
 	private String templateProjectGitUrl;
 	private String jdkVersion;
 	
 	private LocalDateTime startLogTime;
 	private Path logFilePath;
 	
-	public AppBuildContext(String projectsRootPath, 
+	public AppBuildContext(String dataRootPath, 
 			String mavenRootPath, 
 			String projectName, 
 			String version) {
-		super(projectName, projectsRootPath);
-		Assert.hasLength(mavenRootPath, "maven 仓库的根路径不能为空");
-		Assert.hasLength(version, "项目版本号不能为空");
+		super(projectName, dataRootPath);
 		
-		this.projectsRootPath = projectsRootPath;
+		Assert.hasLength(version, "项目版本号不能为空");
+		Assert.hasLength(mavenRootPath, "maven 仓库的根路径不能为空");
+		
 		this.mavenRootPath = mavenRootPath;
-		this.projectName = projectName;
 		this.version = version;
 	}
 	
@@ -62,7 +61,7 @@ public class AppBuildContext extends ProjectContext{
 	}
 
 	private Path getProjectRootDirectory() {
-		return Paths.get(this.projectsRootPath, "projects", this.projectName);
+		return Paths.get(this.dataRootPath, "projects", this.projectName);
 	}
 	
 	public Path getClientProjectRootDirectory() {
@@ -80,12 +79,20 @@ public class AppBuildContext extends ProjectContext{
 	public Path getMavenInstallJar() {
 		return Paths.get(this.mavenRootPath, 
 				"repository", 
-				"com", 
+				this.getMavenInstallJarRelativePath().toString());
+	}
+	
+	public Path getMavenInstallJarRelativePath() {
+		return Paths.get("com", 
 				"blocklang", 
 				this.owner, 
 				this.projectName,
 				this.version,
-				this.projectName + "-" + this.version + ".jar");
+				this.getMavenInstallJarFileName());
+	}
+
+	public String getMavenInstallJarFileName() {
+		return this.projectName + "-" + this.version + ".jar";
 	}
 
 	private Path getLogDirectory() {
@@ -204,7 +211,7 @@ public class AppBuildContext extends ProjectContext{
 	}
 
 	public Path getProjectTemplateDirectory() {
-		return Paths.get(this.projectsRootPath, "template");
+		return Paths.get(this.dataRootPath, "template");
 	}
 
 	public Path getProjectTemplateClientDirectory() {
@@ -222,4 +229,5 @@ public class AppBuildContext extends ProjectContext{
 	public int getJdkMajorVersion() {
 		return Version.parseVersion(this.jdkVersion).getMajor();
 	}
+
 }

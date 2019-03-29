@@ -1,6 +1,7 @@
 package com.blocklang.develop.controller;
 
 import java.security.Principal;
+import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -28,6 +29,7 @@ import com.blocklang.core.exception.ResourceNotFoundException;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.PropertyService;
 import com.blocklang.core.service.UserService;
+import com.blocklang.develop.constant.AppNames;
 import com.blocklang.develop.data.CheckProjectNameParam;
 import com.blocklang.develop.data.DeploySetting;
 import com.blocklang.develop.data.GitCommitInfo;
@@ -38,6 +40,11 @@ import com.blocklang.develop.service.ProjectDeployService;
 import com.blocklang.develop.service.ProjectFileService;
 import com.blocklang.develop.service.ProjectResourceService;
 import com.blocklang.develop.service.ProjectService;
+import com.blocklang.release.constant.Arch;
+import com.blocklang.release.constant.TargetOs;
+import com.blocklang.release.model.AppRelease;
+import com.blocklang.release.service.AppReleaseService;
+import com.nimbusds.oauth2.sdk.util.StringUtils;
 
 @RestController
 public class ProjectController {
@@ -58,6 +65,8 @@ public class ProjectController {
 	private MessageSource messageSource;
 	@Autowired
 	private PropertyService propertyService;
+	@Autowired
+	private AppReleaseService appReleaseService;
 	
 	@PostMapping("/projects/check-name")
 	public ResponseEntity<Map<String, Object>> checkProjectName(
@@ -224,20 +233,33 @@ public class ProjectController {
 		}
 		
 		UserInfo user = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
-		
 		String url = propertyService.findStringValue(CmPropKey.INSTALL_API_ROOT_URL, "https://blocklang.com");
-		String installerLinuxUrl = propertyService.findStringValue(CmPropKey.INSTALLER_LINUX_URL).orElseThrow(() -> {
-			logger.error("请在系统参数中配置 Linux 版安装器的下载地址");
-			return new ResourceNotFoundException();
-		});
-		String installerWindowsUrl = propertyService.findStringValue(CmPropKey.INSTALLER_WINDOWS_URL).orElseThrow(() -> {
-			logger.error("请在系统参数中配置 Windows 版安装器的下载地址");
-			return new ResourceNotFoundException();
-		});
+		// blocklang-installer 软件的下载链接，目前只支持64位：
+		String downloadInstallerUrlPattern = "/apps?appName={0}&version={1}&targetOs={2}&arch={3}";
 		
 		return projectService.find(owner, projectName).flatMap(project -> {
 			return projectDeployService.findOrCreate(project.getId(), user.getId());
 		}).map(deploy -> {
+			
+			String installerLinuxUrl = null;
+			String installerWindowsUrl = null;
+			String latestInstallerVersion = appReleaseService
+					.findLatestReleaseAppByAppName(AppNames.BLOCKLANG_INSTALLER)
+					.map(AppRelease::getVersion)
+					.orElse(null);
+			if(StringUtils.isNotBlank(latestInstallerVersion)) {
+				installerLinuxUrl = MessageFormat.format(downloadInstallerUrlPattern, 
+						AppNames.BLOCKLANG_INSTALLER, 
+						latestInstallerVersion,
+						TargetOs.LINUX.getValue().toLowerCase(),
+						Arch.X86_64.getValue().toLowerCase());
+				installerWindowsUrl = MessageFormat.format(downloadInstallerUrlPattern, 
+						AppNames.BLOCKLANG_INSTALLER, 
+						latestInstallerVersion,
+						TargetOs.WINDOWS.getValue().toLowerCase(),
+						Arch.X86_64.getValue().toLowerCase());
+			}
+			
 			DeploySetting deploySetting = new DeploySetting();
 			deploySetting.setId(deploy.getId());
 			deploySetting.setUserId(deploy.getUserId());

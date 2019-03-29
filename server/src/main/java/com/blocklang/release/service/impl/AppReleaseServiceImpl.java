@@ -36,7 +36,7 @@ public class AppReleaseServiceImpl implements AppReleaseService {
 	}
 
 	@Override
-	public List<AppRelease> findByAppName(String appName) {
+	public List<AppRelease> findAllByAppName(String appName) {
 		List<AppRelease> result = appDao.findByAppName(appName).map(app -> {
 			return appReleaseDao.findByAppIdOrderByIdDesc(app.getId());
 		}).orElse(Collections.emptyList());
@@ -46,6 +46,13 @@ public class AppReleaseServiceImpl implements AppReleaseService {
 		});
 		
 		return result;
+	}
+
+	@Override
+	public Optional<AppRelease> findLatestReleaseAppByAppName(String appName) {
+		return appDao.findByAppName(appName).flatMap(app -> {
+			return appReleaseDao.findFirstByAppIdOrderByIdDesc(app.getId());
+		});
 	}
 
 }

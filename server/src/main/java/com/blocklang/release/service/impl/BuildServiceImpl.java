@@ -76,7 +76,7 @@ public class BuildServiceImpl implements BuildService {
 	public void build(Project project, ProjectReleaseTask releaseTask) {
 		StopWatch stopWatch = StopWatch.createStarted();
 
-		String projectsRootPath = propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).get();
+		String dataRootPath = propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).get();
 		String mavenRootPath = propertyService.findStringValue(CmPropKey.MAVEN_ROOT_PATH).get();
 		String templateProjectGitUrl = propertyService.findStringValue(CmPropKey.TEMPLATE_PROJECT_GIT_URL).get();
 
@@ -84,7 +84,7 @@ public class BuildServiceImpl implements BuildService {
 		String jdkVersion = appReleaseDao.findById(releaseTask.getJdkReleaseId()).map(AppRelease::getVersion).orElse("11.0.2");;
 		
 		AppBuildContext context = new AppBuildContext(
-				projectsRootPath, 
+				dataRootPath, 
 				mavenRootPath,
 				templateProjectGitUrl,
 				project.getCreateUserName(),
@@ -344,8 +344,8 @@ public class BuildServiceImpl implements BuildService {
 			file.setAppReleaseId(appRelease.getId());
 			file.setTargetOs(TargetOs.ANY);
 			file.setArch(Arch.ANY);
-			file.setFileName(context.getMavenInstallJar().getFileName().toString());
-			file.setFilePath(context.getMavenInstallJar().toString());
+			file.setFileName(context.getMavenInstallJarFileName());
+			file.setFilePath(context.getMavenInstallJarRelativePath().toString());
 			file.setCreateTime(LocalDateTime.now());
 			file.setCreateUserId(releaseTask.getCreateUserId());
 			return appReleaseFileDao.save(file);

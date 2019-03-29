@@ -36,6 +36,8 @@ import com.blocklang.develop.service.ProjectDeployService;
 import com.blocklang.develop.service.ProjectFileService;
 import com.blocklang.develop.service.ProjectResourceService;
 import com.blocklang.develop.service.ProjectService;
+import com.blocklang.release.model.AppRelease;
+import com.blocklang.release.service.AppReleaseService;
 
 import io.restassured.http.ContentType;
 
@@ -50,6 +52,8 @@ public class ProjectControllerTest extends AbstractControllerTest{
 	private ProjectFileService projectFileService;
 	@MockBean
 	private ProjectDeployService projectDeployService;
+	@MockBean
+	private AppReleaseService appReleaseService;
 
 	@Test
 	public void check_name_user_is_unauthorization_not_login() {
@@ -646,8 +650,10 @@ public class ProjectControllerTest extends AbstractControllerTest{
 		when(projectDeployService.findOrCreate(anyInt(), anyInt())).thenReturn(Optional.of(deploy));
 		
 		when(propertyService.findStringValue(eq(CmPropKey.INSTALL_API_ROOT_URL), anyString())).thenReturn("b");
-		when(propertyService.findStringValue(eq(CmPropKey.INSTALLER_WINDOWS_URL))).thenReturn(Optional.of("c"));
-		when(propertyService.findStringValue(eq(CmPropKey.INSTALLER_LINUX_URL))).thenReturn(Optional.of("d"));
+		
+		AppRelease appRelease = new AppRelease();
+		appRelease.setVersion("0.1.0");
+		when(appReleaseService.findLatestReleaseAppByAppName(anyString())).thenReturn(Optional.of(appRelease));
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -657,7 +663,7 @@ public class ProjectControllerTest extends AbstractControllerTest{
 			.statusCode(HttpStatus.SC_OK)
 			.body("registrationToken", equalTo("a"),
 					"url", equalTo("b"),
-					"installerWindowsUrl", equalTo("c"),
-					"installerLinuxUrl", equalTo("d"));
+					"installerWindowsUrl", equalTo("/apps?appName=blocklang-installer&version=0.1.0&targetOs=windows&arch=x86_64"),
+					"installerLinuxUrl", equalTo("/apps?appName=blocklang-installer&version=0.1.0&targetOs=linux&arch=x86_64"));
 	}
 }

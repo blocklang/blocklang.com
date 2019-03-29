@@ -15,9 +15,11 @@ public interface AppReleaseService {
 	Optional<AppRelease> findById(int releaseId);
 	
 	Optional<AppRelease> findLatestReleaseApp(Integer appId);
+	
+	Optional<AppRelease> findLatestReleaseAppByAppName(String appName);
 
 	Optional<AppRelease> findByAppIdAndVersion(Integer appId, String version);
 
-	List<AppRelease> findByAppName(String appName);
+	List<AppRelease> findAllByAppName(String appName);
 
 }

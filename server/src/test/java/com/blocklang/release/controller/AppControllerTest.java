@@ -25,7 +25,7 @@ public class AppControllerTest extends AbstractControllerTest{
 
 	@Test
 	public void get_jdks_success() {
-		when(appReleaseService.findByAppName(anyString())).thenReturn(Collections.emptyList());
+		when(appReleaseService.findAllByAppName(anyString())).thenReturn(Collections.emptyList());
 		
 		given()
 			.contentType(ContentType.JSON)

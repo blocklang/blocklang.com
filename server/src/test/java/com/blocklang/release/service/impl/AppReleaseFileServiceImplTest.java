@@ -47,8 +47,9 @@ public class AppReleaseFileServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void find_not_match_arch() {
+		Integer appReleaseId = Integer.MAX_VALUE; // 避免与初始数据冲突
 		AppReleaseFile appReleaseFile = new AppReleaseFile();
-		appReleaseFile.setAppReleaseId(1);
+		appReleaseFile.setAppReleaseId(appReleaseId);
 		appReleaseFile.setTargetOs(TargetOs.LINUX);
 		appReleaseFile.setArch(Arch.X86);
 		appReleaseFile.setFileName("file_name");
@@ -58,7 +59,7 @@ public class AppReleaseFileServiceImplTest extends AbstractServiceTest{
 		
 		appReleaseFileDao.save(appReleaseFile);
 		
-		Optional<AppReleaseFile> appReleaseFileOption = appReleaseFileService.find(1, TargetOs.LINUX, Arch.X86_64);
+		Optional<AppReleaseFile> appReleaseFileOption = appReleaseFileService.find(appReleaseId, TargetOs.LINUX, Arch.X86_64);
 		assertThat(appReleaseFileOption).isEmpty();
 	}
 	

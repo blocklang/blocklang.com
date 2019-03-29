@@ -150,7 +150,7 @@ public class AppReleaseServiceImplTest extends AbstractServiceTest{
 
 	@Test
 	public void find_by_app_name_no_data() {
-		assertThat(appReleaseService.findByAppName("a")).isEmpty();
+		assertThat(appReleaseService.findAllByAppName("a")).isEmpty();
 	}
 	
 	@Test
@@ -172,7 +172,7 @@ public class AppReleaseServiceImplTest extends AbstractServiceTest{
 		appRelease.setCreateTime(LocalDateTime.now());
 		appReleaseDao.save(appRelease);
 		
-		List<AppRelease> releases = appReleaseService.findByAppName("app");
+		List<AppRelease> releases = appReleaseService.findAllByAppName("app");
 		assertThat(releases).hasSize(1);
 		assertThat(releases.get(0).getName()).isEqualTo("app");
 		assertThat(releases.get(0).getVersion()).isEqualTo("0.0.1");
@@ -208,7 +208,41 @@ public class AppReleaseServiceImplTest extends AbstractServiceTest{
 		appRelease.setCreateTime(LocalDateTime.now().minusSeconds(1));
 		appReleaseDao.save(appRelease);
 		
-		List<AppRelease> releases = appReleaseService.findByAppName("app");
+		List<AppRelease> releases = appReleaseService.findAllByAppName("app");
 		assertThat(releases).hasSize(2).isSortedAccordingTo(Comparator.comparing(AppRelease::getReleaseTime).reversed());
+	}
+
+	@Test
+	public void find_latest_release_app_by_app_name_success() {
+		App app = new App();
+		app.setAppName("app");
+		app.setCreateUserId(1);
+		app.setCreateTime(LocalDateTime.now());
+		Integer appId = appDao.save(app).getId();
+		
+		AppRelease appRelease = new AppRelease();
+		appRelease.setAppId(appId);
+		appRelease.setVersion("0.0.1");
+		appRelease.setTitle("title");
+		appRelease.setDescription("description");
+		appRelease.setReleaseTime(LocalDateTime.now());
+		appRelease.setReleaseMethod(ReleaseMethod.AUTO);
+		appRelease.setCreateUserId(1);
+		appRelease.setCreateTime(LocalDateTime.now());
+		appReleaseDao.save(appRelease);
+		
+		appRelease = new AppRelease();
+		appRelease.setAppId(appId);
+		appRelease.setVersion("0.0.2");
+		appRelease.setTitle("title");
+		appRelease.setDescription("description");
+		appRelease.setReleaseTime(LocalDateTime.now());
+		appRelease.setReleaseMethod(ReleaseMethod.AUTO);
+		appRelease.setCreateUserId(1);
+		appRelease.setCreateTime(LocalDateTime.now());
+		appReleaseDao.save(appRelease);
+		
+		Optional<AppRelease> appReleaseOption = appReleaseService.findLatestReleaseAppByAppName("app");
+		assertThat(appReleaseOption.get().getVersion()).isEqualTo("0.0.2");
 	}
 }

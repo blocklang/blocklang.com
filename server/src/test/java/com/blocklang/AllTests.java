@@ -18,6 +18,8 @@ import com.blocklang.core.util.IdGeneratorTest;
 import com.blocklang.core.util.UrlUtilTest;
 import com.blocklang.develop.constant.AppTypeTest;
 import com.blocklang.develop.controller.ProjectControllerTest;
+import com.blocklang.develop.model.AppGlobalContextTest;
+import com.blocklang.develop.model.ProjectContextTest;
 import com.blocklang.develop.model.ProjectResourceTest;
 import com.blocklang.develop.service.impl.ProjectDeployServiceImplTest;
 import com.blocklang.develop.service.impl.ProjectFileServiceImplTest;
@@ -45,6 +47,8 @@ import com.blocklang.release.task.GitTagTaskTest;
 	
 	// unit test
 	IdGeneratorTest.class,
+	AppGlobalContextTest.class,
+	ProjectContextTest.class,
 	AppBuildContextTest.class,
 	GitTagTaskTest.class,
 	GitUtilsTest.class,

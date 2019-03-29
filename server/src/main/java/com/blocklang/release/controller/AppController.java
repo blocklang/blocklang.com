@@ -19,6 +19,6 @@ public class AppController {
 
 	@GetMapping("/apps/jdk/releases")
 	public ResponseEntity<List<AppRelease>> getJdks() {
-		return ResponseEntity.ok(appReleaseService.findByAppName(Constant.JDK_APP_NAME));
+		return ResponseEntity.ok(appReleaseService.findAllByAppName(Constant.JDK_APP_NAME));
 	}
 }

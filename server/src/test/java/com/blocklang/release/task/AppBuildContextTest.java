@@ -50,6 +50,16 @@ public class AppBuildContextTest {
 	}
 	
 	@Test
+	public void get_maven_install_jar_relative_path() {
+		assertThat(context.getMavenInstallJarRelativePath().compareTo(Paths.get("com/blocklang/jack/app/0.0.1/app-0.0.1.jar"))).isEqualTo(0);
+	}
+	
+	@Test
+	public void get_maven_install_jar_file_name() {
+		assertThat(context.getMavenInstallJarFileName()).isEqualTo("app-0.0.1.jar");
+	}
+	
+	@Test
 	public void get_log_file_path() throws IOException {
 		Path logFilePath = context.getLogFilePath();
 		assertThat(logFilePath.getParent().compareTo(Paths.get("c:/blocklang/projects/app/logs"))).isEqualTo(0);
@@ -88,11 +98,6 @@ public class AppBuildContextTest {
 	@Test
 	public void get_index_file_name() {
 		assertThat(context.getIndexFileName()).isEqualTo("index.html");
-	}
-	
-	@Test
-	public void get_git_repository_directory() {
-		assertThat(context.getGitRepositoryDirectory().compareTo(Paths.get("c:/blocklang/gitRepo/jack/app"))).isEqualTo(0);
 	}
 	
 	@Test
