@@ -34,6 +34,12 @@ echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/source
 sudo apt-get update && sudo apt-get install yarn
 # 检测 yarn 版本
 yarn --version
+
+# 查看当前源
+yarn config get registry
+https://registry.yarnpkg.com
+# 切换为淘宝镜像
+yarn config set registry https://registry.npm.taobao.org
 ```
 
 ### 安装 dojo cli
