@@ -1,114 +1,45 @@
-﻿# BlockLang
+﻿# Block Lang
 
 [![Build Status](https://travis-ci.org/blocklang/blocklang.com.svg?branch=master)](https://travis-ci.org/blocklang/blocklang.com)
 
-Block Lang 平台。
+Block Lang 处在热火朝天、天马行空的开发中，不适合在生产环境使用。如果您有一睹 Block Lang 芳容的冲动，请移步[演示站点 https://blocklang.com](https://blocklang)。
 
-包括以下子功能
+## 相信
 
-1. 发布中心：功能包括 dojo 项目和 Spring Boot 项目的配置、编译和构建，以及提供 JDK 和 Spring Boot Jar 的下载服务
+> **老少皆宜**：每个人都可按照自己的需求，拼装出称心的软件。
 
-## 项目结构
+## 理念
 
-### Server
+BlockLang 致力于打造一朵“百花齐放、百鸟争鸣”的软件云，实现软件定义软件。
 
-服务器端基于 Spring Boot 开发，使用以下组件：
+![Block Lang Idea](docs/spec/images/blocklang-idea.png)
 
-1. Spring MVC - 开发 web 端
-2. Spring Data JPA - 数据库交互组件
-3. Spring Security - Spring 安全框架
-4. Spring Cache - Spring 缓存组件
-5. Thymeleaf - HTML 模板引擎
-6. jgit - Java 实现的 git 版本控制组件
-7. Liquibase - 管理和重构数据库表结构，以及管理系统初始数据
-8. PostgreSQL - 数据库
-9. Spring boot test - Spring boot 自动化测试工具
-10. Rest Assured - Rest API 自动化测试工具
+## 定位
 
-#### package 结构
+Block Lang 是一个：
 
-1. `com.blocklang.database` - 数据库概念模型设计和物理模型开发
-2. `com.blocklang.develop` - 软件开发
-3. `com.blocklang.release` - 软件发布
-4. `com.blocklang.core` - 通用功能
+1. 可视化的软件拼装工厂，致力于提高软件研发、运维的效率和质量；
+2. 组件商店，提供功能全面、质量上乘、持续优化的组件和软件。
 
-依赖关系：
+## 原理
 
-1. `database`、`develop`、`release` 可依赖 `core` 包
-2. `database`、`develop`、`release` 包之间不要互相依赖
+BlockLang 认为：
 
-#### `src/main/java` 目录
+1. 一切通用功能都可封装成组件；
+2. 一切业务逻辑都可用组件拼装；
+3. 软件生产过程应该所见即所得。
 
-1. `controller` - 存放本项目专用的 HTTP 服务
-2. `api` - 存放共享的 HTTP 服务
-3. `service` - 存放业务逻辑接口
-4. `service.impl` - 存放业务逻辑实现类
-5. `dao` - 存放数据访问接口
-6. `dao.impl` - 存放数据访问实现类
-7. `model` - 存放实体对象
-8. `data` - 存放 POJO 对象，是对 model 实体对象的组合
+BlockLang 将软件开发拆分为两部分：
 
-#### `src/main/resources` 目录
+1. 一是通用组件的研发；
+2. 二是基于通用组件拼装出满足业务的软件。
 
-1. `db/changelog/data` - 存放初始化数据
-2. `db/changelog/table` - 存放变更的表脚本
-3. `db/db.sql` - 存放建库脚本
-4. `help/` - 存放帮助文档
+最终实现硬件、软件和生产过程一站式、全面云化。
 
-### Client
+![Block Lang Architecture](docs/spec/images/blocklang-architecture.png)
 
-客户端使用以下组件
+## 贡献
 
-1. [Dojo](https://dojo.io/) - 最新版 Dojo Framework、Widgets 以及 CLI 等开发工具
-2. [Bootstrap](http://getbootstrap.com/) - 使用 bootstrap 中的样式
-3. [Fontawesome](https://fontawesome.com/) - 图标库
+在提交代码前，请先了解 Block Lang 的[设计细节](./doc/program.md)。
 
-#### 目录结构
-
-1. `src/index.html` - 宿主文件
-2. `src/main.ts` - 入口文件
-3. `src/App.ts` - 在这里使用项目中的组件组装 APP
-4. `src/interfaces.d.ts` - 存放数据结构
-5. `src/routes.ts` - 存放路由配置信息
-6. `src/config.ts` - 存放项目配置信息
-7. `src/containers/**` - 存放 container 部件
-8. `src/processes/**` - dojo store 处理逻辑，用户查询和修改 store 中的数据
-9. `src/pages/**` - 存放页面级别的部件
-10. `src/pages/widgets/**` - 存放页面中共用的业务相关部件
-11. `src/widgets/**` - 存放通用部件，页面级别的部件是基于通用部件搭建的
-12. `src/nls/**` - 存放国际化文件
-13. `tests/unit/**` - 存放单元测试用例
-14. `tests/functional/**` - 存放集成测试用例
-
-## 需求描述
-
-详见 [需求文档](docs/spec/README.md)
-
-## 数据库表结构
-
-1. 设计数据库表时常用的[文档模板](docs/db/_TEMPLATE.md)；
-2. [数据库表结构](docs/db/README.md)。
-
-## REST API
-
-详见 [API 文档](docs/API/README.md)
-
-## 安装
-
-### 安装环境
-
-1. 安装 JDK
-2. 安装 git
-3. 安装 nodeJs
-4. 安装 yarn
-5. 配置 xxx
-
-### 安装 blocklang 软件
-
-1. 进入 `client` 文件夹，执行 `npm run build` 生成发布文件（存在 `output/dist` 文件夹中）
-2. 将 `client/output/dist` 中的文件复制到 `server/src/main/java/resources/static` 文件夹中
-3. 将 `server/src/main/java/resources/static/index.html` 移到 `server/src/main/java/resources/templates` 文件夹中
-4. 安装 PostgreSQL 数据库，并在其中创建名为 `blocklang` 的数据库（或使用 `server/src/main/java/resources/db/db.sql`）
-5. 在 `server/src/main/java/resources/application.yml` 中配置数据库链接
-6. 进入 `server` 文件夹，并运行 `mvn install` 生成 jar 文件
-7. 在命令行运行 `java -jar xxx.jar` 命令来启动 jar 文件
+诚邀志同道合的编程**手艺人**加入（QQ群 `619312757`）。
