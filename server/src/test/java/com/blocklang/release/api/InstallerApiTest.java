@@ -144,7 +144,7 @@ public class InstallerApiTest extends AbstractControllerTest{
 			.post("/installers")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
-			.body("errors.globalErrors", hasItems("App Name 尚未发布"));
+			.body("errors.globalErrors", hasItems("App Name 尚未发布，请先发布项目"));
 	}
 	
 	@Test
@@ -586,7 +586,7 @@ public class InstallerApiTest extends AbstractControllerTest{
 			.put("/installers")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
-			.body("errors.globalErrors", hasItems("App Name 尚未发布"));
+			.body("errors.globalErrors", hasItems("App Name 尚未发布，请先发布项目"));
 	}
 	
 	@Test
