@@ -1,5 +1,6 @@
 package com.blocklang.release.api;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -66,11 +67,16 @@ public class AppApi {
 		}
 
 		Path path = Paths.get(appReleaseFile.getFullPath());
-		if(path.toFile().exists()) {
+		File file = path.toFile();
+		if(file.exists()) {
 			try {
 				InputStreamResource resource = new InputStreamResource(Files.newInputStream(path));
 				// 设置文件名
-				return ResponseEntity.ok().header("Content-Disposition","attachment;fileName=" + appReleaseFile.getFileName()).contentType(MediaType.APPLICATION_OCTET_STREAM).body(resource);
+				return ResponseEntity.ok()
+						.contentLength(file.length())
+						.contentType(MediaType.APPLICATION_OCTET_STREAM)
+						.header("Content-Disposition","attachment;fileName=" + appReleaseFile.getFileName())
+						.body(resource);
 			} catch (IOException e) {
 				throw new ResourceNotFoundException();
 			}
