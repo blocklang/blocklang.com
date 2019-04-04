@@ -11,6 +11,8 @@ import org.dom4j.DocumentException;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 
+import com.nimbusds.oauth2.sdk.util.StringUtils;
+
 public class MavenPomConfigTask extends AbstractTask{
 
 	public MavenPomConfigTask(AppBuildContext appBuildContext) {
@@ -42,8 +44,11 @@ public class MavenPomConfigTask extends AbstractTask{
 			Node versionNode = document.selectSingleNode("/project/m:version");
 			versionNode.setText(appBuildContext.getVersion());
 			
-			Node descriptionNode = document.selectSingleNode("/project/m:description");
-			descriptionNode.setText(appBuildContext.getDescription());
+			// description 不是必填项
+			if(StringUtils.isNotBlank(appBuildContext.getDescription())) {
+				Node descriptionNode = document.selectSingleNode("/project/m:description");
+				descriptionNode.setText(appBuildContext.getDescription());
+			}
 			
 			Node jdkVersionNode = document.selectSingleNode("/project/m:properties/m:java.version");
 			jdkVersionNode.setText(String.valueOf(appBuildContext.getJdkMajorVersion()));
@@ -53,7 +58,7 @@ public class MavenPomConfigTask extends AbstractTask{
 			}
 			
 			return Optional.of(true);
-		} catch (DocumentException | IOException e) {
+		} catch (DocumentException | IOException | IllegalArgumentException e) {
 			appBuildContext.error(e);
 		}
 		return Optional.empty();

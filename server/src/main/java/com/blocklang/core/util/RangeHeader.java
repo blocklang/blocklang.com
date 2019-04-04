@@ -9,13 +9,19 @@ import com.nimbusds.oauth2.sdk.util.StringUtils;
 
 
 public class RangeHeader {
+	
+	public static boolean isValid(String rangeHeader) {
+		if(StringUtils.isBlank(rangeHeader)) {
+			return false;
+		}
+		return rangeHeader.matches("^bytes=\\d*-\\d*(,\\s*\\d*-\\d*)*$");
+	}
 
 	public static Range<Long> parse(String rangeHeader, Long inclusiveUpperBound) {
 		Assert.hasText(rangeHeader, "range header 不能为空");
-		Assert.isTrue(rangeHeader.startsWith("range="), "range header 应该以 range= 开头");
-		Assert.isTrue(rangeHeader.contains("-"), "range header 应该包含 -");
+		Assert.isTrue(isValid(rangeHeader), "不是有效的 range header");
 		
-		String trimedRange = rangeHeader.trim().substring("range=".length());
+		String trimedRange = rangeHeader.trim().substring("bytes=".length());
 
 		String[] ranges = trimedRange.split("-");
 		Assert.isTrue(ranges.length > 0, "至少包含一个片段");
