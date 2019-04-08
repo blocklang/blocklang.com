@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/blocklang/blocklang.com.svg?branch=master)](https://travis-ci.org/blocklang/blocklang.com)
 
-Block Lang 处在热火朝天、天马行空的开发中，不适合在生产环境使用。如果您有一睹 Block Lang 芳容的冲动，请移步[演示站点 https://blocklang.com](https://blocklang)。
+Block Lang 处在热火朝天、天马行空的开发中，不适合在生产环境使用。如果您有一睹 Block Lang 芳容的冲动，请移步[演示站点 https://blocklang.com](https://blocklang.com)。
 
 ## 相信
 
