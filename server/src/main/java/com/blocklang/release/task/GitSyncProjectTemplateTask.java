@@ -19,8 +19,10 @@ public class GitSyncProjectTemplateTask extends AbstractTask{
 		try {
 			Path path = appBuildContext.getProjectTemplateDirectory();
 			if(GitUtils.isGitRepo(path)) {
+				appBuildContext.info("从 {0} 仓库拉取最新的模板项目源码", appBuildContext.getTemplateProjectGitUrl());
 				GitUtils.pull(path);
 			} else {
+				appBuildContext.info("从 {0} 仓库克隆模板项目源码", appBuildContext.getTemplateProjectGitUrl());
 				GitUtils.clone(appBuildContext.getTemplateProjectGitUrl(), path);
 			}
 			return Optional.of(true);

@@ -89,4 +89,12 @@ public class UpdateRegistrationParam {
 	public void setServerToken(String serverToken) {
 		this.serverToken = serverToken;
 	}
+
+	@Override
+	public String toString() {
+		return "UpdateRegistrationParam [installerToken=" + installerToken + ", ip=" + ip + ", appRunPort=" + appRunPort
+				+ ", osType=" + osType + ", osVersion=" + osVersion + ", targetOs=" + targetOs + ", arch=" + arch
+				+ ", serverToken=" + serverToken + "]";
+	}
+	
 }

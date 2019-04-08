@@ -101,7 +101,6 @@ public class BuildServiceImpl implements BuildService {
 		context.info(StringUtils.repeat("-", 45));
 		context.info("一、开始复制项目模板");
 		// 从 master 分支下载或更新项目模板
-		context.info("从远程 git 服务器克隆或拉取最新的源码");
 		GitSyncProjectTemplateTask gitSyncProjectTemplateTask = new GitSyncProjectTemplateTask(context);
 		Optional<Boolean> gitSyncOption = gitSyncProjectTemplateTask.run();
 		success = gitSyncOption.isPresent();
