@@ -10,9 +10,9 @@
 		INSERT INTO app_release(app_id, version, title, release_time, release_method, create_user_id, create_time)
 			VALUES (currval('app_dbid_seq'), '0.1.0', 'blocklang-installer v0.1.0', now(),'02', -1, now());
 		INSERT INTO app_release_file(app_release_id, target_os, arch, file_name, file_path, create_user_id, create_time)
-			VALUES (currval('app_release_dbid_seq'), '17', '02', 'installer-0.1.0_windows-x64.exe', 'blocklang-installer/0.1.0/installer-0.1.0_windows-x64.exe', -1, now());
+			VALUES (currval('app_release_dbid_seq'), '17', '02', 'blocklang-installer-0.1.0-windows-x86.zip', 'blocklang-installer/0.1.0/blocklang-installer-0.1.0-windows-x86.zip', -1, now());
 		INSERT INTO app_release_file(app_release_id, target_os, arch, file_name, file_path, create_user_id, create_time)
-			VALUES (currval('app_release_dbid_seq'), '11', '02', 'installer-0.1.0_linux-x64', 'blocklang-installer/0.1.0/installer-0.1.0_linux-x64', -1, now());
+			VALUES (currval('app_release_dbid_seq'), '11', '02', 'blocklang-installer-0.1.0-linux-x64.gz', 'blocklang-installer/0.1.0/blocklang-installer-0.1.0-linux-x64.gz', -1, now());
 		</sql>
 		
 	</changeSet>
