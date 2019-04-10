@@ -61,7 +61,7 @@ public class AppBuildContext extends ProjectContext{
 	}
 
 	private Path getProjectRootDirectory() {
-		return Paths.get(this.dataRootPath, "projects", this.projectName);
+		return Paths.get(this.dataRootPath, "projects", this.owner, this.projectName);
 	}
 	
 	public Path getClientProjectRootDirectory() {

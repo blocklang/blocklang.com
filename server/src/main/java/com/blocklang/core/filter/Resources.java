@@ -16,6 +16,8 @@ public abstract class Resources {
 	
 	/**
 	 * 在 dojo route 中登记的 route，这些 url 会显示在浏览器地址栏，然后按下浏览器的 F5 键刷新。
+	 * 注意 /users/{login_name}, /projects/{owner}/{project_name} 这两类路由不需要在这里配置，
+	 * 因为已经有专门的代码处理了。
 	 */
 	public static final String[] ROUTES = new String[] {
 		"/projects/new",
