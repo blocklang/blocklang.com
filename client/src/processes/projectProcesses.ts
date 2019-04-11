@@ -1,4 +1,4 @@
-import { commandFactory } from './utils';
+import { commandFactory, getHeaders } from './utils';
 import { NamePayload, DescriptionPayload, IsPublicPayload } from './interfaces';
 import { replace } from '@dojo/framework/stores/state/operations';
 import { createProcess } from '@dojo/framework/stores/process';
@@ -36,7 +36,7 @@ const nameInputCommand = commandFactory<NamePayload>(async ({ path, get, payload
 	// 服务器端校验，校验登录用户下是否存在该项目名
 	const response = await fetch(`${baseUrl}/projects/check-name`, {
 		method: 'POST',
-		headers: { 'Content-type': 'application/json;charset=UTF-8' },
+		headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
 		body: JSON.stringify({
 			owner: userName,
 			name: trimedName
@@ -74,7 +74,7 @@ const saveProjectCommand = commandFactory(async ({ path, get }) => {
 	// 在跳转到新增项目页面时，应设置 isPublic 的初始值为 true
 	const response = await fetch(`${baseUrl}/projects`, {
 		method: 'POST',
-		headers: { 'Content-type': 'application/json;charset=UTF-8' },
+		headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
 		body: JSON.stringify({
 			owner,
 			...projectParam
@@ -111,7 +111,9 @@ export const getProjectCommand = commandFactory(async ({ path, payload: { owner,
 });
 
 const getProjectResourcesCommand = commandFactory(async ({ path, payload: { owner, project, pathId = -1 } }) => {
-	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/tree/${pathId}`);
+	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/tree/${pathId}`, {
+		headers: getHeaders()
+	});
 	const json = await response.json();
 	if (!response.ok) {
 		return [replace(path('projectResources'), [])];
@@ -121,7 +123,9 @@ const getProjectResourcesCommand = commandFactory(async ({ path, payload: { owne
 });
 
 const getLatestCommitInfoCommand = commandFactory(async ({ path, payload: { owner, project, pathId = -1 } }) => {
-	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/latest-commit/${pathId}`);
+	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/latest-commit/${pathId}`, {
+		headers: getHeaders()
+	});
 	const json = await response.json();
 	if (!response.ok) {
 		return [replace(path('latestCommitInfo'), {})];
@@ -131,7 +135,9 @@ const getLatestCommitInfoCommand = commandFactory(async ({ path, payload: { owne
 });
 
 const getProjectReadmeCommand = commandFactory(async ({ path, payload: { owner, project } }) => {
-	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/readme`);
+	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/readme`, {
+		headers: getHeaders()
+	});
 	const readmeContent = await response.text();
 	if (!response.ok) {
 		return [replace(path('readme'), undefined)];
@@ -141,7 +147,9 @@ const getProjectReadmeCommand = commandFactory(async ({ path, payload: { owner, 
 });
 
 const getDeployInfoCommand = commandFactory(async ({ path, payload: { owner, project } }) => {
-	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/deploy_setting`);
+	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/deploy_setting`, {
+		headers: getHeaders()
+	});
 	const userDeployInfo = await response.json();
 	if (!response.ok) {
 		return [replace(path('userDeployInfo'), undefined)];
@@ -151,7 +159,9 @@ const getDeployInfoCommand = commandFactory(async ({ path, payload: { owner, pro
 });
 
 const getReleaseCountCommand = commandFactory(async ({ path, payload: { owner, project } }) => {
-	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/stats/releases`);
+	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/stats/releases`, {
+		headers: getHeaders()
+	});
 	const data = await response.json();
 	if (!response.ok) {
 		return [replace(path('releaseCount'), undefined)];

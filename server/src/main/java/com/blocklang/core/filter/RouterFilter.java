@@ -21,6 +21,7 @@ import org.springframework.web.util.UriTemplate;
 import org.springframework.web.util.UriUtils;
 
 import com.blocklang.core.constant.WebSite;
+import com.blocklang.core.controller.RequestUtil;
 
 
 /**
@@ -54,11 +55,19 @@ public class RouterFilter implements Filter{
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
 		HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+		
+		// 如果是 fetch 请求，则不做任何处理
+		if(RequestUtil.isFetch(httpServletRequest)) {
+			chain.doFilter(request, response);
+			return;
+		}
+		
 		String servletPath = httpServletRequest.getServletPath();
 		String url = httpServletRequest.getRequestURI();
 		if(StringUtils.isBlank(servletPath)) {
 			servletPath = url;
 		}
+
 		// Single Page Application 单页面应用的路由处理
 		System.out.println("===============================================");
 		System.out.println("===============================================");
@@ -82,12 +91,9 @@ public class RouterFilter implements Filter{
 		// 如果是浏览器刷新，则 referer 的值必为 null
 		String finalServletPath = servletPath;
 		boolean routerMatched = routerTemplates.stream().anyMatch(uriTemplate -> uriTemplate.matches(finalServletPath));
-		// 注意，可以确定刷新浏览器时，referer 的值为 null
-		// 所以当 referer 的值为 null 时，可断定是通过刷新浏览器或在浏览器输入框中输入地址请求的；
-		// 当 referer 的值不为 null 时，是通过 Fetch API 请求的。
+		// 能执行到这里，则一定是普通的浏览器请求，而不是 Fetch 请求
 		// 而通过浏览器请求的，一律跳转到首页。
-		if(referer == null && 
-				StringUtils.isBlank(filenameExtension) &&
+		if(StringUtils.isBlank(filenameExtension) && 
 				(routerMatched || needPrependServlet(servletPath))) {
 			request.getRequestDispatcher(WebSite.HOME_URL).forward(request, response);
 			return;

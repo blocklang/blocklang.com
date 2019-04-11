@@ -24,6 +24,19 @@ sudo apt install npm
 npm --version
 ```
 
+切换 npm 镜像(可选)
+
+```sh
+# 查看当前镜像地址
+npm get registry
+
+# 切换为淘宝镜像
+npm config set registry http://registry.npm.taobao.org/
+
+# 切换为原本的 npm 镜像
+npm config set registry https://registry.npmjs.org/
+```
+
 ### 安装 yarn
 
 ```sh

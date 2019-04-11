@@ -258,6 +258,7 @@ public class RouterFilterTest {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/docs/getting-started");
 		request.setServletPath("/docs/getting-started");
 		request.addHeader("referer", "/docs/getting-started");
+		request.addHeader("X-Requested-With", "FetchApi");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
 		routerFilter.doFilter(request, response, chain);

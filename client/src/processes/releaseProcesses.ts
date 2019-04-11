@@ -1,5 +1,5 @@
 import { createProcess } from '@dojo/framework/stores/process';
-import { commandFactory } from './utils';
+import { commandFactory, getHeaders } from './utils';
 import { baseUrl } from '../config';
 import { replace } from '@dojo/framework/stores/state/operations';
 import { getProjectCommand } from './projectProcesses';
@@ -8,7 +8,9 @@ import * as semver from 'semver';
 
 /*******************list releases***********************/
 const getProjectReleasesCommand = commandFactory(async ({ path, payload: { owner, project } }) => {
-	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/releases`);
+	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/releases`, {
+		headers: getHeaders()
+	});
 	const json = await response.json();
 	if (!response.ok) {
 		console.log(response, json);
@@ -21,7 +23,9 @@ const getProjectReleasesCommand = commandFactory(async ({ path, payload: { owner
 
 /*******************new release***********************/
 const getJdksCommand = commandFactory(async ({ path }) => {
-	const response = await fetch(`${baseUrl}/apps/jdk/releases`);
+	const response = await fetch(`${baseUrl}/apps/jdk/releases`, {
+		headers: getHeaders()
+	});
 	const json = await response.json();
 	if (!response.ok) {
 		console.log(response, json);
@@ -62,7 +66,7 @@ const versionInputCommand = commandFactory(async ({ path, payload: { owner, proj
 	// 服务器端校验
 	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/releases/check-version`, {
 		method: 'POST',
-		headers: { 'Content-type': 'application/json;charset=UTF-8' },
+		headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
 		body: JSON.stringify({
 			version: trimedVersion
 		})
@@ -117,7 +121,7 @@ const saveReleaseTaskCommand = commandFactory(async ({ path, get, payload: { own
 	// 在跳转到新增项目页面时，应设置 isPublic 的初始值为 true
 	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/releases`, {
 		method: 'POST',
-		headers: { 'Content-type': 'application/json;charset=UTF-8' },
+		headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
 		body: JSON.stringify({
 			...projectReleaseParam
 		})

@@ -1,6 +1,6 @@
 import { createProcess } from '@dojo/framework/stores/process';
 import { replace } from '@dojo/framework/stores/state/operations';
-import { commandFactory } from './utils';
+import { commandFactory, getHeaders } from './utils';
 import { baseUrl } from '../config';
 import {
 	NicknamePayload,
@@ -19,7 +19,9 @@ const getCurrentUserCommand = commandFactory(async ({ get, path }) => {
 	}
 
 	// 否则从服务器端查询
-	const response = await fetch(`${baseUrl}/user`);
+	const response = await fetch(`${baseUrl}/user`, {
+		headers: getHeaders()
+	});
 	const json = await response.json();
 	if (!response.ok) {
 		return [replace(path('user'), {})];
@@ -34,7 +36,9 @@ const getCurrentUserCommand = commandFactory(async ({ get, path }) => {
 });
 
 const getProfileCommand = commandFactory(async ({ path }) => {
-	const response = await fetch(`${baseUrl}/user/profile`);
+	const response = await fetch(`${baseUrl}/user/profile`, {
+		headers: getHeaders()
+	});
 	const json = await response.json();
 	if (!response.ok) {
 		return [replace(path('profile'), {})];
@@ -48,7 +52,7 @@ const updateProfileCommand = commandFactory(async ({ get, path }) => {
 	const profileParam = get(path('profileParam'));
 	const response = await fetch(`${baseUrl}/user/profile`, {
 		method: 'PUT',
-		headers: { 'Content-type': 'application/json;charset=UTF-8' },
+		headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
 		body: JSON.stringify({
 			...profile,
 			...profileParam
@@ -131,7 +135,7 @@ const loginNameInputCommand = commandFactory<LoginNamePayload>(async ({ get, pat
 	// 服务器端校验
 	const response = await fetch(`${baseUrl}/user/check-login-name`, {
 		method: 'POST',
-		headers: { 'Content-type': 'application/json;charset=UTF-8' },
+		headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
 		body: JSON.stringify({
 			loginName: trimedLoginName
 		})
@@ -158,7 +162,7 @@ const completeUserInfoCommand = commandFactory(async ({ get, path }) => {
 	const loginName = get(path('thirdPartyUser', 'loginName')).trim();
 	const response = await fetch(`${baseUrl}/user/complete-user-info`, {
 		method: 'PUT',
-		headers: { 'Content-type': 'application/json;charset=UTF-8' },
+		headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
 		body: JSON.stringify({
 			loginName
 		})
