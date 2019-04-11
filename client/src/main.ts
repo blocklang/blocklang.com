@@ -6,6 +6,8 @@ import { registerRouterInjector } from '@dojo/framework/routing/RouterInjector';
 import { registerThemeInjector } from '@dojo/framework/widget-core/mixins/Themed';
 import { registerStoreInjector } from '@dojo/framework/stores/StoreInjector';
 
+import global from '@dojo/framework/shim/global';
+
 import dojo from '@dojo/themes/dojo';
 import '@dojo/themes/dojo/index.css';
 
@@ -63,21 +65,29 @@ router.on('outlet', ({ outlet, action }) => {
 });
 
 // 当每次切换 outlet 成功后，都保存起来
+// 1. 当每次点击
 router.on('nav', ({ outlet, context }: any) => {
 	console.log('nav');
 	changeRouteProcess(store)({ outlet, context });
 });
 
 function onRouteChange() {
-	console.log('onRouteChange');
 	const outlet = store.get(store.path('routing', 'outlet'));
 	const params = store.get(store.path('routing', 'params'));
 
 	if (outlet) {
 		const link = router.link(outlet, params);
-		if (link !== undefined) {
-			router.setPath(link);
+		if (link === undefined) {
+			return;
 		}
+
+		// 判断当前路径是否与要设置的路径相同
+		// TODO: 这段逻辑应该放在 dojo router 中
+		if (link === global.location.pathname) {
+			return;
+		}
+		console.log('onRouteChange', outlet, params);
+		router.setPath(link);
 	}
 }
 
