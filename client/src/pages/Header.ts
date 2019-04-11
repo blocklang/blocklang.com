@@ -108,24 +108,39 @@ export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderPro
 		return v('nav', { classes: rootClasses }, [
 			v('div', { classes: [c.container] }, [
 				w(Link, { to: 'home', classes: [c.navbar_brand] }, [messages.blockLang]),
-				v('ul', { classes: [c.navbar_nav, c.mr_auto] }, [
-					v('li', { classes: [c.nav_item] }, [
-						w(
-							Link,
-							{
-								classes: [c.nav_link, docsMenuActive ? c.active : null],
-								to: 'docs',
-								params: { fileName: 'getting-started' }
-							},
-							['教程']
-						)
-					])
-				]),
 				v(
-					'ul',
-					{ classes: [c.navbar_nav, c.ml_auto] },
-					isAuthenticated ? this._authenticatedMenu() : this._unauthenticatedMenu()
-				)
+					'button',
+					{
+						classes: [c.navbar_toggler],
+						type: 'button',
+						'data-toggle': 'collapse',
+						'data-target': '#navbarSupportedContent',
+						'aria-controls': '#navbarSupportedContent',
+						'aria-expanded': 'false',
+						'aria-label': '收缩导航栏'
+					},
+					[v('span', { classes: [c.navbar_toggler_icon] })]
+				),
+				v('div', { classes: [c.collapse, c.navbar_collapse], id: 'navbarSupportedContent' }, [
+					v('ul', { classes: [c.navbar_nav, c.mr_auto] }, [
+						v('li', { classes: [c.nav_item] }, [
+							w(
+								Link,
+								{
+									classes: [c.nav_link, docsMenuActive ? c.active : null],
+									to: 'docs',
+									params: { fileName: 'getting-started' }
+								},
+								['教程']
+							)
+						])
+					]),
+					v(
+						'ul',
+						{ classes: [c.navbar_nav, c.ml_auto] },
+						isAuthenticated ? this._authenticatedMenu() : this._unauthenticatedMenu()
+					)
+				])
 			])
 		]);
 	}

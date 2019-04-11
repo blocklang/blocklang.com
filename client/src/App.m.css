@@ -1,3 +1,6 @@
 .root {
+}
 
+.content {
+	min-height: calc(100vh - calc(200px));
 }

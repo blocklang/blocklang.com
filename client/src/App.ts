@@ -84,7 +84,7 @@ export default class App extends WidgetBase {
 	protected render() {
 		return v('div', { classes: [css.root] }, [
 			w(HeaderContainer, {}),
-			v('div', [
+			v('div', { classes: css.content }, [
 				w(Outlet, { key: 'home', id: 'home', renderer: () => w(HomeContainer, {}) }),
 				w(Outlet, {
 					key: 'complete-user-info',
