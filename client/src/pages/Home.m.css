@@ -9,10 +9,16 @@
 		height: 860px;
 	}
 }
+
 .jumbotron {
 	background-color: #fff;
 }
 
 .loginButton {
-	min-width: 170px;
+	min-width: 180px;
+}
+
+.jumbotronContent {
+	max-width: 600px;
+	text-align: center;
 }

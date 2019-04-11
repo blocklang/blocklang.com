@@ -138,6 +138,8 @@ export const nav_link: string = 'nav-link';
 
 //      nav bar
 export const navbar: string = 'navbar';
+export const navbar_toggler: string = 'navbar-toggler';
+export const navbar_toggler_icon: string = 'navbar-toggler-icon';
 export const navbar_expand_lg: string = 'navbar-expand-lg';
 export const navbar_dark: string = 'navbar-dark';
 export const bg_dark: string = 'bg-dark';
@@ -145,6 +147,8 @@ export const navbar_light: string = 'navbar-light';
 export const bg_light: string = 'bg-light';
 export const navbar_brand: string = 'navbar-brand';
 export const navbar_nav: string = 'navbar-nav';
+export const collapse: string = 'collapse';
+export const navbar_collapse: string = 'navbar-collapse';
 
 //      spinner
 export const spinner_border: string = 'spinner-border';

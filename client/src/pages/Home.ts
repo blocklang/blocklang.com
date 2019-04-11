@@ -31,33 +31,34 @@ export default class Home extends ThemedMixin(I18nMixin(WidgetBase))<HomePropert
 
 	protected render() {
 		const { isAuthenticated } = this.properties;
-		return v('div', { classes: [css.root] }, [
-			isAuthenticated ? this._renderPrivateHome() : this._renderPublicHome()
-		]);
+		return isAuthenticated ? this._renderPrivateHome() : this._renderPublicHome();
 	}
 
 	private _renderPublicHome() {
 		const { messages } = this._localizedMessages;
 
-		return v('div', { classes: [css.jumbotron, c.mt_5, c.jumbotron, c.text_center] }, [
-			v('h1', { classes: [] }, [messages.blockLangIntro]),
-			v('p', [
-				v(
-					'a',
-					{
-						classes: [css.loginButton, c.btn, c.btn_outline_primary, c.btn_lg, c.my_5, c.mr_2],
-						href: `${baseUrl}/oauth2/authorization/github`
-					},
-					[w(FontAwesomeIcon, { icon: ['fab', 'github'], size: 'lg' }), ` ${messages.loginGithub}`]
-				),
-				v(
-					'a',
-					{
-						classes: [css.loginButton, c.btn, c.btn_outline_primary, c.btn_lg, c.my_5],
-						href: `${baseUrl}/oauth2/authorization/qq`
-					},
-					[w(FontAwesomeIcon, { icon: ['fab', 'qq'], size: 'lg' }), ` ${messages.loginQq}`]
-				)
+		return v('div', { classes: [css.jumbotron, c.jumbotron, c.mt_5] }, [
+			v('div', { classes: [c.container, css.jumbotronContent] }, [
+				v('h1', { classes: [] }, [messages.blockLangIntro]),
+				v('p', { classes: [c.my_5] }, [
+					v(
+						'a',
+						{
+							classes: [c.btn, c.btn_lg, c.btn_outline_primary, css.loginButton, c.mb_2],
+							href: `${baseUrl}/oauth2/authorization/github`
+						},
+						[w(FontAwesomeIcon, { icon: ['fab', 'github'], size: 'lg' }), ` ${messages.loginGithub}`]
+					),
+					' ', // 加一个空格，两个按钮水平摆放时，会有完美间隔。
+					v(
+						'a',
+						{
+							classes: [c.btn, c.btn_lg, c.btn_outline_primary, css.loginButton, c.mb_2],
+							href: `${baseUrl}/oauth2/authorization/qq`
+						},
+						[w(FontAwesomeIcon, { icon: ['fab', 'qq'], size: 'lg' }), ` ${messages.loginQq}`]
+					)
+				])
 			])
 		]);
 	}
