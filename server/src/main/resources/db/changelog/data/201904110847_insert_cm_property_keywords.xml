@@ -1,0 +1,146 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+	<!-- 平台关键字的主键占用 200-300 段 -->
+	<changeSet author="Zhengwei Jin" id="201904110847">
+		<insert tableName="cm_property">
+			<column name="dbid" valueNumeric="200" />
+			<column name="prop_key" value="platform.keywords" />
+			<column name="prop_value" value="platform.keywords" />
+			<column name="prop_desc" value="平台关键字" />
+			<column name="parent_id" valueNumeric="-1" />
+			<column name="data_type" value="01" />
+			<column name="is_valid" valueBoolean="true" />
+		</insert>
+		<insert tableName="cm_property">
+			<column name="dbid" valueNumeric="201" />
+			<column name="prop_key" value="01" />
+			<column name="prop_value" value="apps" />
+			<column name="prop_desc" value="servlet:apps" />
+			<column name="parent_id" valueNumeric="200" />
+			<column name="data_type" value="01" />
+			<column name="is_valid" valueBoolean="true" />
+		</insert>
+		<insert tableName="cm_property">
+			<column name="dbid" valueNumeric="202" />
+			<column name="prop_key" value="02" />
+			<column name="prop_value" value="installers" />
+			<column name="prop_desc" value="servlet:installers" />
+			<column name="parent_id" valueNumeric="200" />
+			<column name="data_type" value="01" />
+			<column name="is_valid" valueBoolean="true" />
+		</insert>
+		<insert tableName="cm_property">
+			<column name="dbid" valueNumeric="203" />
+			<column name="prop_key" value="03" />
+			<column name="prop_value" value="user" />
+			<column name="prop_desc" value="servlet:user" />
+			<column name="parent_id" valueNumeric="200" />
+			<column name="data_type" value="01" />
+			<column name="is_valid" valueBoolean="true" />
+		</insert>
+		<insert tableName="cm_property">
+			<column name="dbid" valueNumeric="204" />
+			<column name="prop_key" value="04" />
+			<column name="prop_value" value="users" />
+			<column name="prop_desc" value="servlet:users" />
+			<column name="parent_id" valueNumeric="200" />
+			<column name="data_type" value="01" />
+			<column name="is_valid" valueBoolean="true" />
+		</insert>
+		<insert tableName="cm_property">
+			<column name="dbid" valueNumeric="205" />
+			<column name="prop_key" value="05" />
+			<column name="prop_value" value="projects" />
+			<column name="prop_desc" value="servlet:projects" />
+			<column name="parent_id" valueNumeric="200" />
+			<column name="data_type" value="01" />
+			<column name="is_valid" valueBoolean="true" />
+		</insert>
+		<insert tableName="cm_property">
+			<column name="dbid" valueNumeric="206" />
+			<column name="prop_key" value="06" />
+			<column name="prop_value" value="docs" />
+			<column name="prop_desc" value="servlet:docs" />
+			<column name="parent_id" valueNumeric="200" />
+			<column name="data_type" value="01" />
+			<column name="is_valid" valueBoolean="true" />
+		</insert>
+		<insert tableName="cm_property">
+			<column name="dbid" valueNumeric="207" />
+			<column name="prop_key" value="07" />
+			<column name="prop_value" value="settings" />
+			<column name="prop_desc" value="servlet:settings" />
+			<column name="parent_id" valueNumeric="200" />
+			<column name="data_type" value="01" />
+			<column name="is_valid" valueBoolean="true" />
+		</insert>
+		<insert tableName="cm_property">
+			<column name="dbid" valueNumeric="208" />
+			<column name="prop_key" value="08" />
+			<column name="prop_value" value="errors" />
+			<column name="prop_desc" value="servlet:errors" />
+			<column name="parent_id" valueNumeric="200" />
+			<column name="data_type" value="01" />
+			<column name="is_valid" valueBoolean="true" />
+		</insert>
+		<insert tableName="cm_property">
+			<column name="dbid" valueNumeric="209" />
+			<column name="prop_key" value="09" />
+			<column name="prop_value" value="logout" />
+			<column name="prop_desc" value="servlet:logout" />
+			<column name="parent_id" valueNumeric="200" />
+			<column name="data_type" value="01" />
+			<column name="is_valid" valueBoolean="true" />
+		</insert>
+		<!-- 以下是系统预留的用户名，从 261 开始 -->
+		<insert tableName="cm_property">
+			<column name="dbid" valueNumeric="261" />
+			<column name="prop_key" value="61" />
+			<column name="prop_value" value="blocklang" />
+			<column name="prop_desc" value="user:blocklang" />
+			<column name="parent_id" valueNumeric="200" />
+			<column name="data_type" value="01" />
+			<column name="is_valid" valueBoolean="true" />
+		</insert>
+		<insert tableName="cm_property">
+			<column name="dbid" valueNumeric="262" />
+			<column name="prop_key" value="62" />
+			<column name="prop_value" value="block-lang" />
+			<column name="prop_desc" value="user:block-lang" />
+			<column name="parent_id" valueNumeric="200" />
+			<column name="data_type" value="01" />
+			<column name="is_valid" valueBoolean="true" />
+		</insert>
+		<insert tableName="cm_property">
+			<column name="dbid" valueNumeric="263" />
+			<column name="prop_key" value="63" />
+			<column name="prop_value" value="admin" />
+			<column name="prop_desc" value="user:admin" />
+			<column name="parent_id" valueNumeric="200" />
+			<column name="data_type" value="01" />
+			<column name="is_valid" valueBoolean="true" />
+		</insert>
+		<insert tableName="cm_property">
+			<column name="dbid" valueNumeric="264" />
+			<column name="prop_key" value="64" />
+			<column name="prop_value" value="administrator" />
+			<column name="prop_desc" value="user:administrator" />
+			<column name="parent_id" valueNumeric="200" />
+			<column name="data_type" value="01" />
+			<column name="is_valid" valueBoolean="true" />
+		</insert>
+		<insert tableName="cm_property">
+			<column name="dbid" valueNumeric="265" />
+			<column name="prop_key" value="65" />
+			<column name="prop_value" value="main" />
+			<column name="prop_desc" value="user:main" />
+			<column name="parent_id" valueNumeric="200" />
+			<column name="data_type" value="01" />
+			<column name="is_valid" valueBoolean="true" />
+		</insert>
+	</changeSet>
+</databaseChangeLog>

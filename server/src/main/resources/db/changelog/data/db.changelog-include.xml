@@ -7,5 +7,6 @@
 	<include file="db/changelog/data/201903072140_insert_cm_property_installer.xml" />
 	<include file="db/changelog/data/201903150656_insert_app_jdk_11_0_2.xml" />
 	<include file="db/changelog/data/201903281921_insert_app_blocklang_installer_0_1_0.xml" />
+	<include file="db/changelog/data/201904110847_insert_cm_property_keywords.xml" />
 
 </databaseChangeLog>
