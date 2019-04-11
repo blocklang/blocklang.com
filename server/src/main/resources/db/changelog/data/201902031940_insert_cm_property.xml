@@ -21,7 +21,7 @@
 		<insert tableName="cm_property">
 			<column name="dbid" valueNumeric="2" />
 			<column name="prop_key" value="maven.root.path" />
-			<!-- 
+			<!--
 			<column name="prop_value" value="c:/Users/Administrator/.m2" />
 			-->
 			<column name="prop_value" value="/root/.m2" />
@@ -34,8 +34,8 @@
 		<insert tableName="cm_property">
 			<column name="dbid" valueNumeric="3" />
 			<column name="prop_key" value="template.project.git.url" />
-			<!-- https://gitee.com/blocklang/blocklang-template.git -->
-			<column name="prop_value" value="https://github.com/blocklang/blocklang-template.git" />
+			<!-- https://github.com/blocklang/blocklang-template.git -->
+			<column name="prop_value" value="https://gitee.com/blocklang/blocklang-template.git" />
 			<column name="prop_desc" value="模板项目的 git 仓库地址" />
 			<column name="parent_id" valueNumeric="-1" />
 			<column name="data_type" value="01" />
