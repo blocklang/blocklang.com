@@ -20,10 +20,18 @@ import { changeRouteProcess } from './processes/routeProcesses';
 import { initPrivateHomeProcess } from './processes/homeProcesses';
 import { initForListReleasesProcess, initForNewReleaseProcess } from './processes/releaseProcesses';
 import { initForViewDocumentProcess } from './processes/documentProcess';
+import { setSessionProcess } from './processes/loginProcesses';
 
 const store = new Store<State>();
 
-getCurrentUserProcess(store)({});
+// 从 sessionStorage 中获取用户信息
+// 刷新浏览器时，不需要再请求用户信息
+const userSession = global.sessionStorage.getItem('blocklang-session');
+if (userSession) {
+	setSessionProcess(store)({ session: JSON.parse(userSession) });
+} else {
+	getCurrentUserProcess(store)({});
+}
 
 const registry = registerStoreInjector(store);
 const router = registerRouterInjector(routes, registry, { HistoryManager: StateHistory });
@@ -35,6 +43,7 @@ router.on('outlet', ({ outlet, action }) => {
 	if (action === 'enter') {
 		switch (outlet.id) {
 			case 'home':
+				debugger;
 				// const isAuthenticated = !!store.get(store.path('user', 'loginName'));
 				getCurrentUserProcess(store)({}).then(function() {
 					const isAuthenticated = !!store.get(store.path('user', 'loginName'));
@@ -67,6 +76,7 @@ router.on('outlet', ({ outlet, action }) => {
 // 当每次切换 outlet 成功后，都保存起来
 // 1. 当每次点击
 router.on('nav', ({ outlet, context }: any) => {
+	debugger;
 	console.log('nav');
 	changeRouteProcess(store)({ outlet, context });
 });

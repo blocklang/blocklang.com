@@ -1,4 +1,5 @@
 import { OutletContext } from '@dojo/framework/routing/interfaces';
+import { User } from '../interfaces';
 
 export interface ChangeRoutePayload {
 	outlet: string;
@@ -7,6 +8,10 @@ export interface ChangeRoutePayload {
 
 export interface NamePayload {
 	name: string;
+}
+
+export interface SetSessionPayload {
+	session: User;
 }
 
 export interface DescriptionPayload {

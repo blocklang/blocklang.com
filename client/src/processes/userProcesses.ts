@@ -1,3 +1,4 @@
+import global from '@dojo/framework/shim/global';
 import { createProcess } from '@dojo/framework/stores/process';
 import { replace } from '@dojo/framework/stores/state/operations';
 import { commandFactory, getHeaders } from './utils';
@@ -12,13 +13,10 @@ import {
 } from './interfaces';
 import { ValidateStatus } from '../constant';
 
+/**
+ * 获取登录用户信息
+ */
 const getCurrentUserCommand = commandFactory(async ({ get, path }) => {
-	// 如果用户已存在，则直接返回
-	if (get(path('user', 'loginName'))) {
-		return [];
-	}
-
-	// 否则从服务器端查询
 	const response = await fetch(`${baseUrl}/user`, {
 		headers: getHeaders()
 	});
@@ -31,6 +29,8 @@ const getCurrentUserCommand = commandFactory(async ({ get, path }) => {
 	if (json.needCompleteUserInfo) {
 		return [replace(path('thirdPartyUser'), json), replace(path('routing', 'outlet'), 'complete-user-info')];
 	}
+
+	global.sessionStorage.setItem('blocklang-session', JSON.stringify(json));
 
 	return [replace(path('user'), json)];
 });

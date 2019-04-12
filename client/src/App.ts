@@ -2,6 +2,8 @@ import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
 import { v, w } from '@dojo/framework/widget-core/d';
 import Outlet from '@dojo/framework/routing/Outlet';
 
+import * as auth from './auth';
+
 import HeaderContainer from './containers/HeaderContainer';
 import HomeContainer from './containers/HomeContainer';
 import NewProjectContainer from './containers/project/NewProjectContainer';
@@ -79,6 +81,7 @@ library.add(
 );
 
 import * as css from './App.m.css';
+import Exception from './pages/error/Exception';
 
 export default class App extends WidgetBase {
 	protected render() {
@@ -91,13 +94,49 @@ export default class App extends WidgetBase {
 					id: 'complete-user-info',
 					renderer: () => w(CompleteUserInfoContainer, {})
 				}),
-				w(Outlet, { key: 'new-project', id: 'new-project', renderer: () => w(NewProjectContainer, {}) }),
+				w(Outlet, {
+					key: 'new-project',
+					id: 'new-project',
+					renderer: () => {
+						if (auth.isLogged()) {
+							return w(NewProjectContainer, {});
+						} else {
+							return w(Exception, { type: '404' });
+						}
+					}
+				}),
 				w(Outlet, { key: 'view-project', id: 'view-project', renderer: () => w(ViewProjectContainer, {}) }),
 				w(Outlet, { key: 'list-release', id: 'list-release', renderer: () => w(ListReleaseContainer, {}) }),
-				w(Outlet, { key: 'new-release', id: 'new-release', renderer: () => w(NewReleaseContainer, {}) }),
+				w(Outlet, {
+					key: 'new-release',
+					id: 'new-release',
+					renderer: () => {
+						if (auth.isLogged()) {
+							return w(NewReleaseContainer, {});
+						} else {
+							return w(Exception, { type: '404' });
+						}
+					}
+				}),
 				w(Outlet, { key: 'docs', id: 'docs', renderer: () => w(ViewDocumentContainer, {}) }),
 				w(Outlet, { key: 'about', id: 'about', renderer: () => w(About, {}) }),
-				w(Outlet, { key: 'settings-profile', id: 'settings-profile', renderer: () => w(SettingContainer, {}) })
+				w(Outlet, {
+					key: 'settings-profile',
+					id: 'settings-profile',
+					renderer: () => {
+						if (auth.isLogged()) {
+							return w(SettingContainer, {});
+						} else {
+							return w(Exception, { type: '404' });
+						}
+					}
+				}),
+				w(Outlet, {
+					id: 'errorOutlet',
+					renderer: () => {
+						return w(Exception, { type: '404' });
+					}
+				})
 			]),
 			w(Footer, {})
 		]);

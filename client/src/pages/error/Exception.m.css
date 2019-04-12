@@ -1,0 +1,75 @@
+.root {
+	display: -webkit-box;
+	display: -webkit-flex;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	-webkit-align-items: center;
+	-ms-flex-align: center;
+	align-items: center;
+	height: 80%;
+	min-height: 500px;
+}
+
+.root .imgBlock {
+	-webkit-box-flex: 0;
+	-webkit-flex: 0 0 62.5%;
+	-ms-flex: 0 0 62.5%;
+	flex: 0 0 62.5%;
+	width: 62.5%;
+	padding-right: 152px;
+	zoom: 1;
+}
+
+.root .imgEle {
+	float: right;
+	width: 100%;
+	max-width: 430px;
+	height: 360px;
+	background-repeat: no-repeat;
+	background-position: 50% 50%;
+	background-size: contain;
+}
+
+.root .content {
+	-webkit-box-flex: 1;
+	-webkit-flex: auto;
+	-ms-flex: auto;
+	flex: auto;
+}
+
+.root .content .desc {
+	margin-bottom: 16px;
+	color: rgba(0, 0, 0, 0.45);
+	font-size: 20px;
+	line-height: 28px;
+}
+
+.root .content .action button:not(:last-child) {
+	margin-right: 8px;
+}
+
+@media screen and (max-width: 1200px) {
+	.root .imgBlock {
+		padding-right: 88px;
+	}
+}
+
+@media screen and (max-width: 576px) {
+	.root {
+		display: block;
+		text-align: center;
+	}
+
+	.root .imgBlock {
+		margin: 0 auto 24px;
+		padding-right: 0;
+	}
+}
+
+@media screen and (max-width: 480px) {
+	.root .imgBlock {
+		margin-bottom: -24px;
+		overflow: hidden;
+	}
+}
