@@ -117,13 +117,14 @@ public class RouterFilter implements Filter{
 			URI refererUri = URI.create(referer);
 			String[] pathes = StringUtils.split(refererUri.getPath(), "/");
 			String urlRewrite = Arrays.stream(pathes).reduce(servletPath, (result, item) -> {
-				String removed = "/" + item;
+				// 避免出现将 ab.js 截为 b.js 的情况
+				String removed = "/" + item + "/";
 				if(result.startsWith(removed)) {
-					return result.substring(removed.length());
+					return result.substring(removed.length() - 1);
 				}
 				return result;
 			});
-			
+
 			// cache for source map
 			if(filenameExtension.equals("css") || filenameExtension.equals("js")) {
 				String fileName = org.springframework.util.StringUtils.getFilename(servletPath);

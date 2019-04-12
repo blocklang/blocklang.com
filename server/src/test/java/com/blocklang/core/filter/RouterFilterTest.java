@@ -139,6 +139,20 @@ public class RouterFilterTest {
 		assertThat(response.getForwardedUrl()).isEqualTo("/a.js");
 	}
 	
+	// 当请求的 url 为 a/b 时，如果 js 等文件名以 b 字母开头时，不应删除字母 b
+	@Test
+	public void filter_forward_to_static_7() throws IOException, ServletException {
+		RouterFilter routerFilter = new RouterFilter();
+		
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/a/b.js");
+		request.addHeader("referer", "/a/b");
+		request.setServletPath("/a/b.js");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockFilterChain chain = new MockFilterChain();
+		routerFilter.doFilter(request, response, chain);
+		assertThat(response.getForwardedUrl()).isEqualTo("/b.js");
+	}
+	
 	@Test
 	public void filter_get_js_source_map() throws IOException, ServletException {
 		RouterFilter routerFilter = new RouterFilter();
