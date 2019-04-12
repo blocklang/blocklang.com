@@ -27,7 +27,7 @@ public class DocumentControllerTest extends AbstractControllerTest{
 	public void get_document_file_not_found() {
 		when(documentService.findByFileName(anyString())).thenReturn(Optional.empty());
 		given()
-			.header("referer", "a") // 注意，因为路由的值与 rest api 的值相同，这里需要 referer 来做区分
+			.header(HttpCustomHeader.KEY_REQUEST_WITH, HttpCustomHeader.VALUE_FETCH_API) // 注意，因为路由的值与 rest api 的值相同，需要 X-Request-With 区分。
 			.contentType(ContentType.TEXT)
 		.when()
 			.get("/docs/{fileName}", "help")
@@ -39,7 +39,7 @@ public class DocumentControllerTest extends AbstractControllerTest{
 	public void get_document_success() {
 		when(documentService.findByFileName(anyString())).thenReturn(Optional.of("content"));
 		given()
-			.header("referer", "a") // 注意，因为路由的值与 rest api 的值相同，这里需要 referer 来做区分
+			.header(HttpCustomHeader.KEY_REQUEST_WITH, HttpCustomHeader.VALUE_FETCH_API) // 注意，因为路由的值与 rest api 的值相同，需要 X-Request-With 区分。
 			.contentType(ContentType.TEXT)
 		.when()
 			.get("/docs/{fileName}", "help")

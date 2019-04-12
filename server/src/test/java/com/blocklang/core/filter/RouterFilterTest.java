@@ -13,6 +13,8 @@ import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
+import com.blocklang.core.controller.HttpCustomHeader;
+
 /**
  *  为了设计用户友好，可读性高的 url，我们将 /projects/{owner}/{project_name} 简写为 /{owner}/{project_name}；
  * 将 /users/{userName} 简写为 /{userName}，因此当请求发过来类似 /{owner}/{project_name} 或 /{userName} 的 url 后，
@@ -258,7 +260,7 @@ public class RouterFilterTest {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/docs/getting-started");
 		request.setServletPath("/docs/getting-started");
 		request.addHeader("referer", "/docs/getting-started");
-		request.addHeader("X-Requested-With", "FetchApi");
+		request.addHeader(HttpCustomHeader.KEY_REQUEST_WITH, HttpCustomHeader.VALUE_FETCH_API);
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
 		routerFilter.doFilter(request, response, chain);
