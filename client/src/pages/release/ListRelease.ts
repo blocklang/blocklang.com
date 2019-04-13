@@ -18,6 +18,7 @@ import * as c from '../../className';
 import * as css from './ListRelease.m.css';
 
 export interface ListReleaseProperties {
+	loggedUsername: string;
 	project: Project;
 	releases: ProjectRelease[];
 }
@@ -28,6 +29,11 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 
 	protected render() {
 		return v('div', { classes: [css.root, c.container] }, [this._renderHeader(), this._renderReleasePart()]);
+	}
+
+	private _isAuthenticated() {
+		const { loggedUsername } = this.properties;
+		return !!loggedUsername;
 	}
 
 	private _renderReleasePart() {
@@ -74,15 +80,17 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 				w(FontAwesomeIcon, { icon: 'tag', size: '2x', classes: [c.text_muted] }),
 				v('h3', { classes: [c.mt_3] }, [`${noReleaseTitle}`]),
 				v('p', {}, [`${noReleaseTip}`]),
-				w(
-					Link,
-					{
-						classes: [c.btn, c.btn_secondary, c.btn_sm],
-						to: 'new-release',
-						params: { owner: createUserName, project: name }
-					},
-					[`${newReleaseText}`]
-				)
+				this._isAuthenticated()
+					? w(
+							Link,
+							{
+								classes: [c.btn, c.btn_secondary, c.btn_sm],
+								to: 'new-release',
+								params: { owner: createUserName, project: name }
+							},
+							[`${newReleaseText}`]
+					  )
+					: undefined
 			])
 		]);
 	}

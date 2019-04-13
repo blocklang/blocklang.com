@@ -7,6 +7,7 @@ function getProperties(store: Store<State>): ListReleaseProperties {
 	const { get, path } = store;
 
 	return {
+		loggedUsername: get(path('user', 'loginName')),
 		project: get(path('project')),
 		releases: get(path('releases'))
 	};
