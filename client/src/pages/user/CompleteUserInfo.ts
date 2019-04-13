@@ -1,5 +1,5 @@
 import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
-import { v } from '@dojo/framework/widget-core/d';
+import { v, w } from '@dojo/framework/widget-core/d';
 
 import messageBundle from '../../nls/main';
 import * as c from '../../className';
@@ -9,6 +9,7 @@ import I18nMixin from '@dojo/framework/widget-core/mixins/I18n';
 import { LoginNamePayload } from '../../processes/interfaces';
 import { ValidateStatus } from '../../constant';
 import { WithTarget } from '../../interfaces';
+import Exception from '../error/Exception';
 
 export interface CompleteUserInfoProperties {
 	// attr
@@ -28,7 +29,18 @@ export interface CompleteUserInfoProperties {
 export default class CompleteUserInfo extends ThemedMixin(I18nMixin(WidgetBase))<CompleteUserInfoProperties> {
 	private _localizedMessages = this.localizeBundle(messageBundle);
 
+	private _isAuthenticated() {
+		const { nickname } = this.properties;
+
+		// nickname 肯定有值，如果没有值，则不应显示完善用户信息页面
+		return nickname.trim() !== '';
+	}
+
 	protected render() {
+		if (!this._isAuthenticated()) {
+			return w(Exception, { type: '403' });
+		}
+
 		const { messages } = this._localizedMessages;
 		const {
 			avatarUrl = '',

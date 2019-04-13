@@ -1,5 +1,5 @@
 import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
-import { v } from '@dojo/framework/widget-core/d';
+import { v, w } from '@dojo/framework/widget-core/d';
 
 import messageBundle from '../../nls/main';
 import * as c from '../../className';
@@ -14,8 +14,10 @@ import {
 	LocationPayload,
 	BioPayload
 } from '../../processes/interfaces';
+import Exception from '../error/Exception';
 
 export interface SettingProperties {
+	loggedUsername: string;
 	profileUpdateSuccessMessage?: string;
 	profile: Profile;
 	onNicknameInput: (opts: NicknamePayload) => void;
@@ -32,6 +34,10 @@ export default class Setting extends ThemedMixin(I18nMixin(WidgetBase))<SettingP
 	private _localizedMessages = this.localizeBundle(messageBundle);
 
 	protected render() {
+		if (!this._isAuthenticated()) {
+			return w(Exception, { type: '403' });
+		}
+
 		const {
 			profile: { email },
 			profileUpdateSuccessMessage
@@ -52,6 +58,11 @@ export default class Setting extends ThemedMixin(I18nMixin(WidgetBase))<SettingP
 				profileUpdateSuccessMessage ? this._renderSaveSuccessTip() : null
 			])
 		]);
+	}
+
+	private _isAuthenticated() {
+		const { loggedUsername } = this.properties;
+		return !!loggedUsername;
 	}
 
 	private _renderSaveSuccessTip() {

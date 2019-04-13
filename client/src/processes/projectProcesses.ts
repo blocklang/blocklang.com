@@ -4,6 +4,7 @@ import { replace } from '@dojo/framework/stores/state/operations';
 import { createProcess } from '@dojo/framework/stores/process';
 import { ValidateStatus } from '../constant';
 import { baseUrl } from '../config';
+import { isEmpty } from '../util';
 
 // TODO: 一个字段一个 process vs 一个对象一个 process，哪个更合理？
 /************************* new project ****************************/
@@ -99,18 +100,25 @@ const saveProjectCommand = commandFactory(async ({ path, get }) => {
 
 /************************* view project ****************************/
 export const getProjectCommand = commandFactory(async ({ path, payload: { owner, project } }) => {
-	const response = await fetch(`${baseUrl}/projects/${owner}/${project}`);
+	const response = await fetch(`${baseUrl}/projects/${owner}/${project}`, {
+		headers: getHeaders()
+	});
 	const json = await response.json();
 	if (!response.ok) {
-		console.log(response, json);
 		return [replace(path('project'), {})];
 	}
 
-	console.log(response, json);
 	return [replace(path('project'), json)];
 });
 
-const getProjectResourcesCommand = commandFactory(async ({ path, payload: { owner, project, pathId = -1 } }) => {
+const getProjectResourcesCommand = commandFactory(async ({ get, path, payload: { owner, project, pathId = -1 } }) => {
+	// 如果没有获取到项目信息，则直接清空项目资源信息
+	const projectInfo = get(path('project'));
+	console.log(projectInfo);
+	if (isEmpty(projectInfo)) {
+		return [replace(path('projectResources'), [])];
+	}
+
 	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/tree/${pathId}`, {
 		headers: getHeaders()
 	});
@@ -122,7 +130,13 @@ const getProjectResourcesCommand = commandFactory(async ({ path, payload: { owne
 	return [replace(path('projectResources'), json)];
 });
 
-const getLatestCommitInfoCommand = commandFactory(async ({ path, payload: { owner, project, pathId = -1 } }) => {
+const getLatestCommitInfoCommand = commandFactory(async ({ get, path, payload: { owner, project, pathId = -1 } }) => {
+	const projectInfo = get(path('project'));
+	console.log(projectInfo);
+	if (isEmpty(projectInfo)) {
+		return [replace(path('latestCommitInfo'), {})];
+	}
+
 	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/latest-commit/${pathId}`, {
 		headers: getHeaders()
 	});
@@ -134,7 +148,13 @@ const getLatestCommitInfoCommand = commandFactory(async ({ path, payload: { owne
 	return [replace(path('latestCommitInfo'), json)];
 });
 
-const getProjectReadmeCommand = commandFactory(async ({ path, payload: { owner, project } }) => {
+const getProjectReadmeCommand = commandFactory(async ({ get, path, payload: { owner, project } }) => {
+	const projectInfo = get(path('project'));
+	console.log(projectInfo);
+	if (isEmpty(projectInfo)) {
+		return [replace(path('readme'), undefined)];
+	}
+
 	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/readme`, {
 		headers: getHeaders()
 	});
@@ -144,6 +164,24 @@ const getProjectReadmeCommand = commandFactory(async ({ path, payload: { owner, 
 	}
 
 	return [replace(path('readme'), readmeContent)];
+});
+
+const getReleaseCountCommand = commandFactory(async ({ get, path, payload: { owner, project } }) => {
+	const projectInfo = get(path('project'));
+	console.log(projectInfo);
+	if (isEmpty(projectInfo)) {
+		return [replace(path('releaseCount'), undefined)];
+	}
+
+	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/stats/releases`, {
+		headers: getHeaders()
+	});
+	const data = await response.json();
+	if (!response.ok) {
+		return [replace(path('releaseCount'), undefined)];
+	}
+
+	return [replace(path('releaseCount'), data.total)];
 });
 
 const getDeployInfoCommand = commandFactory(async ({ path, payload: { owner, project } }) => {
@@ -158,18 +196,6 @@ const getDeployInfoCommand = commandFactory(async ({ path, payload: { owner, pro
 	return [replace(path('userDeployInfo'), userDeployInfo)];
 });
 
-const getReleaseCountCommand = commandFactory(async ({ path, payload: { owner, project } }) => {
-	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/stats/releases`, {
-		headers: getHeaders()
-	});
-	const data = await response.json();
-	if (!response.ok) {
-		return [replace(path('releaseCount'), undefined)];
-	}
-
-	return [replace(path('releaseCount'), data.total)];
-});
-
 export const initForNewProjectProcess = createProcess('init-for-new-project', [initIsPublicCommand]);
 export const nameInputProcess = createProcess('name-input', [nameInputCommand]);
 export const descriptionInputProcess = createProcess('description-input', [descriptionInputCommand]);
@@ -178,9 +204,6 @@ export const saveProjectProcess = createProcess('save-project', [saveProjectComm
 
 export const initForViewProjectProcess = createProcess('init-for-view-project', [
 	getProjectCommand,
-	getLatestCommitInfoCommand,
-	getProjectResourcesCommand,
-	getProjectReadmeCommand,
-	getReleaseCountCommand
+	[getLatestCommitInfoCommand, getProjectResourcesCommand, getProjectReadmeCommand, getReleaseCountCommand]
 ]);
 export const getUserDeployInfoProcess = createProcess('get-user-deploy-info', [getDeployInfoCommand]);

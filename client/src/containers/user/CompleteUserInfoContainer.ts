@@ -1,9 +1,9 @@
 import { Store } from '@dojo/framework/stores/Store';
 import { StoreContainer } from '@dojo/framework/stores/StoreInjector';
-import { State } from '../interfaces';
-import CompleteUserInfo, { CompleteUserInfoProperties } from '../pages/user/CompleteUserInfo';
-import { loginNameInputProcess, completeUserInfoProcess } from '../processes/userProcesses';
-import { ValidateStatus } from '../constant';
+import { State } from '../../interfaces';
+import CompleteUserInfo, { CompleteUserInfoProperties } from '../../pages/user/CompleteUserInfo';
+import { loginNameInputProcess, completeUserInfoProcess } from '../../processes/userProcesses';
+import { ValidateStatus } from '../../constant';
 
 function getProperties(store: Store<State>): CompleteUserInfoProperties {
 	const { get, path } = store;

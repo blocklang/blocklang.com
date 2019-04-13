@@ -16,6 +16,7 @@ function getProperties(store: Store<State>): SettingProperties {
 	const { get, path } = store;
 
 	return {
+		loggedUsername: get(path('user', 'loginName')),
 		profile: get(path('profile')),
 		profileUpdateSuccessMessage: get(path('profileUpdateSuccessMessage')),
 		onNicknameInput: nicknameInputProcess(store),
@@ -29,6 +30,6 @@ function getProperties(store: Store<State>): SettingProperties {
 }
 
 export default StoreContainer(Setting, 'state', {
-	paths: [['profile'], ['profileUpdateSuccessMessage']],
+	paths: [['user'], ['profile'], ['profileUpdateSuccessMessage']],
 	getProperties
 });

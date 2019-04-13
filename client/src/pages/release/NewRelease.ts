@@ -17,8 +17,10 @@ import {
 	TitlePayload,
 	ProjectPathPayload
 } from '../../processes/interfaces';
+import Exception from '../error/Exception';
 
 export interface NewReleaseProperties {
+	loggedUsername: string;
 	project: Project;
 	jdks: JdkInfo[];
 	// attr
@@ -45,6 +47,9 @@ export default class NewRelease extends ThemedMixin(I18nMixin(WidgetBase))<NewRe
 	private _localizedMessages = this.localizeBundle(messageBundle);
 
 	protected render() {
+		if (!this._isAuthenticated()) {
+			return w(Exception, { type: '403' });
+		}
 		return v('div', { classes: [css.root, c.container] }, [
 			this._renderHeader(),
 			v('div', { classes: [c.container], styles: { maxWidth: '700px' } }, [
@@ -52,6 +57,11 @@ export default class NewRelease extends ThemedMixin(I18nMixin(WidgetBase))<NewRe
 				this._renderReleaseForm()
 			])
 		]);
+	}
+
+	private _isAuthenticated() {
+		const { loggedUsername } = this.properties;
+		return !!loggedUsername;
 	}
 
 	private _renderHeader() {

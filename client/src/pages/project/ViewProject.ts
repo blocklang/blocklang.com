@@ -22,6 +22,8 @@ import { ProjectPathPayload } from '../../processes/interfaces';
 import * as $ from 'jquery';
 import Spinner from '../../widgets/spinner';
 import ProjectHeader from '../widgets/ProjectHeader';
+import { isEmpty } from '../../util';
+import Exception from '../error/Exception';
 
 export interface ViewProjectProperties {
 	loggedUsername: string;
@@ -39,12 +41,21 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 	private _localizedMessages = this.localizeBundle(messageBundle);
 
 	protected render() {
+		if (this._isNotFound()) {
+			return w(Exception, { type: '404' });
+		}
+
 		return v('div', { classes: [css.root, c.container] }, [
 			this._renderHeader(),
 			this._renderNavigation(),
 			this._renderTable(),
 			this._renderReadme()
 		]);
+	}
+
+	private _isNotFound() {
+		const { project } = this.properties;
+		return isEmpty(project);
 	}
 
 	private _renderHeader() {

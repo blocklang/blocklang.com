@@ -43,7 +43,6 @@ router.on('outlet', ({ outlet, action }) => {
 	if (action === 'enter') {
 		switch (outlet.id) {
 			case 'home':
-				debugger;
 				// const isAuthenticated = !!store.get(store.path('user', 'loginName'));
 				getCurrentUserProcess(store)({}).then(function() {
 					const isAuthenticated = !!store.get(store.path('user', 'loginName'));

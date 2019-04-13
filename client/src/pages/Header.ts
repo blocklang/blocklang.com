@@ -12,6 +12,7 @@ export interface HeaderProperties {
 	isAuthenticated: boolean;
 	loggedUsername?: string;
 	loggedAvatarUrl?: string;
+	onLogout: (opts: object) => void;
 }
 
 import messageBundle from '../nls/main';
@@ -80,10 +81,15 @@ export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderPro
 						w(FontAwesomeIcon, { icon: 'cog', classes: [c.mr_2] }),
 						`${messages.userSetting}`
 					]),
-					v('a', { classes: [c.dropdown_item], href: `${baseUrl}/logout` }, [
-						w(FontAwesomeIcon, { icon: 'sign-out-alt', classes: [c.mr_2] }),
-						`${messages.logout}`
-					])
+					v(
+						'a',
+						{
+							classes: [c.dropdown_item],
+							href: `${baseUrl}/logout`,
+							onclick: this._onLogout
+						},
+						[w(FontAwesomeIcon, { icon: 'sign-out-alt', classes: [c.mr_2] }), `${messages.logout}`]
+					)
 				])
 			])
 		];
@@ -143,5 +149,9 @@ export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderPro
 				])
 			])
 		]);
+	}
+
+	private _onLogout() {
+		this.properties.onLogout({});
 	}
 }

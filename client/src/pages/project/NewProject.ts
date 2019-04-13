@@ -1,4 +1,4 @@
-import { v } from '@dojo/framework/widget-core/d';
+import { v, w } from '@dojo/framework/widget-core/d';
 import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
 import I18nMixin from '@dojo/framework/widget-core/mixins/I18n';
 import { theme, ThemedMixin } from '@dojo/framework/widget-core/mixins/Themed';
@@ -9,6 +9,7 @@ import messageBundle from '../../nls/main';
 import { WithTarget } from '../../interfaces';
 import { NamePayload, DescriptionPayload, IsPublicPayload } from '../../processes/interfaces';
 import { ValidateStatus } from '../../constant';
+import Exception from '../error/Exception';
 
 export interface NewProjectProperties {
 	// user
@@ -34,7 +35,16 @@ export default class NewProject extends ThemedMixin(I18nMixin(WidgetBase))<NewPr
 	private _localizedMessages = this.localizeBundle(messageBundle);
 
 	protected render() {
+		debugger;
+		if (!this._isAuthenticated()) {
+			return w(Exception, { type: '403' });
+		}
 		return v('div', { classes: [css.root, c.container, c.mt_5] }, [this._renderTitle(), this._renderInputForm()]);
+	}
+
+	private _isAuthenticated() {
+		const { loggedUsername } = this.properties;
+		return !!loggedUsername;
 	}
 
 	private _renderTitle() {
