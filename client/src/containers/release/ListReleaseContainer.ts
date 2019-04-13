@@ -14,6 +14,6 @@ function getProperties(store: Store<State>): ListReleaseProperties {
 }
 
 export default StoreContainer(ListRelease, 'state', {
-	paths: [['project'], ['releases']],
+	paths: [['user'], ['project'], ['releases']],
 	getProperties
 });

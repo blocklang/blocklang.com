@@ -41,7 +41,7 @@ export default {
 		releaseText: '发行版',
 		noReleaseTitle: '没有发行版本',
 		newReleaseText: '创建发行版',
-		noReleaseTip: '在发布项目时，会为项目添加版本号，并为此版本构建出一个可安装的文件。建议从 0.1.0 版本开始。',
+		noReleaseTip: '在发布项目时，会为项目添加版本号，并为此版本构建出一个可安装的软件。建议从 0.1.0 版本开始。',
 		releaseTitle: '标题',
 		releaseDescription: '介绍',
 		// docs
