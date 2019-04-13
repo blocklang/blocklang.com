@@ -6,6 +6,16 @@ import { getProjectCommand } from './projectProcesses';
 import { ValidateStatus } from '../constant';
 import * as semver from 'semver';
 
+// 用于设置初始化数据
+const startInitForNewReleaseCommand = commandFactory(({ path }) => {
+	return [
+		replace(path('releaseInputValidation', 'versionValidateStatus'), ValidateStatus.UNVALIDATED),
+		replace(path('releaseInputValidation', 'versionErrorMessage'), ''),
+		replace(path('releaseInputValidation', 'titleValidateStatus'), ValidateStatus.UNVALIDATED),
+		replace(path('releaseInputValidation', 'titleErrorMessage'), '')
+	];
+});
+
 /*******************list releases***********************/
 const getProjectReleasesCommand = commandFactory(async ({ path, payload: { owner, project } }) => {
 	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/releases`, {
@@ -150,7 +160,11 @@ export const initForListReleasesProcess = createProcess('init-for-list-releases'
 	getProjectCommand,
 	getProjectReleasesCommand
 ]);
-export const initForNewReleaseProcess = createProcess('init-for-new-release', [getProjectCommand, getJdksCommand]);
+export const initForNewReleaseProcess = createProcess('init-for-new-release', [
+	startInitForNewReleaseCommand,
+	getProjectCommand,
+	getJdksCommand
+]);
 export const versionInputProcess = createProcess('version-input', [versionInputCommand]);
 export const jdkReleaseIdInputProcess = createProcess('jdk-release-id-input', [jdkReleaseIdInputCommand]);
 export const titleInputProcess = createProcess('title-input', [titleInputCommand]);

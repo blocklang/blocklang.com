@@ -8,8 +8,13 @@ import { isEmpty } from '../util';
 
 // TODO: 一个字段一个 process vs 一个对象一个 process，哪个更合理？
 /************************* new project ****************************/
-const initIsPublicCommand = commandFactory(({ path }) => {
-	return [replace(path('projectParam', 'isPublic'), true)];
+// 用于设置初始化数据
+const startInitForNewProjectCommand = commandFactory(({ path }) => {
+	return [
+		replace(path('projectParam', 'isPublic'), true),
+		replace(path('projectInputValidation', 'nameValidateStatus'), ValidateStatus.UNVALIDATED),
+		replace(path('projectInputValidation', 'nameErrorMessage'), '')
+	];
 });
 
 const nameInputCommand = commandFactory<NamePayload>(async ({ path, get, payload: { name } }) => {
@@ -196,7 +201,7 @@ const getDeployInfoCommand = commandFactory(async ({ path, payload: { owner, pro
 	return [replace(path('userDeployInfo'), userDeployInfo)];
 });
 
-export const initForNewProjectProcess = createProcess('init-for-new-project', [initIsPublicCommand]);
+export const initForNewProjectProcess = createProcess('init-for-new-project', [startInitForNewProjectCommand]);
 export const nameInputProcess = createProcess('name-input', [nameInputCommand]);
 export const descriptionInputProcess = createProcess('description-input', [descriptionInputCommand]);
 export const isPublicInputProcess = createProcess('is-public-input', [isPublicInputCommand]);
