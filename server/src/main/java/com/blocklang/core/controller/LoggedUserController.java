@@ -2,9 +2,10 @@ package com.blocklang.core.controller;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import javax.validation.Valid;
 
@@ -20,6 +21,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -53,6 +55,42 @@ public class LoggedUserController {
 	@Autowired
 	private PropertyService propertyService;
 
+	@GetMapping("/user")
+	public ResponseEntity<Map<String, Object>> index(Principal principal) {
+		Map<String, Object> user = new HashMap<String, Object>();
+		if (principal != null) {
+			if(OAuth2AuthenticationToken.class.isInstance(principal)) {
+				OAuth2AuthenticationToken token = (OAuth2AuthenticationToken)principal;
+				Map<String, Object> userAttributes = token.getPrincipal().getAttributes();
+				// 因为客户端并不需要显示登录用户的登录标识，所以不返回 userId
+				user.put("loginName", userAttributes.get("loginName"));
+				user.put("avatarUrl", userAttributes.get("avatarUrl"));
+			} else if(UsernamePasswordAuthenticationToken.class.isInstance(principal)) {
+				UsernamePasswordAuthenticationToken token = (UsernamePasswordAuthenticationToken)principal;
+				User securityUser = (User)token.getPrincipal();
+				// 因为客户端并不需要显示登录用户的登录标识，所以不返回 userId
+				user.put("loginName", securityUser.getUsername());
+			}
+		} else {
+			// 用户未登录
+			// 判断 session 中是否存储第三方用户信息，如果存在的话，则需要完善用户信息
+			Map<String, Object> thirdPartyUser = UserSession.getThirdPartyUser();
+			if(thirdPartyUser != null) {
+				user.put("needCompleteUserInfo", true);
+				
+				AccountInfo accountInfo = (AccountInfo) thirdPartyUser.get("accountInfo");
+				
+				UserInfo userInfo = accountInfo.getUserInfo();
+				user.put("loginName", userInfo.getLoginName());
+				user.put("nickname", userInfo.getNickname());
+				user.put("avatarUrl", userInfo.getAvatarUrl());
+				user.put("loginNameErrorMessage", thirdPartyUser.get("loginNameErrorMessage"));				
+			}
+		}
+
+		return new ResponseEntity<Map<String, Object>>(user, HttpStatus.OK);
+	}
+	
 	@PostMapping("/user/check-login-name")
 	public ResponseEntity<Map<String, Object>> checkLoginName(
 			@Valid @RequestBody CheckLoginNameParam param, 
@@ -74,32 +112,16 @@ public class LoggedUserController {
 	
 	@PutMapping("/user/complete-user-info")
 	public ResponseEntity<Map<String, Object>> completeUserInfo(
-			Principal principal,
 			@Valid @RequestBody UpdateUserParam param, 
 			BindingResult bindingResult) {
 		
-		if(principal == null) {
+		Map<String, Object> thirdPartyUser = UserSession.getThirdPartyUser();
+		// 如果长时间不操作，存储第三方用户信息的 session 已丢失，则返回 403，让客户端能据此判断。
+		if(thirdPartyUser == null) {
 			throw new NoAuthorizationException();
-		}
-		AccountInfo accountInfo = null;
-		Collection<? extends GrantedAuthority> authorities = null;
-		String authorizedClientRegistrationId = null;
-		if(OAuth2AuthenticationToken.class.isInstance(principal)) {
-			OAuth2AuthenticationToken token = (OAuth2AuthenticationToken)principal;
-			Map<String, Object> userAttributes = token.getPrincipal().getAttributes();
-			authorities = token.getPrincipal().getAuthorities();
-			authorizedClientRegistrationId = token.getAuthorizedClientRegistrationId();
-			if(Boolean.valueOf(userAttributes.get("temp").toString())) {
-				accountInfo = (AccountInfo) userAttributes.get("accountInfo");
-			}
 		}
 		
-		if(accountInfo == null) {
-			throw new NoAuthorizationException();
-		}
-
 		UserValidator validator = new UserValidator(userService, propertyService, true);
-		
 		NewUserParam newUserParam = new NewUserParam();
 		newUserParam.setLoginName(param.getLoginName());
 		validator.validate(newUserParam, bindingResult);
@@ -108,60 +130,32 @@ public class LoggedUserController {
 			throw new InvalidRequestException(bindingResult);
 		}
 		
+		AccountInfo accountInfo = (AccountInfo) thirdPartyUser.get("accountInfo");
 		UserInfo userInfo = accountInfo.getUserInfo();
 		userInfo.setLoginName(newUserParam.getLoginName().trim());
 		UserInfo savedUserInfo = userService.create(userInfo, accountInfo.getUserBind(), accountInfo.getAvatarList());
 		
+		// 在 security 上下文中存储用户登录信息
+		String authorizedClientRegistrationId = (String) thirdPartyUser.get("registrationId");
 		// 清除 principal 中的第三方用户信息
 		// 在 principal 中添加本地用户信息，至此登录成功
 		Map<String, Object> userAttributes = new HashMap<String, Object>();
 		userAttributes.put("id", savedUserInfo.getId());
 		userAttributes.put("loginName", savedUserInfo.getLoginName());
 		userAttributes.put("avatarUrl", savedUserInfo.getAvatarUrl());
-		userAttributes.put("temp", false);
+		
+		Set<GrantedAuthority> authorities = Collections.singleton(new OAuth2UserAuthority(userAttributes));
 		OAuth2User oauth2User = new DefaultOAuth2User(authorities, userAttributes, "loginName");
 		OAuth2AuthenticationToken authentication = new OAuth2AuthenticationToken(oauth2User, authorities, authorizedClientRegistrationId);
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 	
+		// 用户信息修改完成后，从 session 中删除第三方用户信息
+		UserSession.removeThirdPartyUser();
+		
 		// 返回登录用户信息
 		Map<String, Object> user = new HashMap<String, Object>();
 		user.put("loginName", userAttributes.get("loginName"));
 		user.put("avatarUrl", userAttributes.get("avatarUrl"));
-		return new ResponseEntity<Map<String, Object>>(user, HttpStatus.OK);
-	}
-	
-	@GetMapping("/user")
-	public ResponseEntity<Map<String, Object>> index(Principal principal) {
-		Map<String, Object> user = new HashMap<String, Object>();
-		if (principal != null) {
-			if(OAuth2AuthenticationToken.class.isInstance(principal)) {
-				OAuth2AuthenticationToken token = (OAuth2AuthenticationToken)principal;
-				Map<String, Object> userAttributes = token.getPrincipal().getAttributes();
-				if(Boolean.valueOf(userAttributes.get("temp").toString())) {
-					user.put("needCompleteUserInfo", true);
-					
-					AccountInfo accountInfo = (AccountInfo) userAttributes.get("accountInfo");
-					
-					UserInfo userInfo = accountInfo.getUserInfo();
-					user.put("loginName", userInfo.getLoginName());
-					user.put("nickname", userInfo.getNickname());
-					user.put("avatarUrl", userInfo.getAvatarUrl());
-					user.put("loginNameErrorMessage", userAttributes.get("loginNameErrorMessage"));
-				}else {
-					// 因为客户端并不需要显示登录用户的登录标识，所以不返回 userId
-					user.put("loginName", userAttributes.get("loginName"));
-					user.put("avatarUrl", userAttributes.get("avatarUrl"));
-				}
-			} else if(UsernamePasswordAuthenticationToken.class.isInstance(principal)) {
-				UsernamePasswordAuthenticationToken token = (UsernamePasswordAuthenticationToken)principal;
-				User securityUser = (User)token.getPrincipal();
-				// 因为客户端并不需要显示登录用户的登录标识，所以不返回 userId
-				user.put("loginName", securityUser.getUsername());
-			}
-		} else {
-			// 用户未登录
-		}
-
 		return new ResponseEntity<Map<String, Object>>(user, HttpStatus.OK);
 	}
 	

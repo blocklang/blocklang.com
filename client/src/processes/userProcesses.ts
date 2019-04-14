@@ -22,15 +22,25 @@ const getCurrentUserCommand = commandFactory(async ({ get, path }) => {
 	});
 	const json = await response.json();
 	if (!response.ok) {
+		// 没有获取到登录用户信息，则清空缓存的用户信息
+		global.sessionStorage.removeItem('blocklang-session');
 		return [replace(path('user'), {})];
 	}
 
 	// 如果发现是第一次登录，则存到 thirdPartyUser 中；否则存到 user 中。
 	if (json.needCompleteUserInfo) {
+		// 此时用户并未成功登录，清空缓存的用户信息
+		global.sessionStorage.removeItem('blocklang-session');
 		return [replace(path('thirdPartyUser'), json), replace(path('routing', 'outlet'), 'complete-user-info')];
 	}
 
-	global.sessionStorage.setItem('blocklang-session', JSON.stringify(json));
+	// 如果用户未登录，也会返回 json 对象
+	if (json.loginName) {
+		global.sessionStorage.setItem('blocklang-session', JSON.stringify(json));
+	} else {
+		// 说明用户未登录，所以清空登录信息
+		global.sessionStorage.removeItem('blocklang-session');
+	}
 
 	return [replace(path('user'), json)];
 });
@@ -93,43 +103,42 @@ const bioInputCommand = commandFactory<BioPayload>(({ path, payload: { bio } }) 
 	return [replace(path('profileParam', 'bio'), bio.trim())];
 });
 
-const loginNameInputCommand = commandFactory<LoginNamePayload>(async ({ get, path, payload: { loginName } }) => {
+const loginNameInputCommand = commandFactory<LoginNamePayload>(async ({ path, payload: { loginName } }) => {
 	const trimedLoginName = loginName.trim();
 	const result = [];
 
-	// 校验是否已填写项目名称
+	result.push(replace(path('thirdPartyUser', 'loginName'), trimedLoginName));
+
+	// 校验是否已填写登录名
 	if (trimedLoginName === '') {
-		return [
-			replace(path('userInputValidation', 'loginNameValidateStatus'), ValidateStatus.INVALID),
-			replace(path('userInputValidation', 'loginNameErrorMessage'), '登录名不能为空')
-		];
+		result.push(replace(path('userInputValidation', 'loginNameValidateStatus'), ValidateStatus.INVALID));
+		result.push(replace(path('userInputValidation', 'loginNameErrorMessage'), '登录名不能为空'));
+		return result;
 	}
 
-	// 校验项目名称是否符合：字母、数字、中划线(-)、下划线(_)、点(.)
 	// 只能以字母或数字开头
 	var regex = /^[a-zA-Z0-9]+/g;
 	if (!regex.test(trimedLoginName)) {
-		return [
-			replace(path('userInputValidation', 'loginNameValidateStatus'), ValidateStatus.INVALID),
-			replace(path('userInputValidation', 'loginNameErrorMessage'), '只能以字母或数字开头')
-		];
+		result.push(replace(path('userInputValidation', 'loginNameValidateStatus'), ValidateStatus.INVALID));
+		result.push(replace(path('userInputValidation', 'loginNameErrorMessage'), '只能以字母或数字开头'));
+		return result;
 	}
 	// 只能以字母或数字结尾
 	var regex = /[a-zA-Z0-9]$/g;
 	if (!regex.test(trimedLoginName)) {
-		return [
-			replace(path('userInputValidation', 'loginNameValidateStatus'), ValidateStatus.INVALID),
-			replace(path('userInputValidation', 'loginNameErrorMessage'), '只能以字母或数字结尾')
-		];
+		result.push(replace(path('userInputValidation', 'loginNameValidateStatus'), ValidateStatus.INVALID));
+		result.push(replace(path('userInputValidation', 'loginNameErrorMessage'), '只能以字母或数字结尾'));
+		return result;
 	}
 
 	// 只能包含字母、数字、下划线(_)或中划线(-)
 	var regex = /^[a-zA-Z0-9_-]{1,32}$/g;
 	if (!regex.test(trimedLoginName)) {
-		return [
-			replace(path('userInputValidation', 'loginNameValidateStatus'), ValidateStatus.INVALID),
+		result.push(replace(path('userInputValidation', 'loginNameValidateStatus'), ValidateStatus.INVALID));
+		result.push(
 			replace(path('userInputValidation', 'loginNameErrorMessage'), '只能包含字母、数字、下划线(_)或中划线(-)')
-		];
+		);
+		return result;
 	}
 
 	// 服务器端校验
@@ -142,20 +151,17 @@ const loginNameInputCommand = commandFactory<LoginNamePayload>(async ({ get, pat
 	});
 	const json = await response.json();
 	if (!response.ok) {
-		console.log(response, json);
-
 		result.push(replace(path('userInputValidation', 'loginNameValidateStatus'), ValidateStatus.INVALID));
 		result.push(replace(path('userInputValidation', 'loginNameErrorMessage'), json.errors.loginName));
 		return result;
 	}
 
 	// 校验通过
-	return [
-		replace(path('userInputValidation', 'loginNameValidateStatus'), ValidateStatus.VALID),
-		replace(path('userInputValidation', 'loginNameErrorMessage'), undefined),
-		replace(path('thirdPartyUser', 'loginNameErrorMessage'), undefined),
-		replace(path('thirdPartyUser', 'loginName'), trimedLoginName)
-	];
+	result.push(replace(path('userInputValidation', 'loginNameValidateStatus'), ValidateStatus.VALID));
+	result.push(replace(path('userInputValidation', 'loginNameErrorMessage'), undefined));
+	result.push(replace(path('thirdPartyUser', 'loginNameErrorMessage'), undefined));
+
+	return result;
 });
 
 const completeUserInfoCommand = commandFactory(async ({ get, path }) => {
@@ -169,6 +175,17 @@ const completeUserInfoCommand = commandFactory(async ({ get, path }) => {
 	});
 
 	const json = await response.json();
+
+	// 如果找不到第三方用户信息，则跳转到首页，而不能继续停留在完善用户信息页面
+	if (response.status === 403) {
+		return [
+			replace(path('errors'), undefined),
+			replace(path('user'), json),
+			replace(path('thirdPartyUser'), undefined),
+			replace(path('routing', 'outlet'), 'home')
+		];
+	}
+
 	if (!response.ok) {
 		console.error(response, json);
 		return [replace(path('errors'), json.errors)];

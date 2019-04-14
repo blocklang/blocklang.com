@@ -38,7 +38,7 @@ public class CustomOAuth2AuthorizationCodeGrantRequestEntityConverter implements
 		}
 		
 		// Github 等使用的是 POST 请求
-		return defaultConverter.convert(authorizationCodeGrantRequest);		
+		return defaultConverter.convert(authorizationCodeGrantRequest);
 	}
 
 	private MultiValueMap<String, String> buildQueryParameters(OAuth2AuthorizationCodeGrantRequest authorizationCodeGrantRequest) {

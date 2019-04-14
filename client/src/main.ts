@@ -43,14 +43,10 @@ router.on('outlet', ({ outlet, action }) => {
 	if (action === 'enter') {
 		switch (outlet.id) {
 			case 'home':
-				// const isAuthenticated = !!store.get(store.path('user', 'loginName'));
-				getCurrentUserProcess(store)({}).then(function() {
-					const isAuthenticated = !!store.get(store.path('user', 'loginName'));
-					if (isAuthenticated) {
-						initPrivateHomeProcess(store)({});
-					}
-				});
-
+				const isAuthenticated = !!store.get(store.path('user', 'loginName'));
+				if (isAuthenticated) {
+					initPrivateHomeProcess(store)({});
+				}
 				break;
 			case 'new-project':
 				initForNewProjectProcess(store)({});

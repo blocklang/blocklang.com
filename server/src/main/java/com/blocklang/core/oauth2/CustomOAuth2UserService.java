@@ -12,12 +12,15 @@ import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserServ
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.validation.Errors;
 import org.springframework.validation.MapBindingResult;
 
 import com.blocklang.core.constant.OauthSite;
+import com.blocklang.core.controller.UserSession;
 import com.blocklang.core.controller.UserValidator;
 import com.blocklang.core.data.AccountInfo;
 import com.blocklang.core.data.NewUserParam;
@@ -120,20 +123,17 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 				String code = errors.getFieldError("loginName").getCode();
 				System.out.println("error code: " + code);
 				
-				// TODO: 根据 code 获取国际化信息
-				
 				// 将第三方用户信息转换为本网站的用户信息
 				// 这里主要是存储用户的昵称和最小尺寸的头像，在完善用户信息页面使用
 				Map<String, Object> userAttributes = new HashMap<String, Object>();
 				userAttributes.put("accountInfo", accountInfo);
 				Locale locale = LocaleContextHolder.getLocale();
 				userAttributes.put("loginNameErrorMessage", messageSource.getMessage(code, new Object[] {},locale));
-				userAttributes.put("temp", true);
-				userAttributes.put("loginName", "temp-login-name"); // 因为 loginName 的值不能为空，所以设置一个临时值。
-				// 经过反复考虑，这里设置 loginName 而不是设置 id
-				// 首先将 loginName 加上唯一约束后，使用 byLoginName 和 byId 获取用户信息的效果是一样的
-				// 这样在写代码时，不要做各种转换
-				return new DefaultOAuth2User(oauthUser.getAuthorities(), userAttributes, "loginName");
+				userAttributes.put("registrationId", registrationId);
+				UserSession.setThirdPartyUser(userAttributes);
+				
+				// 抛出异常，是为了告知登录失败，不在 security 中存储用户信息
+				throw new OAuth2AuthenticationException(new OAuth2Error(OAuth2ErrorCodes.ACCESS_DENIED));
 			}
 			
 			// 第一次登录校验通过，则保存用户信息
@@ -150,7 +150,6 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 			userAttributes.put("id", userInfo.getId());
 			userAttributes.put("loginName", userInfo.getLoginName());
 			userAttributes.put("avatarUrl", userInfo.getAvatarUrl());
-			userAttributes.put("temp", false);
 			// 经过反复考虑，这里设置 loginName 而不是设置 id
 			// 首先将 loginName 加上唯一约束后，使用 byLoginName 和 byId 获取用户信息的效果是一样的
 			// 这样在写代码时，不要做各种转换
