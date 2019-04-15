@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
+import java.util.Optional;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -155,5 +156,63 @@ public class ProjectReleaseTaskServiceImplTest extends AbstractServiceTest{
 		projectReleaseTaskService.save(task);
 		
 		assertThat(projectReleaseTaskService.count(1)).isEqualTo(1);
+	}
+	
+	@Test
+	public void find_by_project_id_and_version_no_data() {
+		assertThat(projectReleaseTaskService.findByProjectIdAndVersion(Integer.MAX_VALUE, "0.1.0")).isEmpty();
+	}
+	
+	@Test
+	public void find_by_project_id_and_version_success() {
+		Integer projectId = Integer.MAX_VALUE;
+		
+		UserInfo userInfo = new UserInfo();
+		userInfo.setLoginName("user_name");
+		userInfo.setAvatarUrl("avatar_url");
+		userInfo.setEmail("email");
+		userInfo.setMobile("mobile");
+		userInfo.setCreateTime(LocalDateTime.now());
+		Integer userId = userDao.save(userInfo).getId();
+		
+		App app = new App();
+		app.setAppName("oraclejdk");
+		app.setProjectId(projectId);
+		app.setCreateTime(LocalDateTime.now());
+		app.setCreateUserId(1);
+		
+		Integer appId = appDao.save(app).getId();
+		
+		AppRelease appRelease = new AppRelease();
+		appRelease.setAppId(appId);
+		appRelease.setVersion("11.0.2");
+		appRelease.setTitle("oracle jdk 11.0.2");
+		appRelease.setReleaseTime(LocalDateTime.now());
+		appRelease.setReleaseMethod(ReleaseMethod.AUTO);
+		appRelease.setCreateTime(LocalDateTime.now());
+		appRelease.setCreateUserId(userId);
+		
+		Integer jdkReleaseId = appReleaseDao.save(appRelease).getId();
+		
+		ProjectReleaseTask task = new ProjectReleaseTask();
+		task.setProjectId(projectId);
+		task.setVersion("0.0.1");
+		task.setTitle("title1");
+		task.setDescription("description1");
+		task.setJdkReleaseId(jdkReleaseId);
+		task.setStartTime(LocalDateTime.now());
+		task.setReleaseResult(ReleaseResult.STARTED);
+		task.setCreateTime(LocalDateTime.now().minusSeconds(1));
+		task.setCreateUserId(userId);
+		
+		projectReleaseTaskService.save(task);
+		
+		Optional<ProjectReleaseTask> taskOption = projectReleaseTaskService.findByProjectIdAndVersion(projectId, "0.0.1");
+		assertThat(taskOption).isPresent();
+		assertThat(taskOption.get())
+			.hasFieldOrPropertyWithValue("jdkName", "oraclejdk")
+			.hasFieldOrPropertyWithValue("jdkVersion", "11.0.2")
+			.hasFieldOrPropertyWithValue("createUserName", "user_name")
+			.hasFieldOrPropertyWithValue("createUserAvatarUrl", "avatar_url");
 	}
 }

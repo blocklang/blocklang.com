@@ -1,6 +1,7 @@
 package com.blocklang.release.service.impl;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -15,6 +16,7 @@ import com.blocklang.release.dao.AppReleaseDao;
 import com.blocklang.release.dao.ProjectReleaseTaskDao;
 import com.blocklang.release.model.ProjectReleaseTask;
 import com.blocklang.release.service.ProjectReleaseTaskService;
+import com.nimbusds.oauth2.sdk.util.StringUtils;
 
 @Service
 public class ProjectReleaseTaskServiceImpl implements ProjectReleaseTaskService {
@@ -38,23 +40,38 @@ public class ProjectReleaseTaskServiceImpl implements ProjectReleaseTaskService 
 		Pageable pageable = PageRequest.of(0, 100, Sort.by(Direction.DESC, "createTime"));
 		List<ProjectReleaseTask> result = projectReleaseTaskDao.findAllByProjectId(projectId, pageable);
 		result.forEach(task -> {
-			appReleaseDao.findById(task.getJdkReleaseId()).flatMap(release -> {
-				task.setJdkVersion(release.getVersion());
-				return appDao.findById(release.getAppId());
-			}).ifPresent(app -> {
-				task.setJdkName(app.getAppName());
-			});
-			userService.findById(task.getCreateUserId()).ifPresent(user -> {
-				task.setCreateUserName(user.getLoginName());
-				task.setCreateUserAvatarUrl(user.getAvatarUrl());
-			});
+			setJdkAndUserInfo(task);
 		});
 		return result;
+	}
+
+	private void setJdkAndUserInfo(ProjectReleaseTask task) {
+		appReleaseDao.findById(task.getJdkReleaseId()).flatMap(release -> {
+			task.setJdkVersion(release.getVersion());
+			return appDao.findById(release.getAppId());
+		}).ifPresent(app -> {
+			task.setJdkName(app.getAppName());
+		});
+		userService.findById(task.getCreateUserId()).ifPresent(user -> {
+			task.setCreateUserName(user.getLoginName());
+			task.setCreateUserAvatarUrl(user.getAvatarUrl());
+		});
 	}
 
 	@Override
 	public Long count(Integer projectId) {
 		return projectReleaseTaskDao.countByProjectId(projectId);
+	}
+
+	@Override
+	public Optional<ProjectReleaseTask> findByProjectIdAndVersion(Integer projectId, String version) {
+		if(StringUtils.isBlank(version)) {
+			return Optional.empty();
+		}
+		return projectReleaseTaskDao.findByProjectIdAndVersion(projectId, version).map(task -> {
+			setJdkAndUserInfo(task);
+			return task;
+		});
 	}
 
 }

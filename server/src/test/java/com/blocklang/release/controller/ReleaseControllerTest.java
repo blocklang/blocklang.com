@@ -502,4 +502,54 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 			.body("total", equalTo(1));
 	}
 	
+	@Test
+	public void get_a_release_project_not_found() {
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
+
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/releases/{taskId}", "jack", "demo_project", "0.1.0")
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	@Test
+	public void get_a_release_task_not_found() {
+		Project project = new Project();
+		project.setId(1);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		when(projectReleaseTaskService.findByProjectIdAndVersion(anyInt(), anyString())).thenReturn(Optional.empty());
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/releases/{taskId}", "jack", "demo_project", "0.1.0")
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	@Test
+	public void get_a_release_success() {
+		Project project = new Project();
+		project.setId(1);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		ProjectReleaseTask task = new ProjectReleaseTask();
+		task.setProjectId(1);
+		task.setId(1);
+		task.setVersion("0.1.0");
+		when(projectReleaseTaskService.findByProjectIdAndVersion(anyInt(), anyString())).thenReturn(Optional.of(task));
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/releases/{taskId}", "jack", "demo_project", "0.1.0")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body("id", equalTo(1),
+					"version", equalTo("0.1.0"));
+	}
+	
 }

@@ -186,4 +186,18 @@ public class ReleaseController {
 		result.put("total", count);
 		return ResponseEntity.ok(result);
 	}
+	
+	@GetMapping("/projects/{owner}/{projectName}/releases/{version}")
+	public ResponseEntity<ProjectReleaseTask> listRelease(
+			@PathVariable("owner") String owner,
+			@PathVariable("projectName") String projectName,
+			@PathVariable("version") String version) {
+
+		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
+		
+		return projectReleaseTaskService.findByProjectIdAndVersion(project.getId(), version).map((task) -> {
+			return ResponseEntity.ok(task);
+		}).orElseThrow(ResourceNotFoundException::new);
+		
+	}
 }
