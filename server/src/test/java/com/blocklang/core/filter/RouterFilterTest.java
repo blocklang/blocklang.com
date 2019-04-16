@@ -154,6 +154,18 @@ public class RouterFilterTest {
 	}
 	
 	@Test
+	public void filter_view_release_is_router_not_static_resource() throws IOException, ServletException {
+		RouterFilter routerFilter = new RouterFilter();
+		
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/jack/my-project/releases/0.1.0");
+		request.setServletPath("/jack/my-project/releases/0.1.0");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockFilterChain chain = new MockFilterChain();
+		routerFilter.doFilter(request, response, chain);
+		assertThat(response.getForwardedUrl()).isEqualTo("/");
+	}
+	
+	@Test
 	public void filter_get_js_source_map() throws IOException, ServletException {
 		RouterFilter routerFilter = new RouterFilter();
 		
@@ -203,7 +215,7 @@ public class RouterFilterTest {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
 		routerFilter.doFilter(request, response, chain);
-		assertThat(response.getForwardedUrl()).isNull();;
+		assertThat(response.getForwardedUrl()).isNull();
 	}
 	
 	@Test

@@ -55,7 +55,7 @@ public class RouterFilter implements Filter{
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
 		HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-		
+
 		// 如果是 fetch 请求，则不做任何处理
 		if(RequestUtil.isFetch(httpServletRequest)) {
 			chain.doFilter(request, response);
@@ -67,7 +67,13 @@ public class RouterFilter implements Filter{
 		if(StringUtils.isBlank(servletPath)) {
 			servletPath = url;
 		}
-
+		
+		// websocket 直接过
+		if(Arrays.stream(Resources.WS_ENDPOINTS).anyMatch(item -> url.startsWith(item))) {
+			chain.doFilter(request, response);
+			return;
+		}
+		
 		// Single Page Application 单页面应用的路由处理
 		System.out.println("===============================================");
 		System.out.println("===============================================");
@@ -91,16 +97,17 @@ public class RouterFilter implements Filter{
 		// 如果是浏览器刷新，则 referer 的值必为 null
 		String finalServletPath = servletPath;
 		boolean routerMatched = routerTemplates.stream().anyMatch(uriTemplate -> uriTemplate.matches(finalServletPath));
+		boolean isStaticResource = isStaticResource(filenameExtension);
 		// 能执行到这里，则一定是普通的浏览器请求，而不是 Fetch 请求
 		// 而通过浏览器请求的，一律跳转到首页。
-		if(StringUtils.isBlank(filenameExtension) && 
+		if(!isStaticResource && 
 				(routerMatched || needPrependServlet(servletPath))) {
 			request.getRequestDispatcher(WebSite.HOME_URL).forward(request, response);
 			return;
 		}
 		
 		// 以下代码为转换资源文件的路径
-		if(StringUtils.isNotBlank(filenameExtension) && ArrayUtils.contains(Resources.PUBLIC_FILE_EXTENSIONS, filenameExtension)) {
+		if(isStaticResource) {
 			if(referer == null) {
 				// 因为访问 js.map 和 css.map 时，referer 的值为 null，但依然需要解析
 				if(filenameExtension.equals("map")) {
@@ -138,6 +145,17 @@ public class RouterFilter implements Filter{
 		}
 		
 		chain.doFilter(request, response);
+	}
+
+	/**
+	 *  根据文件后缀名判断是否是静态资源文件
+	 *  
+	 * @param filenameExtension
+	 * @return <code>true</code> 表示是静态资源，<code>false</code> 不是静态资源
+	 */
+	private boolean isStaticResource(String filenameExtension) {
+		return StringUtils.isNotBlank(filenameExtension) && 
+				ArrayUtils.contains(Resources.PUBLIC_FILE_EXTENSIONS, filenameExtension);
 	}
 
 	/**
