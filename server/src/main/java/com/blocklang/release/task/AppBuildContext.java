@@ -8,9 +8,11 @@ import java.nio.file.StandardOpenOption;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.util.Assert;
 
 import com.blocklang.develop.model.ProjectContext;
@@ -29,6 +31,16 @@ public class AppBuildContext extends ProjectContext{
 	private LocalDateTime startLogTime;
 	private Path logFilePath;
 	
+	private SimpMessagingTemplate messagingTemplate;
+	private boolean sendMessage = false;
+	private Integer taskId;
+	
+	private Integer lineNum = 0;
+	
+	protected AppBuildContext() {
+		super();
+	}
+
 	public AppBuildContext(String dataRootPath, 
 			String mavenRootPath, 
 			String projectName, 
@@ -42,7 +54,7 @@ public class AppBuildContext extends ProjectContext{
 		this.version = version;
 	}
 	
-	public AppBuildContext(String projectsRootPath, 
+	public AppBuildContext(String dataRootPath, 
 			String mavenRootPath, 
 			String templateProjectGitUrl,
 			String owner,
@@ -50,7 +62,7 @@ public class AppBuildContext extends ProjectContext{
 			String version,
 			String description,
 			String jdkVersion) {
-		this(projectsRootPath, mavenRootPath, projectName, version);
+		this(dataRootPath, mavenRootPath, projectName, version);
 
 		Assert.hasLength(owner, "项目拥有者的登录名不能为空");
 
@@ -58,6 +70,22 @@ public class AppBuildContext extends ProjectContext{
 		this.templateProjectGitUrl = templateProjectGitUrl;
 		super.description = description;
 		this.jdkVersion = jdkVersion;
+	}
+	
+	protected void setVersion(String version) {
+		this.version = version;
+	}
+
+	public void setMessagingTemplate(SimpMessagingTemplate messagingTemplate) {
+		this.messagingTemplate = messagingTemplate;
+	}
+
+	public void setSendMessage(boolean sendMessage) {
+		this.sendMessage = sendMessage;
+	}
+
+	public void setTaskId(Integer taskId) {
+		this.taskId = taskId;
 	}
 
 	private Path getProjectRootDirectory() {
@@ -152,6 +180,22 @@ public class AppBuildContext extends ProjectContext{
 		return "v" + this.version;
 	}
 	
+	public void raw(String line) {
+		try {
+			Files.write(getLogFilePath(), Collections.singletonList(line), StandardOpenOption.APPEND);
+		} catch (IOException e) {
+			logger.error("not found log file", e);
+		}
+		// 网页控制台是一行一输出
+		// 日志格式为 'lineNum:content'
+		// lineNum 从 0 开始
+		if(sendMessage && taskId != null) {
+			messagingTemplate.convertAndSend("/topic/releases/" + taskId, lineNum + ":" + line);
+		}
+		
+		lineNum++;
+	}
+	
 	public void info(String pattern, Object... arguments) {
 		String message = null;
 		if(arguments.length == 0) {
@@ -164,6 +208,12 @@ public class AppBuildContext extends ProjectContext{
 		} catch (IOException e) {
 			logger.error("not found log file", e);
 		}
+		
+		if(sendMessage && taskId != null) {
+			messagingTemplate.convertAndSend("/topic/releases/" + taskId, lineNum + ":" + "[INFO] " + message);
+		}
+		
+		lineNum++;
 	}
 	
 	public void log(String pattern, Object... arguments) {
@@ -178,6 +228,12 @@ public class AppBuildContext extends ProjectContext{
 		} catch (IOException e) {
 			logger.error("not found log file", e);
 		}
+		
+		if(sendMessage && taskId != null) {
+			messagingTemplate.convertAndSend("/topic/releases/" + taskId, lineNum + ":" + message);
+		}
+		
+		lineNum++;
 	}
 
 	public void error(Throwable e) {
@@ -186,6 +242,12 @@ public class AppBuildContext extends ProjectContext{
 		} catch (IOException e1) {
 			logger.error("not found log file", e);
 		}
+		
+		if(sendMessage && taskId != null) {
+			messagingTemplate.convertAndSend("/topic/releases/" + taskId, lineNum + ":" + e.getMessage());
+		}
+		
+		lineNum++;
 	}
 	
 	public void error(String pattern, Object... arguments) {
@@ -200,6 +262,12 @@ public class AppBuildContext extends ProjectContext{
 		} catch (IOException e) {
 			logger.error("not found log file", e);
 		}
+		
+		if(sendMessage && taskId != null) {
+			messagingTemplate.convertAndSend("/topic/releases/" + taskId, lineNum + ":" + "[ERROR] " + message);
+		}
+		
+		lineNum++;
 	}
 
 	public void println() {
@@ -208,6 +276,12 @@ public class AppBuildContext extends ProjectContext{
 		} catch (IOException e) {
 			logger.error("not found log file", e);
 		}
+		
+		if(sendMessage && taskId != null) {
+			messagingTemplate.convertAndSend("/topic/releases/" + taskId, lineNum + ":" + "");
+		}
+		
+		lineNum++;
 	}
 
 	public Path getProjectTemplateDirectory() {
@@ -230,4 +304,44 @@ public class AppBuildContext extends ProjectContext{
 		return Version.parseVersion(this.jdkVersion).getMajor();
 	}
 
+	public static class LogPathBuilder {
+
+		private String dataRootPath;
+		private String owner;
+		private String projectName;
+		private String version;
+		
+		public LogPathBuilder setDataRootPath(String dataRootPath) {
+			this.dataRootPath = dataRootPath;
+			return this;
+		}
+		public LogPathBuilder setOwner(String owner) {
+			this.owner = owner;
+			return this;
+		}
+		public LogPathBuilder setProjectName(String projectName) {
+			this.projectName = projectName;
+			return this;
+		}
+		public LogPathBuilder setVersion(String version) {
+			this.version = version;
+			return this;
+		}
+		
+		public AppBuildContext build() {
+			Assert.hasText(dataRootPath, "存放项目数据的根路径不能为空");
+			Assert.hasText(owner, "项目拥有者的登录名不能为空");
+			Assert.hasText(projectName, "项目名不能为空");
+			Assert.hasText(version, "项目版本号不能为空");
+			
+			AppBuildContext context = new AppBuildContext();
+			context.setDataRootPath(dataRootPath);
+			context.setOwner(owner);
+			context.setProjectName(projectName);
+			context.setVersion(version);
+			
+			return context;
+		}
+		
+	}
 }

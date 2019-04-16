@@ -19,6 +19,10 @@ public class ProjectContext extends AppGlobalContext{
 	protected String projectName;
 	protected String description;
 	
+	protected ProjectContext() {
+		
+	}
+	
 	public ProjectContext(String projectName, String dataRootPath) {
 		super(dataRootPath);
 		Assert.hasLength(projectName, "项目名不能为空");
@@ -27,21 +31,29 @@ public class ProjectContext extends AppGlobalContext{
 		this.dataRootPath = dataRootPath;
 	}
 	
-	public ProjectContext(String owner, String projectName, String projectsRootPath) {
-		this(projectName, projectsRootPath);
+	public ProjectContext(String owner, String projectName, String dataRootPath) {
+		this(projectName, dataRootPath);
 		Assert.hasLength(owner, "项目拥有者的登录名不能为空");
 		
 		this.owner = owner;
 	}
 	
-	public ProjectContext(String owner, String projectName, String description, String projectsRootPath) {
-		this(owner, projectName, projectsRootPath);
+	public ProjectContext(String owner, String projectName, String description, String dataRootPath) {
+		this(owner, projectName, dataRootPath);
 		
 		this.description = description;
 	}
 
 	public Path getGitRepositoryDirectory() {
 		return Paths.get(this.dataRootPath, GIT_REPO_ROOT_PATH, this.owner, this.projectName);
+	}
+
+	protected void setOwner(String owner) {
+		this.owner = owner;
+	}
+
+	protected void setProjectName(String projectName) {
+		this.projectName = projectName;
 	}
 
 	public String getOwner() {

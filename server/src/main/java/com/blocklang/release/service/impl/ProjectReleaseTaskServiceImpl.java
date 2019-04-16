@@ -1,5 +1,6 @@
 package com.blocklang.release.service.impl;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
@@ -72,6 +73,12 @@ public class ProjectReleaseTaskServiceImpl implements ProjectReleaseTaskService 
 			setJdkAndUserInfo(task);
 			return task;
 		});
+	}
+
+	@Override
+	public List<String> getLogContent(Path logFilePath, Integer endLine) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

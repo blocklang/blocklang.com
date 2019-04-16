@@ -1,9 +1,11 @@
 # 获取软件的一个发行版信息
 
-只获取发行版的任务信息
+只获取发行版的任务信息。
+
+注意：一个版本只对应一个发行版。不需要为一个版本构建多次，如果是构建过程出错，则允许用户重新构建。
 
 ```text
-POST /projects/{owner}/{projectName}/releases/{version}
+GET /projects/{owner}/{projectName}/releases/{version}
 ```
 
 ## Parameters

@@ -19,6 +19,8 @@ public class AppGlobalContext {
 	protected String dataRootPath; // block lang 站点的项目文件根目录
 	protected String mavenRootPath;
 	
+	protected AppGlobalContext() { }
+	
 	public AppGlobalContext(String dataRootPath) {
 		Assert.hasLength(dataRootPath, "存放项目数据的根路径不能为空");
 		
@@ -30,6 +32,10 @@ public class AppGlobalContext {
 		
 		Assert.hasLength(mavenRootPath, "maven 仓库的根路径不能为空");
 		this.mavenRootPath = mavenRootPath;
+	}
+
+	protected void setDataRootPath(String dataRootPath) {
+		this.dataRootPath = dataRootPath;
 	}
 
 	public String getDataRootPath() {

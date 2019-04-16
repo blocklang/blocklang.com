@@ -1,5 +1,7 @@
 package com.blocklang.release.controller;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -20,12 +22,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.blocklang.core.constant.CmPropKey;
 import com.blocklang.core.exception.InvalidRequestException;
 import com.blocklang.core.exception.NoAuthorizationException;
 import com.blocklang.core.exception.ResourceNotFoundException;
 import com.blocklang.core.model.UserInfo;
+import com.blocklang.core.service.PropertyService;
 import com.blocklang.core.service.UserService;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.service.ProjectService;
@@ -37,6 +42,8 @@ import com.blocklang.release.model.ProjectTag;
 import com.blocklang.release.service.BuildService;
 import com.blocklang.release.service.ProjectReleaseTaskService;
 import com.blocklang.release.service.ProjectTagService;
+import com.blocklang.release.task.AppBuildContext;
+import com.nimbusds.oauth2.sdk.util.StringUtils;
 
 import de.skuzzle.semantic.Version;
 
@@ -60,6 +67,9 @@ public class ReleaseController {
 	
 	@Autowired
 	private BuildService buildService;
+	
+	@Autowired
+	private PropertyService propertyService;
 	
 	@PostMapping("/projects/{owner}/{projectName}/releases")
 	public ResponseEntity<ProjectReleaseTask> newRelease(
@@ -188,7 +198,7 @@ public class ReleaseController {
 	}
 	
 	@GetMapping("/projects/{owner}/{projectName}/releases/{version}")
-	public ResponseEntity<ProjectReleaseTask> listRelease(
+	public ResponseEntity<ProjectReleaseTask> getRelease(
 			@PathVariable("owner") String owner,
 			@PathVariable("projectName") String projectName,
 			@PathVariable("version") String version) {
@@ -199,5 +209,41 @@ public class ReleaseController {
 			return ResponseEntity.ok(task);
 		}).orElseThrow(ResourceNotFoundException::new);
 		
+	}
+	
+	@GetMapping("/projects/{owner}/{projectName}/releases/{version}/log")
+	public ResponseEntity<List<String>> getReleaseLog(
+			@PathVariable("owner") String owner,
+			@PathVariable("projectName") String projectName,
+			@PathVariable("version") String version,
+			@RequestParam(name = "end_line", required = false) String endLine) {
+		
+		Integer iEndLine = null;
+		if(StringUtils.isNotBlank(endLine)) {
+			try {
+				iEndLine = Integer.valueOf(endLine);
+			}catch(NumberFormatException e) {
+				throw new ResourceNotFoundException();
+			}
+		}
+
+		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
+		ProjectReleaseTask task = projectReleaseTaskService.findByProjectIdAndVersion(project.getId(), version).orElseThrow(ResourceNotFoundException::new);
+		
+		Path logFilePath = null;
+		try {
+			String dataRootPath = propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).get();
+			logFilePath = new AppBuildContext.LogPathBuilder()
+					.setDataRootPath(dataRootPath)
+					.setOwner(owner)
+					.setProjectName(projectName)
+					.setVersion(task.getVersion())
+					.build()
+					.getLogFilePath();
+		} catch (IOException e) {
+			logger.warn("获取日志文件失败", e);
+		}
+		
+		return ResponseEntity.ok(projectReleaseTaskService.getLogContent(logFilePath, iEndLine));
 	}
 }

@@ -15,6 +15,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -509,7 +510,7 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/projects/{owner}/{projectName}/releases/{taskId}", "jack", "demo_project", "0.1.0")
+			.get("/projects/{owner}/{projectName}/releases/{version}", "jack", "demo_project", "0.1.0")
 		.then()
 			.statusCode(HttpStatus.SC_NOT_FOUND);
 	}
@@ -525,7 +526,7 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/projects/{owner}/{projectName}/releases/{taskId}", "jack", "demo_project", "0.1.0")
+			.get("/projects/{owner}/{projectName}/releases/{version}", "jack", "demo_project", "0.1.0")
 		.then()
 			.statusCode(HttpStatus.SC_NOT_FOUND);
 	}
@@ -545,11 +546,117 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/projects/{owner}/{projectName}/releases/{taskId}", "jack", "demo_project", "0.1.0")
+			.get("/projects/{owner}/{projectName}/releases/{version}", "jack", "demo_project", "0.1.0")
 		.then()
 			.statusCode(HttpStatus.SC_OK)
 			.body("id", equalTo(1),
 					"version", equalTo("0.1.0"));
 	}
 	
+	
+	@Test
+	public void get_a_release_log_then_project_not_found() {
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
+
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/releases/{version}/log", "jack", "demo_project", "0.1.0")
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	@Test
+	public void get_a_release_log_then_task_not_found() {
+		Project project = new Project();
+		project.setId(1);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		when(projectReleaseTaskService.findByProjectIdAndVersion(anyInt(), anyString())).thenReturn(Optional.empty());
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/releases/{version}/log", "jack", "demo_project", "0.1.0")
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	@Test
+	public void get_a_release_log_then_log_file_not_found() {
+		Project project = new Project();
+		project.setId(1);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		ProjectReleaseTask task = new ProjectReleaseTask();
+		task.setProjectId(1);
+		task.setId(1);
+		task.setVersion("0.1.0");
+		when(projectReleaseTaskService.findByProjectIdAndVersion(anyInt(), anyString())).thenReturn(Optional.of(task));
+		
+		when(propertyService.findStringValue(anyString())).thenReturn(Optional.of("xx"));
+
+		// 如果如果没有找到日志文件，则只在系统日志中打印 warn 信息，但不要抛出异常，而是返回一个空列表
+		when(projectReleaseTaskService.getLogContent(any(), anyInt())).thenReturn(Collections.emptyList());
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/releases/{version}/log", "jack", "demo_project", "0.1.0")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body("size()", equalTo(0));
+	}
+
+	@Test
+	public void get_a_release_log_has_line_num_success() throws IOException {
+		Project project = new Project();
+		project.setId(1);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		ProjectReleaseTask task = new ProjectReleaseTask();
+		task.setProjectId(1);
+		task.setId(1);
+		task.setVersion("0.1.0");
+		when(projectReleaseTaskService.findByProjectIdAndVersion(anyInt(), anyString())).thenReturn(Optional.of(task));
+		
+		when(propertyService.findStringValue(anyString())).thenReturn(Optional.of("xx"));
+		
+		when(projectReleaseTaskService.getLogContent(any(), anyInt())).thenReturn(Arrays.asList("a", "b"));
+		
+		given()
+			.contentType(ContentType.JSON)
+			.params("end_line", "2")
+		.when()
+			.get("/projects/{owner}/{projectName}/releases/{version}/log", "jack", "demo_project", "0.1.0")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body("size()", equalTo(2));
+	}
+	
+	@Test
+	public void get_a_release_log_has_no_line_num_success() {
+		Project project = new Project();
+		project.setId(1);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		ProjectReleaseTask task = new ProjectReleaseTask();
+		task.setProjectId(1);
+		task.setId(1);
+		task.setVersion("0.1.0");
+		when(projectReleaseTaskService.findByProjectIdAndVersion(anyInt(), anyString())).thenReturn(Optional.of(task));
+
+		when(propertyService.findStringValue(anyString())).thenReturn(Optional.of("xx"));
+		
+		when(projectReleaseTaskService.getLogContent(any(), anyInt())).thenReturn(Arrays.asList("a", "b"));
+		
+		given()
+			.contentType(ContentType.JSON)
+			.params("end_line", "2")
+		.when()
+			.get("/projects/{owner}/{projectName}/releases/{version}/log", "jack", "demo_project", "0.1.0")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body("size()", equalTo(2));
+	}
 }
