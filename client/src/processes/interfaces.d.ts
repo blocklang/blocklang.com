@@ -27,9 +27,7 @@ export interface ProjectPathPayload {
 	project: string;
 }
 
-export interface VersionPayload {
-	owner: string;
-	project: string;
+export interface VersionPayload extends ProjectPathPayload {
 	version: string;
 }
 

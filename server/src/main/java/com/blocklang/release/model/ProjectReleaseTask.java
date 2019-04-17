@@ -43,6 +43,9 @@ public class ProjectReleaseTask extends PartialOperateFields{
 	@Column(name = "release_result", length = 2, nullable = false)	
 	private ReleaseResult releaseResult;
 	
+	@Column(name = "log_file_name", length = 255)
+	private String logFileName;
+	
 	@Transient
 	private String jdkName;
 	@Transient
@@ -146,6 +149,14 @@ public class ProjectReleaseTask extends PartialOperateFields{
 
 	public void setCreateUserAvatarUrl(String createUserAvatarUrl) {
 		this.createUserAvatarUrl = createUserAvatarUrl;
+	}
+
+	public String getLogFileName() {
+		return logFileName;
+	}
+
+	public void setLogFileName(String logFileName) {
+		this.logFileName = logFileName;
 	}
 	
 }

@@ -135,6 +135,7 @@ type ReleaseResult = '01' | '02' | '03' | '04' | '05';
 
 // 对应 release task
 export interface ProjectRelease {
+	id: number;
 	version: string;
 	releaseResult: ReleaseResult;
 	title: string;

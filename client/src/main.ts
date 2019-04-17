@@ -18,7 +18,11 @@ import { getCurrentUserProcess, initForUserProfileProcess } from './processes/us
 import { initForNewProjectProcess, initForViewProjectProcess } from './processes/projectProcesses';
 import { changeRouteProcess } from './processes/routeProcesses';
 import { initPrivateHomeProcess } from './processes/homeProcesses';
-import { initForListReleasesProcess, initForNewReleaseProcess } from './processes/releaseProcesses';
+import {
+	initForListReleasesProcess,
+	initForNewReleaseProcess,
+	initForViewReleaseProcess
+} from './processes/releaseProcesses';
 import { initForViewDocumentProcess } from './processes/documentProcess';
 import { setSessionProcess } from './processes/loginProcesses';
 
@@ -60,10 +64,19 @@ router.on('outlet', ({ outlet, action }) => {
 			case 'new-release':
 				initForNewReleaseProcess(store)({ owner: outlet.params.owner, project: outlet.params.project });
 				break;
+			case 'view-release':
+				initForViewReleaseProcess(store)({
+					owner: outlet.params.owner,
+					project: outlet.params.project,
+					version: outlet.params.version
+				});
+				break;
 			case 'docs':
 				initForViewDocumentProcess(store)({ fileName: outlet.params.fileName });
+				break;
 			case 'settings-profile':
 				initForUserProfileProcess(store)({});
+				break;
 		}
 	}
 });

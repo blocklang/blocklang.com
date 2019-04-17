@@ -37,6 +37,10 @@ export default [
 		outlet: 'new-release'
 	},
 	{
+		path: '{owner}/{project}/releases/{version}',
+		outlet: 'view-release'
+	},
+	{
 		path: 'docs/{fileName}',
 		outlet: 'docs'
 	}

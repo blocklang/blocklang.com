@@ -80,6 +80,7 @@ library.add(
 
 import * as css from './App.m.css';
 import Exception from './pages/error/Exception';
+import ViewReleaseContainer from './containers/release/ViewReleaseContainer';
 
 export default class App extends WidgetBase {
 	protected render() {
@@ -104,6 +105,7 @@ export default class App extends WidgetBase {
 					id: 'new-release',
 					renderer: () => w(NewReleaseContainer, {})
 				}),
+				w(Outlet, { key: 'view-release', id: 'view-release', renderer: () => w(ViewReleaseContainer, {}) }),
 				w(Outlet, { key: 'docs', id: 'docs', renderer: () => w(ViewDocumentContainer, {}) }),
 				w(Outlet, { key: 'about', id: 'about', renderer: () => w(About, {}) }),
 				w(Outlet, {

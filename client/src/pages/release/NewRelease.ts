@@ -10,13 +10,7 @@ import ProjectHeader from '../widgets/ProjectHeader';
 import { Project, JdkInfo, WithTarget } from '../../interfaces';
 import Link from '@dojo/framework/routing/Link';
 import { ValidateStatus } from '../../constant';
-import {
-	VersionPayload,
-	DescriptionPayload,
-	JdkReleaseIdPayload,
-	TitlePayload,
-	ProjectPathPayload
-} from '../../processes/interfaces';
+import { VersionPayload, DescriptionPayload, JdkReleaseIdPayload, TitlePayload } from '../../processes/interfaces';
 import Exception from '../error/Exception';
 
 export interface NewReleaseProperties {
@@ -39,7 +33,7 @@ export interface NewReleaseProperties {
 	onJdkReleaseIdInput: (opts: JdkReleaseIdPayload) => void;
 	onTitleInput: (opts: TitlePayload) => void;
 	onDescriptionInput: (opts: DescriptionPayload) => void;
-	onSaveReleaseTask: (opts: ProjectPathPayload) => void;
+	onSaveReleaseTask: (opts: VersionPayload) => void;
 }
 
 @theme(css)
@@ -249,8 +243,10 @@ export default class NewRelease extends ThemedMixin(I18nMixin(WidgetBase))<NewRe
 
 	private _onSaveReleaseTask() {
 		const {
-			project: { createUserName, name }
+			project: { createUserName, name },
+			version
 		} = this.properties;
-		this.properties.onSaveReleaseTask({ owner: createUserName, project: name });
+		console.log(version);
+		this.properties.onSaveReleaseTask({ owner: createUserName, project: name, version });
 	}
 }

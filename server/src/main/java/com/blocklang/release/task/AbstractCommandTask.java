@@ -1,7 +1,8 @@
 package com.blocklang.release.task;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.lang.ProcessBuilder.Redirect;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -21,9 +22,12 @@ public abstract class AbstractCommandTask extends AbstractTask{
 		
 		try {
 			processBuilder.redirectErrorStream(true);
-			processBuilder.redirectOutput(Redirect.appendTo(appBuildContext.getLogFilePath().toFile()));
-
 			Process process = processBuilder.start();
+			try( BufferedReader outReader = new BufferedReader(new InputStreamReader(process.getInputStream()))){
+				outReader.lines().iterator().forEachRemaining(line -> {
+					appBuildContext.raw(line);
+				});
+			}
 			
 			if(process.isAlive()) {
 				process.waitFor();

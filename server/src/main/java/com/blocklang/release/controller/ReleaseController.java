@@ -237,7 +237,7 @@ public class ReleaseController {
 					.setDataRootPath(dataRootPath)
 					.setOwner(owner)
 					.setProjectName(projectName)
-					.setVersion(task.getVersion())
+					.setLogFileName(task.getLogFileName())
 					.build()
 					.getLogFilePath();
 		} catch (IOException e) {

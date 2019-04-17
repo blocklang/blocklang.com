@@ -16,6 +16,7 @@
 | start_time     | 开始时间       | datetime |      |        |      | 否   |
 | end_time       | 结束时间       | datetime |      |        |      | 是   |
 | release_result | 发布结果       | char     | 2    | 01     |      | 否   |
+| log_file_name  | 日志文件名     | varchar  | 255  |        |      | 是   |
 
 ## 约束
 
@@ -27,3 +28,4 @@
 
 1. `jdk_release_id` 是指 jdk 的发行版标识
 2. `release_result` 的值为：`01` 表示 `未发布(inited)`，`02` 表示 `正在发布(started)`，`03` 表示 `发布失败(failed)`，`04` 表示 `发布成功(passed)`，`05` 表示 `取消发布(canceled)`
+3. `log_file_name` 中只存储日志文件名，不包含文件路径

@@ -12,10 +12,13 @@ import java.util.Collections;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.util.Assert;
 
 import com.blocklang.develop.model.ProjectContext;
+import com.nimbusds.oauth2.sdk.util.StringUtils;
 
 import de.skuzzle.semantic.Version;
 
@@ -29,13 +32,14 @@ public class AppBuildContext extends ProjectContext{
 	private String jdkVersion;
 	
 	private LocalDateTime startLogTime;
+	private String logFileName;
 	private Path logFilePath;
 	
 	private SimpMessagingTemplate messagingTemplate;
 	private boolean sendMessage = false;
 	private Integer taskId;
 	
-	private Integer lineNum = 0;
+	private Integer lineNum = 0; // 跟踪日志文件的记录行号
 	
 	protected AppBuildContext() {
 		super();
@@ -127,11 +131,30 @@ public class AppBuildContext extends ProjectContext{
 		return this.getProjectRootDirectory().resolve("logs");
 	}
 	
-	private String getLogFileName() {
+	public void setLogFileName(String logFileName) {
+		this.logFileName = logFileName;
+	}
+	
+	public String getLogFileName() {
+		if(StringUtils.isNotBlank(this.logFileName)) {
+			return this.logFileName;
+		}
+		
+		// 如果未设置，则按规则生成一个文件名
+		this.logFileName = generateLogFileName();
+		return this.logFileName;
+	}
+
+	private String generateLogFileName() {
 		if(startLogTime == null) {
 			startLogTime = LocalDateTime.now();
 		}
-		return this.projectName + "-" + this.version + "-" + startLogTime.format(DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss")) + ".log";
+		return this.projectName + 
+			"-" + 
+			this.version + 
+			"-" + 
+			startLogTime.format(DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss")) + 
+			".log";
 	}
 	
 	public Path getLogFilePath() throws IOException {
@@ -190,7 +213,7 @@ public class AppBuildContext extends ProjectContext{
 		// 日志格式为 'lineNum:content'
 		// lineNum 从 0 开始
 		if(sendMessage && taskId != null) {
-			messagingTemplate.convertAndSend("/topic/releases/" + taskId, lineNum + ":" + line);
+			this.sendReleaseMessage(lineNum, line);
 		}
 		
 		lineNum++;
@@ -210,7 +233,7 @@ public class AppBuildContext extends ProjectContext{
 		}
 		
 		if(sendMessage && taskId != null) {
-			messagingTemplate.convertAndSend("/topic/releases/" + taskId, lineNum + ":" + "[INFO] " + message);
+			this.sendReleaseMessage(lineNum, "[INFO] " + message);
 		}
 		
 		lineNum++;
@@ -230,7 +253,7 @@ public class AppBuildContext extends ProjectContext{
 		}
 		
 		if(sendMessage && taskId != null) {
-			messagingTemplate.convertAndSend("/topic/releases/" + taskId, lineNum + ":" + message);
+			this.sendReleaseMessage(lineNum, message);
 		}
 		
 		lineNum++;
@@ -244,7 +267,7 @@ public class AppBuildContext extends ProjectContext{
 		}
 		
 		if(sendMessage && taskId != null) {
-			messagingTemplate.convertAndSend("/topic/releases/" + taskId, lineNum + ":" + e.getMessage());
+			this.sendReleaseMessage(lineNum, e.getMessage());
 		}
 		
 		lineNum++;
@@ -264,7 +287,7 @@ public class AppBuildContext extends ProjectContext{
 		}
 		
 		if(sendMessage && taskId != null) {
-			messagingTemplate.convertAndSend("/topic/releases/" + taskId, lineNum + ":" + "[ERROR] " + message);
+			this.sendReleaseMessage(lineNum, "[ERROR] " + message);
 		}
 		
 		lineNum++;
@@ -278,10 +301,26 @@ public class AppBuildContext extends ProjectContext{
 		}
 		
 		if(sendMessage && taskId != null) {
-			messagingTemplate.convertAndSend("/topic/releases/" + taskId, lineNum + ":" + "");
+			this.sendReleaseMessage(lineNum, "");
 		}
 		
 		lineNum++;
+	}
+	
+	public void finished() {
+		if(sendMessage && taskId != null) {
+			this.sendFinishMessage();
+		}
+	}
+	
+	private void sendReleaseMessage(long lineNum, String lineContent) {
+		Message<String> message = MessageBuilder.withPayload(lineContent).setHeader("lineNum", lineNum).setHeader("event", "console").build();
+		messagingTemplate.convertAndSend("/topic/releases/" + taskId, message);
+	}
+	
+	private void sendFinishMessage() {
+		Message<String> message = MessageBuilder.withPayload("").setHeader("lineNum", lineNum).setHeader("event", "finish").build();
+		messagingTemplate.convertAndSend("/topic/releases/" + taskId, message);
 	}
 
 	public Path getProjectTemplateDirectory() {
@@ -309,7 +348,7 @@ public class AppBuildContext extends ProjectContext{
 		private String dataRootPath;
 		private String owner;
 		private String projectName;
-		private String version;
+		private String logFileName;
 		
 		public LogPathBuilder setDataRootPath(String dataRootPath) {
 			this.dataRootPath = dataRootPath;
@@ -323,8 +362,8 @@ public class AppBuildContext extends ProjectContext{
 			this.projectName = projectName;
 			return this;
 		}
-		public LogPathBuilder setVersion(String version) {
-			this.version = version;
+		public LogPathBuilder setLogFileName(String logFileName) {
+			this.logFileName = logFileName;
 			return this;
 		}
 		
@@ -332,13 +371,13 @@ public class AppBuildContext extends ProjectContext{
 			Assert.hasText(dataRootPath, "存放项目数据的根路径不能为空");
 			Assert.hasText(owner, "项目拥有者的登录名不能为空");
 			Assert.hasText(projectName, "项目名不能为空");
-			Assert.hasText(version, "项目版本号不能为空");
+			Assert.hasText(logFileName, "日志文件名不能为空");
 			
 			AppBuildContext context = new AppBuildContext();
 			context.setDataRootPath(dataRootPath);
 			context.setOwner(owner);
 			context.setProjectName(projectName);
-			context.setVersion(version);
+			context.setLogFileName(logFileName);
 			
 			return context;
 		}

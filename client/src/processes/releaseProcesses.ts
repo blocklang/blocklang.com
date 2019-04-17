@@ -24,11 +24,26 @@ const getProjectReleasesCommand = commandFactory(async ({ path, payload: { owner
 	const json = await response.json();
 	if (!response.ok) {
 		console.log(response, json);
-		return [replace(path('releases'), {})];
+		return [replace(path('releases'), [])];
 	}
 
 	console.log(response, json);
 	return [replace(path('releases'), json)];
+});
+
+// 获取指定的 release task
+const getProjectReleaseCommand = commandFactory(async ({ path, payload: { owner, project, version } }) => {
+	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/releases/${version}`, {
+		headers: getHeaders()
+	});
+	const json = await response.json();
+	if (!response.ok) {
+		console.log(response, json);
+		return [replace(path('projectRelease'), undefined)];
+	}
+
+	console.log(response, json);
+	return [replace(path('projectRelease'), json)];
 });
 
 /*******************new release***********************/
@@ -125,7 +140,7 @@ const descriptionInputCommand = commandFactory(({ path, payload: { description }
 	return [replace(path('projectReleaseParam', 'description'), description.trim())];
 });
 
-const saveReleaseTaskCommand = commandFactory(async ({ path, get, payload: { owner, project } }) => {
+const saveReleaseTaskCommand = commandFactory(async ({ path, get, payload: { owner, project, version } }) => {
 	const projectReleaseParam = get(path('projectReleaseParam'));
 
 	// 在跳转到新增项目页面时，应设置 isPublic 的初始值为 true
@@ -148,8 +163,8 @@ const saveReleaseTaskCommand = commandFactory(async ({ path, get, payload: { own
 		replace(path('projectRelease'), json),
 		// 清空输入参数
 		replace(path('projectReleaseParam'), undefined),
-		replace(path('routing', 'outlet'), 'list-release'),
-		replace(path('routing', 'params'), { owner, project })
+		replace(path('routing', 'outlet'), 'view-release'),
+		replace(path('routing', 'params'), { owner, project, version })
 	];
 });
 
@@ -164,6 +179,10 @@ export const initForNewReleaseProcess = createProcess('init-for-new-release', [
 	startInitForNewReleaseCommand,
 	getProjectCommand,
 	getJdksCommand
+]);
+export const initForViewReleaseProcess = createProcess('init-for-view-release', [
+	getProjectCommand,
+	getProjectReleaseCommand
 ]);
 export const versionInputProcess = createProcess('version-input', [versionInputCommand]);
 export const jdkReleaseIdInputProcess = createProcess('jdk-release-id-input', [jdkReleaseIdInputCommand]);

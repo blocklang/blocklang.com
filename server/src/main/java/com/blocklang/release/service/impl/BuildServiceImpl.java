@@ -9,6 +9,7 @@ import javax.transaction.Transactional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -72,6 +73,9 @@ public class BuildServiceImpl implements BuildService {
 	@Autowired
 	private PropertyService propertyService;
 	
+	@Autowired
+	private SimpMessagingTemplate messagingTemplate;
+	
 	@Override
 	public void build(Project project, ProjectReleaseTask releaseTask) {
 		StopWatch stopWatch = StopWatch.createStarted();
@@ -92,6 +96,15 @@ public class BuildServiceImpl implements BuildService {
 				releaseTask.getVersion(),
 				project.getDescription(),
 				jdkVersion);
+		
+		// 需要存储日志文件名，当读取历史日志时，就可以根据此字段定位到日志文件。
+		releaseTask.setLogFileName(context.getLogFileName());
+		projectReleaseTaskDao.save(releaseTask);
+		
+		// 以下三行是设置 websocket 消息的参数
+		context.setSendMessage(true);
+		context.setMessagingTemplate(messagingTemplate);
+		context.setTaskId(releaseTask.getId());
 
 		context.info(StringUtils.repeat("=", 60));
 		context.info("开始发布 @{0}/{1} 项目", project.getCreateUserName(), project.getName());
@@ -313,6 +326,8 @@ public class BuildServiceImpl implements BuildService {
 		long seconds = stopWatch.getTime(TimeUnit.SECONDS);
 		context.info("共耗时：{0} 秒", seconds);
 		context.info(StringUtils.repeat("=", 60));
+		
+		context.finished();
 	}
 
 	@Transactional

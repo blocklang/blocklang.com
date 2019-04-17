@@ -81,6 +81,20 @@ public class AppBuildContextTest {
 	}
 	
 	@Test
+	public void get_log_file_name_then_return_setted_value() {
+		context.setLogFileName("a");
+		assertThat(context.getLogFileName()).isEqualTo("a");
+	}
+	
+	@Test
+	public void get_log_file_name_then_generate_value() {
+		context.setLogFileName(null); // 因为使用的是全局的 context，所以这里要充值文件名
+		String logFileName = context.getLogFileName();
+		assertThat(logFileName).startsWith("app-0.0.1-");
+		assertThat(logFileName).endsWith(".log");
+	}
+	
+	@Test
 	public void get_dojo_dist_directory() {
 		assertThat(context.getDojoDistDirectory().compareTo(Paths.get("c:/blocklang/projects/jack/app/client/output/dist"))).isEqualTo(0);
 	}
@@ -142,5 +156,6 @@ public class AppBuildContextTest {
 		Path pom = context.getMavenPomFile();
 		assertThat(pom.getFileName().toString()).endsWith("pom.xml");
 	}
+
 	
 }

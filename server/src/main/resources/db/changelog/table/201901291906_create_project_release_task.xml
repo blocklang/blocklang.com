@@ -28,9 +28,10 @@
 				<constraints nullable="false" />
 			</column>
 			<column name="end_time" remarks="结束时间" type="${datetime}" />
-			<column name="release_result" remarks="发布果" type="char(2)" defaultValue="01">
+			<column name="release_result" remarks="发布结果" type="char(2)" defaultValue="01">
 				<constraints nullable="false" />
 			</column>
+			<column name="log_file_name" remarks="日志文件名" type="varchar(255)" />
 			<column name="create_user_id" remarks="创建人标识" type="int">
 				<constraints nullable="false" />
 			</column>
