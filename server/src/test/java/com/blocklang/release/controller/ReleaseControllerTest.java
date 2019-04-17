@@ -13,6 +13,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -20,7 +21,9 @@ import java.util.Collections;
 import java.util.Optional;
 
 import org.apache.http.HttpStatus;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -37,12 +40,16 @@ import com.blocklang.release.model.ProjectTag;
 import com.blocklang.release.service.BuildService;
 import com.blocklang.release.service.ProjectReleaseTaskService;
 import com.blocklang.release.service.ProjectTagService;
+import com.blocklang.release.task.AppBuildContext;
 
 import io.restassured.http.ContentType;
 
 @WebMvcTest(ReleaseController.class)
 public class ReleaseControllerTest extends AbstractControllerTest{
 
+	@Rule
+	public TemporaryFolder tempFolder = new TemporaryFolder();
+	
 	@MockBean
 	private ProjectService projectService;
 	@MockBean
@@ -583,18 +590,30 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 	}
 	
 	@Test
-	public void get_a_release_log_then_log_file_not_found() {
+	public void get_a_release_log_then_log_file_not_found() throws IOException {
 		Project project = new Project();
 		project.setId(1);
+		project.setCreateUserName("jack");
+		project.setName("demo_project");
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
 		ProjectReleaseTask task = new ProjectReleaseTask();
 		task.setProjectId(1);
 		task.setId(1);
 		task.setVersion("0.1.0");
+		task.setLogFileName("get_a_release_log_then_log_file_not_found.log");
 		when(projectReleaseTaskService.findByProjectIdAndVersion(anyInt(), anyString())).thenReturn(Optional.of(task));
 		
-		when(propertyService.findStringValue(anyString())).thenReturn(Optional.of("xx"));
+		File dataRootDirectory = tempFolder.newFolder();
+		// 测试完后，要删除生成的日志文件
+		new AppBuildContext.LogPathBuilder()
+				.setDataRootPath(dataRootDirectory.getPath())
+				.setOwner("jack")
+				.setProjectName("demo_project")
+				.setLogFileName("get_a_release_log_success.log")
+				.build()
+				.getLogFilePath();
+		when(propertyService.findStringValue(anyString())).thenReturn(Optional.of(dataRootDirectory.getPath()));
 
 		// 如果如果没有找到日志文件，则只在系统日志中打印 warn 信息，但不要抛出异常，而是返回一个空列表
 		when(projectReleaseTaskService.getLogContent(any())).thenReturn(Collections.emptyList());
@@ -609,18 +628,31 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 	}
 	
 	@Test
-	public void get_a_release_log_success() {
+	public void get_a_release_log_success() throws IOException {
 		Project project = new Project();
 		project.setId(1);
+		project.setCreateUserName("jack");
+		project.setName("demo_project");
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
 		ProjectReleaseTask task = new ProjectReleaseTask();
 		task.setProjectId(1);
 		task.setId(1);
 		task.setVersion("0.1.0");
+		task.setLogFileName("get_a_release_log_success.log");
 		when(projectReleaseTaskService.findByProjectIdAndVersion(anyInt(), anyString())).thenReturn(Optional.of(task));
 
-		when(propertyService.findStringValue(anyString())).thenReturn(Optional.of("xx"));
+		File dataRootDirectory = tempFolder.newFolder();
+		// 测试完后，要删除生成的日志文件
+		new AppBuildContext.LogPathBuilder()
+				.setDataRootPath(dataRootDirectory.getPath())
+				.setOwner("jack")
+				.setProjectName("demo_project")
+				.setLogFileName("get_a_release_log_success.log")
+				.build()
+				.getLogFilePath();
+		
+		when(propertyService.findStringValue(anyString())).thenReturn(Optional.of(dataRootDirectory.getPath()));
 		
 		when(projectReleaseTaskService.getLogContent(any())).thenReturn(Arrays.asList("a", "b"));
 		
@@ -632,4 +664,6 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 			.statusCode(HttpStatus.SC_OK)
 			.body("size()", equalTo(2));
 	}
+	
+	
 }
