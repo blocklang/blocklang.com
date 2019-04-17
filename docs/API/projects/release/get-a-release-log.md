@@ -3,7 +3,7 @@
 用户看到的日志分为历史日志和实时日志，此 API 只用来获取历史日志，实时日志是通过 websocket 获取的。
 
 ```text
-GET /projects/{owner}/{projectName}/releases/{version}/log?end_line={endLine}
+GET /projects/{owner}/{projectName}/releases/{version}/log
 ```
 
 ## Parameters
@@ -13,7 +13,6 @@ GET /projects/{owner}/{projectName}/releases/{version}/log?end_line={endLine}
 | `owner`       | `string` | **Required**. 用户登录名                              |
 | `projectName` | `string` | **Required**. 项目名称                                |
 | `version`     | `string` | 语义化版本，如 0.1.0                                  |
-| `endLine`     | `string` | 结尾的行号(包括此行)，从0开始；未设置则表示读到行尾。 |
 
 ## Response
 

@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.blocklang.core.constant.CmPropKey;
@@ -43,7 +42,6 @@ import com.blocklang.release.service.BuildService;
 import com.blocklang.release.service.ProjectReleaseTaskService;
 import com.blocklang.release.service.ProjectTagService;
 import com.blocklang.release.task.AppBuildContext;
-import com.nimbusds.oauth2.sdk.util.StringUtils;
 
 import de.skuzzle.semantic.Version;
 
@@ -215,17 +213,7 @@ public class ReleaseController {
 	public ResponseEntity<List<String>> getReleaseLog(
 			@PathVariable("owner") String owner,
 			@PathVariable("projectName") String projectName,
-			@PathVariable("version") String version,
-			@RequestParam(name = "end_line", required = false) String endLine) {
-		
-		Integer iEndLine = null;
-		if(StringUtils.isNotBlank(endLine)) {
-			try {
-				iEndLine = Integer.valueOf(endLine);
-			}catch(NumberFormatException e) {
-				throw new ResourceNotFoundException();
-			}
-		}
+			@PathVariable("version") String version) {
 
 		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
 		ProjectReleaseTask task = projectReleaseTaskService.findByProjectIdAndVersion(project.getId(), version).orElseThrow(ResourceNotFoundException::new);
@@ -244,6 +232,6 @@ public class ReleaseController {
 			logger.warn("获取日志文件失败", e);
 		}
 		
-		return ResponseEntity.ok(projectReleaseTaskService.getLogContent(logFilePath, iEndLine));
+		return ResponseEntity.ok(projectReleaseTaskService.getLogContent(logFilePath));
 	}
 }

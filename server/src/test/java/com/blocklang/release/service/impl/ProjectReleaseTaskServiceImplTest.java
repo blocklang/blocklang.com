@@ -229,8 +229,8 @@ public class ProjectReleaseTaskServiceImplTest extends AbstractServiceTest{
 
 	@Test
 	public void get_log_content_then_no_log_file() throws IOException {
-		assertThat(projectReleaseTaskService.getLogContent(null, null)).isEmpty();
-		assertThat(projectReleaseTaskService.getLogContent(Paths.get("not-exist.file"), null)).isEmpty();
+		assertThat(projectReleaseTaskService.getLogContent(null)).isEmpty();
+		assertThat(projectReleaseTaskService.getLogContent(Paths.get("not-exist.file"))).isEmpty();
 	}
 	
 	@Test
@@ -238,21 +238,10 @@ public class ProjectReleaseTaskServiceImplTest extends AbstractServiceTest{
 		File logFile = tempFolder.newFile();
 		Files.write(logFile.toPath(), Arrays.asList("a", "b", "c"), StandardOpenOption.APPEND);
 		
-		List<String> content = projectReleaseTaskService.getLogContent(logFile.toPath(), null);
+		List<String> content = projectReleaseTaskService.getLogContent(logFile.toPath());
 		assertThat(content).hasSize(3);
 		assertThat(content.get(0)).isEqualTo("a");
 		assertThat(content.get(1)).isEqualTo("b");
 		assertThat(content.get(2)).isEqualTo("c");
-	}
-	
-	@Test
-	public void get_log_content_then_partial_content() throws IOException {
-		File logFile = tempFolder.newFile();
-		Files.write(logFile.toPath(), Arrays.asList("a", "b", "c"), StandardOpenOption.APPEND);
-		
-		List<String> content = projectReleaseTaskService.getLogContent(logFile.toPath(), 1);
-		assertThat(content).hasSize(2);
-		assertThat(content.get(0)).isEqualTo("a");
-		assertThat(content.get(1)).isEqualTo("b");
 	}
 }

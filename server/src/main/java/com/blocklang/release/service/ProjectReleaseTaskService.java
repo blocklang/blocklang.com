@@ -17,12 +17,11 @@ public interface ProjectReleaseTaskService {
 	Optional<ProjectReleaseTask> findByProjectIdAndVersion(Integer projectId, String version);
 
 	/**
-	 * 获取日志文件的部分内容，只读到指定的行号。
+	 * 获取日志文件的内容。
 	 * 
 	 * @param logFilePath
-	 * @param endLine 读到指定的行号(从0开始)，但不包含改行的内容，如果 endLine 的值为 null，则读取文件所有内容
 	 * @return
 	 */
-	List<String> getLogContent(Path logFilePath, Integer endLine);
+	List<String> getLogContent(Path logFilePath);
 
 }

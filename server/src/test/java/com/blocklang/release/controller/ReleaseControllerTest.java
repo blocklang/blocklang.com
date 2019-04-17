@@ -597,7 +597,7 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 		when(propertyService.findStringValue(anyString())).thenReturn(Optional.of("xx"));
 
 		// 如果如果没有找到日志文件，则只在系统日志中打印 warn 信息，但不要抛出异常，而是返回一个空列表
-		when(projectReleaseTaskService.getLogContent(any(), anyInt())).thenReturn(Collections.emptyList());
+		when(projectReleaseTaskService.getLogContent(any())).thenReturn(Collections.emptyList());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -607,35 +607,9 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 			.statusCode(HttpStatus.SC_OK)
 			.body("size()", equalTo(0));
 	}
-
-	@Test
-	public void get_a_release_log_has_line_num_success() throws IOException {
-		Project project = new Project();
-		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
-		
-		ProjectReleaseTask task = new ProjectReleaseTask();
-		task.setProjectId(1);
-		task.setId(1);
-		task.setVersion("0.1.0");
-		when(projectReleaseTaskService.findByProjectIdAndVersion(anyInt(), anyString())).thenReturn(Optional.of(task));
-		
-		when(propertyService.findStringValue(anyString())).thenReturn(Optional.of("xx"));
-		
-		when(projectReleaseTaskService.getLogContent(any(), anyInt())).thenReturn(Arrays.asList("a", "b"));
-		
-		given()
-			.contentType(ContentType.JSON)
-			.params("end_line", "2")
-		.when()
-			.get("/projects/{owner}/{projectName}/releases/{version}/log", "jack", "demo_project", "0.1.0")
-		.then()
-			.statusCode(HttpStatus.SC_OK)
-			.body("size()", equalTo(2));
-	}
 	
 	@Test
-	public void get_a_release_log_has_no_line_num_success() {
+	public void get_a_release_log_success() {
 		Project project = new Project();
 		project.setId(1);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
@@ -648,11 +622,10 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 
 		when(propertyService.findStringValue(anyString())).thenReturn(Optional.of("xx"));
 		
-		when(projectReleaseTaskService.getLogContent(any(), anyInt())).thenReturn(Arrays.asList("a", "b"));
+		when(projectReleaseTaskService.getLogContent(any())).thenReturn(Arrays.asList("a", "b"));
 		
 		given()
 			.contentType(ContentType.JSON)
-			.params("end_line", "2")
 		.when()
 			.get("/projects/{owner}/{projectName}/releases/{version}/log", "jack", "demo_project", "0.1.0")
 		.then()
