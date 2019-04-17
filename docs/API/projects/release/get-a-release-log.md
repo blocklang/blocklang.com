@@ -8,12 +8,12 @@ GET /projects/{owner}/{projectName}/releases/{version}/log?end_line={endLine}
 
 ## Parameters
 
-| Name          | Type     | Description                                 |
-| ------------- | -------- | ------------------------------------------- |
-| `owner`       | `string` | **Required**. 用户登录名                    |
-| `projectName` | `string` | **Required**. 项目名称                      |
-| `version`     | `string` | 语义化版本，如 0.1.0                        |
-| `endLine`     | `string` | 结尾的行号，从1开始；未设置则表示读到行尾。 |
+| Name          | Type     | Description                                           |
+| ------------- | -------- | ----------------------------------------------------- |
+| `owner`       | `string` | **Required**. 用户登录名                              |
+| `projectName` | `string` | **Required**. 项目名称                                |
+| `version`     | `string` | 语义化版本，如 0.1.0                                  |
+| `endLine`     | `string` | 结尾的行号(包括此行)，从0开始；未设置则表示读到行尾。 |
 
 ## Response
 

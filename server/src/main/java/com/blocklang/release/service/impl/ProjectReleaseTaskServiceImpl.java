@@ -1,9 +1,15 @@
 package com.blocklang.release.service.impl;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +28,8 @@ import com.nimbusds.oauth2.sdk.util.StringUtils;
 @Service
 public class ProjectReleaseTaskServiceImpl implements ProjectReleaseTaskService {
 
+	private static final Logger logger = LoggerFactory.getLogger(ProjectReleaseTaskServiceImpl.class);
+	
 	@Autowired
 	private ProjectReleaseTaskDao projectReleaseTaskDao;
 	@Autowired
@@ -77,8 +85,25 @@ public class ProjectReleaseTaskServiceImpl implements ProjectReleaseTaskService 
 
 	@Override
 	public List<String> getLogContent(Path logFilePath, Integer endLine) {
-		// TODO Auto-generated method stub
-		return null;
+		if(logFilePath == null ) {
+			logger.warn("传入的文件路径是 null");
+			return Collections.emptyList();
+		}
+		
+		if(!logFilePath.toFile().exists()) {
+			logger.warn("日志文件 {0} 不存在", logFilePath.toString());
+			return Collections.emptyList();
+		}
+		
+		try {
+			if(endLine == null) {
+				return Files.readAllLines(logFilePath);
+			}
+			return Files.lines(logFilePath).limit(endLine + 1).collect(Collectors.toList());
+		} catch (IOException e) {
+			logger.warn("获取文件内容失败", e);
+		}
+		return Collections.emptyList();
 	}
 
 }

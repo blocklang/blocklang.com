@@ -2,11 +2,20 @@ package com.blocklang.release.service.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.blocklang.core.dao.UserDao;
@@ -31,6 +40,8 @@ public class ProjectReleaseTaskServiceImplTest extends AbstractServiceTest{
 	private UserDao userDao;
 	@Autowired
 	private ProjectReleaseTaskService projectReleaseTaskService;
+	@Rule
+	public TemporaryFolder tempFolder = new TemporaryFolder();
 	
 	@Test
 	public void save_success() {
@@ -214,5 +225,34 @@ public class ProjectReleaseTaskServiceImplTest extends AbstractServiceTest{
 			.hasFieldOrPropertyWithValue("jdkVersion", "11.0.2")
 			.hasFieldOrPropertyWithValue("createUserName", "user_name")
 			.hasFieldOrPropertyWithValue("createUserAvatarUrl", "avatar_url");
+	}
+
+	@Test
+	public void get_log_content_then_no_log_file() throws IOException {
+		assertThat(projectReleaseTaskService.getLogContent(null, null)).isEmpty();
+		assertThat(projectReleaseTaskService.getLogContent(Paths.get("not-exist.file"), null)).isEmpty();
+	}
+	
+	@Test
+	public void get_log_content_then_full_content() throws IOException {
+		File logFile = tempFolder.newFile();
+		Files.write(logFile.toPath(), Arrays.asList("a", "b", "c"), StandardOpenOption.APPEND);
+		
+		List<String> content = projectReleaseTaskService.getLogContent(logFile.toPath(), null);
+		assertThat(content).hasSize(3);
+		assertThat(content.get(0)).isEqualTo("a");
+		assertThat(content.get(1)).isEqualTo("b");
+		assertThat(content.get(2)).isEqualTo("c");
+	}
+	
+	@Test
+	public void get_log_content_then_partial_content() throws IOException {
+		File logFile = tempFolder.newFile();
+		Files.write(logFile.toPath(), Arrays.asList("a", "b", "c"), StandardOpenOption.APPEND);
+		
+		List<String> content = projectReleaseTaskService.getLogContent(logFile.toPath(), 1);
+		assertThat(content).hasSize(2);
+		assertThat(content.get(0)).isEqualTo("a");
+		assertThat(content.get(1)).isEqualTo("b");
 	}
 }
