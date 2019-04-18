@@ -3,23 +3,30 @@ import I18nMixin from '@dojo/framework/widget-core/mixins/I18n';
 import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
 import watch from '@dojo/framework/widget-core/decorators/watch';
 
-//import messageBundle from '../../nls/main';
+import messageBundle from '../../nls/main';
 
 import * as SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
-import { v } from '@dojo/framework/widget-core/d';
+import { v, w } from '@dojo/framework/widget-core/d';
 
 import * as c from '../../className';
 import * as css from './ViewRelease.m.css';
 import { ProjectRelease, Project } from '../../interfaces';
 import { baseUrl } from '../../config';
 import { getHeaders } from '../../processes/utils';
+import { IconName } from '@fortawesome/fontawesome-svg-core';
+import FontAwesomeIcon from '../../widgets/fontawesome-icon';
+import Link from '@dojo/framework/routing/Link';
+import Moment from '../../widgets/moment';
+import MarkdownPreview from '../../widgets/markdown-preview';
+import ProjectHeader from '../widgets/ProjectHeader';
 
 type WsEvent = 'console' | 'finish';
 
 interface WsMessageHeader {
 	lineNum: number;
 	event: WsEvent;
+	releaseResult?: string;
 }
 
 interface WsMessage {
@@ -32,11 +39,7 @@ export interface ViewReleaseProperties {
 	projectRelease: ProjectRelease;
 }
 
-const client = new Client({
-	debug: function(str) {
-		console.log(str);
-	}
-});
+const client = new Client({});
 
 client.webSocketFactory = function() {
 	return new SockJS('/release-console');
@@ -49,7 +52,7 @@ client.onStompError = function(frame) {
 
 @theme(css)
 export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<ViewReleaseProperties> {
-	//private _localizedMessages = this.localizeBundle(messageBundle);
+	private _localizedMessages = this.localizeBundle(messageBundle);
 
 	private _logLoaded: boolean = false;
 	private _watingConsole: WsMessage[] = [];
@@ -60,6 +63,8 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 	private _logs: string[] = []; // 存历史日志
 
 	private _console: string[] = []; // 存实时刷新的日志
+
+	private _releaseResult: string = '';
 
 	protected render() {
 		const { projectRelease } = this.properties;
@@ -85,11 +90,13 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 							const body = JSON.parse(message.body);
 							const {
 								payload,
-								headers: { event }
+								headers: { event, releaseResult }
 							} = body as WsMessage;
 							if (event === 'finish') {
 								// 如果已读完，则关闭
 								client.deactivate();
+								this._releaseResult = releaseResult!;
+								this.invalidate();
 							} else if (event === 'console') {
 								// 如果历史日志已加载完成，则开始渲染实时日志
 								// 如果历史日志没有加载完成，但已经收到了实时日志，则等待历史日志加载完成
@@ -148,12 +155,61 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 			}
 		}
 
-		return v('div', { classes: [c.container] }, [
-			v('div', { classes: [css.logBody] }, [
-				v('pre', {}, [
-					...this._logs.map((lineContent) => this._renderLine(lineContent)),
-					...this._console.map((lineContent) => this._renderLine(lineContent))
-				])
+		return v('div', { classes: [c.container] }, [this._renderHeader(), this._renderReleasePart()]);
+	}
+
+	private _renderHeader() {
+		const {
+			messages: { privateProjectTitle }
+		} = this._localizedMessages;
+		const { project } = this.properties;
+
+		return w(ProjectHeader, { project, privateProjectTitle });
+	}
+
+	private _renderReleasePart() {
+		return v('div', [this._renderReleaseHeader(), v('div', [this._renderReleaseInfo(), this._releaseLog()])]);
+	}
+
+	private _releaseLog() {
+		return v('div', { classes: [css.logBody] }, [
+			v('pre', {}, [
+				...this._logs.map((lineContent) => this._renderLine(lineContent)),
+				...this._console.map((lineContent) => this._renderLine(lineContent))
+			])
+		]);
+	}
+
+	private _renderReleaseHeader() {
+		const {
+			messages: { releaseText, newReleaseText }
+		} = this._localizedMessages;
+		const {
+			project: { createUserName, name }
+		} = this.properties;
+
+		return v('div', { classes: [c.pb_4, c.d_flex, c.justify_content_between] }, [
+			v('div', {}, [
+				w(
+					Link,
+					{
+						classes: [c.btn, c.btn_info],
+						to: 'list-release',
+						params: { owner: createUserName, project: name }
+					},
+					[`${releaseText}`]
+				)
+			]),
+			v('div', { classes: [] }, [
+				w(
+					Link,
+					{
+						classes: [c.btn, c.btn_outline_secondary],
+						to: 'new-release',
+						params: { owner: createUserName, project: name }
+					},
+					[`${newReleaseText}`]
+				)
 			])
 		]);
 	}
@@ -162,16 +218,13 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 		return v('div', { key: '', classes: [css.logLine] }, [v('a'), v('span', [lineContent])]);
 	}
 
-	private async _fetchLog(endLine?: number) {
+	private async _fetchLog() {
 		const {
 			project: { createUserName: owner, name: project },
 			projectRelease: { version }
 		} = this.properties;
-		let url = `${baseUrl}/projects/${owner}/${project}/releases/${version}/log`;
-		if (endLine) {
-			url += `?end_line=${endLine}`;
-		}
-		const response = await fetch(url, {
+
+		const response = await fetch(`${baseUrl}/projects/${owner}/${project}/releases/${version}/log`, {
 			headers: getHeaders()
 		});
 		const json = await response.json();
@@ -185,5 +238,95 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 
 	private _appendToConsole(lineContent: string) {
 		this._console.push(lineContent);
+	}
+
+	private _renderReleaseInfo() {
+		const { projectRelease: release } = this.properties;
+
+		const releaseResult = this._releaseResult ? this._releaseResult : release.releaseResult;
+
+		let borderColorClass = '';
+		let resultClasses = '';
+		let spin = false;
+		let resultText = '';
+		let icon: IconName = 'clock';
+		if (releaseResult === '01') {
+			borderColorClass = '';
+			resultClasses = c.text_muted;
+			resultText = '准备';
+			icon = 'clock';
+		} else if (releaseResult === '02') {
+			spin = true;
+			borderColorClass = c.border_warning;
+			resultClasses = c.text_warning;
+			resultText = '发布中';
+			icon = 'spinner';
+		} else if (releaseResult === '03') {
+			borderColorClass = c.border_danger;
+			resultClasses = c.text_danger;
+			resultText = '失败';
+			icon = 'times';
+		} else if (releaseResult === '04') {
+			borderColorClass = c.border_success;
+			resultClasses = c.text_success;
+			resultText = '成功';
+			icon = 'check';
+		} else if (releaseResult === '05') {
+			borderColorClass = '';
+			resultClasses = c.text_muted;
+			resultText = '取消';
+			icon = 'ban';
+		}
+
+		return v('section', { classes: [c.border, borderColorClass, c.mb_4, css.borderLeft] }, [
+			v('div', { classes: [c.row] }, [
+				v('div', { classes: [c.col_3, c.text_right, c.py_4] }, [
+					v('ul', { classes: [c.list_unstyled, c.mt_2] }, [
+						v('li', { classes: [c.mb_1] }, [
+							w(FontAwesomeIcon, { icon: 'tag', classes: [c.text_muted] }),
+							` ${release.version}`
+						]),
+						v('li', { classes: [c.mb_1, resultClasses] }, [
+							w(FontAwesomeIcon, { icon, spin }),
+							` ${resultText}`
+						])
+					])
+				]),
+				v('div', { classes: [c.col_9, css.releaseMainSection, c.py_4] }, [
+					// header
+					v('h2', { classes: [resultClasses] }, [`${release.title}`]),
+					v('div', { classes: [c.mb_4] }, [
+						v('small', { classes: [c.text_muted] }, [
+							w(Link, { to: `${release.createUserName}` }, [
+								v(
+									'img',
+									{
+										classes: [c.avatar],
+										src: `${release.createUserAvatarUrl}`,
+										width: 20,
+										height: 20
+									},
+									[]
+								),
+								' ',
+								v('strong', [`${release.createUserName}`])
+							]),
+							' 发布于 ',
+							w(Moment, { datetime: release.createTime })
+						])
+					]),
+					// 介绍
+					release.description
+						? v('div', { classes: [c.markdown_body] }, [w(MarkdownPreview, { value: release.description })])
+						: null,
+					// jdk
+					v('hr'),
+					v('div', { classes: [c.text_muted, c.my_4] }, [
+						w(FontAwesomeIcon, { icon: ['fab', 'java'], size: '2x' }),
+						` ${release.jdkName}_${release.jdkVersion} `
+					])
+				])
+			])
+		]);
 	}
 }

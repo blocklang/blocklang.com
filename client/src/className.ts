@@ -167,6 +167,16 @@ export const border_right_0: string = 'border-right-0';
 export const border_bottom_0: string = 'border-bottom-0';
 export const border_left_0: string = 'border-left-0';
 
+export const border_primary: string = 'border-primary';
+export const border_secondary: string = 'border-secondary';
+export const border_success: string = 'border-success';
+export const border_danger: string = 'border-danger';
+export const border_warning: string = 'border-warning';
+export const border_info: string = 'border-info';
+export const border_light: string = 'border-light';
+export const border_dark: string = 'border-dark';
+export const border_white: string = 'border-white';
+
 //     color
 export const text_primary: string = 'text-primary';
 export const text_secondary: string = 'text-secondary';

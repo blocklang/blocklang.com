@@ -18,6 +18,7 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.util.Assert;
 
 import com.blocklang.develop.model.ProjectContext;
+import com.blocklang.release.constant.ReleaseResult;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
 
 import de.skuzzle.semantic.Version;
@@ -307,9 +308,9 @@ public class AppBuildContext extends ProjectContext{
 		lineNum++;
 	}
 	
-	public void finished() {
+	public void finished(ReleaseResult releaseResult) {
 		if(sendMessage && taskId != null) {
-			this.sendFinishMessage();
+			this.sendFinishMessage(releaseResult);
 		}
 	}
 	
@@ -318,8 +319,12 @@ public class AppBuildContext extends ProjectContext{
 		messagingTemplate.convertAndSend("/topic/releases/" + taskId, message);
 	}
 	
-	private void sendFinishMessage() {
-		Message<String> message = MessageBuilder.withPayload("").setHeader("lineNum", lineNum).setHeader("event", "finish").build();
+	private void sendFinishMessage(ReleaseResult releaseResult) {
+		Message<String> message = MessageBuilder.withPayload("")
+				.setHeader("lineNum", lineNum)
+				.setHeader("event", "finish")
+				.setHeader("releaseResult", releaseResult.getKey())
+				.build();
 		messagingTemplate.convertAndSend("/topic/releases/" + taskId, message);
 	}
 

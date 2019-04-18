@@ -1,6 +1,14 @@
 .root {
 }
 
+.borderLeft {
+	border-left-width: 10px !important;
+}
+
+.releaseMainSection {
+	border-left: 2px solid #e1e4e8;
+}
+
 .logBody pre {
 	color: #f1f1f1;
 	font-family: Consolas, 'Courier New', monospace;

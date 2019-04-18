@@ -28,7 +28,7 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 	private _localizedMessages = this.localizeBundle(messageBundle);
 
 	protected render() {
-		return v('div', { classes: [css.root, c.container] }, [this._renderHeader(), this._renderReleasePart()]);
+		return v('div', { classes: [css.root, c.container] }, [this._renderHeader(), this._renderReleasesPart()]);
 	}
 
 	private _isAuthenticated() {
@@ -36,7 +36,7 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 		return !!loggedUsername;
 	}
 
-	private _renderReleasePart() {
+	private _renderReleasesPart() {
 		const { releases } = this.properties;
 		if (releases === undefined) {
 			return w(Spinner, {});
@@ -96,38 +96,8 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 	}
 
 	private _renderReleases(releases: ProjectRelease[]) {
-		const {
-			messages: { releaseText, newReleaseText }
-		} = this._localizedMessages;
-		const {
-			project: { createUserName, name }
-		} = this.properties;
-
 		return v('div', [
-			v('div', { classes: [c.pb_4, c.d_flex, c.justify_content_between] }, [
-				v('div', {}, [
-					w(
-						Link,
-						{
-							classes: [c.btn, c.btn_info],
-							to: 'list-release',
-							params: { owner: createUserName, project: name }
-						},
-						[`${releaseText}`]
-					)
-				]),
-				v('div', { classes: [] }, [
-					w(
-						Link,
-						{
-							classes: [c.btn, c.btn_outline_secondary],
-							to: 'new-release',
-							params: { owner: createUserName, project: name }
-						},
-						[`${newReleaseText}`]
-					)
-				])
-			]),
+			this._renderReleaseHeader(),
 			v(
 				'div',
 				{ classes: [c.border_top] },
@@ -135,6 +105,29 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 					return this._renderItem(release);
 				})
 			)
+		]);
+	}
+
+	private _renderReleaseHeader() {
+		const {
+			messages: { newReleaseText }
+		} = this._localizedMessages;
+		const {
+			project: { createUserName, name }
+		} = this.properties;
+
+		return v('div', { classes: [c.pb_4, c.d_flex, c.justify_content_end] }, [
+			v('div', { classes: [] }, [
+				w(
+					Link,
+					{
+						classes: [c.btn, c.btn_outline_secondary],
+						to: 'new-release',
+						params: { owner: createUserName, project: name }
+					},
+					[`${newReleaseText}`]
+				)
+			])
 		]);
 	}
 

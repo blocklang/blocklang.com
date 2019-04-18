@@ -310,8 +310,10 @@ public class BuildServiceImpl implements BuildService {
 		}
 		
 		// 更新发布任务的状态
+		ReleaseResult releaseResult = success ? ReleaseResult.PASSED : ReleaseResult.FAILED;
+		
 		releaseTask.setEndTime(LocalDateTime.now());
-		releaseTask.setReleaseResult(success ? ReleaseResult.PASSED : ReleaseResult.FAILED);
+		releaseTask.setReleaseResult(releaseResult);
 		releaseTask.setLastUpdateTime(LocalDateTime.now());
 		releaseTask.setLastUpdateUserId(releaseTask.getCreateUserId());
 		projectReleaseTaskDao.save(releaseTask);
@@ -327,7 +329,7 @@ public class BuildServiceImpl implements BuildService {
 		context.info("共耗时：{0} 秒", seconds);
 		context.info(StringUtils.repeat("=", 60));
 		
-		context.finished();
+		context.finished(releaseResult);
 	}
 
 	@Transactional
