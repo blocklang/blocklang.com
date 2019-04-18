@@ -17,7 +17,7 @@ import { State } from './interfaces';
 import { getCurrentUserProcess, initForUserProfileProcess } from './processes/userProcesses';
 import { initForNewProjectProcess, initForViewProjectProcess } from './processes/projectProcesses';
 import { changeRouteProcess } from './processes/routeProcesses';
-import { initPrivateHomeProcess } from './processes/homeProcesses';
+import { initHomeProcess } from './processes/homeProcesses';
 import {
 	initForListReleasesProcess,
 	initForNewReleaseProcess,
@@ -47,10 +47,8 @@ router.on('outlet', ({ outlet, action }) => {
 	if (action === 'enter') {
 		switch (outlet.id) {
 			case 'home':
-				const isAuthenticated = !!store.get(store.path('user', 'loginName'));
-				if (isAuthenticated) {
-					initPrivateHomeProcess(store)({});
-				}
+				// 页面初始化数据
+				initHomeProcess(store)({});
 				break;
 			case 'new-project':
 				initForNewProjectProcess(store)({});
