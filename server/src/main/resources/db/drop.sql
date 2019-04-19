@@ -17,6 +17,7 @@ drop table project_file;
 drop table project_authorization;
 drop table project_commit;
 drop table project_deploy;
+drop table persistent_logins;
 
 drop table databasechangelog;
 drop table databasechangeloglock;

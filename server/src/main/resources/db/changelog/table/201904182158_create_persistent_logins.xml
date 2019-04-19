@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+	<changeSet author="Zhengwei Jin" id="201904182158">
+		<createTable tableName="persistent_logins" remarks="记住用户登录信息">
+			<column name="dbid" type="int" autoIncrement="true">
+				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_PERSISTENT_LOGINS" />
+			</column>
+			<column name="login_name" remarks="登录名" type="varchar(32)">
+				<constraints nullable="false" unique="true" uniqueConstraintName="UK_PERSISTENT_LOGINS_ON_LOGIN_NAME" />
+			</column>
+			<column name="token" remarks="登录标识" type="varchar(64)">
+				<constraints nullable="false" unique="true" uniqueConstraintName="UK_PERSISTENT_LOGINS_ON_TOKEN" />
+			</column>
+			<column name="last_used_time" remarks="最近使用时间" type="${datetime}" />
+		</createTable>
+	</changeSet>
+
+</databaseChangeLog>
