@@ -35,6 +35,9 @@ npm config set registry http://registry.npm.taobao.org/
 
 # 切换为原本的 npm 镜像
 npm config set registry https://registry.npmjs.org/
+
+# 使用淘宝 puppeteer 镜像
+npm config set puppeteer_download_host=https://npm.taobao.org/mirrors
 ```
 
 ### 安装 yarn
@@ -53,6 +56,7 @@ yarn config get registry
 https://registry.yarnpkg.com
 # 切换为淘宝镜像
 yarn config set registry https://registry.npm.taobao.org
+yarn config set puppeteer_download_host https://npm.taobao.org/mirrors
 ```
 
 ### 安装 dojo cli
