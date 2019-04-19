@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 
 import com.blocklang.core.constant.WebSite;
+import com.blocklang.core.filter.AutoLoginFilter;
 import com.blocklang.core.filter.RouterFilter;
 import com.blocklang.core.oauth2.CustomOAuth2AccessTokenResponseClient;
 import com.blocklang.core.oauth2.CustomOAuth2UserService;
@@ -42,7 +43,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		// service that is used by non-browser clients
 		// TODO: 考虑通过将服务拆分到单独项目中，然后打开此功能
 		http.csrf().disable();
-		http.addFilterBefore(new RouterFilter(), AnonymousAuthenticationFilter.class);
+		http
+			.addFilterBefore(new RouterFilter(), AnonymousAuthenticationFilter.class)
+			.addFilterBefore(new AutoLoginFilter(userService), AnonymousAuthenticationFilter.class);
 			
 //		http.authorizeRequests().anyRequest().authenticated().and().oauth2Login().loginPage("/")
 //		.and().oauth2Client();

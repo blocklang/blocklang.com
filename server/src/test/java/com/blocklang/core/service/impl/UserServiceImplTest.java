@@ -2,6 +2,7 @@ package com.blocklang.core.service.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -12,19 +13,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.blocklang.core.constant.AvatarSizeType;
 import com.blocklang.core.constant.OauthSite;
+import com.blocklang.core.dao.PersisentLoginsDao;
 import com.blocklang.core.dao.UserAvatarDao;
 import com.blocklang.core.dao.UserBindDao;
 import com.blocklang.core.dao.UserDao;
+import com.blocklang.core.model.PersisentLogins;
 import com.blocklang.core.model.UserAvatar;
 import com.blocklang.core.model.UserBind;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.UserService;
 import com.blocklang.core.test.AbstractServiceTest;
+import com.blocklang.core.util.LoginToken;
 
 public class UserServiceImplTest extends AbstractServiceTest{
 	
 	@Autowired
 	private UserDao userDao;
+	
+	@Autowired
+	private PersisentLoginsDao persisentLoginsDao;
 	
 	@Autowired
 	private UserAvatarDao userAvatarDao;
@@ -181,5 +188,64 @@ public class UserServiceImplTest extends AbstractServiceTest{
 		List<UserAvatar> avatars = userAvatarDao.findByUserId(userId2);
 		assertThat(avatars.stream().map(avatar -> avatar.getAvatarUrl()).collect(Collectors.toList()))
 			.allMatch(s -> s.startsWith("https://avatars2.githubusercontent.com/u/1?v=4_2&s="));
+	}
+	
+	@Test
+	public void find_by_login_token_no_data() {
+		assertThat(userService.findByLoginToken("not-exist-token")).isEmpty();
+	}
+	
+	@Test
+	public void find_by_login_token_success() {
+		UserInfo userInfo = new UserInfo();
+		userInfo.setLoginName("login");
+		userInfo.setNickname("name");
+		userInfo.setCompany("company");
+		userInfo.setWebsiteUrl("blog");
+		userInfo.setLocation("location");
+		userInfo.setEmail("email");
+		userInfo.setBio("bio");
+		userInfo.setCreateTime(LocalDateTime.now());
+		userInfo.setAvatarUrl("https://avatars2.githubusercontent.com/u/1?v=4&s=40");
+		
+		userDao.save(userInfo).getId();
+		
+		LocalDateTime firstUpdateTime = LocalDateTime.now().minusMinutes(1);
+		
+		PersisentLogins login = new PersisentLogins();
+		login.setLoginName("login");
+		login.setToken("x-token");
+		login.setLastUsedTime(firstUpdateTime);
+		
+		Integer loginId = persisentLoginsDao.save(login).getId();
+		
+		assertThat(userService.findByLoginToken("x-token")).isPresent();
+		assertThat(persisentLoginsDao.findById(loginId).get().getLastUsedTime()).isAfter(firstUpdateTime);
+	}
+	
+	@Test
+	public void generate_login_token_one_time() {
+		String token = userService.generateLoginToken(OauthSite.QQ,"login");
+		
+		LoginToken loginToken = new LoginToken();
+		loginToken.decode(token);
+		Optional<PersisentLogins> plOPtion = persisentLoginsDao.findByToken(loginToken.getToken());
+		assertThat(plOPtion).isPresent();
+		assertThat(plOPtion.get()).hasNoNullFieldsOrProperties();
+	}
+	
+	@Test
+	public void generate_login_token_twice() {
+		String token1 = userService.generateLoginToken(OauthSite.QQ, "login");
+		String token2 = userService.generateLoginToken(OauthSite.QQ, "login");
+		
+		assertThat(token1).isNotEqualTo(token2);
+		
+		LoginToken loginToken = new LoginToken();
+		loginToken.decode(token2);
+		
+		Optional<PersisentLogins> plOPtion = persisentLoginsDao.findByToken(loginToken.getToken());
+		assertThat(plOPtion).isPresent();
+		assertThat(plOPtion.get()).hasNoNullFieldsOrProperties();
 	}
 }

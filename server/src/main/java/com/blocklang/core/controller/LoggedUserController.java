@@ -2,10 +2,8 @@ package com.blocklang.core.controller;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import javax.validation.Valid;
 
@@ -15,13 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,6 +22,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.blocklang.core.constant.OauthSite;
 import com.blocklang.core.data.AccountInfo;
 import com.blocklang.core.data.CheckLoginNameParam;
 import com.blocklang.core.data.NewUserParam;
@@ -65,6 +59,7 @@ public class LoggedUserController {
 				// 因为客户端并不需要显示登录用户的登录标识，所以不返回 userId
 				user.put("loginName", userAttributes.get("loginName"));
 				user.put("avatarUrl", userAttributes.get("avatarUrl"));
+				user.put("token", userAttributes.get("token"));
 			} else if(UsernamePasswordAuthenticationToken.class.isInstance(principal)) {
 				UsernamePasswordAuthenticationToken token = (UsernamePasswordAuthenticationToken)principal;
 				User securityUser = (User)token.getPrincipal();
@@ -139,23 +134,18 @@ public class LoggedUserController {
 		String authorizedClientRegistrationId = (String) thirdPartyUser.get("registrationId");
 		// 清除 principal 中的第三方用户信息
 		// 在 principal 中添加本地用户信息，至此登录成功
-		Map<String, Object> userAttributes = new HashMap<String, Object>();
-		userAttributes.put("id", savedUserInfo.getId());
-		userAttributes.put("loginName", savedUserInfo.getLoginName());
-		userAttributes.put("avatarUrl", savedUserInfo.getAvatarUrl());
-		
-		Set<GrantedAuthority> authorities = Collections.singleton(new OAuth2UserAuthority(userAttributes));
-		OAuth2User oauth2User = new DefaultOAuth2User(authorities, userAttributes, "loginName");
-		OAuth2AuthenticationToken authentication = new OAuth2AuthenticationToken(oauth2User, authorities, authorizedClientRegistrationId);
-		SecurityContextHolder.getContext().setAuthentication(authentication);
+		String token = userService.generateLoginToken(OauthSite.fromValue(authorizedClientRegistrationId), userInfo.getLoginName());
+		UserSession.storeUserToSecurityContext(authorizedClientRegistrationId, savedUserInfo, token);
 	
 		// 用户信息修改完成后，从 session 中删除第三方用户信息
 		UserSession.removeThirdPartyUser();
 		
 		// 返回登录用户信息
 		Map<String, Object> user = new HashMap<String, Object>();
-		user.put("loginName", userAttributes.get("loginName"));
-		user.put("avatarUrl", userAttributes.get("avatarUrl"));
+		user.put("loginName", savedUserInfo.getLoginName());
+		user.put("avatarUrl", savedUserInfo.getAvatarUrl());
+		user.put("token", token);
+		
 		return new ResponseEntity<Map<String, Object>>(user, HttpStatus.OK);
 	}
 	

@@ -10,13 +10,18 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.blocklang.core.constant.OauthSite;
+import com.blocklang.core.dao.PersisentLoginsDao;
 import com.blocklang.core.dao.UserAvatarDao;
 import com.blocklang.core.dao.UserBindDao;
 import com.blocklang.core.dao.UserDao;
+import com.blocklang.core.model.PersisentLogins;
 import com.blocklang.core.model.UserAvatar;
 import com.blocklang.core.model.UserBind;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.UserService;
+import com.blocklang.core.util.IdGenerator;
+import com.blocklang.core.util.LoginToken;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -27,6 +32,8 @@ public class UserServiceImpl implements UserService {
 	private UserAvatarDao userAvatarDao;
 	@Autowired
 	private UserBindDao userBindDao;
+	@Autowired
+	private PersisentLoginsDao persisentLoginsDao;
 	
 	@Transactional
 	@Override
@@ -108,6 +115,36 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserInfo update(UserInfo newUserInfo) {
 		return userDao.save(newUserInfo);
+	}
+
+	@Override
+	public Optional<UserInfo> findByLoginToken(String loginToken) {
+		return persisentLoginsDao.findByToken(loginToken).flatMap(persisentLogins -> {
+			persisentLogins.setLastUsedTime(LocalDateTime.now());
+			persisentLoginsDao.save(persisentLogins);
+			return userDao.findByLoginName(persisentLogins.getLoginName());
+		});
+	}
+
+	@Override
+	public String generateLoginToken(OauthSite site, String loginName) {
+		String internalToken = IdGenerator.uuid();
+		LoginToken loginToken = new LoginToken();
+		
+		PersisentLogins pl = persisentLoginsDao.findByLoginName(loginName).map(login -> {
+			login.setToken(internalToken);
+			return login;
+		}).orElseGet(() -> {
+			PersisentLogins login = new PersisentLogins();
+			login.setLoginName(loginName);
+			login.setToken(internalToken);
+			login.setLastUsedTime(LocalDateTime.now());
+			return login;
+		});
+		
+		persisentLoginsDao.save(pl);
+		
+		return loginToken.encode(site.getValue().toLowerCase(), internalToken);
 	}
 	
 }
