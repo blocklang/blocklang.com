@@ -70,7 +70,8 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 		const { projectRelease } = this.properties;
 
 		if (projectRelease) {
-			if (projectRelease.releaseResult === '02' /* started */) {
+			const releaseStatus = this._releaseResult !== '' ? this._releaseResult : projectRelease.releaseResult;
+			if (releaseStatus === '02' /* started */) {
 				// 正在发布中，实时显示控制台信息
 				if (!client.active && projectRelease) {
 					// 这里要解决好两方面问题：
@@ -147,9 +148,9 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 					};
 					client.activate();
 				}
-			} else {
+			} else if (releaseStatus === '03' || releaseStatus === '04' || releaseStatus === '05') {
 				// 已发布完成，只加载历史记录
-				if (this._logs.length === 0) {
+				if (!this._logLoaded) {
 					this._fetchLog();
 				}
 			}
@@ -168,10 +169,10 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 	}
 
 	private _renderReleasePart() {
-		return v('div', [this._renderReleaseHeader(), v('div', [this._renderReleaseInfo(), this._releaseLog()])]);
+		return v('div', [this._renderReleaseHeader(), v('div', [this._renderReleaseInfo(), this._renderReleaseLog()])]);
 	}
 
-	private _releaseLog() {
+	private _renderReleaseLog() {
 		return v('div', { classes: [css.logBody] }, [
 			v('pre', {}, [
 				...this._logs.map((lineContent) => this._renderLine(lineContent)),
