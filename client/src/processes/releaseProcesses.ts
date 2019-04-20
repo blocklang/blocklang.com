@@ -83,7 +83,7 @@ const versionInputCommand = commandFactory(async ({ path, payload: { owner, proj
 			replace(path('releaseInputValidation', 'versionValidateStatus'), ValidateStatus.INVALID),
 			replace(
 				path('releaseInputValidation', 'versionErrorMessage'),
-				'不是有效的<a href="https://semver.org/lang/zh-CN/" target="_blank">语义化版本</a>'
+				'不是有效的<a href="https://semver.org/lang/zh-CN/" target="_blank" tabindex="-1" class="text-white">语义化版本</a>'
 			)
 		];
 	}

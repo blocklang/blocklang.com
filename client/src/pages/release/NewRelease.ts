@@ -87,9 +87,10 @@ export default class NewRelease extends ThemedMixin(I18nMixin(WidgetBase))<NewRe
 		return v('div', { classes: [] }, [
 			v('form', { classes: [c.needs_validation], novalidate: 'novalidate' }, [
 				this._renderVersionInput(),
-				this._renderJdkSelect(),
 				this._renderTitleInput(),
 				this._renderDescriptionTextarea(),
+				v('hr'),
+				this._renderJdkSelect(),
 				v('hr'),
 				this._renderSaveButton()
 			])
@@ -190,7 +191,7 @@ export default class NewRelease extends ThemedMixin(I18nMixin(WidgetBase))<NewRe
 			v('textarea', {
 				classes: [c.form_control],
 				id: 'txtDescription',
-				rows: '3',
+				rows: '5',
 				oninput: this._onDescriptionInput
 			})
 		]);
