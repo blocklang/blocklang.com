@@ -1,0 +1,5 @@
+{
+	"build-app": {
+		"legacy": true
+	}
+}
