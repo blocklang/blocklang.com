@@ -169,7 +169,10 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 	}
 
 	private _renderReleasePart() {
-		return v('div', [this._renderReleaseHeader(), v('div', [this._renderReleaseInfo(), this._renderReleaseLog()])]);
+		return v('div', [
+			this._renderReleaseHeader(),
+			v('div', [this._renderReleaseInfo(), this._renderReleaseLog(), this._renderScrollToEndLineAnchor()])
+		]);
 	}
 
 	private _renderReleaseHeader() {
@@ -209,18 +212,18 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 	private _renderReleaseLog() {
 		return v('div', { classes: [css.logBody] }, [
 			v('pre', {}, [
-				...this._logs.map((lineContent) => this._renderLine(lineContent, false)),
-				...this._console.map((lineContent, index, array) => {
-					const scrollToEndLine = index === array.length - 1;
-					return this._renderLine(lineContent, scrollToEndLine);
-				})
+				...this._logs.map((lineContent) => this._renderLine(lineContent)),
+				...this._console.map((lineContent, index, array) => this._renderLine(lineContent))
 			])
 		]);
 	}
 
-	private _renderLine(lineContent: string, scrollToEndLine: boolean) {
-		const scrollIntoView = scrollToEndLine;
-		return v('div', { key: '', classes: [css.logLine], scrollIntoView }, [v('a'), v('span', [lineContent])]);
+	private _renderScrollToEndLineAnchor() {
+		return v('div', { scrollIntoView: () => true });
+	}
+
+	private _renderLine(lineContent: string) {
+		return v('div', { key: '', classes: [css.logLine] }, [v('a'), v('span', [lineContent])]);
 	}
 
 	private async _fetchLog() {
