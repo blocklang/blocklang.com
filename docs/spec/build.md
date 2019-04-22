@@ -33,9 +33,10 @@ BlockLang
     |--- projects
             |--- {owner}
                      |--- {project_name}
-                              |--- client
-                              |--- server
-                              |--- logs
+                              |--- source
+                                      |--- client
+                                      |--- server
+                              |--- deployLogs
     |--- gitRepo
             |--- {owner}
                      |--- {project_name}
@@ -53,9 +54,10 @@ BlockLang
 2. projects - 存放编译和构建用的项目代码
    1. {owner} - 项目拥有者的登录名
       1. {project_name} - 项目名
-         1. client - 存放 dojo 代码
-         2. server - 存放 spring boot 代码
-         3. logs - 存放编译和构建日志，一次发布一个日志文件
+         1. source - 存放项目源代码
+            1. client - 存放 dojo 代码
+            2. server - 存放 spring boot 代码
+         2. deployLogs - 存放编译和构建日志，一次发布一个日志文件
 3. gitRepo - 存放程序模块模型数据的 git 仓库根目录
    1. {owner} - 仓库拥有者的登录名
       1. {project_name} - 项目名

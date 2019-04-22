@@ -97,12 +97,20 @@ public class AppBuildContext extends ProjectContext{
 		return Paths.get(this.dataRootPath, "projects", this.owner, this.projectName);
 	}
 	
+	private Path getProjectRootSourceDirectory() {
+		return this.getProjectRootDirectory().resolve("source");
+	}
+	
+	private Path getLogDirectory() {
+		return this.getProjectRootDirectory().resolve("deployLogs");
+	}
+	
 	public Path getClientProjectRootDirectory() {
-		return this.getProjectRootDirectory().resolve("client");
+		return this.getProjectRootSourceDirectory().resolve("client");
 	}
 
 	public Path getServerProjectRootDirectory() {
-		return this.getProjectRootDirectory().resolve("server");
+		return this.getProjectRootSourceDirectory().resolve("server");
 	}
 	
 	public Path getMavenPomFile() {
@@ -126,10 +134,6 @@ public class AppBuildContext extends ProjectContext{
 
 	public String getMavenInstallJarFileName() {
 		return this.projectName + "-" + this.version + ".jar";
-	}
-
-	private Path getLogDirectory() {
-		return this.getProjectRootDirectory().resolve("logs");
 	}
 	
 	public void setLogFileName(String logFileName) {

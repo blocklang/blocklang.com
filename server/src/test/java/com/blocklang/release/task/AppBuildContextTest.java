@@ -36,12 +36,12 @@ public class AppBuildContextTest {
 	
 	@Test
 	public void get_client_project_root_directory() {
-		assertThat(context.getClientProjectRootDirectory().compareTo(Paths.get("c:/blocklang/projects/jack/app/client"))).isEqualTo(0);
+		assertThat(context.getClientProjectRootDirectory().compareTo(Paths.get("c:/blocklang/projects/jack/app/source/client"))).isEqualTo(0);
 	}
 	
 	@Test
 	public void get_server_project_root_directory() {
-		assertThat(context.getServerProjectRootDirectory().compareTo(Paths.get("c:/blocklang/projects/jack/app/server"))).isEqualTo(0);
+		assertThat(context.getServerProjectRootDirectory().compareTo(Paths.get("c:/blocklang/projects/jack/app/source/server"))).isEqualTo(0);
 	}
 	
 	@Test
@@ -62,7 +62,7 @@ public class AppBuildContextTest {
 	@Test
 	public void get_log_file_path() throws IOException {
 		Path logFilePath = context.getLogFilePath();
-		assertThat(logFilePath.getParent().compareTo(Paths.get("c:/blocklang/projects/jack/app/logs"))).isEqualTo(0);
+		assertThat(logFilePath.getParent().compareTo(Paths.get("c:/blocklang/projects/jack/app/deployLogs"))).isEqualTo(0);
 		
 		String logFileName = logFilePath.getFileName().toString();
 		
@@ -96,17 +96,17 @@ public class AppBuildContextTest {
 	
 	@Test
 	public void get_dojo_dist_directory() {
-		assertThat(context.getDojoDistDirectory().compareTo(Paths.get("c:/blocklang/projects/jack/app/client/output/dist"))).isEqualTo(0);
+		assertThat(context.getDojoDistDirectory().compareTo(Paths.get("c:/blocklang/projects/jack/app/source/client/output/dist"))).isEqualTo(0);
 	}
 	
 	@Test
 	public void get_spring_boot_templates_directory() {
-		assertThat(context.getSpringBootTemplatesDirectory().compareTo(Paths.get("c:/blocklang/projects/jack/app/server/src/main/resources/templates"))).isEqualTo(0);
+		assertThat(context.getSpringBootTemplatesDirectory().compareTo(Paths.get("c:/blocklang/projects/jack/app/source/server/src/main/resources/templates"))).isEqualTo(0);
 	}
 	
 	@Test
 	public void get_spring_boot_static_directory() {
-		assertThat(context.getSpringBootStaticDirectory().compareTo(Paths.get("c:/blocklang/projects/jack/app/server/src/main/resources/static"))).isEqualTo(0);
+		assertThat(context.getSpringBootStaticDirectory().compareTo(Paths.get("c:/blocklang/projects/jack/app/source/server/src/main/resources/static"))).isEqualTo(0);
 	}
 	
 	@Test
