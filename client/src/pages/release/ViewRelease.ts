@@ -70,8 +70,8 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 		const { projectRelease } = this.properties;
 
 		if (projectRelease) {
-			const releaseStatus = this._releaseResult !== '' ? this._releaseResult : projectRelease.releaseResult;
-			if (releaseStatus === '02' /* started */) {
+			this._releaseResult = projectRelease.releaseResult;
+			if (this._releaseResult === '02' /* started */) {
 				// 正在发布中，实时显示控制台信息
 				if (!client.active && projectRelease) {
 					// 这里要解决好两方面问题：
@@ -148,7 +148,7 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 					};
 					client.activate();
 				}
-			} else if (releaseStatus === '03' || releaseStatus === '04' || releaseStatus === '05') {
+			} else if (this._releaseResult === '03' || this._releaseResult === '04' || this._releaseResult === '05') {
 				// 已发布完成，只加载历史记录
 				if (!this._logLoaded) {
 					this._fetchLog();
@@ -219,7 +219,11 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 	}
 
 	private _renderScrollToEndLineAnchor() {
-		return v('div', { scrollIntoView: () => true });
+		return v('div', {
+			scrollIntoView: () => {
+				return this._releaseResult === '02';
+			}
+		});
 	}
 
 	private _renderLine(lineContent: string) {
