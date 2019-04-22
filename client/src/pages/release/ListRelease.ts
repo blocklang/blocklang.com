@@ -162,8 +162,9 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 			icon = 'ban';
 		}
 
+		// d-none d-md-block col-12 col-md-3
 		return v('div', { classes: [c.row] }, [
-			v('div', { classes: [c.col_3, c.text_right, c.py_4] }, [
+			v('div', { classes: [c.d_none, c.d_md_block, c.col_12, c.col_md_3, c.text_right, c.py_4] }, [
 				v('ul', { classes: [c.list_unstyled, c.mt_2] }, [
 					v('li', { classes: [c.mb_1] }, [
 						w(FontAwesomeIcon, { icon: 'tag', classes: [c.text_muted] }),
@@ -175,7 +176,7 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 					])
 				])
 			]),
-			v('div', { classes: [c.col_9, css.releaseMainSection, c.py_4] }, [
+			v('div', { classes: [c.col_12, c.col_md_9, css.releaseMainSection, c.py_4] }, [
 				// header
 				v('h2', [
 					w(
@@ -187,6 +188,16 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 						},
 						[`${release.title}`]
 					)
+				]),
+				v('ul', { classes: [c.d_md_none, c.list_inline, c.mb_1] }, [
+					v('li', { classes: [c.list_inline_item, c.mb_1] }, [
+						w(FontAwesomeIcon, { icon: 'tag', classes: [c.text_muted] }),
+						` ${release.version}`
+					]),
+					v('li', { classes: [c.list_inline_item, c.mb_1, resultClasses] }, [
+						w(FontAwesomeIcon, { icon, spin }),
+						` ${resultText}`
+					])
 				]),
 				v('div', { classes: [c.mb_4] }, [
 					v('small', { classes: [c.text_muted] }, [

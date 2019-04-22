@@ -21,12 +21,15 @@ export const row: string = 'row';
 export const cell: string = 'cell';
 export const col_4: string = 'col-4';
 export const col_8: string = 'col-8';
-export const col_md_4: string = 'col-md-4';
-export const col_md_8: string = 'col-md-8';
 export const col_3: string = 'col-3';
 export const col_9: string = 'col-9';
 export const col_2: string = 'col-2';
 export const col_10: string = 'col-10';
+export const col_12: string = 'col-12';
+export const col_md_4: string = 'col-md-4';
+export const col_md_8: string = 'col-md-8';
+export const col_md_3: string = 'col-md-3';
+export const col_md_9: string = 'col-md-9';
 
 // Content
 //     table
@@ -130,6 +133,8 @@ export const jumbotron_fluid: string = 'jumbotron-fluid';
 
 //      media object
 export const list_unstyled: string = 'list-unstyled';
+export const list_inline: string = 'list-inline';
+export const list_inline_item: string = 'list-inline-item';
 
 //      navs
 export const nav: string = 'nav';
@@ -202,6 +207,8 @@ export const d_table_cell: string = 'd-table-cell';
 export const d_table_row: string = 'd-table-row';
 export const d_flex: string = 'd-flex';
 export const d_inline_flex: string = 'd-inline-flex';
+export const d_md_block: string = 'd-md-block';
+export const d_md_none: string = 'd-md-none';
 
 //     flex
 export const flex_column: string = 'flex-column';

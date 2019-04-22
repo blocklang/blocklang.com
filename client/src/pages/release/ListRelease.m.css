@@ -1,6 +1,8 @@
 .root {
 }
 
-.releaseMainSection {
-	border-left: 2px solid #e1e4e8;
+@media (min-width: 768px) {
+	.releaseMainSection {
+		border-left: 2px solid #e1e4e8;
+	}
 }
