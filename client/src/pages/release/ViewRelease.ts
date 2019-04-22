@@ -6,7 +6,7 @@ import watch from '@dojo/framework/widget-core/decorators/watch';
 import messageBundle from '../../nls/main';
 
 import * as SockJS from 'sockjs-client';
-import { Client } from '@stomp/stompjs';
+import { Client, IFrame } from '@stomp/stompjs';
 import { v, w } from '@dojo/framework/widget-core/d';
 
 import * as c from '../../className';
@@ -39,17 +39,6 @@ export interface ViewReleaseProperties {
 	projectRelease: ProjectRelease;
 }
 
-const client = new Client({});
-
-client.webSocketFactory = function() {
-	return new SockJS('/release-console');
-};
-
-client.onStompError = function(frame) {
-	console.log('Broker reported error: ' + frame.headers['message']);
-	console.log('Additional details: ' + frame.body);
-};
-
 @theme(css)
 export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<ViewReleaseProperties> {
 	private _localizedMessages = this.localizeBundle(messageBundle);
@@ -66,14 +55,43 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 
 	private _releaseResult: string = '';
 
+	private _wsClient: Client;
+
+	constructor() {
+		super();
+		this._wsClient = new Client({});
+
+		this._wsClient.webSocketFactory = function() {
+			return new SockJS('/release-console');
+		};
+
+		this._wsClient.onStompError = function(frame: IFrame) {
+			console.log('Broker reported error: ' + frame.headers['message']);
+			console.log('Additional details: ' + frame.body);
+		};
+	}
+
+	protected onDetach() {
+		if (this._wsClient.active) {
+			this._wsClient.deactivate();
+		}
+	}
+
 	protected render() {
 		const { projectRelease } = this.properties;
 
+		if (!projectRelease) {
+			return;
+		}
+
 		if (projectRelease) {
-			this._releaseResult = projectRelease.releaseResult;
+			if (this._releaseResult === '') {
+				// 使用从部件外传来的值初始化
+				this._releaseResult = projectRelease.releaseResult;
+			}
 			if (this._releaseResult === '02' /* started */) {
 				// 正在发布中，实时显示控制台信息
-				if (!client.active && projectRelease) {
+				if (!this._wsClient.active && projectRelease) {
 					// 这里要解决好两方面问题：
 					// 1. 日志的内容要完整，不要出现缺失或重复
 					// 2. 选择好获取历史日志的时机，以避免出现第一种情况。
@@ -86,8 +104,8 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 					//    这种情况就不能精确传入行了
 
 					const taskId = projectRelease.id || 0;
-					client.onConnect = (frame) => {
-						client.subscribe('/topic/releases/' + taskId, (message) => {
+					this._wsClient.onConnect = (frame: IFrame) => {
+						this._wsClient.subscribe('/topic/releases/' + taskId, (message) => {
 							const body = JSON.parse(message.body);
 							const {
 								payload,
@@ -95,7 +113,7 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 							} = body as WsMessage;
 							if (event === 'finish') {
 								// 如果已读完，则关闭
-								client.deactivate();
+								this._wsClient.deactivate();
 								this._releaseResult = releaseResult!;
 								this.invalidate();
 							} else if (event === 'console') {
@@ -146,7 +164,7 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 
 						this._fetchLog();
 					};
-					client.activate();
+					this._wsClient.activate();
 				}
 			} else if (this._releaseResult === '03' || this._releaseResult === '04' || this._releaseResult === '05') {
 				// 已发布完成，只加载历史记录
@@ -255,7 +273,7 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 	private _renderReleaseInfo() {
 		const { projectRelease: release } = this.properties;
 
-		const releaseResult = this._releaseResult ? this._releaseResult : release.releaseResult;
+		const releaseResult = this._releaseResult;
 
 		let borderColorClass = '';
 		let resultClasses = '';

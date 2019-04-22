@@ -23,12 +23,14 @@ const getProjectReleasesCommand = commandFactory(async ({ path, payload: { owner
 	});
 	const json = await response.json();
 	if (!response.ok) {
-		console.log(response, json);
 		return [replace(path('releases'), [])];
 	}
 
-	console.log(response, json);
 	return [replace(path('releases'), json)];
+});
+
+const startInitForViewReleaseCommand = commandFactory(({ path }) => {
+	return [replace(path('projectRelease'), undefined)];
 });
 
 // 获取指定的 release task
@@ -38,11 +40,9 @@ const getProjectReleaseCommand = commandFactory(async ({ path, payload: { owner,
 	});
 	const json = await response.json();
 	if (!response.ok) {
-		console.log(response, json);
 		return [replace(path('projectRelease'), undefined)];
 	}
 
-	console.log(response, json);
 	return [replace(path('projectRelease'), json)];
 });
 
@@ -53,11 +53,9 @@ const getJdksCommand = commandFactory(async ({ path }) => {
 	});
 	const json = await response.json();
 	if (!response.ok) {
-		console.log(response, json);
 		return [replace(path('jdks'), {})];
 	}
 
-	console.log(response, json);
 	// 如果列表的大小不为 0， 则将第一项的值设置为 jdkReleaseId 的值
 	const result = [];
 	if (json.length > 0) {
@@ -100,7 +98,6 @@ const versionInputCommand = commandFactory(async ({ path, payload: { owner, proj
 
 	// 服务器端校验未通过
 	if (!response.ok) {
-		console.log(response, json);
 		return [
 			replace(path('releaseInputValidation', 'versionValidateStatus'), ValidateStatus.INVALID),
 			replace(path('releaseInputValidation', 'versionErrorMessage'), json.errors.version)
@@ -155,7 +152,6 @@ const saveReleaseTaskCommand = commandFactory(async ({ path, get, payload: { own
 	const json = await response.json();
 	if (!response.ok) {
 		// TODO: 在页面上提示保存出错
-		console.error(response, json);
 		return [replace(path('errors'), json.errors)];
 	}
 
@@ -181,6 +177,7 @@ export const initForNewReleaseProcess = createProcess('init-for-new-release', [
 	getJdksCommand
 ]);
 export const initForViewReleaseProcess = createProcess('init-for-view-release', [
+	startInitForViewReleaseCommand,
 	getProjectCommand,
 	getProjectReleaseCommand
 ]);

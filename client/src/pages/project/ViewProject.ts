@@ -309,6 +309,10 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 	private _renderLatestCommitInfo() {
 		const { messages } = this._localizedMessages;
 		const { latestCommitInfo } = this.properties;
+		if (!latestCommitInfo) {
+			return;
+		}
+
 		return v('div', { classes: [c.card_header, c.text_muted, c.px_2, c.border_bottom_0, css.recentCommit] }, [
 			// 最近提交的用户信息
 			w(Link, { to: 'profile', params: { user: latestCommitInfo.userName }, classes: [c.mr_2] }, [
