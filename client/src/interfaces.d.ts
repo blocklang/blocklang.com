@@ -178,6 +178,19 @@ export interface Help {
 	content: string;
 }
 
+type WsEvent = 'console' | 'finish';
+
+interface WsMessageHeader {
+	lineNum: number;
+	event: WsEvent;
+	releaseResult?: string;
+}
+
+interface WsMessage {
+	payload: string;
+	headers: WsMessageHeader;
+}
+
 export interface State {
 	errors: Errors;
 	routing: Routing;

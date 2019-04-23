@@ -11,7 +11,7 @@ import { v, w } from '@dojo/framework/widget-core/d';
 
 import * as c from '../../className';
 import * as css from './ViewRelease.m.css';
-import { ProjectRelease, Project } from '../../interfaces';
+import { ProjectRelease, Project, WsMessage } from '../../interfaces';
 import { baseUrl } from '../../config';
 import { getHeaders } from '../../processes/utils';
 import { IconName } from '@fortawesome/fontawesome-svg-core';
@@ -20,19 +20,6 @@ import Link from '@dojo/framework/routing/Link';
 import Moment from '../../widgets/moment';
 import MarkdownPreview from '../../widgets/markdown-preview';
 import ProjectHeader from '../widgets/ProjectHeader';
-
-type WsEvent = 'console' | 'finish';
-
-interface WsMessageHeader {
-	lineNum: number;
-	event: WsEvent;
-	releaseResult?: string;
-}
-
-interface WsMessage {
-	payload: string;
-	headers: WsMessageHeader;
-}
 
 export interface ViewReleaseProperties {
 	project: Project;

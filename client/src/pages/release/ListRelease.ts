@@ -4,18 +4,21 @@ import I18nMixin from '@dojo/framework/widget-core/mixins/I18n';
 import { theme, ThemedMixin } from '@dojo/framework/widget-core/mixins/Themed';
 import messageBundle from '../../nls/main';
 import ProjectHeader from '../widgets/ProjectHeader';
-import { Project, ProjectRelease } from '../../interfaces';
+import { Project, ProjectRelease, WsMessage } from '../../interfaces';
 import FontAwesomeIcon from '../../widgets/fontawesome-icon';
 import Link from '@dojo/framework/routing/Link';
 import Spinner from '../../widgets/spinner';
 import { IconName } from '@fortawesome/fontawesome-svg-core';
 import MarkdownPreview from '../../widgets/markdown-preview';
 import Moment from '../../widgets/moment';
+import { find } from '@dojo/framework/shim/array';
 
 import 'github-markdown-css/github-markdown.css';
 import 'highlight.js/styles/github.css';
 import * as c from '../../className';
 import * as css from './ListRelease.m.css';
+import SockJS = require('sockjs-client');
+import { Client, IFrame } from '@stomp/stompjs';
 
 export interface ListReleaseProperties {
 	loggedUsername: string;
@@ -26,6 +29,29 @@ export interface ListReleaseProperties {
 @theme(css)
 export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<ListReleaseProperties> {
 	private _localizedMessages = this.localizeBundle(messageBundle);
+
+	private _wsClient: Client;
+	private _runningReleases: any[] = [];
+
+	constructor() {
+		super();
+		this._wsClient = new Client({});
+
+		this._wsClient.webSocketFactory = function() {
+			return new SockJS('/release-console');
+		};
+
+		this._wsClient.onStompError = function(frame: IFrame) {
+			console.log('Broker reported error: ' + frame.headers['message']);
+			console.log('Additional details: ' + frame.body);
+		};
+	}
+
+	protected onDetach() {
+		if (this._wsClient.active) {
+			this._wsClient.deactivate();
+		}
+	}
 
 	protected render() {
 		return v('div', { classes: [css.root, c.container] }, [this._renderHeader(), this._renderReleasesPart()]);
@@ -96,15 +122,33 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 	}
 
 	private _renderReleases(releases: ProjectRelease[]) {
+		// 监听发布状态
+		if (this._runningReleases.length === 0) {
+			this._runningReleases = releases.filter((item) => item.releaseResult === '02');
+			if (this._runningReleases.length > 0) {
+				if (!this._wsClient.active) {
+					this._wsClient.onConnect = (frame: IFrame) => {
+						this._runningReleases.forEach((item) => {
+							this._wsClient.subscribe('/topic/releases/' + item.id, (message) => {
+								const body = JSON.parse(message.body);
+								const {
+									headers: { event, releaseResult }
+								} = body as WsMessage;
+								if (event === 'finish') {
+									item.releaseResult = releaseResult;
+									this.invalidate();
+								}
+							});
+						});
+					};
+					this._wsClient.activate();
+				}
+			}
+		}
+
 		return v('div', [
 			this._renderReleaseHeader(),
-			v(
-				'div',
-				{ classes: [c.border_top] },
-				releases.map((release) => {
-					return this._renderItem(release);
-				})
-			)
+			v('div', { classes: [c.border_top] }, releases.map((release) => this._renderItem(release)))
 		]);
 	}
 
@@ -133,8 +177,15 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 
 	private _renderItem(release: ProjectRelease) {
 		const { project } = this.properties;
+		let releaseResult = release.releaseResult;
+		// 如果初始化时是处于运行状态，则监听状态是否有发生变化
+		if (releaseResult === '02') {
+			const matched = find(this._runningReleases, (item) => item.id === release.id);
+			if (matched) {
+				releaseResult = matched.releaseResult;
+			}
+		}
 
-		const releaseResult = release.releaseResult;
 		let resultClasses = '';
 		let spin = false;
 		let resultText = '';
@@ -162,7 +213,6 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 			icon = 'ban';
 		}
 
-		// d-none d-md-block col-12 col-md-3
 		return v('div', { classes: [c.row] }, [
 			v('div', { classes: [c.d_none, c.d_md_block, c.col_12, c.col_md_3, c.text_right, c.py_4] }, [
 				v('ul', { classes: [c.list_unstyled, c.mt_2] }, [
