@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.eclipse.jgit.lib.Constants;
@@ -14,6 +15,8 @@ import org.eclipse.jgit.lib.RepositoryCache;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.util.FS;
 import org.eclipse.jgit.util.FileUtils;
+
+import com.blocklang.core.constant.GitFileStatus;
 
 /**
  * git 帮助类，本工具类适合每次对 git 仓库做一个操作。
@@ -160,9 +163,47 @@ public class GitUtils {
 		return commit.getLatestCommit(gitRepoPath, relativeFilePath);
 	}
 	
+	/**
+	 * 
+	 * @param gitRepoPath
+	 * @param relativeDir 传入 null 表示根目录
+	 * @return
+	 */
 	public static List<GitFileInfo> getFiles(Path gitRepoPath, String relativeDir) {
 		GitFile file = new GitFile(gitRepoPath, relativeDir);
 		return file.execute();
+	}
+	
+	/**
+	 * 
+	 * 
+	 * @param gitRepoPath
+	 * @param relativeDir 传入 null 表示根目录
+	 * @return
+	 */
+	public static Map<String, GitFileStatus> status(Path gitRepoPath, String relativeDir){
+		GitStatus status = new GitStatus(gitRepoPath, relativeDir);
+		return status.execute();
+	}
+
+	/**
+	 * 
+	 * @param gitRepoPath
+	 * @param filePattern 不能以 / 或 \ 开头，只能以 / 分割；. 表示全部
+	 */
+	public static void add(Path gitRepoPath, String filePattern) {
+		GitAdd add = new GitAdd(gitRepoPath);
+		add.execute(filePattern);
+	}
+
+	/**
+	 * 
+	 * @param gitRepoPath
+	 * @param filePattern 不能以 / 或 \ 开头，只能以 / 分割；. 表示全部
+	 */
+	public static void remove(Path gitRepoPath, String filePattern) {
+		GitRemove remove = new GitRemove(gitRepoPath);
+		remove.execute(filePattern);
 	}
 	
 	// 暂时不要删除此代码

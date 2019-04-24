@@ -6,7 +6,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.eclipse.jgit.lib.Ref;
@@ -14,6 +16,8 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+
+import com.blocklang.core.constant.GitFileStatus;
 
 /**
  * git 测试用例
@@ -215,6 +219,132 @@ public class GitUtilsTest {
 					gitFile.getLatestCommitTime() != null;
 		});
 	}
+	
+	@Test
+	public void status_untracked() throws IOException {
+		File folder = tempFolder.newFolder(gitRepoDirectory);
+		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+		
+		Path file1 = folder.toPath().resolve("file1");
+		Files.createFile(file1);
+		
+		Path subFolder = folder.toPath().resolve("a");
+		Path file2 = subFolder.resolve("file2");
+		Files.createDirectory(subFolder);
+		Files.createFile(file2);
+		
+		Map<String, GitFileStatus> status = GitUtils.status(folder.toPath(), null);
+		assertThat(status).hasSize(2).containsKeys("file1", "a/file2").containsValue(GitFileStatus.UNTRACKED);
+		
+		status = GitUtils.status(folder.toPath(), "a");
+		assertThat(status).hasSize(1).containsKeys( "a/file2").containsValue(GitFileStatus.UNTRACKED);
+	}
+	
+	@Test
+	public void status_added() throws IOException {
+		File folder = tempFolder.newFolder(gitRepoDirectory);
+		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+		
+		Path file1 = folder.toPath().resolve("file1");
+		Files.createFile(file1);
+		GitUtils.add(folder.toPath(), "file1");
+		
+		Path subFolder = folder.toPath().resolve("a");
+		Path file2 = subFolder.resolve("file2");
+		Files.createDirectory(subFolder);
+		Files.createFile(file2);
+		GitUtils.add(folder.toPath(), "a/file2");
+		
+		Map<String, GitFileStatus> status = GitUtils.status(folder.toPath(), null);
+		assertThat(status).hasSize(2).containsKeys("file1", "a/file2").containsValue(GitFileStatus.ADDED).doesNotContainValue(GitFileStatus.UNTRACKED);
+		
+		status = GitUtils.status(folder.toPath(), "a");
+		assertThat(status).hasSize(1).containsKeys("a/file2").containsValue(GitFileStatus.ADDED);
+	}
+	
+	@Test
+	public void status_all_commited() throws IOException {
+		File folder = tempFolder.newFolder(gitRepoDirectory);
+		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+		
+		GitUtils.commit(folder.toPath(), null, "file1", "hello", gitUserName, gitUserMail, "commit 1");
+		GitUtils.commit(folder.toPath(), "a", "file2", "hello", gitUserName, gitUserMail, "commit 1");
+		
+		Map<String, GitFileStatus> status = GitUtils.status(folder.toPath(), null);
+		assertThat(status).isEmpty();
+		
+		status = GitUtils.status(folder.toPath(), "a");
+		assertThat(status).isEmpty();
+	}
+	
+	@Test
+	public void status_modified() throws IOException {
+		File folder = tempFolder.newFolder(gitRepoDirectory);
+		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+		
+		GitUtils.commit(folder.toPath(), null, "file1", "hello", gitUserName, gitUserMail, "commit 1");
+		GitUtils.commit(folder.toPath(), "a", "file2", "hello", gitUserName, gitUserMail, "commit 1");
+		
+		Path file1 = folder.toPath().resolve("file1");
+		Files.writeString(file1, " world", StandardOpenOption.APPEND);
+		
+		Path file2 = folder.toPath().resolve("a").resolve("file2");
+		Files.writeString(file2, " world", StandardOpenOption.APPEND);
+		
+		Map<String, GitFileStatus> status = GitUtils.status(folder.toPath(), null);
+		assertThat(status).hasSize(2).containsKeys("file1", "a/file2").containsValue(GitFileStatus.MODIFIED);
+		
+		status = GitUtils.status(folder.toPath(), "a");
+		assertThat(status).hasSize(1).containsKeys("a/file2").containsValue(GitFileStatus.MODIFIED);
+	}
+	
+	@Test
+	public void status_deleted() throws IOException {
+		File folder = tempFolder.newFolder(gitRepoDirectory);
+		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+		
+		GitUtils.commit(folder.toPath(), null, "file1", "hello", gitUserName, gitUserMail, "commit 1");
+		GitUtils.commit(folder.toPath(), "a", "file2", "hello", gitUserName, gitUserMail, "commit 1");
+		
+		Path file1 = folder.toPath().resolve("file1");
+		Files.delete(file1);
+		
+		Path file2 = folder.toPath().resolve("a").resolve("file2");
+		Files.delete(file2);
+		
+		Map<String, GitFileStatus> status = GitUtils.status(folder.toPath(), null);
+		assertThat(status).hasSize(2).containsKeys("file1", "a/file2").containsValue(GitFileStatus.DELETED);
+		
+		status = GitUtils.status(folder.toPath(), "a");
+		assertThat(status).hasSize(1).containsKeys("a/file2").containsValue(GitFileStatus.DELETED);
+	}
+	
+	@Test
+	public void remove_success() throws IOException {
+		File folder = tempFolder.newFolder(gitRepoDirectory);
+		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+		
+		Path file1 = folder.toPath().resolve("file1");
+		Files.createFile(file1);
+		GitUtils.add(folder.toPath(), "file1");
+		
+		
+		Path subFolder = folder.toPath().resolve("a");
+		Path file2 = subFolder.resolve("file2");
+		Files.createDirectory(subFolder);
+		Files.createFile(file2);
+		GitUtils.add(folder.toPath(), "a/file2");
+		
+		assertThat(file1).exists();
+		assertThat(file2).exists();
+		
+		GitUtils.remove(folder.toPath(), "file1");
+		GitUtils.remove(folder.toPath(), "a/file2");
+		
+		assertThat(file1).doesNotExist();
+		assertThat(file2).doesNotExist();
+	}
+	
 	
 	private void assertContentEquals(Path filePath, String content) throws IOException{
 		assertThat(Files.readString(filePath)).isEqualTo(content);
