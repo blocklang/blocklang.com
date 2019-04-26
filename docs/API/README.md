@@ -17,6 +17,8 @@
 7. [获取最近提交信息](./projects/project/get-latest-commit.md)
 8. [获取部署配置信息](./projects/deploy/get-deploy-setting.md)
 
+## 资源
+
 ## APP
 
 1. [获取 JDK 列表](./apps/list-jdks.md)
@@ -48,3 +50,7 @@
 
 1. [查看一个文档](./docs/get-a-document.md)
 2. [获取文档中的一个图片](./docs/get-a-image.md)
+
+## 信息分类编码
+
+1. [获取软件类型](./properties/app-type.md)

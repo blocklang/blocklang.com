@@ -42,7 +42,9 @@ public abstract class Resources {
 		// 自动安装 APP 的服务接口
 		"/projects/**",
 		"/installers/**",
-		"/apps/**"
+		"/apps/**",
+		// 信息分类编码
+		"/properties/**"
 	};
 	
 	/**
@@ -56,7 +58,8 @@ public abstract class Resources {
 		"projects",                        // 项目管理
 		"users",                           // 用户管理
 		"user",                            // 登录用户信息
-		"docs"                             // 帮助文档
+		"docs",                            // 帮助文档
+		"properties"                       // 信息分类编码
 		
 //		"/session", // 用户登录
 //		"/mocksession", // 开发环境下，模拟用户登录

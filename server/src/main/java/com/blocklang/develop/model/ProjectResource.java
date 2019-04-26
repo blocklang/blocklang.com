@@ -203,7 +203,7 @@ public class ProjectResource extends PartialOperateFields{
 			if(isMain()) {
 				return IconClass.HOME;
 			}
-			return AppType.getIcon(this.appType);
+			return this.appType.getIcon();
 		}
 		
 		if(isFunction()) {
