@@ -19,6 +19,10 @@
 
 ## 资源
 
+1. [校验页面的 key 值](./projects/resource/page/check-key.md)
+2. [校验页面的显示名](./projects/resource/page/check-name.md)
+3. [创建页面](./projects/resource/page/create-a-page.md)
+
 ## APP
 
 1. [获取 JDK 列表](./apps/list-jdks.md)
