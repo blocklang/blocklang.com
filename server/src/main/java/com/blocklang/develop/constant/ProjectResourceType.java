@@ -6,10 +6,11 @@ import org.apache.commons.lang3.StringUtils;
 
 public enum ProjectResourceType {
 	
-	FUNCTION("01", "功能模块"),
-	PROGRAM("02", "程序模块"),
+	// 在命名上，页面比程序模块更准确，因为页面中并没有包含后台服务，仅仅是前台页面。
+	PAGE("01", "页面"),
+	GROUP("02", "分组"),
 	PANE("03", "面板"),
-	PROGRAM_TEMPLET("04", "程序模块模板"),
+	PAGE_TEMPLET("04", "页面模板"),
 	FILE("05", "文件"),
 	SERVICE("06", "服务"); // REST API
 

@@ -47,7 +47,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		resource.setKey("key1");
 		resource.setName("name1");
 		resource.setAppType(AppType.WEB);
-		resource.setResourceType(ProjectResourceType.FUNCTION);
+		resource.setResourceType(ProjectResourceType.GROUP);
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
@@ -59,7 +59,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		resource.setKey("key2");
 		resource.setName("name2");
 		resource.setAppType(AppType.WEB);
-		resource.setResourceType(ProjectResourceType.FUNCTION);
+		resource.setResourceType(ProjectResourceType.GROUP);
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
@@ -82,7 +82,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		resource.setKey("key1");
 		resource.setName("name1");
 		resource.setAppType(AppType.WEB);
-		resource.setResourceType(ProjectResourceType.FUNCTION);
+		resource.setResourceType(ProjectResourceType.GROUP);
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
@@ -94,7 +94,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		resource.setKey("key2");
 		resource.setName("name2");
 		resource.setAppType(AppType.WEB);
-		resource.setResourceType(ProjectResourceType.FUNCTION);
+		resource.setResourceType(ProjectResourceType.GROUP);
 		resource.setParentId(savedResourceId);
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
@@ -118,7 +118,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		resource.setKey("key1");
 		resource.setName("name1");
 		resource.setAppType(AppType.WEB);
-		resource.setResourceType(ProjectResourceType.FUNCTION);
+		resource.setResourceType(ProjectResourceType.GROUP);
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
@@ -130,7 +130,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		resource.setKey("key2");
 		resource.setName("name2");
 		resource.setAppType(AppType.WEB);
-		resource.setResourceType(ProjectResourceType.FUNCTION);
+		resource.setResourceType(ProjectResourceType.GROUP);
 		resource.setParentId(savedResourceId);
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
@@ -142,7 +142,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		resource.setKey("key3");
 		resource.setName("name3");
 		resource.setAppType(AppType.WEB);
-		resource.setResourceType(ProjectResourceType.FUNCTION);
+		resource.setResourceType(ProjectResourceType.GROUP);
 		resource.setParentId(savedResourceId);
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
@@ -158,7 +158,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	public void get_title_main() {
 		ProjectResource resource = new ProjectResource();
 		resource.setParentId(Constant.TREE_ROOT_ID);
-		resource.setResourceType(ProjectResourceType.PROGRAM);
+		resource.setResourceType(ProjectResourceType.PAGE);
 		resource.setKey(ProjectResource.MAIN_KEY);
 		resource.setMessageSource(messageSource);
 		
@@ -168,7 +168,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	@Test
 	public void get_title_page() {
 		ProjectResource resource = new ProjectResource();
-		resource.setResourceType(ProjectResourceType.PROGRAM);
+		resource.setResourceType(ProjectResourceType.PAGE);
 		resource.setMessageSource(messageSource);
 		
 		assertThat(resource.getTitle()).isEqualTo("页面");
@@ -177,7 +177,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	@Test
 	public void get_title_group() {
 		ProjectResource resource = new ProjectResource();
-		resource.setResourceType(ProjectResourceType.FUNCTION);
+		resource.setResourceType(ProjectResourceType.GROUP);
 		resource.setMessageSource(messageSource);
 		
 		assertThat(resource.getTitle()).isEqualTo("分组");
@@ -186,7 +186,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	@Test
 	public void get_title_templet() {
 		ProjectResource resource = new ProjectResource();
-		resource.setResourceType(ProjectResourceType.PROGRAM_TEMPLET);
+		resource.setResourceType(ProjectResourceType.PAGE_TEMPLET);
 		resource.setMessageSource(messageSource);
 		
 		assertThat(resource.getTitle()).isEqualTo("模板");

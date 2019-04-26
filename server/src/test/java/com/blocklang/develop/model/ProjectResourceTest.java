@@ -13,7 +13,7 @@ public class ProjectResourceTest {
 	@Test
 	public void is_main_program_success() {
 		ProjectResource resource = new ProjectResource();
-		resource.setResourceType(ProjectResourceType.PROGRAM);
+		resource.setResourceType(ProjectResourceType.PAGE);
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		resource.setKey(ProjectResource.MAIN_KEY);
 		
@@ -41,25 +41,25 @@ public class ProjectResourceTest {
 	@Test
 	public void is_templet() {
 		ProjectResource resource = new ProjectResource();
-		resource.setResourceType(ProjectResourceType.PROGRAM_TEMPLET);
+		resource.setResourceType(ProjectResourceType.PAGE_TEMPLET);
 		
 		assertThat(resource.isTemplet()).isTrue();
 	}
 	
 	@Test
-	public void is_function() {
+	public void is_group() {
 		ProjectResource resource = new ProjectResource();
-		resource.setResourceType(ProjectResourceType.FUNCTION);
+		resource.setResourceType(ProjectResourceType.GROUP);
 		
-		assertThat(resource.isFunction()).isTrue();
+		assertThat(resource.isGroup()).isTrue();
 	}
 	
 	@Test
-	public void is_program() {
+	public void is_page() {
 		ProjectResource resource = new ProjectResource();
-		resource.setResourceType(ProjectResourceType.PROGRAM);
+		resource.setResourceType(ProjectResourceType.PAGE);
 		
-		assertThat(resource.isProgram()).isTrue();
+		assertThat(resource.isPage()).isTrue();
 	}
 	
 	@Test
@@ -91,7 +91,7 @@ public class ProjectResourceTest {
 	public void get_icon_home_success() {
 		ProjectResource resource = new ProjectResource();
 		resource.setParentId(Constant.TREE_ROOT_ID);
-		resource.setResourceType(ProjectResourceType.PROGRAM);
+		resource.setResourceType(ProjectResourceType.PAGE);
 		resource.setKey(ProjectResource.MAIN_KEY);
 		
 		assertThat(resource.getIcon()).isEqualTo("fas home");
@@ -101,7 +101,7 @@ public class ProjectResourceTest {
 	public void get_icon_home_not_at_root() {
 		ProjectResource resource = new ProjectResource();
 		resource.setParentId(1);
-		resource.setResourceType(ProjectResourceType.PROGRAM);
+		resource.setResourceType(ProjectResourceType.PAGE);
 		resource.setAppType(AppType.WEB);
 		resource.setKey(ProjectResource.MAIN_KEY);
 		
@@ -109,10 +109,10 @@ public class ProjectResourceTest {
 	}
 	
 	@Test
-	public void get_icon_home_not_program() {
+	public void get_icon_home_not_page() {
 		ProjectResource resource = new ProjectResource();
 		resource.setParentId(Constant.TREE_ROOT_ID);
-		resource.setResourceType(ProjectResourceType.FUNCTION);
+		resource.setResourceType(ProjectResourceType.GROUP);
 		resource.setKey(ProjectResource.MAIN_KEY);
 		
 		assertThat(resource.getIcon()).isNotEqualTo("fas home");
@@ -122,61 +122,61 @@ public class ProjectResourceTest {
 	public void get_icon_home_name_is_not_readme() {
 		ProjectResource resource = new ProjectResource();
 		resource.setParentId(Constant.TREE_ROOT_ID);
-		resource.setResourceType(ProjectResourceType.FUNCTION);
+		resource.setResourceType(ProjectResourceType.GROUP);
 		resource.setKey("a");
 		
 		assertThat(resource.getIcon()).isNotEqualTo("home");
 	}
 	
 	@Test
-	public void get_icon_program_web() {
+	public void get_icon_page_web() {
 		ProjectResource resource = new ProjectResource();
-		resource.setResourceType(ProjectResourceType.PROGRAM);
+		resource.setResourceType(ProjectResourceType.PAGE);
 		resource.setAppType(AppType.WEB);
 		
 		assertThat(resource.getIcon()).isEqualTo("fab firefox");
 	}
 	
 	@Test
-	public void get_icon_program_android() {
+	public void get_icon_page_android() {
 		ProjectResource resource = new ProjectResource();
-		resource.setResourceType(ProjectResourceType.PROGRAM);
+		resource.setResourceType(ProjectResourceType.PAGE);
 		resource.setAppType(AppType.ANDROID);
 		
 		assertThat(resource.getIcon()).isEqualTo("fab android");
 	}
 	
 	@Test
-	public void get_icon_program_ios() {
+	public void get_icon_page_ios() {
 		ProjectResource resource = new ProjectResource();
-		resource.setResourceType(ProjectResourceType.PROGRAM);
+		resource.setResourceType(ProjectResourceType.PAGE);
 		resource.setAppType(AppType.IOS);
 		
 		assertThat(resource.getIcon()).isEqualTo("fab apple");
 	}
 	
 	@Test
-	public void get_icon_program_wechat() {
+	public void get_icon_page_wechat() {
 		ProjectResource resource = new ProjectResource();
-		resource.setResourceType(ProjectResourceType.PROGRAM);
+		resource.setResourceType(ProjectResourceType.PAGE);
 		resource.setAppType(AppType.WECHAT_MINI_APP);
 		
 		assertThat(resource.getIcon()).isEqualTo("fab weixin");
 	}
 	
 	@Test
-	public void get_icon_program_alipay() {
+	public void get_icon_page_alipay() {
 		ProjectResource resource = new ProjectResource();
-		resource.setResourceType(ProjectResourceType.PROGRAM);
+		resource.setResourceType(ProjectResourceType.PAGE);
 		resource.setAppType(AppType.ALIPAY_MINI_APP);
 		
 		assertThat(resource.getIcon()).isEqualTo("fab alipay");
 	}
 	
 	@Test
-	public void get_icon_program_quickapp() {
+	public void get_icon_page_quickapp() {
 		ProjectResource resource = new ProjectResource();
-		resource.setResourceType(ProjectResourceType.PROGRAM);
+		resource.setResourceType(ProjectResourceType.PAGE);
 		resource.setAppType(AppType.QUICK_APP);
 		
 		// 目前没有找到合适的图标，先返回空字符串
@@ -184,17 +184,17 @@ public class ProjectResourceTest {
 	}
 	
 	@Test
-	public void get_icon_function() {
+	public void get_icon_group() {
 		ProjectResource resource = new ProjectResource();
-		resource.setResourceType(ProjectResourceType.FUNCTION);
+		resource.setResourceType(ProjectResourceType.GROUP);
 		
 		assertThat(resource.getIcon()).isEqualTo("far folder");
 	}
 	
 	@Test
-	public void get_icon_program_templet() {
+	public void get_icon_page_templet() {
 		ProjectResource resource = new ProjectResource();
-		resource.setResourceType(ProjectResourceType.PROGRAM_TEMPLET);
+		resource.setResourceType(ProjectResourceType.PAGE_TEMPLET);
 		
 		assertThat(resource.getIcon()).isEqualTo("far newspaper");
 	}
@@ -217,19 +217,19 @@ public class ProjectResourceTest {
 	}
 	
 	@Test
-	public void get_file_name_program() {
+	public void get_file_name_page() {
 		ProjectResource resource = new ProjectResource();
 		resource.setKey("key");
-		resource.setResourceType(ProjectResourceType.PROGRAM);
+		resource.setResourceType(ProjectResourceType.PAGE);
 		
 		assertThat(resource.getFileName()).isEqualTo("key.page.json");
 	}
 	
 	@Test
-	public void get_file_name_program_template() {
+	public void get_file_name_page_template() {
 		ProjectResource resource = new ProjectResource();
 		resource.setKey("key");
-		resource.setResourceType(ProjectResourceType.PROGRAM_TEMPLET);
+		resource.setResourceType(ProjectResourceType.PAGE_TEMPLET);
 		
 		assertThat(resource.getFileName()).isEqualTo("key.page.tmpl.json");
 	}

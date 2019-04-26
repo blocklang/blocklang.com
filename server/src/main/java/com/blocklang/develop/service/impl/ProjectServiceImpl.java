@@ -165,7 +165,7 @@ public class ProjectServiceImpl implements ProjectService {
 		resource.setProjectId(projectId);
 		resource.setKey(ProjectResource.MAIN_KEY);
 		resource.setName(ProjectResource.MAIN_NAME);
-		resource.setResourceType(ProjectResourceType.PROGRAM);
+		resource.setResourceType(ProjectResourceType.PAGE);
 		resource.setAppType(AppType.WEB);
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		resource.setSeq(1);

@@ -171,19 +171,19 @@ public class ProjectResource extends PartialOperateFields{
 
 	public Boolean isMain() {
 		// 约定根目录下的 main 模块为入口模块
-		return Constant.TREE_ROOT_ID.equals(parentId) && isProgram() && MAIN_KEY.equals(key);
+		return Constant.TREE_ROOT_ID.equals(parentId) && isPage() && MAIN_KEY.equals(key);
 	}
 
 	public Boolean isTemplet() {
-		return ProjectResourceType.PROGRAM_TEMPLET.equals(this.resourceType);
+		return ProjectResourceType.PAGE_TEMPLET.equals(this.resourceType);
 	}
 
-	public Boolean isFunction() {
-		return ProjectResourceType.FUNCTION.equals(this.resourceType);
+	public Boolean isGroup() {
+		return ProjectResourceType.GROUP.equals(this.resourceType);
 	}
 
-	public Boolean isProgram() {
-		return ProjectResourceType.PROGRAM.equals(this.resourceType);
+	public Boolean isPage() {
+		return ProjectResourceType.PAGE.equals(this.resourceType);
 	}
 
 	public Boolean isReadme() {
@@ -199,14 +199,14 @@ public class ProjectResource extends PartialOperateFields{
 	}
 
 	public String getIcon() {
-		if(isProgram()) {
+		if(isPage()) {
 			if(isMain()) {
 				return IconClass.HOME;
 			}
 			return this.appType.getIcon();
 		}
 		
-		if(isFunction()) {
+		if(isGroup()) {
 			return IconClass.FUNCTION;
 		}
 		if(isTemplet()) {
@@ -232,13 +232,13 @@ public class ProjectResource extends PartialOperateFields{
 		Assert.notNull(this.messageSource, "不能为空");
 
 		String i18nKey = "";
-		if(isProgram()) {
+		if(isPage()) {
 			if(isMain()) {
 				i18nKey = "resourceTitle.main";
 			}else {
 				i18nKey = "resourceTitle.program";
 			}
-		} else if(isFunction()) {
+		} else if(isGroup()) {
 			i18nKey = "resourceTitle.function";
 		} else if(isTemplet()) {
 			i18nKey = "resourceTitle.templet";
@@ -257,7 +257,7 @@ public class ProjectResource extends PartialOperateFields{
 	}
 
 	public String getFileName() {
-		if(isProgram()) {
+		if(isPage()) {
 			return this.key + ".page.json";
 		}
 		if(isTemplet()) {
