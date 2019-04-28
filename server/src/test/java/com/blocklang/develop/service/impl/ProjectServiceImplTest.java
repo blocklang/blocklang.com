@@ -25,6 +25,8 @@ import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.PropertyService;
 import com.blocklang.core.test.AbstractServiceTest;
 import com.blocklang.develop.constant.AccessLevel;
+import com.blocklang.develop.constant.AppType;
+import com.blocklang.develop.constant.ProjectResourceType;
 import com.blocklang.develop.dao.ProjectAuthorizationDao;
 import com.blocklang.develop.dao.ProjectCommitDao;
 import com.blocklang.develop.dao.ProjectDao;
@@ -138,7 +140,12 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		
 		// 已创建入口程序模块
 		// 传入 Main，首字母大写是为了测试忽略大小写
-		assertThat(projectResourceDao.findByProjectIdAndParentIdAndKeyIgnoreCase(projectId, Constant.TREE_ROOT_ID, "Main").get())
+		assertThat(projectResourceDao.findByProjectIdAndParentIdAndResourceTypeAndAppTypeAndKeyIgnoreCase(
+				projectId, 
+				Constant.TREE_ROOT_ID, 
+				ProjectResourceType.PAGE,
+				AppType.WEB,
+				"Main").get())
 			.hasNoNullFieldsOrPropertiesExcept(
 					"lastUpdateUserId", 
 					"lastUpdateTime", 
@@ -150,7 +157,12 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 					"messageSource");
 		
 		// 已在项目资源表中登记 README.md 文件
-		ProjectResource readmeResource = projectResourceDao.findByProjectIdAndParentIdAndKeyIgnoreCase(projectId, Constant.TREE_ROOT_ID, "ReAdMe").get();
+		ProjectResource readmeResource = projectResourceDao.findByProjectIdAndParentIdAndResourceTypeAndAppTypeAndKeyIgnoreCase(
+				projectId, 
+				Constant.TREE_ROOT_ID, 
+				ProjectResourceType.FILE,
+				AppType.UNKNOWN,
+				"ReAdMe").get();
 		assertThat(readmeResource).hasNoNullFieldsOrPropertiesExcept(
 				"lastUpdateUserId", 
 				"lastUpdateTime", 

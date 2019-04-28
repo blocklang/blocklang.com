@@ -25,7 +25,7 @@ import com.nimbusds.oauth2.sdk.util.StringUtils;
 
 @Entity
 @Table(name = "project_resource", 
-	uniqueConstraints = @UniqueConstraint(columnNames = { "project_id", "resource_key", "resource_type", "app_type", "parent_id" }))
+	uniqueConstraints = @UniqueConstraint(columnNames = { "project_id", "parent_id", "resource_key", "resource_type", "app_type" }))
 public class ProjectResource extends PartialOperateFields{
 
 	private static final long serialVersionUID = -7591405398132869438L;

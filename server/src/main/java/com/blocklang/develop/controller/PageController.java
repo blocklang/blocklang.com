@@ -2,6 +2,7 @@ package com.blocklang.develop.controller;
 
 import java.security.Principal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -72,13 +73,21 @@ public class PageController {
 		}
 		
 		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-		ProjectAuthorization auth = projectAuthorizationService.find(project.getCreateUserId(), project.getId()).orElseThrow(NoAuthorizationException::new);
-		if(auth.getAccessLevel() == AccessLevel.READ) {
+		List<ProjectAuthorization> authes = projectAuthorizationService.findAllByUserIdAndProjectId(project.getCreateUserId(), project.getId());
+		
+		boolean canWrite = authes.stream().anyMatch(item -> item.getAccessLevel() == AccessLevel.WRITE || item.getAccessLevel() == AccessLevel.ADMIN);
+		
+		if(!canWrite) {
 			throw new NoAuthorizationException();
 		}
 		
 		Integer groupId = param.getGroupId();
-		projectResourceService.find(project.getId(), param.getGroupId(), ProjectResourceType.PAGE, key).map(resource -> {
+		projectResourceService.find(
+				project.getId(), 
+				param.getGroupId(), 
+				ProjectResourceType.PAGE, 
+				param.getAppType(),
+				key).map(resource -> {
 			logger.error("key 已被占用");
 			
 			if(groupId == Constant.TREE_ROOT_ID) {

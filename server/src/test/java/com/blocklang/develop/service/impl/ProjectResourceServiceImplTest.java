@@ -211,4 +211,59 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		assertThat(resource.getTitle()).isEqualTo("服务");
 	}
 
+	@Test
+	public void find_by_id_no_data() {
+		assertThat(projectResourceService.findById(Integer.MAX_VALUE)).isEmpty();
+	}
+	
+	@Test
+	public void find_by_id_success() {
+		ProjectResource resource = new ProjectResource();
+		resource.setProjectId(1);
+		resource.setKey("key1");
+		resource.setName("name1");
+		resource.setAppType(AppType.WEB);
+		resource.setResourceType(ProjectResourceType.GROUP);
+		resource.setParentId(Constant.TREE_ROOT_ID);
+		resource.setSeq(1);
+		resource.setCreateUserId(1);
+		resource.setCreateTime(LocalDateTime.now());
+		Integer savedResourceId = projectResourceDao.save(resource).getId();
+		
+		assertThat(projectResourceService.findById(savedResourceId)).isPresent();
+	}
+	
+	@Test
+	public void find_by_key_at_root_no_data() {
+		assertThat(projectResourceService.find(
+				Integer.MAX_VALUE, 
+				Constant.TREE_ROOT_ID, 
+				ProjectResourceType.PAGE, 
+				AppType.WEB,
+				"not-exist-key")).isEmpty();
+	}
+	
+	@Test
+	public void find_by_key_at_root_success() {
+		Integer projectId = Integer.MAX_VALUE;
+		
+		ProjectResource resource = new ProjectResource();
+		resource.setProjectId(projectId);
+		resource.setKey("key1");
+		resource.setName("name1");
+		resource.setAppType(AppType.WEB);
+		resource.setResourceType(ProjectResourceType.PAGE);
+		resource.setParentId(Constant.TREE_ROOT_ID);
+		resource.setSeq(1);
+		resource.setCreateUserId(1);
+		resource.setCreateTime(LocalDateTime.now());
+		projectResourceDao.save(resource);
+		
+		assertThat(projectResourceService.find(
+				projectId, 
+				Constant.TREE_ROOT_ID, 
+				ProjectResourceType.PAGE, 
+				AppType.WEB,
+				"key1")).isPresent();
+	}
 }

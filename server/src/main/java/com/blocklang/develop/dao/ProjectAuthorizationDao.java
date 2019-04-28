@@ -10,4 +10,6 @@ public interface ProjectAuthorizationDao extends JpaRepository<ProjectAuthorizat
 
 	List<ProjectAuthorization> findAllByUserId(Integer userId);
 
+	List<ProjectAuthorization> findAllByUserIdAndProjectId(Integer userId, Integer projectId);
+
 }

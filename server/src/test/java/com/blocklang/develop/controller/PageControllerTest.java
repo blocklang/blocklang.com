@@ -9,6 +9,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.Optional;
 
 import org.apache.http.HttpStatus;
@@ -87,7 +88,7 @@ public class PageControllerTest extends AbstractControllerTest{
 		project.setIsPublic(true); // 公开项目
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		when(projectAuthorizationService.find(anyInt(), anyInt())).thenReturn(Optional.empty());
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -118,7 +119,7 @@ public class PageControllerTest extends AbstractControllerTest{
 		auth.setUserId(1);
 		auth.setProjectId(1);
 		auth.setAccessLevel(AccessLevel.READ);
-		when(projectAuthorizationService.find(anyInt(), anyInt())).thenReturn(Optional.of(auth));
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -145,7 +146,7 @@ public class PageControllerTest extends AbstractControllerTest{
 		auth.setUserId(1);
 		auth.setProjectId(1);
 		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.find(anyInt(), anyInt())).thenReturn(Optional.of(auth));
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
 		CheckPageKeyParam param = new CheckPageKeyParam();
 		param.setKey(" ");
@@ -176,7 +177,7 @@ public class PageControllerTest extends AbstractControllerTest{
 		auth.setUserId(1);
 		auth.setProjectId(1);
 		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.find(anyInt(), anyInt())).thenReturn(Optional.of(auth));
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
 		CheckPageKeyParam param = new CheckPageKeyParam();
 		param.setKey("中文");
@@ -207,10 +208,10 @@ public class PageControllerTest extends AbstractControllerTest{
 		auth.setUserId(1);
 		auth.setProjectId(1);
 		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.find(anyInt(), anyInt())).thenReturn(Optional.of(auth));
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
 		ProjectResource resource = new ProjectResource();
-		when(projectResourceService.find(anyInt(), anyInt(), any(), anyString())).thenReturn(Optional.of(resource));
+		when(projectResourceService.find(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource));
 		
 		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(new ProjectResource()));
 		

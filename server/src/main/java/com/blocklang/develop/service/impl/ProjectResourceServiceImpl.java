@@ -3,6 +3,7 @@ package com.blocklang.develop.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -14,6 +15,8 @@ import com.blocklang.core.constant.Constant;
 import com.blocklang.core.git.GitFileInfo;
 import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.service.PropertyService;
+import com.blocklang.develop.constant.AppType;
+import com.blocklang.develop.constant.ProjectResourceType;
 import com.blocklang.develop.dao.ProjectResourceDao;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectContext;
@@ -35,7 +38,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 	}
 
 	@Override
-	public List<ProjectResource> findChildren(Project project, int parentResourceId) {
+	public List<ProjectResource> findChildren(Project project, Integer parentResourceId) {
 		if(project == null) {
 			return new ArrayList<ProjectResource>();
 		}
@@ -76,6 +79,26 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 		}
 		
 		return String.join("/", pathes);
+	}
+
+	@Override
+	public Optional<ProjectResource> find(
+			Integer projectId, 
+			Integer parentId, 
+			ProjectResourceType resourceType,
+			AppType appType,
+			String key) {
+		return projectResourceDao.findByProjectIdAndParentIdAndResourceTypeAndAppTypeAndKeyIgnoreCase(
+				projectId, 
+				parentId, 
+				resourceType,
+				appType,
+				key);
+	}
+
+	@Override
+	public Optional<ProjectResource> findById(Integer resourceId) {
+		return projectResourceDao.findById(resourceId);
 	}
 
 }

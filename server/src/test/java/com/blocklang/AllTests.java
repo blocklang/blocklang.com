@@ -25,6 +25,7 @@ import com.blocklang.develop.controller.PropertyControllerTest;
 import com.blocklang.develop.model.AppGlobalContextTest;
 import com.blocklang.develop.model.ProjectContextTest;
 import com.blocklang.develop.model.ProjectResourceTest;
+import com.blocklang.develop.service.impl.ProjectAuthorizationServiceImplTest;
 import com.blocklang.develop.service.impl.ProjectDeployServiceImplTest;
 import com.blocklang.develop.service.impl.ProjectFileServiceImplTest;
 import com.blocklang.develop.service.impl.ProjectResourceServiceImplTest;
@@ -87,6 +88,7 @@ import com.blocklang.release.task.GitTagTaskTest;
 	ProjectFileServiceImplTest.class,
 	ProjectTagServiceImplTest.class,
 	ProjectReleaseTaskServiceImplTest.class,
+	ProjectAuthorizationServiceImplTest.class,
 	PropertyServiceImplTest.class,
 	GithubLoginServiceImplTest.class,
 	QqLoginServiceImplTest.class,

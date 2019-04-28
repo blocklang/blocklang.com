@@ -1,6 +1,6 @@
 # `PROJECT_RESOURCE` - 项目资源
 
-一个项目是由多个资源组成的，资源又分多种，如程序模块、分组、数据服务、文档等。
+一个项目是由多个资源组成的，资源又分多种，如页面、分组、数据服务、文档等。
 
 ## 字段
 
@@ -20,14 +20,16 @@
 
 * 主键：`PK_PROJECT_RESOURCE`
 * 外键：(*未设置*)`FK_RESOURCE_PROJECT`，`PROJECT_ID` 对应 `PROJECT` 表的 `dbid`
-* 索引：`UK_PROJECT_ID_RES_KEY_TYPE_APP_PARENT`，对应字段 `project_id`、`resource_key`、`resource_type`、`app_type`、`parent_id`
+* 索引：`UK_PROJECT_ID_RES_KEY_TYPE_APP_PARENT`，对应字段 `project_id`、`parent_id`、`resource_type`、`app_type`、`resource_key`
 
 ## 说明
 
 1. `resource_key` 由英文字母或拼音等组成，在 url 中使用，同一个功能模块下不能有同名的资源标识
 2. `resource_name` 在界面中显示，同一个功能模块下不能有同名的模块名称
-3. `resource_type` 的值为：`01` 表示 `功能模块`，`02` 表示 `程序模块`，`03` 表示 `面板`，`04` 表示 `程序模块模板`，`05` 表示 `文件`，`06` 表示 `服务`
+3. `resource_type` 的值为：`01` 表示 `分组`，`02` 表示 `页面`，`03` 表示 `面板`，`04` 表示 `页面模板`，`05` 表示 `文件`，`06` 表示 `服务`
 4. `resource_type` 的值为 `面板` 时，表示可供多个 `程序模块` 重用的内容
-5. `app_type` 的值为：`01` 表示 `web`，`02` 表示 `android`，`03` 表示 `ios`，`04` 表示 `微信小程序(wechatMiniApp)`，`05` 表示 `支付宝小程序(alipayMiniApp)`，`06` 表示 `快应用(quickApp)`，`99` 表示 `unknown(不属于任何 APP，如 README.md 文件)`
-6. `parent_id` 其中的值为 `-1` 时，表示顶级节点
-7. `seq` 是在同一层级排序，不是全表范围内排序，从 1 开始排
+5. `app_type` 仅适用于当 `resource_type` 的值为 `02` 时，其他情况，`app_type` 的值都为 `99` 即 `unknown`
+6. `app_type` 的值为：`01` 表示 `web`，`02` 表示 `android`，`03` 表示 `ios`，`04` 表示 `微信小程序(wechatMiniApp)`，`05` 表示 `支付宝小程序(alipayMiniApp)`，`06` 表示 `快应用(quickApp)`，`99` 表示 `unknown(不属于任何 APP，如 README.md 文件)`
+7. `parent_id` 其中的值为 `-1` 时，表示顶级节点
+8. `seq` 是在同一层级排序，不是全表范围内排序，从 1 开始排
+9. 唯一索引 `UK_PROJECT_ID_RES_KEY_TYPE_APP_PARENT` 中包含 `app_type`，是为了当支持多平台时，可以使用相同的名称

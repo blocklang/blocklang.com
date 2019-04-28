@@ -3,6 +3,7 @@ package com.blocklang.develop.service;
 import java.util.List;
 import java.util.Optional;
 
+import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.constant.ProjectResourceType;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectResource;
@@ -25,7 +26,8 @@ public interface ProjectResourceService {
 	Optional<ProjectResource> find(
 			Integer projectId, 
 			Integer parentId, 
-			ProjectResourceType resourceType, 
+			ProjectResourceType resourceType,
+			AppType appType,
 			String key);
 
 	Optional<ProjectResource> findById(Integer resourceId);

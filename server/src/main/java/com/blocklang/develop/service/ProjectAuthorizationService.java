@@ -1,11 +1,11 @@
 package com.blocklang.develop.service;
 
-import java.util.Optional;
+import java.util.List;
 
 import com.blocklang.develop.model.ProjectAuthorization;
 
 public interface ProjectAuthorizationService {
 
-	Optional<ProjectAuthorization> find(Integer userId, Integer projectId);
+	List<ProjectAuthorization> findAllByUserIdAndProjectId(Integer userId, Integer projectId);
 
 }
