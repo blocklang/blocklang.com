@@ -75,15 +75,15 @@ public class RouterFilter implements Filter{
 		}
 		
 		// Single Page Application 单页面应用的路由处理
-		System.out.println("===============================================");
-		System.out.println("===============================================");
-		System.out.println("===============================================");
-		System.out.println("servlet path = " + servletPath);
-		httpServletRequest.getHeaderNames().asIterator().forEachRemaining(name -> System.out.println(name + " = " + httpServletRequest.getHeader(name)));
-		
-		System.out.println("url:" + url);
-		System.out.println("context path:" + httpServletRequest.getContextPath());
-		System.out.println("pathInfo:" + httpServletRequest.getPathInfo());
+//		System.out.println("===============================================");
+//		System.out.println("===============================================");
+//		System.out.println("===============================================");
+//		System.out.println("servlet path = " + servletPath);
+//		httpServletRequest.getHeaderNames().asIterator().forEachRemaining(name -> System.out.println(name + " = " + httpServletRequest.getHeader(name)));
+//		
+//		System.out.println("url:" + url);
+//		System.out.println("context path:" + httpServletRequest.getContextPath());
+//		System.out.println("pathInfo:" + httpServletRequest.getPathInfo());
 		
 		// 访问帮助文档中使用的图片
 		if(servletPath.startsWith("/raw/docs")) {

@@ -23,8 +23,12 @@ spring:
       client:
         registration:
           github:
-            client-id: 6979d9b09aece54ff960
-            client-secret: 9892875165b26db23601e59e75fddcca4ce36514
+            # prod
+            # client-id: 6979d9b09aece54ff960
+            # client-secret: 9892875165b26db23601e59e75fddcca4ce36514
+            # test
+            client-id: 12313da299d8138f892c
+            client-secret: d40f5d6c9d1feb6e3ad1b3049c72f798f2c4901b
           qq:
             provider: qq
             client-id: 101558855
@@ -53,15 +57,6 @@ server:
     key-store: classpath:cert/1963553_www.blocklang.com.pfx
     key-store-password: 5CvGL3by
     keyStoreType: PKCS12
-  
-# security:
-#   oauth2:
-#     client:
-#       # 测试专用
-#       clientId: 6979d9b09aece54ff960
-#       clientSecret: 9892875165b26db23601e59e75fddcca4ce36514
-#       accessTokenUri: https://github.com/login/oauth/access_token
-#       userAuthorizationUri: https://github.com/login/oauth/authorize
-#       clientAuthenticationScheme: form
-#     resource:
-#       userInfoUri: https://api.github.com/user
+  servlet:
+    session:
+      timeout: 30m

@@ -1,11 +1,11 @@
-# 创建页面
+# 创建分组
 
-在创建页面之前，要对页面的 key 和 name 做校验。
+在创建分组之前，要对分组的 key 和 name 做校验。
 
 只有 key 和 name 都校验之后才返回错误信息，而不是发现错误就返回。
 
 ```text
-POST /projects/{owner}/{projectName}/pages/
+POST /projects/{owner}/{projectName}/groups/
 ```
 
 ## Parameters
@@ -14,13 +14,12 @@ POST /projects/{owner}/{projectName}/pages/
 | ------------- | -------- | ------------ |
 | `key`         | `string` | 名称         |
 | `name`        | `string` | 备注         |
-| `type`        | `string` | 类型         |
 | `description` | `string` | 说明         |
-| `groupId`     | `number` | 所属分组标识 |
+| `parentId`    | `number` | 所属分组标识 |
 
 ## Response
 
-没有创建页面的权限
+没有创建分组的权限
 
 ```text
 Status: 403 Forbidden

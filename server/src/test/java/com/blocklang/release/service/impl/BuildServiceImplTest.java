@@ -3,7 +3,6 @@ package com.blocklang.release.service.impl;
 import java.io.IOException;
 import java.time.LocalDateTime;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -29,7 +28,6 @@ public class BuildServiceImplTest extends AbstractServiceTest{
 	
 	// TODO: 解决 linux 上出现 java.nio.file.AccessDeniedException: /home/blocklang 的问题
 	// 让此测试用例在 linux 上通过。
-	@Ignore
 	@Test
 	public void build_success() throws IOException {
 		Integer projectId = Integer.MAX_VALUE;

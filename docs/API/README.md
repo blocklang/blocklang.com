@@ -22,6 +22,9 @@
 1. [校验页面的 key 值](./projects/resource/page/check-key.md)
 2. [校验页面的显示名](./projects/resource/page/check-name.md)
 3. [创建页面](./projects/resource/page/create-a-page.md)
+4. [校验分组的 key 值](./projects/resource/group/check-key.md)
+5. [校验分组的显示名](./projects/resource/group/check-name.md)
+6. [创建分组](./projects/resource/group/create-a-group.md)
 
 ## APP
 
