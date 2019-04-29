@@ -26,6 +26,7 @@ import com.blocklang.core.exception.ResourceNotFoundException;
 import com.blocklang.develop.constant.AccessLevel;
 import com.blocklang.develop.constant.ProjectResourceType;
 import com.blocklang.develop.data.CheckPageKeyParam;
+import com.blocklang.develop.data.CheckPageNameParam;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectAuthorization;
 import com.blocklang.develop.service.ProjectAuthorizationService;
@@ -73,16 +74,15 @@ public class PageController {
 		}
 		
 		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
+		
 		List<ProjectAuthorization> authes = projectAuthorizationService.findAllByUserIdAndProjectId(project.getCreateUserId(), project.getId());
-		
 		boolean canWrite = authes.stream().anyMatch(item -> item.getAccessLevel() == AccessLevel.WRITE || item.getAccessLevel() == AccessLevel.ADMIN);
-		
 		if(!canWrite) {
 			throw new NoAuthorizationException();
 		}
 		
 		Integer groupId = param.getGroupId();
-		projectResourceService.find(
+		projectResourceService.findByKey(
 				project.getId(), 
 				param.getGroupId(), 
 				ProjectResourceType.PAGE, 
@@ -98,6 +98,51 @@ public class PageController {
 			return new Object[] {projectResourceService.findById(groupId).get().getName(), key};
 		}).ifPresent(args -> {
 			bindingResult.rejectValue("key", "Duplicated.pageKey", args, null);
+			throw new InvalidRequestException(bindingResult);
+		});
+		
+		return ResponseEntity.ok(new HashMap<String, String>());
+	}
+	
+	@PostMapping("/projects/{owner}/{projectName}/pages/check-name")
+	public ResponseEntity<Map<String, String>> checkName(
+			Principal principal,
+			@PathVariable("owner") String owner,
+			@PathVariable("projectName") String projectName,
+			@Valid @RequestBody CheckPageNameParam param, 
+			BindingResult bindingResult){
+
+		if(principal == null) {
+			throw new NoAuthorizationException();
+		}
+		
+		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
+		
+		List<ProjectAuthorization> authes = projectAuthorizationService.findAllByUserIdAndProjectId(project.getCreateUserId(), project.getId());
+		boolean canWrite = authes.stream().anyMatch(item -> item.getAccessLevel() == AccessLevel.WRITE || item.getAccessLevel() == AccessLevel.ADMIN);
+		if(!canWrite) {
+			throw new NoAuthorizationException();
+		}
+		
+		String name = param.getName().trim();
+		
+		Integer groupId = param.getGroupId();
+		projectResourceService.findByName(
+				project.getId(), 
+				param.getGroupId(), 
+				ProjectResourceType.PAGE, 
+				param.getAppType(),
+				name).map(resource -> {
+			logger.error("name 已被占用");
+			
+			if(groupId == Constant.TREE_ROOT_ID) {
+				return new Object[] {"根目录", name};
+			}
+			
+			// 这里不需要做是否存在判断，因为肯定存在。
+			return new Object[] {projectResourceService.findById(groupId).get().getName(), name};
+		}).ifPresent(args -> {
+			bindingResult.rejectValue("name", "Duplicated.pageName", args, null);
 			throw new InvalidRequestException(bindingResult);
 		});
 		

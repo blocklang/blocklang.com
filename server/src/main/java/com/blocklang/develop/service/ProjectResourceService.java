@@ -23,12 +23,39 @@ public interface ProjectResourceService {
 	
 	String findParentPath(Integer resourceId);
 
-	Optional<ProjectResource> find(
+	/**
+	 * 在同一层级下，根据 key 查找
+	 * 
+	 * @param projectId
+	 * @param parentId
+	 * @param resourceType
+	 * @param appType
+	 * @param key
+	 * @return
+	 */
+	Optional<ProjectResource> findByKey(
 			Integer projectId, 
 			Integer parentId, 
 			ProjectResourceType resourceType,
 			AppType appType,
 			String key);
+	
+	/**
+	 * 在同一层级下，根据 name 查找
+	 * 
+	 * @param projectId
+	 * @param parentId
+	 * @param resourceType
+	 * @param appType
+	 * @param name
+	 * @return
+	 */
+	Optional<ProjectResource> findByName(
+			Integer projectId, 
+			Integer parentId, 
+			ProjectResourceType resourceType,
+			AppType appType,
+			String name);
 
 	Optional<ProjectResource> findById(Integer resourceId);
 

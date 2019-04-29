@@ -235,7 +235,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void find_by_key_at_root_no_data() {
-		assertThat(projectResourceService.find(
+		assertThat(projectResourceService.findByKey(
 				Integer.MAX_VALUE, 
 				Constant.TREE_ROOT_ID, 
 				ProjectResourceType.PAGE, 
@@ -259,11 +259,45 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		resource.setCreateTime(LocalDateTime.now());
 		projectResourceDao.save(resource);
 		
-		assertThat(projectResourceService.find(
+		assertThat(projectResourceService.findByKey(
 				projectId, 
 				Constant.TREE_ROOT_ID, 
 				ProjectResourceType.PAGE, 
 				AppType.WEB,
 				"key1")).isPresent();
+	}
+	
+	@Test
+	public void find_by_name_at_root_no_data() {
+		assertThat(projectResourceService.findByName(
+				Integer.MAX_VALUE, 
+				Constant.TREE_ROOT_ID, 
+				ProjectResourceType.PAGE, 
+				AppType.WEB,
+				"not-exist-name")).isEmpty();
+	}
+	
+	@Test
+	public void find_by_name_at_root_success() {
+		Integer projectId = Integer.MAX_VALUE;
+		
+		ProjectResource resource = new ProjectResource();
+		resource.setProjectId(projectId);
+		resource.setKey("key1");
+		resource.setName("name1");
+		resource.setAppType(AppType.WEB);
+		resource.setResourceType(ProjectResourceType.PAGE);
+		resource.setParentId(Constant.TREE_ROOT_ID);
+		resource.setSeq(1);
+		resource.setCreateUserId(1);
+		resource.setCreateTime(LocalDateTime.now());
+		projectResourceDao.save(resource);
+		
+		assertThat(projectResourceService.findByName(
+				projectId, 
+				Constant.TREE_ROOT_ID, 
+				ProjectResourceType.PAGE, 
+				AppType.WEB,
+				"name1")).isPresent();
 	}
 }

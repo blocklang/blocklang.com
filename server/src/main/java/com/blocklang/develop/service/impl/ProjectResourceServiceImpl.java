@@ -82,7 +82,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 	}
 
 	@Override
-	public Optional<ProjectResource> find(
+	public Optional<ProjectResource> findByKey(
 			Integer projectId, 
 			Integer parentId, 
 			ProjectResourceType resourceType,
@@ -94,6 +94,21 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 				resourceType,
 				appType,
 				key);
+	}
+	
+	@Override
+	public Optional<ProjectResource> findByName(
+			Integer projectId, 
+			Integer parentId, 
+			ProjectResourceType resourceType,
+			AppType appType, 
+			String name) {
+		return projectResourceDao.findByProjectIdAndParentIdAndResourceTypeAndAppTypeAndNameIgnoreCase(
+				projectId, 
+				parentId, 
+				resourceType,
+				appType,
+				name);
 	}
 
 	@Override

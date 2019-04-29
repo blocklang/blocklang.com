@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+	<changeSet author="Zhengwei Jin" id="201904281746">
+		<dropUniqueConstraint
+			constraintName="UK_PROJECT_ID_RES_KEY_TYPE_APP_PARENT"
+			tableName="project_resource" />
+		<addUniqueConstraint
+			columnNames="project_id,parent_id,resource_type,app_type,resource_key" 
+			constraintName="UK_PROJECT_RESOURCE_ON_PROJECT_PARENT_RESOURCE_APP_KEY"
+			tableName="project_resource"/>
+		<addUniqueConstraint
+			columnNames="project_id,parent_id,resource_type,app_type,resource_name" 
+			constraintName="UK_PROJECT_RESOURCE_ON_PROJECT_PARENT_RESOURCE_APP_NAME"
+			tableName="project_resource"/>
+	</changeSet>
+</databaseChangeLog>

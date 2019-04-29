@@ -18,6 +18,13 @@ public interface ProjectResourceDao extends JpaRepository<ProjectResource, Integ
 			AppType appType,
 			String resourceKey);
 
+	Optional<ProjectResource> findByProjectIdAndParentIdAndResourceTypeAndAppTypeAndNameIgnoreCase(
+			Integer projectId,
+			Integer parentId, 
+			ProjectResourceType resourceType, 
+			AppType appType, 
+			String resourceName);
+	
 	List<ProjectResource> findByProjectIdAndParentIdOrderByResourceTypeAscSeqAsc(Integer projectId, Integer parentId);
 
 }

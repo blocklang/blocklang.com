@@ -20,7 +20,7 @@
 
 * 主键：`PK_PROJECT_RESOURCE`
 * 外键：(*未设置*)`FK_RESOURCE_PROJECT`，`PROJECT_ID` 对应 `PROJECT` 表的 `dbid`
-* 索引：`UK_PROJECT_ID_RES_KEY_TYPE_APP_PARENT`，对应字段 `project_id`、`parent_id`、`resource_type`、`app_type`、`resource_key`
+* 索引：`UK_PROJECT_RESOURCE_ON_PROJECT_PARENT_RESOURCE_APP_KEY`，对应字段 `project_id`、`parent_id`、`resource_type`、`app_type`、`resource_key`；`UK_PROJECT_RESOURCE_ON_PROJECT_PARENT_RESOURCE_APP_NAME`，对应字段 `project_id`、`parent_id`、`resource_type`、`app_type`、`resource_name`
 
 ## 说明
 
