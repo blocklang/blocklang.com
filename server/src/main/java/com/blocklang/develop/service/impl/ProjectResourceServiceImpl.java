@@ -34,6 +34,10 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 	//@Transactional
 	@Override
 	public ProjectResource insert(ProjectResource resource) {
+		if(resource.getSeq() == null) {
+			Integer nextSeq = projectResourceDao.findFirstByProjectIdAndParentIdOrderBySeqDesc(resource.getProjectId(), resource.getParentId()).map(item -> item.getSeq() + 1).orElse(1);
+			resource.setSeq(nextSeq);
+		}
 		return projectResourceDao.save(resource);
 	}
 

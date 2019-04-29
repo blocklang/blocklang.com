@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,26 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	
 	@Autowired
 	private MessageSource messageSource;
+	
+	@Test
+	public void insert_if_not_set_seq() {
+		Integer projectId = Integer.MAX_VALUE;
+		ProjectResource resource = new ProjectResource();
+		resource.setProjectId(projectId);
+		resource.setParentId(Constant.TREE_ROOT_ID);
+		resource.setAppType(AppType.WEB);
+		resource.setKey("key");
+		resource.setName("name");
+		resource.setResourceType(ProjectResourceType.PAGE);
+		resource.setCreateUserId(1);
+		resource.setCreateTime(LocalDateTime.now());
+		
+		Integer id = projectResourceService.insert(resource).getId();
+		
+		Optional<ProjectResource> resourceOption = projectResourceDao.findById(id);
+		assertThat(resourceOption).isPresent();
+		assertThat(resourceOption.get().getSeq()).isEqualTo(1);
+	}
 	
 	@Test
 	public void find_children_no_data() {
