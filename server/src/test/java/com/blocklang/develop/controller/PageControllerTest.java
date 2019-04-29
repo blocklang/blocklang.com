@@ -4,9 +4,11 @@ import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
@@ -19,11 +21,14 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 
 import com.blocklang.core.constant.Constant;
+import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.test.AbstractControllerTest;
 import com.blocklang.develop.constant.AccessLevel;
 import com.blocklang.develop.constant.AppType;
+import com.blocklang.develop.constant.ProjectResourceType;
 import com.blocklang.develop.data.CheckPageKeyParam;
 import com.blocklang.develop.data.CheckPageNameParam;
+import com.blocklang.develop.data.NewPageParam;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectAuthorization;
 import com.blocklang.develop.model.ProjectResource;
@@ -275,6 +280,38 @@ public class PageControllerTest extends AbstractControllerTest{
 					"errors.key.size()", is(1));
 	}
 	
+	@WithMockUser(username = "jack")
+	@Test
+	public void check_key_is_passed() {
+		Project project = new Project();
+		project.setId(1);
+		project.setCreateUserName("jack");
+		project.setName("project");
+		project.setIsPublic(true); // 公开项目
+		project.setCreateUserId(1);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setUserId(1);
+		auth.setProjectId(1);
+		auth.setAccessLevel(AccessLevel.WRITE);
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		when(projectResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
+		
+		CheckPageKeyParam param = new CheckPageKeyParam();
+		param.setKey("key");
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/{owner}/{projectName}/pages/check-key", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body(equalTo("{}"));
+	}
+	
 	@Test
 	public void check_name_user_not_login() {
 		CheckPageNameParam param = new CheckPageNameParam();
@@ -419,4 +456,433 @@ public class PageControllerTest extends AbstractControllerTest{
 					"errors.name.size()", is(1));
 	}
 	
+	@WithMockUser(username = "jack")
+	@Test
+	public void check_name_is_passed() {
+		Project project = new Project();
+		project.setId(1);
+		project.setCreateUserName("jack");
+		project.setName("project");
+		project.setIsPublic(true); // 公开项目
+		project.setCreateUserId(1);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setUserId(1);
+		auth.setProjectId(1);
+		auth.setAccessLevel(AccessLevel.WRITE);
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+
+		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
+		
+		CheckPageNameParam param = new CheckPageNameParam();
+		param.setName("name");
+		param.setGroupId(Constant.TREE_ROOT_ID);
+		param.setAppType(AppType.WEB.getKey());
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/{owner}/{projectName}/pages/check-name", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body(equalTo("{}"));
+	}
+	
+	@Test
+	public void new_page_user_not_login() {
+		NewPageParam param = new NewPageParam();
+		param.setGroupId(Constant.TREE_ROOT_ID);
+		param.setAppType(AppType.WEB.getKey());
+		param.setKey("key");
+		param.setName("name");
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/{owner}/{projectName}/pages", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_FORBIDDEN)
+			.body(equalTo(""));
+	}
+	
+	@WithMockUser(username = "jack")
+	@Test
+	public void new_page_user_login_but_project_not_exist() {
+		NewPageParam param = new NewPageParam();
+		param.setGroupId(Constant.TREE_ROOT_ID);
+		param.setAppType(AppType.WEB.getKey());
+		param.setKey("key");
+		param.setName("name");
+		
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/{owner}/{projectName}/pages", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND)
+			.body(equalTo(""));
+	}
+	
+	@WithMockUser(username = "jack")
+	@Test
+	public void new_page_user_can_not_read_public_project() {
+		NewPageParam param = new NewPageParam();
+		param.setGroupId(Constant.TREE_ROOT_ID);
+		param.setAppType(AppType.WEB.getKey());
+		param.setKey("key");
+		param.setName("name");
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setCreateUserName("jack");
+		project.setName("project");
+		project.setIsPublic(true); // 公开项目
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/{owner}/{projectName}/pages", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_FORBIDDEN)
+			.body(equalTo(""));
+	}
+	
+	@WithMockUser(username = "jack")
+	@Test
+	public void new_page_login_user_can_not_write_public_project() {
+		NewPageParam param = new NewPageParam();
+		param.setGroupId(Constant.TREE_ROOT_ID);
+		param.setAppType(AppType.WEB.getKey());
+		param.setKey("key");
+		param.setName("name");
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setCreateUserName("jack");
+		project.setName("project");
+		project.setIsPublic(true); // 公开项目
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setUserId(1);
+		auth.setProjectId(1);
+		auth.setAccessLevel(AccessLevel.READ);
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/{owner}/{projectName}/pages", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_FORBIDDEN)
+			.body(equalTo(""));
+	}
+	
+	@WithMockUser(username = "jack")
+	@Test
+	public void new_page_check_key_is_blank_and_name_passed() {
+		NewPageParam param = new NewPageParam();
+		param.setGroupId(Constant.TREE_ROOT_ID);
+		param.setAppType(AppType.WEB.getKey());
+		param.setKey(" ");
+		param.setName("name");
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setCreateUserId(1);
+		project.setCreateUserName("jack");
+		project.setName("project");
+		project.setIsPublic(true); // 公开项目
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setUserId(1);
+		auth.setProjectId(1);
+		auth.setAccessLevel(AccessLevel.WRITE);
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/{owner}/{projectName}/pages", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
+			.body("errors.key", hasItem("名称不能为空"),
+					"errors.key.size()", is(1),
+					"errors.name", is(nullValue()));
+	}
+	
+	@WithMockUser(username = "jack")
+	@Test
+	public void new_page_check_key_is_blank_and_name_is_used() {
+		NewPageParam param = new NewPageParam();
+		param.setGroupId(Constant.TREE_ROOT_ID);
+		param.setAppType(AppType.WEB.getKey());
+		param.setKey(" ");
+		param.setName("a-used-name");
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setCreateUserId(1);
+		project.setCreateUserName("jack");
+		project.setName("project");
+		project.setIsPublic(true); // 公开项目
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setUserId(1);
+		auth.setProjectId(1);
+		auth.setAccessLevel(AccessLevel.WRITE);
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		ProjectResource resource = new ProjectResource();
+		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource));
+		
+		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(new ProjectResource()));
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/{owner}/{projectName}/pages", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
+			.body("errors.key", hasItem("名称不能为空"),
+					"errors.key.size()", is(1),
+					"errors.name", hasItem("根目录下已存在备注<strong>a-used-name</strong>"),
+					"errors.name.size()", is(1));
+	}
+	
+	@WithMockUser(username = "jack")
+	@Test
+	public void new_page_check_key_is_invalid_and_name_is_passed() {
+		NewPageParam param = new NewPageParam();
+		param.setGroupId(Constant.TREE_ROOT_ID);
+		param.setAppType(AppType.WEB.getKey());
+		param.setKey("中文");
+		param.setName("name");
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setCreateUserId(1);
+		project.setCreateUserName("jack");
+		project.setName("project");
+		project.setIsPublic(true); // 公开项目
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setUserId(1);
+		auth.setProjectId(1);
+		auth.setAccessLevel(AccessLevel.WRITE);
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/{owner}/{projectName}/pages", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
+			.body("errors.key", hasItem("只允许字母、数字、中划线(-)、下划线(_)"),
+					"errors.key.size()", is(1),
+					"errors.name", is(nullValue()));
+	}
+	
+	@WithMockUser(username = "jack")
+	@Test
+	public void new_page_check_key_is_invalid_and_name_is_used() {
+		NewPageParam param = new NewPageParam();
+		param.setGroupId(Constant.TREE_ROOT_ID);
+		param.setAppType(AppType.WEB.getKey());
+		param.setKey("中文");
+		param.setName("a-used-name");
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setCreateUserId(1);
+		project.setCreateUserName("jack");
+		project.setName("project");
+		project.setIsPublic(true); // 公开项目
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setUserId(1);
+		auth.setProjectId(1);
+		auth.setAccessLevel(AccessLevel.WRITE);
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		ProjectResource resource = new ProjectResource();
+		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource));
+		
+		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(new ProjectResource()));
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/{owner}/{projectName}/pages", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
+			.body("errors.key", hasItem("只允许字母、数字、中划线(-)、下划线(_)"),
+					"errors.key.size()", is(1),
+					"errors.name", hasItem("根目录下已存在备注<strong>a-used-name</strong>"),
+					"errors.name.size()", is(1));
+	}
+	
+	@WithMockUser(username = "jack")
+	@Test
+	public void new_page_check_key_is_used_and_name_is_used() {
+		NewPageParam param = new NewPageParam();
+		param.setGroupId(Constant.TREE_ROOT_ID);
+		param.setAppType(AppType.WEB.getKey());
+		param.setKey("a-used-key");
+		param.setName("a-used-name");
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setCreateUserId(1);
+		project.setCreateUserName("jack");
+		project.setName("project");
+		project.setIsPublic(true); // 公开项目
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setUserId(1);
+		auth.setProjectId(1);
+		auth.setAccessLevel(AccessLevel.WRITE);
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		ProjectResource resource1 = new ProjectResource();
+		when(projectResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource1));
+		
+		ProjectResource resource2 = new ProjectResource();
+		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource2));
+		
+		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(new ProjectResource()));
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/{owner}/{projectName}/pages", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
+			.body("errors.key", hasItem("根目录下已存在名称<strong>a-used-key</strong>"),
+					"errors.key.size()", is(1),
+					"errors.name", hasItem("根目录下已存在备注<strong>a-used-name</strong>"),
+					"errors.name.size()", is(1));
+	}
+	
+	@WithMockUser(username = "jack")
+	@Test
+	public void new_page_check_key_is_used_and_name_is_pass() {
+		NewPageParam param = new NewPageParam();
+		param.setGroupId(Constant.TREE_ROOT_ID);
+		param.setAppType(AppType.WEB.getKey());
+		param.setKey("a-used-key");
+		param.setName("name");
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setCreateUserId(1);
+		project.setCreateUserName("jack");
+		project.setName("project");
+		project.setIsPublic(true); // 公开项目
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setUserId(1);
+		auth.setProjectId(1);
+		auth.setAccessLevel(AccessLevel.WRITE);
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		ProjectResource resource1 = new ProjectResource();
+		when(projectResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource1));
+		
+		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
+		
+		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(new ProjectResource()));
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/{owner}/{projectName}/pages", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
+			.body("errors.key", hasItem("根目录下已存在名称<strong>a-used-key</strong>"),
+					"errors.key.size()", is(1),
+					"errors.name", is(nullValue()));
+	}
+	
+	// 校验都通过后，才保存。
+	@WithMockUser(username = "jack")
+	@Test
+	public void new_page_success() {
+		NewPageParam param = new NewPageParam();
+		param.setGroupId(Constant.TREE_ROOT_ID);
+		param.setAppType(AppType.WEB.getKey());
+		param.setKey("key");
+		param.setName("name");
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setCreateUserId(1);
+		project.setCreateUserName("jack");
+		project.setName("project");
+		project.setIsPublic(true); // 公开项目
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setUserId(1);
+		auth.setProjectId(1);
+		auth.setAccessLevel(AccessLevel.WRITE);
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		when(projectResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
+		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
+		
+		UserInfo currentUser = new UserInfo();
+		currentUser.setLoginName("jack");
+		currentUser.setId(1);
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(currentUser));
+		
+		ProjectResource savedResource = new ProjectResource();
+		savedResource.setProjectId(project.getId());
+		savedResource.setParentId(param.getGroupId());
+		savedResource.setKey("key");
+		savedResource.setName("name");
+		savedResource.setId(1);
+		savedResource.setSeq(1);
+		savedResource.setAppType(AppType.WEB);
+		savedResource.setResourceType(ProjectResourceType.PAGE);
+		when(projectResourceService.insert(any())).thenReturn(savedResource);
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/{owner}/{projectName}/pages", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_CREATED)
+			.body("key", equalTo("key"),
+				  "name", equalTo("name"),
+				  "id", is(notNullValue()));
+	}
 }

@@ -1,6 +1,7 @@
 package com.blocklang.develop.controller;
 
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,8 @@ import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,12 +26,16 @@ import com.blocklang.core.constant.Constant;
 import com.blocklang.core.exception.InvalidRequestException;
 import com.blocklang.core.exception.NoAuthorizationException;
 import com.blocklang.core.exception.ResourceNotFoundException;
+import com.blocklang.core.model.UserInfo;
+import com.blocklang.core.service.UserService;
 import com.blocklang.develop.constant.AccessLevel;
 import com.blocklang.develop.constant.ProjectResourceType;
 import com.blocklang.develop.data.CheckPageKeyParam;
 import com.blocklang.develop.data.CheckPageNameParam;
+import com.blocklang.develop.data.NewPageParam;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectAuthorization;
+import com.blocklang.develop.model.ProjectResource;
 import com.blocklang.develop.service.ProjectAuthorizationService;
 import com.blocklang.develop.service.ProjectResourceService;
 import com.blocklang.develop.service.ProjectService;
@@ -43,6 +50,10 @@ public class PageController {
 	private ProjectAuthorizationService projectAuthorizationService;
 	@Autowired
 	private ProjectResourceService projectResourceService;
+	@Autowired
+	private UserService userService;
+	@Autowired
+	private MessageSource messageSource;
 
 	@PostMapping("/projects/{owner}/{projectName}/pages/check-key")
 	public ResponseEntity<Map<String, String>> checkKey(
@@ -53,6 +64,14 @@ public class PageController {
 			BindingResult bindingResult){
 		
 		if(principal == null) {
+			throw new NoAuthorizationException();
+		}
+		
+		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
+		
+		List<ProjectAuthorization> authes = projectAuthorizationService.findAllByUserIdAndProjectId(project.getCreateUserId(), project.getId());
+		boolean canWrite = authes.stream().anyMatch(item -> item.getAccessLevel() == AccessLevel.WRITE || item.getAccessLevel() == AccessLevel.ADMIN);
+		if(!canWrite) {
 			throw new NoAuthorizationException();
 		}
 		
@@ -71,14 +90,6 @@ public class PageController {
 			logger.error("包含非法字符");
 			bindingResult.rejectValue("key", "NotValid.pageKey");
 			throw new InvalidRequestException(bindingResult);
-		}
-		
-		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-		
-		List<ProjectAuthorization> authes = projectAuthorizationService.findAllByUserIdAndProjectId(project.getCreateUserId(), project.getId());
-		boolean canWrite = authes.stream().anyMatch(item -> item.getAccessLevel() == AccessLevel.WRITE || item.getAccessLevel() == AccessLevel.ADMIN);
-		if(!canWrite) {
-			throw new NoAuthorizationException();
 		}
 		
 		Integer groupId = param.getGroupId();
@@ -147,5 +158,112 @@ public class PageController {
 		});
 		
 		return ResponseEntity.ok(new HashMap<String, String>());
+	}
+
+	@PostMapping("/projects/{owner}/{projectName}/pages")
+	public ResponseEntity<ProjectResource> newPage(Principal principal, 
+			@PathVariable("owner") String owner,
+			@PathVariable("projectName") String projectName,
+			@Valid @RequestBody NewPageParam param, 
+			BindingResult bindingResult) {
+		if(principal == null) {
+			throw new NoAuthorizationException();
+		}
+		
+		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
+		
+		List<ProjectAuthorization> authes = projectAuthorizationService.findAllByUserIdAndProjectId(project.getCreateUserId(), project.getId());
+		boolean canWrite = authes.stream().anyMatch(item -> item.getAccessLevel() == AccessLevel.WRITE || item.getAccessLevel() == AccessLevel.ADMIN);
+		if(!canWrite) {
+			throw new NoAuthorizationException();
+		}
+		
+		//校验 key: 
+		boolean keyIsValid = true;
+		// 一、是否为空
+		if(bindingResult.hasErrors()) {
+			logger.error("名称不能为空");
+			keyIsValid = false;
+		}
+		
+		String key = param.getKey().trim();
+		if(keyIsValid) {
+			//校验：只支持英文字母、数字、中划线(-)、下划线(_)、点(.)
+			String regEx = "^[a-zA-Z0-9\\-\\w]+$";
+			Pattern pattern = Pattern.compile(regEx);
+			Matcher matcher = pattern.matcher(key);
+			if(!matcher.matches()) {
+				logger.error("包含非法字符");
+				bindingResult.rejectValue("key", "NotValid.pageKey");
+				keyIsValid = false;
+			}
+		}
+		
+		if(keyIsValid) {
+			Integer groupId = param.getGroupId();
+			projectResourceService.findByKey(
+					project.getId(), 
+					param.getGroupId(), 
+					ProjectResourceType.PAGE, 
+					param.getAppType(),
+					key).map(resource -> {
+				logger.error("key 已被占用");
+				
+				if(groupId == Constant.TREE_ROOT_ID) {
+					return new Object[] {"根目录", key};
+				}
+				
+				// 这里不需要做是否存在判断，因为肯定存在。
+				return new Object[] {projectResourceService.findById(groupId).get().getName(), key};
+			}).ifPresent(args -> {
+				bindingResult.rejectValue("key", "Duplicated.pageKey", args, null);
+			});
+		}
+		
+		// 校验 name
+		String name = param.getName().trim();
+		
+		Integer groupId = param.getGroupId();
+		projectResourceService.findByName(
+				project.getId(), 
+				param.getGroupId(), 
+				ProjectResourceType.PAGE, 
+				param.getAppType(),
+				name).map(resource -> {
+			logger.error("name 已被占用");
+			
+			if(groupId == Constant.TREE_ROOT_ID) {
+				return new Object[] {"根目录", name};
+			}
+			
+			// 这里不需要做是否存在判断，因为肯定存在。
+			return new Object[] {projectResourceService.findById(groupId).get().getName(), name};
+		}).ifPresent(args -> {
+			bindingResult.rejectValue("name", "Duplicated.pageName", args, null);
+		});
+		
+		if(bindingResult.hasErrors()) {
+			throw new InvalidRequestException(bindingResult);
+		}
+		
+		ProjectResource resource = new ProjectResource();
+		resource.setProjectId(project.getId());
+		resource.setParentId(param.getGroupId());
+		resource.setAppType(param.getAppType());
+		resource.setKey(key);
+		resource.setName(name);
+		if(param.getDescription() != null) {
+			resource.setDescription(param.getDescription().trim());
+		}
+		resource.setResourceType(ProjectResourceType.PAGE);
+		
+		UserInfo currentUser = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
+		resource.setCreateUserId(currentUser.getId());
+		resource.setCreateTime(LocalDateTime.now());
+		
+		ProjectResource savedProjectResource = projectResourceService.insert(resource);
+		savedProjectResource.setMessageSource(messageSource);
+		return new ResponseEntity<ProjectResource>(savedProjectResource, HttpStatus.CREATED);
+		
 	}
 }
