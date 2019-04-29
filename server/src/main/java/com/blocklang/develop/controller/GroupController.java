@@ -29,10 +29,11 @@ import com.blocklang.core.exception.ResourceNotFoundException;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.UserService;
 import com.blocklang.develop.constant.AccessLevel;
+import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.constant.ProjectResourceType;
-import com.blocklang.develop.data.CheckPageKeyParam;
-import com.blocklang.develop.data.CheckPageNameParam;
-import com.blocklang.develop.data.NewPageParam;
+import com.blocklang.develop.data.CheckGroupKeyParam;
+import com.blocklang.develop.data.CheckGroupNameParam;
+import com.blocklang.develop.data.NewGroupParam;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectAuthorization;
 import com.blocklang.develop.model.ProjectResource;
@@ -41,8 +42,9 @@ import com.blocklang.develop.service.ProjectResourceService;
 import com.blocklang.develop.service.ProjectService;
 
 @RestController
-public class PageController {
-	private static final Logger logger = LoggerFactory.getLogger(PageController.class);
+public class GroupController {
+
+	private static final Logger logger = LoggerFactory.getLogger(GroupController.class);
 	
 	@Autowired
 	private ProjectService projectService;
@@ -54,13 +56,13 @@ public class PageController {
 	private UserService userService;
 	@Autowired
 	private MessageSource messageSource;
-
-	@PostMapping("/projects/{owner}/{projectName}/pages/check-key")
+	
+	@PostMapping("/projects/{owner}/{projectName}/groups/check-key")
 	public ResponseEntity<Map<String, String>> checkKey(
 			Principal principal,
 			@PathVariable("owner") String owner,
 			@PathVariable("projectName") String projectName,
-			@Valid @RequestBody CheckPageKeyParam param, 
+			@Valid @RequestBody CheckGroupKeyParam param, 
 			BindingResult bindingResult){
 		
 		if(principal == null) {
@@ -88,7 +90,7 @@ public class PageController {
 		Matcher matcher = pattern.matcher(key);
 		if(!matcher.matches()) {
 			logger.error("包含非法字符");
-			bindingResult.rejectValue("key", "NotValid.pageKey");
+			bindingResult.rejectValue("key", "NotValid.groupKey");
 			throw new InvalidRequestException(bindingResult);
 		}
 		
@@ -96,8 +98,8 @@ public class PageController {
 		projectResourceService.findByKey(
 				project.getId(), 
 				parentId, 
-				ProjectResourceType.PAGE, 
-				param.getAppType(),
+				ProjectResourceType.GROUP, 
+				AppType.UNKNOWN,
 				key).map(resource -> {
 			logger.error("key 已被占用");
 			
@@ -108,19 +110,19 @@ public class PageController {
 			// 这里不需要做是否存在判断，因为肯定存在。
 			return new Object[] {projectResourceService.findById(parentId).get().getName(), key};
 		}).ifPresent(args -> {
-			bindingResult.rejectValue("key", "Duplicated.pageKey", args, null);
+			bindingResult.rejectValue("key", "Duplicated.groupKey", args, null);
 			throw new InvalidRequestException(bindingResult);
 		});
 		
 		return ResponseEntity.ok(new HashMap<String, String>());
 	}
 	
-	@PostMapping("/projects/{owner}/{projectName}/pages/check-name")
+	@PostMapping("/projects/{owner}/{projectName}/groups/check-name")
 	public ResponseEntity<Map<String, String>> checkName(
 			Principal principal,
 			@PathVariable("owner") String owner,
 			@PathVariable("projectName") String projectName,
-			@Valid @RequestBody CheckPageNameParam param, 
+			@Valid @RequestBody CheckGroupNameParam param, 
 			BindingResult bindingResult){
 
 		if(principal == null) {
@@ -141,8 +143,8 @@ public class PageController {
 		projectResourceService.findByName(
 				project.getId(), 
 				parentId, 
-				ProjectResourceType.PAGE, 
-				param.getAppType(),
+				ProjectResourceType.GROUP, 
+				AppType.UNKNOWN,
 				name).map(resource -> {
 			logger.error("name 已被占用");
 			
@@ -153,19 +155,19 @@ public class PageController {
 			// 这里不需要做是否存在判断，因为肯定存在。
 			return new Object[] {projectResourceService.findById(parentId).get().getName(), name};
 		}).ifPresent(args -> {
-			bindingResult.rejectValue("name", "Duplicated.pageName", args, null);
+			bindingResult.rejectValue("name", "Duplicated.groupName", args, null);
 			throw new InvalidRequestException(bindingResult);
 		});
 		
 		return ResponseEntity.ok(new HashMap<String, String>());
 	}
 
-	@PostMapping("/projects/{owner}/{projectName}/pages")
-	public ResponseEntity<ProjectResource> newPage(
+	@PostMapping("/projects/{owner}/{projectName}/groups")
+	public ResponseEntity<ProjectResource> newGroup(
 			Principal principal, 
 			@PathVariable("owner") String owner,
 			@PathVariable("projectName") String projectName,
-			@Valid @RequestBody NewPageParam param, 
+			@Valid @RequestBody NewGroupParam param, 
 			BindingResult bindingResult) {
 		if(principal == null) {
 			throw new NoAuthorizationException();
@@ -195,7 +197,7 @@ public class PageController {
 			Matcher matcher = pattern.matcher(key);
 			if(!matcher.matches()) {
 				logger.error("包含非法字符");
-				bindingResult.rejectValue("key", "NotValid.pageKey");
+				bindingResult.rejectValue("key", "NotValid.groupKey");
 				keyIsValid = false;
 			}
 		}
@@ -205,8 +207,8 @@ public class PageController {
 			projectResourceService.findByKey(
 					project.getId(), 
 					parentId, 
-					ProjectResourceType.PAGE, 
-					param.getAppType(),
+					ProjectResourceType.GROUP, 
+					AppType.UNKNOWN,
 					key).map(resource -> {
 				logger.error("key 已被占用");
 				
@@ -217,7 +219,7 @@ public class PageController {
 				// 这里不需要做是否存在判断，因为肯定存在。
 				return new Object[] {projectResourceService.findById(parentId).get().getName(), key};
 			}).ifPresent(args -> {
-				bindingResult.rejectValue("key", "Duplicated.pageKey", args, null);
+				bindingResult.rejectValue("key", "Duplicated.groupKey", args, null);
 			});
 		}
 		
@@ -228,8 +230,8 @@ public class PageController {
 		projectResourceService.findByName(
 				project.getId(), 
 				parentId, 
-				ProjectResourceType.PAGE, 
-				param.getAppType(),
+				ProjectResourceType.GROUP, 
+				AppType.UNKNOWN,
 				name).map(resource -> {
 			logger.error("name 已被占用");
 			
@@ -249,14 +251,14 @@ public class PageController {
 		
 		ProjectResource resource = new ProjectResource();
 		resource.setProjectId(project.getId());
-		resource.setParentId(parentId);
-		resource.setAppType(param.getAppType());
+		resource.setParentId(param.getParentId());
+		resource.setAppType(AppType.UNKNOWN);
 		resource.setKey(key);
 		resource.setName(name);
 		if(param.getDescription() != null) {
 			resource.setDescription(param.getDescription().trim());
 		}
-		resource.setResourceType(ProjectResourceType.PAGE);
+		resource.setResourceType(ProjectResourceType.GROUP);
 		
 		UserInfo currentUser = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
 		resource.setCreateUserId(currentUser.getId());

@@ -1,13 +1,8 @@
 package com.blocklang.develop.data;
 
-import com.blocklang.develop.constant.AppType;
-
-public class CheckPageNameParam {
-
+public class CheckGroupNameParam {
 	private String name;
-	private Integer parentId;
-	private String appType;
-	
+	private Integer parentId; // parentId
 	public String getName() {
 		return name;
 	}
@@ -20,11 +15,5 @@ public class CheckPageNameParam {
 	public void setParentId(Integer parentId) {
 		this.parentId = parentId;
 	}
-	public AppType getAppType() {
-		return AppType.fromKey(appType);
-	}
-	public void setAppType(String appType) {
-		this.appType = appType;
-	}
-	
+
 }

@@ -26,9 +26,9 @@ import com.blocklang.core.test.AbstractControllerTest;
 import com.blocklang.develop.constant.AccessLevel;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.constant.ProjectResourceType;
-import com.blocklang.develop.data.CheckPageKeyParam;
-import com.blocklang.develop.data.CheckPageNameParam;
-import com.blocklang.develop.data.NewPageParam;
+import com.blocklang.develop.data.CheckGroupKeyParam;
+import com.blocklang.develop.data.CheckGroupNameParam;
+import com.blocklang.develop.data.NewGroupParam;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectAuthorization;
 import com.blocklang.develop.model.ProjectResource;
@@ -38,9 +38,9 @@ import com.blocklang.develop.service.ProjectService;
 
 import io.restassured.http.ContentType;
 
-@WebMvcTest(PageController.class)
-public class PageControllerTest extends AbstractControllerTest{
-	
+@WebMvcTest(GroupController.class)
+public class GroupControllerTest extends AbstractControllerTest{
+
 	@MockBean
 	private ProjectService projectService;
 	@MockBean
@@ -50,14 +50,14 @@ public class PageControllerTest extends AbstractControllerTest{
 
 	@Test
 	public void check_key_user_not_login() {
-		CheckPageKeyParam param = new CheckPageKeyParam();
+		CheckGroupKeyParam param = new CheckGroupKeyParam();
 		param.setKey("key");
 		
 		given()
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages/check-key", "jack", "project")
+			.post("/projects/{owner}/{projectName}/groups/check-key", "jack", "project")
 		.then()
 			.statusCode(HttpStatus.SC_FORBIDDEN)
 			.body(equalTo(""));
@@ -66,7 +66,7 @@ public class PageControllerTest extends AbstractControllerTest{
 	@WithMockUser(username = "jack")
 	@Test
 	public void check_key_user_login_but_project_not_exist() {
-		CheckPageKeyParam param = new CheckPageKeyParam();
+		CheckGroupKeyParam param = new CheckGroupKeyParam();
 		param.setKey("key");
 		
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
@@ -75,18 +75,16 @@ public class PageControllerTest extends AbstractControllerTest{
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages/check-key", "jack", "project")
+			.post("/projects/{owner}/{projectName}/groups/check-key", "jack", "project")
 		.then()
 			.statusCode(HttpStatus.SC_NOT_FOUND)
 			.body(equalTo(""));
 	}
 	
-	// 用户无权访问的公开项目
-	// 没有为用户配置该项目的任何权限
 	@WithMockUser(username = "jack")
 	@Test
 	public void check_key_user_can_not_read_public_project() {
-		CheckPageKeyParam param = new CheckPageKeyParam();
+		CheckGroupKeyParam param = new CheckGroupKeyParam();
 		param.setKey("key");
 		
 		Project project = new Project();
@@ -102,17 +100,16 @@ public class PageControllerTest extends AbstractControllerTest{
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages/check-key", "jack", "project")
+			.post("/projects/{owner}/{projectName}/groups/check-key", "jack", "project")
 		.then()
 			.statusCode(HttpStatus.SC_FORBIDDEN)
 			.body(equalTo(""));
 	}
 	
-	// 用户对公开项目只有 read 权限
 	@WithMockUser(username = "jack")
 	@Test
 	public void check_key_login_user_can_not_write_public_project() {
-		CheckPageKeyParam param = new CheckPageKeyParam();
+		CheckGroupKeyParam param = new CheckGroupKeyParam();
 		param.setKey("key");
 		
 		Project project = new Project();
@@ -133,7 +130,7 @@ public class PageControllerTest extends AbstractControllerTest{
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages/check-key", "jack", "project")
+			.post("/projects/{owner}/{projectName}/groups/check-key", "jack", "project")
 		.then()
 			.statusCode(HttpStatus.SC_FORBIDDEN)
 			.body(equalTo(""));
@@ -156,14 +153,14 @@ public class PageControllerTest extends AbstractControllerTest{
 		auth.setAccessLevel(AccessLevel.WRITE);
 		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
-		CheckPageKeyParam param = new CheckPageKeyParam();
+		CheckGroupKeyParam param = new CheckGroupKeyParam();
 		param.setKey(" ");
 		
 		given()
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages/check-key", "jack", "project")
+			.post("/projects/{owner}/{projectName}/groups/check-key", "jack", "project")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
 			.body("errors.key", hasItem("名称不能为空"),
@@ -187,14 +184,14 @@ public class PageControllerTest extends AbstractControllerTest{
 		auth.setAccessLevel(AccessLevel.WRITE);
 		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
-		CheckPageKeyParam param = new CheckPageKeyParam();
+		CheckGroupKeyParam param = new CheckGroupKeyParam();
 		param.setKey("中文");
 		
 		given()
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages/check-key", "jack", "project")
+			.post("/projects/{owner}/{projectName}/groups/check-key", "jack", "project")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
 			.body("errors.key", hasItem("只允许字母、数字、中划线(-)、下划线(_)"),
@@ -223,7 +220,7 @@ public class PageControllerTest extends AbstractControllerTest{
 		
 		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(new ProjectResource()));
 		
-		CheckPageKeyParam param = new CheckPageKeyParam();
+		CheckGroupKeyParam param = new CheckGroupKeyParam();
 		param.setKey("a-used-key");
 		param.setParentId(Constant.TREE_ROOT_ID);
 		
@@ -231,7 +228,7 @@ public class PageControllerTest extends AbstractControllerTest{
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages/check-key", "jack", "project")
+			.post("/projects/{owner}/{projectName}/groups/check-key", "jack", "project")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
 			.body("errors.key", hasItem("根目录下已存在名称<strong>a-used-key</strong>"),
@@ -255,26 +252,25 @@ public class PageControllerTest extends AbstractControllerTest{
 		auth.setAccessLevel(AccessLevel.WRITE);
 		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
-		Integer parentId = 1;
+		Integer groupId = 1;
 		ProjectResource resource = new ProjectResource();
-		resource.setParentId(parentId);
+		resource.setParentId(groupId);
 		when(projectResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource));
 		
 		ProjectResource parentResource = new ProjectResource();
-		parentResource.setId(parentId);
+		parentResource.setId(groupId);
 		parentResource.setName("二级目录");
 		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(parentResource));
 		
-		CheckPageKeyParam param = new CheckPageKeyParam();
+		CheckGroupKeyParam param = new CheckGroupKeyParam();
 		param.setKey("a-used-key");
-		param.setParentId(parentId);
-		param.setAppType(AppType.WEB.getKey());
+		param.setParentId(groupId);
 		
 		given()
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages/check-key", "jack", "project")
+			.post("/projects/{owner}/{projectName}/groups/check-key", "jack", "project")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
 			.body("errors.key", hasItem("二级目录下已存在名称<strong>a-used-key</strong>"),
@@ -300,14 +296,14 @@ public class PageControllerTest extends AbstractControllerTest{
 		
 		when(projectResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
 		
-		CheckPageKeyParam param = new CheckPageKeyParam();
+		CheckGroupKeyParam param = new CheckGroupKeyParam();
 		param.setKey("key");
 		
 		given()
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages/check-key", "jack", "project")
+			.post("/projects/{owner}/{projectName}/groups/check-key", "jack", "project")
 		.then()
 			.statusCode(HttpStatus.SC_OK)
 			.body(equalTo("{}"));
@@ -315,14 +311,14 @@ public class PageControllerTest extends AbstractControllerTest{
 	
 	@Test
 	public void check_name_user_not_login() {
-		CheckPageNameParam param = new CheckPageNameParam();
+		CheckGroupNameParam param = new CheckGroupNameParam();
 		param.setName("name");
 		
 		given()
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages/check-name", "jack", "project")
+			.post("/projects/{owner}/{projectName}/groups/check-name", "jack", "project")
 		.then()
 			.statusCode(HttpStatus.SC_FORBIDDEN)
 			.body(equalTo(""));
@@ -331,7 +327,7 @@ public class PageControllerTest extends AbstractControllerTest{
 	@WithMockUser(username = "jack")
 	@Test
 	public void check_name_user_login_but_project_not_exist() {
-		CheckPageNameParam param = new CheckPageNameParam();
+		CheckGroupNameParam param = new CheckGroupNameParam();
 		param.setName("name");
 		
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
@@ -340,7 +336,7 @@ public class PageControllerTest extends AbstractControllerTest{
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages/check-name", "jack", "project")
+			.post("/projects/{owner}/{projectName}/groups/check-name", "jack", "project")
 		.then()
 			.statusCode(HttpStatus.SC_NOT_FOUND)
 			.body(equalTo(""));
@@ -349,7 +345,7 @@ public class PageControllerTest extends AbstractControllerTest{
 	@WithMockUser(username = "jack")
 	@Test
 	public void check_name_login_user_can_not_write_public_project() {
-		CheckPageNameParam param = new CheckPageNameParam();
+		CheckGroupNameParam param = new CheckGroupNameParam();
 		param.setName("name");
 		
 		Project project = new Project();
@@ -370,7 +366,7 @@ public class PageControllerTest extends AbstractControllerTest{
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages/check-name", "jack", "project")
+			.post("/projects/{owner}/{projectName}/groups/check-name", "jack", "project")
 		.then()
 			.statusCode(HttpStatus.SC_FORBIDDEN)
 			.body(equalTo(""));
@@ -398,16 +394,15 @@ public class PageControllerTest extends AbstractControllerTest{
 		
 		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(new ProjectResource()));
 		
-		CheckPageNameParam param = new CheckPageNameParam();
+		CheckGroupNameParam param = new CheckGroupNameParam();
 		param.setName("a-used-name");
 		param.setParentId(Constant.TREE_ROOT_ID);
-		param.setAppType(AppType.WEB.getKey());
 		
 		given()
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages/check-name", "jack", "project")
+			.post("/projects/{owner}/{projectName}/groups/check-name", "jack", "project")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
 			.body("errors.name", hasItem("根目录下已存在备注<strong>a-used-name</strong>"),
@@ -441,16 +436,15 @@ public class PageControllerTest extends AbstractControllerTest{
 		parentResource.setName("二级目录");
 		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(parentResource));
 		
-		CheckPageNameParam param = new CheckPageNameParam();
+		CheckGroupNameParam param = new CheckGroupNameParam();
 		param.setName("a-used-name");
 		param.setParentId(groupId);
-		param.setAppType(AppType.WEB.getKey());
 		
 		given()
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages/check-name", "jack", "project")
+			.post("/projects/{owner}/{projectName}/groups/check-name", "jack", "project")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
 			.body("errors.name", hasItem("二级目录下已存在备注<strong>a-used-name</strong>"),
@@ -476,26 +470,24 @@ public class PageControllerTest extends AbstractControllerTest{
 
 		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
 		
-		CheckPageNameParam param = new CheckPageNameParam();
+		CheckGroupNameParam param = new CheckGroupNameParam();
 		param.setName("name");
 		param.setParentId(Constant.TREE_ROOT_ID);
-		param.setAppType(AppType.WEB.getKey());
 		
 		given()
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages/check-name", "jack", "project")
+			.post("/projects/{owner}/{projectName}/groups/check-name", "jack", "project")
 		.then()
 			.statusCode(HttpStatus.SC_OK)
 			.body(equalTo("{}"));
 	}
 	
 	@Test
-	public void new_page_user_not_login() {
-		NewPageParam param = new NewPageParam();
+	public void new_group_user_not_login() {
+		NewGroupParam param = new NewGroupParam();
 		param.setParentId(Constant.TREE_ROOT_ID);
-		param.setAppType(AppType.WEB.getKey());
 		param.setKey("key");
 		param.setName("name");
 		
@@ -503,7 +495,7 @@ public class PageControllerTest extends AbstractControllerTest{
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages", "jack", "project")
+			.post("/projects/{owner}/{projectName}/groups", "jack", "project")
 		.then()
 			.statusCode(HttpStatus.SC_FORBIDDEN)
 			.body(equalTo(""));
@@ -511,10 +503,9 @@ public class PageControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void new_page_user_login_but_project_not_exist() {
-		NewPageParam param = new NewPageParam();
+	public void new_group_user_login_but_project_not_exist() {
+		NewGroupParam param = new NewGroupParam();
 		param.setParentId(Constant.TREE_ROOT_ID);
-		param.setAppType(AppType.WEB.getKey());
 		param.setKey("key");
 		param.setName("name");
 		
@@ -524,7 +515,7 @@ public class PageControllerTest extends AbstractControllerTest{
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages", "jack", "project")
+			.post("/projects/{owner}/{projectName}/groups", "jack", "project")
 		.then()
 			.statusCode(HttpStatus.SC_NOT_FOUND)
 			.body(equalTo(""));
@@ -532,10 +523,9 @@ public class PageControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void new_page_user_can_not_read_public_project() {
-		NewPageParam param = new NewPageParam();
+	public void new_group_user_can_not_read_public_project() {
+		NewGroupParam param = new NewGroupParam();
 		param.setParentId(Constant.TREE_ROOT_ID);
-		param.setAppType(AppType.WEB.getKey());
 		param.setKey("key");
 		param.setName("name");
 		
@@ -552,7 +542,7 @@ public class PageControllerTest extends AbstractControllerTest{
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages", "jack", "project")
+			.post("/projects/{owner}/{projectName}/groups", "jack", "project")
 		.then()
 			.statusCode(HttpStatus.SC_FORBIDDEN)
 			.body(equalTo(""));
@@ -560,10 +550,9 @@ public class PageControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void new_page_login_user_can_not_write_public_project() {
-		NewPageParam param = new NewPageParam();
+	public void new_group_login_user_can_not_write_public_project() {
+		NewGroupParam param = new NewGroupParam();
 		param.setParentId(Constant.TREE_ROOT_ID);
-		param.setAppType(AppType.WEB.getKey());
 		param.setKey("key");
 		param.setName("name");
 		
@@ -584,7 +573,7 @@ public class PageControllerTest extends AbstractControllerTest{
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages", "jack", "project")
+			.post("/projects/{owner}/{projectName}/groups", "jack", "project")
 		.then()
 			.statusCode(HttpStatus.SC_FORBIDDEN)
 			.body(equalTo(""));
@@ -592,10 +581,9 @@ public class PageControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void new_page_check_key_is_blank_and_name_passed() {
-		NewPageParam param = new NewPageParam();
+	public void new_group_check_key_is_blank_and_name_passed() {
+		NewGroupParam param = new NewGroupParam();
 		param.setParentId(Constant.TREE_ROOT_ID);
-		param.setAppType(AppType.WEB.getKey());
 		param.setKey(" ");
 		param.setName("name");
 		
@@ -619,7 +607,7 @@ public class PageControllerTest extends AbstractControllerTest{
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages", "jack", "project")
+			.post("/projects/{owner}/{projectName}/groups", "jack", "project")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
 			.body("errors.key", hasItem("名称不能为空"),
@@ -629,10 +617,9 @@ public class PageControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void new_page_check_key_is_blank_and_name_is_used() {
-		NewPageParam param = new NewPageParam();
+	public void new_group_check_key_is_blank_and_name_is_used() {
+		NewGroupParam param = new NewGroupParam();
 		param.setParentId(Constant.TREE_ROOT_ID);
-		param.setAppType(AppType.WEB.getKey());
 		param.setKey(" ");
 		param.setName("a-used-name");
 		
@@ -659,7 +646,7 @@ public class PageControllerTest extends AbstractControllerTest{
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages", "jack", "project")
+			.post("/projects/{owner}/{projectName}/groups", "jack", "project")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
 			.body("errors.key", hasItem("名称不能为空"),
@@ -670,10 +657,9 @@ public class PageControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void new_page_check_key_is_invalid_and_name_is_passed() {
-		NewPageParam param = new NewPageParam();
+	public void new_group_check_key_is_invalid_and_name_is_passed() {
+		NewGroupParam param = new NewGroupParam();
 		param.setParentId(Constant.TREE_ROOT_ID);
-		param.setAppType(AppType.WEB.getKey());
 		param.setKey("中文");
 		param.setName("name");
 		
@@ -697,7 +683,7 @@ public class PageControllerTest extends AbstractControllerTest{
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages", "jack", "project")
+			.post("/projects/{owner}/{projectName}/groups", "jack", "project")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
 			.body("errors.key", hasItem("只允许字母、数字、中划线(-)、下划线(_)"),
@@ -707,10 +693,9 @@ public class PageControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void new_page_check_key_is_invalid_and_name_is_used() {
-		NewPageParam param = new NewPageParam();
+	public void new_group_check_key_is_invalid_and_name_is_used() {
+		NewGroupParam param = new NewGroupParam();
 		param.setParentId(Constant.TREE_ROOT_ID);
-		param.setAppType(AppType.WEB.getKey());
 		param.setKey("中文");
 		param.setName("a-used-name");
 		
@@ -737,7 +722,7 @@ public class PageControllerTest extends AbstractControllerTest{
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages", "jack", "project")
+			.post("/projects/{owner}/{projectName}/groups", "jack", "project")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
 			.body("errors.key", hasItem("只允许字母、数字、中划线(-)、下划线(_)"),
@@ -748,10 +733,9 @@ public class PageControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void new_page_check_key_is_used_and_name_is_used() {
-		NewPageParam param = new NewPageParam();
+	public void new_group_check_key_is_used_and_name_is_used() {
+		NewGroupParam param = new NewGroupParam();
 		param.setParentId(Constant.TREE_ROOT_ID);
-		param.setAppType(AppType.WEB.getKey());
 		param.setKey("a-used-key");
 		param.setName("a-used-name");
 		
@@ -781,7 +765,7 @@ public class PageControllerTest extends AbstractControllerTest{
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages", "jack", "project")
+			.post("/projects/{owner}/{projectName}/groups", "jack", "project")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
 			.body("errors.key", hasItem("根目录下已存在名称<strong>a-used-key</strong>"),
@@ -792,10 +776,9 @@ public class PageControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void new_page_check_key_is_used_and_name_is_pass() {
-		NewPageParam param = new NewPageParam();
+	public void new_group_check_key_is_used_and_name_is_pass() {
+		NewGroupParam param = new NewGroupParam();
 		param.setParentId(Constant.TREE_ROOT_ID);
-		param.setAppType(AppType.WEB.getKey());
 		param.setKey("a-used-key");
 		param.setName("name");
 		
@@ -824,7 +807,7 @@ public class PageControllerTest extends AbstractControllerTest{
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages", "jack", "project")
+			.post("/projects/{owner}/{projectName}/groups", "jack", "project")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
 			.body("errors.key", hasItem("根目录下已存在名称<strong>a-used-key</strong>"),
@@ -835,10 +818,9 @@ public class PageControllerTest extends AbstractControllerTest{
 	// 校验都通过后，才保存。
 	@WithMockUser(username = "jack")
 	@Test
-	public void new_page_success() {
-		NewPageParam param = new NewPageParam();
+	public void new_group_success() {
+		NewGroupParam param = new NewGroupParam();
 		param.setParentId(Constant.TREE_ROOT_ID);
-		param.setAppType(AppType.WEB.getKey());
 		param.setKey("key");
 		param.setName("name");
 		
@@ -879,11 +861,12 @@ public class PageControllerTest extends AbstractControllerTest{
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages", "jack", "project")
+			.post("/projects/{owner}/{projectName}/groups", "jack", "project")
 		.then()
 			.statusCode(HttpStatus.SC_CREATED)
 			.body("key", equalTo("key"),
 				  "name", equalTo("name"),
 				  "id", is(notNullValue()));
 	}
+
 }

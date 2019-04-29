@@ -14,11 +14,11 @@ POST /projects/{owner}/{projectName}/pages/check-key
 
 Form Data
 
-| Name      | Type     | Description        |
-| --------- | -------- | ------------------ |
-| `key`     | `string` | **Required**. 名称 |
-| `groupId` | `number` | 所属分组标识       |
-| `appType` | `string` | 程序类型           |
+| Name       | Type     | Description        |
+| ---------- | -------- | ------------------ |
+| `key`      | `string` | **Required**. 名称 |
+| `parentId` | `number` | 所属分组标识       |
+| `appType`  | `string` | 程序类型           |
 
 ## Response
 

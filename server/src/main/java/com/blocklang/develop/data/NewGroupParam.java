@@ -2,16 +2,12 @@ package com.blocklang.develop.data;
 
 import javax.validation.constraints.NotBlank;
 
-import com.blocklang.develop.constant.AppType;
-
-public class NewPageParam {
-
-	@NotBlank(message = "{NotBlank.pageKey}")
+public class NewGroupParam {
+	@NotBlank(message = "{NotBlank.groupKey}")
 	private String key;
 	private String name;
 	private String description;
-	private Integer parentId; // parentId
-	private String appType;
+	private Integer parentId;
 	public String getKey() {
 		return key;
 	}
@@ -36,11 +32,4 @@ public class NewPageParam {
 	public void setParentId(Integer parentId) {
 		this.parentId = parentId;
 	}
-	public AppType getAppType() {
-		return AppType.fromKey(appType);
-	}
-	public void setAppType(String appType) {
-		this.appType = appType;
-	}
-	
 }

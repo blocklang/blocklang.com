@@ -14,11 +14,11 @@ POST /projects/{owner}/{projectName}/pages/check-name
 
 Form Data
 
-| Name      | Type     | Description        |
-| --------- | -------- | ------------------ |
-| `name`    | `string` | **Required**. 备注 |
-| `groupId` | `number` | 所属分组标识       |
-| `appType` | `string` | 程序类型           |
+| Name       | Type     | Description        |
+| ---------- | -------- | ------------------ |
+| `name`     | `string` | **Required**. 备注 |
+| `parentId` | `number` | 所属分组标识       |
+| `appType`  | `string` | 程序类型           |
 
 ## Response
 

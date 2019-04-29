@@ -16,7 +16,7 @@ POST /projects/{owner}/{projectName}/pages/
 | `name`        | `string` | 备注         |
 | `type`        | `string` | 类型         |
 | `description` | `string` | 说明         |
-| `groupId`     | `number` | 所属分组标识 |
+| `parentId`    | `number` | 所属分组标识 |
 
 ## Response
 
