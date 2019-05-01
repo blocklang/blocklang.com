@@ -40,6 +40,6 @@ BlockLang 将软件开发拆分为两部分：
 
 ## 贡献
 
-在提交代码前，请先了解[为什么要开发 Block Lang](./docs/help/why.md) 以及[设计细节](./doc/program.md)。
+在提交代码前，请先了解[为什么要开发 Block Lang](./docs/help/why.md) 以及[设计细节](./docs/spec/program.md)。
 
 诚邀志同道合的编程**手艺人**加入（QQ群 `619312757`）。
