@@ -10,8 +10,8 @@
 
 1. [校验项目名称](./projects/project/check-name.md)
 2. [创建项目](./projects/project/create-a-project.md)
-3. [查看项目的目录结构](./projects/project/get-a-tree.md)
-4. [查看项目中的一个对象](./projects/project/get-a-blob.md)
+3. [查看项目的目录结构](./projects/project/get-a-group.md)
+4. [查看项目中的一个页面](./projects/project/get-a-page.md)
 5. [获取项目的 README 文件](./projects/project/get-the-readme.md)
 6. [查看一个项目](./projects/project/get-a-project.md)
 7. [获取最近提交信息](./projects/project/get-latest-commit.md)
