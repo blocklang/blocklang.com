@@ -5,11 +5,13 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.validation.Valid;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -137,27 +140,30 @@ public class GroupController {
 			throw new NoAuthorizationException();
 		}
 		
-		String name = param.getName().trim();
-		
-		Integer parentId = param.getParentId();
-		projectResourceService.findByName(
-				project.getId(), 
-				parentId, 
-				ProjectResourceType.GROUP, 
-				AppType.UNKNOWN,
-				name).map(resource -> {
-			logger.error("name 已被占用");
+		// name 的值可以为空
+		if(StringUtils.isNotBlank(param.getName())) {
+			String name = param.getName().trim();
 			
-			if(parentId == Constant.TREE_ROOT_ID) {
-				return new Object[] {"根目录", name};
-			}
-			
-			// 这里不需要做是否存在判断，因为肯定存在。
-			return new Object[] {projectResourceService.findById(parentId).get().getName(), name};
-		}).ifPresent(args -> {
-			bindingResult.rejectValue("name", "Duplicated.groupName", args, null);
-			throw new InvalidRequestException(bindingResult);
-		});
+			Integer parentId = param.getParentId();
+			projectResourceService.findByName(
+					project.getId(), 
+					parentId, 
+					ProjectResourceType.GROUP, 
+					AppType.UNKNOWN,
+					name).map(resource -> {
+				logger.error("name 已被占用");
+				
+				if(parentId == Constant.TREE_ROOT_ID) {
+					return new Object[] {"根目录", name};
+				}
+				
+				// 这里不需要做是否存在判断，因为肯定存在。
+				return new Object[] {projectResourceService.findById(parentId).get().getName(), name};
+			}).ifPresent(args -> {
+				bindingResult.rejectValue("name", "Duplicated.groupName", args, null);
+				throw new InvalidRequestException(bindingResult);
+			});
+		}
 		
 		return ResponseEntity.ok(new HashMap<String, String>());
 	}
@@ -189,7 +195,7 @@ public class GroupController {
 			keyIsValid = false;
 		}
 		
-		String key = param.getKey().trim();
+		String key = Objects.toString(param.getKey(), "").trim();
 		if(keyIsValid) {
 			//校验：只支持英文字母、数字、中划线(-)、下划线(_)、点(.)
 			String regEx = "^[a-zA-Z0-9\\-\\w]+$";
@@ -224,26 +230,29 @@ public class GroupController {
 		}
 		
 		// 校验 name
-		String name = param.getName().trim();
-		
-		Integer parentId = param.getParentId();
-		projectResourceService.findByName(
-				project.getId(), 
-				parentId, 
-				ProjectResourceType.GROUP, 
-				AppType.UNKNOWN,
-				name).map(resource -> {
-			logger.error("name 已被占用");
+		// name 可以为空
+		if(StringUtils.isNotBlank(param.getName())) {
+			String name = param.getName().trim();
 			
-			if(parentId == Constant.TREE_ROOT_ID) {
-				return new Object[] {"根目录", name};
-			}
-			
-			// 这里不需要做是否存在判断，因为肯定存在。
-			return new Object[] {projectResourceService.findById(parentId).get().getName(), name};
-		}).ifPresent(args -> {
-			bindingResult.rejectValue("name", "Duplicated.pageName", args, null);
-		});
+			Integer parentId = param.getParentId();
+			projectResourceService.findByName(
+					project.getId(), 
+					parentId, 
+					ProjectResourceType.GROUP, 
+					AppType.UNKNOWN,
+					name).map(resource -> {
+				logger.error("name 已被占用");
+				
+				if(parentId == Constant.TREE_ROOT_ID) {
+					return new Object[] {"根目录", name};
+				}
+				
+				// 这里不需要做是否存在判断，因为肯定存在。
+				return new Object[] {projectResourceService.findById(parentId).get().getName(), name};
+			}).ifPresent(args -> {
+				bindingResult.rejectValue("name", "Duplicated.pageName", args, null);
+			});
+		}
 		
 		if(bindingResult.hasErrors()) {
 			throw new InvalidRequestException(bindingResult);
@@ -254,7 +263,7 @@ public class GroupController {
 		resource.setParentId(param.getParentId());
 		resource.setAppType(AppType.UNKNOWN);
 		resource.setKey(key);
-		resource.setName(name);
+		resource.setName(param.getName() == null ? null : param.getName().trim());
 		if(param.getDescription() != null) {
 			resource.setDescription(param.getDescription().trim());
 		}
@@ -267,5 +276,37 @@ public class GroupController {
 		ProjectResource savedProjectResource = projectResourceService.insert(resource);
 		savedProjectResource.setMessageSource(messageSource);
 		return new ResponseEntity<ProjectResource>(savedProjectResource, HttpStatus.CREATED);
+	}
+	
+	@GetMapping("/projects/{owner}/{projectName}/groups/{pathId}")
+	public ResponseEntity<List<ProjectResource>> getGroup(
+			Principal user,
+			@PathVariable String owner,
+			@PathVariable String projectName,
+			@PathVariable String pathId) {
+		
+		Integer resourceId;
+		try {
+			resourceId = Integer.valueOf(pathId);
+		} catch (NumberFormatException e) {
+			logger.error("无法将 ‘" + pathId + "’ 转换为数字", e);
+			throw new ResourceNotFoundException();
+		}
+		
+		return projectService.find(owner, projectName).map((project) -> {
+			if(!project.getIsPublic()) {
+				// 1. 用户未登录时不能访问私有项目
+				// 2. 用户虽然登录，但是不是项目的拥有者且没有访问权限，则不能访问
+				if((user == null) || (user!= null && !owner.equals(user.getName()))) {
+					throw new ResourceNotFoundException();
+				}
+			}
+			project.setCreateUserName(owner);
+			List<ProjectResource> tree = projectResourceService.findChildren(project, resourceId);
+			tree.forEach(projectResource -> {
+				projectResource.setMessageSource(messageSource);
+			});
+			return ResponseEntity.ok(tree);
+		}).orElseThrow(ResourceNotFoundException::new);
 	}
 }

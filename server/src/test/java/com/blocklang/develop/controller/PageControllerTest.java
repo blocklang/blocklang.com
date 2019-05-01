@@ -378,6 +378,42 @@ public class PageControllerTest extends AbstractControllerTest{
 
 	@WithMockUser(username = "jack")
 	@Test
+	public void check_name_can_be_null() {
+		Project project = new Project();
+		project.setId(1);
+		project.setCreateUserName("jack");
+		project.setName("project");
+		project.setIsPublic(true); // 公开项目
+		project.setCreateUserId(1);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setUserId(1);
+		auth.setProjectId(1);
+		auth.setAccessLevel(AccessLevel.WRITE);
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		ProjectResource resource = new ProjectResource();
+		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource));
+		
+		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(new ProjectResource()));
+		
+		CheckPageNameParam param = new CheckPageNameParam();
+		param.setName(null);
+		param.setParentId(Constant.TREE_ROOT_ID);
+		param.setAppType(AppType.WEB.getKey());
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/{owner}/{projectName}/pages/check-name", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_OK);
+	}
+	
+	@WithMockUser(username = "jack")
+	@Test
 	public void check_name_is_used_at_root() {
 		Project project = new Project();
 		project.setId(1);
@@ -588,6 +624,43 @@ public class PageControllerTest extends AbstractControllerTest{
 		.then()
 			.statusCode(HttpStatus.SC_FORBIDDEN)
 			.body(equalTo(""));
+	}
+
+	@WithMockUser(username = "jack")
+	@Test
+	public void new_page_check_key_is_null_and_name_is_null() {
+		NewPageParam param = new NewPageParam();
+		param.setParentId(Constant.TREE_ROOT_ID);
+		param.setAppType(AppType.WEB.getKey());
+		param.setKey(null);
+		param.setName(null);
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setCreateUserId(1);
+		project.setCreateUserName("jack");
+		project.setName("project");
+		project.setIsPublic(true); // 公开项目
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setUserId(1);
+		auth.setProjectId(1);
+		auth.setAccessLevel(AccessLevel.WRITE);
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/{owner}/{projectName}/pages", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
+			.body("errors.key", hasItem("名称不能为空"),
+					"errors.key.size()", is(1),
+					"errors.name", is(nullValue()));
 	}
 	
 	@WithMockUser(username = "jack")

@@ -28,7 +28,7 @@ public class PropertyController {
 				.map(item -> {
 					Map<String, String> map = new HashMap<String, String>();
 					map.put("key", item.getKey());
-					map.put("value", item.getValue());
+					map.put("value", item.getLabel());
 					map.put("icon", item.getIcon());
 					return map;
 				}).collect(Collectors.toList());

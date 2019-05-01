@@ -5,11 +5,13 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.validation.Valid;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -135,28 +137,30 @@ public class PageController {
 			throw new NoAuthorizationException();
 		}
 		
-		String name = param.getName().trim();
-		
-		Integer parentId = param.getParentId();
-		projectResourceService.findByName(
-				project.getId(), 
-				parentId, 
-				ProjectResourceType.PAGE, 
-				param.getAppType(),
-				name).map(resource -> {
-			logger.error("name 已被占用");
+		// name 的值可以为空
+		if(StringUtils.isNotBlank(param.getName())) {
+			String name = param.getName().trim();
 			
-			if(parentId == Constant.TREE_ROOT_ID) {
-				return new Object[] {"根目录", name};
-			}
-			
-			// 这里不需要做是否存在判断，因为肯定存在。
-			return new Object[] {projectResourceService.findById(parentId).get().getName(), name};
-		}).ifPresent(args -> {
-			bindingResult.rejectValue("name", "Duplicated.pageName", args, null);
-			throw new InvalidRequestException(bindingResult);
-		});
-		
+			Integer parentId = param.getParentId();
+			projectResourceService.findByName(
+					project.getId(), 
+					parentId, 
+					ProjectResourceType.PAGE, 
+					param.getAppType(),
+					name).map(resource -> {
+				logger.error("name 已被占用");
+				
+				if(parentId == Constant.TREE_ROOT_ID) {
+					return new Object[] {"根目录", name};
+				}
+				
+				// 这里不需要做是否存在判断，因为肯定存在。
+				return new Object[] {projectResourceService.findById(parentId).get().getName(), name};
+			}).ifPresent(args -> {
+				bindingResult.rejectValue("name", "Duplicated.pageName", args, null);
+				throw new InvalidRequestException(bindingResult);
+			});
+		}
 		return ResponseEntity.ok(new HashMap<String, String>());
 	}
 
@@ -187,7 +191,7 @@ public class PageController {
 			keyIsValid = false;
 		}
 		
-		String key = param.getKey().trim();
+		String key = Objects.toString(param.getKey(), "").trim();
 		if(keyIsValid) {
 			//校验：只支持英文字母、数字、中划线(-)、下划线(_)、点(.)
 			String regEx = "^[a-zA-Z0-9\\-\\w]+$";
@@ -221,27 +225,30 @@ public class PageController {
 			});
 		}
 		
-		// 校验 name
-		String name = param.getName().trim();
-		
 		Integer parentId = param.getParentId();
-		projectResourceService.findByName(
-				project.getId(), 
-				parentId, 
-				ProjectResourceType.PAGE, 
-				param.getAppType(),
-				name).map(resource -> {
-			logger.error("name 已被占用");
+		// 校验 name
+		// name 可以为空
+		if(StringUtils.isNotBlank(param.getName())) {
+			String name = param.getName().trim();
+			projectResourceService.findByName(
+					project.getId(), 
+					parentId, 
+					ProjectResourceType.PAGE, 
+					param.getAppType(),
+					name).map(resource -> {
+				logger.error("name 已被占用");
+				
+				if(parentId == Constant.TREE_ROOT_ID) {
+					return new Object[] {"根目录", name};
+				}
+				
+				// 这里不需要做是否存在判断，因为肯定存在。
+				return new Object[] {projectResourceService.findById(parentId).get().getName(), name};
+			}).ifPresent(args -> {
+				bindingResult.rejectValue("name", "Duplicated.pageName", args, null);
+			});
 			
-			if(parentId == Constant.TREE_ROOT_ID) {
-				return new Object[] {"根目录", name};
-			}
-			
-			// 这里不需要做是否存在判断，因为肯定存在。
-			return new Object[] {projectResourceService.findById(parentId).get().getName(), name};
-		}).ifPresent(args -> {
-			bindingResult.rejectValue("name", "Duplicated.pageName", args, null);
-		});
+		}
 		
 		if(bindingResult.hasErrors()) {
 			throw new InvalidRequestException(bindingResult);
@@ -252,7 +259,7 @@ public class PageController {
 		resource.setParentId(parentId);
 		resource.setAppType(param.getAppType());
 		resource.setKey(key);
-		resource.setName(name);
+		resource.setName(param.getName() == null ? null : param.getName().trim());
 		if(param.getDescription() != null) {
 			resource.setDescription(param.getDescription().trim());
 		}

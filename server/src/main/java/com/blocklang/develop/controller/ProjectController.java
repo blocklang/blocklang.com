@@ -12,7 +12,6 @@ import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -35,7 +34,6 @@ import com.blocklang.develop.data.DeploySetting;
 import com.blocklang.develop.data.GitCommitInfo;
 import com.blocklang.develop.data.NewProjectParam;
 import com.blocklang.develop.model.Project;
-import com.blocklang.develop.model.ProjectResource;
 import com.blocklang.develop.service.ProjectDeployService;
 import com.blocklang.develop.service.ProjectFileService;
 import com.blocklang.develop.service.ProjectResourceService;
@@ -61,8 +59,6 @@ public class ProjectController {
 	private ProjectDeployService projectDeployService;
 	@Autowired
 	private UserService userService;
-	@Autowired
-	private MessageSource messageSource;
 	@Autowired
 	private PropertyService propertyService;
 	@Autowired
@@ -124,38 +120,6 @@ public class ProjectController {
 			}, null);
 			throw new InvalidRequestException(bindingResult);
 		});
-	}
-
-	@GetMapping("/projects/{owner}/{projectName}/tree/{pathId}")
-	public ResponseEntity<List<ProjectResource>> getTree(
-			Principal user,
-			@PathVariable String owner,
-			@PathVariable String projectName,
-			@PathVariable String pathId) {
-		
-		Integer resourceId;
-		try {
-			resourceId = Integer.valueOf(pathId);
-		} catch (NumberFormatException e) {
-			logger.error("无法将 ‘" + pathId + "’ 转换为数字", e);
-			throw new ResourceNotFoundException();
-		}
-		
-		return projectService.find(owner, projectName).map((project) -> {
-			if(!project.getIsPublic()) {
-				// 1. 用户未登录时不能访问私有项目
-				// 2. 用户虽然登录，但是不是项目的拥有者且没有访问权限，则不能访问
-				if((user == null) || (user!= null && !owner.equals(user.getName()))) {
-					throw new ResourceNotFoundException();
-				}
-			}
-			project.setCreateUserName(owner);
-			List<ProjectResource> tree = projectResourceService.findChildren(project, resourceId);
-			tree.forEach(projectResource -> {
-				projectResource.setMessageSource(messageSource);
-			});
-			return ResponseEntity.ok(tree);
-		}).orElseThrow(ResourceNotFoundException::new);
 	}
 	
 	@GetMapping("/projects/{owner}/{projectName}/readme")
