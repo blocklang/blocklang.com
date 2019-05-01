@@ -32,5 +32,6 @@
 	<include file="db/changelog/table/201904182158_create_persistent_logins.xml" />
 	
 	<include file="db/changelog/table/201904281746_alter_project_resource_unique_constraint.xml" />
+	<include file="db/changelog/table/201905011555_alter_project_resource_resource_name.xml" />
 
 </databaseChangeLog>

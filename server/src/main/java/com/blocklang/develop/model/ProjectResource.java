@@ -47,7 +47,8 @@ public class ProjectResource extends PartialOperateFields{
 	@Column(name = "resource_key", nullable = false, length = 32)
 	private String key;
 	
-	@Column(name = "resource_name", nullable = false, length = 32)
+	// name 是显示名，如果没有设置，则取 key 的值
+	@Column(name = "resource_name", length = 32)
 	private String name;
 	
 	@Column(name = "resource_desc", length = 64)

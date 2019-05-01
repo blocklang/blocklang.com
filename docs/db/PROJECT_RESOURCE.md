@@ -9,7 +9,7 @@
 | dbid          | 主键     | int     |      |        | 是   | 否   |
 | project_id    | 项目标识 | int     |      |        |      | 否   |
 | resource_key  | 资源标识 | varchar | 32   |        |      | 否   |
-| resource_name | 资源名称 | varchar | 32   |        |      | 否   |
+| resource_name | 资源名称 | varchar | 32   |        |      | 是   |
 | resource_desc | 资源描述 | varchar | 64   |        |      | 是   |
 | resource_type | 资源类型 | char    | 2    |        |      | 否   |
 | app_type      | 程序类型 | char    | 2    |        |      | 否   |
