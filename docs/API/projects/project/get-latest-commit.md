@@ -10,7 +10,7 @@ GET /projects/{owner}/{projectName}/latest-commit/{pathId}
 | ------------- | -------- | ----------------------------- |
 | `owner`       | `string` | **Required**. 用户登录名      |
 | `projectName` | `string` | **Required**. 项目名称        |
-| `pathId`      | `string` | 当前目录的标识，-1 表示根结点 |
+| `parentId`    | `string` | 当前目录的标识，-1 表示根结点 |
 
 ## Response
 

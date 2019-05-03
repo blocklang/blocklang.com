@@ -24,10 +24,14 @@ import Spinner from '../../widgets/spinner';
 import ProjectHeader from '../widgets/ProjectHeader';
 import { isEmpty } from '../../util';
 import Exception from '../error/Exception';
+import { ResourceType, GitFileStatus } from '../../constant';
+import { Params } from '@dojo/framework/routing/interfaces';
 
 export interface ViewProjectProperties {
 	loggedUsername: string;
 	project: Project;
+	parentPath: string;
+	parentId: number;
 	projectResources: ProjectResource[];
 	latestCommitInfo: CommitInfo;
 	readme?: string;
@@ -58,6 +62,11 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 		return isEmpty(project);
 	}
 
+	private _isAuthenticated() {
+		const { loggedUsername } = this.properties;
+		return !!loggedUsername;
+	}
+
 	private _renderHeader() {
 		const {
 			messages: { privateProjectTitle }
@@ -68,19 +77,35 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 	}
 
 	private _renderNavigation() {
-		const { messages } = this._localizedMessages;
-		const { releaseCount = 0 } = this.properties;
-
 		return v('div', { classes: [c.d_flex, c.justify_content_end, c.mb_2] }, [
 			v('div', { classes: [] }, [
+				this._renderNewResourceButtonGroup(),
 				// 发布按钮，后面显示发布次数
-				w(Link, { to: 'list-release', classes: [c.btn, c.btn_outline_secondary, c.btn_sm] }, [
-					`${messages.releaseLabel} `,
-					v('span', { classes: [c.badge, c.badge_light] }, [`${releaseCount}`])
-				]),
+				this._renderReleaseButton(),
 				// 部署按钮，显示部署步骤
 				this._renderDeployButton()
 			])
+		]);
+	}
+
+	private _renderNewResourceButtonGroup() {
+		const disabled = !this._isAuthenticated();
+		const { messages } = this._localizedMessages;
+		return v('div', { classes: [c.btn_group, c.btn_group_sm, c.mr_2], role: 'group' }, [
+			// 这里没有设置 params，却依然起作用，因为当前页面的 url 中已包含 {owner}/{project}
+			w(Link, { classes: [c.btn, c.btn_outline_secondary], to: 'new-page', disabled }, [`${messages.newPage}`]),
+			w(Link, { classes: [c.btn, c.btn_outline_secondary], to: 'new-group', disabled }, [`${messages.newGroup}`])
+		]);
+	}
+
+	private _renderReleaseButton() {
+		const { messages } = this._localizedMessages;
+		const { releaseCount = 0 } = this.properties;
+
+		// 这里没有设置 params，却依然起作用，因为当前页面的 url 中已包含 {owner}/{project}
+		return w(Link, { to: 'list-release', classes: [c.btn, c.btn_outline_secondary, c.btn_sm, c.mr_2] }, [
+			`${messages.releaseLabel} `,
+			v('span', { classes: [c.badge, c.badge_light] }, [`${releaseCount}`])
 		]);
 	}
 
@@ -89,11 +114,10 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 	 */
 	private _renderDeployButton() {
 		const { messages } = this._localizedMessages;
-		const { loggedUsername } = this.properties;
-		const isAuth: boolean = !!loggedUsername;
+		const isAuth: boolean = this._isAuthenticated();
 
 		if (isAuth) {
-			return v('div', { classes: [c.btn_group, c.ml_2] }, [
+			return v('div', { classes: [c.btn_group] }, [
 				v(
 					'button',
 					{
@@ -125,7 +149,7 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 					},
 					onAttach: () => {
 						// 使用 dom 函数，就是为了调用 tooltip 方法
-						// 因为 $ 中没有 bootstrap 的 tooltip 方法
+						// 因为 jQuery 的 $ 中没有 bootstrap 的 tooltip 方法
 						// 因为 bootstrap 默认没有初始化 tooltip
 						($(node) as any).tooltip();
 					}
@@ -346,6 +370,44 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 	}
 
 	private _renderTr(projectResource: ProjectResource) {
+		// gitStatus 为 undefined 时，表示文件内容未变化。
+		// 未变化
+		// 未跟踪
+		// 已修改
+		const { gitStatus, resourceType } = projectResource;
+		const { project, parentPath } = this.properties;
+
+		let to = '';
+		let params: Params = {};
+		let untracked = false;
+		let statusLetter = '';
+		let statusColor = '';
+		let statusTooltip = '';
+
+		if (resourceType === ResourceType.Group) {
+			to = 'view-project-group';
+			const fullPath = parentPath === '' ? projectResource.key : parentPath + '/' + projectResource.key;
+			params = { owner: project.createUserName, project: project.name, parentPath: fullPath };
+
+			if (gitStatus === GitFileStatus.Untracked) {
+				untracked = true;
+				statusColor = c.text_muted;
+			} else {
+				statusLetter = '●';
+			}
+		} else {
+			if (gitStatus === GitFileStatus.Untracked || gitStatus === GitFileStatus.Added) {
+				untracked = true;
+				statusLetter = 'U';
+				statusColor = c.text_success;
+				statusTooltip = '未跟踪';
+			} else if (gitStatus === GitFileStatus.Modified) {
+				statusLetter = 'M';
+				statusColor = c.text_warning;
+				statusTooltip = '已修改';
+			}
+		}
+
 		return v('tr', [
 			// 图标
 			v('td', { classes: [css.icon] }, [
@@ -357,19 +419,30 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 			// 资源名称
 			v('td', { classes: [css.content, c.px_1] }, [
 				v('span', { classes: [css.truncate] }, [
-					w(Link, { to: '', title: `${projectResource.name}` }, [`${projectResource.name}`])
+					w(Link, { to, params, title: `${projectResource.name}`, classes: [statusColor] }, [
+						`${projectResource.name}`
+					])
 				])
 			]),
+			v('td', { classes: [css.status, statusColor], title: `${statusTooltip}` }, [`${statusLetter}`]),
 			// 最近提交信息
 			v('td', { classes: [css.message, c.text_muted] }, [
-				v('span', { classes: [css.truncate] }, [
-					v('a', { title: `${projectResource.latestFullMessage}` }, [`${projectResource.latestShortMessage}`])
-				])
+				untracked
+					? undefined
+					: v('span', { classes: [css.truncate] }, [
+							v('a', { title: `${projectResource.latestFullMessage}` }, [
+								`${projectResource.latestShortMessage}`
+							])
+					  ])
 			]),
 			// 最近提交时间
 			v('td', { classes: [css.age, c.text_muted] }, [
 				// 使用 moment.js 进行格式化
-				v('span', { classes: [css.truncate] }, [w(Moment, { datetime: `${projectResource.latestCommitTime}` })])
+				untracked
+					? undefined
+					: v('span', { classes: [css.truncate] }, [
+							w(Moment, { datetime: `${projectResource.latestCommitTime}` })
+					  ])
 			])
 		]);
 	}

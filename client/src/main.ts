@@ -15,7 +15,11 @@ import routes from './routes';
 import App from './App';
 import { State } from './interfaces';
 import { getCurrentUserProcess, initForUserProfileProcess } from './processes/userProcesses';
-import { initForNewProjectProcess, initForViewProjectProcess } from './processes/projectProcesses';
+import {
+	initForNewProjectProcess,
+	initForViewProjectProcess,
+	initForViewProjectGroupProcess
+} from './processes/projectProcesses';
 import { changeRouteProcess } from './processes/routeProcesses';
 import { initHomeProcess } from './processes/homeProcesses';
 import {
@@ -25,6 +29,8 @@ import {
 } from './processes/releaseProcesses';
 import { initForViewDocumentProcess } from './processes/documentProcess';
 import { setSessionProcess } from './processes/loginProcesses';
+import { initForNewPageProcess } from './processes/pageProcesses';
+import { initForNewGroupProcess } from './processes/groupProcesses';
 
 const store = new Store<State>();
 
@@ -56,8 +62,21 @@ router.on('outlet', ({ outlet, action }) => {
 			case 'view-project':
 				initForViewProjectProcess(store)({ owner: outlet.params.owner, project: outlet.params.project });
 				break;
+			case 'view-project-group':
+				initForViewProjectGroupProcess(store)({
+					owner: outlet.params.owner,
+					project: outlet.params.project,
+					parentPath: outlet.params.parentPath
+				});
+				break;
 			case 'list-release':
 				initForListReleasesProcess(store)({ owner: outlet.params.owner, project: outlet.params.project });
+				break;
+			case 'new-page':
+				initForNewPageProcess(store)({ owner: outlet.params.owner, project: outlet.params.project });
+				break;
+			case 'new-group':
+				initForNewGroupProcess(store)({ owner: outlet.params.owner, project: outlet.params.project });
 				break;
 			case 'new-release':
 				initForNewReleaseProcess(store)({ owner: outlet.params.owner, project: outlet.params.project });

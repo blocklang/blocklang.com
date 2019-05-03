@@ -6,6 +6,10 @@ export interface ChangeRoutePayload {
 	context: OutletContext;
 }
 
+export interface KeyPayload {
+	key: string;
+}
+
 export interface NamePayload {
 	name: string;
 }
@@ -25,6 +29,11 @@ export interface IsPublicPayload {
 export interface ProjectPathPayload {
 	owner: string;
 	project: string;
+}
+
+export interface ProjectResourcePathPayload extends ProjectPathPayload {
+	// 不要以 / 开头
+	parentPath: string;
 }
 
 export interface VersionPayload extends ProjectPathPayload {
@@ -61,4 +70,20 @@ export interface LocationPayload {
 
 export interface BioPayload {
 	bio: string;
+}
+
+export interface GroupKeyPayload extends KeyPayload, ProjectPathPayload {
+	parentId: number;
+}
+
+export interface GroupNamePayload extends NamePayload, ProjectPathPayload {
+	parentId: number;
+}
+
+export interface PageKeyPayload extends GroupKeyPayload {
+	appType: string;
+}
+
+export interface PageNamePayload extends GroupNamePayload {
+	appType: string;
 }

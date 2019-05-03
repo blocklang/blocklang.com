@@ -20,6 +20,7 @@ import Link from '@dojo/framework/routing/Link';
 import Moment from '../../widgets/moment';
 import MarkdownPreview from '../../widgets/markdown-preview';
 import ProjectHeader from '../widgets/ProjectHeader';
+import { ReleaseResult } from '../../constant';
 
 export interface ViewReleaseProperties {
 	project: Project;
@@ -76,7 +77,7 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 				// 使用从部件外传来的值初始化
 				this._releaseResult = projectRelease.releaseResult;
 			}
-			if (this._releaseResult === '02' /* started */) {
+			if (this._releaseResult === ReleaseResult.Started /* started */) {
 				// 正在发布中，实时显示控制台信息
 				if (!this._wsClient.active && projectRelease) {
 					// 这里要解决好两方面问题：
@@ -153,7 +154,11 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 					};
 					this._wsClient.activate();
 				}
-			} else if (this._releaseResult === '03' || this._releaseResult === '04' || this._releaseResult === '05') {
+			} else if (
+				this._releaseResult === ReleaseResult.Failed ||
+				this._releaseResult === ReleaseResult.Passed ||
+				this._releaseResult === ReleaseResult.Canceled
+			) {
 				// 已发布完成，只加载历史记录
 				if (!this._logLoaded) {
 					this._fetchLog();
@@ -226,7 +231,7 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 	private _renderScrollToEndLineAnchor() {
 		return v('div', {
 			scrollIntoView: () => {
-				return this._releaseResult === '02';
+				return this._releaseResult === ReleaseResult.Started;
 			}
 		});
 	}
@@ -267,28 +272,28 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 		let spin = false;
 		let resultText = '';
 		let icon: IconName = 'clock';
-		if (releaseResult === '01') {
+		if (releaseResult === ReleaseResult.Inited) {
 			borderColorClass = '';
 			resultClasses = c.text_muted;
 			resultText = '准备';
 			icon = 'clock';
-		} else if (releaseResult === '02') {
+		} else if (releaseResult === ReleaseResult.Started) {
 			spin = true;
 			borderColorClass = c.border_warning;
 			resultClasses = c.text_warning;
 			resultText = '发布中';
 			icon = 'spinner';
-		} else if (releaseResult === '03') {
+		} else if (releaseResult === ReleaseResult.Failed) {
 			borderColorClass = c.border_danger;
 			resultClasses = c.text_danger;
 			resultText = '失败';
 			icon = 'times';
-		} else if (releaseResult === '04') {
+		} else if (releaseResult === ReleaseResult.Passed) {
 			borderColorClass = c.border_success;
 			resultClasses = c.text_success;
 			resultText = '成功';
 			icon = 'check';
-		} else if (releaseResult === '05') {
+		} else if (releaseResult === ReleaseResult.Canceled) {
 			borderColorClass = '';
 			resultClasses = c.text_muted;
 			resultText = '取消';

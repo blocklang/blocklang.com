@@ -41,6 +41,7 @@ export default class NewRelease extends ThemedMixin(I18nMixin(WidgetBase))<NewRe
 	private _localizedMessages = this.localizeBundle(messageBundle);
 
 	protected render() {
+		// TODO: 除了登录，还要判断用户是否有写的权限
 		if (!this._isAuthenticated()) {
 			return w(Exception, { type: '403' });
 		}
@@ -247,7 +248,6 @@ export default class NewRelease extends ThemedMixin(I18nMixin(WidgetBase))<NewRe
 			project: { createUserName, name },
 			version
 		} = this.properties;
-		console.log(version);
 		this.properties.onSaveReleaseTask({ owner: createUserName, project: name, version });
 	}
 }

@@ -81,6 +81,9 @@ library.add(
 import * as css from './App.m.css';
 import Exception from './pages/error/Exception';
 import ViewReleaseContainer from './containers/release/ViewReleaseContainer';
+import NewPageContainer from './containers/resource/NewPageContainer';
+import NewGroupContainer from './containers/resource/NewGroupContainer';
+import ViewProjectGroupContainer from './containers/project/ViewProjectGroupContainer';
 
 export default class App extends WidgetBase {
 	protected render() {
@@ -99,6 +102,13 @@ export default class App extends WidgetBase {
 					renderer: () => w(NewProjectContainer, {})
 				}),
 				w(Outlet, { key: 'view-project', id: 'view-project', renderer: () => w(ViewProjectContainer, {}) }),
+				w(Outlet, {
+					key: 'view-project-group',
+					id: 'view-project-group',
+					renderer: () => w(ViewProjectGroupContainer, {})
+				}),
+				w(Outlet, { key: 'new-page', id: 'new-page', renderer: () => w(NewPageContainer, {}) }),
+				w(Outlet, { key: 'new-group', id: 'new-group', renderer: () => w(NewGroupContainer, {}) }),
 				w(Outlet, { key: 'list-release', id: 'list-release', renderer: () => w(ListReleaseContainer, {}) }),
 				w(Outlet, {
 					key: 'new-release',

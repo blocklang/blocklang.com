@@ -1,5 +1,5 @@
-import { ValidateStatus } from './constant';
-import { StringLiteral } from 'babel-types';
+import { ValidateStatus, ResourceType, GitFileStatus, ReleaseResult } from './constant';
+import { IconName } from '@fortawesome/fontawesome-svg-core';
 
 // 注意：一些公共信息，要做成全局变量，不然会存储很多无用的信息
 
@@ -96,7 +96,7 @@ export interface ProjectResource {
 	key: string;
 	name: string;
 	description: string;
-	resourceType: string;
+	resourceType: ResourceType;
 	parentId: number;
 	seq: number;
 	createTime: string;
@@ -109,6 +109,12 @@ export interface ProjectResource {
 	latestShortMessage: string;
 	latestFullMessage: string;
 	latestCommitTime: string;
+	gitStatus: GitFileStatus;
+}
+
+export interface ProjectGroup {
+	name: string;
+	path: string;
 }
 
 export interface CommitInfo {
@@ -130,8 +136,6 @@ export interface DeployInfo {
 	installerWindowsUrl: string;
 	deployState: string;
 }
-
-type ReleaseResult = '01' | '02' | '03' | '04' | '05';
 
 // 对应 release task
 export interface ProjectRelease {
@@ -191,6 +195,39 @@ interface WsMessage {
 	headers: WsMessageHeader;
 }
 
+interface AppType {
+	key: string;
+	value: string;
+	icon: string;
+}
+
+interface GroupParam {
+	id: number;
+	key: string;
+	name: string;
+	description: string;
+	parentId: number;
+}
+
+interface GroupInputValidation {
+	keyValidateStatus?: ValidateStatus;
+	keyErrorMessage?: string;
+	nameValidateStatus?: ValidateStatus;
+	nameErrorMessage?: string;
+}
+
+interface PageParam extends GroupParam {
+	appType: string;
+}
+
+interface PageInputValidation extends GroupInputValidation {}
+
+interface ParentResource {
+	id: number;
+	path: string;
+	parentGroups: ProjectGroup[];
+}
+
 export interface State {
 	errors: Errors;
 	routing: Routing;
@@ -202,15 +239,27 @@ export interface State {
 	profileUpdateSuccessMessage: string;
 	userInputValidation: UserInputValidation;
 
+	// project
 	projectParam: ProjectParam;
 	projectInputValidation: ProjectInputValidation;
 	project: Project;
 	canAccessProjects: Project[];
+
+	parentResource: ParentResource;
 	projectResources: ProjectResource[];
 	latestCommitInfo: CommitInfo;
 	readme: string;
 	userDeployInfo: DeployInfo;
 
+	// new page
+	appTypes: AppType[];
+	pageParam: PageParam;
+	pageInputValidation: PageInputValidation;
+	// new group
+	groupParam: GroupParam;
+	groupInputValidation: GroupInputValidation;
+
+	// release
 	projectRelease: ProjectRelease;
 	releases: ProjectRelease[];
 	jdks: JdkInfo[];

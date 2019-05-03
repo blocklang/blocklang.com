@@ -116,38 +116,40 @@ export const getProjectCommand = commandFactory(async ({ path, payload: { owner,
 	return [replace(path('project'), json)];
 });
 
-const getProjectResourcesCommand = commandFactory(async ({ get, path, payload: { owner, project, pathId = -1 } }) => {
-	// 如果没有获取到项目信息，则直接清空项目资源信息
+const getProjectResourcesCommand = commandFactory(
+	async ({ get, path, payload: { owner, project, parentPath = '' } }) => {
+		const response = await fetch(`${baseUrl}/projects/${owner}/${project}/groups/${parentPath}`, {
+			headers: getHeaders()
+		});
+		const json = await response.json();
+		if (!response.ok) {
+			return [replace(path('parentResource'), undefined), replace(path('projectResources'), [])];
+		}
+
+		return [
+			replace(path('parentResource', 'path'), parentPath),
+			replace(path('parentResource', 'id'), json.parentId),
+			replace(path('parentResource', 'parentGroups'), json.parentGroups),
+			replace(path('projectResources'), json.resources)
+		];
+	}
+);
+
+const getLatestCommitInfoCommand = commandFactory(async ({ get, path, payload: { owner, project } }) => {
 	const projectInfo = get(path('project'));
-	console.log(projectInfo);
+
 	if (isEmpty(projectInfo)) {
-		return [replace(path('projectResources'), [])];
+		return [replace(path('latestCommitInfo'), undefined)];
 	}
 
-	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/tree/${pathId}`, {
+	const parentId = get(path('parentResource', 'id'));
+
+	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/latest-commit/${parentId}`, {
 		headers: getHeaders()
 	});
 	const json = await response.json();
 	if (!response.ok) {
-		return [replace(path('projectResources'), [])];
-	}
-
-	return [replace(path('projectResources'), json)];
-});
-
-const getLatestCommitInfoCommand = commandFactory(async ({ get, path, payload: { owner, project, pathId = -1 } }) => {
-	const projectInfo = get(path('project'));
-	console.log(projectInfo);
-	if (isEmpty(projectInfo)) {
-		return [replace(path('latestCommitInfo'), {})];
-	}
-
-	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/latest-commit/${pathId}`, {
-		headers: getHeaders()
-	});
-	const json = await response.json();
-	if (!response.ok) {
-		return [replace(path('latestCommitInfo'), {})];
+		return [replace(path('latestCommitInfo'), undefined)];
 	}
 
 	return [replace(path('latestCommitInfo'), json)];
@@ -208,7 +210,12 @@ export const isPublicInputProcess = createProcess('is-public-input', [isPublicIn
 export const saveProjectProcess = createProcess('save-project', [saveProjectCommand]);
 
 export const initForViewProjectProcess = createProcess('init-for-view-project', [
-	getProjectCommand,
-	[getLatestCommitInfoCommand, getProjectResourcesCommand, getProjectReadmeCommand, getReleaseCountCommand]
+	[getProjectCommand, getProjectResourcesCommand],
+	[getLatestCommitInfoCommand, getProjectReadmeCommand, getReleaseCountCommand]
 ]);
 export const getUserDeployInfoProcess = createProcess('get-user-deploy-info', [getDeployInfoCommand]);
+
+export const initForViewProjectGroupProcess = createProcess('init-for-view-project-group', [
+	[getProjectCommand, getProjectResourcesCommand],
+	getLatestCommitInfoCommand
+]);

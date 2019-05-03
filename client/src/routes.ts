@@ -29,6 +29,18 @@ export default [
 		outlet: 'view-project'
 	},
 	{
+		path: '{owner}/{project}/groups/{parentPath}',
+		outlet: 'view-project-group'
+	},
+	{
+		path: '{owner}/{project}/pages/new',
+		outlet: 'new-page'
+	},
+	{
+		path: '{owner}/{project}/groups/new',
+		outlet: 'new-group'
+	},
+	{
 		path: '{owner}/{project}/releases',
 		outlet: 'list-release'
 	},

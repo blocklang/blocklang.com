@@ -19,6 +19,7 @@ import * as c from '../../className';
 import * as css from './ListRelease.m.css';
 import SockJS = require('sockjs-client');
 import { Client, IFrame } from '@stomp/stompjs';
+import { ReleaseResult } from '../../constant';
 
 export interface ListReleaseProperties {
 	loggedUsername: string;
@@ -124,7 +125,7 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 	private _renderReleases(releases: ProjectRelease[]) {
 		// 监听发布状态
 		if (this._runningReleases.length === 0) {
-			this._runningReleases = releases.filter((item) => item.releaseResult === '02');
+			this._runningReleases = releases.filter((item) => item.releaseResult === ReleaseResult.Started);
 			if (this._runningReleases.length > 0) {
 				if (!this._wsClient.active) {
 					this._wsClient.onConnect = (frame: IFrame) => {
@@ -190,24 +191,24 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 		let spin = false;
 		let resultText = '';
 		let icon: IconName = 'clock';
-		if (releaseResult === '01') {
+		if (releaseResult === ReleaseResult.Inited) {
 			resultClasses = c.text_muted;
 			resultText = '准备';
 			icon = 'clock';
-		} else if (releaseResult === '02') {
+		} else if (releaseResult === ReleaseResult.Started) {
 			spin = true;
 			resultClasses = c.text_warning;
 			resultText = '发布中';
 			icon = 'spinner';
-		} else if (releaseResult === '03') {
+		} else if (releaseResult === ReleaseResult.Failed) {
 			resultClasses = c.text_danger;
 			resultText = '失败';
 			icon = 'times';
-		} else if (releaseResult === '04') {
+		} else if (releaseResult === ReleaseResult.Passed) {
 			resultClasses = c.text_success;
 			resultText = '成功';
 			icon = 'check';
-		} else if (releaseResult === '05') {
+		} else if (releaseResult === ReleaseResult.Canceled) {
 			resultClasses = c.text_muted;
 			resultText = '取消';
 			icon = 'ban';

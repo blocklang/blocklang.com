@@ -32,11 +32,33 @@ export default {
 		projectPrivateLabel: '私有',
 		projectPrivateHelp: '仅成员可浏览，可邀请用户浏览和维护。',
 		projectSaveLabel: '创建',
+		// new page
+		pageKeyLabel: '名称',
+		pageKeyHelp: '在 url 中使用，要简短易记。只允许字母、数字、中划线(-)、下划线(_)等。',
+		pageKeyPlaceholder: '如：login',
+		pageNameLabel: '备注',
+		pageNameHelp: '页面的显示名，要简短易记。',
+		pageNamePlaceholder: '如：用户登录',
+		pageTypeLabel: '类型',
+		pageTempletLabel: '页面模板',
+		pageDescriptionLabel: '说明',
+		pageSaveLabel: '创建',
+		pageCancelSaveLabel: '取消',
+		// new group
+		groupKeyLabel: '名称',
+		groupKeyHelp: '在 url 中使用，要简短易记。只允许字母、数字、中划线(-)、下划线(_)等。',
+		groupNameLabel: '备注',
+		groupNameHelp: '分组的显示名，要简短易记。',
+		groupSaveLabel: '创建',
+		groupCancelSaveLabel: '取消',
+
 		// view project
 		latestCommitLabel: '最近提交于',
 		releaseLabel: '发布',
 		deployLabel: '部署',
 		deployNotLoginTip: '用户登录后才能部署此项目',
+		newPage: '创建页面',
+		newGroup: '创建分组',
 		// list release
 		releaseText: '发行版',
 		noReleaseTitle: '没有发行版本',

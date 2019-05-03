@@ -35,7 +35,6 @@ export default class NewProject extends ThemedMixin(I18nMixin(WidgetBase))<NewPr
 	private _localizedMessages = this.localizeBundle(messageBundle);
 
 	protected render() {
-		debugger;
 		if (!this._isAuthenticated()) {
 			return w(Exception, { type: '403' });
 		}

@@ -28,8 +28,9 @@
 
 git 仓库中的文件命名规范：
 
-1. 程序模块：`{key}.page.json`
-2. 程序模块模板：`{key}.page.tmpl.json`
+1. 页面：
+   1. web: `{key}.page.web.json`
+2. 页面模板：`{key}.page.tmpl.json`
 3. 服务：`{key}.api.json`
 4. 文件：`{name}`
 

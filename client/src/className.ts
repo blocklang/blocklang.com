@@ -116,6 +116,7 @@ export const invalid_tooltip: string = 'invalid-tooltip';
 export const form_check: string = 'form-check';
 export const form_check_input: string = 'form-check-input';
 export const form_check_label: string = 'form-check-label';
+export const form_check_inline: string = 'form-check-inline';
 
 //      input group
 export const input_group: string = 'input-group';
@@ -352,3 +353,10 @@ export const p_auto: string = 'p-auto';
 export const text_left: string = 'text-left';
 export const text_center: string = 'text-center';
 export const text_right: string = 'text-right';
+
+export const font_weight_bold: string = 'font-weight-bold';
+export const font_weight_bolder: string = 'font-weight-bolder';
+export const font_weight_normal: string = 'font-weight-normal';
+export const font_weight_light: string = 'font-weight-light';
+export const font_weight_lighter: string = 'font-weight-lighter';
+export const font_italic: string = 'font-italic';
