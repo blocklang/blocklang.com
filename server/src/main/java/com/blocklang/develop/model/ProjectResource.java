@@ -15,6 +15,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.util.Assert;
 
 import com.blocklang.core.constant.Constant;
+import com.blocklang.core.constant.GitFileStatus;
 import com.blocklang.core.model.PartialOperateFields;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.constant.IconClass;
@@ -76,6 +77,8 @@ public class ProjectResource extends PartialOperateFields{
 	private String latestFullMessage;
 	@Transient
 	private LocalDateTime latestCommitTime;
+	@Transient 
+	private GitFileStatus gitStatus;
 
 	public Integer getProjectId() {
 		return projectId;
@@ -262,7 +265,7 @@ public class ProjectResource extends PartialOperateFields{
 
 	public String getFileName() {
 		if(isPage()) {
-			return this.key + ".page.json";
+			return this.key + ".page." + this.appType.getValue() + ".json";
 		}
 		if(isTemplet()) {
 			return this.key + ".page.tmpl.json";
@@ -275,6 +278,14 @@ public class ProjectResource extends PartialOperateFields{
 		}
 		
 		return "";
+	}
+
+	public GitFileStatus getGitStatus() {
+		return gitStatus;
+	}
+
+	public void setGitStatus(GitFileStatus gitStatus) {
+		this.gitStatus = gitStatus;
 	}
 	
 }

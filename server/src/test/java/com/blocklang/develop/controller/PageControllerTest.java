@@ -946,7 +946,7 @@ public class PageControllerTest extends AbstractControllerTest{
 		savedResource.setSeq(1);
 		savedResource.setAppType(AppType.WEB);
 		savedResource.setResourceType(ProjectResourceType.PAGE);
-		when(projectResourceService.insert(any())).thenReturn(savedResource);
+		when(projectResourceService.insert(any(), any())).thenReturn(savedResource);
 		
 		given()
 			.contentType(ContentType.JSON)

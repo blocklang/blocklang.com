@@ -29,6 +29,7 @@ import com.blocklang.develop.dao.ProjectAuthorizationDao;
 import com.blocklang.develop.dao.ProjectCommitDao;
 import com.blocklang.develop.dao.ProjectDao;
 import com.blocklang.develop.dao.ProjectFileDao;
+import com.blocklang.develop.dao.ProjectResourceDao;
 import com.blocklang.develop.data.GitCommitInfo;
 import com.blocklang.develop.data.ProgramModel;
 import com.blocklang.develop.model.Project;
@@ -37,7 +38,6 @@ import com.blocklang.develop.model.ProjectCommit;
 import com.blocklang.develop.model.ProjectContext;
 import com.blocklang.develop.model.ProjectFile;
 import com.blocklang.develop.model.ProjectResource;
-import com.blocklang.develop.service.ProjectResourceService;
 import com.blocklang.develop.service.ProjectService;
 import com.blocklang.release.dao.AppDao;
 import com.blocklang.release.model.App;
@@ -62,7 +62,7 @@ public class ProjectServiceImpl implements ProjectService {
 	@Autowired
 	private PropertyService propertyService;
 	@Autowired
-	private ProjectResourceService projectResourceService;
+	private ProjectResourceDao projectResourceDao;
 	
 	// 如果需要缓存时，使用 service，不要使用 dao
 	// 因为只会为 service 添加缓存
@@ -182,8 +182,8 @@ public class ProjectServiceImpl implements ProjectService {
 		
 		
 		// 此方法中实现了应用模板功能
-				// TODO: 是否需要将应用模板逻辑，单独提取出来？
-		return projectResourceService.insert(resource);
+		// TODO: 是否需要将应用模板逻辑，单独提取出来？
+		return projectResourceDao.save(resource);
 	}
 	
 	private ProjectResource createReadmeFile(Integer projectId, String readMeContent, LocalDateTime createTime, Integer createUserId) {
@@ -198,7 +198,7 @@ public class ProjectServiceImpl implements ProjectService {
 		resource.setCreateUserId(createUserId);
 		resource.setCreateTime(createTime);
 		
-		ProjectResource savedProjectResource = projectResourceService.insert(resource);
+		ProjectResource savedProjectResource = projectResourceDao.save(resource);
 		
 		ProjectFile readme = new ProjectFile();
 		readme.setProjectResourceId(savedProjectResource.getId());
@@ -228,6 +228,10 @@ public class ProjectServiceImpl implements ProjectService {
 		Optional<GitCommitInfo> commitOption = propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).map(rootDir -> {
 			ProjectContext context = new ProjectContext(project.getCreateUserName(), project.getName(), rootDir);
 			RevCommit commit = GitUtils.getLatestCommit(context.getGitRepositoryDirectory(), Objects.toString(relativeFilePath, ""));
+			if(commit == null) {
+				return null;
+			}
+			
 			String commitId = commit.getName();
 			
 			GitCommitInfo commitInfo = new GitCommitInfo();

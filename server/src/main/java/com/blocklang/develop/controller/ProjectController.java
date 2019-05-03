@@ -164,17 +164,17 @@ public class ProjectController {
 		}).orElseThrow(ResourceNotFoundException::new);
 	}
 	
-	@GetMapping("/projects/{owner}/{projectName}/latest-commit/{pathId}")
+	@GetMapping("/projects/{owner}/{projectName}/latest-commit/{parentId}")
 	public ResponseEntity<GitCommitInfo> getLatestCommit(
 			@PathVariable String owner,
 			@PathVariable String projectName,
-			@PathVariable String pathId) {
+			@PathVariable String parentId) {
 		
 		Integer resourceId;
 		try {
-			resourceId = Integer.valueOf(pathId);
+			resourceId = Integer.valueOf(parentId);
 		} catch (NumberFormatException e) {
-			logger.error("无法将 ‘" + pathId + "’ 转换为数字", e);
+			logger.error("无法将 ‘" + parentId + "’ 转换为数字", e);
 			throw new ResourceNotFoundException();
 		}
 		

@@ -13,7 +13,7 @@ public abstract class IconClass {
 	/**
 	 * 功能模块图标
 	 */
-	public static final String FUNCTION = "far folder";
+	public static final String FUNCTION = "fas folder";
 	
 	/**
 	 * 面板图标

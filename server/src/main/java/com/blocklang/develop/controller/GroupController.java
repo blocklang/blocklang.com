@@ -2,6 +2,7 @@ package com.blocklang.develop.controller;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +10,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.apache.commons.lang3.StringUtils;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.blocklang.core.constant.Constant;
+import com.blocklang.core.controller.SpringMvcUtil;
 import com.blocklang.core.exception.InvalidRequestException;
 import com.blocklang.core.exception.NoAuthorizationException;
 import com.blocklang.core.exception.ResourceNotFoundException;
@@ -273,26 +276,20 @@ public class GroupController {
 		resource.setCreateUserId(currentUser.getId());
 		resource.setCreateTime(LocalDateTime.now());
 		
-		ProjectResource savedProjectResource = projectResourceService.insert(resource);
+		ProjectResource savedProjectResource = projectResourceService.insert(project, resource);
 		savedProjectResource.setMessageSource(messageSource);
 		return new ResponseEntity<ProjectResource>(savedProjectResource, HttpStatus.CREATED);
 	}
 	
-	@GetMapping("/projects/{owner}/{projectName}/groups/{pathId}")
-	public ResponseEntity<List<ProjectResource>> getGroup(
+	@GetMapping("/projects/{owner}/{projectName}/groups/**")
+	public ResponseEntity<Map<String, Object>> getGroup(
 			Principal user,
 			@PathVariable String owner,
 			@PathVariable String projectName,
-			@PathVariable String pathId) {
+			HttpServletRequest req) {
 		
-		Integer resourceId;
-		try {
-			resourceId = Integer.valueOf(pathId);
-		} catch (NumberFormatException e) {
-			logger.error("无法将 ‘" + pathId + "’ 转换为数字", e);
-			throw new ResourceNotFoundException();
-		}
-		
+		String parentPath = SpringMvcUtil.getRestUrl(req, 4);
+
 		return projectService.find(owner, projectName).map((project) -> {
 			if(!project.getIsPublic()) {
 				// 1. 用户未登录时不能访问私有项目
@@ -302,11 +299,46 @@ public class GroupController {
 				}
 			}
 			project.setCreateUserName(owner);
-			List<ProjectResource> tree = projectResourceService.findChildren(project, resourceId);
+			
+			Map<String, Object> result = new HashMap<String, Object>();
+			Integer parentResourceId = null;
+			if(StringUtils.isBlank(parentPath)) {
+				parentResourceId = Constant.TREE_ROOT_ID;
+			} else {
+				// 要校验根据 parentPath 中的所有节点都能准确匹配
+				List<ProjectResource> parentGroups = projectResourceService.findParentGroupsByParentPath(project.getId(), parentPath);
+				// 因为 parentPath 有值，所以理应能查到记录
+				if(parentGroups.isEmpty()) {
+					logger.error("根据传入的 parent path 没有找到对应的标识");
+					throw new ResourceNotFoundException();
+				}
+				
+				List<Map<String, String>> stripedParentGroups = new ArrayList<Map<String, String>>();
+				String relativePath = "";
+				for(ProjectResource each : parentGroups) {
+					relativePath = relativePath + "/" + each.getKey();
+					
+					Map<String, String> map = new HashMap<String, String>();
+					if(StringUtils.isBlank(each.getName())) {
+						map.put("name", each.getKey());
+					} else {
+						map.put("name", each.getName());
+					}
+					
+					map.put("path", relativePath);
+					stripedParentGroups.add(map);
+				}
+				result.put("parentGroups", stripedParentGroups);
+				parentResourceId = parentGroups.get(parentGroups.size() - 1).getId();
+			}
+			List<ProjectResource> tree = projectResourceService.findChildren(project, parentResourceId);
 			tree.forEach(projectResource -> {
 				projectResource.setMessageSource(messageSource);
 			});
-			return ResponseEntity.ok(tree);
+			
+			result.put("parentId", parentResourceId);
+			result.put("resources", tree);
+			return ResponseEntity.ok(result);
 		}).orElseThrow(ResourceNotFoundException::new);
 	}
 }

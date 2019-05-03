@@ -33,6 +33,11 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	@Test
 	public void insert_if_not_set_seq() {
 		Integer projectId = Integer.MAX_VALUE;
+		
+		Project project = new Project();
+		project.setName("project");
+		project.setCreateUserName("jack");
+		
 		ProjectResource resource = new ProjectResource();
 		resource.setProjectId(projectId);
 		resource.setParentId(Constant.TREE_ROOT_ID);
@@ -43,7 +48,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
 		
-		Integer id = projectResourceService.insert(resource).getId();
+		Integer id = projectResourceService.insert(project, resource).getId();
 		
 		Optional<ProjectResource> resourceOption = projectResourceDao.findById(id);
 		assertThat(resourceOption).isPresent();
@@ -124,6 +129,70 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		
 		List<ProjectResource> resources = projectResourceService.findChildren(project, Constant.TREE_ROOT_ID);
 		assertThat(resources).hasSize(1);
+	}
+	
+	@Test
+	public void find_children_name_is_null_then_set_name_with_key() {
+		Integer projectId = Integer.MAX_VALUE;
+		
+		Project project = new Project();
+		project.setCreateUserName("jack");
+		project.setName("my-project");
+		project.setId(projectId);
+		
+		ProjectResource resource = new ProjectResource();
+		resource.setProjectId(projectId);
+		resource.setKey("key1");
+		resource.setName(null);
+		resource.setAppType(AppType.WEB);
+		resource.setResourceType(ProjectResourceType.GROUP);
+		resource.setParentId(Constant.TREE_ROOT_ID);
+		resource.setSeq(1);
+		resource.setCreateUserId(1);
+		resource.setCreateTime(LocalDateTime.now());
+		projectResourceDao.save(resource).getId();
+		
+		List<ProjectResource> resources = projectResourceService.findChildren(project, Constant.TREE_ROOT_ID);
+		assertThat(resources).hasSize(1);
+		assertThat(resources.get(0).getName()).isEqualTo("key1");
+	}
+	
+	@Test
+	public void find_children_at_sub_group() {
+		Integer projectId = Integer.MAX_VALUE;
+		
+		Project project = new Project();
+		project.setCreateUserName("jack");
+		project.setName("my-project");
+		project.setId(projectId);
+		
+		ProjectResource resource = new ProjectResource();
+		resource.setProjectId(projectId);
+		resource.setKey("key1");
+		resource.setName("name1");
+		resource.setAppType(AppType.WEB);
+		resource.setResourceType(ProjectResourceType.GROUP);
+		resource.setParentId(Constant.TREE_ROOT_ID);
+		resource.setSeq(1);
+		resource.setCreateUserId(1);
+		resource.setCreateTime(LocalDateTime.now());
+		Integer savedResourceId = projectResourceDao.save(resource).getId();
+		
+		resource = new ProjectResource();
+		resource.setProjectId(projectId);
+		resource.setKey("key2");
+		resource.setName("name2");
+		resource.setAppType(AppType.WEB);
+		resource.setResourceType(ProjectResourceType.GROUP);
+		resource.setParentId(savedResourceId);
+		resource.setSeq(1);
+		resource.setCreateUserId(1);
+		resource.setCreateTime(LocalDateTime.now());
+		projectResourceDao.save(resource);
+		
+		List<ProjectResource> resources = projectResourceService.findChildren(project, savedResourceId);
+		assertThat(resources).hasSize(1);
+		assertThat(resources.get(0).getKey()).isEqualTo("key2");
 	}
 	
 	@Test
@@ -320,5 +389,91 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 				ProjectResourceType.PAGE, 
 				AppType.WEB,
 				"name1")).isPresent();
+	}
+
+	@Test
+	public void find_parent_groups_by_parent_path_is_not_exist() {
+		assertThat(projectResourceService.findParentGroupsByParentPath(null, null)).isEmpty();
+		assertThat(projectResourceService.findParentGroupsByParentPath(null, "")).isEmpty();
+	}
+	
+	@Test
+	public void find_parent_id_by_parent_path_is_root_path() {
+		assertThat(projectResourceService.findParentGroupsByParentPath(1, null)).isEmpty();
+		assertThat(projectResourceService.findParentGroupsByParentPath(1, "")).isEmpty();
+	}
+	
+	@Test
+	public void find_parent_id_by_parent_path_is_one_level() {
+		Integer projectId = Integer.MAX_VALUE;
+		
+		ProjectResource resource = new ProjectResource();
+		resource.setProjectId(projectId);
+		resource.setKey("key1");
+		resource.setName("name1");
+		resource.setAppType(AppType.UNKNOWN);
+		resource.setResourceType(ProjectResourceType.GROUP);
+		resource.setParentId(Constant.TREE_ROOT_ID);
+		resource.setSeq(1);
+		resource.setCreateUserId(1);
+		resource.setCreateTime(LocalDateTime.now());
+		Integer resourceId = projectResourceDao.save(resource).getId();
+		
+		List<ProjectResource> groups = projectResourceService.findParentGroupsByParentPath(projectId, "key1");
+		assertThat(groups).hasSize(1);
+		assertThat(groups.get(0).getId()).isEqualTo(resourceId);
+	}
+	
+	@Test
+	public void find_parent_id_by_parent_path_is_two_level_success() {
+		Integer projectId = Integer.MAX_VALUE;
+		
+		ProjectResource resource = new ProjectResource();
+		resource.setProjectId(projectId);
+		resource.setKey("key1");
+		resource.setName("name1");
+		resource.setAppType(AppType.UNKNOWN);
+		resource.setResourceType(ProjectResourceType.GROUP);
+		resource.setParentId(Constant.TREE_ROOT_ID);
+		resource.setSeq(1);
+		resource.setCreateUserId(1);
+		resource.setCreateTime(LocalDateTime.now());
+		Integer resourceId = projectResourceDao.save(resource).getId();
+		
+		resource = new ProjectResource();
+		resource.setProjectId(projectId);
+		resource.setKey("key2");
+		resource.setName("name2");
+		resource.setAppType(AppType.UNKNOWN);
+		resource.setResourceType(ProjectResourceType.GROUP);
+		resource.setParentId(resourceId);
+		resource.setSeq(1);
+		resource.setCreateUserId(1);
+		resource.setCreateTime(LocalDateTime.now());
+		Integer resourceId2 = projectResourceDao.save(resource).getId();
+		
+		List<ProjectResource> groups = projectResourceService.findParentGroupsByParentPath(projectId, "key1/key2");
+		assertThat(groups).hasSize(2);
+		assertThat(groups.get(0).getId()).isEqualTo(resourceId);
+		assertThat(groups.get(1).getId()).isEqualTo(resourceId2);
+	}
+
+	@Test
+	public void find_parent_id_by_parent_path_is_two_level_not_exist() {
+		Integer projectId = Integer.MAX_VALUE;
+		
+		ProjectResource resource = new ProjectResource();
+		resource.setProjectId(projectId);
+		resource.setKey("key1");
+		resource.setName("name1");
+		resource.setAppType(AppType.UNKNOWN);
+		resource.setResourceType(ProjectResourceType.GROUP);
+		resource.setParentId(Constant.TREE_ROOT_ID);
+		resource.setSeq(1);
+		resource.setCreateUserId(1);
+		resource.setCreateTime(LocalDateTime.now());
+		projectResourceDao.save(resource).getId();
+		
+		assertThat(projectResourceService.findParentGroupsByParentPath(projectId, "key1/key2")).isEmpty();
 	}
 }

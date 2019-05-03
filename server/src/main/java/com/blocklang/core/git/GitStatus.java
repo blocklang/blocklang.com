@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.api.Git;
@@ -47,14 +46,15 @@ public class GitStatus {
 			Status status = command.call();
 			
 			status.getUntracked().forEach(item -> result.put(item, GitFileStatus.UNTRACKED));
+			status.getUntrackedFolders().forEach(item -> result.put(item, GitFileStatus.UNTRACKED));
+			
 			status.getAdded().forEach(item -> result.put(item, GitFileStatus.ADDED));
 			status.getModified().forEach(item -> result.put(item, GitFileStatus.MODIFIED));
 			status.getMissing().forEach(item -> result.put(item, GitFileStatus.DELETED));
 			status.getRemoved().forEach(item -> result.put(item, GitFileStatus.REMOVED));
 			
-			Set<String> a = status.getUncommittedChanges();
-			System.out.println(a);
-			
+			status.getChanged().forEach(item -> result.put(item, GitFileStatus.CHANGED));
+
 		} catch (NoWorkTreeException | GitAPIException e) {
 			logger.error("git status 出错", e);
 			throw new GitStatusFailedException(e);

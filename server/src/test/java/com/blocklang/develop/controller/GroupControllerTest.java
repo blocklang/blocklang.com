@@ -928,7 +928,7 @@ public class GroupControllerTest extends AbstractControllerTest{
 		savedResource.setSeq(1);
 		savedResource.setAppType(AppType.WEB);
 		savedResource.setResourceType(ProjectResourceType.PAGE);
-		when(projectResourceService.insert(any())).thenReturn(savedResource);
+		when(projectResourceService.insert(any(), any())).thenReturn(savedResource);
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -947,7 +947,6 @@ public class GroupControllerTest extends AbstractControllerTest{
 	public void get_group_anonymous_user_public_project_success() {
 		String owner = "owner";
 		String projectName = "public-project";
-		int pathId = -1;
 		
 		Project project = new Project();
 		project.setId(1);
@@ -959,29 +958,28 @@ public class GroupControllerTest extends AbstractControllerTest{
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/projects/{owner}/{projectName}/groups/{pathId}", owner, projectName, pathId)
+			.get("/projects/{owner}/{projectName}/groups", owner, projectName)
 		.then()
 			.statusCode(HttpStatus.SC_OK)
-			.body("size()", equalTo(0));
+			.body("parentId", equalTo(-1),
+					"resources.size()", equalTo(0));
 	}
 	
 	@Test
-	public void get_group_public_project_invalid_path_id_fail() {
+	public void get_group_public_project_invalid_path_fail() {
 		String owner = "owner";
 		String projectName = "public-project";
-		String pathId = "a"; // must be integer
-		
+
 		Project project = new Project();
 		project.setId(1);
 		project.setIsPublic(true);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
-		List<ProjectResource> resources = new ArrayList<ProjectResource>();
-		when(projectResourceService.findChildren(any(), anyInt())).thenReturn(resources);
+		when(projectResourceService.findParentGroupsByParentPath(1, "a")).thenReturn(Collections.emptyList());
 
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/projects/{owner}/{projectName}/groups/{pathId}", owner, projectName, pathId)
+			.get("/projects/{owner}/{projectName}/groups/a", owner, projectName)
 		.then()
 			.statusCode(HttpStatus.SC_NOT_FOUND);
 	}
@@ -991,7 +989,6 @@ public class GroupControllerTest extends AbstractControllerTest{
 	public void get_group_anonymous_user_private_project_fail() {
 		String owner = "owner";
 		String projectName = "private-project";
-		int pathId = -1;
 		
 		Project project = new Project();
 		project.setId(1);
@@ -1003,7 +1000,7 @@ public class GroupControllerTest extends AbstractControllerTest{
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/projects/{owner}/{projectName}/groups/{pathId}", owner, projectName, pathId)
+			.get("/projects/{owner}/{projectName}/groups", owner, projectName)
 		.then()
 			.statusCode(HttpStatus.SC_NOT_FOUND);
 	}
@@ -1013,7 +1010,6 @@ public class GroupControllerTest extends AbstractControllerTest{
 	public void get_group_logged_user_not_owned_public_project_success() {
 		String owner = "owner";
 		String projectName = "public-project";
-		int pathId = -1;
 		
 		Project project = new Project();
 		project.setId(1);
@@ -1025,10 +1021,11 @@ public class GroupControllerTest extends AbstractControllerTest{
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/projects/{owner}/{projectName}/groups/{pathId}", owner, projectName, pathId)
+			.get("/projects/{owner}/{projectName}/groups", owner, projectName)
 		.then()
 			.statusCode(HttpStatus.SC_OK)
-			.body("size()", equalTo(0));
+			.body("parentId", equalTo(-1),
+					"resources.size()", equalTo(0));
 	}
 	
 	@WithMockUser("owner")
@@ -1036,7 +1033,6 @@ public class GroupControllerTest extends AbstractControllerTest{
 	public void get_group_logged_user_self_public_project_success() {
 		String owner = "owner";
 		String projectName = "public-project";
-		int pathId = -1;
 		
 		Project project = new Project();
 		project.setId(1);
@@ -1048,10 +1044,11 @@ public class GroupControllerTest extends AbstractControllerTest{
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/projects/{owner}/{projectName}/groups/{pathId}", owner, projectName, pathId)
+			.get("/projects/{owner}/{projectName}/groups", owner, projectName)
 		.then()
 			.statusCode(HttpStatus.SC_OK)
-			.body("size()", equalTo(0));
+			.body("parentId", equalTo(-1),
+					"resources.size()", equalTo(0));
 	}
 	
 	@WithMockUser("other")
@@ -1059,7 +1056,6 @@ public class GroupControllerTest extends AbstractControllerTest{
 	public void get_group_logged_user_not_owned_private_project_fail() {
 		String owner = "owner";
 		String projectName = "private-project";
-		int pathId = -1;
 		
 		Project project = new Project();
 		project.setId(1);
@@ -1071,7 +1067,7 @@ public class GroupControllerTest extends AbstractControllerTest{
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/projects/{owner}/{projectName}/groups/{pathId}", owner, projectName, pathId)
+			.get("/projects/{owner}/{projectName}/groups", owner, projectName)
 		.then()
 			.statusCode(HttpStatus.SC_NOT_FOUND);
 	}
@@ -1081,7 +1077,6 @@ public class GroupControllerTest extends AbstractControllerTest{
 	public void get_group_logged_user_self_private_project_success() {
 		String owner = "owner";
 		String projectName = "private-project";
-		int pathId = -1;
 		
 		Project project = new Project();
 		project.setId(1);
@@ -1093,10 +1088,11 @@ public class GroupControllerTest extends AbstractControllerTest{
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/projects/{owner}/{projectName}/groups/{pathId}", owner, projectName, pathId)
+			.get("/projects/{owner}/{projectName}/groups", owner, projectName)
 		.then()
 			.statusCode(HttpStatus.SC_OK)
-			.body("size()", equalTo(0));
+			.body("parentId", equalTo(-1),
+					"resources.size()", equalTo(0));
 	}
 	
 }

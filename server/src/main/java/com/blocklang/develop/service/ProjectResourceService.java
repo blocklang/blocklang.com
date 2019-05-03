@@ -10,7 +10,7 @@ import com.blocklang.develop.model.ProjectResource;
 
 public interface ProjectResourceService {
 
-	ProjectResource insert(ProjectResource resource);
+	ProjectResource insert(Project project, ProjectResource resource);
 
 	/**
 	 * 获取项目结构，其中包含模块的提交信息
@@ -58,5 +58,16 @@ public interface ProjectResourceService {
 			String name);
 
 	Optional<ProjectResource> findById(Integer resourceId);
+
+	/**
+	 * 只要存在项目标识，则就假定该项目肯定存在
+	 * findParentIdByParentPath 中不校验项目是否存在，
+	 * 在调用此方法前，就应校验过项目是否存在。
+	 * 
+	 * @param projectId
+	 * @param parentPath
+	 * @return 如果有一个分组匹配不上，则返回空数组
+	 */
+	List<ProjectResource> findParentGroupsByParentPath(Integer projectId, String parentPath);
 
 }

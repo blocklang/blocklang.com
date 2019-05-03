@@ -37,6 +37,7 @@ import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectAuthorization;
 import com.blocklang.develop.model.ProjectContext;
 import com.blocklang.develop.model.ProjectResource;
+import com.blocklang.develop.service.ProjectResourceService;
 import com.blocklang.develop.service.ProjectService;
 import com.blocklang.release.dao.AppDao;
 
@@ -56,6 +57,9 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 	
 	@Autowired
 	private AppDao appDao;
+	
+	@Autowired
+	private ProjectResourceService projectResourceService;
 	
 	@Autowired
 	private ProjectResourceDao projectResourceDao;
@@ -314,5 +318,42 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		GitCommitInfo commitInfo = projectService.findLatestCommitInfo(savedProject, null).get();
 		assertThat(commitInfo.getShortMessage()).isEqualTo("First Commit");
 		assertThat(commitInfo.getUserName()).isEqualTo("user_name");
+	}
+	
+	@Test
+	public void find_latest_commit_for_untracked_and_empty_folder() throws IOException {
+		UserInfo userInfo = new UserInfo();
+		userInfo.setLoginName("user_name");
+		userInfo.setAvatarUrl("avatar_url");
+		userInfo.setEmail("email");
+		userInfo.setMobile("mobile");
+		userInfo.setCreateTime(LocalDateTime.now());
+		Integer userId = userDao.save(userInfo).getId();
+		
+		Project project = new Project();
+		project.setName("project_name");
+		project.setIsPublic(true);
+		project.setDescription("description");
+		project.setLastActiveTime(LocalDateTime.now());
+		project.setCreateUserId(userId);
+		project.setCreateTime(LocalDateTime.now());
+		project.setCreateUserName("user_name");
+		
+		File rootFolder = tempFolder.newFolder();
+		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.getPath()));
+		
+		Project savedProject = projectService.create(userInfo, project);
+		
+		ProjectResource resource = new ProjectResource();
+		resource.setKey("group1");
+		resource.setResourceType(ProjectResourceType.GROUP);
+		resource.setAppType(AppType.UNKNOWN);
+		resource.setCreateTime(LocalDateTime.now());
+		resource.setCreateUserId(userId);
+		resource.setProjectId(savedProject.getId());
+		resource.setParentId(Constant.TREE_ROOT_ID);
+		projectResourceService.insert(savedProject, resource);
+		
+		assertThat(projectService.findLatestCommitInfo(savedProject, "group1")).isEmpty();
 	}
 }

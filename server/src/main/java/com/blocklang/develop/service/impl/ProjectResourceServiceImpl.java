@@ -1,17 +1,26 @@
 package com.blocklang.develop.service.impl;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.blocklang.core.constant.CmPropKey;
 import com.blocklang.core.constant.Constant;
+import com.blocklang.core.constant.GitFileStatus;
 import com.blocklang.core.git.GitFileInfo;
 import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.service.PropertyService;
@@ -26,6 +35,8 @@ import com.blocklang.develop.service.ProjectResourceService;
 @Service
 public class ProjectResourceServiceImpl implements ProjectResourceService {
 
+	private static final Logger logger = LoggerFactory.getLogger(ProjectResourceServiceImpl.class);
+	
 	@Autowired
 	private ProjectResourceDao projectResourceDao;
 	@Autowired
@@ -33,12 +44,43 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 	
 	//@Transactional
 	@Override
-	public ProjectResource insert(ProjectResource resource) {
+	public ProjectResource insert(Project project, ProjectResource resource) {
 		if(resource.getSeq() == null) {
 			Integer nextSeq = projectResourceDao.findFirstByProjectIdAndParentIdOrderBySeqDesc(resource.getProjectId(), resource.getParentId()).map(item -> item.getSeq() + 1).orElse(1);
 			resource.setSeq(nextSeq);
 		}
-		return projectResourceDao.save(resource);
+		ProjectResource result = projectResourceDao.save(resource);
+		
+		// 在 git 仓库中添加文件
+		Integer parentResourceId = resource.getParentId();
+		String relativeDir = parentResourceId == Constant.TREE_ROOT_ID ? null: this.findParentPath(parentResourceId);
+		
+		propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).map(rootDir -> {
+			return new ProjectContext(project.getCreateUserName(), project.getName(), rootDir).getGitRepositoryDirectory();
+		}).ifPresent(rootPath -> {
+			Path path = rootPath;
+			if(StringUtils.isNotBlank(relativeDir)) {
+				path = path.resolve(relativeDir);
+			}
+			if(resource.isGroup()) {
+				path = path.resolve(resource.getKey());
+				try {
+					Files.createDirectory(path);
+				} catch (IOException e) {
+					logger.error("创建分组文件夹时出错！", e);
+				}
+			} else {
+				path = path.resolve(result.getFileName());
+				try {
+					Files.writeString(path, "{}", StandardOpenOption.CREATE);
+				} catch (IOException e) {
+					logger.error("为页面生成 json文件时出错！", e);
+				}
+			}
+			
+		});
+		
+		return result;
 	}
 
 	@Override
@@ -47,18 +89,31 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 			return new ArrayList<ProjectResource>();
 		}
 		
-		List<GitFileInfo> files = propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).map(rootDir -> {
-			String relativeDir = parentResourceId == Constant.TREE_ROOT_ID ? null: "";
-			ProjectContext context = new ProjectContext(project.getCreateUserName(), project.getName(), rootDir);
-			return GitUtils.getFiles(context.getGitRepositoryDirectory(), relativeDir);
-		}).orElse(new ArrayList<GitFileInfo>());
+		List<ProjectResource> result = projectResourceDao.findByProjectIdAndParentIdOrderByResourceTypeAscSeqAsc(project.getId(), parentResourceId);
+		if(result.isEmpty()) {
+			return new ArrayList<ProjectResource>();
+		}
 		
+		String relativeDir = parentResourceId == Constant.TREE_ROOT_ID ? null: this.findParentPath(parentResourceId);
+		
+		Optional<ProjectContext> projectContext = propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).map(rootDir -> {
+			return new ProjectContext(project.getCreateUserName(), project.getName(), rootDir);
+		});
+				
+		List<GitFileInfo> files = projectContext
+				.map(context -> GitUtils.getFiles(context.getGitRepositoryDirectory(), relativeDir))
+				.orElse(new ArrayList<GitFileInfo>());
 		// 根据文件名关联
 		Map<String, GitFileInfo> fileMap = files.stream().collect(Collectors.toMap(GitFileInfo::getName, Function.identity()));
 		
-		List<ProjectResource> result = projectResourceDao.findByProjectIdAndParentIdOrderByResourceTypeAscSeqAsc(project.getId(), parentResourceId);
+		Map<String, GitFileStatus> fileStatusMap = projectContext
+				.map(context -> GitUtils.status(context.getGitRepositoryDirectory(), relativeDir))
+				.orElse(Collections.emptyMap());
 		
 		result.forEach(resource -> {
+			if(StringUtils.isBlank(resource.getName())) {
+				resource.setName(resource.getKey());
+			}
 			GitFileInfo fileInfo = fileMap.get(resource.getFileName());
 			if(fileInfo != null) {
 				resource.setLatestCommitId(fileInfo.getCommitId());
@@ -66,6 +121,15 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 				resource.setLatestShortMessage(fileInfo.getLatestShortMessage());
 				resource.setLatestFullMessage(fileInfo.getLatestFullMessage());
 			}
+			
+			if(resource.isGroup()) {
+				GitFileStatus status = fileStatusMap.get(resource.getKey());
+				resource.setGitStatus(status);
+			} else {
+				GitFileStatus status = fileStatusMap.get(resource.getFileName());
+				resource.setGitStatus(status);
+			}
+			
 		});
 		
 		return result;
@@ -118,6 +182,37 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 	@Override
 	public Optional<ProjectResource> findById(Integer resourceId) {
 		return projectResourceDao.findById(resourceId);
+	}
+
+	@Override
+	public List<ProjectResource> findParentGroupsByParentPath(Integer projectId, String parentPath) {
+		if(projectId == null) {
+			return Collections.emptyList();
+		}
+		if(StringUtils.isBlank(parentPath)) {
+			return Collections.emptyList();
+		}
+		
+		List<ProjectResource> result = new ArrayList<ProjectResource>();
+		
+		String[] keys = parentPath.trim().split("/");
+		Integer parentId = Constant.TREE_ROOT_ID;
+		boolean allMatched = true;
+		for(String key : keys) {
+			Optional<ProjectResource> resourceOption = findByKey(projectId, parentId, ProjectResourceType.GROUP, AppType.UNKNOWN, key);
+			if(resourceOption.isEmpty()) {
+				allMatched = false;
+				break;
+			}
+			result.add(resourceOption.get());
+			parentId = resourceOption.get().getId();
+		}
+		
+		if(!allMatched) {
+			return Collections.emptyList();
+		}
+		
+		return result;
 	}
 
 }

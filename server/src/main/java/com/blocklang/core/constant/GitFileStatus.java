@@ -4,11 +4,13 @@ import java.util.Arrays;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum GitFileStatus {
 	
 	UNTRACKED("01", "untracked"),
 	ADDED("02", "added"),
-	CHANGE("03", "change"),
+	CHANGED("03", "changed"),
 	REMOVED("04", "removed"),
 	DELETED("05", "deleted"),
 	MISSING("06", "missing"),
@@ -23,6 +25,7 @@ public enum GitFileStatus {
 		this.value = value;
 	}
 
+	@JsonValue
 	public String getKey() {
 		return this.key;
 	}

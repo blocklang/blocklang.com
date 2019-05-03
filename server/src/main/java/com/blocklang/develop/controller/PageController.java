@@ -269,7 +269,7 @@ public class PageController {
 		resource.setCreateUserId(currentUser.getId());
 		resource.setCreateTime(LocalDateTime.now());
 		
-		ProjectResource savedProjectResource = projectResourceService.insert(resource);
+		ProjectResource savedProjectResource = projectResourceService.insert(project, resource);
 		savedProjectResource.setMessageSource(messageSource);
 		return new ResponseEntity<ProjectResource>(savedProjectResource, HttpStatus.CREATED);
 	}

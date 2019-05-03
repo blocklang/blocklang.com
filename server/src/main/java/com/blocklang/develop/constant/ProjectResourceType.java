@@ -4,6 +4,8 @@ import java.util.Arrays;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum ProjectResourceType {
 	
 	// 在命名上，页面比程序模块更准确，因为页面中并没有包含后台服务，仅仅是前台页面。
@@ -22,6 +24,7 @@ public enum ProjectResourceType {
 		this.value = value;
 	}
 
+	@JsonValue
 	public String getKey() {
 		return this.key;
 	}
