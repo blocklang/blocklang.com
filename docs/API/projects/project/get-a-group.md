@@ -25,9 +25,17 @@ Status: 200 OK
 ```json
 {
     "parentId": -1,
+    "parentGroups": [],
     "resources": []
 }
 ```
+
+parentGroups 对象
+
+| 属性名 | 类型     | 描述       |
+| ------ | -------- | ---------- |
+| `key`  | `string` | 资源 key   |
+| `path` | `string` | 资源的路径 |
 
 ProjectResource 对象
 

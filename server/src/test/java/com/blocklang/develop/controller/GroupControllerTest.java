@@ -1095,4 +1095,178 @@ public class GroupControllerTest extends AbstractControllerTest{
 					"resources.size()", equalTo(0));
 	}
 	
+	@Test
+	public void get_group_path_anonymous_user_access_public_project_success() {
+		String owner = "owner";
+		String projectName = "public-project";
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(true);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		List<ProjectResource> resources = new ArrayList<ProjectResource>();
+		when(projectResourceService.findChildren(any(), anyInt())).thenReturn(resources);
+
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/group-path", owner, projectName)
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body("parentId", equalTo(-1),
+					"parentPath", equalTo(""),
+					"parentGroups.size()", equalTo(0));
+	}
+	
+	@Test
+	public void get_group_path_public_project_invalid_path_fail() {
+		String owner = "owner";
+		String projectName = "public-project";
+
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(true);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		when(projectResourceService.findParentGroupsByParentPath(1, "a")).thenReturn(Collections.emptyList());
+
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/group-path/a", owner, projectName)
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	// 如果是私有项目，则匿名用户不能访问
+	@Test
+	public void get_group_path_anonymous_user_private_project_fail() {
+		String owner = "owner";
+		String projectName = "private-project";
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(false);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/group-path", owner, projectName)
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	@WithMockUser("other")
+	@Test
+	public void get_group_path_logged_user_not_owned_public_project_success() {
+		String owner = "owner";
+		String projectName = "public-project";
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(true);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/group-path", owner, projectName)
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body("parentId", equalTo(-1),
+					"parentPath", equalTo(""),
+					"parentGroups.size()", equalTo(0));
+	}
+	
+	@WithMockUser("owner")
+	@Test
+	public void get_group_path_logged_user_self_public_project_success() {
+		String owner = "owner";
+		String projectName = "public-project";
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(true);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/group-path", owner, projectName)
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body("parentId", equalTo(-1),
+					"parentPath", equalTo(""),
+					"parentGroups.size()", equalTo(0));
+	}
+	
+	@WithMockUser("other")
+	@Test
+	public void get_group_path_logged_user_not_owned_private_project_fail() {
+		String owner = "owner";
+		String projectName = "private-project";
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(false);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/group-path", owner, projectName)
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	@WithMockUser("owner")
+	@Test
+	public void get_group_path_logged_user_self_private_project_success() {
+		String owner = "owner";
+		String projectName = "private-project";
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(false);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/group-path", owner, projectName)
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body("parentId", equalTo(-1),
+					"parentPath", equalTo(""),
+					"parentGroups.size()", equalTo(0));
+	}
+	
+	@WithMockUser("owner")
+	@Test
+	public void get_group_path_logged_sub_group() {
+		String owner = "owner";
+		String projectName = "public-project";
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(true);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		List<ProjectResource> parentGroups = new ArrayList<ProjectResource>();
+		ProjectResource resource = new ProjectResource();
+		resource.setId(1);
+		parentGroups.add(resource);
+		when(projectResourceService.findParentGroupsByParentPath(1, "a")).thenReturn(parentGroups);
+
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/group-path/a", owner, projectName)
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body("parentId", equalTo(1),
+					"parentPath", equalTo("a"),
+					"parentGroups.size()", equalTo(1));
+	}
+	
 }

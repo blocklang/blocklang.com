@@ -298,7 +298,6 @@ public class GroupController {
 					throw new ResourceNotFoundException();
 				}
 			}
-			project.setCreateUserName(owner);
 			
 			Map<String, Object> result = new HashMap<String, Object>();
 			Integer parentResourceId = null;
@@ -340,5 +339,63 @@ public class GroupController {
 			result.put("resources", tree);
 			return ResponseEntity.ok(result);
 		}).orElseThrow(ResourceNotFoundException::new);
+	}
+
+	@GetMapping("/projects/{owner}/{projectName}/group-path/**")
+	public ResponseEntity<Map<String, Object>> getGroupPath(
+			Principal user,
+			@PathVariable String owner,
+			@PathVariable String projectName,
+			HttpServletRequest req) {
+		
+		String parentPath = SpringMvcUtil.getRestUrl(req, 4);
+		
+		return projectService.find(owner, projectName).map((project) -> {
+			
+			if(!project.getIsPublic()) {
+				// 1. 用户未登录时不能访问私有项目
+				// 2. 用户虽然登录，但是不是项目的拥有者且没有访问权限，则不能访问
+				if((user == null) || (user!= null && !owner.equals(user.getName()))) {
+					throw new ResourceNotFoundException();
+				}
+			}
+			
+			Map<String, Object> result = new HashMap<String, Object>();
+			
+			if(StringUtils.isBlank(parentPath)) {
+				result.put("parentId", Constant.TREE_ROOT_ID);
+				result.put("parentPath", "");
+				result.put("parentGroups", new String[] {});
+			} else {
+				// 要校验根据 parentPath 中的所有节点都能准确匹配
+				List<ProjectResource> parentGroups = projectResourceService.findParentGroupsByParentPath(project.getId(), parentPath);
+				// 因为 parentPath 有值，所以理应能查到记录
+				if(parentGroups.isEmpty()) {
+					logger.error("根据传入的 parent path 没有找到对应的标识");
+					throw new ResourceNotFoundException();
+				}
+				
+				List<Map<String, String>> stripedParentGroups = new ArrayList<Map<String, String>>();
+				String relativePath = "";
+				for(ProjectResource each : parentGroups) {
+					relativePath = relativePath + "/" + each.getKey();
+					
+					Map<String, String> map = new HashMap<String, String>();
+					if(StringUtils.isBlank(each.getName())) {
+						map.put("name", each.getKey());
+					} else {
+						map.put("name", each.getName());
+					}
+					
+					map.put("path", relativePath);
+					stripedParentGroups.add(map);
+				}
+				result.put("parentGroups", stripedParentGroups);
+				result.put("parentId", parentGroups.get(parentGroups.size() - 1).getId());
+				result.put("parentPath", parentPath);
+			}
+			return ResponseEntity.ok(result);
+		}).orElseThrow(ResourceNotFoundException::new);
+		
 	}
 }
