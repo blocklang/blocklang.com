@@ -312,21 +312,7 @@ public class GroupController {
 					throw new ResourceNotFoundException();
 				}
 				
-				List<Map<String, String>> stripedParentGroups = new ArrayList<Map<String, String>>();
-				String relativePath = "";
-				for(ProjectResource each : parentGroups) {
-					relativePath = relativePath + "/" + each.getKey();
-					
-					Map<String, String> map = new HashMap<String, String>();
-					if(StringUtils.isBlank(each.getName())) {
-						map.put("name", each.getKey());
-					} else {
-						map.put("name", each.getName());
-					}
-					
-					map.put("path", relativePath);
-					stripedParentGroups.add(map);
-				}
+				List<Map<String, String>> stripedParentGroups = stripParentGroups(parentGroups);
 				result.put("parentGroups", stripedParentGroups);
 				parentResourceId = parentGroups.get(parentGroups.size() - 1).getId();
 			}
@@ -374,22 +360,7 @@ public class GroupController {
 					logger.error("根据传入的 parent path 没有找到对应的标识");
 					throw new ResourceNotFoundException();
 				}
-				
-				List<Map<String, String>> stripedParentGroups = new ArrayList<Map<String, String>>();
-				String relativePath = "";
-				for(ProjectResource each : parentGroups) {
-					relativePath = relativePath + "/" + each.getKey();
-					
-					Map<String, String> map = new HashMap<String, String>();
-					if(StringUtils.isBlank(each.getName())) {
-						map.put("name", each.getKey());
-					} else {
-						map.put("name", each.getName());
-					}
-					
-					map.put("path", relativePath);
-					stripedParentGroups.add(map);
-				}
+				List<Map<String, String>> stripedParentGroups = stripParentGroups(parentGroups);
 				result.put("parentGroups", stripedParentGroups);
 				result.put("parentId", parentGroups.get(parentGroups.size() - 1).getId());
 				result.put("parentPath", parentPath);
@@ -397,5 +368,24 @@ public class GroupController {
 			return ResponseEntity.ok(result);
 		}).orElseThrow(ResourceNotFoundException::new);
 		
+	}
+
+	private List<Map<String, String>> stripParentGroups(List<ProjectResource> parentGroups) {
+		List<Map<String, String>> stripedParentGroups = new ArrayList<Map<String, String>>();
+		String relativePath = "";
+		for(ProjectResource each : parentGroups) {
+			relativePath = relativePath + "/" + each.getKey();
+			
+			Map<String, String> map = new HashMap<String, String>();
+			if(StringUtils.isBlank(each.getName())) {
+				map.put("name", each.getKey());
+			} else {
+				map.put("name", each.getName());
+			}
+			
+			map.put("path", relativePath);
+			stripedParentGroups.add(map);
+		}
+		return stripedParentGroups;
 	}
 }
