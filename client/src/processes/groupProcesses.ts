@@ -5,6 +5,7 @@ import { ValidateStatus } from '../constant';
 import { GroupKeyPayload, GroupNamePayload, DescriptionPayload } from './interfaces';
 import { baseUrl } from '../config';
 import { getProjectCommand } from './projectProcesses';
+import { getResourceParentPathCommand } from './pageProcesses';
 
 const startInitForNewGroupCommand = commandFactory(({ path }) => {
 	return [
@@ -101,7 +102,8 @@ const groupDescriptionInputCommand = commandFactory<DescriptionPayload>(({ path,
 
 const saveGroupCommand = commandFactory(async ({ path, get, payload: { owner, project } }) => {
 	const groupParam = get(path('groupParam'));
-	groupParam.parentId = -1; // TODO
+	const parentResource = get(path('parentResource'));
+	groupParam.parentId = parentResource.id;
 
 	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/groups`, {
 		method: 'POST',
@@ -127,7 +129,7 @@ const saveGroupCommand = commandFactory(async ({ path, get, payload: { owner, pr
 
 export const initForNewGroupProcess = createProcess('init-for-new-group', [
 	startInitForNewGroupCommand,
-	getProjectCommand
+	[getProjectCommand, getResourceParentPathCommand]
 ]);
 export const groupKeyInputProcess = createProcess('group-key-input', [groupKeyInputCommand]);
 export const groupNameInputProcess = createProcess('group-name-input', [groupNameInputCommand]);

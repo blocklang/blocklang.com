@@ -8,7 +8,7 @@ import * as c from '../../../className';
 import * as css from './NewGroup.m.css';
 import { v, w } from '@dojo/framework/widget-core/d';
 import Exception from '../../error/Exception';
-import { Project, WithTarget } from '../../../interfaces';
+import { Project, WithTarget, ProjectGroup } from '../../../interfaces';
 import ProjectHeader from '../../widgets/ProjectHeader';
 import Link from '@dojo/framework/routing/Link';
 import { ValidateStatus } from '../../../constant';
@@ -20,6 +20,7 @@ export interface NewGroupProperties {
 	project: Project;
 	// attr
 	parentId: number; // 所属分组标识
+	parentGroups: ProjectGroup[];
 	// validation
 	keyValidateStatus?: ValidateStatus;
 	keyErrorMessage?: string;
@@ -51,6 +52,7 @@ export default class NewGroup extends ThemedMixin(I18nMixin(WidgetBase))<NewGrou
 			v('div', { classes: [c.container], styles: { maxWidth: '700px' } }, [
 				v('div', [
 					v('h4', [`${newGroup}`]),
+					this._renderBreadcrumb(),
 					// TODO: 导航栏
 					v('hr'),
 					v('form', { classes: [c.needs_validation], novalidate: 'novalidate' }, [
@@ -77,6 +79,50 @@ export default class NewGroup extends ThemedMixin(I18nMixin(WidgetBase))<NewGrou
 		const { project } = this.properties;
 
 		return w(ProjectHeader, { project, privateProjectTitle });
+	}
+
+	private _renderBreadcrumb() {
+		const { project, parentGroups } = this.properties;
+
+		return v('nav', { classes: [], 'aria-label': 'breadcrumb' }, [
+			v('ol', { classes: [c.breadcrumb, css.navOl] }, [
+				// 项目名
+				v('li', { classes: [c.breadcrumb_item] }, [
+					w(
+						Link,
+						{
+							to: 'view-project',
+							params: { owner: project.createUserName, project: project.name },
+							classes: [c.font_weight_bold]
+						},
+						[`${project.name}`]
+					)
+				]),
+				...parentGroups.map((item, index, array) => {
+					if (index !== array.length - 1) {
+						return v('li', { classes: [c.breadcrumb_item] }, [
+							w(
+								Link,
+								{
+									to: 'view-project-group',
+									params: {
+										owner: project.createUserName,
+										project: project.name,
+										parentPath: item.path
+									}
+								},
+								[`${item.name}`]
+							)
+						]);
+					} else {
+						// 如果是最后一个元素
+						return v('li', { classes: [c.breadcrumb_item, c.active] }, [
+							v('strong', { classes: [c.pr_2] }, [`${item.name}`])
+						]);
+					}
+				})
+			])
+		]);
 	}
 
 	private _renderKeyInput() {

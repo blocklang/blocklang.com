@@ -18,6 +18,7 @@ function getProperties(store: Store<State>): NewPageProperties {
 		appTypes: get(path('appTypes')),
 		appType: get(path('pageParam', 'appType')),
 		parentId: get(path('parentResource', 'id')),
+		parentGroups: get(path('parentResource', 'parentGroups')),
 		keyValidateStatus: get(path('pageInputValidation', 'keyValidateStatus')),
 		keyErrorMessage: get(path('pageInputValidation', 'keyErrorMessage')),
 		nameValidateStatus: get(path('pageInputValidation', 'nameValidateStatus')),

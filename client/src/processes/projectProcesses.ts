@@ -116,24 +116,22 @@ export const getProjectCommand = commandFactory(async ({ path, payload: { owner,
 	return [replace(path('project'), json)];
 });
 
-const getProjectResourcesCommand = commandFactory(
-	async ({ get, path, payload: { owner, project, parentPath = '' } }) => {
-		const response = await fetch(`${baseUrl}/projects/${owner}/${project}/groups/${parentPath}`, {
-			headers: getHeaders()
-		});
-		const json = await response.json();
-		if (!response.ok) {
-			return [replace(path('parentResource'), undefined), replace(path('projectResources'), [])];
-		}
-
-		return [
-			replace(path('parentResource', 'path'), parentPath),
-			replace(path('parentResource', 'id'), json.parentId),
-			replace(path('parentResource', 'parentGroups'), json.parentGroups),
-			replace(path('projectResources'), json.resources)
-		];
+const getProjectResourcesCommand = commandFactory(async ({ path, payload: { owner, project, parentPath = '' } }) => {
+	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/groups/${parentPath}`, {
+		headers: getHeaders()
+	});
+	const json = await response.json();
+	if (!response.ok) {
+		return [replace(path('parentResource'), undefined), replace(path('projectResources'), [])];
 	}
-);
+
+	return [
+		replace(path('parentResource', 'path'), parentPath),
+		replace(path('parentResource', 'id'), json.parentId),
+		replace(path('parentResource', 'parentGroups'), json.parentGroups),
+		replace(path('projectResources'), json.resources)
+	];
+});
 
 const getLatestCommitInfoCommand = commandFactory(async ({ get, path, payload: { owner, project } }) => {
 	const projectInfo = get(path('project'));

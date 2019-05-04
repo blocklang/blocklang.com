@@ -9,7 +9,7 @@ import * as css from './NewPage.m.css';
 import { v, w } from '@dojo/framework/widget-core/d';
 import Exception from '../../error/Exception';
 import ProjectHeader from '../../widgets/ProjectHeader';
-import { Project, AppType, WithTarget } from '../../../interfaces';
+import { Project, AppType, WithTarget, ProjectGroup } from '../../../interfaces';
 import FontAwesomeIcon from '../../../widgets/fontawesome-icon';
 import { IconPrefix, IconName } from '@fortawesome/fontawesome-svg-core';
 import Link from '@dojo/framework/routing/Link';
@@ -23,6 +23,7 @@ export interface NewPageProperties {
 	appTypes: AppType[];
 	// attr
 	parentId: number; // 所属分组标识
+	parentGroups: ProjectGroup[];
 	appType: string;
 	// validation
 	keyValidateStatus?: ValidateStatus;
@@ -55,6 +56,7 @@ export default class NewPage extends ThemedMixin(I18nMixin(WidgetBase))<NewPageP
 			v('div', { classes: [c.container], styles: { maxWidth: '700px' } }, [
 				v('div', [
 					v('h4', [`${newPage}`]),
+					this._renderBreadcrumb(),
 					// 导航栏
 					v('hr'),
 					v('form', { classes: [c.needs_validation], novalidate: 'novalidate' }, [
@@ -82,6 +84,50 @@ export default class NewPage extends ThemedMixin(I18nMixin(WidgetBase))<NewPageP
 		const { project } = this.properties;
 
 		return w(ProjectHeader, { project, privateProjectTitle });
+	}
+
+	private _renderBreadcrumb() {
+		const { project, parentGroups } = this.properties;
+
+		return v('nav', { classes: [], 'aria-label': 'breadcrumb' }, [
+			v('ol', { classes: [c.breadcrumb, css.navOl] }, [
+				// 项目名
+				v('li', { classes: [c.breadcrumb_item] }, [
+					w(
+						Link,
+						{
+							to: 'view-project',
+							params: { owner: project.createUserName, project: project.name },
+							classes: [c.font_weight_bold]
+						},
+						[`${project.name}`]
+					)
+				]),
+				...parentGroups.map((item, index, array) => {
+					if (index !== array.length - 1) {
+						return v('li', { classes: [c.breadcrumb_item] }, [
+							w(
+								Link,
+								{
+									to: 'view-project-group',
+									params: {
+										owner: project.createUserName,
+										project: project.name,
+										parentPath: item.path
+									}
+								},
+								[`${item.name}`]
+							)
+						]);
+					} else {
+						// 如果是最后一个元素
+						return v('li', { classes: [c.breadcrumb_item, c.active] }, [
+							v('strong', { classes: [c.pr_2] }, [`${item.name}`])
+						]);
+					}
+				})
+			])
+		]);
 	}
 
 	private _renderKeyInput() {

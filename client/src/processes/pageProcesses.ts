@@ -15,6 +15,24 @@ const startInitForNewPageCommand = commandFactory(({ path }) => {
 	];
 });
 
+export const getResourceParentPathCommand = commandFactory(
+	async ({ path, payload: { owner, project, parentPath = '' } }) => {
+		const response = await fetch(`${baseUrl}/projects/${owner}/${project}/group-path/${parentPath}`, {
+			headers: getHeaders()
+		});
+		const json = await response.json();
+		if (!response.ok) {
+			return [replace(path('parentResource'), undefined)];
+		}
+
+		return [
+			replace(path('parentResource', 'path'), parentPath),
+			replace(path('parentResource', 'id'), json.parentId),
+			replace(path('parentResource', 'parentGroups'), json.parentGroups)
+		];
+	}
+);
+
 const getAppTypesCommand = commandFactory(async ({ path, payload: { owner, project } }) => {
 	const response = await fetch(`${baseUrl}/properties/app-type`, {
 		headers: getHeaders()
@@ -117,7 +135,9 @@ const pageDescriptionInputCommand = commandFactory<DescriptionPayload>(({ path, 
 
 const savePageCommand = commandFactory(async ({ path, get, payload: { owner, project } }) => {
 	const pageParam = get(path('pageParam'));
-	pageParam.parentId = -1; // TODO
+
+	const parentResource = get(path('parentResource'));
+	pageParam.parentId = parentResource.id;
 
 	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/pages`, {
 		method: 'POST',
@@ -143,8 +163,7 @@ const savePageCommand = commandFactory(async ({ path, get, payload: { owner, pro
 
 export const initForNewPageProcess = createProcess('init-for-new-page', [
 	startInitForNewPageCommand,
-	getProjectCommand,
-	getAppTypesCommand
+	[getProjectCommand, getResourceParentPathCommand, getAppTypesCommand]
 ]);
 export const pageKeyInputProcess = createProcess('page-key-input', [pageKeyInputCommand]);
 export const pageNameInputProcess = createProcess('page-name-input', [pageNameInputCommand]);

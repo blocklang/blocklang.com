@@ -16,6 +16,7 @@ function getProperties(store: Store<State>): NewGroupProperties {
 		loggedUsername: get(path('user', 'loginName')),
 		project: get(path('project')),
 		parentId: get(path('parentResource', 'id')),
+		parentGroups: get(path('parentResource', 'parentGroups')),
 		keyValidateStatus: get(path('groupInputValidation', 'keyValidateStatus')),
 		keyErrorMessage: get(path('groupInputValidation', 'keyErrorMessage')),
 		nameValidateStatus: get(path('groupInputValidation', 'nameValidateStatus')),
