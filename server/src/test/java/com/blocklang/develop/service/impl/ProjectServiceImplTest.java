@@ -158,7 +158,8 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 					"latestShortMessage",
 					"latestFullMessage",
 					"latestCommitTime",
-					"messageSource");
+					"messageSource",
+					"gitStatus");
 		
 		// 已在项目资源表中登记 README.md 文件
 		ProjectResource readmeResource = projectResourceDao.findByProjectIdAndParentIdAndResourceTypeAndAppTypeAndKeyIgnoreCase(
@@ -175,7 +176,8 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 				"latestShortMessage",
 				"latestFullMessage",
 				"latestCommitTime",
-				"messageSource");
+				"messageSource",
+				"gitStatus");
 		
 		// 已在项目文件表中保存 README.md 文件
 		assertThat(projectFileDao.findByProjectResourceId(readmeResource.getId()).get()).hasNoNullFieldsOrProperties();
@@ -192,7 +194,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		// 为了便于测试，可能要将 applyTemplate 方法单独提取出来
 		
 		// 确认 git 仓库中有 main.json 文件，并比较其内容
-		assertThat(Files.readString(context.getGitRepositoryDirectory().resolve("main.page.json")))
+		assertThat(Files.readString(context.getGitRepositoryDirectory().resolve("main.page.web.json")))
 			.contains("resource")
 			.contains("uiModel")
 			.contains("view")

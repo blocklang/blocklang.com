@@ -188,7 +188,7 @@ public class ProjectResourceTest {
 		ProjectResource resource = new ProjectResource();
 		resource.setResourceType(ProjectResourceType.GROUP);
 		
-		assertThat(resource.getIcon()).isEqualTo("far folder");
+		assertThat(resource.getIcon()).isEqualTo("fas folder");
 	}
 	
 	@Test
@@ -221,8 +221,9 @@ public class ProjectResourceTest {
 		ProjectResource resource = new ProjectResource();
 		resource.setKey("key");
 		resource.setResourceType(ProjectResourceType.PAGE);
+		resource.setAppType(AppType.WEB);
 		
-		assertThat(resource.getFileName()).isEqualTo("key.page.json");
+		assertThat(resource.getFileName()).isEqualTo("key.page.web.json");
 	}
 	
 	@Test

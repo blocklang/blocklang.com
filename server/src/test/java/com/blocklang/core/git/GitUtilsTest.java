@@ -234,10 +234,10 @@ public class GitUtilsTest {
 		Files.createFile(file2);
 		
 		Map<String, GitFileStatus> status = GitUtils.status(folder.toPath(), null);
-		assertThat(status).hasSize(2).containsKeys("file1", "a/file2").containsValue(GitFileStatus.UNTRACKED);
+		assertThat(status).hasSize(3).containsKeys("a", "file1", "a/file2").containsValue(GitFileStatus.UNTRACKED);
 		
 		status = GitUtils.status(folder.toPath(), "a");
-		assertThat(status).hasSize(1).containsKeys( "a/file2").containsValue(GitFileStatus.UNTRACKED);
+		assertThat(status).hasSize(2).containsKeys("a", "a/file2").containsValue(GitFileStatus.UNTRACKED);
 	}
 	
 	@Test
