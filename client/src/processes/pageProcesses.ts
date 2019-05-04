@@ -86,7 +86,7 @@ const pageKeyInputCommand = commandFactory<PageKeyPayload>(
 		const json = await response.json();
 		if (!response.ok) {
 			result.push(replace(path('pageInputValidation', 'keyValidateStatus'), ValidateStatus.INVALID));
-			result.push(replace(path('pageInputValidation', 'keyErrorMessage'), json.errors.name));
+			result.push(replace(path('pageInputValidation', 'keyErrorMessage'), json.errors.key));
 			return result;
 		}
 

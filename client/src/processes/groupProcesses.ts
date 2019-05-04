@@ -52,7 +52,7 @@ const groupKeyInputCommand = commandFactory<GroupKeyPayload>(
 			console.log(response, json);
 
 			result.push(replace(path('groupInputValidation', 'keyValidateStatus'), ValidateStatus.INVALID));
-			result.push(replace(path('groupInputValidation', 'keyErrorMessage'), json.errors.name));
+			result.push(replace(path('groupInputValidation', 'keyErrorMessage'), json.errors.key));
 			return result;
 		}
 
