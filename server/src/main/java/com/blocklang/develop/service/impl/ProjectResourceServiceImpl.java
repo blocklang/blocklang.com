@@ -94,7 +94,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 			return new ArrayList<ProjectResource>();
 		}
 		
-		String relativeDir = parentResourceId == Constant.TREE_ROOT_ID ? null: this.findParentPath(parentResourceId);
+		String relativeDir = parentResourceId == Constant.TREE_ROOT_ID ? "": this.findParentPath(parentResourceId);
 		
 		Optional<ProjectContext> projectContext = propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).map(rootDir -> {
 			return new ProjectContext(project.getCreateUserName(), project.getName(), rootDir);
@@ -123,10 +123,27 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 			}
 			
 			if(resource.isGroup()) {
-				GitFileStatus status = fileStatusMap.get(resource.getKey());
+				// 当文件夹未跟踪时，则下面的子文件夹不会再在查询结果中，但也可以归为未跟踪。
+				// 所以，如果找不到当前文件夹的状态，则继承父文件夹的状态
+				String path = null;
+				if(StringUtils.isBlank(relativeDir)) {
+					path = resource.getKey();
+				} else {
+					path = relativeDir + "/" + resource.getKey();
+				}
+				GitFileStatus status = fileStatusMap.get(path);
+				if(status == null) {
+					status = fileStatusMap.get(relativeDir);
+				}
 				resource.setGitStatus(status);
 			} else {
-				GitFileStatus status = fileStatusMap.get(resource.getFileName());
+				String path = null;
+				if(StringUtils.isBlank(relativeDir)) {
+					path = resource.getFileName();
+				} else {
+					path = relativeDir + "/" + resource.getFileName();
+				}
+				GitFileStatus status = fileStatusMap.get(path);
 				resource.setGitStatus(status);
 			}
 			
