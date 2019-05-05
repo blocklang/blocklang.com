@@ -191,6 +191,15 @@ public class GitUtilsTest {
 	}
 	
 	@Test
+	public void get_files_folder_not_commit() throws IOException {
+		File folder = tempFolder.newFolder(gitRepoDirectory);
+		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+		
+		List<GitFileInfo> gitFiles = GitUtils.getFiles(folder.toPath(), "a-folder-not-commit");
+		assertThat(gitFiles).isEmpty();
+	}
+	
+	@Test
 	public void get_files_at_sub_folder() throws IOException {
 		// 新建一个 git 仓库
 		File folder = tempFolder.newFolder(gitRepoDirectory);

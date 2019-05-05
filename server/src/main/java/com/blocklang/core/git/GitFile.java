@@ -118,12 +118,12 @@ public class GitFile {
 						logger.error(e.getMessage(), e);
 					} catch (GitAPIException e) {
 						logger.error(e.getMessage(), e);
-					} catch (GitFileNotFoundException e) {
-						logger.error(e.getMessage(), e);
 					}
 				}
 			}
 		} catch (IOException e) {
+			logger.error(e.getMessage(), e);
+		} catch (GitFileNotFoundException e) {
 			logger.error(e.getMessage(), e);
 		}
 		
