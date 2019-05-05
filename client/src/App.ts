@@ -107,8 +107,11 @@ export default class App extends WidgetBase {
 					id: 'view-project-group',
 					renderer: () => w(ViewProjectGroupContainer, {})
 				}),
+				w(Outlet, { key: 'new-page-root', id: 'new-page-root', renderer: () => w(NewPageContainer, {}) }),
+				w(Outlet, { key: 'new-group-root', id: 'new-group-root', renderer: () => w(NewGroupContainer, {}) }),
 				w(Outlet, { key: 'new-page', id: 'new-page', renderer: () => w(NewPageContainer, {}) }),
 				w(Outlet, { key: 'new-group', id: 'new-group', renderer: () => w(NewGroupContainer, {}) }),
+
 				w(Outlet, { key: 'list-release', id: 'list-release', renderer: () => w(ListReleaseContainer, {}) }),
 				w(Outlet, {
 					key: 'new-release',

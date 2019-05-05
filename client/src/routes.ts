@@ -34,10 +34,18 @@ export default [
 	},
 	{
 		path: '{owner}/{project}/pages/new',
-		outlet: 'new-page'
+		outlet: 'new-page-root'
 	},
 	{
 		path: '{owner}/{project}/groups/new',
+		outlet: 'new-group-root'
+	},
+	{
+		path: '{owner}/{project}/pages/new/{parentPath}',
+		outlet: 'new-page'
+	},
+	{
+		path: '{owner}/{project}/groups/new/{parentPath}',
 		outlet: 'new-group'
 	},
 	{

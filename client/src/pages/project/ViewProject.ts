@@ -91,10 +91,29 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 	private _renderNewResourceButtonGroup() {
 		const disabled = !this._isAuthenticated();
 		const { messages } = this._localizedMessages;
+		const { project } = this.properties;
+
 		return v('div', { classes: [c.btn_group, c.btn_group_sm, c.mr_2], role: 'group' }, [
-			// 这里没有设置 params，却依然起作用，因为当前页面的 url 中已包含 {owner}/{project}
-			w(Link, { classes: [c.btn, c.btn_outline_secondary], to: 'new-page', disabled }, [`${messages.newPage}`]),
-			w(Link, { classes: [c.btn, c.btn_outline_secondary], to: 'new-group', disabled }, [`${messages.newGroup}`])
+			w(
+				Link,
+				{
+					classes: [c.btn, c.btn_outline_secondary],
+					to: 'new-page-root',
+					params: { owner: project.createUserName, project: project.name },
+					disabled
+				},
+				[`${messages.newPage}`]
+			),
+			w(
+				Link,
+				{
+					classes: [c.btn, c.btn_outline_secondary],
+					to: 'new-group-root',
+					params: { owner: project.createUserName, project: project.name },
+					disabled
+				},
+				[`${messages.newGroup}`]
+			)
 		]);
 	}
 

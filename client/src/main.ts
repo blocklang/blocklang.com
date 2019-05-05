@@ -72,11 +72,21 @@ router.on('outlet', ({ outlet, action }) => {
 			case 'list-release':
 				initForListReleasesProcess(store)({ owner: outlet.params.owner, project: outlet.params.project });
 				break;
+			case 'new-page-root':
 			case 'new-page':
-				initForNewPageProcess(store)({ owner: outlet.params.owner, project: outlet.params.project });
+				initForNewPageProcess(store)({
+					owner: outlet.params.owner,
+					project: outlet.params.project,
+					parentPath: outlet.params.parentPath
+				});
 				break;
+			case 'new-group-root':
 			case 'new-group':
-				initForNewGroupProcess(store)({ owner: outlet.params.owner, project: outlet.params.project });
+				initForNewGroupProcess(store)({
+					owner: outlet.params.owner,
+					project: outlet.params.project,
+					parentPath: outlet.params.parentPath
+				});
 				break;
 			case 'new-release':
 				initForNewReleaseProcess(store)({ owner: outlet.params.owner, project: outlet.params.project });
