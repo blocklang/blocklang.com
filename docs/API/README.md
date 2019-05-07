@@ -27,6 +27,13 @@
 5. [校验分组的显示名](./projects/resource/group/check-name.md)
 6. [创建分组](./projects/resource/group/create-a-group.md)
 
+## 提交
+
+1. [获取有变动的资源](./projects/commit/list-changes.md)
+2. [暂存更改](./projects/commit/stage-changes.md)
+3. [撤销暂存的更改](./projects/commit/unstage-changes.md)
+4. [提交更改](./projects/commit/commit-changes.md)
+
 ## APP
 
 1. [获取 JDK 列表](./apps/list-jdks.md)
