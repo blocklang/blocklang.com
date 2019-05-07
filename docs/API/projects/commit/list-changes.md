@@ -33,8 +33,14 @@ Status: 200 OK
 | `resourceName`     | `string` | 资源名称                     |
 | `parentNamePath`   | `string` | 完整路径的显示名             |
 
-如果没有找到此项目或者用户没有访问权限，则
+如果没有找到此项目，则
 
 ```text
 Status: 404 Not Found
+```
+
+如果用户没有访问权限，则
+
+```text
+Status: 403 Forbidden
 ```

@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.constant.ProjectResourceType;
+import com.blocklang.develop.data.UncommittedFile;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectResource;
 
@@ -69,5 +70,7 @@ public interface ProjectResourceService {
 	 * @return 如果有一个分组匹配不上，则返回空数组
 	 */
 	List<ProjectResource> findParentGroupsByParentPath(Integer projectId, String parentPath);
+
+	List<UncommittedFile> findChanges(Project project);
 
 }

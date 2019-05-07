@@ -27,6 +27,7 @@ import com.blocklang.core.service.PropertyService;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.constant.ProjectResourceType;
 import com.blocklang.develop.dao.ProjectResourceDao;
+import com.blocklang.develop.data.UncommittedFile;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectContext;
 import com.blocklang.develop.model.ProjectResource;
@@ -230,6 +231,11 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 		}
 		
 		return result;
+	}
+
+	@Override
+	public List<UncommittedFile> findChanges(Project project) {
+		return Collections.emptyList();
 	}
 
 }

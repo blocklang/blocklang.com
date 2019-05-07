@@ -45,14 +45,22 @@ public class GitStatus {
 			}
 			Status status = command.call();
 			
+			// 硬盘 -> index -> HEAD
+			
+			// 在硬盘中，但不在 index 中
 			status.getUntracked().forEach(item -> result.put(item, GitFileStatus.UNTRACKED));
 			status.getUntrackedFolders().forEach(item -> result.put(item, GitFileStatus.UNTRACKED));
 			
-			status.getAdded().forEach(item -> result.put(item, GitFileStatus.ADDED));
+			// 在硬盘中修改，但未同步到 index 中
 			status.getModified().forEach(item -> result.put(item, GitFileStatus.MODIFIED));
+			// 在硬盘中已删除，但依然存在于 index 中
 			status.getMissing().forEach(item -> result.put(item, GitFileStatus.DELETED));
+			// 在 index 中已删除，但依然存在于 HEAD 中
 			status.getRemoved().forEach(item -> result.put(item, GitFileStatus.REMOVED));
 			
+			// 在硬盘中新增，已添加到 index 中
+			status.getAdded().forEach(item -> result.put(item, GitFileStatus.ADDED));
+			// 在硬盘中修改，也已同步到 index 中
 			status.getChanged().forEach(item -> result.put(item, GitFileStatus.CHANGED));
 
 		} catch (NoWorkTreeException | GitAPIException e) {
