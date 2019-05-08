@@ -73,4 +73,8 @@ public interface ProjectResourceService {
 
 	List<UncommittedFile> findChanges(Project project);
 
+	void stageChanges(Project project, String[] filePathes);
+
+	void unstageChanges(Project project, String[] filePathes);
+
 }

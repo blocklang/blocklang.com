@@ -2,9 +2,11 @@ package com.blocklang.develop.controller;
 
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.Matchers.equalTo;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -118,7 +120,7 @@ public class CommitControllerTest extends AbstractControllerTest{
 		
 		UserInfo loginUser = new UserInfo();
 		loginUser.setId(1);
-		loginUser.setLocation("other");
+		loginUser.setLoginName("other");
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(loginUser));
 		
 		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
@@ -144,7 +146,7 @@ public class CommitControllerTest extends AbstractControllerTest{
 		
 		UserInfo loginUser = new UserInfo();
 		loginUser.setId(1);
-		loginUser.setLocation("other");
+		loginUser.setLoginName("other");
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(loginUser));
 		
 		ProjectAuthorization auth = new ProjectAuthorization();
@@ -177,7 +179,7 @@ public class CommitControllerTest extends AbstractControllerTest{
 		
 		UserInfo loginUser = new UserInfo();
 		loginUser.setId(1);
-		loginUser.setLocation("other");
+		loginUser.setLoginName("other");
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(loginUser));
 		
 		ProjectAuthorization auth = new ProjectAuthorization();
@@ -210,7 +212,7 @@ public class CommitControllerTest extends AbstractControllerTest{
 		
 		UserInfo loginUser = new UserInfo();
 		loginUser.setId(1);
-		loginUser.setLocation("other");
+		loginUser.setLoginName("other");
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(loginUser));
 		
 		ProjectAuthorization auth = new ProjectAuthorization();
@@ -243,7 +245,7 @@ public class CommitControllerTest extends AbstractControllerTest{
 		
 		UserInfo loginUser = new UserInfo();
 		loginUser.setId(1);
-		loginUser.setLocation("other");
+		loginUser.setLoginName("other");
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(loginUser));
 		
 		ProjectAuthorization auth = new ProjectAuthorization();
@@ -275,7 +277,7 @@ public class CommitControllerTest extends AbstractControllerTest{
 		
 		UserInfo loginUser = new UserInfo();
 		loginUser.setId(1);
-		loginUser.setLocation("other");
+		loginUser.setLoginName("other");
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(loginUser));
 		
 		ProjectAuthorization auth = new ProjectAuthorization();
@@ -298,4 +300,146 @@ public class CommitControllerTest extends AbstractControllerTest{
 			.body("size()", equalTo(1));
 	}
 	
+	@Test
+	public void stage_changes_anonymous_can_not_stage() {
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.post("/projects/{owner}/{projectName}/stage-changes", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_FORBIDDEN);
+	}
+	
+	@WithMockUser(username = "jack")
+	@Test
+	public void stage_changes_project_not_found() {
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.post("/projects/{owner}/{projectName}/stage-changes", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	@WithMockUser(username = "jack")
+	@Test
+	public void stage_changes_login_user_has_no_auth() {
+		Project project = new Project();
+		project.setId(1);
+		project.setCreateUserName("jack");
+		project.setName("project");
+		project.setIsPublic(false);
+		project.setCreateUserId(1);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		UserInfo loginUser = new UserInfo();
+		loginUser.setId(1);
+		loginUser.setLoginName("other");
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(loginUser));
+		
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.post("/projects/{owner}/{projectName}/stage-changes", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_FORBIDDEN);
+	}
+	
+	@WithMockUser(username = "jack")
+	@Test
+	public void stage_changes_login_user_can_read() {
+		Project project = new Project();
+		project.setId(1);
+		project.setCreateUserName("jack");
+		project.setName("project");
+		project.setIsPublic(false);
+		project.setCreateUserId(1);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		UserInfo loginUser = new UserInfo();
+		loginUser.setId(1);
+		loginUser.setLoginName("other");
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(loginUser));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setUserId(1);
+		auth.setProjectId(1);
+		auth.setAccessLevel(AccessLevel.READ);
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.post("/projects/{owner}/{projectName}/stage-changes", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_FORBIDDEN);
+	}
+	
+	@WithMockUser(username = "jack")
+	@Test
+	public void stage_changes_login_user_can_write() {
+		Project project = new Project();
+		project.setId(1);
+		project.setCreateUserName("jack");
+		project.setName("project");
+		project.setIsPublic(false);
+		project.setCreateUserId(1);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		UserInfo loginUser = new UserInfo();
+		loginUser.setId(1);
+		loginUser.setLoginName("other");
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(loginUser));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setUserId(1);
+		auth.setProjectId(1);
+		auth.setAccessLevel(AccessLevel.WRITE);
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.post("/projects/{owner}/{projectName}/stage-changes", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_OK);
+		
+		verify(projectResourceService).stageChanges(any(), any());
+	}
+	
+	@WithMockUser(username = "jack")
+	@Test
+	public void stage_changes_login_user_can_admin() {
+		Project project = new Project();
+		project.setId(1);
+		project.setCreateUserName("jack");
+		project.setName("project");
+		project.setIsPublic(false);
+		project.setCreateUserId(1);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		UserInfo loginUser = new UserInfo();
+		loginUser.setId(1);
+		loginUser.setLoginName("other");
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(loginUser));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setUserId(1);
+		auth.setProjectId(1);
+		auth.setAccessLevel(AccessLevel.ADMIN);
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.post("/projects/{owner}/{projectName}/stage-changes", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_OK);
+		
+		verify(projectResourceService).stageChanges(any(), any());
+	}
 }

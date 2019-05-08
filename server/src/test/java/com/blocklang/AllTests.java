@@ -19,6 +19,7 @@ import com.blocklang.core.util.LoginTokenTest;
 import com.blocklang.core.util.RangeHeaderTest;
 import com.blocklang.core.util.UrlUtilTest;
 import com.blocklang.develop.constant.AppTypeTest;
+import com.blocklang.develop.controller.CommitControllerTest;
 import com.blocklang.develop.controller.GroupControllerTest;
 import com.blocklang.develop.controller.PageControllerTest;
 import com.blocklang.develop.controller.ProjectControllerTest;
@@ -77,6 +78,7 @@ import com.blocklang.release.task.GitTagTaskTest;
 	PropertyControllerTest.class,
 	PageControllerTest.class,
 	GroupControllerTest.class,
+	CommitControllerTest.class,
 
 	// service tests
 	AppServiceImplTest.class,

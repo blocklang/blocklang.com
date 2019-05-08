@@ -34,6 +34,8 @@ import com.blocklang.develop.service.ProjectService;
 
 public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 
+	@Rule
+	public TemporaryFolder tempFolder = new TemporaryFolder();
 	@Autowired
 	private ProjectResourceService projectResourceService;
 	@Autowired
@@ -494,9 +496,6 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		assertThat(projectResourceService.findParentGroupsByParentPath(projectId, "key1/key2")).isEmpty();
 	}
 
-	@Rule
-	public TemporaryFolder tempFolder = new TemporaryFolder();
-	
 	@Test
 	public void find_changes_success() throws IOException {
 		UserInfo userInfo = new UserInfo();
@@ -583,5 +582,104 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		List<UncommittedFile> changes = projectResourceService.findChanges(savedProject);
 		
 		assertThat(changes).isEmpty();
+	}
+
+	@Test
+	public void stage_changes_success() throws IOException {
+		UserInfo userInfo = new UserInfo();
+		userInfo.setLoginName("user_name");
+		userInfo.setAvatarUrl("avatar_url");
+		userInfo.setEmail("email");
+		userInfo.setMobile("mobile");
+		userInfo.setCreateTime(LocalDateTime.now());
+		Integer userId = userDao.save(userInfo).getId();
+		
+		Project project = new Project();
+		project.setName("project_name");
+		project.setIsPublic(true);
+		project.setDescription("description");
+		project.setLastActiveTime(LocalDateTime.now());
+		project.setCreateUserId(userId);
+		project.setCreateTime(LocalDateTime.now());
+		project.setCreateUserName("user_name");
+		
+		File rootFolder = tempFolder.newFolder();
+		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.getPath()));
+		
+		Project savedProject = projectService.create(userInfo, project);
+		
+		ProjectResource resource = new ProjectResource();
+		resource.setKey("page1");
+		resource.setName("name1");
+		resource.setResourceType(ProjectResourceType.PAGE);
+		resource.setAppType(AppType.WEB);
+		resource.setCreateTime(LocalDateTime.now());
+		resource.setCreateUserId(userId);
+		resource.setProjectId(savedProject.getId());
+		resource.setParentId(Constant.TREE_ROOT_ID);
+		projectResourceService.insert(savedProject, resource);
+		
+		projectResourceService.stageChanges(savedProject, new String[] {"page1.page.web.json"});
+		// 有一个已跟踪，但未提交的文件。
+		List<UncommittedFile> changes = projectResourceService.findChanges(savedProject);
+		
+		assertThat(changes).hasSize(1);
+		
+		UncommittedFile file = changes.get(0);
+		assertThat(file.getFullKeyPath()).isEqualTo("page1.page.web.json");
+		assertThat(file.getGitStatus()).isEqualTo(GitFileStatus.ADDED);
+		assertThat(file.getIcon()).isEqualTo(AppType.WEB.getIcon());
+		assertThat(file.getResourceName()).isEqualTo("name1");
+		assertThat(file.getParentNamePath()).isBlank();
+	}
+	
+	@Test
+	public void unstage_changes_success() throws IOException {
+		UserInfo userInfo = new UserInfo();
+		userInfo.setLoginName("user_name");
+		userInfo.setAvatarUrl("avatar_url");
+		userInfo.setEmail("email");
+		userInfo.setMobile("mobile");
+		userInfo.setCreateTime(LocalDateTime.now());
+		Integer userId = userDao.save(userInfo).getId();
+		
+		Project project = new Project();
+		project.setName("project_name");
+		project.setIsPublic(true);
+		project.setDescription("description");
+		project.setLastActiveTime(LocalDateTime.now());
+		project.setCreateUserId(userId);
+		project.setCreateTime(LocalDateTime.now());
+		project.setCreateUserName("user_name");
+		
+		File rootFolder = tempFolder.newFolder();
+		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.getPath()));
+		
+		Project savedProject = projectService.create(userInfo, project);
+		
+		ProjectResource resource = new ProjectResource();
+		resource.setKey("page1");
+		resource.setName("name1");
+		resource.setResourceType(ProjectResourceType.PAGE);
+		resource.setAppType(AppType.WEB);
+		resource.setCreateTime(LocalDateTime.now());
+		resource.setCreateUserId(userId);
+		resource.setProjectId(savedProject.getId());
+		resource.setParentId(Constant.TREE_ROOT_ID);
+		projectResourceService.insert(savedProject, resource);
+		
+		projectResourceService.stageChanges(savedProject, new String[] {"page1.page.web.json"});
+		projectResourceService.unstageChanges(savedProject, new String[] {"page1.page.web.json"});
+		// 有一个已跟踪，但未提交的文件。
+		List<UncommittedFile> changes = projectResourceService.findChanges(savedProject);
+		
+		assertThat(changes).hasSize(1);
+		
+		UncommittedFile file = changes.get(0);
+		assertThat(file.getFullKeyPath()).isEqualTo("page1.page.web.json");
+		assertThat(file.getGitStatus()).isEqualTo(GitFileStatus.UNTRACKED);
+		assertThat(file.getIcon()).isEqualTo(AppType.WEB.getIcon());
+		assertThat(file.getResourceName()).isEqualTo("name1");
+		assertThat(file.getParentNamePath()).isBlank();
 	}
 }

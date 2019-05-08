@@ -1,12 +1,16 @@
 package com.blocklang.develop.controller;
 
 import java.security.Principal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.blocklang.core.exception.NoAuthorizationException;
@@ -62,5 +66,30 @@ public class CommitController {
 		}
 		
 		return ResponseEntity.ok(projectResourceService.findChanges(project));
+	}
+	
+	@PostMapping("/projects/{owner}/{projectName}/stage-changes")
+	public ResponseEntity<Map<String, Object>> stageChanges(
+			Principal principal,
+			@PathVariable("owner") String owner,
+			@PathVariable("projectName") String projectName,
+			@RequestBody String[] filePathes) {
+		if(principal == null) {
+			throw new NoAuthorizationException();
+		}
+		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
+		
+		UserInfo user = userService.findByLoginName(principal.getName()).get();
+		List<ProjectAuthorization> authes = projectAuthorizationService.findAllByUserIdAndProjectId(user.getId(), project.getId());
+		boolean canWrite = authes.stream().anyMatch(
+				item -> item.getAccessLevel() == AccessLevel.WRITE || 
+				item.getAccessLevel() == AccessLevel.ADMIN);
+		if(!canWrite) {
+			throw new NoAuthorizationException();
+		}
+		
+		projectResourceService.stageChanges(project, filePathes);
+		
+		return ResponseEntity.ok(new HashMap<String, Object>());
 	}
 }

@@ -359,4 +359,22 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 		}).collect(Collectors.toList());
 	}
 
+	@Override
+	public void stageChanges(Project project, String[] filePathes) {
+		propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)
+		.ifPresent(rootDir -> {
+			ProjectContext context = new ProjectContext(project.getCreateUserName(), project.getName(), rootDir);
+			GitUtils.add(context.getGitRepositoryDirectory(), filePathes);
+		});
+	}
+
+	@Override
+	public void unstageChanges(Project project, String[] filePathes) {
+		propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)
+		.ifPresent(rootDir -> {
+			ProjectContext context = new ProjectContext(project.getCreateUserName(), project.getName(), rootDir);
+			GitUtils.removeFromIndex(context.getGitRepositoryDirectory(), filePathes);
+		});
+	}
+
 }
