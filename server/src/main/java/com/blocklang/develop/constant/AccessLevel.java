@@ -8,7 +8,8 @@ public enum AccessLevel {
 
 	READ("01", "Read"),
 	WRITE("02", "Write"),
-	ADMIN("03", "Admin");
+	ADMIN("03", "Admin"),
+	FORBIDDEN("99", "Forbidden"); // 未设置和 forbidden 表示同一个意思，即没有权限
 
 	private final String key;
 	private final String value;

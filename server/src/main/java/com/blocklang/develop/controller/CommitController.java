@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.blocklang.core.exception.NoAuthorizationException;
 import com.blocklang.core.exception.ResourceNotFoundException;
+import com.blocklang.core.model.UserInfo;
+import com.blocklang.core.service.UserService;
 import com.blocklang.develop.constant.AccessLevel;
 import com.blocklang.develop.data.UncommittedFile;
 import com.blocklang.develop.model.Project;
@@ -25,26 +27,38 @@ public class CommitController {
 	@Autowired
 	private ProjectService projectService;
 	@Autowired
+	private UserService userService;
+	@Autowired
 	private ProjectAuthorizationService projectAuthorizationService;
 	@Autowired
 	private ProjectResourceService projectResourceService;
 	
+	// 如果是公开项目，则任何人都能访问
+	// 如果是私有项目，则有读的权限就能访问
 	@GetMapping("/projects/{owner}/{projectName}/changes")
 	public ResponseEntity<List<UncommittedFile>> listChanges(
 			Principal principal,
 			@PathVariable("owner") String owner,
 			@PathVariable("projectName") String projectName) {
-		
-		if(principal == null) {
-			throw new NoAuthorizationException();
-		}
-		
+
 		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
 		
-		List<ProjectAuthorization> authes = projectAuthorizationService.findAllByUserIdAndProjectId(project.getCreateUserId(), project.getId());
-		boolean canWrite = authes.stream().anyMatch(item -> item.getAccessLevel() == AccessLevel.WRITE || item.getAccessLevel() == AccessLevel.ADMIN);
-		if(!canWrite) {
-			throw new NoAuthorizationException();
+		if(!project.getIsPublic()) {
+			
+			if(principal == null) {
+				throw new NoAuthorizationException();
+			}
+			
+			UserInfo user = userService.findByLoginName(principal.getName()).get();
+			
+			List<ProjectAuthorization> authes = projectAuthorizationService.findAllByUserIdAndProjectId(user.getId(), project.getId());
+			boolean canRead = authes.stream().anyMatch(
+					item -> item.getAccessLevel() == AccessLevel.WRITE || 
+					item.getAccessLevel() == AccessLevel.ADMIN ||
+					item.getAccessLevel() == AccessLevel.READ);
+			if(!canRead) {
+				throw new NoAuthorizationException();
+			}
 		}
 		
 		return ResponseEntity.ok(projectResourceService.findChanges(project));
