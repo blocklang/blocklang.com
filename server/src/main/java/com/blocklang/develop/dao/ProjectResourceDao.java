@@ -29,4 +29,6 @@ public interface ProjectResourceDao extends JpaRepository<ProjectResource, Integ
 
 	Optional<ProjectResource> findFirstByProjectIdAndParentIdOrderBySeqDesc(Integer projectId, Integer parentId);
 
+	List<ProjectResource> findAllByProjectId(Integer projectId);
+
 }

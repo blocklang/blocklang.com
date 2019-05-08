@@ -232,10 +232,131 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 		
 		return result;
 	}
+	
+	private List<ProjectResource> findParentGroupsByParentPath(List<ProjectResource> projectResources, String parentPath) {
+		if(projectResources.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		List<ProjectResource> result = new ArrayList<ProjectResource>();
+		
+		String[] keys = parentPath.trim().split("/");
+		Integer parentId = Constant.TREE_ROOT_ID;
+		boolean allMatched = true;
+		for(String key : keys) {
+			Integer finalParentId = parentId;
+			Optional<ProjectResource> resourceOption = projectResources.stream()
+					.filter(item -> item.getParentId().equals(finalParentId)
+							&& item.getResourceType().equals(ProjectResourceType.GROUP)
+							&& item.getAppType().equals(AppType.UNKNOWN) 
+							&& item.getKey().equalsIgnoreCase(key))
+					.findFirst();
+
+			if(resourceOption.isEmpty()) {
+				allMatched = false;
+				break;
+			}
+			result.add(resourceOption.get());
+			parentId = resourceOption.get().getId();
+		}
+		
+		if(!allMatched) {
+			return Collections.emptyList();
+		}
+		
+		return result;
+	}
 
 	@Override
 	public List<UncommittedFile> findChanges(Project project) {
-		return Collections.emptyList();
+		Map<String, GitFileStatus> fileStatusMap = propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)
+				.map(rootDir -> new ProjectContext(project.getCreateUserName(), project.getName(), rootDir))
+				.map(context -> GitUtils.status(context.getGitRepositoryDirectory(), ""))
+				.orElse(Collections.emptyMap());
+		
+		final List<ProjectResource> allResources = fileStatusMap.isEmpty() ? Collections.emptyList() : projectResourceDao.findAllByProjectId(project.getId());
+		
+		return fileStatusMap.entrySet().stream().filter(item -> {
+			String filePath = item.getKey();
+			// 排除分组
+			if(filePath.endsWith(".page.web.json")) {
+				return true;
+			}else if(filePath.equalsIgnoreCase(ProjectResource.README_NAME)) {
+				return true;
+			}else {
+				// 到此处，都当成是分组
+				return false;
+			}
+		}).map(item -> {
+			// 根据文件名反推资源信息
+			String filePath = item.getKey();
+			
+			ProjectResourceType resourceType = null;
+			AppType appType = null;
+			String resourceKey = null;
+			String parentPath = null;
+			if(filePath.endsWith(".page.web.json")) {
+				resourceType = ProjectResourceType.PAGE;
+				appType = AppType.WEB;
+				String stripedFilenameExtension = filePath.substring(0, filePath.length() - ".page.web.json".length());
+				int lastIndex = stripedFilenameExtension.lastIndexOf("/");
+				if(lastIndex == -1) {
+					resourceKey = stripedFilenameExtension;
+					parentPath = "";
+				} else {
+					resourceKey = stripedFilenameExtension.substring(lastIndex);
+					parentPath = stripedFilenameExtension.substring(0, lastIndex);
+				}
+			} else if(filePath.equalsIgnoreCase(ProjectResource.README_NAME)){
+				// README.md 文件只存在于根目录
+				resourceType = ProjectResourceType.FILE;
+				appType = AppType.UNKNOWN;
+				resourceKey = ProjectResource.README_KEY;
+				parentPath = "";
+			}
+			
+			Integer parentId = Constant.TREE_ROOT_ID;
+			String parentNamePath = "";
+			if(StringUtils.isNotBlank(parentPath)) {
+				List<ProjectResource> parentGroups = findParentGroupsByParentPath(allResources, parentPath);
+				if(parentGroups.isEmpty()) {
+					logger.error("在 git 仓库中存在 " + parentPath + "，但是在资源表中没有找到");
+					return null;
+				}
+				parentId = parentGroups.get(parentGroups.size() - 1).getId();
+				for(ProjectResource each : parentGroups) {
+					parentNamePath += each.getName() + "/";
+				}
+			}
+
+			Integer finalParentId = parentId;
+			String finalResourceKey = resourceKey;
+			ProjectResourceType finalResourceType = resourceType;
+			AppType finalAppType = appType;
+			
+			// 找到资源文件
+			Optional<ProjectResource> resourceOption = allResources
+					.stream()
+					.filter(eachResource -> eachResource.getParentId().equals(finalParentId) && 
+							eachResource.getKey().equalsIgnoreCase(finalResourceKey) && 
+							eachResource.getResourceType().equals(finalResourceType) && 
+							eachResource.getAppType().equals(finalAppType))
+					.findFirst();
+			if(resourceOption.isEmpty()) {
+				logger.error("在 git 仓库中存在 " + parentPath + "/" + resourceKey + "，但是在资源表中没有找到");
+				return null;
+			}
+			
+			UncommittedFile file = new UncommittedFile();
+			ProjectResource resource = resourceOption.get();
+			file.setIcon(resource.getIcon());
+			file.setFullKeyPath(filePath);
+			file.setGitStatus(item.getValue());
+			file.setResourceName(resource.getName());
+			file.setParentNamePath(parentNamePath);
+
+			return file;
+		}).collect(Collectors.toList());
 	}
 
 }

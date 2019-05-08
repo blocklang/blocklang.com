@@ -33,6 +33,7 @@ git 仓库中的文件命名规范：
 2. 页面模板：`{key}.page.tmpl.json`
 3. 服务：`{key}.api.json`
 4. 文件：`{name}`
+5. 分组: `{key}`
 
 ## 项目部署
 

@@ -11,9 +11,9 @@ package com.blocklang.develop.constant;
 public abstract class IconClass {
 	
 	/**
-	 * 功能模块图标
+	 * 分组图标
 	 */
-	public static final String FUNCTION = "fas folder";
+	public static final String GROUP = "fas folder";
 	
 	/**
 	 * 面板图标

@@ -23,15 +23,13 @@ Status: 200 OK
 
 对象
 
-| 属性名             | 类型     | 描述                         |
-| ------------------ | -------- | ---------------------------- |
-| `fullKeyPath`      | `string` | 完整路径名，用于唯一定位资源 |
-| `resourceType`     | `string` | 资源类型                     |
-| `resourceTypeIcon` | `string` | 资源类型的图标               |
-| `gitStatus`        | `string` | 资源状态                     |
-| `resourceId`       | `number` | 资源标识                     |
-| `resourceName`     | `string` | 资源名称                     |
-| `parentNamePath`   | `string` | 完整路径的显示名             |
+| 属性名           | 类型     | 描述                            |
+| ---------------- | -------- | ------------------------------- |
+| `fullKeyPath`    | `string` | 完整路径名，用于唯一定位资源    |
+| `icon`           | `string` | 文件图标                        |
+| `gitStatus`      | `string` | 资源状态                        |
+| `resourceName`   | `string` | 资源名称                        |
+| `parentNamePath` | `string` | 完整路径的显示名，使用 `/` 分割 |
 
 如果没有找到此项目，则
 

@@ -1,34 +1,51 @@
 package com.blocklang.develop.service.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.MessageSource;
 
+import com.blocklang.core.constant.CmPropKey;
 import com.blocklang.core.constant.Constant;
+import com.blocklang.core.constant.GitFileStatus;
+import com.blocklang.core.dao.UserDao;
+import com.blocklang.core.model.UserInfo;
+import com.blocklang.core.service.PropertyService;
 import com.blocklang.core.test.AbstractServiceTest;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.constant.ProjectResourceType;
 import com.blocklang.develop.dao.ProjectResourceDao;
+import com.blocklang.develop.data.UncommittedFile;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectResource;
 import com.blocklang.develop.service.ProjectResourceService;
+import com.blocklang.develop.service.ProjectService;
 
 public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 
 	@Autowired
 	private ProjectResourceService projectResourceService;
-	
 	@Autowired
 	private ProjectResourceDao projectResourceDao;
-	
 	@Autowired
 	private MessageSource messageSource;
+	@Autowired
+	private ProjectService projectService;
+	@Autowired
+	private UserDao userDao;
+	@MockBean
+	private PropertyService propertyService;
 	
 	@Test
 	public void insert_if_not_set_seq() {
@@ -475,5 +492,96 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		projectResourceDao.save(resource).getId();
 		
 		assertThat(projectResourceService.findParentGroupsByParentPath(projectId, "key1/key2")).isEmpty();
+	}
+
+	@Rule
+	public TemporaryFolder tempFolder = new TemporaryFolder();
+	
+	@Test
+	public void find_changes_success() throws IOException {
+		UserInfo userInfo = new UserInfo();
+		userInfo.setLoginName("user_name");
+		userInfo.setAvatarUrl("avatar_url");
+		userInfo.setEmail("email");
+		userInfo.setMobile("mobile");
+		userInfo.setCreateTime(LocalDateTime.now());
+		Integer userId = userDao.save(userInfo).getId();
+		
+		Project project = new Project();
+		project.setName("project_name");
+		project.setIsPublic(true);
+		project.setDescription("description");
+		project.setLastActiveTime(LocalDateTime.now());
+		project.setCreateUserId(userId);
+		project.setCreateTime(LocalDateTime.now());
+		project.setCreateUserName("user_name");
+		
+		File rootFolder = tempFolder.newFolder();
+		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.getPath()));
+		
+		Project savedProject = projectService.create(userInfo, project);
+		
+		ProjectResource resource = new ProjectResource();
+		resource.setKey("page1");
+		resource.setName("name1");
+		resource.setResourceType(ProjectResourceType.PAGE);
+		resource.setAppType(AppType.WEB);
+		resource.setCreateTime(LocalDateTime.now());
+		resource.setCreateUserId(userId);
+		resource.setProjectId(savedProject.getId());
+		resource.setParentId(Constant.TREE_ROOT_ID);
+		projectResourceService.insert(savedProject, resource);
+		
+		// 有一个未跟踪的文件。
+		List<UncommittedFile> changes = projectResourceService.findChanges(savedProject);
+		
+		assertThat(changes).hasSize(1);
+		UncommittedFile file = changes.get(0);
+		assertThat(file.getFullKeyPath()).isEqualTo("page1.page.web.json");
+		assertThat(file.getGitStatus()).isEqualTo(GitFileStatus.UNTRACKED);
+		assertThat(file.getIcon()).isEqualTo(AppType.WEB.getIcon());
+		assertThat(file.getResourceName()).isEqualTo("name1");
+		assertThat(file.getParentNamePath()).isBlank();
+	}
+	
+	@Test
+	public void find_changes_not_contain_group() throws IOException {
+		UserInfo userInfo = new UserInfo();
+		userInfo.setLoginName("user_name");
+		userInfo.setAvatarUrl("avatar_url");
+		userInfo.setEmail("email");
+		userInfo.setMobile("mobile");
+		userInfo.setCreateTime(LocalDateTime.now());
+		Integer userId = userDao.save(userInfo).getId();
+		
+		Project project = new Project();
+		project.setName("project_name");
+		project.setIsPublic(true);
+		project.setDescription("description");
+		project.setLastActiveTime(LocalDateTime.now());
+		project.setCreateUserId(userId);
+		project.setCreateTime(LocalDateTime.now());
+		project.setCreateUserName("user_name");
+		
+		File rootFolder = tempFolder.newFolder();
+		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.getPath()));
+		
+		Project savedProject = projectService.create(userInfo, project);
+		
+		ProjectResource resource = new ProjectResource();
+		resource.setKey("group1");
+		resource.setName("name1");
+		resource.setResourceType(ProjectResourceType.GROUP);
+		resource.setAppType(AppType.UNKNOWN);
+		resource.setCreateTime(LocalDateTime.now());
+		resource.setCreateUserId(userId);
+		resource.setProjectId(savedProject.getId());
+		resource.setParentId(Constant.TREE_ROOT_ID);
+		projectResourceService.insert(savedProject, resource);
+		
+		// 有一个未跟踪的文件。
+		List<UncommittedFile> changes = projectResourceService.findChanges(savedProject);
+		
+		assertThat(changes).isEmpty();
 	}
 }

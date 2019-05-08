@@ -178,7 +178,7 @@ public class ProjectResource extends PartialOperateFields{
 
 	public Boolean isMain() {
 		// 约定根目录下的 main 模块为入口模块
-		return Constant.TREE_ROOT_ID.equals(parentId) && isPage() && MAIN_KEY.equals(key);
+		return Constant.TREE_ROOT_ID.equals(this.parentId) && isPage() && MAIN_KEY.equals(this.key);
 	}
 
 	public Boolean isTemplet() {
@@ -214,7 +214,7 @@ public class ProjectResource extends PartialOperateFields{
 		}
 		
 		if(isGroup()) {
-			return IconClass.FUNCTION;
+			return IconClass.GROUP;
 		}
 		if(isTemplet()) {
 			return IconClass.TEMPLET;
