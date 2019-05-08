@@ -195,6 +195,11 @@ public class GitUtils {
 		GitAdd add = new GitAdd(gitRepoPath);
 		add.execute(filePattern);
 	}
+	
+	public static void add(Path gitRepoPath, String[] filePatterns) {
+		GitAdd add = new GitAdd(gitRepoPath);
+		add.execute(filePatterns);
+	}
 
 	/**
 	 * 
@@ -204,6 +209,11 @@ public class GitUtils {
 	public static void remove(Path gitRepoPath, String filePattern) {
 		GitRemove remove = new GitRemove(gitRepoPath);
 		remove.execute(filePattern);
+	}
+	
+	public static void removeFromIndex(Path gitRepoPath, String[] filePatterns) {
+		GitRemove remove = new GitRemove(gitRepoPath);
+		remove.removeFromIndex(filePatterns);
 	}
 	
 	// 暂时不要删除此代码
