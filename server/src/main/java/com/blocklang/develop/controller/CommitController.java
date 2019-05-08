@@ -92,4 +92,29 @@ public class CommitController {
 		
 		return ResponseEntity.ok(new HashMap<String, Object>());
 	}
+	
+	@PostMapping("/projects/{owner}/{projectName}/unstage-changes")
+	public ResponseEntity<Map<String, Object>> unstageChanges(
+			Principal principal,
+			@PathVariable("owner") String owner,
+			@PathVariable("projectName") String projectName,
+			@RequestBody String[] filePathes) {
+		if(principal == null) {
+			throw new NoAuthorizationException();
+		}
+		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
+		
+		UserInfo user = userService.findByLoginName(principal.getName()).get();
+		List<ProjectAuthorization> authes = projectAuthorizationService.findAllByUserIdAndProjectId(user.getId(), project.getId());
+		boolean canWrite = authes.stream().anyMatch(
+				item -> item.getAccessLevel() == AccessLevel.WRITE || 
+				item.getAccessLevel() == AccessLevel.ADMIN);
+		if(!canWrite) {
+			throw new NoAuthorizationException();
+		}
+		
+		projectResourceService.unstageChanges(project, filePathes);
+		
+		return ResponseEntity.ok(new HashMap<String, Object>());
+	}
 }

@@ -304,6 +304,7 @@ public class CommitControllerTest extends AbstractControllerTest{
 	public void stage_changes_anonymous_can_not_stage() {
 		given()
 			.contentType(ContentType.JSON)
+			.body(new String[] {})
 		.when()
 			.post("/projects/{owner}/{projectName}/stage-changes", "jack", "project")
 		.then()
@@ -317,6 +318,7 @@ public class CommitControllerTest extends AbstractControllerTest{
 		
 		given()
 			.contentType(ContentType.JSON)
+			.body(new String[] {})
 		.when()
 			.post("/projects/{owner}/{projectName}/stage-changes", "jack", "project")
 		.then()
@@ -343,6 +345,7 @@ public class CommitControllerTest extends AbstractControllerTest{
 		
 		given()
 			.contentType(ContentType.JSON)
+			.body(new String[] {})
 		.when()
 			.post("/projects/{owner}/{projectName}/stage-changes", "jack", "project")
 		.then()
@@ -373,6 +376,7 @@ public class CommitControllerTest extends AbstractControllerTest{
 		
 		given()
 			.contentType(ContentType.JSON)
+			.body(new String[] {})
 		.when()
 			.post("/projects/{owner}/{projectName}/stage-changes", "jack", "project")
 		.then()
@@ -403,6 +407,7 @@ public class CommitControllerTest extends AbstractControllerTest{
 		
 		given()
 			.contentType(ContentType.JSON)
+			.body(new String[] {})
 		.when()
 			.post("/projects/{owner}/{projectName}/stage-changes", "jack", "project")
 		.then()
@@ -435,6 +440,7 @@ public class CommitControllerTest extends AbstractControllerTest{
 		
 		given()
 			.contentType(ContentType.JSON)
+			.body(new String[] {})
 		.when()
 			.post("/projects/{owner}/{projectName}/stage-changes", "jack", "project")
 		.then()
@@ -442,4 +448,154 @@ public class CommitControllerTest extends AbstractControllerTest{
 		
 		verify(projectResourceService).stageChanges(any(), any());
 	}
+
+	@Test
+	public void unstage_changes_anonymous_can_not_stage() {
+		given()
+			.contentType(ContentType.JSON)
+			.body(new String[] {})
+		.when()
+			.post("/projects/{owner}/{projectName}/unstage-changes", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_FORBIDDEN);
+	}
+	
+	@WithMockUser(username = "jack")
+	@Test
+	public void unstage_changes_project_not_found() {
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(new String[] {})
+		.when()
+			.post("/projects/{owner}/{projectName}/unstage-changes", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	@WithMockUser(username = "jack")
+	@Test
+	public void unstage_changes_login_user_has_no_auth() {
+		Project project = new Project();
+		project.setId(1);
+		project.setCreateUserName("jack");
+		project.setName("project");
+		project.setIsPublic(false);
+		project.setCreateUserId(1);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		UserInfo loginUser = new UserInfo();
+		loginUser.setId(1);
+		loginUser.setLoginName("other");
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(loginUser));
+		
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(new String[] {})
+		.when()
+			.post("/projects/{owner}/{projectName}/unstage-changes", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_FORBIDDEN);
+	}
+	
+	@WithMockUser(username = "jack")
+	@Test
+	public void unstage_changes_login_user_can_read() {
+		Project project = new Project();
+		project.setId(1);
+		project.setCreateUserName("jack");
+		project.setName("project");
+		project.setIsPublic(false);
+		project.setCreateUserId(1);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		UserInfo loginUser = new UserInfo();
+		loginUser.setId(1);
+		loginUser.setLoginName("other");
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(loginUser));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setUserId(1);
+		auth.setProjectId(1);
+		auth.setAccessLevel(AccessLevel.READ);
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(new String[] {})
+		.when()
+			.post("/projects/{owner}/{projectName}/unstage-changes", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_FORBIDDEN);
+	}
+	
+	@WithMockUser(username = "jack")
+	@Test
+	public void unstage_changes_login_user_can_write() {
+		Project project = new Project();
+		project.setId(1);
+		project.setCreateUserName("jack");
+		project.setName("project");
+		project.setIsPublic(false);
+		project.setCreateUserId(1);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		UserInfo loginUser = new UserInfo();
+		loginUser.setId(1);
+		loginUser.setLoginName("other");
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(loginUser));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setUserId(1);
+		auth.setProjectId(1);
+		auth.setAccessLevel(AccessLevel.WRITE);
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(new String[] {})
+		.when()
+			.post("/projects/{owner}/{projectName}/unstage-changes", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_OK);
+		
+		verify(projectResourceService).unstageChanges(any(), any());
+	}
+	
+	@WithMockUser(username = "jack")
+	@Test
+	public void unstage_changes_login_user_can_admin() {
+		Project project = new Project();
+		project.setId(1);
+		project.setCreateUserName("jack");
+		project.setName("project");
+		project.setIsPublic(false);
+		project.setCreateUserId(1);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		UserInfo loginUser = new UserInfo();
+		loginUser.setId(1);
+		loginUser.setLoginName("other");
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(loginUser));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setUserId(1);
+		auth.setProjectId(1);
+		auth.setAccessLevel(AccessLevel.ADMIN);
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(new String[] {})
+		.when()
+			.post("/projects/{owner}/{projectName}/unstage-changes", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_OK);
+		
+		verify(projectResourceService).unstageChanges(any(), any());
+	}
+
 }
