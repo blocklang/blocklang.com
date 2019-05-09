@@ -31,6 +31,22 @@ Status: 404 Not Found
 Status: 403 Forbidden
 ```
 
+如果提交信息为空，则
+
+```text
+Status: 422 Unprocessable Entity
+```
+
+并返回提示信息
+
+```json
+{
+    "errors": {
+        "value": ["提交信息不能为空"]
+    }
+}
+```
+
 如果没有变更的文件，则
 
 ```text

@@ -645,6 +645,7 @@ public class CommitControllerTest extends AbstractControllerTest{
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
 		
 		CommitMessage param = new CommitMessage();
+		param.setValue("first commit");
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -674,6 +675,7 @@ public class CommitControllerTest extends AbstractControllerTest{
 		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
 		
 		CommitMessage param = new CommitMessage();
+		param.setValue("first commit");
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -707,6 +709,7 @@ public class CommitControllerTest extends AbstractControllerTest{
 		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
 		CommitMessage param = new CommitMessage();
+		param.setValue("first commit");
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -787,6 +790,23 @@ public class CommitControllerTest extends AbstractControllerTest{
 			.statusCode(HttpStatus.SC_OK);
 		
 		verify(projectResourceService).commit(any(), any(), anyString());
+	}
+	
+	@WithMockUser(username = "jack")
+	@Test
+	public void commit_message_can_not_blank() {		
+		CommitMessage param = new CommitMessage();
+		param.setValue("");
+
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/{owner}/{projectName}/commits", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
+			.body("errors.value", hasItem("提交信息不能为空"),
+					"errors.value.size()", is(1));
 	}
 
 	@WithMockUser(username = "jack")

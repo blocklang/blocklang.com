@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -108,11 +110,16 @@ public class CommitController {
 			Principal principal,
 			@PathVariable("owner") String owner,
 			@PathVariable("projectName") String projectName,
-			@RequestBody CommitMessage param,
+			@Valid @RequestBody CommitMessage param,
 			BindingResult bindingResult) {
 		if(principal == null) {
 			throw new NoAuthorizationException();
 		}
+		
+		if(bindingResult.hasErrors()) {
+			throw new InvalidRequestException(bindingResult);
+		}
+		
 		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
 		UserInfo user = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
 		ensureCanWrite(user, project);

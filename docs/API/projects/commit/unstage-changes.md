@@ -27,8 +27,14 @@ POST /projects/{owner}/{projectName}/unstage-changes
 Status: 200 OK
 ```
 
-如果没有找到此项目或者用户没有访问权限，则
+如果没有找到此项目，则
 
 ```text
 Status: 404 Not Found
+```
+
+如果用户没有访问权限，则
+
+```text
+Status: 403 Forbidden
 ```
