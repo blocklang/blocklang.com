@@ -7,17 +7,22 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.blocklang.core.exception.InvalidRequestException;
 import com.blocklang.core.exception.NoAuthorizationException;
 import com.blocklang.core.exception.ResourceNotFoundException;
+import com.blocklang.core.git.exception.GitEmptyCommitException;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.UserService;
 import com.blocklang.develop.constant.AccessLevel;
+import com.blocklang.develop.data.CommitMessage;
+import com.blocklang.develop.data.StageParam;
 import com.blocklang.develop.data.UncommittedFile;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectAuthorization;
@@ -54,15 +59,7 @@ public class CommitController {
 			}
 			
 			UserInfo user = userService.findByLoginName(principal.getName()).get();
-			
-			List<ProjectAuthorization> authes = projectAuthorizationService.findAllByUserIdAndProjectId(user.getId(), project.getId());
-			boolean canRead = authes.stream().anyMatch(
-					item -> item.getAccessLevel() == AccessLevel.WRITE || 
-					item.getAccessLevel() == AccessLevel.ADMIN ||
-					item.getAccessLevel() == AccessLevel.READ);
-			if(!canRead) {
-				throw new NoAuthorizationException();
-			}
+			ensureCanRead(user, project);
 		}
 		
 		return ResponseEntity.ok(projectResourceService.findChanges(project));
@@ -73,22 +70,16 @@ public class CommitController {
 			Principal principal,
 			@PathVariable("owner") String owner,
 			@PathVariable("projectName") String projectName,
-			@RequestBody String[] filePathes) {
+			@RequestBody StageParam param) {
 		if(principal == null) {
 			throw new NoAuthorizationException();
 		}
 		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
 		
-		UserInfo user = userService.findByLoginName(principal.getName()).get();
-		List<ProjectAuthorization> authes = projectAuthorizationService.findAllByUserIdAndProjectId(user.getId(), project.getId());
-		boolean canWrite = authes.stream().anyMatch(
-				item -> item.getAccessLevel() == AccessLevel.WRITE || 
-				item.getAccessLevel() == AccessLevel.ADMIN);
-		if(!canWrite) {
-			throw new NoAuthorizationException();
-		}
+		UserInfo user = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
+		ensureCanWrite(user, project);
 		
-		projectResourceService.stageChanges(project, filePathes);
+		projectResourceService.stageChanges(project, param.getFilePathes());
 		
 		return ResponseEntity.ok(new HashMap<String, Object>());
 	}
@@ -98,13 +89,59 @@ public class CommitController {
 			Principal principal,
 			@PathVariable("owner") String owner,
 			@PathVariable("projectName") String projectName,
-			@RequestBody String[] filePathes) {
+			@RequestBody StageParam param) {
 		if(principal == null) {
 			throw new NoAuthorizationException();
 		}
 		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
 		
-		UserInfo user = userService.findByLoginName(principal.getName()).get();
+		UserInfo user = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
+		ensureCanWrite(user, project);
+		
+		projectResourceService.unstageChanges(project, param.getFilePathes());
+		
+		return ResponseEntity.ok(new HashMap<String, Object>());
+	}
+	
+	@PostMapping("/projects/{owner}/{projectName}/commits")
+	public ResponseEntity<Map<String, Object>> commit(
+			Principal principal,
+			@PathVariable("owner") String owner,
+			@PathVariable("projectName") String projectName,
+			@RequestBody CommitMessage param,
+			BindingResult bindingResult) {
+		if(principal == null) {
+			throw new NoAuthorizationException();
+		}
+		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
+		UserInfo user = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
+		ensureCanWrite(user, project);
+		
+		try {
+			projectResourceService.commit(user, project, param.getValue());
+		} catch(GitEmptyCommitException e) {
+			bindingResult.reject("NotEmpty.gitCommit");
+		}
+		
+		if(bindingResult.hasErrors()) {
+			throw new InvalidRequestException(bindingResult);
+		}
+		
+		return ResponseEntity.ok(new HashMap<String, Object>());
+	}
+
+	private void ensureCanRead(UserInfo user, Project project) {
+		List<ProjectAuthorization> authes = projectAuthorizationService.findAllByUserIdAndProjectId(user.getId(), project.getId());
+		boolean canRead = authes.stream().anyMatch(
+				item -> item.getAccessLevel() == AccessLevel.WRITE || 
+				item.getAccessLevel() == AccessLevel.ADMIN ||
+				item.getAccessLevel() == AccessLevel.READ);
+		if(!canRead) {
+			throw new NoAuthorizationException();
+		}
+	}
+	
+	private void ensureCanWrite(UserInfo user, Project project) {
 		List<ProjectAuthorization> authes = projectAuthorizationService.findAllByUserIdAndProjectId(user.getId(), project.getId());
 		boolean canWrite = authes.stream().anyMatch(
 				item -> item.getAccessLevel() == AccessLevel.WRITE || 
@@ -112,9 +149,5 @@ public class CommitController {
 		if(!canWrite) {
 			throw new NoAuthorizationException();
 		}
-		
-		projectResourceService.unstageChanges(project, filePathes);
-		
-		return ResponseEntity.ok(new HashMap<String, Object>());
 	}
 }

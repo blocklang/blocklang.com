@@ -89,6 +89,15 @@ public class GitUtils {
 		return gitCommit.execute(gitRootPath, relativePath, fileName, fileContent, authorName, authorMail, commitMessage);
 	}
 	
+	public static String commit(
+			Path gitRepoPath, 
+			String authorName, 
+			String authorMail,
+			String commitMessage) {
+		GitCommit gitCommit = new GitCommit();
+		return gitCommit.execute(gitRepoPath, authorName, authorMail, commitMessage);
+	}
+	
 	/**
 	 * git pull
 	 * 
@@ -226,5 +235,4 @@ public class GitUtils {
 			clone("https://github.com/blocklang/blocklang-template.git", path);
 		}
 	}
-
 }

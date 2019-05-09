@@ -3,6 +3,7 @@ package com.blocklang.develop.service;
 import java.util.List;
 import java.util.Optional;
 
+import com.blocklang.core.model.UserInfo;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.constant.ProjectResourceType;
 import com.blocklang.develop.data.UncommittedFile;
@@ -76,5 +77,14 @@ public interface ProjectResourceService {
 	void stageChanges(Project project, String[] filePathes);
 
 	void unstageChanges(Project project, String[] filePathes);
+
+	/**
+	 * 
+	 * @param user
+	 * @param project
+	 * @param commitMessage
+	 * @return 返回 commitId
+	 */
+	String commit(UserInfo user, Project project, String commitMessage);
 
 }

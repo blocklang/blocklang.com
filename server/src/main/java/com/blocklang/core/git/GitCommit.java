@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.EmptyCommitException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
@@ -21,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import com.blocklang.core.git.exception.FileCreateOrUpdateFailedException;
 import com.blocklang.core.git.exception.GitCommitFailedException;
+import com.blocklang.core.git.exception.GitEmptyCommitException;
 import com.blocklang.core.git.exception.GitRepoNotFoundException;
 
 public class GitCommit {
@@ -141,5 +143,24 @@ public class GitCommit {
 			logger.error("获取最新提交信息失败", e);
 		}
 		return null;
+	}
+
+	public String execute(Path gitRepoPath, 
+			String authorName, 
+			String authorMail, 
+			String commitMessage) {
+		File folder = gitRepoPath.resolve(Constants.DOT_GIT).toFile();
+		try(Repository repo = FileRepositoryBuilder.create(folder);
+				Git git = new Git(repo)){
+			RevCommit commit = git.commit().setAllowEmpty(false).setCommitter(authorName, authorMail).setMessage(commitMessage).call();
+			return commit.getName();
+		} catch(EmptyCommitException e) {
+			logger.error("没有暂存的文件，不能空提交", e);
+			throw new GitEmptyCommitException(e);
+		} catch (GitAPIException e) {
+			throw new GitCommitFailedException(e);
+		}catch (IOException e) {
+			throw new GitRepoNotFoundException(gitRepoPath.toString(), e);
+		}
 	}
 }

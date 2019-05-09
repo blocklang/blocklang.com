@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.jgit.lib.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,12 +25,15 @@ import com.blocklang.core.constant.Constant;
 import com.blocklang.core.constant.GitFileStatus;
 import com.blocklang.core.git.GitFileInfo;
 import com.blocklang.core.git.GitUtils;
+import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.PropertyService;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.constant.ProjectResourceType;
+import com.blocklang.develop.dao.ProjectCommitDao;
 import com.blocklang.develop.dao.ProjectResourceDao;
 import com.blocklang.develop.data.UncommittedFile;
 import com.blocklang.develop.model.Project;
+import com.blocklang.develop.model.ProjectCommit;
 import com.blocklang.develop.model.ProjectContext;
 import com.blocklang.develop.model.ProjectResource;
 import com.blocklang.develop.service.ProjectResourceService;
@@ -40,6 +45,8 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 	
 	@Autowired
 	private ProjectResourceDao projectResourceDao;
+	@Autowired
+	private ProjectCommitDao projectCommitDao;
 	@Autowired
 	private PropertyService propertyService;
 	
@@ -375,6 +382,31 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 			ProjectContext context = new ProjectContext(project.getCreateUserName(), project.getName(), rootDir);
 			GitUtils.removeFromIndex(context.getGitRepositoryDirectory(), filePathes);
 		});
+	}
+
+	@Override
+	public String commit(UserInfo user, Project project, String commitMessage) {
+		String commitId = propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)
+			.map(rootDir -> {
+				ProjectContext context = new ProjectContext(project.getCreateUserName(), project.getName(), rootDir);
+				return GitUtils.commit(context.getGitRepositoryDirectory(), user.getLoginName(), user.getEmail(), commitMessage);
+			}).orElse(null);
+		
+		if(commitId != null) {
+			ProjectCommit commit = new ProjectCommit();
+			commit.setCommitId(commitId);
+			commit.setCommitUserId(user.getId());
+			commit.setCommitTime(LocalDateTime.now());
+			commit.setProjectId(project.getId());
+			commit.setBranch(Constants.MASTER);
+			commit.setShortMessage(commitMessage);
+			commit.setCreateUserId(user.getId());
+			commit.setCreateTime(LocalDateTime.now());
+			
+			projectCommitDao.save(commit);
+		}
+		
+		return commitId;
 	}
 
 }

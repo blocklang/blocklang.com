@@ -2,11 +2,13 @@ package com.blocklang.develop.controller;
 
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,9 +21,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 
+import com.blocklang.core.git.exception.GitEmptyCommitException;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.test.AbstractControllerTest;
 import com.blocklang.develop.constant.AccessLevel;
+import com.blocklang.develop.data.CommitMessage;
+import com.blocklang.develop.data.StageParam;
 import com.blocklang.develop.data.UncommittedFile;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectAuthorization;
@@ -302,9 +307,11 @@ public class CommitControllerTest extends AbstractControllerTest{
 	
 	@Test
 	public void stage_changes_anonymous_can_not_stage() {
+		StageParam param = new StageParam();
+		
 		given()
 			.contentType(ContentType.JSON)
-			.body(new String[] {})
+			.body(param)
 		.when()
 			.post("/projects/{owner}/{projectName}/stage-changes", "jack", "project")
 		.then()
@@ -314,11 +321,12 @@ public class CommitControllerTest extends AbstractControllerTest{
 	@WithMockUser(username = "jack")
 	@Test
 	public void stage_changes_project_not_found() {
+		StageParam param = new StageParam();
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
-			.body(new String[] {})
+			.body(param)
 		.when()
 			.post("/projects/{owner}/{projectName}/stage-changes", "jack", "project")
 		.then()
@@ -343,9 +351,11 @@ public class CommitControllerTest extends AbstractControllerTest{
 		
 		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
 		
+		StageParam param = new StageParam();
+		
 		given()
 			.contentType(ContentType.JSON)
-			.body(new String[] {})
+			.body(param)
 		.when()
 			.post("/projects/{owner}/{projectName}/stage-changes", "jack", "project")
 		.then()
@@ -374,9 +384,11 @@ public class CommitControllerTest extends AbstractControllerTest{
 		auth.setAccessLevel(AccessLevel.READ);
 		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
+		StageParam param = new StageParam();
+		
 		given()
 			.contentType(ContentType.JSON)
-			.body(new String[] {})
+			.body(param)
 		.when()
 			.post("/projects/{owner}/{projectName}/stage-changes", "jack", "project")
 		.then()
@@ -405,9 +417,11 @@ public class CommitControllerTest extends AbstractControllerTest{
 		auth.setAccessLevel(AccessLevel.WRITE);
 		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
+		StageParam param = new StageParam();
+		
 		given()
 			.contentType(ContentType.JSON)
-			.body(new String[] {})
+			.body(param)
 		.when()
 			.post("/projects/{owner}/{projectName}/stage-changes", "jack", "project")
 		.then()
@@ -438,9 +452,11 @@ public class CommitControllerTest extends AbstractControllerTest{
 		auth.setAccessLevel(AccessLevel.ADMIN);
 		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
+		StageParam param = new StageParam();
+		
 		given()
 			.contentType(ContentType.JSON)
-			.body(new String[] {})
+			.body(param)
 		.when()
 			.post("/projects/{owner}/{projectName}/stage-changes", "jack", "project")
 		.then()
@@ -451,9 +467,11 @@ public class CommitControllerTest extends AbstractControllerTest{
 
 	@Test
 	public void unstage_changes_anonymous_can_not_stage() {
+		StageParam param = new StageParam();
+		
 		given()
 			.contentType(ContentType.JSON)
-			.body(new String[] {})
+			.body(param)
 		.when()
 			.post("/projects/{owner}/{projectName}/unstage-changes", "jack", "project")
 		.then()
@@ -465,9 +483,11 @@ public class CommitControllerTest extends AbstractControllerTest{
 	public void unstage_changes_project_not_found() {
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
 		
+		StageParam param = new StageParam();
+		
 		given()
 			.contentType(ContentType.JSON)
-			.body(new String[] {})
+			.body(param)
 		.when()
 			.post("/projects/{owner}/{projectName}/unstage-changes", "jack", "project")
 		.then()
@@ -492,9 +512,11 @@ public class CommitControllerTest extends AbstractControllerTest{
 		
 		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
 		
+		StageParam param = new StageParam();
+		
 		given()
 			.contentType(ContentType.JSON)
-			.body(new String[] {})
+			.body(param)
 		.when()
 			.post("/projects/{owner}/{projectName}/unstage-changes", "jack", "project")
 		.then()
@@ -523,9 +545,11 @@ public class CommitControllerTest extends AbstractControllerTest{
 		auth.setAccessLevel(AccessLevel.READ);
 		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
+		StageParam param = new StageParam();
+		
 		given()
 			.contentType(ContentType.JSON)
-			.body(new String[] {})
+			.body(param)
 		.when()
 			.post("/projects/{owner}/{projectName}/unstage-changes", "jack", "project")
 		.then()
@@ -554,9 +578,11 @@ public class CommitControllerTest extends AbstractControllerTest{
 		auth.setAccessLevel(AccessLevel.WRITE);
 		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
+		StageParam param = new StageParam();
+		
 		given()
 			.contentType(ContentType.JSON)
-			.body(new String[] {})
+			.body(param)
 		.when()
 			.post("/projects/{owner}/{projectName}/unstage-changes", "jack", "project")
 		.then()
@@ -587,9 +613,11 @@ public class CommitControllerTest extends AbstractControllerTest{
 		auth.setAccessLevel(AccessLevel.ADMIN);
 		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
+		CommitMessage param = new CommitMessage();
+		
 		given()
 			.contentType(ContentType.JSON)
-			.body(new String[] {})
+			.body(param)
 		.when()
 			.post("/projects/{owner}/{projectName}/unstage-changes", "jack", "project")
 		.then()
@@ -598,4 +626,206 @@ public class CommitControllerTest extends AbstractControllerTest{
 		verify(projectResourceService).unstageChanges(any(), any());
 	}
 
+	@Test
+	public void commit_anonymous_can_not_commit() {
+		StageParam param = new StageParam();
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/{owner}/{projectName}/commits", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_FORBIDDEN);
+	}
+
+	@WithMockUser(username = "jack")
+	@Test
+	public void commit_project_not_found() {
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
+		
+		CommitMessage param = new CommitMessage();
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/{owner}/{projectName}/commits", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	@WithMockUser(username = "other")
+	@Test
+	public void commit_login_user_has_no_auth() {
+		Project project = new Project();
+		project.setId(1);
+		project.setCreateUserName("jack");
+		project.setName("project");
+		project.setIsPublic(false);
+		project.setCreateUserId(1);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		UserInfo loginUser = new UserInfo();
+		loginUser.setId(1);
+		loginUser.setLoginName("other");
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(loginUser));
+		
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
+		
+		CommitMessage param = new CommitMessage();
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/{owner}/{projectName}/commits", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_FORBIDDEN);
+	}
+	
+	@WithMockUser(username = "jack")
+	@Test
+	public void commit_login_user_can_read() {
+		Project project = new Project();
+		project.setId(1);
+		project.setCreateUserName("jack");
+		project.setName("project");
+		project.setIsPublic(false);
+		project.setCreateUserId(1);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		UserInfo loginUser = new UserInfo();
+		loginUser.setId(1);
+		loginUser.setLoginName("other");
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(loginUser));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setUserId(1);
+		auth.setProjectId(1);
+		auth.setAccessLevel(AccessLevel.READ);
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		CommitMessage param = new CommitMessage();
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/{owner}/{projectName}/commits", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_FORBIDDEN);
+	}
+	
+	@WithMockUser(username = "jack")
+	@Test
+	public void commit_login_user_can_write() {
+		Project project = new Project();
+		project.setId(1);
+		project.setCreateUserName("jack");
+		project.setName("project");
+		project.setIsPublic(false);
+		project.setCreateUserId(1);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		UserInfo loginUser = new UserInfo();
+		loginUser.setId(1);
+		loginUser.setLoginName("other");
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(loginUser));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setUserId(1);
+		auth.setProjectId(1);
+		auth.setAccessLevel(AccessLevel.WRITE);
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		CommitMessage param = new CommitMessage();
+		param.setValue("first commit");
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/{owner}/{projectName}/commits", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_OK);
+		
+		verify(projectResourceService).commit(any(), any(), anyString());
+	}
+	
+	@WithMockUser(username = "jack")
+	@Test
+	public void commit_login_user_can_admin() {
+		Project project = new Project();
+		project.setId(1);
+		project.setCreateUserName("jack");
+		project.setName("project");
+		project.setIsPublic(false);
+		project.setCreateUserId(1);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		UserInfo loginUser = new UserInfo();
+		loginUser.setId(1);
+		loginUser.setLoginName("other");
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(loginUser));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setUserId(1);
+		auth.setProjectId(1);
+		auth.setAccessLevel(AccessLevel.ADMIN);
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		CommitMessage param = new CommitMessage();
+		param.setValue("first commit");
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/{owner}/{projectName}/commits", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_OK);
+		
+		verify(projectResourceService).commit(any(), any(), anyString());
+	}
+
+	@WithMockUser(username = "jack")
+	@Test
+	public void commit_when_no_changes() {
+		Project project = new Project();
+		project.setId(1);
+		project.setCreateUserName("jack");
+		project.setName("project");
+		project.setIsPublic(false);
+		project.setCreateUserId(1);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		UserInfo loginUser = new UserInfo();
+		loginUser.setId(1);
+		loginUser.setLoginName("other");
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(loginUser));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setUserId(1);
+		auth.setProjectId(1);
+		auth.setAccessLevel(AccessLevel.ADMIN);
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		CommitMessage param = new CommitMessage();
+		param.setValue("first commit");
+		
+		when(projectResourceService.commit(any(), any(), anyString())).thenThrow(GitEmptyCommitException.class);
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/{owner}/{projectName}/commits", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
+			.body("errors.globalErrors", hasItem("没有发现变更的文件"),
+					"errors.globalErrors.size()", is(1));
+		
+		verify(projectResourceService).commit(any(), any(), anyString());
+	}
 }

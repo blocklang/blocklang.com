@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.eclipse.jgit.lib.Constants;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -20,14 +21,17 @@ import com.blocklang.core.constant.CmPropKey;
 import com.blocklang.core.constant.Constant;
 import com.blocklang.core.constant.GitFileStatus;
 import com.blocklang.core.dao.UserDao;
+import com.blocklang.core.git.exception.GitEmptyCommitException;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.PropertyService;
 import com.blocklang.core.test.AbstractServiceTest;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.constant.ProjectResourceType;
+import com.blocklang.develop.dao.ProjectCommitDao;
 import com.blocklang.develop.dao.ProjectResourceDao;
 import com.blocklang.develop.data.UncommittedFile;
 import com.blocklang.develop.model.Project;
+import com.blocklang.develop.model.ProjectCommit;
 import com.blocklang.develop.model.ProjectResource;
 import com.blocklang.develop.service.ProjectResourceService;
 import com.blocklang.develop.service.ProjectService;
@@ -46,6 +50,8 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	private ProjectService projectService;
 	@Autowired
 	private UserDao userDao;
+	@Autowired
+	private ProjectCommitDao projectCommitDao;
 	@MockBean
 	private PropertyService propertyService;
 	
@@ -681,5 +687,80 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		assertThat(file.getIcon()).isEqualTo(AppType.WEB.getIcon());
 		assertThat(file.getResourceName()).isEqualTo("name1");
 		assertThat(file.getParentNamePath()).isBlank();
+	}
+	
+	@Test(expected = GitEmptyCommitException.class)
+	public void commit_no_stage() throws IOException {
+		UserInfo userInfo = new UserInfo();
+		userInfo.setLoginName("user_name");
+		userInfo.setAvatarUrl("avatar_url");
+		userInfo.setEmail("email");
+		userInfo.setMobile("mobile");
+		userInfo.setCreateTime(LocalDateTime.now());
+		Integer userId = userDao.save(userInfo).getId();
+		
+		Project project = new Project();
+		project.setName("project_name");
+		project.setIsPublic(true);
+		project.setDescription("description");
+		project.setLastActiveTime(LocalDateTime.now());
+		project.setCreateUserId(userId);
+		project.setCreateTime(LocalDateTime.now());
+		project.setCreateUserName("user_name");
+		
+		File rootFolder = tempFolder.newFolder();
+		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.getPath()));
+		
+		Project savedProject = projectService.create(userInfo, project);
+		
+		List<UncommittedFile> changes = projectResourceService.findChanges(savedProject);
+		assertThat(changes).isEmpty();
+		
+		projectResourceService.commit(userInfo, savedProject, "commit page1");
+	}
+	
+	@Test
+	public void commit_success() throws IOException {
+		UserInfo userInfo = new UserInfo();
+		userInfo.setLoginName("user_name");
+		userInfo.setAvatarUrl("avatar_url");
+		userInfo.setEmail("email");
+		userInfo.setMobile("mobile");
+		userInfo.setCreateTime(LocalDateTime.now());
+		Integer userId = userDao.save(userInfo).getId();
+		
+		Project project = new Project();
+		project.setName("project_name");
+		project.setIsPublic(true);
+		project.setDescription("description");
+		project.setLastActiveTime(LocalDateTime.now());
+		project.setCreateUserId(userId);
+		project.setCreateTime(LocalDateTime.now());
+		project.setCreateUserName("user_name");
+		
+		File rootFolder = tempFolder.newFolder();
+		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.getPath()));
+		
+		Project savedProject = projectService.create(userInfo, project);
+		
+		ProjectResource resource = new ProjectResource();
+		resource.setKey("page1");
+		resource.setName("name1");
+		resource.setResourceType(ProjectResourceType.PAGE);
+		resource.setAppType(AppType.WEB);
+		resource.setCreateTime(LocalDateTime.now());
+		resource.setCreateUserId(userId);
+		resource.setProjectId(savedProject.getId());
+		resource.setParentId(Constant.TREE_ROOT_ID);
+		projectResourceService.insert(savedProject, resource);
+		
+		projectResourceService.stageChanges(savedProject, new String[] {"page1.page.web.json"});
+		String commitId = projectResourceService.commit(userInfo, savedProject, "commit page1");
+		// 有一个已跟踪，但未提交的文件。
+		List<UncommittedFile> changes = projectResourceService.findChanges(savedProject);
+		assertThat(changes).hasSize(0);
+		
+		Optional<ProjectCommit> commitOption = projectCommitDao.findByProjectIdAndBranchAndCommitId(savedProject.getId(), Constants.MASTER, commitId);
+		assertThat(commitOption).isPresent();
 	}
 }
