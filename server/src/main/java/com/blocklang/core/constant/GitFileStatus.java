@@ -13,6 +13,7 @@ public enum GitFileStatus {
 	CHANGED("03", "changed"),
 	REMOVED("04", "removed"),
 	DELETED("05", "deleted"),
+	@Deprecated
 	MISSING("06", "missing"),
 	MODIFIED("07", "modified"),
 	CONFLICTING("08", "conflicting");

@@ -24,7 +24,6 @@ import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.UserService;
 import com.blocklang.develop.constant.AccessLevel;
 import com.blocklang.develop.data.CommitMessage;
-import com.blocklang.develop.data.StageParam;
 import com.blocklang.develop.data.UncommittedFile;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectAuthorization;
@@ -72,7 +71,7 @@ public class CommitController {
 			Principal principal,
 			@PathVariable("owner") String owner,
 			@PathVariable("projectName") String projectName,
-			@RequestBody StageParam param) {
+			@RequestBody String[] param) {
 		if(principal == null) {
 			throw new NoAuthorizationException();
 		}
@@ -81,7 +80,7 @@ public class CommitController {
 		UserInfo user = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
 		ensureCanWrite(user, project);
 		
-		projectResourceService.stageChanges(project, param.getFilePathes());
+		projectResourceService.stageChanges(project, param);
 		
 		return ResponseEntity.ok(new HashMap<String, Object>());
 	}
@@ -91,7 +90,7 @@ public class CommitController {
 			Principal principal,
 			@PathVariable("owner") String owner,
 			@PathVariable("projectName") String projectName,
-			@RequestBody StageParam param) {
+			@RequestBody String[] param) {
 		if(principal == null) {
 			throw new NoAuthorizationException();
 		}
@@ -100,7 +99,7 @@ public class CommitController {
 		UserInfo user = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
 		ensureCanWrite(user, project);
 		
-		projectResourceService.unstageChanges(project, param.getFilePathes());
+		projectResourceService.unstageChanges(project, param);
 		
 		return ResponseEntity.ok(new HashMap<String, Object>());
 	}

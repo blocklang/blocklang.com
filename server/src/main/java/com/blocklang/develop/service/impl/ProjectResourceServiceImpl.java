@@ -311,7 +311,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 					resourceKey = stripedFilenameExtension;
 					parentPath = "";
 				} else {
-					resourceKey = stripedFilenameExtension.substring(lastIndex);
+					resourceKey = stripedFilenameExtension.substring(lastIndex + 1/*去掉/*/);
 					parentPath = stripedFilenameExtension.substring(0, lastIndex);
 				}
 			} else if(filePath.equalsIgnoreCase(ProjectResource.README_NAME)){
@@ -332,7 +332,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 				}
 				parentId = parentGroups.get(parentGroups.size() - 1).getId();
 				for(ProjectResource each : parentGroups) {
-					parentNamePath += each.getName() + "/";
+					parentNamePath += StringUtils.isBlank(each.getName()) ? each.getKey() : each.getName() + "/";
 				}
 			}
 
@@ -359,7 +359,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 			file.setIcon(resource.getIcon());
 			file.setFullKeyPath(filePath);
 			file.setGitStatus(item.getValue());
-			file.setResourceName(resource.getName());
+			file.setResourceName(StringUtils.isBlank(resource.getName()) ? resource.getKey() : resource.getName());
 			file.setParentNamePath(parentNamePath);
 
 			return file;
@@ -380,7 +380,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 		propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)
 		.ifPresent(rootDir -> {
 			ProjectContext context = new ProjectContext(project.getCreateUserName(), project.getName(), rootDir);
-			GitUtils.removeFromIndex(context.getGitRepositoryDirectory(), filePathes);
+			GitUtils.reset(context.getGitRepositoryDirectory(), filePathes);
 		});
 	}
 

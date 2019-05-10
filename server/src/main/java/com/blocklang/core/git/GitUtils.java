@@ -225,6 +225,11 @@ public class GitUtils {
 		remove.removeFromIndex(filePatterns);
 	}
 	
+	public static void reset(Path gitRepoPath, String[] pathes){
+		GitReset reset = new GitReset(gitRepoPath);
+		reset.execute(pathes);
+	}
+	
 	// 暂时不要删除此代码
 	// 用于本地测试 clone 和 pull 方法
 	public static void main(String[] args) {

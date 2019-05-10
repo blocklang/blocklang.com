@@ -26,7 +26,6 @@ import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.test.AbstractControllerTest;
 import com.blocklang.develop.constant.AccessLevel;
 import com.blocklang.develop.data.CommitMessage;
-import com.blocklang.develop.data.StageParam;
 import com.blocklang.develop.data.UncommittedFile;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectAuthorization;
@@ -307,7 +306,7 @@ public class CommitControllerTest extends AbstractControllerTest{
 	
 	@Test
 	public void stage_changes_anonymous_can_not_stage() {
-		StageParam param = new StageParam();
+		String[] param = new String[] {};
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -321,7 +320,7 @@ public class CommitControllerTest extends AbstractControllerTest{
 	@WithMockUser(username = "jack")
 	@Test
 	public void stage_changes_project_not_found() {
-		StageParam param = new StageParam();
+		String[] param = new String[] {};
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
 		
 		given()
@@ -351,7 +350,7 @@ public class CommitControllerTest extends AbstractControllerTest{
 		
 		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
 		
-		StageParam param = new StageParam();
+		String[] param = new String[] {};
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -384,7 +383,7 @@ public class CommitControllerTest extends AbstractControllerTest{
 		auth.setAccessLevel(AccessLevel.READ);
 		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
-		StageParam param = new StageParam();
+		String[] param = new String[] {};
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -417,7 +416,7 @@ public class CommitControllerTest extends AbstractControllerTest{
 		auth.setAccessLevel(AccessLevel.WRITE);
 		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
-		StageParam param = new StageParam();
+		String[] param = new String[] {};
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -452,7 +451,7 @@ public class CommitControllerTest extends AbstractControllerTest{
 		auth.setAccessLevel(AccessLevel.ADMIN);
 		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
-		StageParam param = new StageParam();
+		String[] param = new String[] {};
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -467,7 +466,7 @@ public class CommitControllerTest extends AbstractControllerTest{
 
 	@Test
 	public void unstage_changes_anonymous_can_not_stage() {
-		StageParam param = new StageParam();
+		String[] param = new String[] {};
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -483,7 +482,7 @@ public class CommitControllerTest extends AbstractControllerTest{
 	public void unstage_changes_project_not_found() {
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
 		
-		StageParam param = new StageParam();
+		String[] param = new String[] {};
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -512,7 +511,7 @@ public class CommitControllerTest extends AbstractControllerTest{
 		
 		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
 		
-		StageParam param = new StageParam();
+		String[] param = new String[] {};
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -545,7 +544,7 @@ public class CommitControllerTest extends AbstractControllerTest{
 		auth.setAccessLevel(AccessLevel.READ);
 		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
-		StageParam param = new StageParam();
+		String[] param = new String[] {};
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -578,7 +577,7 @@ public class CommitControllerTest extends AbstractControllerTest{
 		auth.setAccessLevel(AccessLevel.WRITE);
 		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
-		StageParam param = new StageParam();
+		String[] param = new String[] {};
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -613,7 +612,7 @@ public class CommitControllerTest extends AbstractControllerTest{
 		auth.setAccessLevel(AccessLevel.ADMIN);
 		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
-		CommitMessage param = new CommitMessage();
+		String[] param = new String[] {};
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -628,7 +627,7 @@ public class CommitControllerTest extends AbstractControllerTest{
 
 	@Test
 	public void commit_anonymous_can_not_commit() {
-		StageParam param = new StageParam();
+		CommitMessage param = new CommitMessage();
 		
 		given()
 			.contentType(ContentType.JSON)
