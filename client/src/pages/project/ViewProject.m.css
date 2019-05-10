@@ -66,3 +66,13 @@ code {
 	padding: 5px 0px;
 	margin-bottom: 0px;
 }
+
+td.operator {
+	width: 2em;
+	padding-left: 2px;
+	padding-right: 2px;
+}
+
+.op {
+	cursor: pointer;
+}

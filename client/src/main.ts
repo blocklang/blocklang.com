@@ -18,7 +18,8 @@ import { getCurrentUserProcess, initForUserProfileProcess } from './processes/us
 import {
 	initForNewProjectProcess,
 	initForViewProjectProcess,
-	initForViewProjectGroupProcess
+	initForViewProjectGroupProcess,
+	initForViewCommitChangesProcess
 } from './processes/projectProcesses';
 import { changeRouteProcess } from './processes/routeProcesses';
 import { initHomeProcess } from './processes/homeProcesses';
@@ -61,6 +62,7 @@ router.on('outlet', ({ outlet, action }) => {
 				break;
 			case 'view-project':
 				initForViewProjectProcess(store)({ owner: outlet.params.owner, project: outlet.params.project });
+				initForViewCommitChangesProcess(store)({ owner: outlet.params.owner, project: outlet.params.project });
 				break;
 			case 'view-project-group':
 				initForViewProjectGroupProcess(store)({

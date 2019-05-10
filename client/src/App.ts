@@ -47,6 +47,9 @@ import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
 import { faBan } from '@fortawesome/free-solid-svg-icons/faBan';
 import { faCog } from '@fortawesome/free-solid-svg-icons/faCog';
 import { faUser } from '@fortawesome/free-solid-svg-icons/faUser';
+import { faCodeBranch } from '@fortawesome/free-solid-svg-icons/faCodeBranch';
+import { faCopy } from '@fortawesome/free-solid-svg-icons/faCopy';
+import { faMinus } from '@fortawesome/free-solid-svg-icons/faMinus';
 
 library.add(
 	faGithub,
@@ -75,7 +78,10 @@ library.add(
 	faCheck,
 	faBan,
 	faCog,
-	faUser
+	faUser,
+	faCodeBranch,
+	faCopy,
+	faMinus
 );
 
 import * as css from './App.m.css';

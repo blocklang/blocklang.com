@@ -87,3 +87,13 @@ export interface PageKeyPayload extends GroupKeyPayload {
 export interface PageNamePayload extends GroupNamePayload {
 	appType: string;
 }
+
+export interface StagedChangesPayload extends ProjectPathPayload {
+	files: string[];
+}
+
+export interface UnstagedChangesPayload extends StagedChangesPayload {}
+
+export interface CommitMessagePayload {
+	commitMessage: string;
+}

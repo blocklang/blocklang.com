@@ -2,7 +2,13 @@ import Store from '@dojo/framework/stores/Store';
 import ViewProject, { ViewProjectProperties } from '../../pages/project/ViewProject';
 import { State } from '../../interfaces';
 import { StoreContainer } from '@dojo/framework/stores/StoreInjector';
-import { getUserDeployInfoProcess } from '../../processes/projectProcesses';
+import {
+	getUserDeployInfoProcess,
+	stageChangesProcess,
+	unstageChangesProcess,
+	commitChangesProcess,
+	commitMessageInputProcess
+} from '../../processes/projectProcesses';
 
 function getProperties(store: Store<State>): ViewProjectProperties {
 	const { get, path } = store;
@@ -17,7 +23,16 @@ function getProperties(store: Store<State>): ViewProjectProperties {
 		readme: get(path('readme')),
 		userDeployInfo: get(path('userDeployInfo')),
 		releaseCount: get(path('releaseCount')),
-		onGetDeployInfo: getUserDeployInfoProcess(store)
+		stagedChanges: get(path('stagedChanges')),
+		unstagedChanges: get(path('unstagedChanges')),
+		commitMessage: get(path('commitMessageParam', 'value')),
+		commitMessageValidateStatus: get(path('commitMessageInputValidation', 'commitMessageValidateStatus')),
+		commitMessageErrorMessage: get(path('commitMessageInputValidation', 'commitMessageErrorMessage')),
+		onGetDeployInfo: getUserDeployInfoProcess(store),
+		onStageChanges: stageChangesProcess(store),
+		onUnstageChanges: unstageChangesProcess(store),
+		onCommitMessageInput: commitMessageInputProcess(store),
+		onCommit: commitChangesProcess(store)
 	};
 }
 
@@ -30,7 +45,11 @@ export default StoreContainer(ViewProject, 'state', {
 		['latestCommitInfo'],
 		['readme'],
 		['userDeployInfo'],
-		['releaseCount']
+		['releaseCount'],
+		['stagedChanges'],
+		['unstagedChanges'],
+		['commitMessageParam'],
+		['commitMessageInputValidation']
 	],
 	getProperties
 });

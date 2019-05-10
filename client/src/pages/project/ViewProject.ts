@@ -6,7 +6,7 @@ import { v, w, dom } from '@dojo/framework/widget-core/d';
 
 import messageBundle from '../../nls/main';
 import Link from '@dojo/framework/routing/Link';
-import { Project, ProjectResource, CommitInfo, DeployInfo } from '../../interfaces';
+import { Project, ProjectResource, CommitInfo, DeployInfo, UncommittedFile, WithTarget } from '../../interfaces';
 import Moment from '../../widgets/moment';
 import FontAwesomeIcon from '../../widgets/fontawesome-icon';
 import { IconName, IconPrefix } from '@fortawesome/fontawesome-svg-core';
@@ -17,15 +17,21 @@ import 'highlight.js/styles/github.css';
 
 import * as c from '../../className';
 import * as css from './ViewProject.m.css';
-import { ProjectPathPayload } from '../../processes/interfaces';
+import {
+	ProjectPathPayload,
+	UnstagedChangesPayload,
+	StagedChangesPayload,
+	CommitMessagePayload
+} from '../../processes/interfaces';
 
 import * as $ from 'jquery';
 import Spinner from '../../widgets/spinner';
 import ProjectHeader from '../widgets/ProjectHeader';
 import { isEmpty } from '../../util';
 import Exception from '../error/Exception';
-import { ResourceType, GitFileStatus } from '../../constant';
+import { ResourceType, GitFileStatus, ValidateStatus } from '../../constant';
 import { Params } from '@dojo/framework/routing/interfaces';
+import watch from '@dojo/framework/widget-core/decorators/watch';
 
 export interface ViewProjectProperties {
 	loggedUsername: string;
@@ -37,12 +43,32 @@ export interface ViewProjectProperties {
 	readme?: string;
 	userDeployInfo: DeployInfo;
 	releaseCount: number;
+	stagedChanges: UncommittedFile[];
+	unstagedChanges: UncommittedFile[];
+
+	// validation
+	commitMessageValidateStatus?: ValidateStatus;
+	commitMessageErrorMessage?: string;
+	commitMessage?: string;
+
 	onGetDeployInfo: (opt: ProjectPathPayload) => void;
+	onStageChanges: (opt: StagedChangesPayload) => void;
+	onUnstageChanges: (opt: UnstagedChangesPayload) => void;
+	onCommitMessageInput: (opt: CommitMessagePayload) => void;
+	onCommit: (opt: ProjectPathPayload) => void;
+}
+
+enum ViewStatus {
+	Edit,
+	Commit
 }
 
 @theme(css)
 export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<ViewProjectProperties> {
 	private _localizedMessages = this.localizeBundle(messageBundle);
+
+	@watch()
+	private _viewStatus: ViewStatus = ViewStatus.Edit;
 
 	protected render() {
 		if (this._isNotFound()) {
@@ -52,9 +78,122 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 		return v('div', { classes: [css.root, c.container] }, [
 			this._renderHeader(),
 			this._renderNavigation(),
-			this._renderTable(),
-			this._renderReadme()
+			this._viewStatus === ViewStatus.Edit ? this._renderEditView() : this._renderCommitView()
 		]);
+	}
+
+	private _renderEditView() {
+		return v('div', [this._renderTable(), this._renderReadme()]);
+	}
+
+	private _renderCommitView() {
+		const { messages } = this._localizedMessages;
+		const {
+			stagedChanges = [],
+			unstagedChanges = [],
+			commitMessage = '',
+			commitMessageValidateStatus = ValidateStatus.UNVALIDATED,
+			commitMessageErrorMessage
+		} = this.properties;
+
+		const inputClasses = [c.form_control];
+		if (commitMessageValidateStatus === ValidateStatus.INVALID) {
+			inputClasses.push(c.is_invalid);
+		}
+
+		// 1. 提示信息不能为空
+		// 2. stagedChanges.length > 0
+		const disabled =
+			commitMessageValidateStatus === ValidateStatus.VALID && stagedChanges.length > 0 ? false : true;
+
+		return v('div', [
+			v('hr'),
+			// staged changes
+			v('div', { classes: [c.mt_2] }, [
+				v('div', { classes: [c.d_flex, c.justify_content_between] }, [
+					v('strong', [`${messages.stagedChangesLabel}`]),
+					v('span', { classes: [c.badge, c.badge_secondary] }, [`${stagedChanges.length}`])
+				]),
+				v('table', { classes: [c.table, c.table_hover, c.table_borderless, c.mt_1] }, [
+					v(
+						'tbody',
+						stagedChanges.map((item) =>
+							w(StagedChangesItem, {
+								uncommittedFile: item,
+								onUnstageChanges: this._onUnstageChanges
+							})
+						)
+					)
+				])
+			]),
+			// unstaged changes
+			v('div', { classes: [c.mt_2] }, [
+				v('div', { classes: [c.d_flex, c.justify_content_between] }, [
+					v('strong', [`${messages.unstagedChangesLabel}`]),
+					v('span', { classes: [c.badge, c.badge_secondary] }, [`${unstagedChanges.length}`])
+				]),
+				v('table', { classes: [c.table, c.table_hover, c.table_borderless, c.mt_1] }, [
+					v(
+						'tbody',
+						unstagedChanges.map((item) =>
+							w(UnstagedChangesItem, {
+								uncommittedFile: item,
+								onStageChanges: this._onStageChanges
+							})
+						)
+					)
+				])
+			]),
+			v('form', { classes: [c.needs_validation, c.mb_3], novalidate: 'novalidate' }, [
+				v('div', { classes: [c.form_group, c.position_relative] }, [
+					v('textarea', {
+						classes: inputClasses,
+						rows: 3,
+						placeholder: `${messages.commitMessageTip}${messages.requiredLabel}`,
+						oninput: this._onCommitMessageInput,
+						value: `${commitMessage}`
+					}),
+					commitMessageValidateStatus === ValidateStatus.INVALID
+						? v('div', { classes: [c.invalid_tooltip], innerHTML: `${commitMessageErrorMessage}` })
+						: undefined
+				]),
+				v(
+					'button',
+					{
+						type: 'button',
+						classes: [c.btn, c.btn_primary],
+						disabled,
+						onclick: disabled ? undefined : this._onCommit
+					},
+					[`${messages.commitLabel}`]
+				),
+				v('small', { classes: [c.text_muted, c.ml_2] }, [`${messages.commitHelp}`])
+			])
+		]);
+	}
+
+	private _onCommitMessageInput({ target: { value: commitMessage } }: WithTarget) {
+		this.properties.onCommitMessageInput({ commitMessage });
+	}
+
+	private _onCommit() {
+		const { project } = this.properties;
+		this.properties.onCommit({ owner: project.createUserName, project: project.name });
+	}
+
+	private _onUnstageChanges(fullKeyPath: string) {
+		const { project } = this.properties;
+
+		this.properties.onUnstageChanges({
+			owner: project.createUserName,
+			project: project.name,
+			files: [fullKeyPath]
+		});
+	}
+
+	private _onStageChanges(fullKeyPath: string) {
+		const { project } = this.properties;
+		this.properties.onStageChanges({ owner: project.createUserName, project: project.name, files: [fullKeyPath] });
 	}
 
 	private _isNotFound() {
@@ -77,15 +216,82 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 	}
 
 	private _renderNavigation() {
-		return v('div', { classes: [c.d_flex, c.justify_content_end, c.mb_2] }, [
+		return v('div', { classes: [c.d_flex, c.justify_content_between, c.mb_2] }, [
+			v('div', [this._renderCommitButtonGroup()]),
 			v('div', { classes: [] }, [
-				this._renderNewResourceButtonGroup(),
+				this._viewStatus === ViewStatus.Edit ? this._renderNewResourceButtonGroup() : undefined,
 				// 发布按钮，后面显示发布次数
 				this._renderReleaseButton(),
 				// 部署按钮，显示部署步骤
 				this._renderDeployButton()
 			])
 		]);
+	}
+
+	private _renderCommitButtonGroup() {
+		const authed = this._isAuthenticated();
+		if (!authed) {
+			return;
+		}
+
+		const { messages } = this._localizedMessages;
+		const { unstagedChanges = [], stagedChanges = [] } = this.properties;
+
+		const changeCount = unstagedChanges.length + stagedChanges.length;
+
+		return v(
+			'div',
+			{
+				classes: [c.btn_group, c.btn_group_sm],
+				role: 'group'
+			},
+			[
+				v(
+					'button',
+					{
+						type: 'button',
+						classes: [
+							c.btn,
+							c.btn_outline_primary,
+							this._viewStatus === ViewStatus.Edit ? c.active : undefined
+						],
+						onclick: this._switchToEditMode
+					},
+					[w(FontAwesomeIcon, { icon: 'copy' }), ` ${messages.editLabel}`]
+				),
+				v(
+					'button',
+					{
+						type: 'button',
+						classes: [
+							c.btn,
+							c.btn_outline_primary,
+							this._viewStatus === ViewStatus.Commit ? c.active : undefined
+						],
+						onclick: this._switchToCommitMode
+					},
+					[
+						w(FontAwesomeIcon, { icon: 'code-branch' }),
+						` ${messages.commitLabel} `,
+						changeCount > 0
+							? v('span', { classes: [c.badge, c.badge_light] }, [`${changeCount}`])
+							: undefined
+					]
+				)
+			]
+		);
+	}
+
+	private _switchToEditMode() {
+		if (this._viewStatus === ViewStatus.Commit) {
+			this._viewStatus = ViewStatus.Edit;
+		}
+	}
+
+	private _switchToCommitMode() {
+		if (this._viewStatus === ViewStatus.Edit) {
+			this._viewStatus = ViewStatus.Commit;
+		}
 	}
 
 	private _renderNewResourceButtonGroup() {
@@ -480,5 +686,147 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 
 			v('div', { classes: [c.card_body, c.markdown_body] }, [w(MarkdownPreview, { value: readme })])
 		]);
+	}
+}
+
+export interface StagedChangeProperties {
+	uncommittedFile: UncommittedFile;
+	onUnstageChanges: (fullKeyPath: string) => void;
+}
+
+class StagedChangesItem extends ThemedMixin(I18nMixin(WidgetBase))<StagedChangeProperties> {
+	protected render() {
+		const { uncommittedFile } = this.properties;
+
+		let statusLetter = '';
+		let statusColor = '';
+		let statusTooltip = '';
+
+		const gitStatus = uncommittedFile.gitStatus;
+
+		if (gitStatus === GitFileStatus.Added) {
+			statusLetter = 'A';
+			statusColor = c.text_success;
+			statusTooltip = '已跟踪';
+		} else if (gitStatus === GitFileStatus.Changed) {
+			statusLetter = 'M';
+			statusColor = c.text_warning;
+			statusTooltip = '已修改';
+		} else if (gitStatus === GitFileStatus.Removed) {
+			statusLetter = 'D';
+			statusColor = c.text_danger;
+			statusTooltip = '已删除';
+		}
+
+		return v('tr', [
+			v('td', { classes: [css.icon] }, [
+				w(FontAwesomeIcon, {
+					icon: uncommittedFile.icon.split(' ') as [IconPrefix, IconName],
+					title: uncommittedFile.iconTitle
+				})
+			]),
+			// 资源名称
+			v('td', { classes: [c.px_1] }, [
+				v('div', { classes: [css.truncate] }, [
+					gitStatus === GitFileStatus.Removed
+						? v('del', [`${uncommittedFile.resourceName}`])
+						: v('span', [`${uncommittedFile.resourceName}`]),
+					v('small', { classes: [c.text_muted, c.ml_1] }, [`${uncommittedFile.parentNamePath}`])
+				])
+			]),
+			v('td', { classes: [css.operator] }, [
+				v(
+					'span',
+					{
+						onclick: this._onUnstageChanges
+					},
+					[
+						w(FontAwesomeIcon, {
+							icon: 'minus',
+							title: '撤销暂存的更改',
+							classes: [css.op]
+						})
+					]
+				)
+			]),
+			v('td', { classes: [css.status, statusColor], title: `${statusTooltip}` }, [`${statusLetter}`])
+		]);
+	}
+
+	private _onUnstageChanges() {
+		const { onUnstageChanges, uncommittedFile } = this.properties;
+
+		onUnstageChanges(uncommittedFile.fullKeyPath);
+	}
+}
+
+export interface UnstagedChangeProperties {
+	uncommittedFile: UncommittedFile;
+	onStageChanges: (fullKeyPath: string) => void;
+}
+
+class UnstagedChangesItem extends ThemedMixin(I18nMixin(WidgetBase))<UnstagedChangeProperties> {
+	protected render() {
+		const { uncommittedFile } = this.properties;
+
+		const { gitStatus } = uncommittedFile;
+
+		let statusLetter = '';
+		let statusColor = '';
+		let statusTooltip = '';
+
+		if (gitStatus === GitFileStatus.Untracked) {
+			statusLetter = 'U';
+			statusColor = c.text_success;
+			statusTooltip = '未跟踪';
+		} else if (gitStatus === GitFileStatus.Modified) {
+			statusLetter = 'M';
+			statusColor = c.text_warning;
+			statusTooltip = '已修改';
+		} else if (gitStatus === GitFileStatus.Deleted) {
+			statusLetter = 'D';
+			statusColor = c.text_danger;
+			statusTooltip = '已删除';
+		}
+
+		return v('tr', [
+			v('td', { classes: [css.icon] }, [
+				w(FontAwesomeIcon, {
+					icon: uncommittedFile.icon.split(' ') as [IconPrefix, IconName],
+					title: uncommittedFile.iconTitle
+				})
+			]),
+			// 资源名称
+			v('td', { classes: [c.px_1] }, [
+				v('div', { classes: [css.truncate] }, [
+					gitStatus === GitFileStatus.Deleted
+						? v('del', [`${uncommittedFile.resourceName}`])
+						: v('span', [`${uncommittedFile.resourceName}`]),
+					v('small', { classes: [c.text_muted, c.ml_1] }, [`${uncommittedFile.parentNamePath}`])
+				])
+			]),
+			v('td', { classes: [css.operator] }, [
+				v(
+					'span',
+					{
+						onclick: this._onStageChanges
+					},
+					[
+						w(FontAwesomeIcon, {
+							icon: 'plus',
+							title: '暂存更改',
+							classes: [css.op]
+						})
+					]
+				)
+			]),
+			v('td', { classes: [css.status, statusColor], title: `${statusTooltip}` }, [`${statusLetter}`])
+		]);
+	}
+
+	private _onStageChanges() {
+		const { onStageChanges, uncommittedFile } = this.properties;
+
+		onStageChanges(uncommittedFile.fullKeyPath);
 	}
 }

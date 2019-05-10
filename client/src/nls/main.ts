@@ -59,6 +59,13 @@ export default {
 		deployNotLoginTip: '用户登录后才能部署此项目',
 		newPage: '创建页面',
 		newGroup: '创建分组',
+		editLabel: '编辑',
+		commitLabel: '提交',
+		unstagedChangesLabel: '更改',
+		stagedChangesLabel: '暂存的更改',
+		commitHelp: '暂存更改之后才能提交',
+		commitMessageTip: '提交信息',
+
 		// list release
 		releaseText: '发行版',
 		noReleaseTitle: '没有发行版本',

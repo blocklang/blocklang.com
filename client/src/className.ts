@@ -35,6 +35,7 @@ export const col_md_9: string = 'col-md-9';
 //     table
 export const table: string = 'table';
 export const table_hover: string = 'table-hover';
+export const table_borderless: string = 'table-borderless';
 
 //     float
 export const float_left: string = 'float-left';

@@ -228,6 +228,24 @@ interface ParentResource {
 	parentGroups: ProjectGroup[];
 }
 
+interface UncommittedFile {
+	fullKeyPath: string;
+	gitStatus: GitFileStatus;
+	icon: string;
+	iconTitle: string;
+	resourceName: string;
+	parentNamePath: string;
+}
+
+interface CommitMessageParam {
+	value: string;
+}
+
+export interface CommitMessageInputValidation {
+	commitMessageValidateStatus?: ValidateStatus;
+	commitMessageErrorMessage?: string;
+}
+
 export interface State {
 	errors: Errors;
 	routing: Routing;
@@ -250,6 +268,11 @@ export interface State {
 	latestCommitInfo: CommitInfo;
 	readme: string;
 	userDeployInfo: DeployInfo;
+
+	unstagedChanges: UncommittedFile[];
+	stagedChanges: UncommittedFile[];
+	commitMessageParam: CommitMessageParam;
+	commitMessageInputValidation: CommitMessageInputValidation;
 
 	// new page
 	appTypes: AppType[];

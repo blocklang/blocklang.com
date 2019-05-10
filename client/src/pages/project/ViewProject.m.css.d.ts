@@ -9,3 +9,5 @@ export const age: string;
 export const deployMenu: string;
 export const btnSmall: string;
 export const navOl: string;
+export const operator: string;
+export const op: string;
