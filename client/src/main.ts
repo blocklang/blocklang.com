@@ -65,10 +65,20 @@ router.on('outlet', ({ outlet, action }) => {
 				initForViewCommitChangesProcess(store)({ owner: outlet.params.owner, project: outlet.params.project });
 				break;
 			case 'view-project-group':
+				let parentPath;
+				if (outlet.isExact()) {
+					parentPath = outlet.params.parentPath;
+				} else {
+					// 因为 dojo5 route 不支持通配符，所以此处自己实现
+					// 注意，pathname 是以 / 开头的
+					parentPath = global.window.location.pathname.substring(
+						`/${outlet.params.owner}/${outlet.params.project}/groups/`.length
+					);
+				}
 				initForViewProjectGroupProcess(store)({
 					owner: outlet.params.owner,
 					project: outlet.params.project,
-					parentPath: outlet.params.parentPath
+					parentPath
 				});
 				break;
 			case 'list-release':

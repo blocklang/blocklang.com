@@ -3,6 +3,7 @@ import I18nMixin from '@dojo/framework/widget-core/mixins/I18n';
 import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
 
 import { v, w } from '@dojo/framework/widget-core/d';
+import global from '@dojo/framework/shim/global';
 
 import messageBundle from '../../nls/main';
 import Link from '@dojo/framework/routing/Link';
@@ -22,7 +23,7 @@ import ProjectHeader from '../widgets/ProjectHeader';
 import { isEmpty } from '../../util';
 import Exception from '../error/Exception';
 import { ResourceType, GitFileStatus } from '../../constant';
-import { Params } from '@dojo/framework/routing/interfaces';
+import { ProjectResourcePathPayload } from '../../processes/interfaces';
 
 export interface ViewProjectGroupProperties {
 	loggedUsername: string;
@@ -32,6 +33,7 @@ export interface ViewProjectGroupProperties {
 	parentGroups: ProjectGroup[];
 	projectResources: ProjectResource[];
 	latestCommitInfo: CommitInfo;
+	onOpenGroup: (opt: ProjectResourcePathPayload) => void;
 }
 
 @theme(css)
@@ -46,7 +48,8 @@ export default class ViewProjectGroup extends ThemedMixin(I18nMixin(WidgetBase))
 		return v('div', { classes: [css.root, c.container] }, [
 			this._renderHeader(),
 			this._renderNavigation(),
-			this._renderTable()
+			this._renderTable(),
+			this._renderNoResourceAlert()
 		]);
 	}
 
@@ -77,7 +80,7 @@ export default class ViewProjectGroup extends ThemedMixin(I18nMixin(WidgetBase))
 	}
 
 	private _renderBreadcrumb() {
-		const { project, parentGroups } = this.properties;
+		const { project, parentGroups = [] } = this.properties;
 
 		return v('nav', { classes: [c.d_inline_block], 'aria-label': 'breadcrumb' }, [
 			v('ol', { classes: [c.breadcrumb, css.navOl] }, [
@@ -95,20 +98,7 @@ export default class ViewProjectGroup extends ThemedMixin(I18nMixin(WidgetBase))
 				]),
 				...parentGroups.map((item, index, array) => {
 					if (index !== array.length - 1) {
-						return v('li', { classes: [c.breadcrumb_item] }, [
-							w(
-								Link,
-								{
-									to: 'view-project-group',
-									params: {
-										owner: project.createUserName,
-										project: project.name,
-										parentPath: item.path
-									}
-								},
-								[`${item.name}`]
-							)
-						]);
+						return w(BreadcrumbItem, { project, parentGroup: item, onGoToGroup: this._onGoToGroup });
 					} else {
 						// 如果是最后一个元素
 						return v('li', { classes: [c.breadcrumb_item, c.active] }, [
@@ -118,6 +108,10 @@ export default class ViewProjectGroup extends ThemedMixin(I18nMixin(WidgetBase))
 				})
 			])
 		]);
+	}
+
+	private _onGoToGroup(opt: ProjectResourcePathPayload) {
+		this.properties.onOpenGroup(opt);
 	}
 
 	private _renderNewResourceButtonGroup() {
@@ -150,7 +144,12 @@ export default class ViewProjectGroup extends ThemedMixin(I18nMixin(WidgetBase))
 	}
 
 	private _renderTable() {
-		return v('div', { classes: [c.card] }, [this._renderLatestCommitInfo(), this._renderResources()]);
+		const { latestCommitInfo } = this.properties;
+
+		return v('div', { classes: [c.card, !latestCommitInfo ? c.border_top_0 : undefined] }, [
+			this._renderLatestCommitInfo(),
+			this._renderResources()
+		]);
 	}
 
 	/**
@@ -189,30 +188,68 @@ export default class ViewProjectGroup extends ThemedMixin(I18nMixin(WidgetBase))
 
 		return projectResources
 			? v('table', { classes: [c.table, c.table_hover, c.mb_0] }, [
-					v('tbody', projectResources.map((resource) => this._renderTr(resource)))
+					v('tbody', [this._renderBackTr(), ...projectResources.map((resource) => this._renderTr(resource))])
 			  ])
 			: w(Spinner, {});
 	}
 
+	private _renderBackTr() {
+		const { project, parentGroups = [] } = this.properties;
+
+		if (parentGroups.length === 0) {
+			return;
+		}
+
+		return v('tr', [
+			v('td', { classes: [css.icon] }, []),
+			v('td', { colspan: '4', classes: [c.pl_1] }, [
+				w(GoToParentGroupLink, { project, parentGroups, onGoToGroup: this._onGoToGroup })
+			])
+		]);
+	}
+
 	private _renderTr(projectResource: ProjectResource) {
+		const { project, parentPath } = this.properties;
+		return w(ProjectResourceRow, { projectResource, project, parentPath, onOpenGroup: this._onOpenGroup });
+	}
+
+	private _onOpenGroup(opt: ProjectResourcePathPayload) {
+		this.properties.onOpenGroup(opt);
+	}
+
+	private _renderNoResourceAlert() {
+		const { projectResources } = this.properties;
+		if (projectResources.length === 0) {
+			return v('div', { classes: [c.alert, c.alert_info, c.text_center, c.mt_3], role: 'alert' }, [
+				'此分组下无内容'
+			]);
+		}
+	}
+}
+
+interface ProjectResourceRowProperties {
+	project: Project;
+	projectResource: ProjectResource;
+	parentPath: string;
+	onOpenGroup: (opt: ProjectResourcePathPayload) => void;
+}
+
+@theme(css)
+class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResourceRowProperties> {
+	protected render() {
 		// gitStatus 为 undefined 时，表示文件内容未变化。
 		// 未变化
 		// 未跟踪
 		// 已修改
+		const { project, parentPath, projectResource } = this.properties;
 		const { gitStatus, resourceType } = projectResource;
-		const { project, parentPath } = this.properties;
-
-		let to = '';
-		let params: Params = {};
 		let untracked = false;
 		let statusLetter = '';
 		let statusColor = '';
 		let statusTooltip = '';
-
+		let fullPath;
 		if (resourceType === ResourceType.Group) {
-			to = 'view-project-group';
-			const fullPath = parentPath === '' ? projectResource.key : parentPath + '/' + projectResource.key;
-			params = { owner: project.createUserName, project: project.name, parentPath: fullPath };
+			fullPath = parentPath === '' ? projectResource.key : parentPath + '/' + projectResource.key;
 
 			if (gitStatus === GitFileStatus.Untracked) {
 				untracked = true;
@@ -244,9 +281,20 @@ export default class ViewProjectGroup extends ThemedMixin(I18nMixin(WidgetBase))
 			// 资源名称
 			v('td', { classes: [css.content, c.px_1] }, [
 				v('span', { classes: [css.truncate] }, [
-					w(Link, { to, params, title: `${projectResource.name}`, classes: [statusColor] }, [
-						`${projectResource.name}`
-					])
+					v(
+						'a',
+						{
+							classes: [statusColor],
+							href: `/${project.createUserName}/${project.name}/groups/${fullPath}`,
+							title: `${projectResource.name}`,
+							// 因为 dojo 5.0 的 route 不支持通配符，这里尝试实现类似效果
+							onclick: this._onOpenGroup
+						},
+						[`${projectResource.name}`]
+					)
+					// w(Link, { to, params, title: `${projectResource.name}`, classes: [statusColor] }, [
+					// 	`${projectResource.name}`
+					// ])
 				])
 			]),
 			v('td', { classes: [css.status, statusColor], title: `${statusTooltip}` }, [`${statusLetter}`]),
@@ -270,5 +318,116 @@ export default class ViewProjectGroup extends ThemedMixin(I18nMixin(WidgetBase))
 					  ])
 			])
 		]);
+	}
+
+	private _onOpenGroup(event: any) {
+		const { project, projectResource, parentPath } = this.properties;
+		event.stopPropagation();
+		event.preventDefault();
+		const fullPath = parentPath === '' ? projectResource.key : parentPath + '/' + projectResource.key;
+		this.properties.onOpenGroup({ owner: project.createUserName, project: project.name, parentPath: fullPath });
+		global.window.history.pushState({}, '', fullPath);
+		console.log(arguments);
+		return false;
+	}
+}
+
+interface BreadcrumbItemProperties {
+	project: Project;
+	parentGroup: ProjectGroup;
+	onGoToGroup: (opt: ProjectResourcePathPayload) => void;
+}
+
+@theme(css)
+class BreadcrumbItem extends ThemedMixin(I18nMixin(WidgetBase))<BreadcrumbItemProperties> {
+	protected render() {
+		const { project, parentGroup } = this.properties;
+
+		return v('li', { classes: [c.breadcrumb_item] }, [
+			v(
+				'a',
+				{
+					href: `/${project.createUserName}/${project.name}/groups/${parentGroup.path.substring(1)}`,
+					// 因为 dojo 5.0 的 route 不支持通配符，这里尝试实现类似效果
+					onclick: this._onGoToGroup
+				},
+				[`${parentGroup.name}`]
+			)
+		]);
+	}
+
+	private _onGoToGroup(event: any) {
+		const { project, parentGroup } = this.properties;
+		event.stopPropagation();
+		event.preventDefault();
+		this.properties.onGoToGroup({
+			owner: project.createUserName,
+			project: project.name,
+			parentPath: parentGroup.path.substring(1)
+		});
+		global.window.history.pushState(
+			{},
+			'',
+			`/${project.createUserName}/${project.name}/groups/${parentGroup.path.substring(1)}`
+		);
+		console.log(arguments);
+		return false;
+	}
+}
+
+interface GoToParentGroupLinkProperties {
+	project: Project;
+	parentGroups: ProjectGroup[];
+	onGoToGroup: (opt: ProjectResourcePathPayload) => void;
+}
+
+@theme(css)
+class GoToParentGroupLink extends ThemedMixin(I18nMixin(WidgetBase))<GoToParentGroupLinkProperties> {
+	protected render() {
+		const { project, parentGroups = [] } = this.properties;
+		if (parentGroups.length === 1) {
+			// 上一级是根目录
+			return w(
+				Link,
+				{
+					classes: [c.px_2],
+					title: '到上级目录',
+					to: 'view-project',
+					params: { owner: project.createUserName, project: project.name }
+				},
+				['..']
+			);
+		} else {
+			return v(
+				'a',
+				{
+					href: `/${project.createUserName}/${project.name}/groups/${this._getParentPath()}`,
+					// 因为 dojo 5.0 的 route 不支持通配符，这里尝试实现类似效果
+					onclick: this._onGoToGroup
+				},
+				['..']
+			);
+		}
+	}
+
+	private _getParentPath() {
+		const { parentGroups = [] } = this.properties;
+
+		if (parentGroups.length < 2) {
+			return '';
+		}
+
+		return parentGroups[parentGroups.length - 2].path.substring(1);
+	}
+
+	private _onGoToGroup(event: any) {
+		const { project } = this.properties;
+		event.stopPropagation();
+		event.preventDefault();
+		const parentPath = this._getParentPath();
+		this.properties.onGoToGroup({ owner: project.createUserName, project: project.name, parentPath });
+		global.window.history.pushState({}, '', `/${project.createUserName}/${project.name}/groups/${parentPath}`);
+		console.log(arguments);
+		return false;
 	}
 }

@@ -1,7 +1,7 @@
 import { commandFactory, getHeaders } from './utils';
 import { NamePayload, DescriptionPayload, IsPublicPayload, CommitMessagePayload } from './interfaces';
 import { replace } from '@dojo/framework/stores/state/operations';
-import { createProcess } from '@dojo/framework/stores/process';
+import { createProcess, ProcessCallback } from '@dojo/framework/stores/process';
 import { ValidateStatus, GitFileStatus } from '../constant';
 import { baseUrl } from '../config';
 import { isEmpty } from '../util';
@@ -337,4 +337,20 @@ export const unstageChangesProcess = createProcess('unstage-changes', [
 	getUncommittedFilesCommand
 ]);
 export const commitMessageInputProcess = createProcess('commit-message-input', [commitMessageInputCommand]);
-export const commitChangesProcess = createProcess('commit-changes', [commitChangesCommand, getUncommittedFilesCommand]);
+
+const reloadProjectResourcesAndLatestCommitProcess = createProcess('reload-project-resources-and-latest-commit', [
+	getProjectResourcesCommand,
+	getLatestCommitInfoCommand
+]);
+
+const afterCommit: ProcessCallback = () => ({
+	after(error, result) {
+		result.executor(reloadProjectResourcesAndLatestCommitProcess, { ...result.payload });
+	}
+});
+
+export const commitChangesProcess = createProcess(
+	'commit-changes',
+	[commitChangesCommand, getUncommittedFilesCommand],
+	[afterCommit]
+);

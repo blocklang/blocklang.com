@@ -614,11 +614,17 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 			const fullPath = parentPath === '' ? projectResource.key : parentPath + '/' + projectResource.key;
 			params = { owner: project.createUserName, project: project.name, parentPath: fullPath };
 
-			if (gitStatus === GitFileStatus.Untracked) {
+			if (gitStatus === GitFileStatus.Untracked || gitStatus === GitFileStatus.Added) {
 				untracked = true;
-				statusColor = c.text_muted;
-			} else {
 				statusLetter = '●';
+				statusColor = c.text_success;
+				statusTooltip = '包含变更的内容';
+			} else if (gitStatus === GitFileStatus.Modified || gitStatus === GitFileStatus.Changed) {
+				// 如果目录中同时有新增和修改，则显示修改颜色
+				// 如果目录中只有新增，则显示新增颜色
+				statusLetter = '●';
+				statusColor = c.text_warning;
+				statusTooltip = '包含变更的内容';
 			}
 		} else {
 			if (gitStatus === GitFileStatus.Untracked || gitStatus === GitFileStatus.Added) {
@@ -626,7 +632,7 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 				statusLetter = 'U';
 				statusColor = c.text_success;
 				statusTooltip = '未跟踪';
-			} else if (gitStatus === GitFileStatus.Modified) {
+			} else if (gitStatus === GitFileStatus.Modified || gitStatus === GitFileStatus.Changed) {
 				statusLetter = 'M';
 				statusColor = c.text_warning;
 				statusTooltip = '已修改';
