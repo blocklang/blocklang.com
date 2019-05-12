@@ -112,8 +112,9 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 				.map(context -> GitUtils.getFiles(context.getGitRepositoryDirectory(), relativeDir))
 				.orElse(new ArrayList<GitFileInfo>());
 		// 根据文件名关联
+		// fileMap 的 key 不包含父目录
 		Map<String, GitFileInfo> fileMap = files.stream().collect(Collectors.toMap(GitFileInfo::getName, Function.identity()));
-		
+		// fileStatusMap 的 key 中包含父目录，所有父目录
 		Map<String, GitFileStatus> fileStatusMap = projectContext
 				.map(context -> GitUtils.status(context.getGitRepositoryDirectory(), relativeDir))
 				.orElse(Collections.emptyMap());
@@ -122,14 +123,8 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 			if(StringUtils.isBlank(resource.getName())) {
 				resource.setName(resource.getKey());
 			}
-			GitFileInfo fileInfo = fileMap.get(resource.getFileName());
-			if(fileInfo != null) {
-				resource.setLatestCommitId(fileInfo.getCommitId());
-				resource.setLatestCommitTime(fileInfo.getLatestCommitTime());
-				resource.setLatestShortMessage(fileInfo.getLatestShortMessage());
-				resource.setLatestFullMessage(fileInfo.getLatestFullMessage());
-			}
-			
+			GitFileInfo fileInfo = null;
+			GitFileStatus status = null;
 			if(resource.isGroup()) {
 				// 当文件夹未跟踪时，则下面的子文件夹不会再在查询结果中，但也可以归为未跟踪。
 				// 所以，如果找不到当前文件夹的状态，则继承父文件夹的状态
@@ -139,11 +134,29 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 				} else {
 					path = relativeDir + "/" + resource.getKey();
 				}
-				GitFileStatus status = fileStatusMap.get(path);
+				fileInfo = fileMap.get(resource.getKey());
+				status = fileStatusMap.get(path);
+				// 查找子节点的状态
+				// 如果目录中同时有新增和修改，则显示修改颜色
+				// 如果目录中只有新增，则显示新增颜色
 				if(status == null) {
-					status = fileStatusMap.get(relativeDir);
+					for(Map.Entry<String, GitFileStatus> entry : fileStatusMap.entrySet()) {
+						if(entry.getKey().startsWith(path)) {
+							if(entry.getValue() == GitFileStatus.MODIFIED || entry.getValue() == GitFileStatus.CHANGED) {
+								status = entry.getValue();
+								break;
+							} else if(entry.getValue() == GitFileStatus.UNTRACKED || entry.getValue() == GitFileStatus.ADDED) {
+								status = entry.getValue();
+							}
+						}
+					}
 				}
-				resource.setGitStatus(status);
+				
+				// 此时是多级目录都没有跟踪
+				if(fileInfo == null && status == null) {
+					// 目录没有被跟踪，则不显示状态信息
+				}
+				
 			} else {
 				String path = null;
 				if(StringUtils.isBlank(relativeDir)) {
@@ -151,10 +164,17 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 				} else {
 					path = relativeDir + "/" + resource.getFileName();
 				}
-				GitFileStatus status = fileStatusMap.get(path);
-				resource.setGitStatus(status);
+				fileInfo = fileMap.get(resource.getFileName());
+				status = fileStatusMap.get(path);
 			}
 			
+			if(fileInfo != null) {
+				resource.setLatestCommitId(fileInfo.getCommitId());
+				resource.setLatestCommitTime(fileInfo.getLatestCommitTime());
+				resource.setLatestShortMessage(fileInfo.getLatestShortMessage());
+				resource.setLatestFullMessage(fileInfo.getLatestFullMessage());
+			}
+			resource.setGitStatus(status);
 		});
 		
 		return result;
