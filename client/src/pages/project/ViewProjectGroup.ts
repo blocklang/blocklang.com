@@ -126,6 +126,9 @@ export default class ViewProjectGroup extends ThemedMixin(I18nMixin(WidgetBase))
 					classes: [c.btn, c.btn_outline_secondary],
 					to: 'new-page',
 					params: { owner: project.createUserName, project: project.name, parentPath },
+					onClick: (event: MouseEvent) => {
+						console.log(event);
+					},
 					disabled
 				},
 				[`${messages.newPage}`]
@@ -136,6 +139,9 @@ export default class ViewProjectGroup extends ThemedMixin(I18nMixin(WidgetBase))
 					classes: [c.btn, c.btn_outline_secondary],
 					to: 'new-group',
 					params: { owner: project.createUserName, project: project.name, parentPath },
+					onClick: (event: MouseEvent) => {
+						console.log(event);
+					},
 					disabled
 				},
 				[`${messages.newGroup}`]
@@ -326,8 +332,7 @@ class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResou
 		event.preventDefault();
 		const fullPath = parentPath === '' ? projectResource.key : parentPath + '/' + projectResource.key;
 		this.properties.onOpenGroup({ owner: project.createUserName, project: project.name, parentPath: fullPath });
-		global.window.history.pushState({}, '', fullPath);
-		console.log(arguments);
+		global.window.history.pushState({}, '', `/${project.createUserName}/${project.name}/groups/${fullPath}`);
 		return false;
 	}
 }
@@ -370,7 +375,6 @@ class BreadcrumbItem extends ThemedMixin(I18nMixin(WidgetBase))<BreadcrumbItemPr
 			'',
 			`/${project.createUserName}/${project.name}/groups/${parentGroup.path.substring(1)}`
 		);
-		console.log(arguments);
 		return false;
 	}
 }
@@ -427,7 +431,6 @@ class GoToParentGroupLink extends ThemedMixin(I18nMixin(WidgetBase))<GoToParentG
 		const parentPath = this._getParentPath();
 		this.properties.onGoToGroup({ owner: project.createUserName, project: project.name, parentPath });
 		global.window.history.pushState({}, '', `/${project.createUserName}/${project.name}/groups/${parentPath}`);
-		console.log(arguments);
 		return false;
 	}
 }

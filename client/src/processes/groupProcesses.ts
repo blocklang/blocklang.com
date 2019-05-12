@@ -1,5 +1,5 @@
 import { createProcess } from '@dojo/framework/stores/process';
-import { commandFactory, getHeaders } from './utils';
+import { commandFactory, getHeaders, linkTo } from './utils';
 import { replace } from '@dojo/framework/stores/state/operations';
 import { ValidateStatus } from '../constant';
 import { GroupKeyPayload, GroupNamePayload, DescriptionPayload } from './interfaces';
@@ -100,7 +100,7 @@ const groupDescriptionInputCommand = commandFactory<DescriptionPayload>(({ path,
 	return [replace(path('groupParam', 'description'), description.trim())];
 });
 
-const saveGroupCommand = commandFactory(async ({ path, get, payload: { owner, project } }) => {
+const saveGroupCommand = commandFactory(async ({ path, get, payload: { owner, project, parentPath = '' } }) => {
 	const groupParam = get(path('groupParam'));
 	const parentResource = get(path('parentResource'));
 	groupParam.parentId = parentResource.id;
@@ -122,8 +122,7 @@ const saveGroupCommand = commandFactory(async ({ path, get, payload: { owner, pr
 	return [
 		// 清空输入参数
 		replace(path('groupParam'), undefined),
-		replace(path('routing', 'outlet'), 'view-project'),
-		replace(path('routing', 'params'), { owner, project })
+		...linkTo(path, parentPath.length > 0 ? 'view-project-group' : 'view-project', { owner, project, parentPath })
 	];
 });
 

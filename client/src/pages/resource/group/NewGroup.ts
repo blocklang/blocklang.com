@@ -267,8 +267,14 @@ export default class NewGroup extends ThemedMixin(I18nMixin(WidgetBase))<NewGrou
 
 	private _onSaveGroup() {
 		const {
-			project: { createUserName, name }
+			project: { createUserName, name },
+			parentGroups
 		} = this.properties;
-		this.properties.onSaveGroup({ owner: createUserName, project: name });
+
+		let parentPath = '';
+		if (parentGroups.length > 0) {
+			parentPath = parentGroups[parentGroups.length - 1].path.substring(1);
+		}
+		this.properties.onSaveGroup({ owner: createUserName, project: name, parentPath });
 	}
 }

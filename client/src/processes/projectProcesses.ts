@@ -1,4 +1,4 @@
-import { commandFactory, getHeaders } from './utils';
+import { commandFactory, getHeaders, linkTo } from './utils';
 import { NamePayload, DescriptionPayload, IsPublicPayload, CommitMessagePayload } from './interfaces';
 import { replace } from '@dojo/framework/stores/state/operations';
 import { createProcess, ProcessCallback } from '@dojo/framework/stores/process';
@@ -99,8 +99,7 @@ const saveProjectCommand = commandFactory(async ({ path, get }) => {
 		replace(path('project'), json),
 		// 清空输入参数
 		replace(path('projectParam'), undefined),
-		replace(path('routing', 'outlet'), 'view-project'),
-		replace(path('routing', 'params'), { owner: get(path('user', 'loginName')), project: projectParam.name })
+		...linkTo(path, 'view-project', { owner, project: projectParam.name })
 	];
 });
 

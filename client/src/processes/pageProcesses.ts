@@ -1,5 +1,5 @@
 import { createProcess } from '@dojo/framework/stores/process';
-import { commandFactory, getHeaders } from './utils';
+import { commandFactory, getHeaders, linkTo } from './utils';
 import { replace } from '@dojo/framework/stores/state/operations';
 import { baseUrl } from '../config';
 import { ValidateStatus } from '../constant';
@@ -133,7 +133,7 @@ const pageDescriptionInputCommand = commandFactory<DescriptionPayload>(({ path, 
 	return [replace(path('pageParam', 'description'), description.trim())];
 });
 
-const savePageCommand = commandFactory(async ({ path, get, payload: { owner, project } }) => {
+const savePageCommand = commandFactory(async ({ path, get, payload: { owner, project, parentPath = '' } }) => {
 	const pageParam = get(path('pageParam'));
 
 	const parentResource = get(path('parentResource'));
@@ -156,8 +156,7 @@ const savePageCommand = commandFactory(async ({ path, get, payload: { owner, pro
 	return [
 		// 清空输入参数
 		replace(path('pageParam'), undefined),
-		replace(path('routing', 'outlet'), 'view-project'),
-		replace(path('routing', 'params'), { owner, project })
+		...linkTo(path, parentPath.length > 0 ? 'view-project-group' : 'view-project', { owner, project, parentPath })
 	];
 });
 

@@ -306,8 +306,14 @@ export default class NewPage extends ThemedMixin(I18nMixin(WidgetBase))<NewPageP
 
 	private _onSavePage() {
 		const {
-			project: { createUserName, name }
+			project: { createUserName, name },
+			parentGroups
 		} = this.properties;
-		this.properties.onSavePage({ owner: createUserName, project: name });
+
+		let parentPath = '';
+		if (parentGroups.length > 0) {
+			parentPath = parentGroups[parentGroups.length - 1].path.substring(1);
+		}
+		this.properties.onSavePage({ owner: createUserName, project: name, parentPath });
 	}
 }

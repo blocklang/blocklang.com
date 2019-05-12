@@ -18,9 +18,10 @@ export interface Errors {
 }
 
 /**
- * 存储路由信息，用编程方式调整路由
+ * 存储路由信息
  */
 export interface Routing {
+	programmatic: boolean; // 通过编程方式导航
 	outlet: string;
 	params: { [index: string]: string };
 }

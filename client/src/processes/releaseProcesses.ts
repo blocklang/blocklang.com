@@ -1,5 +1,5 @@
 import { createProcess } from '@dojo/framework/stores/process';
-import { commandFactory, getHeaders } from './utils';
+import { commandFactory, getHeaders, linkTo } from './utils';
 import { baseUrl } from '../config';
 import { replace } from '@dojo/framework/stores/state/operations';
 import { getProjectCommand } from './projectProcesses';
@@ -159,8 +159,7 @@ const saveReleaseTaskCommand = commandFactory(async ({ path, get, payload: { own
 		replace(path('projectRelease'), json),
 		// 清空输入参数
 		replace(path('projectReleaseParam'), undefined),
-		replace(path('routing', 'outlet'), 'view-release'),
-		replace(path('routing', 'params'), { owner, project, version })
+		...linkTo(path, 'view-release', { owner, project, version })
 	];
 });
 

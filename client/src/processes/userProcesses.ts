@@ -1,7 +1,7 @@
 import global from '@dojo/framework/shim/global';
 import { createProcess } from '@dojo/framework/stores/process';
 import { replace } from '@dojo/framework/stores/state/operations';
-import { commandFactory, getHeaders } from './utils';
+import { commandFactory, getHeaders, linkTo } from './utils';
 import { baseUrl } from '../config';
 import {
 	NicknamePayload,
@@ -31,7 +31,7 @@ export const getCurrentUserCommand = commandFactory(async ({ get, path }) => {
 	if (json.needCompleteUserInfo) {
 		// 此时用户并未成功登录，清空缓存的用户信息
 		global.sessionStorage.removeItem('blocklang-session');
-		return [replace(path('thirdPartyUser'), json), replace(path('routing', 'outlet'), 'complete-user-info')];
+		return [replace(path('thirdPartyUser'), json), ...linkTo(path, 'complete-user-info')];
 	}
 
 	// 如果用户未登录，也会返回 json 对象
@@ -182,7 +182,7 @@ const completeUserInfoCommand = commandFactory(async ({ get, path }) => {
 			replace(path('errors'), undefined),
 			replace(path('user'), json),
 			replace(path('thirdPartyUser'), undefined),
-			replace(path('routing', 'outlet'), 'home')
+			...linkTo(path, 'home')
 		];
 	}
 
@@ -191,11 +191,7 @@ const completeUserInfoCommand = commandFactory(async ({ get, path }) => {
 		return [replace(path('errors'), json.errors)];
 	}
 
-	return [
-		replace(path('user'), json),
-		replace(path('thirdPartyUser'), undefined),
-		replace(path('routing', 'outlet'), 'home')
-	];
+	return [replace(path('user'), json), replace(path('thirdPartyUser'), undefined), ...linkTo(path, 'home')];
 });
 
 export const getCurrentUserProcess = createProcess('get-current-user', [getCurrentUserCommand]);

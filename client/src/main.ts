@@ -52,6 +52,8 @@ registerThemeInjector(dojo, registry);
 // 可在此处设置 outlet 级别的初始化数据
 router.on('outlet', ({ outlet, action }) => {
 	if (action === 'enter') {
+		let parentPath;
+
 		switch (outlet.id) {
 			case 'home':
 				// 页面初始化数据
@@ -65,7 +67,6 @@ router.on('outlet', ({ outlet, action }) => {
 				initForViewCommitChangesProcess(store)({ owner: outlet.params.owner, project: outlet.params.project });
 				break;
 			case 'view-project-group':
-				let parentPath;
 				if (outlet.isExact()) {
 					parentPath = outlet.params.parentPath;
 				} else {
@@ -85,19 +86,47 @@ router.on('outlet', ({ outlet, action }) => {
 				initForListReleasesProcess(store)({ owner: outlet.params.owner, project: outlet.params.project });
 				break;
 			case 'new-page-root':
+				initForNewPageProcess(store)({
+					owner: outlet.params.owner,
+					project: outlet.params.project
+				});
+				break;
 			case 'new-page':
+				if (outlet.isExact()) {
+					parentPath = outlet.params.parentPath;
+				} else {
+					// 因为 dojo5 route 不支持通配符，所以此处自己实现
+					// 注意，pathname 是以 / 开头的
+					parentPath = global.window.location.pathname.substring(
+						`/${outlet.params.owner}/${outlet.params.project}/pages/new/`.length
+					);
+				}
 				initForNewPageProcess(store)({
 					owner: outlet.params.owner,
 					project: outlet.params.project,
-					parentPath: outlet.params.parentPath
+					parentPath
 				});
 				break;
 			case 'new-group-root':
+				initForNewGroupProcess(store)({
+					owner: outlet.params.owner,
+					project: outlet.params.project
+				});
+				break;
 			case 'new-group':
+				if (outlet.isExact()) {
+					parentPath = outlet.params.parentPath;
+				} else {
+					// 因为 dojo5 route 不支持通配符，所以此处自己实现
+					// 注意，pathname 是以 / 开头的
+					parentPath = global.window.location.pathname.substring(
+						`/${outlet.params.owner}/${outlet.params.project}/groups/new/`.length
+					);
+				}
 				initForNewGroupProcess(store)({
 					owner: outlet.params.owner,
 					project: outlet.params.project,
-					parentPath: outlet.params.parentPath
+					parentPath
 				});
 				break;
 			case 'new-release':
@@ -121,7 +150,9 @@ router.on('outlet', ({ outlet, action }) => {
 });
 
 // 当每次切换 outlet 成功后，都保存起来
-// 1. 当每次点击
+// 如何区分是通过 link 切换的，还是通过编程方式切换的
+// 如果是通过 link 方式切换的，则不需要再执行 router.setPath
+// 如果是通过编程方式切换的，则要执行 router.setPath
 router.on('nav', ({ outlet, context }: any) => {
 	debugger;
 	console.log('nav');
@@ -131,20 +162,23 @@ router.on('nav', ({ outlet, context }: any) => {
 function onRouteChange() {
 	const outlet = store.get(store.path('routing', 'outlet'));
 	const params = store.get(store.path('routing', 'params'));
+	const programmatic = store.get(store.path('routing', 'programmatic'));
 
-	if (outlet) {
-		const link = router.link(outlet, params);
-		if (link === undefined) {
-			return;
-		}
+	if (programmatic === true) {
+		if (outlet) {
+			const link = router.link(outlet, params);
+			if (link === undefined) {
+				return;
+			}
 
-		// 判断当前路径是否与要设置的路径相同
-		// TODO: 这段逻辑应该放在 dojo router 中
-		if (link === global.location.pathname) {
-			return;
+			// 判断当前路径是否与要设置的路径相同
+			// TODO: 这段逻辑应该放在 dojo router 中
+			if (link === global.location.pathname) {
+				return;
+			}
+			console.log('onRouteChange', outlet, params);
+			router.setPath(link);
 		}
-		console.log('onRouteChange', outlet, params);
-		router.setPath(link);
 	}
 }
 
