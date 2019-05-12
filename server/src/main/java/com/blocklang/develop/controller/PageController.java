@@ -108,7 +108,9 @@ public class PageController {
 			}
 			
 			// 这里不需要做是否存在判断，因为肯定存在。
-			return new Object[] {projectResourceService.findById(parentId).get().getName(), key};
+			ProjectResource parentResource = projectResourceService.findById(parentId).get();
+			String name = StringUtils.isBlank(parentResource.getName()) ? parentResource.getKey() : parentResource.getName();
+			return new Object[] {name, key};
 		}).ifPresent(args -> {
 			bindingResult.rejectValue("key", "Duplicated.pageKey", args, null);
 			throw new InvalidRequestException(bindingResult);
