@@ -352,7 +352,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 				}
 				parentId = parentGroups.get(parentGroups.size() - 1).getId();
 				for(ProjectResource each : parentGroups) {
-					parentNamePath += StringUtils.isBlank(each.getName()) ? each.getKey() : each.getName() + "/";
+					parentNamePath += (StringUtils.isBlank(each.getName()) ? each.getKey() : each.getName()) + "/";
 				}
 			}
 

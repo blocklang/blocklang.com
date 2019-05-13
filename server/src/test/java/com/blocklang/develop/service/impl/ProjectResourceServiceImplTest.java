@@ -573,6 +573,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		
 		Project savedProject = projectService.create(userInfo, project);
 		
+		// 有一个未跟踪的文件夹。
 		ProjectResource resource = new ProjectResource();
 		resource.setKey("group1");
 		resource.setName("name1");
@@ -584,12 +585,80 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		projectResourceService.insert(savedProject, resource);
 		
-		// 有一个未跟踪的文件。
 		List<UncommittedFile> changes = projectResourceService.findChanges(savedProject);
 		
 		assertThat(changes).isEmpty();
 	}
 
+	@Test
+	public void find_changes_exist_two_level_parent_name_path_use_name() throws IOException {
+		UserInfo userInfo = new UserInfo();
+		userInfo.setLoginName("user_name");
+		userInfo.setAvatarUrl("avatar_url");
+		userInfo.setEmail("email");
+		userInfo.setMobile("mobile");
+		userInfo.setCreateTime(LocalDateTime.now());
+		Integer userId = userDao.save(userInfo).getId();
+		
+		Project project = new Project();
+		project.setName("project_name");
+		project.setIsPublic(true);
+		project.setDescription("description");
+		project.setLastActiveTime(LocalDateTime.now());
+		project.setCreateUserId(userId);
+		project.setCreateTime(LocalDateTime.now());
+		project.setCreateUserName("user_name");
+		
+		File rootFolder = tempFolder.newFolder();
+		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.getPath()));
+		
+		Project savedProject = projectService.create(userInfo, project);
+		
+		// 有一个未跟踪的文件夹。
+		ProjectResource group1 = new ProjectResource();
+		group1.setKey("group1");
+		group1.setResourceType(ProjectResourceType.GROUP);
+		group1.setAppType(AppType.UNKNOWN);
+		group1.setCreateTime(LocalDateTime.now());
+		group1.setCreateUserId(userId);
+		group1.setProjectId(savedProject.getId());
+		group1.setParentId(Constant.TREE_ROOT_ID);
+		Integer group1Id = projectResourceService.insert(savedProject, group1).getId();
+		
+		ProjectResource group11 = new ProjectResource();
+		group11.setKey("group11");
+		group11.setResourceType(ProjectResourceType.GROUP);
+		group11.setAppType(AppType.UNKNOWN);
+		group11.setCreateTime(LocalDateTime.now());
+		group11.setCreateUserId(userId);
+		group11.setProjectId(savedProject.getId());
+		group11.setParentId(group1Id);
+		Integer group11Id = projectResourceService.insert(savedProject, group11).getId();
+				
+		ProjectResource page1 = new ProjectResource();
+		page1.setKey("page111");
+		page1.setResourceType(ProjectResourceType.PAGE);
+		page1.setAppType(AppType.WEB);
+		page1.setCreateTime(LocalDateTime.now());
+		page1.setCreateUserId(userId);
+		page1.setProjectId(savedProject.getId());
+		page1.setParentId(group11Id);
+		projectResourceService.insert(savedProject, page1);
+		
+		// 有一个未跟踪的文件。
+		List<UncommittedFile> changes = projectResourceService.findChanges(savedProject);
+		
+		assertThat(changes).hasSize(1);
+		UncommittedFile file = changes.get(0);
+		assertThat(file.getFullKeyPath()).isEqualTo("group1/group11/page111.page.web.json");
+		assertThat(file.getGitStatus()).isEqualTo(GitFileStatus.UNTRACKED);
+		assertThat(file.getIcon()).isEqualTo(AppType.WEB.getIcon());
+		assertThat(file.getResourceName()).isEqualTo("page111");
+		// 最后以 / 结尾，表示是文件夹，而不是文件
+		// 文件后没有 /
+		assertThat(file.getParentNamePath()).isEqualTo("group1/group11/"); 
+	}
+	
 	@Test
 	public void stage_changes_success() throws IOException {
 		UserInfo userInfo = new UserInfo();
