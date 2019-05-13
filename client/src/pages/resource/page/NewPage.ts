@@ -103,28 +103,21 @@ export default class NewPage extends ThemedMixin(I18nMixin(WidgetBase))<NewPageP
 						[`${project.name}`]
 					)
 				]),
-				...parentGroups.map((item, index, array) => {
-					if (index !== array.length - 1) {
-						return v('li', { classes: [c.breadcrumb_item] }, [
-							w(
-								Link,
-								{
-									to: 'view-project-group',
-									params: {
-										owner: project.createUserName,
-										project: project.name,
-										parentPath: item.path
-									}
-								},
-								[`${item.name}`]
-							)
-						]);
-					} else {
-						// 如果是最后一个元素
-						return v('li', { classes: [c.breadcrumb_item, c.active] }, [
-							v('strong', { classes: [c.pr_2] }, [`${item.name}`])
-						]);
-					}
+				...parentGroups.map((item) => {
+					return v('li', { classes: [c.breadcrumb_item] }, [
+						w(
+							Link,
+							{
+								to: 'view-project-group',
+								params: {
+									owner: project.createUserName,
+									project: project.name,
+									parentPath: item.path.substring(1)
+								}
+							},
+							[`${item.name}`]
+						)
+					]);
 				})
 			])
 		]);
