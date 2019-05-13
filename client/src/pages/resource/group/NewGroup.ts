@@ -98,7 +98,7 @@ export default class NewGroup extends ThemedMixin(I18nMixin(WidgetBase))<NewGrou
 						[`${project.name}`]
 					)
 				]),
-				...parentGroups.map((item, index, array) => {
+				...parentGroups.map((item) => {
 					return v('li', { classes: [c.breadcrumb_item] }, [
 						w(
 							Link,
@@ -208,6 +208,8 @@ export default class NewGroup extends ThemedMixin(I18nMixin(WidgetBase))<NewGrou
 		} = this._localizedMessages;
 
 		const {
+			project,
+			parentGroups = [],
 			keyValidateStatus = ValidateStatus.UNVALIDATED,
 			nameValidateStatus = ValidateStatus.UNVALIDATED
 		} = this.properties;
@@ -227,14 +229,29 @@ export default class NewGroup extends ThemedMixin(I18nMixin(WidgetBase))<NewGrou
 				[`${groupSaveLabel}`]
 			),
 			' ',
-			w(
-				Link,
-				{
-					classes: [c.btn, c.btn_secondary],
-					to: 'view-project'
-				},
-				[`${groupCancelSaveLabel}`]
-			)
+			parentGroups.length === 0
+				? w(
+						Link,
+						{
+							classes: [c.btn, c.btn_secondary],
+							to: 'view-project',
+							params: { owner: project.createUserName, project: project.name }
+						},
+						[`${groupCancelSaveLabel}`]
+				  )
+				: w(
+						Link,
+						{
+							classes: [c.btn, c.btn_secondary],
+							to: 'view-project-group',
+							params: {
+								owner: project.createUserName,
+								project: project.name,
+								parentPath: parentGroups[parentGroups.length - 1].path.substring(1)
+							}
+						},
+						[`${groupCancelSaveLabel}`]
+				  )
 		]);
 	}
 

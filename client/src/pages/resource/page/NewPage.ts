@@ -245,6 +245,8 @@ export default class NewPage extends ThemedMixin(I18nMixin(WidgetBase))<NewPageP
 		} = this._localizedMessages;
 
 		const {
+			project,
+			parentGroups = [],
 			keyValidateStatus = ValidateStatus.UNVALIDATED,
 			nameValidateStatus = ValidateStatus.UNVALIDATED
 		} = this.properties;
@@ -264,14 +266,29 @@ export default class NewPage extends ThemedMixin(I18nMixin(WidgetBase))<NewPageP
 				[`${pageSaveLabel}`]
 			),
 			' ',
-			w(
-				Link,
-				{
-					classes: [c.btn, c.btn_secondary],
-					to: 'view-project'
-				},
-				[`${pageCancelSaveLabel}`]
-			)
+			parentGroups.length === 0
+				? w(
+						Link,
+						{
+							classes: [c.btn, c.btn_secondary],
+							to: 'view-project',
+							params: { owner: project.createUserName, project: project.name }
+						},
+						[`${pageCancelSaveLabel}`]
+				  )
+				: w(
+						Link,
+						{
+							classes: [c.btn, c.btn_secondary],
+							to: 'view-project-group',
+							params: {
+								owner: project.createUserName,
+								project: project.name,
+								parentPath: parentGroups[parentGroups.length - 1].path.substring(1)
+							}
+						},
+						[`${pageCancelSaveLabel}`]
+				  )
 		]);
 	}
 
