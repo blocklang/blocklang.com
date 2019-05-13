@@ -70,7 +70,7 @@ const groupNameInputCommand = commandFactory<GroupNamePayload>(
 		const trimedName = name.trim();
 		const result = [];
 		// 服务器端校验，校验所属分组下是否存在该 name
-		const response = await fetch(`${baseUrl}/projects/${owner}/${project}/groups/check-key`, {
+		const response = await fetch(`${baseUrl}/projects/${owner}/${project}/groups/check-name`, {
 			method: 'POST',
 			headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
 			body: JSON.stringify({

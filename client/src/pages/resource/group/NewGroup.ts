@@ -82,7 +82,7 @@ export default class NewGroup extends ThemedMixin(I18nMixin(WidgetBase))<NewGrou
 	}
 
 	private _renderBreadcrumb() {
-		const { project, parentGroups } = this.properties;
+		const { project, parentGroups = [] } = this.properties;
 
 		return v('nav', { classes: [], 'aria-label': 'breadcrumb' }, [
 			v('ol', { classes: [c.breadcrumb, css.navOl] }, [

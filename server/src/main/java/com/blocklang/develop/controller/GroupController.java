@@ -114,7 +114,9 @@ public class GroupController {
 			}
 			
 			// 这里不需要做是否存在判断，因为肯定存在。
-			return new Object[] {projectResourceService.findById(parentId).get().getName(), key};
+			ProjectResource parentResource = projectResourceService.findById(parentId).get();
+			String parentResourceName = StringUtils.isBlank(parentResource.getName()) ? parentResource.getKey() : parentResource.getName();
+			return new Object[] {parentResourceName, key};
 		}).ifPresent(args -> {
 			bindingResult.rejectValue("key", "Duplicated.groupKey", args, null);
 			throw new InvalidRequestException(bindingResult);
@@ -161,7 +163,10 @@ public class GroupController {
 				}
 				
 				// 这里不需要做是否存在判断，因为肯定存在。
-				return new Object[] {projectResourceService.findById(parentId).get().getName(), name};
+				ProjectResource parentResource = projectResourceService.findById(parentId).get();
+				String parentResourceName = StringUtils.isBlank(parentResource.getName()) ? parentResource.getKey() : parentResource.getName();
+				
+				return new Object[] {parentResourceName, name};
 			}).ifPresent(args -> {
 				bindingResult.rejectValue("name", "Duplicated.groupName", args, null);
 				throw new InvalidRequestException(bindingResult);
