@@ -136,12 +136,15 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 				}
 				fileInfo = fileMap.get(resource.getKey());
 				status = fileStatusMap.get(path);
+				
+				
+				
 				// 查找子节点的状态
 				// 如果目录中同时有新增和修改，则显示修改颜色
 				// 如果目录中只有新增，则显示新增颜色
 				if(status == null) {
 					for(Map.Entry<String, GitFileStatus> entry : fileStatusMap.entrySet()) {
-						if(entry.getKey().startsWith(path)) {
+						if(!entry.getKey().equals(path) && entry.getKey().startsWith(path + "/")) {
 							if(entry.getValue() == GitFileStatus.MODIFIED || entry.getValue() == GitFileStatus.CHANGED) {
 								status = entry.getValue();
 								break;
@@ -149,6 +152,22 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 								status = entry.getValue();
 							}
 						}
+					}
+				}
+				
+				if(status == GitFileStatus.UNTRACKED) {
+					// 如果文件夹下有未跟踪的内容，则显示为未跟踪，否则设置为 null
+					boolean hasUntrackedFile = false;
+					for(Map.Entry<String, GitFileStatus> entry : fileStatusMap.entrySet()) {
+						if(!entry.getKey().equals(path) && entry.getKey().startsWith(path + "/")) {
+							if(entry.getValue() == GitFileStatus.UNTRACKED) {
+								hasUntrackedFile = true;
+								break;
+							}
+						}
+					}
+					if(!hasUntrackedFile) {
+						status = null;
 					}
 				}
 				

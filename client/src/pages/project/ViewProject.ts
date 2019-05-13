@@ -599,12 +599,47 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 		// 未变化
 		// 未跟踪
 		// 已修改
-		const { gitStatus, resourceType } = projectResource;
 		const { project, parentPath } = this.properties;
+		return w(ProjectResourceRow, { projectResource, project, parentPath });
+	}
+
+	private _renderReadme() {
+		const projectFile = { name: 'README.md' };
+		const canEditProject = false;
+
+		const { readme = '' } = this.properties;
+
+		return v('div', { classes: [c.card, c.mt_3] }, [
+			v('div', { classes: [c.card_header, c.px_2] }, [
+				v('div', {}, [w(FontAwesomeIcon, { icon: 'book-open' }), ` ${projectFile.name}`]),
+				canEditProject ? w(Link, { to: '' }, [w(FontAwesomeIcon, { icon: 'edit' })]) : null
+			]),
+
+			v('div', { classes: [c.card_body, c.markdown_body] }, [w(MarkdownPreview, { value: readme })])
+		]);
+	}
+}
+
+interface ProjectResourceRowProperties {
+	project: Project;
+	projectResource: ProjectResource;
+	parentPath: string;
+}
+
+@theme(css)
+class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResourceRowProperties> {
+	protected render() {
+		const { project, parentPath, projectResource } = this.properties;
+		const { gitStatus, resourceType } = projectResource;
+
+		let showCommitInfo = true;
+		if (!projectResource.latestShortMessage) {
+			showCommitInfo = false;
+		}
 
 		let to = '';
 		let params: Params = {};
-		let untracked = false;
+
 		let statusLetter = '';
 		let statusColor = '';
 		let statusTooltip = '';
@@ -615,7 +650,6 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 			params = { owner: project.createUserName, project: project.name, parentPath: fullPath };
 
 			if (gitStatus === GitFileStatus.Untracked || gitStatus === GitFileStatus.Added) {
-				untracked = true;
 				statusLetter = '●';
 				statusColor = c.text_success;
 				statusTooltip = '包含变更的内容';
@@ -625,10 +659,11 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 				statusLetter = '●';
 				statusColor = c.text_warning;
 				statusTooltip = '包含变更的内容';
+			} else {
+				statusColor = c.text_muted;
 			}
 		} else {
 			if (gitStatus === GitFileStatus.Untracked || gitStatus === GitFileStatus.Added) {
-				untracked = true;
 				statusLetter = 'U';
 				statusColor = c.text_success;
 				statusTooltip = '未跟踪';
@@ -658,39 +693,23 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 			v('td', { classes: [css.status, statusColor], title: `${statusTooltip}` }, [`${statusLetter}`]),
 			// 最近提交信息
 			v('td', { classes: [css.message, c.text_muted] }, [
-				untracked
-					? undefined
-					: v('span', { classes: [css.truncate] }, [
+				showCommitInfo
+					? v('span', { classes: [css.truncate] }, [
 							v('a', { title: `${projectResource.latestFullMessage}` }, [
 								`${projectResource.latestShortMessage}`
 							])
 					  ])
+					: undefined
 			]),
 			// 最近提交时间
 			v('td', { classes: [css.age, c.text_muted] }, [
 				// 使用 moment.js 进行格式化
-				untracked
-					? undefined
-					: v('span', { classes: [css.truncate] }, [
+				showCommitInfo
+					? v('span', { classes: [css.truncate] }, [
 							w(Moment, { datetime: `${projectResource.latestCommitTime}` })
 					  ])
+					: undefined
 			])
-		]);
-	}
-
-	private _renderReadme() {
-		const projectFile = { name: 'README.md' };
-		const canEditProject = false;
-
-		const { readme = '' } = this.properties;
-
-		return v('div', { classes: [c.card, c.mt_3] }, [
-			v('div', { classes: [c.card_header, c.px_2] }, [
-				v('div', {}, [w(FontAwesomeIcon, { icon: 'book-open' }), ` ${projectFile.name}`]),
-				canEditProject ? w(Link, { to: '' }, [w(FontAwesomeIcon, { icon: 'edit' })]) : null
-			]),
-
-			v('div', { classes: [c.card_body, c.markdown_body] }, [w(MarkdownPreview, { value: readme })])
 		]);
 	}
 }

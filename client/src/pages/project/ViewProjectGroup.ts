@@ -249,7 +249,12 @@ class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResou
 		// 已修改
 		const { project, parentPath, projectResource } = this.properties;
 		const { gitStatus, resourceType } = projectResource;
-		let untracked = false;
+
+		let showCommitInfo = true;
+		if (!projectResource.latestShortMessage) {
+			showCommitInfo = false;
+		}
+
 		let statusLetter = '';
 		let statusColor = '';
 		let statusTooltip = '';
@@ -258,17 +263,23 @@ class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResou
 		if (resourceType === ResourceType.Group) {
 			fullPath = parentPath === '' ? projectResource.key : parentPath + '/' + projectResource.key;
 
-			if (gitStatus === GitFileStatus.Untracked) {
-				untracked = true;
-				statusColor = c.text_muted;
-			} else {
+			if (gitStatus === GitFileStatus.Untracked || gitStatus === GitFileStatus.Added) {
 				statusLetter = '●';
+				statusColor = c.text_success;
+				statusTooltip = '包含变更的内容';
+			} else if (gitStatus === GitFileStatus.Modified || gitStatus === GitFileStatus.Changed) {
+				// 如果目录中同时有新增和修改，则显示修改颜色
+				// 如果目录中只有新增，则显示新增颜色
+				statusLetter = '●';
+				statusColor = c.text_warning;
+				statusTooltip = '包含变更的内容';
+			} else {
+				statusColor = c.text_muted;
 			}
 
 			isGroup = true;
 		} else {
 			if (gitStatus === GitFileStatus.Untracked || gitStatus === GitFileStatus.Added) {
-				untracked = true;
 				statusLetter = 'U';
 				statusColor = c.text_success;
 				statusTooltip = '未跟踪';
@@ -312,22 +323,22 @@ class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResou
 			v('td', { classes: [css.status, statusColor], title: `${statusTooltip}` }, [`${statusLetter}`]),
 			// 最近提交信息
 			v('td', { classes: [css.message, c.text_muted] }, [
-				untracked
-					? undefined
-					: v('span', { classes: [css.truncate] }, [
+				showCommitInfo
+					? v('span', { classes: [css.truncate] }, [
 							v('a', { title: `${projectResource.latestFullMessage}` }, [
 								`${projectResource.latestShortMessage}`
 							])
 					  ])
+					: undefined
 			]),
 			// 最近提交时间
 			v('td', { classes: [css.age, c.text_muted] }, [
 				// 使用 moment.js 进行格式化
-				untracked
-					? undefined
-					: v('span', { classes: [css.truncate] }, [
+				showCommitInfo
+					? v('span', { classes: [css.truncate] }, [
 							w(Moment, { datetime: `${projectResource.latestCommitTime}` })
 					  ])
+					: undefined
 			])
 		]);
 	}
