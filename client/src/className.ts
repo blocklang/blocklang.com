@@ -215,11 +215,17 @@ export const d_md_none: string = 'd-md-none';
 //     flex
 export const flex_column: string = 'flex-column';
 
-export const justify_content_start = 'justify-content-start';
-export const justify_content_end = 'justify-content-end';
-export const justify_content_center = 'justify-content-center';
-export const justify_content_between = 'justify-content-between';
-export const justify_content_around = 'justify-content-around';
+export const justify_content_start: string = 'justify-content-start';
+export const justify_content_end: string = 'justify-content-end';
+export const justify_content_center: string = 'justify-content-center';
+export const justify_content_between: string = 'justify-content-between';
+export const justify_content_around: string = 'justify-content-around';
+
+export const align_items_start: string = 'align-items-start';
+export const align_items_end: string = 'align-items-end';
+export const align_items_center: string = 'align-items-center';
+export const align_items_baseline: string = 'align-items-baseline';
+export const align_items_stretch: string = 'align-items-stretch';
 
 //     position
 export const position_static: string = 'position-static';

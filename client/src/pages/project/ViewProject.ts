@@ -110,7 +110,7 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 			v('hr'),
 			// staged changes
 			v('div', { classes: [c.mt_2] }, [
-				v('div', { classes: [c.d_flex, c.justify_content_between] }, [
+				v('div', { classes: [c.d_flex, c.justify_content_between, c.align_items_center] }, [
 					v('strong', [`${messages.stagedChangesLabel}`]),
 					v('span', { classes: [c.badge, c.badge_secondary] }, [`${stagedChanges.length}`])
 				]),
@@ -128,7 +128,7 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 			]),
 			// unstaged changes
 			v('div', { classes: [c.mt_2] }, [
-				v('div', { classes: [c.d_flex, c.justify_content_between] }, [
+				v('div', { classes: [c.d_flex, c.justify_content_between, c.align_items_center] }, [
 					v('strong', [`${messages.unstagedChangesLabel}`]),
 					v('span', { classes: [c.badge, c.badge_secondary] }, [`${unstagedChanges.length}`])
 				]),
