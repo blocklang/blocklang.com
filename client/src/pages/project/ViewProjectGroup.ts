@@ -254,6 +254,7 @@ class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResou
 		let statusColor = '';
 		let statusTooltip = '';
 		let fullPath;
+		let isGroup = false;
 		if (resourceType === ResourceType.Group) {
 			fullPath = parentPath === '' ? projectResource.key : parentPath + '/' + projectResource.key;
 
@@ -263,6 +264,8 @@ class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResou
 			} else {
 				statusLetter = '●';
 			}
+
+			isGroup = true;
 		} else {
 			if (gitStatus === GitFileStatus.Untracked || gitStatus === GitFileStatus.Added) {
 				untracked = true;
@@ -274,6 +277,8 @@ class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResou
 				statusColor = c.text_warning;
 				statusTooltip = '已修改';
 			}
+
+			isGroup = false;
 		}
 
 		return v('tr', [
@@ -287,20 +292,21 @@ class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResou
 			// 资源名称
 			v('td', { classes: [css.content, c.px_1] }, [
 				v('span', { classes: [css.truncate] }, [
-					v(
-						'a',
-						{
-							classes: [statusColor],
-							href: `/${project.createUserName}/${project.name}/groups/${fullPath}`,
-							title: `${projectResource.name}`,
-							// 因为 dojo 5.0 的 route 不支持通配符，这里尝试实现类似效果
-							onclick: this._onOpenGroup
-						},
-						[`${projectResource.name}`]
-					)
-					// w(Link, { to, params, title: `${projectResource.name}`, classes: [statusColor] }, [
-					// 	`${projectResource.name}`
-					// ])
+					isGroup
+						? v(
+								'a',
+								{
+									classes: [statusColor],
+									href: `/${project.createUserName}/${project.name}/groups/${fullPath}`,
+									title: `${projectResource.name}`,
+									// 因为 dojo 5.0 的 route 不支持通配符，这里尝试实现类似效果
+									onclick: this._onOpenGroup
+								},
+								[`${projectResource.name}`]
+						  )
+						: w(Link, { to: '', title: `${projectResource.name}`, classes: [statusColor] }, [
+								`${projectResource.name}`
+						  ])
 				])
 			]),
 			v('td', { classes: [css.status, statusColor], title: `${statusTooltip}` }, [`${statusLetter}`]),
