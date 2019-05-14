@@ -6,8 +6,5 @@ import * as object from '@dojo/framework/shim/object';
  * @param obj json 对象
  */
 export function isEmpty(obj: any): boolean {
-	if (!obj) {
-		return true;
-	}
 	return object.entries(obj).length === 0 && obj.constructor === Object;
 }

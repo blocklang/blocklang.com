@@ -71,6 +71,11 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 	private _viewStatus: ViewStatus = ViewStatus.Edit;
 
 	protected render() {
+		const { project } = this.properties;
+		if (!project) {
+			return v('div', { classes: [c.mt_5] }, [w(Spinner, {})]);
+		}
+
 		if (this._isNotFound()) {
 			return w(Exception, { type: '404' });
 		}

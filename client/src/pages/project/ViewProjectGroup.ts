@@ -41,6 +41,11 @@ export default class ViewProjectGroup extends ThemedMixin(I18nMixin(WidgetBase))
 	private _localizedMessages = this.localizeBundle(messageBundle);
 
 	protected render() {
+		const { project } = this.properties;
+		if (!project) {
+			return v('div', { classes: [c.mt_5] }, [w(Spinner, {})]);
+		}
+
 		if (this._isNotFound()) {
 			return w(Exception, { type: '404' });
 		}
