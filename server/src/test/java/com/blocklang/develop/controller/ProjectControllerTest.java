@@ -12,6 +12,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,13 +25,16 @@ import org.springframework.security.test.context.support.WithMockUser;
 import com.blocklang.core.constant.CmPropKey;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.test.AbstractControllerTest;
+import com.blocklang.develop.constant.AccessLevel;
 import com.blocklang.develop.constant.DeployState;
 import com.blocklang.develop.data.CheckProjectNameParam;
 import com.blocklang.develop.data.GitCommitInfo;
 import com.blocklang.develop.data.NewProjectParam;
 import com.blocklang.develop.model.Project;
+import com.blocklang.develop.model.ProjectAuthorization;
 import com.blocklang.develop.model.ProjectDeploy;
 import com.blocklang.develop.model.ProjectFile;
+import com.blocklang.develop.service.ProjectAuthorizationService;
 import com.blocklang.develop.service.ProjectDeployService;
 import com.blocklang.develop.service.ProjectFileService;
 import com.blocklang.develop.service.ProjectResourceService;
@@ -53,6 +57,8 @@ public class ProjectControllerTest extends AbstractControllerTest{
 	private ProjectDeployService projectDeployService;
 	@MockBean
 	private AppReleaseService appReleaseService;
+	@MockBean
+	private ProjectAuthorizationService projectAuthorizationService;
 
 	@Test
 	public void check_name_user_is_unauthorization_not_login() {
@@ -406,15 +412,149 @@ public class ProjectControllerTest extends AbstractControllerTest{
 	}
 	
 	@Test
-	public void get_project_success() {
+	public void get_project_anonymous_can_access_public_project() {
 		Project project = new Project();
+		project.setCreateUserName("jack");
 		project.setName("my-project");
+		project.setIsPublic(true);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/projects/{owner}/{project}", "zhangsan", "my-project")
+			.get("/projects/{owner}/{project}", "jack", "my-project")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body("name", equalTo("my-project"));
+	}
+	
+	@WithMockUser(username = "other")
+	@Test
+	public void get_project_login_user_can_access_public_project() {
+		Project project = new Project();
+		project.setCreateUserName("jack");
+		project.setName("my-project");
+		project.setIsPublic(true);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{project}", "jack", "my-project")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body("name", equalTo("my-project"));
+	}
+	
+	@WithMockUser(username = "other")
+	@Test
+	public void get_project_login_user_can_not_read_then_can_not_access_private_project() {
+		Project project = new Project();
+		project.setCreateUserName("jack");
+		project.setName("my-project");
+		project.setIsPublic(false);
+		
+		UserInfo loginUser = new UserInfo();
+		loginUser.setId(1);
+		loginUser.setLoginName("other");
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(loginUser));
+		
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{project}", "jack", "my-project")
+		.then()
+			.statusCode(HttpStatus.SC_FORBIDDEN);
+	}
+	
+	@WithMockUser(username = "other")
+	@Test
+	public void get_project_login_user_can_read_then_can_access_private_project() {
+		Project project = new Project();
+		project.setId(1);
+		project.setCreateUserName("jack");
+		project.setName("my-project");
+		project.setIsPublic(false);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		UserInfo loginUser = new UserInfo();
+		loginUser.setId(1);
+		loginUser.setLoginName("other");
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(loginUser));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setUserId(1);
+		auth.setProjectId(1);
+		auth.setAccessLevel(AccessLevel.READ);
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{project}", "jack", "my-project")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body("name", equalTo("my-project"));
+	}
+	
+	@WithMockUser(username = "other")
+	@Test
+	public void get_project_login_user_can_write_then_can_access_private_project() {
+		Project project = new Project();
+		project.setId(1);
+		project.setCreateUserName("jack");
+		project.setName("my-project");
+		project.setIsPublic(false);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		UserInfo loginUser = new UserInfo();
+		loginUser.setId(1);
+		loginUser.setLoginName("other");
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(loginUser));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setUserId(1);
+		auth.setProjectId(1);
+		auth.setAccessLevel(AccessLevel.WRITE);
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{project}", "jack", "my-project")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body("name", equalTo("my-project"));
+	}
+	
+	@WithMockUser(username = "other")
+	@Test
+	public void get_project_login_user_can_admin_then_can_access_private_project() {
+		Project project = new Project();
+		project.setId(1);
+		project.setCreateUserName("jack");
+		project.setName("my-project");
+		project.setIsPublic(false);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		UserInfo loginUser = new UserInfo();
+		loginUser.setId(1);
+		loginUser.setLoginName("other");
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(loginUser));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setUserId(1);
+		auth.setProjectId(1);
+		auth.setAccessLevel(AccessLevel.ADMIN);
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{project}", "jack", "my-project")
 		.then()
 			.statusCode(HttpStatus.SC_OK)
 			.body("name", equalTo("my-project"));

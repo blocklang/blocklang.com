@@ -37,7 +37,6 @@ import com.blocklang.develop.model.Project;
 import com.blocklang.develop.service.ProjectDeployService;
 import com.blocklang.develop.service.ProjectFileService;
 import com.blocklang.develop.service.ProjectResourceService;
-import com.blocklang.develop.service.ProjectService;
 import com.blocklang.release.constant.Arch;
 import com.blocklang.release.constant.TargetOs;
 import com.blocklang.release.model.AppRelease;
@@ -45,12 +44,10 @@ import com.blocklang.release.service.AppReleaseService;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
 
 @RestController
-public class ProjectController {
+public class ProjectController extends AbstractProjectController{
 
 	private static final Logger logger = LoggerFactory.getLogger(ProjectController.class);
-	
-	@Autowired
-	private ProjectService projectService;
+
 	@Autowired
 	private ProjectResourceService projectResourceService;
 	@Autowired
@@ -157,11 +154,23 @@ public class ProjectController {
 
 	@GetMapping("/projects/{owner}/{projectName}")
 	public ResponseEntity<Project> getProject(
+			Principal principal,
 			@PathVariable String owner,
 			@PathVariable String projectName) {
-		return projectService.find(owner, projectName).map(project -> {
-			return ResponseEntity.ok(project);
-		}).orElseThrow(ResourceNotFoundException::new);
+		
+		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
+		
+		if(!project.getIsPublic()) {
+			
+			if(principal == null) {
+				throw new NoAuthorizationException();
+			}
+			
+			UserInfo user = userService.findByLoginName(principal.getName()).get();
+			ensureCanRead(user, project);
+		}
+		
+		return ResponseEntity.ok(project);
 	}
 	
 	@GetMapping("/projects/{owner}/{projectName}/latest-commit/{parentId}")

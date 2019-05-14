@@ -22,24 +22,16 @@ import com.blocklang.core.exception.ResourceNotFoundException;
 import com.blocklang.core.git.exception.GitEmptyCommitException;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.UserService;
-import com.blocklang.develop.constant.AccessLevel;
 import com.blocklang.develop.data.CommitMessage;
 import com.blocklang.develop.data.UncommittedFile;
 import com.blocklang.develop.model.Project;
-import com.blocklang.develop.model.ProjectAuthorization;
-import com.blocklang.develop.service.ProjectAuthorizationService;
 import com.blocklang.develop.service.ProjectResourceService;
-import com.blocklang.develop.service.ProjectService;
 
 @RestController
-public class CommitController {
+public class CommitController extends AbstractProjectController{
 
 	@Autowired
-	private ProjectService projectService;
-	@Autowired
 	private UserService userService;
-	@Autowired
-	private ProjectAuthorizationService projectAuthorizationService;
 	@Autowired
 	private ProjectResourceService projectResourceService;
 	
@@ -134,26 +126,5 @@ public class CommitController {
 		}
 		
 		return ResponseEntity.ok(new HashMap<String, Object>());
-	}
-
-	private void ensureCanRead(UserInfo user, Project project) {
-		List<ProjectAuthorization> authes = projectAuthorizationService.findAllByUserIdAndProjectId(user.getId(), project.getId());
-		boolean canRead = authes.stream().anyMatch(
-				item -> item.getAccessLevel() == AccessLevel.WRITE || 
-				item.getAccessLevel() == AccessLevel.ADMIN ||
-				item.getAccessLevel() == AccessLevel.READ);
-		if(!canRead) {
-			throw new NoAuthorizationException();
-		}
-	}
-	
-	private void ensureCanWrite(UserInfo user, Project project) {
-		List<ProjectAuthorization> authes = projectAuthorizationService.findAllByUserIdAndProjectId(user.getId(), project.getId());
-		boolean canWrite = authes.stream().anyMatch(
-				item -> item.getAccessLevel() == AccessLevel.WRITE || 
-				item.getAccessLevel() == AccessLevel.ADMIN);
-		if(!canWrite) {
-			throw new NoAuthorizationException();
-		}
 	}
 }
