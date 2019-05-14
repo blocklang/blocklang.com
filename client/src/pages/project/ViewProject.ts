@@ -679,6 +679,11 @@ class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResou
 			}
 		}
 
+		let title = projectResource.name;
+		if (statusTooltip !== '') {
+			title = title + ' • ' + statusTooltip;
+		}
+
 		return v('tr', [
 			// 图标
 			v('td', { classes: [css.icon] }, [
@@ -690,9 +695,7 @@ class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResou
 			// 资源名称
 			v('td', { classes: [css.content, c.px_1] }, [
 				v('span', { classes: [css.truncate] }, [
-					w(Link, { to, params, title: `${projectResource.name}`, classes: [statusColor] }, [
-						`${projectResource.name}`
-					])
+					w(Link, { to, params, title, classes: [statusColor] }, [`${projectResource.name}`])
 				])
 			]),
 			v('td', { classes: [css.status, statusColor], title: `${statusTooltip}` }, [`${statusLetter}`]),

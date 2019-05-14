@@ -297,6 +297,11 @@ class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResou
 			isGroup = false;
 		}
 
+		let title = projectResource.name;
+		if (statusTooltip !== '') {
+			title = title + ' • ' + statusTooltip;
+		}
+
 		return v('tr', [
 			// 图标
 			v('td', { classes: [css.icon] }, [
@@ -314,15 +319,13 @@ class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResou
 								{
 									classes: [statusColor],
 									href: `/${project.createUserName}/${project.name}/groups/${fullPath}`,
-									title: `${projectResource.name}`,
+									title,
 									// 因为 dojo 5.0 的 route 不支持通配符，这里尝试实现类似效果
 									onclick: this._onOpenGroup
 								},
 								[`${projectResource.name}`]
 						  )
-						: w(Link, { to: '', title: `${projectResource.name}`, classes: [statusColor] }, [
-								`${projectResource.name}`
-						  ])
+						: w(Link, { to: '', title, classes: [statusColor] }, [`${projectResource.name}`])
 				])
 			]),
 			v('td', { classes: [css.status, statusColor], title: `${statusTooltip}` }, [`${statusLetter}`]),
