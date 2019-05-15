@@ -13,6 +13,7 @@ import ProjectHeader from '../../widgets/ProjectHeader';
 import Link from '@dojo/framework/routing/Link';
 import { ValidateStatus } from '../../../constant';
 import { DescriptionPayload, GroupKeyPayload, GroupNamePayload } from '../../../processes/interfaces';
+import { canNewGroup } from '../../../permission';
 
 export interface NewGroupProperties {
 	// user
@@ -68,8 +69,12 @@ export default class NewGroup extends ThemedMixin(I18nMixin(WidgetBase))<NewGrou
 	}
 
 	private _isAuthenticated() {
-		const { loggedUsername } = this.properties;
-		return !!loggedUsername;
+		const { project, loggedUsername } = this.properties;
+		const isLogin = !!loggedUsername;
+		if (!isLogin) {
+			return false;
+		}
+		return canNewGroup(project.accessLevel);
 	}
 
 	private _renderHeader() {

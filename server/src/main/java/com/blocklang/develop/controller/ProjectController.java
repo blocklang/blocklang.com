@@ -162,7 +162,13 @@ public class ProjectController extends AbstractProjectController{
 		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
 		
 		if(project.getIsPublic()) {
-			project.setAccessLevel(AccessLevel.READ);
+			if(principal == null) {
+				project.setAccessLevel(AccessLevel.READ);
+			} else {
+				UserInfo user = userService.findByLoginName(principal.getName()).get();
+				ensureCanRead(user, project);
+			}
+			
 		} else {
 			if(principal == null) {
 				throw new NoAuthorizationException();

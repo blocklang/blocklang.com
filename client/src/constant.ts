@@ -31,3 +31,10 @@ export enum ReleaseResult {
 	Passed = '04',
 	Canceled = '05'
 }
+
+export enum AccessLevel {
+	Forbidden = '01',
+	Read = '02',
+	Write = '03',
+	Admin = '04'
+}

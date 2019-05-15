@@ -32,6 +32,7 @@ import Exception from '../error/Exception';
 import { ResourceType, GitFileStatus, ValidateStatus } from '../../constant';
 import { Params } from '@dojo/framework/routing/interfaces';
 import watch from '@dojo/framework/widget-core/decorators/watch';
+import { canCommit } from '../../permission';
 
 export interface ViewProjectProperties {
 	loggedUsername: string;
@@ -206,7 +207,7 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 		return isEmpty(project);
 	}
 
-	private _isAuthenticated() {
+	private _isLogined() {
 		const { loggedUsername } = this.properties;
 		return !!loggedUsername;
 	}
@@ -234,8 +235,12 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 	}
 
 	private _renderCommitButtonGroup() {
-		const authed = this._isAuthenticated();
-		if (!authed) {
+		if (!this._isLogined()) {
+			return;
+		}
+
+		const { project } = this.properties;
+		if (!canCommit(project.accessLevel)) {
 			return;
 		}
 
@@ -299,35 +304,67 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 		}
 	}
 
+	// 没有 write 权限，则不显示新建按钮
 	private _renderNewResourceButtonGroup() {
-		const disabled = !this._isAuthenticated();
-		const { messages } = this._localizedMessages;
 		const { project } = this.properties;
+		let disabled = false;
+		if (!this._isLogined()) {
+			disabled = true;
+		} else {
+			if (!canCommit(project.accessLevel)) {
+				disabled = true;
+			}
+		}
+		const { messages } = this._localizedMessages;
 
-		return v('div', { classes: [c.btn_group, c.btn_group_sm, c.mr_2], role: 'group' }, [
-			w(
-				Link,
-				{
-					classes: [c.btn, c.btn_outline_secondary],
-					to: 'new-page-root',
-					params: { owner: project.createUserName, project: project.name },
-					disabled
-				},
-				[`${messages.newPage}`]
-			),
-			w(
-				Link,
-				{
-					classes: [c.btn, c.btn_outline_secondary],
-					to: 'new-group-root',
-					params: { owner: project.createUserName, project: project.name },
-					disabled
-				},
-				[`${messages.newGroup}`]
-			)
-		]);
+		return v(
+			'div',
+			{ classes: [c.btn_group, c.btn_group_sm, c.mr_2], role: 'group' },
+			disabled
+				? [
+						v(
+							'a',
+							{
+								classes: [c.btn, c.btn_outline_secondary, c.disabled],
+								tabIndex: -1,
+								'aria-disabled': 'true'
+							},
+							[`${messages.newPage}`]
+						),
+						v(
+							'a',
+							{
+								classes: [c.btn, c.btn_outline_secondary, c.disabled],
+								tabIndex: -1,
+								'aria-disabled': 'true'
+							},
+							[`${messages.newGroup}`]
+						)
+				  ]
+				: [
+						w(
+							Link,
+							{
+								classes: [c.btn, c.btn_outline_secondary],
+								to: 'new-page-root',
+								params: { owner: project.createUserName, project: project.name }
+							},
+							[`${messages.newPage}`]
+						),
+						w(
+							Link,
+							{
+								classes: [c.btn, c.btn_outline_secondary],
+								to: 'new-group-root',
+								params: { owner: project.createUserName, project: project.name }
+							},
+							[`${messages.newGroup}`]
+						)
+				  ]
+		);
 	}
 
+	// 只要对项目有读的权限，就可跳转到发布列表页面
 	private _renderReleaseButton() {
 		const { messages } = this._localizedMessages;
 		const { releaseCount = 0 } = this.properties;
@@ -340,11 +377,12 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 	}
 
 	/**
+	 * 用户登录后，才能激活部署按钮
 	 * 渲染部署按钮
 	 */
 	private _renderDeployButton() {
 		const { messages } = this._localizedMessages;
-		const isAuth: boolean = this._isAuthenticated();
+		let isAuth: boolean = this._isLogined();
 
 		if (isAuth) {
 			return v('div', { classes: [c.btn_group] }, [

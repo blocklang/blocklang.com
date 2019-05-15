@@ -433,10 +433,16 @@ public class ProjectControllerTest extends AbstractControllerTest{
 	@Test
 	public void get_project_login_user_can_access_public_project() {
 		Project project = new Project();
+		project.setId(1);
 		project.setCreateUserName("jack");
 		project.setName("my-project");
 		project.setIsPublic(true);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		UserInfo loginUser = new UserInfo();
+		loginUser.setId(1);
+		loginUser.setLoginName("other");
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(loginUser));
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -446,6 +452,37 @@ public class ProjectControllerTest extends AbstractControllerTest{
 			.statusCode(HttpStatus.SC_OK)
 			.body("name", equalTo("my-project"),
 					"accessLevel", equalTo(AccessLevel.READ.getKey()));
+	}
+	
+	@WithMockUser(username = "jack")
+	@Test
+	public void get_project_login_user_create_public_project() {
+		Project project = new Project();
+		project.setId(1);
+		project.setCreateUserName("jack");
+		project.setName("my-project");
+		project.setIsPublic(true);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		UserInfo loginUser = new UserInfo();
+		loginUser.setId(1);
+		loginUser.setLoginName("other");
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(loginUser));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setUserId(1);
+		auth.setProjectId(1);
+		auth.setAccessLevel(AccessLevel.ADMIN);
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{project}", "jack", "my-project")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body("name", equalTo("my-project"),
+					"accessLevel", equalTo(AccessLevel.ADMIN.getKey()));
 	}
 	
 	@WithMockUser(username = "other")

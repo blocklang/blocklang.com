@@ -15,6 +15,7 @@ import { IconPrefix, IconName } from '@fortawesome/fontawesome-svg-core';
 import Link from '@dojo/framework/routing/Link';
 import { DescriptionPayload, PageKeyPayload, PageNamePayload } from '../../../processes/interfaces';
 import { ValidateStatus } from '../../../constant';
+import { canNewPage } from '../../../permission';
 
 export interface NewPageProperties {
 	// user
@@ -73,8 +74,12 @@ export default class NewPage extends ThemedMixin(I18nMixin(WidgetBase))<NewPageP
 	}
 
 	private _isAuthenticated() {
-		const { loggedUsername } = this.properties;
-		return !!loggedUsername;
+		const { project, loggedUsername } = this.properties;
+		const isLogin = !!loggedUsername;
+		if (!isLogin) {
+			return false;
+		}
+		return canNewPage(project.accessLevel);
 	}
 
 	private _renderHeader() {

@@ -11,6 +11,7 @@ export const active: string = 'active';
 export const show: string = 'show';
 export const close: string = 'close';
 export const fade: string = 'fade';
+export const disabled: string = 'disabled';
 
 // Layout
 //     container

@@ -1,4 +1,4 @@
-import { ValidateStatus, ResourceType, GitFileStatus, ReleaseResult } from './constant';
+import { ValidateStatus, ResourceType, GitFileStatus, ReleaseResult, AccessLevel } from './constant';
 import { IconName } from '@fortawesome/fontawesome-svg-core';
 
 // 注意：一些公共信息，要做成全局变量，不然会存储很多无用的信息
@@ -85,6 +85,7 @@ export interface Project {
 	createUserId: number;
 	lastUpdateTime?: string;
 	lastUpdateUserId?: number;
+	accessLevel: AccessLevel;
 }
 
 export interface ProjectInputValidation {

@@ -24,13 +24,22 @@ public class AbstractProjectController {
 		List<ProjectAuthorization> authes = projectAuthorizationService.findAllByUserIdAndProjectId(user.getId(), project.getId());
 		
 		// 从 authes 中获取最大的权限
-		ProjectAuthorization auth = authes.stream()
-				.max((o1, o2) -> o2.getAccessLevel().getScore() - o1.getAccessLevel().getScore())
-				.orElseThrow(NoAuthorizationException::new);
+		AccessLevel accessLevel = authes.stream().map(item -> item.getAccessLevel())
+				.max((o1, o2) -> o2.getScore() - o1.getScore())
+				.orElse(null);
+		// 对于公开项目，如果没有配置权限，则默认为 READ
+		if(project.getIsPublic() && accessLevel == null) {
+			project.setAccessLevel(AccessLevel.READ);
+			return;
+		}
 		
-		project.setAccessLevel(auth.getAccessLevel());
+		if(accessLevel == null) {
+			throw new NoAuthorizationException();
+		}
 		
-		boolean canRead = auth.getAccessLevel().getScore() >= AccessLevel.READ.getScore();
+		project.setAccessLevel(accessLevel);
+		
+		boolean canRead = accessLevel.getScore() >= AccessLevel.READ.getScore();
 		if(!canRead) {
 			throw new NoAuthorizationException();
 		}
@@ -40,13 +49,13 @@ public class AbstractProjectController {
 		List<ProjectAuthorization> authes = projectAuthorizationService.findAllByUserIdAndProjectId(user.getId(), project.getId());
 		
 		// 从 authes 中获取最大的权限
-		ProjectAuthorization auth = authes.stream()
-				.max((o1, o2) -> o2.getAccessLevel().getScore() - o1.getAccessLevel().getScore())
+		AccessLevel accessLevel = authes.stream().map(item -> item.getAccessLevel())
+				.max((o1, o2) -> o2.getScore() - o1.getScore())
 				.orElseThrow(NoAuthorizationException::new);
 		
-		project.setAccessLevel(auth.getAccessLevel());
+		project.setAccessLevel(accessLevel);
 		
-		boolean canWrite = auth.getAccessLevel().getScore() >= AccessLevel.WRITE.getScore();
+		boolean canWrite = accessLevel.getScore() >= AccessLevel.WRITE.getScore();
 		if(!canWrite) {
 			throw new NoAuthorizationException();
 		}

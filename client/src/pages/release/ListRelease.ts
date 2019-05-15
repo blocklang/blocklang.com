@@ -20,6 +20,7 @@ import * as css from './ListRelease.m.css';
 import SockJS = require('sockjs-client');
 import { Client, IFrame } from '@stomp/stompjs';
 import { ReleaseResult } from '../../constant';
+import { canRelease } from '../../permission';
 
 export interface ListReleaseProperties {
 	loggedUsername: string;
@@ -59,8 +60,12 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 	}
 
 	private _isAuthenticated() {
-		const { loggedUsername } = this.properties;
-		return !!loggedUsername;
+		const { project, loggedUsername } = this.properties;
+		const isLogin = !!loggedUsername;
+		if (!isLogin) {
+			return false;
+		}
+		return canRelease(project.accessLevel);
 	}
 
 	private _renderReleasesPart() {
@@ -163,15 +168,25 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 
 		return v('div', { classes: [c.pb_4, c.d_flex, c.justify_content_end] }, [
 			v('div', { classes: [] }, [
-				w(
-					Link,
-					{
-						classes: [c.btn, c.btn_outline_secondary],
-						to: 'new-release',
-						params: { owner: createUserName, project: name }
-					},
-					[`${newReleaseText}`]
-				)
+				this._isAuthenticated()
+					? w(
+							Link,
+							{
+								classes: [c.btn, c.btn_outline_secondary],
+								to: 'new-release',
+								params: { owner: createUserName, project: name }
+							},
+							[`${newReleaseText}`]
+					  )
+					: v(
+							'a',
+							{
+								classes: [c.btn, c.btn_outline_secondary, c.disabled],
+								tabIndex: -1,
+								'aria-disabled': 'true'
+							},
+							[`${newReleaseText}`]
+					  )
 			])
 		]);
 	}
