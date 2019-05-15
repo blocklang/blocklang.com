@@ -19,12 +19,18 @@ public class AbstractProjectController {
 	@Autowired
 	protected ProjectAuthorizationService projectAuthorizationService;
 
+	// read < write < admin
 	protected void ensureCanRead(UserInfo user, Project project) {
 		List<ProjectAuthorization> authes = projectAuthorizationService.findAllByUserIdAndProjectId(user.getId(), project.getId());
-		boolean canRead = authes.stream().anyMatch(
-				item -> item.getAccessLevel() == AccessLevel.WRITE || 
-				item.getAccessLevel() == AccessLevel.ADMIN ||
-				item.getAccessLevel() == AccessLevel.READ);
+		
+		// 从 authes 中获取最大的权限
+		ProjectAuthorization auth = authes.stream()
+				.max((o1, o2) -> o2.getAccessLevel().getScore() - o1.getAccessLevel().getScore())
+				.orElseThrow(NoAuthorizationException::new);
+		
+		project.setAccessLevel(auth.getAccessLevel());
+		
+		boolean canRead = auth.getAccessLevel().getScore() >= AccessLevel.READ.getScore();
 		if(!canRead) {
 			throw new NoAuthorizationException();
 		}
@@ -32,12 +38,17 @@ public class AbstractProjectController {
 
 	protected void ensureCanWrite(UserInfo user, Project project) {
 		List<ProjectAuthorization> authes = projectAuthorizationService.findAllByUserIdAndProjectId(user.getId(), project.getId());
-		boolean canWrite = authes.stream().anyMatch(
-				item -> item.getAccessLevel() == AccessLevel.WRITE || 
-				item.getAccessLevel() == AccessLevel.ADMIN);
+		
+		// 从 authes 中获取最大的权限
+		ProjectAuthorization auth = authes.stream()
+				.max((o1, o2) -> o2.getAccessLevel().getScore() - o1.getAccessLevel().getScore())
+				.orElseThrow(NoAuthorizationException::new);
+		
+		project.setAccessLevel(auth.getAccessLevel());
+		
+		boolean canWrite = auth.getAccessLevel().getScore() >= AccessLevel.WRITE.getScore();
 		if(!canWrite) {
 			throw new NoAuthorizationException();
 		}
 	}
-
 }

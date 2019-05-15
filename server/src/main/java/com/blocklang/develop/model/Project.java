@@ -9,6 +9,7 @@ import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import com.blocklang.core.model.PartialOperateFields;
+import com.blocklang.develop.constant.AccessLevel;
 
 @Entity
 @Table(name="project", uniqueConstraints = @UniqueConstraint(columnNames = { "project_name", "create_user_id" }))
@@ -34,6 +35,9 @@ public class Project extends PartialOperateFields{
 	// 创建用户的登录名，createUserId 对应的用户名
 	@Transient
 	private String createUserName;
+	
+	@Transient
+	private AccessLevel accessLevel;
 
 	public String getName() {
 		return name;
@@ -81,6 +85,14 @@ public class Project extends PartialOperateFields{
 
 	public void setCreateUserName(String createUserName) {
 		this.createUserName = createUserName;
+	}
+
+	public void setAccessLevel(AccessLevel accessLevel) {
+		this.accessLevel = accessLevel;
+	}
+
+	public AccessLevel getAccessLevel() {
+		return accessLevel;
 	}
 
 }

@@ -28,6 +28,7 @@ import com.blocklang.core.exception.ResourceNotFoundException;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.PropertyService;
 import com.blocklang.core.service.UserService;
+import com.blocklang.develop.constant.AccessLevel;
 import com.blocklang.develop.constant.AppNames;
 import com.blocklang.develop.data.CheckProjectNameParam;
 import com.blocklang.develop.data.DeploySetting;
@@ -160,8 +161,9 @@ public class ProjectController extends AbstractProjectController{
 		
 		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
 		
-		if(!project.getIsPublic()) {
-			
+		if(project.getIsPublic()) {
+			project.setAccessLevel(AccessLevel.READ);
+		} else {
 			if(principal == null) {
 				throw new NoAuthorizationException();
 			}

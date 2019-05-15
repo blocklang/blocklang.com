@@ -425,7 +425,8 @@ public class ProjectControllerTest extends AbstractControllerTest{
 			.get("/projects/{owner}/{project}", "jack", "my-project")
 		.then()
 			.statusCode(HttpStatus.SC_OK)
-			.body("name", equalTo("my-project"));
+			.body("name", equalTo("my-project"),
+					"accessLevel", equalTo(AccessLevel.READ.getKey()));
 	}
 	
 	@WithMockUser(username = "other")
@@ -443,7 +444,8 @@ public class ProjectControllerTest extends AbstractControllerTest{
 			.get("/projects/{owner}/{project}", "jack", "my-project")
 		.then()
 			.statusCode(HttpStatus.SC_OK)
-			.body("name", equalTo("my-project"));
+			.body("name", equalTo("my-project"),
+					"accessLevel", equalTo(AccessLevel.READ.getKey()));
 	}
 	
 	@WithMockUser(username = "other")
@@ -497,7 +499,8 @@ public class ProjectControllerTest extends AbstractControllerTest{
 			.get("/projects/{owner}/{project}", "jack", "my-project")
 		.then()
 			.statusCode(HttpStatus.SC_OK)
-			.body("name", equalTo("my-project"));
+			.body("name", equalTo("my-project"),
+					"accessLevel", equalTo(AccessLevel.READ.getKey()));
 	}
 	
 	@WithMockUser(username = "other")
@@ -527,7 +530,8 @@ public class ProjectControllerTest extends AbstractControllerTest{
 			.get("/projects/{owner}/{project}", "jack", "my-project")
 		.then()
 			.statusCode(HttpStatus.SC_OK)
-			.body("name", equalTo("my-project"));
+			.body("name", equalTo("my-project"),
+					"accessLevel", equalTo(AccessLevel.WRITE.getKey()));
 	}
 	
 	@WithMockUser(username = "other")
@@ -557,7 +561,8 @@ public class ProjectControllerTest extends AbstractControllerTest{
 			.get("/projects/{owner}/{project}", "jack", "my-project")
 		.then()
 			.statusCode(HttpStatus.SC_OK)
-			.body("name", equalTo("my-project"));
+			.body("name", equalTo("my-project"),
+					"accessLevel", equalTo(AccessLevel.ADMIN.getKey()));
 	}
 
 	@Test
