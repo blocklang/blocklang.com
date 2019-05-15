@@ -132,7 +132,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		
 		// 断言
 		// 项目基本信息已保存
-		assertThat(projectDao.findById(projectId).get()).hasNoNullFieldsOrPropertiesExcept("lastUpdateUserId", "lastUpdateTime", "avatarUrl");
+		assertThat(projectDao.findById(projectId).get()).hasNoNullFieldsOrPropertiesExcept("lastUpdateUserId", "lastUpdateTime", "avatarUrl", "accessLevel");
 		
 		// 项目授权信息已保存，项目创建者具有 admin 权限
 		assertThat(projectAuthorizationDao.findAllByUserId(userId)).hasSize(1).allMatch(projectAuth -> {
