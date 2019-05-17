@@ -1,3 +1,8 @@
+------------------------------------------
+-- 注意：先不要使用这段脚本，因为没有同步修改序列的值。
+-- 后续做增量修改，不再清空用户数据。
+------------------------------------------
+
 -- 1. 将用户信息复制到临时表
 SELECT * INTO temp_user_info FROM user_info;
 SELECT * INTO temp_user_bind FROM user_bind;
@@ -16,3 +21,5 @@ DROP TABLE temp_user_info;
 DROP TABLE temp_user_bind;
 DROP TABLE temp_user_avatar;
 DROP TABLE temp_persistent_logins;
+
+
