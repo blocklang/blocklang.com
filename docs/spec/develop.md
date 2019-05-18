@@ -51,4 +51,11 @@ git 仓库中的文件命名规范：
 4. 在浏览器中访问 http://<ip>:<port>
 ```
 
-将发布的 Linux 和 Windows 安装器上传到 <https://gitee.com> 网站，支持从 <https://gitee.com> 下载安装器
+## 在页面中添加 UI 部件
+
+1. 制定 UI 部件集成规范
+2. 使用 dojo 开发 UI 部件，支持设计器版和发布版，支持一到多个设备
+3. 将 UI 部件发布到 Block Lang 市场
+4. 在项目的依赖文件中添加 Block Lang 市场中的 UI 部件
+5. 在页面设计器中使用设计器版 UI 部件
+6. 页面发布后，使用发布版 UI 部件
