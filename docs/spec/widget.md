@@ -88,3 +88,13 @@ root
 ```
 
 注意：**要能跟踪部件名、属性名、事件名等**
+
+## UI 部件项目命名
+
+拟支持的 UI 库，不限于此。
+
+1. widgets-bootstrap - 基于 bootstrap
+2. widgets-antd - 基于阿里巴巴蚂蚁金服的 ant design
+3. widgets-fusion - 基于阿里巴巴的 fusion design
+4. widgets-google-material - 基于 google material (dojo 官方提供)
+5. widgets-wechat - 微信小程序版
