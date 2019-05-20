@@ -1,3 +1,4 @@
+HELP.md
 /target/
 !.mvn/wrapper/maven-wrapper.jar
 
@@ -23,6 +24,9 @@
 /dist/
 /nbdist/
 /.nb-gradle/
+
+### VS Code ###
+.vscode/
 
 static/
 *.pfx
