@@ -15,13 +15,16 @@ root
                 |--- button
                        |--- index.ts
                        |--- designer.ts
-                       |--- api.json
+                       |--- demo.ts
                        |--- README.md
                        |--- tests
                               |--- functional
                                       |--- Button.ts
                               |--- unit
                                       |--- Button.ts
+                       |--- changelog
+                              |--- 1_0_0.json
+                              |--- 1_1_0.json
         |--- themes
                 |--- bootstrap
                        |--- button.m.css
@@ -36,9 +39,11 @@ root
 3. `src/widgets/{button}`
    1. `index.ts` - 部件类
    2. `designer.ts` - 设计器版部件类，在 `index.ts` 基础上增加设计器特性
-   3. `api.json` - 描述部件的接口
-   4. `README.md` - 部件帮助文档
+   3. `demo.ts` - 部件使用效果示例，集成到设计器中
+   4. `README.md` - 部件帮助文档，其中包括最新的 API 说明
    5. `test` - 存放单元测试和功能测试
+   6. `changelog` - 部件 API 随版本的变更记录
+      1. `1_0_0.json` - 一个版本对应一个文件
 4. `src/themes` - 存放样式主题，一个文件夹对应一个主题
 
 ## `package.json`
@@ -52,19 +57,16 @@ root
 
 其中 `src/button` 文件夹中存储 `Button` 部件的所有文件。
 
-## `api.json`
-
-约定，在每个部件的文件夹中定义一个 `api.json` 文件，在此文件中存储部件的接口信息，如部件名称、属性和事件等信息。
-
 ```json
 {
     "name": "部件名称，一个项目中要唯一",
     "label": "部件显示名",
+    "iconClass": "部件图标",
     "appType": ["web"],
     "properties": [{
         "name": "属性名",
         "label": "属性显示名",
-        "value": "属性值",
+        "value": "属性默认值",
         "valueType": "string | number | boolean | date",
         "options": [{
             "value": "选项值",
@@ -88,6 +90,25 @@ root
 ```
 
 注意：**要能跟踪部件名、属性名、事件名等**
+
+## `changelog`
+
+一个发行版，记录一次 api 变更。
+
+在变更文件中存储变更操作和部件的接口信息，如部件名称、属性和事件等信息。
+
+支持以下命令：
+
+1. `newWidget` - 新增部件
+2. `alterWidget` - 修改部件基本信息
+3. `addProperty` - 在部件中新增属性
+4. `removeProperty` - 移除部件中的属性
+5. `alterProperty` - 修改部件中的属性
+6. `addEvent`, - 在部件中新增事件
+7. `removeEvent` - 移除部件中的事件
+8. `alterEvent` - 修改部件中的事件
+
+注意：**修改已存在的属性和事件时，要使用 alter 命令，而不是组合使用 remove 和 add 命令**
 
 ## UI 部件项目命名
 
