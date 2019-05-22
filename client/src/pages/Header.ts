@@ -107,8 +107,11 @@ export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderPro
 		}
 
 		let docsMenuActive = false;
+		let marketplaceMenuActive = false;
 		if (routing === 'docs') {
 			docsMenuActive = true;
+		} else if (routing === 'list-component') {
+			marketplaceMenuActive = true;
 		}
 
 		return v('nav', { classes: rootClasses }, [
@@ -129,6 +132,16 @@ export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderPro
 				),
 				v('div', { classes: [c.collapse, c.navbar_collapse], id: 'navbarSupportedContent' }, [
 					v('ul', { classes: [c.navbar_nav, c.mr_auto] }, [
+						v('li', { classes: [c.nav_item] }, [
+							w(
+								Link,
+								{
+									classes: [c.nav_link, marketplaceMenuActive ? c.active : null],
+									to: 'list-component'
+								},
+								['市场']
+							)
+						]),
 						v('li', { classes: [c.nav_item] }, [
 							w(
 								Link,

@@ -31,6 +31,8 @@ export const col_md_4: string = 'col-md-4';
 export const col_md_8: string = 'col-md-8';
 export const col_md_3: string = 'col-md-3';
 export const col_md_9: string = 'col-md-9';
+export const col_sm_12: string = 'col-sm-12';
+export const col_lg_6: string = 'col-lg-6';
 
 // Content
 //     table

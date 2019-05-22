@@ -22,6 +22,16 @@ export default {
 		noActivityMessageHelpTitle: '如何才会出现动态？',
 		noActivityMessageHelp1: '1. 收藏项目后，会显示项目动态；',
 		noActivityMessageHelp2: '2. 关注好友后，会显示好友动态。',
+
+		// marketplace
+		marketplaceTitle: '组件市场',
+		publishComponentLabel: '发布组件',
+		componentSearchPlaceholder: '填写组件名称，淘一淘……',
+		componentSearchHelp: '欢迎大家在此发布组件！',
+		noComponentTitle: '空空如也',
+		noComponentTip:
+			'在基于 git 的源代码托管网站(如 github 或码云)上创建组件项目；然后为组件添加接口说明文件；就可往 Block Lang 组件市场发布。',
+
 		// new project
 		newProjectHelp: '项目包含页面、页面分组、页面模板以及变更历史等。',
 		projectNameLabel: '名称',

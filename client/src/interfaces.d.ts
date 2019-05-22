@@ -248,6 +248,8 @@ export interface CommitMessageInputValidation {
 	commitMessageErrorMessage?: string;
 }
 
+interface Component {}
+
 export interface State {
 	errors: Errors;
 	routing: Routing;
@@ -291,6 +293,9 @@ export interface State {
 	releaseInputValidation: ReleaseInputValidation;
 	projectReleaseParam: ProjectReleaseParam;
 	releaseCount: number;
+
+	// marketplace
+	components: Component[];
 
 	help: Help;
 }

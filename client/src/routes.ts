@@ -61,6 +61,10 @@ export default [
 		outlet: 'view-release'
 	},
 	{
+		path: 'marketplace',
+		outlet: 'list-component'
+	},
+	{
 		path: 'docs/{fileName}',
 		outlet: 'docs'
 	}

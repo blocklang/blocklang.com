@@ -50,6 +50,9 @@ import { faUser } from '@fortawesome/free-solid-svg-icons/faUser';
 import { faCodeBranch } from '@fortawesome/free-solid-svg-icons/faCodeBranch';
 import { faCopy } from '@fortawesome/free-solid-svg-icons/faCopy';
 import { faMinus } from '@fortawesome/free-solid-svg-icons/faMinus';
+import { faSearch } from '@fortawesome/free-solid-svg-icons/faSearch';
+import { faLightbulb } from '@fortawesome/free-solid-svg-icons/faLightbulb';
+import { faPuzzlePiece } from '@fortawesome/free-solid-svg-icons/faPuzzlePiece';
 
 library.add(
 	faGithub,
@@ -81,7 +84,10 @@ library.add(
 	faUser,
 	faCodeBranch,
 	faCopy,
-	faMinus
+	faMinus,
+	faSearch,
+	faLightbulb,
+	faPuzzlePiece
 );
 
 import * as css from './App.m.css';
@@ -90,6 +96,7 @@ import ViewReleaseContainer from './containers/release/ViewReleaseContainer';
 import NewPageContainer from './containers/resource/NewPageContainer';
 import NewGroupContainer from './containers/resource/NewGroupContainer';
 import ViewProjectGroupContainer from './containers/project/ViewProjectGroupContainer';
+import ListComponentContainer from './containers/marketplace/ListComponentContainer';
 
 export default class App extends WidgetBase {
 	protected render() {
@@ -126,6 +133,11 @@ export default class App extends WidgetBase {
 				}),
 				w(Outlet, { key: 'view-release', id: 'view-release', renderer: () => w(ViewReleaseContainer, {}) }),
 				w(Outlet, { key: 'docs', id: 'docs', renderer: () => w(ViewDocumentContainer, {}) }),
+				w(Outlet, {
+					key: 'list-component',
+					id: 'list-component',
+					renderer: () => w(ListComponentContainer, {})
+				}),
 				w(Outlet, { key: 'about', id: 'about', renderer: () => w(About, {}) }),
 				w(Outlet, {
 					key: 'settings-profile',
