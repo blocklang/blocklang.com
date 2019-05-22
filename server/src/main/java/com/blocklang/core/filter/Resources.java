@@ -3,6 +3,7 @@ package com.blocklang.core.filter;
 public abstract class Resources {
 
 	public static final String[] PUBLIC_FILE_EXTENSIONS = new String[] {
+		"html",
 		"js", 
 		"css", 
 		"map", 
@@ -40,6 +41,7 @@ public abstract class Resources {
 		"/**/*.json",
 		"/**/*.map",
 		"/favicon.ico",
+		"/index.html",
 		"/errors**", // Spring boot 错误页面
 		// 自动安装 APP 的服务接口
 		"/projects/**",

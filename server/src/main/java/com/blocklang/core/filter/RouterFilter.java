@@ -85,8 +85,9 @@ public class RouterFilter implements Filter{
 		System.out.println("context path:" + httpServletRequest.getContextPath());
 		System.out.println("pathInfo:" + httpServletRequest.getPathInfo());
 		
-		// 访问帮助文档中使用的图片
-		if(servletPath.startsWith("/raw/docs")) {
+		if(servletPath.equals("/") && // 如果是进入首页，则不作任何处理
+				/*访问帮助文档中使用的图片*/
+				servletPath.startsWith("/raw/docs") ) {
 			chain.doFilter(request, response);
 			return;
 		}
