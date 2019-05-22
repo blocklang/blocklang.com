@@ -11,7 +11,8 @@ public abstract class Resources {
 		"eot", 
 		"svg",
 		"woff", 
-		"json"
+		"json",
+		"ico"
 	};
 	
 	/**
@@ -38,6 +39,7 @@ public abstract class Resources {
 		"/**/*.woff2",
 		"/**/*.json",
 		"/**/*.map",
+		"/favicon.ico",
 		"/errors**", // Spring boot 错误页面
 		// 自动安装 APP 的服务接口
 		"/projects/**",
