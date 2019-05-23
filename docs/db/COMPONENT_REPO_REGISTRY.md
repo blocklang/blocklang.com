@@ -30,5 +30,5 @@
 2. `git_repo_website` 的值从 `git_repo_url` 中截取，如 `github`、`gitlab`、`gitee` 等
 3. `version` 指仓库的最新版本号
 4. `name`、`version`、`label`、`description`、`logo_path` 和 `category` 的值是从项目根目录下的 `package.json` 文件里获取的
-5. `category` 的值：`01` 表示 `Widget`，`02` 表示 `Client API`，`03` 表示 `Server API`
+5. `category` 的值：`01` 表示 `Widget`，`02` 表示 `Client API`，`03` 表示 `Server API`，`99` 表示 `Unknown`
 6. 注意：**一个组件仓库中只能存一类组件**
