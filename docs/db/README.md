@@ -4,6 +4,10 @@
 
 文档排版参见[表结构模板说明](_TEMPLATE.md)
 
+## 市场
+
+1. [`COMPONENT_REPO_REGISTRY`](COMPONENT_REPO_REGISTRY.md)
+
 ## 开发
 
 1. [`PROJECT`](PROJECT.md)

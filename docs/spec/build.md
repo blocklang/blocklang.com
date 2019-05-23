@@ -44,6 +44,10 @@ BlockLang
             |--- {app_name}
                      |--- {version}
                               |--- {file_name}
+    |--- marketplace
+            |--- {website}
+                     |--- {owner}
+                             |--- {project_name}
 ```
 
 文件夹结构说明
@@ -65,6 +69,8 @@ BlockLang
    1. {app_name} - app 名称
       1. {version} - 版本号
          1. {file_name} - 文件名
+5. marketplace - 缓存市场中注册的项目源代码
+   1. {website} - 源代码托管仓库网站标识，如 github, gitlab, gitee
 
 ### App
 

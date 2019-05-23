@@ -30,5 +30,6 @@
 	<include file="db/changelog/table/201903041033_create_project_deploy.xml" />
 	
 	<include file="db/changelog/table/201904182158_create_persistent_logins.xml" />
+	<include file="db/changelog/table/201905231105_create_component_repo_registry.xml" />
 
 </databaseChangeLog>
