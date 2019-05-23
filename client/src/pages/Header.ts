@@ -110,7 +110,7 @@ export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderPro
 		let marketplaceMenuActive = false;
 		if (routing === 'docs') {
 			docsMenuActive = true;
-		} else if (routing === 'list-component') {
+		} else if (routing === 'list-component-repo') {
 			marketplaceMenuActive = true;
 		}
 
@@ -137,7 +137,7 @@ export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderPro
 								Link,
 								{
 									classes: [c.nav_link, marketplaceMenuActive ? c.active : null],
-									to: 'list-component'
+									to: 'list-component-repo'
 								},
 								['市场']
 							)

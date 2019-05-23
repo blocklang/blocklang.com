@@ -32,7 +32,7 @@ import { initForViewDocumentProcess } from './processes/documentProcess';
 import { setSessionProcess } from './processes/loginProcesses';
 import { initForNewPageProcess } from './processes/pageProcesses';
 import { initForNewGroupProcess } from './processes/groupProcesses';
-import { initForListComponentsProcess } from './processes/componentProcess';
+import { initForListComponentReposProcess } from './processes/componentRepoProcess';
 
 const store = new Store<State>();
 
@@ -140,8 +140,8 @@ router.on('outlet', ({ outlet, action }) => {
 					version: outlet.params.version
 				});
 				break;
-			case 'list-component':
-				initForListComponentsProcess(store)({});
+			case 'list-component-repo':
+				initForListComponentReposProcess(store)({});
 				break;
 			case 'docs':
 				initForViewDocumentProcess(store)({ fileName: outlet.params.fileName });

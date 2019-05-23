@@ -62,7 +62,7 @@ export default [
 	},
 	{
 		path: 'marketplace',
-		outlet: 'list-component'
+		outlet: 'list-component-repo'
 	},
 	{
 		path: 'docs/{fileName}',

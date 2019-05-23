@@ -5,19 +5,19 @@ import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
 
 import messageBundle from '../../nls/main';
 import * as c from '../../className';
-import * as css from './ListMarketplace.m.css';
+import * as css from './ListComponentRepo.m.css';
 import FontAwesomeIcon from '../../widgets/fontawesome-icon';
 import Link from '@dojo/framework/routing/Link';
-import { Component } from '../../interfaces';
+import { ComponentRepo } from '../../interfaces';
 import Spinner from '../../widgets/spinner';
 
-export interface ListComponentProperties {
+export interface ListComponentRepoProperties {
 	loggedUsername: string;
-	components: Component[];
+	componentRepos: ComponentRepo[];
 }
 
 @theme(css)
-export default class ListComponent extends ThemedMixin(I18nMixin(WidgetBase))<ListComponentProperties> {
+export default class ListComponentRepo extends ThemedMixin(I18nMixin(WidgetBase))<ListComponentRepoProperties> {
 	private _localizedMessages = this.localizeBundle(messageBundle);
 
 	protected render() {
@@ -32,24 +32,24 @@ export default class ListComponent extends ThemedMixin(I18nMixin(WidgetBase))<Li
 					: undefined
 			]),
 			// 部件列表
-			this._renderCompomentsBlock(),
+			this._renderCompomentReposBlock(),
 			// 分页
 			v('div', [])
 		]);
 	}
 
-	private _renderCompomentsBlock() {
-		const { components } = this.properties;
+	private _renderCompomentReposBlock() {
+		const { componentRepos } = this.properties;
 
-		if (!components) {
+		if (!componentRepos) {
 			return w(Spinner, {});
 		}
 
-		if (components.length === 0) {
-			return this._renderEmptyComponent();
+		if (componentRepos.length === 0) {
+			return this._renderEmptyComponentRepo();
 		}
 
-		return this._renderComponents();
+		return this._renderComponentRepos();
 	}
 
 	private _renderSearchBox() {
@@ -75,7 +75,7 @@ export default class ListComponent extends ThemedMixin(I18nMixin(WidgetBase))<Li
 		]);
 	}
 
-	private _renderEmptyComponent() {
+	private _renderEmptyComponentRepo() {
 		const { messages } = this._localizedMessages;
 
 		return v('div', { classes: [c.jumbotron, c.mx_auto, c.text_center], styles: { width: '544px' } }, [
@@ -100,7 +100,7 @@ export default class ListComponent extends ThemedMixin(I18nMixin(WidgetBase))<Li
 		return !!loggedUsername;
 	}
 
-	private _renderComponents() {
+	private _renderComponentRepos() {
 		return v('div', { classes: [c.mt_3] }, []);
 	}
 }

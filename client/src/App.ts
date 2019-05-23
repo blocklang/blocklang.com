@@ -96,7 +96,7 @@ import ViewReleaseContainer from './containers/release/ViewReleaseContainer';
 import NewPageContainer from './containers/resource/NewPageContainer';
 import NewGroupContainer from './containers/resource/NewGroupContainer';
 import ViewProjectGroupContainer from './containers/project/ViewProjectGroupContainer';
-import ListComponentContainer from './containers/marketplace/ListComponentContainer';
+import ListComponentRepoContainer from './containers/marketplace/ListComponentRepoContainer';
 
 export default class App extends WidgetBase {
 	protected render() {
@@ -134,9 +134,9 @@ export default class App extends WidgetBase {
 				w(Outlet, { key: 'view-release', id: 'view-release', renderer: () => w(ViewReleaseContainer, {}) }),
 				w(Outlet, { key: 'docs', id: 'docs', renderer: () => w(ViewDocumentContainer, {}) }),
 				w(Outlet, {
-					key: 'list-component',
-					id: 'list-component',
-					renderer: () => w(ListComponentContainer, {})
+					key: 'list-component-repo',
+					id: 'list-component-repo',
+					renderer: () => w(ListComponentRepoContainer, {})
 				}),
 				w(Outlet, { key: 'about', id: 'about', renderer: () => w(About, {}) }),
 				w(Outlet, {

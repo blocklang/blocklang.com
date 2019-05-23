@@ -248,7 +248,7 @@ export interface CommitMessageInputValidation {
 	commitMessageErrorMessage?: string;
 }
 
-interface Component {}
+interface ComponentRepo {}
 
 export interface State {
 	errors: Errors;
@@ -295,7 +295,7 @@ export interface State {
 	releaseCount: number;
 
 	// marketplace
-	components: Component[];
+	componentRepos: ComponentRepo[];
 
 	help: Help;
 }
