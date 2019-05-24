@@ -18,6 +18,7 @@ drop table project_authorization;
 drop table project_commit;
 drop table project_deploy;
 drop table persistent_logins;
+drop table component_repo_registry;
 
 drop table databasechangelog;
 drop table databasechangeloglock;

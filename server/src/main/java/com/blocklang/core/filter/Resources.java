@@ -25,7 +25,8 @@ public abstract class Resources {
 		"/projects/new",
 		"/docs/{fileName}",
 		"/settings/profile",
-		"/user/completeUserInfo"
+		"/user/completeUserInfo",
+		"/marketplace"
 	};
 
 	public static final String[] PUBLIC_URL = {
@@ -48,7 +49,9 @@ public abstract class Resources {
 		"/installers/**",
 		"/apps/**",
 		// 信息分类编码
-		"/properties/**"
+		"/properties/**",
+		// 组件库列表
+		"/component-repos"
 	};
 	
 	/**
@@ -63,7 +66,8 @@ public abstract class Resources {
 		"users",                           // 用户管理
 		"user",                            // 登录用户信息
 		"docs",                            // 帮助文档
-		"properties"                       // 信息分类编码
+		"properties",                      // 信息分类编码
+		"component-repos"                  // 组件库
 		
 //		"/session", // 用户登录
 //		"/mocksession", // 开发环境下，模拟用户登录

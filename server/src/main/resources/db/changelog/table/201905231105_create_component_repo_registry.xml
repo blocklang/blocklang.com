@@ -35,6 +35,7 @@
 			<column name="category" remarks="组件库分类" type="char(2)">
 				<constraints nullable="false" />
 			</column>
+			<column name="last_publish_time" remarks="最近发布时间" type="${datetime}" />
 			<column name="create_user_id" remarks="创建人标识" type="int">
 				<constraints nullable="false" />
 			</column>

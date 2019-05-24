@@ -6,6 +6,10 @@
 2. 在 servlet 文件夹下可创建分组，对应不同层级的服务，但尽量将目录控制在两级
 3. 文件名和 url 名称一律小写，如果出现多个单词，则用中划线隔开，如 `check-name`
 
+## 市场
+
+1. [获取组件仓库列表](./marketplace/list-component-repos.md)
+
 ## 项目
 
 1. [校验项目名称](./projects/project/check-name.md)

@@ -1,19 +1,21 @@
 package com.blocklang.marketplace.model;
 
+import java.time.LocalDateTime;
+
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.Table;
 
-import com.blocklang.core.model.PartialIdField;
+import com.blocklang.core.model.PartialOperateFields;
 import com.blocklang.marketplace.constant.RepoCategory;
 import com.blocklang.marketplace.constant.converter.RepoCategoryConverter;
 
 @Entity
 @Table(name = "component_repo_registry", indexes = {
 		@Index(unique = false, name = "IDX_COMPONENT_REPO_REGISTRY_ON_NAME", columnList = "name") })
-public class ComponentRepoRegistry extends PartialIdField {
+public class ComponentRepoRegistry extends PartialOperateFields {
 
 	private static final long serialVersionUID = 8362695653909646856L;
 
@@ -47,6 +49,9 @@ public class ComponentRepoRegistry extends PartialIdField {
 	@Convert(converter = RepoCategoryConverter.class)
 	@Column(name = "category", nullable = false, length = 2)
 	private RepoCategory category;
+	
+	@Column(name = "last_publish_time" )
+	private LocalDateTime lastPublishTime;
 
 	public String getGitRepoUrl() {
 		return gitRepoUrl;
@@ -126,6 +131,14 @@ public class ComponentRepoRegistry extends PartialIdField {
 
 	public void setCategory(RepoCategory category) {
 		this.category = category;
+	}
+
+	public LocalDateTime getLastPublishTime() {
+		return lastPublishTime;
+	}
+
+	public void setLastPublishTime(LocalDateTime lastPublishTime) {
+		this.lastPublishTime = lastPublishTime;
 	}
 
 }
