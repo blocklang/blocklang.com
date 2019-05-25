@@ -36,7 +36,9 @@ export default class ListComponentRepo extends ThemedMixin(I18nMixin(WidgetBase)
 			// 发布按钮
 			v('div', { classes: [c.d_flex, c.justify_content_end] }, [
 				this._isLogin()
-					? w(Link, { to: '#', classes: [c.btn, c.btn_primary] }, [`${messages.publishComponentLabel}`])
+					? w(Link, { to: 'list-my-component-repo', classes: [c.btn, c.btn_primary] }, [
+							`${messages.publishComponentLabel}`
+					  ])
 					: undefined
 			]),
 			// 部件列表
@@ -101,7 +103,7 @@ export default class ListComponentRepo extends ThemedMixin(I18nMixin(WidgetBase)
 						Link,
 						{
 							classes: [c.btn, c.btn_secondary, c.btn_sm],
-							to: 'new-component'
+							to: 'list-my-component-repo'
 						},
 						[`${messages.publishComponentLabel}`]
 				  )

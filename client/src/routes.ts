@@ -65,6 +65,14 @@ export default [
 		outlet: 'list-component-repo'
 	},
 	{
+		path: 'settings/marketplace/repo',
+		outlet: 'list-my-component-repo'
+	},
+	{
+		path: 'settings/marketplace/repo/new',
+		outlet: 'new-component-repo'
+	},
+	{
 		path: 'docs/{fileName}',
 		outlet: 'docs'
 	}

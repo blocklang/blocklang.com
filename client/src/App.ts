@@ -97,6 +97,8 @@ import NewPageContainer from './containers/resource/NewPageContainer';
 import NewGroupContainer from './containers/resource/NewGroupContainer';
 import ViewProjectGroupContainer from './containers/project/ViewProjectGroupContainer';
 import ListComponentRepoContainer from './containers/marketplace/ListComponentRepoContainer';
+import NewComponentRepoContainer from './containers/marketplace/NewComponentRepoContainer';
+import ListMyComponentRepoContainer from './containers/marketplace/ListMyComponentRepoContainer';
 
 export default class App extends WidgetBase {
 	protected render() {
@@ -137,6 +139,16 @@ export default class App extends WidgetBase {
 					key: 'list-component-repo',
 					id: 'list-component-repo',
 					renderer: () => w(ListComponentRepoContainer, {})
+				}),
+				w(Outlet, {
+					key: 'new-component-repo',
+					id: 'new-component-repo',
+					renderer: () => w(NewComponentRepoContainer, {})
+				}),
+				w(Outlet, {
+					key: 'list-my-component-repo',
+					id: 'list-my-component-repo',
+					renderer: () => w(ListMyComponentRepoContainer, {})
 				}),
 				w(Outlet, { key: 'about', id: 'about', renderer: () => w(About, {}) }),
 				w(Outlet, {
