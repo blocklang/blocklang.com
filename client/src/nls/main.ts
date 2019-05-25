@@ -29,8 +29,9 @@ export default {
 		componentSearchPlaceholder: '填写组件名称，淘一淘……',
 		componentSearchHelp: '欢迎大家在此发布组件！',
 		noComponentTitle: '空空如也',
-		noComponentTip:
-			'在基于 git 的源代码托管网站(如 github 或码云)上创建组件项目；然后为组件添加接口说明文件；就可往 Block Lang 组件市场发布。',
+		noComponentTipLine1: '在基于 git 的源代码托管网站(如 github 或码云等)上创建组件项目；',
+		noComponentTipLine2: '遵循 Block Lang 组件开发规范，为组件添加接口说明文件；',
+		noComponentTipLine3: '在 Block Lang 组件市场注册组件项目，并按版本发布组件。',
 
 		// new project
 		newProjectHelp: '项目包含页面、页面分组、页面模板以及变更历史等。',

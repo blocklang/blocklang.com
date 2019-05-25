@@ -23,7 +23,20 @@ GET /component-repos?q={query}&page={page}
 Status: 200 OK
 ```
 
-返回一个 JSON 数组，其中的 JSON 对象字段为：
+返回一个 JSON 数组，其中包含分页信息
+
+```json
+{
+    "totalPages": 0,
+    "number": 0,
+    "size": 10,
+    "first": true,
+    "last": true,
+    "content": []
+}
+```
+
+`content` 数组中的 JSON 对象字段为：
 
 | Name              | Type     | Description        |
 | ----------------- | -------- | ------------------ |

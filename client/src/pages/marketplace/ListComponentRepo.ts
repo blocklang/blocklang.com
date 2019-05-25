@@ -8,12 +8,14 @@ import * as c from '../../className';
 import * as css from './ListComponentRepo.m.css';
 import FontAwesomeIcon from '../../widgets/fontawesome-icon';
 import Link from '@dojo/framework/routing/Link';
-import { ComponentRepo } from '../../interfaces';
+import { PagedComponentRepos } from '../../interfaces';
 import Spinner from '../../widgets/spinner';
+import Exception from '../error/Exception';
 
 export interface ListComponentRepoProperties {
 	loggedUsername: string;
-	componentRepos: ComponentRepo[];
+	pagedComponentRepos: PagedComponentRepos;
+	marketplacePageStatusCode: number;
 }
 
 @theme(css)
@@ -21,6 +23,12 @@ export default class ListComponentRepo extends ThemedMixin(I18nMixin(WidgetBase)
 	private _localizedMessages = this.localizeBundle(messageBundle);
 
 	protected render() {
+		const { marketplacePageStatusCode } = this.properties;
+
+		if (marketplacePageStatusCode === 404) {
+			return w(Exception, { type: '404' });
+		}
+
 		const { messages } = this._localizedMessages;
 		return v('div', { classes: [css.root, c.container] }, [
 			this._renderSearchBox(),
@@ -39,13 +47,13 @@ export default class ListComponentRepo extends ThemedMixin(I18nMixin(WidgetBase)
 	}
 
 	private _renderCompomentReposBlock() {
-		const { componentRepos } = this.properties;
+		const { pagedComponentRepos } = this.properties;
 
-		if (!componentRepos) {
+		if (!pagedComponentRepos) {
 			return w(Spinner, {});
 		}
 
-		if (componentRepos.length === 0) {
+		if (pagedComponentRepos.content.length === 0) {
 			return this._renderEmptyComponentRepo();
 		}
 
@@ -78,10 +86,16 @@ export default class ListComponentRepo extends ThemedMixin(I18nMixin(WidgetBase)
 	private _renderEmptyComponentRepo() {
 		const { messages } = this._localizedMessages;
 
-		return v('div', { classes: [c.jumbotron, c.mx_auto, c.text_center], styles: { width: '544px' } }, [
+		return v('div', { classes: [c.jumbotron, c.mx_auto, c.text_center, c.mt_3], styles: { width: '544px' } }, [
 			w(FontAwesomeIcon, { icon: 'puzzle-piece', size: '2x', classes: [c.text_muted] }),
 			v('h3', { classes: [c.mt_3] }, [`${messages.noComponentTitle}`]),
-			v('p', [`${messages.noComponentTip}`]),
+			v('p', [
+				v('ol', { classes: [c.text_left] }, [
+					v('li', [`${messages.noComponentTipLine1}`]),
+					v('li', [`${messages.noComponentTipLine2}`]),
+					v('li', [`${messages.noComponentTipLine3}`])
+				])
+			]),
 			this._isLogin()
 				? w(
 						Link,

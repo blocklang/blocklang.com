@@ -248,7 +248,35 @@ export interface CommitMessageInputValidation {
 	commitMessageErrorMessage?: string;
 }
 
-interface ComponentRepo {}
+/**
+ * 通用的分页对象
+ */
+interface Page {
+	totalPages: number;
+	number: number;
+	size: number;
+	first: boolean;
+	last: boolean;
+}
+
+interface ComponentRepo {
+	id?: number;
+	gitRepoUrl: string;
+	gitRepoWebsite: string;
+	gitRepoOwner: string;
+	gitRepoName: string;
+	name: string;
+	version: string;
+	label?: string;
+	description?: string;
+	logoPath: string;
+	category: string;
+	lastPublishTime: string;
+}
+
+interface PagedComponentRepos extends Page {
+	content: ComponentRepo[];
+}
 
 export interface State {
 	errors: Errors;
@@ -295,7 +323,8 @@ export interface State {
 	releaseCount: number;
 
 	// marketplace
-	componentRepos: ComponentRepo[];
+	pagedComponentRepos: PagedComponentRepos;
+	marketplacePageStatusCode: number;
 
 	help: Help;
 }
