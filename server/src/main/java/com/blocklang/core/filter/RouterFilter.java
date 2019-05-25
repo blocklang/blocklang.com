@@ -63,13 +63,9 @@ public class RouterFilter implements Filter{
 		}
 		
 		String servletPath = httpServletRequest.getServletPath();
-		String url = httpServletRequest.getRequestURI();
-		if(StringUtils.isBlank(servletPath)) {
-			servletPath = url;
-		}
 		
 		// websocket 直接过
-		if(Arrays.stream(Resources.WS_ENDPOINTS).anyMatch(item -> url.startsWith(item))) {
+		if(Arrays.stream(Resources.WS_ENDPOINTS).anyMatch(item -> servletPath.startsWith(item))) {
 			chain.doFilter(request, response);
 			return;
 		}
@@ -81,13 +77,14 @@ public class RouterFilter implements Filter{
 		System.out.println("servlet path = " + servletPath);
 		httpServletRequest.getHeaderNames().asIterator().forEachRemaining(name -> System.out.println(name + " = " + httpServletRequest.getHeader(name)));
 		
-		System.out.println("url:" + url);
+		System.out.println("url:" + servletPath);
 		System.out.println("context path:" + httpServletRequest.getContextPath());
 		System.out.println("pathInfo:" + httpServletRequest.getPathInfo());
 		
-		if(servletPath.equals("/") && // 如果是进入首页，则不作任何处理
-				/*访问帮助文档中使用的图片*/
-				servletPath.startsWith("/raw/docs") ) {
+		// 以下情况，不作处理，直接访问
+		// 1. 访问首页
+		// 2. 访问帮助文档中的图片
+		if(servletPath.equals("/") || servletPath.startsWith("/raw/docs") ) {
 			chain.doFilter(request, response);
 			return;
 		}

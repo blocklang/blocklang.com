@@ -28,6 +28,69 @@ import com.blocklang.core.controller.HttpCustomHeader;
 public class RouterFilterTest {
 
 	@Test
+	public void filter_access_home() throws IOException, ServletException {
+		RouterFilter routerFilter = new RouterFilter();
+		
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
+		request.setServletPath("/");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockFilterChain chain = new MockFilterChain() {
+			@Override
+			public void doFilter(ServletRequest request, ServletResponse response)
+					throws IOException, ServletException {
+				request.setAttribute("a", "1");
+				super.doFilter(request, response);
+			}
+		};
+		assertThat(request.getAttribute("a")).isNull();;
+		routerFilter.doFilter(request, response, chain);
+		assertThat(response.getForwardedUrl()).isNull();;
+		assertThat(request.getAttribute("a")).isEqualTo("1");
+	}
+	
+	@Test
+	public void filter_access_raw_docs() throws IOException, ServletException {
+		RouterFilter routerFilter = new RouterFilter();
+		
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/raw/docs/a.png");
+		request.setServletPath("/raw/docs/a.png");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockFilterChain chain = new MockFilterChain() {
+			@Override
+			public void doFilter(ServletRequest request, ServletResponse response)
+					throws IOException, ServletException {
+				request.setAttribute("a", "1");
+				super.doFilter(request, response);
+			}
+		};
+		assertThat(request.getAttribute("a")).isNull();;
+		routerFilter.doFilter(request, response, chain);
+		assertThat(response.getForwardedUrl()).isNull();;
+		assertThat(request.getAttribute("a")).isEqualTo("1");
+	}
+	
+	@Test
+	public void filter_access_websocket() throws IOException, ServletException {
+		RouterFilter routerFilter = new RouterFilter();
+		
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/release-console");
+		request.setServletPath("/release-console");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockFilterChain chain = new MockFilterChain() {
+			@Override
+			public void doFilter(ServletRequest request, ServletResponse response)
+					throws IOException, ServletException {
+				request.setAttribute("a", "1");
+				super.doFilter(request, response);
+			}
+		};
+		assertThat(request.getAttribute("a")).isNull();;
+		routerFilter.doFilter(request, response, chain);
+		assertThat(response.getForwardedUrl()).isNull();;
+		assertThat(request.getAttribute("a")).isEqualTo("1");
+	}
+	
+	@Test
 	public void filter_forward_to_home() throws IOException, ServletException {
 		RouterFilter routerFilter = new RouterFilter();
 		
