@@ -63,9 +63,13 @@ public class RouterFilter implements Filter{
 		}
 		
 		String servletPath = httpServletRequest.getServletPath();
+		if(StringUtils.isBlank(servletPath)) {
+			servletPath = httpServletRequest.getRequestURI();
+		}
 		
 		// websocket 直接过
-		if(Arrays.stream(Resources.WS_ENDPOINTS).anyMatch(item -> servletPath.startsWith(item))) {
+		String finalServletPath = servletPath;
+		if(Arrays.stream(Resources.WS_ENDPOINTS).anyMatch(item -> finalServletPath.startsWith(item))) {
 			chain.doFilter(request, response);
 			return;
 		}
@@ -93,7 +97,6 @@ public class RouterFilter implements Filter{
 		String referer = httpServletRequest.getHeader("referer");
 		// 当按下浏览器的 F5，刷新 Single Page Application 的任一页面时，都跳转到首页
 		// 如果是浏览器刷新，则 referer 的值必为 null
-		String finalServletPath = servletPath;
 		boolean routerMatched = routerTemplates.stream().anyMatch(uriTemplate -> uriTemplate.matches(finalServletPath));
 		boolean isStaticResource = isStaticResource(filenameExtension);
 		// 能执行到这里，则一定是普通的浏览器请求，而不是 Fetch 请求
