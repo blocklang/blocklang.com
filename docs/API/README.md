@@ -9,6 +9,7 @@
 ## 市场
 
 1. [获取组件仓库列表](./marketplace/list-component-repos.md)
+2. [发布一个组件仓库](./marketplace/create-a-component-repo.md)
 
 ## 项目
 
