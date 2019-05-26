@@ -54,7 +54,7 @@ export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBas
 								])
 							]),
 							v('small', { classes: [c.form_text, c.text_muted] }, [
-								'填写托管在 github 或码云等网站的仓库地址，敲回车或按“发布”按钮提交'
+								'发布功能是基于 git 仓库的历史标记(Tag)的，敲回车或按“发布”按钮'
 							])
 						])
 					]),
