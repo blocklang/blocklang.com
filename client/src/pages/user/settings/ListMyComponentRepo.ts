@@ -1,4 +1,4 @@
-//import messageBundle from '../../nls/main';
+import messageBundle from '../../../nls/main';
 import * as c from '../../../className';
 import * as css from './ListMyComponentRepo.m.css';
 import ThemedMixin, { theme } from '@dojo/framework/widget-core/mixins/Themed';
@@ -7,10 +7,12 @@ import { ListComponentRepoProperties } from '../../marketplace/ListComponentRepo
 import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
 import { v, w } from '@dojo/framework/widget-core/d';
 import Link from '@dojo/framework/routing/Link';
+import Spinner from '../../../widgets/spinner';
+import FontAwesomeIcon from '../../../widgets/fontawesome-icon';
 
 @theme(css)
 export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBase))<ListComponentRepoProperties> {
-	//private _localizedMessages = this.localizeBundle(messageBundle);
+	private _localizedMessages = this.localizeBundle(messageBundle);
 
 	protected render() {
 		return v('div', { classes: [css.root, c.container, c.mt_5] }, [
@@ -23,16 +25,7 @@ export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBas
 					])
 				]),
 				v('div', { classes: [c.col_9] }, [
-					v('div', [
-						v('div', { classes: [c.d_flex, c.justify_content_between, c.align_items_center] }, [
-							v('span', { classes: [c.h4] }, ['组件市场']),
-							w(Link, { to: 'new-component-repo', classes: [c.btn, c.btn_primary, c.btn_sm] }, [
-								'发布组件'
-							])
-						]),
-						v('hr')
-					]),
-
+					v('div', [v('h4', ['组件市场']), v('hr')]),
 					// 发布组件 form 表单
 					// 点击按钮，或按下回车键提交
 					// 校验 url 是否有效的 git 仓库地址
@@ -64,9 +57,45 @@ export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBas
 								'填写托管在 github 或码云等网站的仓库地址，敲回车或按“发布”按钮提交'
 							])
 						])
-					])
+					]),
+
+					this._renderCompomentReposBlock()
 				])
 			])
 		]);
+	}
+
+	private _renderCompomentReposBlock() {
+		const { pagedComponentRepos } = this.properties;
+
+		if (!pagedComponentRepos) {
+			return w(Spinner, {});
+		}
+
+		if (pagedComponentRepos.content.length === 0) {
+			return this._renderEmptyComponentRepo();
+		}
+
+		return this._renderComponentRepos();
+	}
+
+	private _renderEmptyComponentRepo() {
+		const { messages } = this._localizedMessages;
+
+		return v('div', { classes: [c.jumbotron, c.mx_auto, c.text_center, c.mt_3], styles: { maxWidth: '544px' } }, [
+			w(FontAwesomeIcon, { icon: 'puzzle-piece', size: '2x', classes: [c.text_muted] }),
+			v('h3', { classes: [c.mt_3] }, [`${messages.noComponentTitle}`]),
+			v('p', [
+				v('ol', { classes: [c.text_left] }, [
+					v('li', [`${messages.noComponentTipLine1}`]),
+					v('li', [`${messages.noComponentTipLine2}`]),
+					v('li', [`${messages.noComponentTipLine3}`])
+				])
+			])
+		]);
+	}
+
+	private _renderComponentRepos() {
+		return v('div');
 	}
 }

@@ -88,7 +88,7 @@ export default class ListComponentRepo extends ThemedMixin(I18nMixin(WidgetBase)
 	private _renderEmptyComponentRepo() {
 		const { messages } = this._localizedMessages;
 
-		return v('div', { classes: [c.jumbotron, c.mx_auto, c.text_center, c.mt_3], styles: { width: '544px' } }, [
+		return v('div', { classes: [c.jumbotron, c.mx_auto, c.text_center, c.mt_3], styles: { maxWidth: '544px' } }, [
 			w(FontAwesomeIcon, { icon: 'puzzle-piece', size: '2x', classes: [c.text_muted] }),
 			v('h3', { classes: [c.mt_3] }, [`${messages.noComponentTitle}`]),
 			v('p', [

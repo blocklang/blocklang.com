@@ -97,7 +97,6 @@ import NewPageContainer from './containers/resource/NewPageContainer';
 import NewGroupContainer from './containers/resource/NewGroupContainer';
 import ViewProjectGroupContainer from './containers/project/ViewProjectGroupContainer';
 import ListComponentRepoContainer from './containers/marketplace/ListComponentRepoContainer';
-import NewComponentRepoContainer from './containers/marketplace/NewComponentRepoContainer';
 import ListMyComponentRepoContainer from './containers/user/settings/ListMyComponentRepoContainer';
 
 export default class App extends WidgetBase {
@@ -139,11 +138,6 @@ export default class App extends WidgetBase {
 					key: 'list-component-repo',
 					id: 'list-component-repo',
 					renderer: () => w(ListComponentRepoContainer, {})
-				}),
-				w(Outlet, {
-					key: 'new-component-repo',
-					id: 'new-component-repo',
-					renderer: () => w(NewComponentRepoContainer, {})
 				}),
 				// 登录用户-setting
 				w(Outlet, {
