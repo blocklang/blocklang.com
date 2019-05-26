@@ -1,7 +1,7 @@
 import { Store } from '@dojo/framework/stores/Store';
 import { StoreContainer } from '@dojo/framework/stores/StoreInjector';
-import { State } from '../../interfaces';
-import Setting, { SettingProperties } from '../../pages/user/Setting';
+import { State } from '../../../interfaces';
+import Profile, { ProfileProperties } from '../../../pages/user/settings/Profile';
 import {
 	nicknameInputProcess,
 	websiteUrlInputProcess,
@@ -10,9 +10,9 @@ import {
 	bioInputProcess,
 	updateUserProfileProcess,
 	closeSuccessAlertProcess
-} from '../../processes/userProcesses';
+} from '../../../processes/userProcesses';
 
-function getProperties(store: Store<State>): SettingProperties {
+function getProperties(store: Store<State>): ProfileProperties {
 	const { get, path } = store;
 
 	return {
@@ -29,7 +29,7 @@ function getProperties(store: Store<State>): SettingProperties {
 	};
 }
 
-export default StoreContainer(Setting, 'state', {
+export default StoreContainer(Profile, 'state', {
 	paths: [['user'], ['profile'], ['profileUpdateSuccessMessage']],
 	getProperties
 });

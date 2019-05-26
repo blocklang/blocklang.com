@@ -21,6 +21,10 @@ export default [
 		outlet: 'settings-profile'
 	},
 	{
+		path: 'settings/marketplace/repo',
+		outlet: 'settings-marketplace'
+	},
+	{
 		path: 'projects/new',
 		outlet: 'new-project'
 	},
@@ -63,10 +67,6 @@ export default [
 	{
 		path: 'marketplace',
 		outlet: 'list-component-repo'
-	},
-	{
-		path: 'settings/marketplace/repo',
-		outlet: 'list-my-component-repo'
 	},
 	{
 		path: 'settings/marketplace/repo/new',

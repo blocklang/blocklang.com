@@ -1,8 +1,8 @@
 import Store from '@dojo/framework/stores/Store';
-import { State } from '../../interfaces';
+import { State } from '../../../interfaces';
 import { StoreContainer } from '@dojo/framework/stores/StoreInjector';
-import { ListComponentRepoProperties } from '../../pages/marketplace/ListComponentRepo';
-import ListMyComponentRepo from '../../pages/marketplace/ListMyComponentRepo';
+import { ListComponentRepoProperties } from '../../../pages/marketplace/ListComponentRepo';
+import ListMyComponentRepo from '../../../pages/user/settings/ListMyComponentRepo';
 
 function getProperties(store: Store<State>): ListComponentRepoProperties {
 	const { get, path } = store;

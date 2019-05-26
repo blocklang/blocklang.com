@@ -3,7 +3,7 @@ import { v, w } from '@dojo/framework/widget-core/d';
 
 import messageBundle from '../../nls/main';
 import * as c from '../../className';
-import * as css from './Setting.m.css';
+import * as css from './settings/Profile.m.css';
 import ThemedMixin, { theme } from '@dojo/framework/widget-core/mixins/Themed';
 import I18nMixin from '@dojo/framework/widget-core/mixins/I18n';
 import { LoginNamePayload } from '../../processes/interfaces';

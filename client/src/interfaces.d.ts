@@ -58,8 +58,10 @@ export interface ProfileParam {
 
 /**
  * 用户个人资料
+ *
+ * 因为 Profile 这个名字，留给部件使用，这里加上 info 后缀
  */
-export interface Profile extends ProfileParam {
+export interface ProfileInfo extends ProfileParam {
 	loginName: string;
 	email: string;
 }
@@ -285,7 +287,7 @@ export interface State {
 	thirdPartyUser: ThirdPartyUser;
 	user: User;
 	profileParam: ProfileParam;
-	profile: Profile;
+	profile: ProfileInfo;
 	profileUpdateSuccessMessage: string;
 	userInputValidation: UserInputValidation;
 

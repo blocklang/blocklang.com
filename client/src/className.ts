@@ -35,6 +35,14 @@ export const col_sm_12: string = 'col-sm-12';
 export const col_lg_6: string = 'col-lg-6';
 
 // Content
+//     typography
+export const h1: string = 'h1';
+export const h2: string = 'h2';
+export const h3: string = 'h3';
+export const h4: string = 'h4';
+export const h5: string = 'h5';
+export const h6: string = 'h6';
+
 //     table
 export const table: string = 'table';
 export const table_hover: string = 'table-hover';
@@ -125,6 +133,7 @@ export const form_check_inline: string = 'form-check-inline';
 //      input group
 export const input_group: string = 'input-group';
 export const input_group_prepend: string = 'input-group-prepend';
+export const input_group_append: string = 'input-group-append';
 export const input_group_text: string = 'input-group-text';
 
 //      list group

@@ -9,7 +9,7 @@ import ViewProjectContainer from './containers/project/ViewProjectContainer';
 import ListReleaseContainer from './containers/release/ListReleaseContainer';
 import NewReleaseContainer from './containers/release/NewReleaseContainer';
 import ViewDocumentContainer from './containers/help/ViewDocumentContainer';
-import SettingContainer from './containers/user/SettingContainer';
+import ProfileContainer from './containers/user/settings/ProfileContainer';
 import CompleteUserInfoContainer from './containers/user/CompleteUserInfoContainer';
 import Footer from './pages/Footer';
 
@@ -98,7 +98,7 @@ import NewGroupContainer from './containers/resource/NewGroupContainer';
 import ViewProjectGroupContainer from './containers/project/ViewProjectGroupContainer';
 import ListComponentRepoContainer from './containers/marketplace/ListComponentRepoContainer';
 import NewComponentRepoContainer from './containers/marketplace/NewComponentRepoContainer';
-import ListMyComponentRepoContainer from './containers/marketplace/ListMyComponentRepoContainer';
+import ListMyComponentRepoContainer from './containers/user/settings/ListMyComponentRepoContainer';
 
 export default class App extends WidgetBase {
 	protected render() {
@@ -145,17 +145,18 @@ export default class App extends WidgetBase {
 					id: 'new-component-repo',
 					renderer: () => w(NewComponentRepoContainer, {})
 				}),
-				w(Outlet, {
-					key: 'list-my-component-repo',
-					id: 'list-my-component-repo',
-					renderer: () => w(ListMyComponentRepoContainer, {})
-				}),
-				w(Outlet, { key: 'about', id: 'about', renderer: () => w(About, {}) }),
+				// 登录用户-setting
 				w(Outlet, {
 					key: 'settings-profile',
 					id: 'settings-profile',
-					renderer: () => w(SettingContainer, {})
+					renderer: () => w(ProfileContainer, {})
 				}),
+				w(Outlet, {
+					key: 'settings-marketplace',
+					id: 'settings-marketplace',
+					renderer: () => w(ListMyComponentRepoContainer, {})
+				}),
+				w(Outlet, { key: 'about', id: 'about', renderer: () => w(About, {}) }),
 				w(Outlet, {
 					id: 'errorOutlet',
 					renderer: () => {

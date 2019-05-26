@@ -1,0 +1,18 @@
+.root {
+}
+
+.active {
+	color: #24292e;
+	cursor: default;
+	font-weight: 600;
+}
+
+.active::before {
+	background-color: #e36209;
+	bottom: 0;
+	content: '';
+	left: 0;
+	position: absolute;
+	top: 0;
+	width: 2px;
+}

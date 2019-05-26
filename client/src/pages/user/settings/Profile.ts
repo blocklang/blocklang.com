@@ -1,25 +1,26 @@
 import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
 import { v, w } from '@dojo/framework/widget-core/d';
 
-import messageBundle from '../../nls/main';
-import * as c from '../../className';
-import * as css from './Setting.m.css';
+import messageBundle from '../../../nls/main';
+import * as c from '../../../className';
+import * as css from './Profile.m.css';
 import ThemedMixin, { theme } from '@dojo/framework/widget-core/mixins/Themed';
 import I18nMixin from '@dojo/framework/widget-core/mixins/I18n';
-import { Profile, WithTarget } from '../../interfaces';
+import { WithTarget, ProfileInfo } from '../../../interfaces';
 import {
 	NicknamePayload,
 	WebsiteUrlPayload,
 	CompanyPayload,
 	LocationPayload,
 	BioPayload
-} from '../../processes/interfaces';
-import Exception from '../error/Exception';
+} from '../../../processes/interfaces';
+import Exception from '../../error/Exception';
+import Link from '@dojo/framework/routing/Link';
 
-export interface SettingProperties {
+export interface ProfileProperties {
 	loggedUsername: string;
 	profileUpdateSuccessMessage?: string;
-	profile: Profile;
+	profile: ProfileInfo;
 	onNicknameInput: (opts: NicknamePayload) => void;
 	onWebsiteUrlInput: (opts: WebsiteUrlPayload) => void;
 	onCompanyInput: (opts: CompanyPayload) => void;
@@ -30,7 +31,7 @@ export interface SettingProperties {
 }
 
 @theme(css)
-export default class Setting extends ThemedMixin(I18nMixin(WidgetBase))<SettingProperties> {
+export default class Profile extends ThemedMixin(I18nMixin(WidgetBase))<ProfileProperties> {
 	private _localizedMessages = this.localizeBundle(messageBundle);
 
 	protected render() {
@@ -44,18 +45,31 @@ export default class Setting extends ThemedMixin(I18nMixin(WidgetBase))<SettingP
 		} = this.properties;
 
 		const { messages } = this._localizedMessages;
-		return v('div', { classes: [c.container, c.mt_5], styles: { width: '700px' } }, [
-			v('div', [v('h2', [`${messages.publicProfile}`]), v('hr')]),
-			v('form', { classes: [c.needs_validation], novalidate: true }, [
-				this._renderNickname(),
-				email ? this._renderEmail() : null,
-				this._renderWebsiteUrl(),
-				this._renderCompany(),
-				this._renderLocation(),
-				this._renderBio(),
-				v('hr'),
-				this._renderSaveButton(),
-				profileUpdateSuccessMessage ? this._renderSaveSuccessTip() : null
+
+		return v('div', { classes: [css.root, c.container, c.mt_5] }, [
+			v('div', { classes: [c.row] }, [
+				v('div', { classes: [c.col_3] }, [
+					v('ul', { classes: [c.list_group] }, [
+						v('li', { classes: [c.list_group_item, css.active] }, ['个人资料']),
+						v('li', { classes: [c.list_group_item] }, [
+							w(Link, { to: 'settings-marketplace' }, ['组件市场'])
+						])
+					])
+				]),
+				v('div', { classes: [c.col_9] }, [
+					v('div', [v('h4', [`${messages.publicProfile}`]), v('hr')]),
+					v('form', { classes: [c.needs_validation], novalidate: true }, [
+						this._renderNickname(),
+						email ? this._renderEmail() : null,
+						this._renderWebsiteUrl(),
+						this._renderCompany(),
+						this._renderLocation(),
+						this._renderBio(),
+						v('hr'),
+						this._renderSaveButton(),
+						profileUpdateSuccessMessage ? this._renderSaveSuccessTip() : null
+					])
+				])
 			])
 		]);
 	}
