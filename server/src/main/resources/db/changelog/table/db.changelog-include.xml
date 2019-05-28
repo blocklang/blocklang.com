@@ -31,5 +31,6 @@
 	
 	<include file="db/changelog/table/201904182158_create_persistent_logins.xml" />
 	<include file="db/changelog/table/201905231105_create_component_repo_registry.xml" />
+	<include file="db/changelog/table/201905280844_create_component_repo_publish_task.xml" />
 
 </databaseChangeLog>

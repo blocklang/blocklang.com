@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+	<changeSet author="Zhengwei Jin" id="201905280844">
+		<createTable tableName="component_repo_publish_task" remarks="组件发布任务登记表">
+			<column name="dbid" type="int" autoIncrement="true">
+				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_COMPONENT_REPO_PUBLISH_TASK" />
+			</column>
+			<column name="git_url" remarks="git 仓库地址" type="varchar(128)">
+				<constraints nullable="false" unique="true" uniqueConstraintName="UK_COMPONENT_REPO_PUBLISH_TASK_ON_GIT_URL"/>
+			</column>
+			<column name="start_time" remarks="开始时间" type="${datetime}">
+				<constraints nullable="false" />
+			</column>
+			<column name="end_time" remarks="结束时间" type="${datetime}" />
+			<column name="publish_result" remarks="发布结果" type="char(2)" defaultValue="01">
+				<constraints nullable="false" />
+			</column>
+			<column name="log_file_name" remarks="日志文件名" type="varchar(255)" />
+			<column name="create_user_id" remarks="创建人标识" type="int">
+				<constraints nullable="false" />
+			</column>
+			<column name="create_time" remarks="创建时间" type="${datetime}">
+				<constraints nullable="false" />
+			</column>
+			<column name="last_update_user_id" remarks="最近修改人标识" type="int" />
+			<column name="last_update_time" remarks="最近修改时间" type="${datetime}" />
+		</createTable>
+	</changeSet>
+
+</databaseChangeLog>
