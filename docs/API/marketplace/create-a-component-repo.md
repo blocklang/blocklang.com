@@ -54,7 +54,7 @@ Status: 422 Unprocessable Entity
 创建成功
 
 ```text
-Status: 200 OK
+Status: 201 CREATED
 ```
 
 | Name            | Type     | Description  |

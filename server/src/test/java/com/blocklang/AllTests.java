@@ -32,6 +32,8 @@ import com.blocklang.develop.service.impl.ProjectDeployServiceImplTest;
 import com.blocklang.develop.service.impl.ProjectFileServiceImplTest;
 import com.blocklang.develop.service.impl.ProjectResourceServiceImplTest;
 import com.blocklang.develop.service.impl.ProjectServiceImplTest;
+import com.blocklang.marketplace.controller.ComponentRepoControllerTest;
+import com.blocklang.marketplace.service.impl.ComponentRepoRegistryServiceImplTest;
 import com.blocklang.release.api.AppApiTest;
 import com.blocklang.release.api.InstallerApiTest;
 import com.blocklang.release.controller.AppControllerTest;
@@ -79,6 +81,7 @@ import com.blocklang.release.task.GitTagTaskTest;
 	PageControllerTest.class,
 	GroupControllerTest.class,
 	CommitControllerTest.class,
+	ComponentRepoControllerTest.class,
 
 	// service tests
 	AppServiceImplTest.class,
@@ -100,6 +103,7 @@ import com.blocklang.release.task.GitTagTaskTest;
 	BuildServiceImplTest.class,
 	UserServiceImplTest.class,
 	UserBindServiceImplTest.class,
+	ComponentRepoRegistryServiceImplTest.class,
 	
 	// model
 	ProjectResourceTest.class,
