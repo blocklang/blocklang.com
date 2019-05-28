@@ -13,6 +13,8 @@
 
 在 Block Lang 组件市场发布的内容，是基于 git 仓库的 tag 的。在发布时，查找到最新标注的 tab 发布。如果没有为仓库打标签，则提示用户先打标签。
 
+注意：此操作在服务器端是异步操作。
+
 ```text
 POST /component-repos
 ```
@@ -26,6 +28,12 @@ POST /component-repos
 | `gitUrl` | `string` | **Required**. git 仓库地址 |
 
 ## Response
+
+只有登录用户才有权发布组件，如果用户未登录，则返回
+
+```text
+Status: 403 Forbidden
+```
 
 输入参数校验
 
@@ -46,20 +54,13 @@ Status: 422 Unprocessable Entity
 创建成功
 
 ```text
-Status: 201 CREATED
+Status: 200 OK
 ```
 
-| Name              | Type     | Description        |
-| ----------------- | -------- | ------------------ |
-| `id`              | `int`    | 发行版标识         |
-| `gitRepoUrl`      | `string` | git 仓库地址       |
-| `gitRepoWebsite`  | `string` | git 仓库网站       |
-| `gitRepoOwner`    | `string` | git 仓库拥有者     |
-| `gitRepoName`     | `string` | git 仓库名称       |
-| `name`            | `string` | 组件库的名称       |
-| `version`         | `string` | 组件库的版本号     |
-| `label`           | `string` | 组件库的显示名     |
-| `description`     | `string` | 组件库的详细说明   |
-| `logoPath`        | `string` | 项目 Logo 访问路径 |
-| `category`        | `string` | 组件库分类         |
-| `lastPublishTime` | `string` | 最近发布时间       |
+| Name            | Type     | Description  |
+| --------------- | -------- | ------------ |
+| `id`            | `int`    | 发行版标识   |
+| `gitUrl`        | `string` | git 仓库地址 |
+| `startTime`     | `string` | 发布开始时间 |
+| `endTime`       | `string` | 发布开始时间 |
+| `releaseResult` | `string` | 发布结果     |
