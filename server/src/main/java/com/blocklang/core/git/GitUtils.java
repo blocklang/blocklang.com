@@ -2,6 +2,7 @@ package com.blocklang.core.git;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -9,14 +10,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.RepositoryCache;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.util.FS;
 import org.eclipse.jgit.util.FileUtils;
 
 import com.blocklang.core.constant.GitFileStatus;
+import com.nimbusds.oauth2.sdk.util.StringUtils;
 
 /**
  * git 帮助类，本工具类适合每次对 git 仓库做一个操作。
@@ -238,6 +243,29 @@ public class GitUtils {
 			pull(path);
 		} else {
 			clone("https://github.com/blocklang/blocklang-template.git", path);
+		}
+	}
+
+	public static boolean isValidRemoteRepository(String remoteGitUrl) {
+		if(StringUtils.isBlank(remoteGitUrl)) {
+			return false;
+		}
+		
+		URIish uriish = null;
+		try {
+			uriish = new URIish(remoteGitUrl);
+		} catch (URISyntaxException e) {
+			return false;
+		}
+		
+		if(!uriish.isRemote()) {
+			return false;
+		}
+
+		try {
+			return !Git.lsRemoteRepository().setHeads(false).setTags(false).setRemote(remoteGitUrl).call().isEmpty();
+		} catch (GitAPIException e) {
+			return false;
 		}
 	}
 }

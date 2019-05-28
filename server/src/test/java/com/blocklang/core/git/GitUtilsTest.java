@@ -354,6 +354,13 @@ public class GitUtilsTest {
 		assertThat(file2).doesNotExist();
 	}
 	
+	@Test
+	public void is_valid_remote_repository() {
+		assertThat(GitUtils.isValidRemoteRepository(" ")).isFalse();
+		assertThat(GitUtils.isValidRemoteRepository("x")).isFalse();
+		assertThat(GitUtils.isValidRemoteRepository("https://github.com/blocklang/not-exist-repo.git")).isFalse();
+		assertThat(GitUtils.isValidRemoteRepository("https://github.com/blocklang/blocklang.com.git")).isTrue();
+	}
 	
 	private void assertContentEquals(Path filePath, String content) throws IOException{
 		assertThat(Files.readString(filePath)).isEqualTo(content);
