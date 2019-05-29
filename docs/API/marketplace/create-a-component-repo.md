@@ -46,10 +46,11 @@ Status: 422 Unprocessable Entity
 1. `gitUrl` 不能为空字符串
 2. `gitUrl` 是一个有效的基于 https 协议的 git 仓库地址
 3. `gitUrl` 指定的是一个有效的 git 远程仓库
-4. git 仓库的根目录下包含一个 `package.json` 文件
-5. `package.json` 中包含 `name`、`version`、和 `category` 信息
-6. 如果是 `Widget` 仓库，则按照约定的目录结构，找到部件的 `changelog` 信息，校验格式是否有效
-7. 校验项目是否能编译通过
+4. 判断在登录用户是否发布过 `gitUrl`
+5. git 仓库的根目录下包含一个 `package.json` 文件
+6. `package.json` 中包含 `name`、`version`、和 `category` 信息
+7. 如果是 `Widget` 仓库，则按照约定的目录结构，找到部件的 `changelog` 信息，校验格式是否有效
+8. 校验项目是否能编译通过
 
 创建成功
 

@@ -28,4 +28,22 @@ public class ComponentRepoPublishTaskServiceImplTest extends AbstractServiceTest
 		
 		assertThat(componentRepoPublishTaskService.save(task).getId()).isNotNull();
 	}
+	
+	@Test
+	public void find_by_gitUrl_and_userId_no_data() {
+		assertThat(componentRepoPublishTaskService.findByGitUrlAndUserId(1, "git-url")).isEmpty();
+	}
+	
+	@Test
+	public void find_by_gitUrl_and_userId_success() {
+		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
+		task.setGitUrl("git-url");
+		task.setStartTime(LocalDateTime.now());
+		task.setPublishResult(ReleaseResult.STARTED);
+		task.setCreateTime(LocalDateTime.now());
+		task.setCreateUserId(1);
+		componentRepoPublishTaskService.save(task);
+		
+		assertThat(componentRepoPublishTaskService.findByGitUrlAndUserId(1, "git-url")).isPresent();
+	}
 }

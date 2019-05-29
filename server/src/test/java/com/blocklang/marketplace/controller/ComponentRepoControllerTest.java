@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -33,7 +34,7 @@ import com.blocklang.marketplace.service.PublishService;
 import io.restassured.http.ContentType;
 
 @WebMvcTest(ComponentRepoController.class)
-public class ComponentRepoControllerTest  extends AbstractControllerTest{
+public class ComponentRepoControllerTest extends AbstractControllerTest{
 
 	@MockBean
 	private ComponentRepoRegistryService componentRepoRegistryService;
@@ -226,6 +227,30 @@ public class ComponentRepoControllerTest  extends AbstractControllerTest{
 	
 	@WithMockUser("jack")
 	@Test
+	public void new_component_repo_git_url_is_used() {
+		NewComponentRepoParam param = new NewComponentRepoParam();
+		param.setGitUrl("https://github.com/blocklang/blocklang.com.git");
+
+		UserInfo userInfo = new UserInfo();
+		userInfo.setId(1);
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(userInfo));
+		
+		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
+		when(componentRepoPublishTaskService.findByGitUrlAndUserId(anyInt(), any())).thenReturn(Optional.of(task));
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/component-repos")
+		.then()
+			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
+			.body("errors.gitUrl", hasItem("<strong>jack</strong>已发布过该仓库，无需重复发布"),
+					"errors.gitUrl.size()", is(1));
+	}
+	
+	@WithMockUser("jack")
+	@Test
 	public void new_component_repo_git_url_support_https_schema() {
 		NewComponentRepoParam param = new NewComponentRepoParam();
 		param.setGitUrl("https://github.com/blocklang/blocklang.com.git");
@@ -251,4 +276,6 @@ public class ComponentRepoControllerTest  extends AbstractControllerTest{
 		
 		verify(publishService).asyncPublish(any());
 	}
+
+	
 }

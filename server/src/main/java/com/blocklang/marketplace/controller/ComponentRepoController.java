@@ -120,6 +120,11 @@ public class ComponentRepoController {
 			throw new InvalidRequestException(bindingResult);
 		}
 		
+		componentRepoPublishTaskService.findByGitUrlAndUserId(currentUser.getId(), gitUrl).ifPresent(task -> {
+			bindingResult.rejectValue("gitUrl", "Duplicated.componentRepoGitUrl", new Object[] {principal.getName()}, null);
+			throw new InvalidRequestException(bindingResult);
+		});
+		
 		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
 		task.setGitUrl(gitUrl);
 		task.setStartTime(LocalDateTime.now());
