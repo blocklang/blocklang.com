@@ -23,7 +23,7 @@
 
 * 主键：`PK_COMPONENT_REPO_REGISTRY`
 * 外键：无
-* 索引：`UK_COMPONENT_REPO_REGISTRY_ON_GIT_REPO_URL`，对应字段 `git_repo_url`；`IDX_COMPONENT_REPO_REGISTRY_ON_NAME`(不是唯一索引)，对应字段 `name`
+* 索引：`UK_COMP_REPO_REG_ON_GIT_REPO_URL_USER_ID`，对应字段 `git_repo_url`、`create_user_id`；`IDX_COMP_REPO_REG_ON_NAME_USER_ID`(不是唯一索引)，对应字段 `name`、`create_user_id`
 
 ## 说明
 
@@ -33,4 +33,5 @@
 4. `name`、`version`、`label`、`description`、`logo_path` 和 `category` 的值是从项目根目录下的 `package.json` 文件里获取的
 5. `category` 的值：`01` 表示 `Widget`，`02` 表示 `Client API`，`03` 表示 `Server API`，`99` 表示 `Unknown`
 6. 登记仓库时间对应的字段是 `create_time`，当有新版本出现时，可能会发布新版内容，`last_publish_time` 中存的就是最近发布的时间
-7. 注意：**一个组件仓库中只能存一类组件**
+7. 为了避免有人在市场中抢注仓库名，使用 `@{publisher}/{repo}` 的形式唯一定位一个组件库
+8. 一个组件仓库中只能存一类组件

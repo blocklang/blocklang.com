@@ -7,19 +7,22 @@ import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import com.blocklang.core.model.PartialOperateFields;
 import com.blocklang.marketplace.constant.RepoCategory;
 import com.blocklang.marketplace.constant.converter.RepoCategoryConverter;
 
 @Entity
-@Table(name = "component_repo_registry", indexes = {
-		@Index(unique = false, name = "IDX_COMPONENT_REPO_REGISTRY_ON_NAME", columnList = "name") })
+@Table(name = "component_repo_registry", 
+	uniqueConstraints = {@UniqueConstraint(columnNames = { "create_user_id", "git_repo_url" }) }, 
+	indexes = {@Index(unique = false, name = "IDX_COMP_REPO_REG_ON_NAME_USER_ID", columnList = "create_user_id,name") }
+)
 public class ComponentRepoRegistry extends PartialOperateFields {
 
 	private static final long serialVersionUID = 8362695653909646856L;
 
-	@Column(name = "git_repo_url", nullable = false, unique = true, length = 128)
+	@Column(name = "git_repo_url", nullable = false, length = 128)
 	private String gitRepoUrl;
 
 	@Column(name = "git_repo_website", nullable = false, length = 32)

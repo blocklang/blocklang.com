@@ -7,18 +7,21 @@ import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 
 import com.blocklang.core.model.PartialOperateFields;
 import com.blocklang.release.constant.ReleaseResult;
 import com.blocklang.release.constant.converter.ReleaseResultConverter;
 
 @Entity
-@Table(name = "component_repo_publish_task")
+@Table(name = "component_repo_publish_task", 
+	uniqueConstraints = {@UniqueConstraint(columnNames = {"create_user_id", "git_url"}) }
+)
 public class ComponentRepoPublishTask extends PartialOperateFields {
 
 	private static final long serialVersionUID = -2695309681346878878L;
 
-	@Column(name = "git_url", nullable = false, unique = true, length = 128)
+	@Column(name = "git_url", nullable = false, length = 128)
 	private String gitUrl;
 
 	@Column(name = "start_time", nullable = false)

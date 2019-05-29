@@ -12,7 +12,7 @@
 				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_COMPONENT_REPO_PUBLISH_TASK" />
 			</column>
 			<column name="git_url" remarks="git 仓库地址" type="varchar(128)">
-				<constraints nullable="false" unique="true" uniqueConstraintName="UK_COMPONENT_REPO_PUBLISH_TASK_ON_GIT_URL"/>
+				<constraints nullable="false" />
 			</column>
 			<column name="start_time" remarks="开始时间" type="${datetime}">
 				<constraints nullable="false" />
@@ -31,6 +31,11 @@
 			<column name="last_update_user_id" remarks="最近修改人标识" type="int" />
 			<column name="last_update_time" remarks="最近修改时间" type="${datetime}" />
 		</createTable>
+		
+		<addUniqueConstraint
+			columnNames="git_url,create_user_id"
+			constraintName="UK_COMP_REPO_PUBLISH_TASK_ON_GIT_URL_USER_ID"
+			tableName="component_repo_publish_task" />
 	</changeSet>
 
 </databaseChangeLog>

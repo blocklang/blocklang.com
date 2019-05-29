@@ -16,9 +16,10 @@
 ## 约束
 
 * 主键：`PK_COMPONENT_REPO_PUBLISH_TASK`
-* 索引：`UK_COMPONENT_REPO_PUBLISH_TASK_ON_GIT_URL`，对应字段 `git_url`
+* 索引：`UK_COMP_REPO_PUBLISH_TASK_ON_GIT_URL_USER_ID`，对应字段 `git_url`、`create_user_id`
 
 ## 说明
 
 1. `publish_result` 的值为：`01` 表示 `未发布(inited)`，`02` 表示 `正在发布(started)`，`03` 表示 `发布失败(failed)`，`04` 表示 `发布成功(passed)`，`05` 表示 `取消发布(canceled)`
 2. `log_file_name` 中只存储日志文件名，不包含文件路径
+3. 为了避免有人在市场中抢注仓库名，使用 `@{publisher}/{repo}` 的形式唯一定位一个组件库
