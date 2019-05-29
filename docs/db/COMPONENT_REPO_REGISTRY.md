@@ -23,7 +23,7 @@
 
 * 主键：`PK_COMPONENT_REPO_REGISTRY`
 * 外键：无
-* 索引：`UK_COMP_REPO_REG_ON_GIT_REPO_URL_USER_ID`，对应字段 `git_repo_url`、`create_user_id`；`IDX_COMP_REPO_REG_ON_NAME_USER_ID`(不是唯一索引)，对应字段 `name`、`create_user_id`
+* 索引：`UK_COMP_REPO_REG_ON_GIT_REPO_URL_USER_ID`，对应字段 `git_repo_url`、`create_user_id`；`UK_COMP_REPO_REG_ON_NAME_USER_ID`，对应字段 `name`、`create_user_id`
 
 ## 说明
 

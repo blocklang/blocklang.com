@@ -50,12 +50,9 @@
 			constraintName="UK_COMP_REPO_REG_ON_GIT_REPO_URL_USER_ID"
 			tableName="component_repo_registry" />
 
-		<createIndex indexName="IDX_COMP_REPO_REG_ON_NAME_USER_ID"
-			tableName="component_repo_registry"
-			unique="false">
-			<column name="name" />
-			<column name="create_user_id" />
-		</createIndex>
+		<addUniqueConstraint columnNames="create_user_id,name"
+			constraintName="UK_COMP_REPO_REG_ON_NAME_USER_ID"
+			tableName="component_repo_registry" />
 	</changeSet>
 
 </databaseChangeLog>

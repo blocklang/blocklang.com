@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
-import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
@@ -15,8 +14,10 @@ import com.blocklang.marketplace.constant.converter.RepoCategoryConverter;
 
 @Entity
 @Table(name = "component_repo_registry", 
-	uniqueConstraints = {@UniqueConstraint(columnNames = { "create_user_id", "git_repo_url" }) }, 
-	indexes = {@Index(unique = false, name = "IDX_COMP_REPO_REG_ON_NAME_USER_ID", columnList = "create_user_id,name") }
+	uniqueConstraints = {
+		@UniqueConstraint(columnNames = { "create_user_id", "git_repo_url" }),
+		@UniqueConstraint(columnNames = { "create_user_id", "name" }) 
+	}
 )
 public class ComponentRepoRegistry extends PartialOperateFields {
 
