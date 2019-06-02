@@ -77,6 +77,7 @@ BlockLang
          1. {project_name} - 项目名
             1. source - 存放项目源代码
             2. publishLogs - 存放组件发布日志，一次发布一个日志文件
+               1. {version}-yyyy_MM_dd_HH_mm_ss.log - 日志文件命名规范
 
 ### App
 
