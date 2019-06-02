@@ -48,6 +48,8 @@ BlockLang
             |--- {website}
                      |--- {owner}
                              |--- {project_name}
+                                       |--- source
+                                       |--- publishLogs
 ```
 
 文件夹结构说明
@@ -71,6 +73,10 @@ BlockLang
          1. {file_name} - 文件名
 5. marketplace - 缓存市场中注册的项目源代码
    1. {website} - 源代码托管仓库网站标识，如 github, gitlab, gitee
+      1. {owner} - 项目拥有者的登录名
+         1. {project_name} - 项目名
+            1. source - 存放项目源代码
+            2. publishLogs - 存放组件发布日志，一次发布一个日志文件
 
 ### App
 
