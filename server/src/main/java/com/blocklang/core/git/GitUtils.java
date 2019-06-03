@@ -195,6 +195,18 @@ public class GitUtils {
 	
 	/**
 	 * 
+	 * @param gitRepoPath
+	 * @param ref 注意，不能使用简称，如不能为“master”，而应该为“refs/heads/master”
+	 * @param filePath
+	 * @return
+	 */
+	public static Optional<GitBlobInfo> getBlob(Path gitRepoPath, String ref, String filePath) {
+		GitBlob blob = new GitBlob(gitRepoPath, ref, filePath);
+		return blob.execute();
+	}
+	
+	/**
+	 * 
 	 * 
 	 * @param gitRepoPath
 	 * @param relativeDir 传入 null 表示根目录
@@ -273,4 +285,6 @@ public class GitUtils {
 			return false;
 		}
 	}
+
+	
 }

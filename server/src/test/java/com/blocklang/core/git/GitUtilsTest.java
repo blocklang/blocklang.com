@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Rule;
@@ -395,6 +396,75 @@ public class GitUtilsTest {
 		assertThat(tagOption.get().getName()).isEqualTo("refs/tags/v0.1.1");
 	}
 	
+	@Test
+	public void get_blob_from_branch_no_data() throws IOException {
+		File folder = tempFolder.newFolder(gitRepoDirectory);
+		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+		
+		Optional<GitBlobInfo> blobOption = GitUtils.getBlob(folder.toPath(), Constants.R_HEADS + Constants.MASTER, "a.txt");
+		assertThat(blobOption).isEmpty();
+	}
+	
+	@Test
+	public void get_blob_from_branch_success() throws IOException {
+		File folder = tempFolder.newFolder(gitRepoDirectory);
+		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+		String commitId = GitUtils.commit(folder.toPath(), "", "a.txt", "hello", "usera", "usera@email.com", "first commit");
+		Optional<GitBlobInfo> blobOption = GitUtils.getBlob(folder.toPath(), Constants.R_HEADS + Constants.MASTER, "a.txt");
+		
+		assertThat(blobOption).isPresent();
+		
+		GitBlobInfo blob = blobOption.get();
+		assertThat(blob.getContent()).isEqualTo("hello");
+		assertThat(blob.getPath()).isEqualTo("a.txt");
+		assertThat(blob.getName()).isEqualTo("a.txt");
+		assertThat(blob.getCommitId()).isEqualTo(commitId);
+		assertThat(blob.getLatestShortMessage()).isEqualTo("first commit");
+		assertThat(blob.getLatestFullMessage()).isEqualTo("first commit");
+		assertThat(blob.getLatestCommitTime()).isNotNull();
+	}
+	
+	@Test
+	public void get_blob_from_tag_no_data() throws IOException {
+		File folder = tempFolder.newFolder(gitRepoDirectory);
+		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+		
+		Optional<GitBlobInfo> blobOption = GitUtils.getBlob(folder.toPath(), Constants.R_TAGS + "v0.1.0", "a.txt");
+		assertThat(blobOption).isEmpty();
+	}
+	
+	@Test
+	public void get_blob_from_tag_success() throws IOException {
+		File folder = tempFolder.newFolder(gitRepoDirectory);
+		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+		String commitId = GitUtils.commit(folder.toPath(), "", "a.txt", "hello", "usera", "usera@email.com", "first commit");
+		GitUtils.tag(folder.toPath(), "v0.1.0", "first tag");
+		String commitId2 = GitUtils.commit(folder.toPath(), "", "a.txt", "hello world", "usera", "usera@email.com", "second commit");
+		GitUtils.tag(folder.toPath(), "v0.1.1", "second tag");
+		
+		Optional<GitBlobInfo> blobOption = GitUtils.getBlob(folder.toPath(), Constants.R_TAGS + "v0.1.0", "a.txt");
+		assertThat(blobOption).isPresent();
+		GitBlobInfo blob = blobOption.get();
+		assertThat(blob.getContent()).isEqualTo("hello");
+		assertThat(blob.getPath()).isEqualTo("a.txt");
+		assertThat(blob.getName()).isEqualTo("a.txt");
+		assertThat(blob.getCommitId()).isEqualTo(commitId);
+		assertThat(blob.getLatestShortMessage()).isEqualTo("first commit");
+		assertThat(blob.getLatestFullMessage()).isEqualTo("first commit");
+		assertThat(blob.getLatestCommitTime()).isNotNull();
+		
+		blobOption = GitUtils.getBlob(folder.toPath(), Constants.R_TAGS + "v0.1.1", "a.txt");
+		assertThat(blobOption).isPresent();
+		blob = blobOption.get();
+		assertThat(blob.getContent()).isEqualTo("hello world");
+		assertThat(blob.getPath()).isEqualTo("a.txt");
+		assertThat(blob.getName()).isEqualTo("a.txt");
+		assertThat(blob.getCommitId()).isEqualTo(commitId2);
+		assertThat(blob.getLatestShortMessage()).isEqualTo("second commit");
+		assertThat(blob.getLatestFullMessage()).isEqualTo("second commit");
+		assertThat(blob.getLatestCommitTime()).isNotNull();
+	}
+
 	private void assertContentEquals(Path filePath, String content) throws IOException{
 		assertThat(Files.readString(filePath)).isEqualTo(content);
 	}
