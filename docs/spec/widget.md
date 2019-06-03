@@ -29,12 +29,12 @@ root
                 |--- bootstrap
                        |--- button.m.css
                        |--- button.m.css.d.ts
-  |--- package.json
+  |--- blocklang.json
 ```
 
 介绍
 
-1. `package.json` - 项目介绍
+1. `blocklang.json` - 组件库基本信息
 2. `src/widgets` - 存 ui 部件，一个部件对应一个文件夹，文件夹名小写
 3. `src/widgets/{button}`
    1. `index.ts` - 部件类
@@ -46,14 +46,28 @@ root
       1. `1_0_0.json` - 一个版本对应一个文件
 4. `src/themes` - 存放样式主题，一个文件夹对应一个主题
 
-## `package.json`
+## `blocklang.json`
 
 ```json
 {
     "name": "",
-    "version": ""
+    "displayName": "",
+    "version": "",
+    "description": "",
+    "category": "Widget",
+    "language": "Typescript"
 }
 ```
+
+1. `name` - 组件库的名称(必填)
+2. `version` - 组件库的版本(必填)
+3. `displayName` - 组件库的显示名(可选)
+4. `description` - 组件库详细介绍(可选)
+5. `icon` - 组件库 logo 的存放路径(可选)
+6. `category` - 组件库种类，当前仅支持 `Widget`(必填)
+7. `language` - 开发语言，当前支持 `Typescript`(必填)
+
+## Widget
 
 其中 `src/button` 文件夹中存储 `Button` 部件的所有文件。
 

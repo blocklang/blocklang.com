@@ -30,7 +30,7 @@
 1. `git_repo_url` 只支持 `https` 协议的 url
 2. `git_repo_website` 的值从 `git_repo_url` 中截取，如 `github`、`gitlab`、`gitee` 等
 3. `version` 指仓库的最新版本号
-4. `name`、`version`、`label`、`description`、`logo_path` 和 `category` 的值是从项目根目录下的 `package.json` 文件里获取的
+4. `name`、`version`、`label`、`description`、`logo_path` 和 `category` 的值是从项目根目录下的 `blocklang.json` 文件里获取的
 5. `category` 的值：`01` 表示 `Widget`，`02` 表示 `Client API`，`03` 表示 `Server API`，`99` 表示 `Unknown`
 6. 登记仓库时间对应的字段是 `create_time`，当有新版本出现时，可能会发布新版内容，`last_publish_time` 中存的就是最近发布的时间
 7. 为了避免有人在市场中抢注仓库名，使用 `@{publisher}/{repo}` 的形式唯一定位一个组件库
