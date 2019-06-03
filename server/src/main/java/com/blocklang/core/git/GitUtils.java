@@ -144,6 +144,11 @@ public class GitUtils {
 		return gitTag.getTag(gitRepoPath, tagName);
 	}
 	
+	public static Optional<Ref> getLatestTag(Path gitRepoPath) {
+		GitTag gitTag = new GitTag();
+		return gitTag.getLatestTag(gitRepoPath);
+	}
+	
 	/**
 	 * 从远程 git 仓库克隆项目
 	 * 
