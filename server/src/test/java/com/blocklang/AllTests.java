@@ -17,6 +17,7 @@ import com.blocklang.core.service.impl.UserServiceImplTest;
 import com.blocklang.core.util.IdGeneratorTest;
 import com.blocklang.core.util.LoginTokenTest;
 import com.blocklang.core.util.RangeHeaderTest;
+import com.blocklang.core.util.StringUtilsTest;
 import com.blocklang.core.util.UrlUtilTest;
 import com.blocklang.develop.constant.AppTypeTest;
 import com.blocklang.develop.controller.CommitControllerTest;
@@ -68,6 +69,7 @@ import com.blocklang.release.task.GitTagTaskTest;
 	LoginTokenTest.class,
 	MarketplacePublishContextTest.class,
 	TaskLoggerTest.class,
+	StringUtilsTest.class,
 	
 	UserValidatorTest.class,
 	
