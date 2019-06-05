@@ -12,6 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDateTime;
 
 import com.blocklang.core.test.AbstractServiceTest;
+import com.blocklang.marketplace.constant.Language;
 import com.blocklang.marketplace.constant.RepoCategory;
 import com.blocklang.marketplace.dao.ComponentRepoRegistryDao;
 import com.blocklang.marketplace.model.ComponentRepoRegistry;
@@ -46,6 +47,7 @@ public class ComponentRepoRegistryServiceImplTest extends AbstractServiceTest{
 		registry.setCategory(RepoCategory.WIDGET);
 		registry.setCreateUserId(1);
 		registry.setCreateTime(LocalDateTime.now());
+		registry.setLanguage(Language.TYPESCRIPT);
 		componentRepoRegistryDao.save(registry);
 		
 		Page<ComponentRepoRegistry> result = componentRepoRegistryService.findAllByNameOrLabel("", PageRequest.of(0, 10));
@@ -68,6 +70,7 @@ public class ComponentRepoRegistryServiceImplTest extends AbstractServiceTest{
 		registry.setCategory(RepoCategory.WIDGET);
 		registry.setCreateUserId(1);
 		registry.setCreateTime(LocalDateTime.now());
+		registry.setLanguage(Language.TYPESCRIPT);
 		componentRepoRegistryDao.save(registry);
 		
 		Page<ComponentRepoRegistry> result = componentRepoRegistryService.findAllByNameOrLabel("name", PageRequest.of(0, 10));
@@ -91,6 +94,7 @@ public class ComponentRepoRegistryServiceImplTest extends AbstractServiceTest{
 		registry.setCategory(RepoCategory.WIDGET);
 		registry.setCreateUserId(1);
 		registry.setCreateTime(LocalDateTime.now());
+		registry.setLanguage(Language.TYPESCRIPT);
 		componentRepoRegistryDao.save(registry);
 		
 		Page<ComponentRepoRegistry> result = componentRepoRegistryService.findAllByNameOrLabel("label", PageRequest.of(0, 10));
@@ -114,6 +118,7 @@ public class ComponentRepoRegistryServiceImplTest extends AbstractServiceTest{
 		registry.setCreateUserId(1);
 		registry.setCreateTime(LocalDateTime.now());
 		registry.setLastPublishTime(LocalDateTime.now());
+		registry.setLanguage(Language.TYPESCRIPT);
 		componentRepoRegistryDao.save(registry);
 		
 		Page<ComponentRepoRegistry> result = componentRepoRegistryService.findAllByNameOrLabel("", PageRequest.of(0, 10));
@@ -137,6 +142,7 @@ public class ComponentRepoRegistryServiceImplTest extends AbstractServiceTest{
 		registry.setCreateUserId(1);
 		registry.setCreateTime(LocalDateTime.now());
 		registry.setLastPublishTime(LocalDateTime.now());
+		registry.setLanguage(Language.TYPESCRIPT);
 		componentRepoRegistryDao.save(registry);
 		
 		Page<ComponentRepoRegistry> result = componentRepoRegistryService.findAllByNameOrLabel("name", PageRequest.of(0, 10));
@@ -160,6 +166,7 @@ public class ComponentRepoRegistryServiceImplTest extends AbstractServiceTest{
 		registry.setCreateUserId(1);
 		registry.setCreateTime(LocalDateTime.now());
 		registry.setLastPublishTime(LocalDateTime.now());
+		registry.setLanguage(Language.TYPESCRIPT);
 		componentRepoRegistryDao.save(registry);
 		
 		Page<ComponentRepoRegistry> result = componentRepoRegistryService.findAllByNameOrLabel("NAME", PageRequest.of(0, 10));
@@ -184,6 +191,7 @@ public class ComponentRepoRegistryServiceImplTest extends AbstractServiceTest{
 		registry.setCreateUserId(1);
 		registry.setCreateTime(LocalDateTime.now());
 		registry.setLastPublishTime(LocalDateTime.now());
+		registry.setLanguage(Language.TYPESCRIPT);
 		componentRepoRegistryDao.save(registry);
 		
 		Page<ComponentRepoRegistry> result = componentRepoRegistryService.findAllByNameOrLabel("label", PageRequest.of(0, 10));
@@ -208,6 +216,7 @@ public class ComponentRepoRegistryServiceImplTest extends AbstractServiceTest{
 		registry.setCreateUserId(1);
 		registry.setCreateTime(LocalDateTime.now());
 		registry.setLastPublishTime(LocalDateTime.now());
+		registry.setLanguage(Language.TYPESCRIPT);
 		componentRepoRegistryDao.save(registry);
 		
 		Page<ComponentRepoRegistry> result = componentRepoRegistryService.findAllByNameOrLabel("LABEL", PageRequest.of(0, 10));
@@ -231,6 +240,7 @@ public class ComponentRepoRegistryServiceImplTest extends AbstractServiceTest{
 		registry.setCreateUserId(1);
 		registry.setCreateTime(LocalDateTime.now());
 		registry.setLastPublishTime(LocalDateTime.now());
+		registry.setLanguage(Language.TYPESCRIPT);
 		componentRepoRegistryDao.save(registry);
 		
 		Page<ComponentRepoRegistry> result = componentRepoRegistryService.findAllByNameOrLabel("am", PageRequest.of(0, 10));
@@ -254,6 +264,7 @@ public class ComponentRepoRegistryServiceImplTest extends AbstractServiceTest{
 		registry.setCreateUserId(1);
 		registry.setCreateTime(LocalDateTime.now());
 		registry.setLastPublishTime(LocalDateTime.now().minusSeconds(2));
+		registry.setLanguage(Language.TYPESCRIPT);
 		componentRepoRegistryDao.save(registry);
 		
 		registry = new ComponentRepoRegistry();
@@ -267,6 +278,7 @@ public class ComponentRepoRegistryServiceImplTest extends AbstractServiceTest{
 		registry.setCreateUserId(1);
 		registry.setCreateTime(LocalDateTime.now());
 		registry.setLastPublishTime(LocalDateTime.now());
+		registry.setLanguage(Language.TYPESCRIPT);
 		componentRepoRegistryDao.save(registry);
 		
 		Page<ComponentRepoRegistry> result = componentRepoRegistryService.findAllByNameOrLabel("name", PageRequest.of(0, 10, Sort.by(Direction.DESC, "lastPublishTime")));

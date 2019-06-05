@@ -68,6 +68,9 @@ public class ComponentRepoInfo {
 	}
 
 	public String[] getWidgets() {
+		if(widgets == null) {
+			return new String[] {};
+		}
 		return widgets;
 	}
 
