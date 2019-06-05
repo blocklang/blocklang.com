@@ -9,7 +9,9 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import com.blocklang.core.model.PartialOperateFields;
+import com.blocklang.marketplace.constant.Language;
 import com.blocklang.marketplace.constant.RepoCategory;
+import com.blocklang.marketplace.constant.converter.LanguageConverter;
 import com.blocklang.marketplace.constant.converter.RepoCategoryConverter;
 
 @Entity
@@ -53,6 +55,10 @@ public class ComponentRepoRegistry extends PartialOperateFields {
 	@Convert(converter = RepoCategoryConverter.class)
 	@Column(name = "category", nullable = false, length = 2)
 	private RepoCategory category;
+	
+	@Convert(converter = LanguageConverter.class)
+	@Column(name = "language", nullable = false, length = 2)
+	private Language language;
 	
 	@Column(name = "last_publish_time" )
 	private LocalDateTime lastPublishTime;
@@ -135,6 +141,14 @@ public class ComponentRepoRegistry extends PartialOperateFields {
 
 	public void setCategory(RepoCategory category) {
 		this.category = category;
+	}
+
+	public Language getLanguage() {
+		return language;
+	}
+
+	public void setLanguage(Language language) {
+		this.language = language;
 	}
 
 	public LocalDateTime getLastPublishTime() {

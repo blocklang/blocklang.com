@@ -17,6 +17,7 @@
 | description       | 组件库的详细说明   | varchar  | 512  |        |      | 是   |
 | logo_path         | 项目 Logo 存储路径 | varchar  | 64   |        |      | 是   |
 | category          | 组件库分类         | char     | 2    |        |      | 否   |
+| language          | 编程语言           | varchar  | 32   |        |      | 否   |
 | last_publish_time | 最近发布时间       | datetime |      |        |      | 是   |
 
 ## 约束

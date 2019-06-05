@@ -35,16 +35,16 @@ root
 介绍
 
 1. `blocklang.json` - 组件库基本信息
-2. `src/widgets` - 存 ui 部件，一个部件对应一个文件夹，文件夹名小写
-3. `src/widgets/{button}`
+2. `src/widgets/` - 存 ui 部件，一个部件对应一个文件夹，文件夹名小写
+3. `src/widgets/{button}/`
    1. `index.ts` - 部件类
    2. `designer.ts` - 设计器版部件类，在 `index.ts` 基础上增加设计器特性
    3. `demo.ts` - 部件使用效果示例，集成到设计器中
    4. `README.md` - 部件帮助文档，其中包括最新的 API 说明
-   5. `test` - 存放单元测试和功能测试
-   6. `changelog` - 部件 API 随版本的变更记录
+   5. `test/` - 存放单元测试和功能测试
+   6. `changelog/` - 部件 API 随版本的变更记录
       1. `1_0_0.json` - 一个版本对应一个文件
-4. `src/themes` - 存放样式主题，一个文件夹对应一个主题
+4. `src/themes/` - 存放样式主题，一个文件夹对应一个主题
 
 ## `blocklang.json`
 
@@ -55,9 +55,14 @@ root
     "version": "",
     "description": "",
     "category": "Widget",
-    "language": "Typescript"
+    "language": "Typescript",
+    "widgets": [
+        "src/widgets/button"
+    ]
 }
 ```
+
+### 数据项介绍
 
 1. `name` - 组件库的名称(必填)
 2. `version` - 组件库的版本(必填)
@@ -66,6 +71,31 @@ root
 5. `icon` - 组件库 logo 的存放路径(可选)
 6. `category` - 组件库种类，当前仅支持 `Widget`(必填)
 7. `language` - 开发语言，当前支持 `Typescript`(必填)
+8. `widgets` - 数组，存储 widget 的相对路径，如果 `Button` 部件类在 `src/widgets/button/index.ts` 文件中，则相对路径为 `src/widgets/button`
+
+注意：部件的存储路径是有约定的，本可以根据约定自动查找，但这里增加 `widgets` 参数，让组件库开发人员显式指定。这样就增加一个人为干预的手段。
+
+### 校验规则
+
+1. name
+    1. 不能为空
+    2. 长度不能超过64个字节
+    3. 只能包含字母、数字、中划线和下划线
+    4. 同一个发布者没有发不过此名称的组件库
+2. version
+    1. 不能为空
+    2. 必须是有效的语义化版本
+    3. 必须大于最新的版本号
+3. category
+    1. 不能为空
+    2. 只能是 “Widget”（不区分大小写）
+4. language
+    1. 不能为空
+    2. 只能是“Typescript”或“Java”（不区分大小写）
+5. description
+    1. 长度不能超过512个字节
+6. icon
+    1. 长度不能超过64个字节
 
 ## Widget
 
@@ -73,33 +103,42 @@ root
 
 ```json
 {
-    "name": "部件名称，一个项目中要唯一",
-    "label": "部件显示名",
-    "iconClass": "部件图标",
-    "appType": ["web"],
-    "properties": [{
-        "name": "属性名",
-        "label": "属性显示名",
-        "value": "属性默认值",
-        "valueType": "string | number | boolean | date",
-        "options": [{
-            "value": "选项值",
-            "label": "显示名",
-            "title": "",
-            "iconClass": ""
-        }]
-    }],
-    "events": [{
-        "name": "onClick",
-        "label": "单击事件",
-        "valueType": "function",
-        "arguments": [{
-            "name": "参数名",
-            "label": "显示名",
-            "value": "默认值",
-            "valueType": "string | number | boolean | date"
-        }]
-    }]
+    "id": "20190101_button",
+    "author": "",
+    "changes": [
+        {
+            "newWidget": {
+                "name": "部件名称，一个项目中要唯一",
+                "label": "部件显示名",
+                "iconClass": "部件图标",
+                "appType": ["web"],
+                "properties": [{
+                    "name": "属性名",
+                    "label": "属性显示名",
+                    "value": "属性默认值",
+                    "valueType": "string | number | boolean | date",
+                    "options": [{
+                        "value": "选项值",
+                        "label": "显示名",
+                        "title": "",
+                        "iconClass": ""
+                    }]
+                }],
+                "events": [{
+                    "name": "onClick",
+                    "label": "单击事件",
+                    "valueType": "function",
+                    "arguments": [{
+                        "name": "参数名",
+                        "label": "显示名",
+                        "value": "默认值",
+                        "valueType": "string | number | boolean | date"
+                    }]
+                }]
+            }
+        }
+    ]
+    
 }
 ```
 
@@ -122,7 +161,10 @@ root
 7. `removeEvent` - 移除部件中的事件
 8. `alterEvent` - 修改部件中的事件
 
-注意：**修改已存在的属性和事件时，要使用 alter 命令，而不是组合使用 remove 和 add 命令**
+注意：
+
+1. 修改已存在的属性和事件时，要使用 alter 命令，而不是组合使用 remove 和 add 命令
+2. 如果组件已经在 `blocklang.json` 的 `widgets` 中登记，则不允许删除组件的源码，所以增加时要慎重
 
 ## UI 部件项目命名
 

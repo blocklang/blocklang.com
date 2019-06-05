@@ -143,7 +143,6 @@ public class BuildServiceImpl implements BuildService {
 		// 如果已存在，则不添加标签，而是直接打印信息，并进行下一个环节
 		Integer projectTagId = null; // 在后续流程中使用。
 		
-		
 		// 先判断是否存在 git 仓库，如果不存在则给出提示
 		if(!GitUtils.isGitRepo(context.getGitRepositoryDirectory())) {
 			success = false;

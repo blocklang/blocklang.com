@@ -131,6 +131,7 @@ public class ComponentRepoController {
 		task.setPublishResult(ReleaseResult.STARTED);
 		task.setCreateTime(LocalDateTime.now());
 		task.setCreateUserId(currentUserId);
+		task.setCreateUserName(principal.getName());
 		ComponentRepoPublishTask savedTask = componentRepoPublishTaskService.save(task);
 
 		// 异步任务

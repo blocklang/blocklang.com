@@ -32,6 +32,9 @@
 			<column name="label" remarks="组件库的显示名" type="varchar(64)" />
 			<column name="description" remarks="组件库的详细说明" type="varchar(512)" />
 			<column name="logo_path" remarks="项目 Logo 存储路径" type="varchar(64)" />
+			<column name="language" remarks="编程语言" type="char(2)">
+				<constraints nullable="false" />
+			</column>
 			<column name="category" remarks="组件库分类" type="char(2)">
 				<constraints nullable="false" />
 			</column>

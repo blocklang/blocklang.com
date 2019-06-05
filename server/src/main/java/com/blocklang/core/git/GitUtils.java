@@ -196,7 +196,7 @@ public class GitUtils {
 	/**
 	 * 
 	 * @param gitRepoPath
-	 * @param ref 注意，不能使用简称，如不能为“master”，而应该为“refs/heads/master”
+	 * @param ref 可以是分支或 tag。注意，不能使用简称，如不能为“master”，而应该为“refs/heads/master”；不能为“v0.1.0”，应该为“refs/tags/v0.1.0”
 	 * @param filePath
 	 * @return
 	 */

@@ -27,22 +27,27 @@ public class MarketplacePublishContextTest {
 	
 	@Test
 	public void get_repo_publish_log_file() {
-		String version = "0.1.0";
-		Path logFile = context.getRepoPublishLogFile(version);
+		Path logFile = context.getRepoPublishLogFile();
 		assertThat(logFile.getParent().compareTo(Paths.get("c:/blocklang/marketplace/github.com/jack/app/publishLogs"))).isEqualTo(0);
 		
 		String fileName = logFile.getFileName().toString();
-		assertThat(fileName).startsWith("0.1.0-").endsWith(".log");
+		assertThat(fileName).endsWith(".log");
 	}
 	
 	// 在同一个上下文中，调用两次获取日志文件的方式时，返回的日志文件应该是同一个
 	@Test
 	public void get_repo_publish_log_file_call_twice() throws InterruptedException {
-		String version = "0.1.0";
-		String fileName1 = context.getRepoPublishLogFile(version).getFileName().toString();
+		String fileName1 = context.getRepoPublishLogFile().getFileName().toString();
 		TimeUnit.SECONDS.sleep(1);
-		String fileName2 = context.getRepoPublishLogFile(version).getFileName().toString();
+		String fileName2 = context.getRepoPublishLogFile().getFileName().toString();
 
 		assertThat(fileName1).isEqualTo(fileName2);
+	}
+	
+	@Test
+	public void get_git_url_success() {
+		assertThat(context.getGitUrl()).isEqualTo("https://github.com/jack/app.git");
+		assertThat(context.getOwner()).isEqualTo("jack");
+		assertThat(context.getRepoName()).isEqualTo("app");
 	}
 }
