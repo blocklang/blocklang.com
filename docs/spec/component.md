@@ -33,3 +33,9 @@
 2. 组件项目提供具体的实现，要指明对应的 API 项目，也要说明是否可用作 dev 依赖
 3. 在项目的依赖配置中，可指定依赖的范围（scope），包括 dev 和 prod 两种，其中 prod 可指定多个 profile，但必须指定一个名为 `default` 的 profile
 4. 在发布时，默认按照 `default` 依赖生成软件，用户也可以选择 profile 发布
+
+## 管理方式
+
+API 和组件源码可托管在基于 git 的源代码托管网站，如 github 或码云等。但在 BlockLang 平台中使用组件时，必须先将这些组件发布到 BlockLang 的组件市场，然后项目直接引用组件市场中的组件。关系如下图：
+
+![组件关系图2](images/blocklang-component2.png)
