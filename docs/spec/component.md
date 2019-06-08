@@ -76,7 +76,7 @@ root
     "description": "",
     "category": "Widget",
     "components": [
-        "src/components/button"
+        "components/button"
     ]
 }
 ```
@@ -89,7 +89,7 @@ root
 4. `description` - 组件库详细介绍(可选)
 5. `category` - 组件库种类，当前仅支持 `Widget`(必填)
 6. `components` - 数组，存储组件的相对路径
-   1. 当 category 为 `Widget` 时，如 Button 部件的 API 存在 `src/components/button` 文件夹中
+   1. 当 category 为 `Widget` 时，如 Button 部件的 API 存在 `components/button` 文件夹中
 
 #### changelog
 
