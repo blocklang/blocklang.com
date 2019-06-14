@@ -7,9 +7,9 @@
         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
 	<changeSet author="Zhengwei Jin" id="201905231105">
-		<createTable tableName="component_repo_registry" remarks="登记组件仓库信息">
+		<createTable tableName="component_repo" remarks="登记组件仓库信息">
 			<column name="dbid" type="int" autoIncrement="true">
-				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_COMPONENT_REPO_REGISTRY" />
+				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_COMPONENT_REPO" />
 			</column>
 			<column name="git_repo_url" remarks="git 仓库地址" type="varchar(128)">
 				<constraints nullable="false" />
@@ -50,12 +50,12 @@
 		</createTable>
 
 		<addUniqueConstraint columnNames="create_user_id,git_repo_url"
-			constraintName="UK_COMP_REPO_REG_ON_GIT_REPO_URL_USER_ID"
-			tableName="component_repo_registry" />
+			constraintName="UK_COMP_REPO_ON_GIT_REPO_URL_USER_ID"
+			tableName="component_repo" />
 
 		<addUniqueConstraint columnNames="create_user_id,name"
-			constraintName="UK_COMP_REPO_REG_ON_NAME_USER_ID"
-			tableName="component_repo_registry" />
+			constraintName="UK_COMP_REPO_ON_NAME_USER_ID"
+			tableName="component_repo" />
 	</changeSet>
 
 </databaseChangeLog>

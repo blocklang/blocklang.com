@@ -26,7 +26,7 @@ import com.blocklang.marketplace.dao.ComponentRepoPublishTaskDao;
 import com.blocklang.marketplace.dao.ComponentRepoRegistryDao;
 import com.blocklang.marketplace.data.ComponentRepoInfo;
 import com.blocklang.marketplace.model.ComponentRepoPublishTask;
-import com.blocklang.marketplace.model.ComponentRepoRegistry;
+import com.blocklang.marketplace.model.ComponentRepo;
 import com.blocklang.marketplace.service.PublishService;
 import com.blocklang.marketplace.task.BlockLangJsonFetchTask;
 import com.blocklang.marketplace.task.GitSyncComponentRepoTask;
@@ -215,12 +215,12 @@ public class PublishServiceImpl implements PublishService {
 			}
 			if(!versionHasError) {
 				// 获取最新发布的版本号
-				Optional<ComponentRepoRegistry> registryOption = componentRepoRegistryDao.findByNameAndCreateUserId(trimedName, publishTask.getCreateUserId());
-				if(registryOption.isPresent()) {
-					Version previousVersion = Version.parseVersion(registryOption.get().getVersion(), true);
+				Optional<ComponentRepo> compRepoOption = componentRepoRegistryDao.findByNameAndCreateUserId(trimedName, publishTask.getCreateUserId());
+				if(compRepoOption.isPresent()) {
+					Version previousVersion = Version.parseVersion(compRepoOption.get().getVersion(), true);
 					Version currentVersion = Version.parseVersion(trimedVersion, true);
 					if(!currentVersion.isGreaterThan(previousVersion)) {
-						logger.error("version - 版本号应大于项目最新的版本号，但 {} 没有大于上一个版本号 {}", trimedVersion, registryOption.get().getVersion());
+						logger.error("version - 版本号应大于项目最新的版本号，但 {} 没有大于上一个版本号 {}", trimedVersion, compRepoOption.get().getVersion());
 						versionHasError = true;
 					}
 				}
@@ -274,30 +274,30 @@ public class PublishServiceImpl implements PublishService {
 			success = !(nameHasError || versionHasError || categoryHasError || languageHasError || descriptionHasError || iconHasError);
 		}
 		
-		ComponentRepoRegistry savedRepoRegistry = null;
+		ComponentRepo savedCompRepo = null;
 		if(success) {
 			// 注册组件库
 			logger.info(StringUtils.repeat("-", 45));
 			logger.info("四、开始保存组件库基本信息");
 			
-			ComponentRepoRegistry repoRegistry = new ComponentRepoRegistry();
-			repoRegistry.setGitRepoUrl(publishTask.getGitUrl());
-			repoRegistry.setGitRepoWebsite(context.getWebsite());
-			repoRegistry.setGitRepoOwner(context.getOwner());
-			repoRegistry.setGitRepoName(context.getRepoName());
-			repoRegistry.setName(repoInfo.getName().trim()); // name 必填
-			repoRegistry.setVersion(repoInfo.getVersion().trim()); // version 必填
-			repoRegistry.setLabel(repoInfo.getDisplayName());
-			repoRegistry.setDescription(repoInfo.getDescription());
-			repoRegistry.setCategory(RepoCategory.fromValue(repoInfo.getCategory().trim()));
-			repoRegistry.setLanguage(Language.fromValue(repoInfo.getLanguage().trim()));
+			ComponentRepo repo = new ComponentRepo();
+			repo.setGitRepoUrl(publishTask.getGitUrl());
+			repo.setGitRepoWebsite(context.getWebsite());
+			repo.setGitRepoOwner(context.getOwner());
+			repo.setGitRepoName(context.getRepoName());
+			repo.setName(repoInfo.getName().trim()); // name 必填
+			repo.setVersion(repoInfo.getVersion().trim()); // version 必填
+			repo.setLabel(repoInfo.getDisplayName());
+			repo.setDescription(repoInfo.getDescription());
+			repo.setCategory(RepoCategory.fromValue(repoInfo.getCategory().trim()));
+			repo.setLanguage(Language.fromValue(repoInfo.getLanguage().trim()));
 			if(StringUtils.isNotBlank(repoInfo.getIcon())) {
-				repoRegistry.setLogoPath(repoInfo.getIcon());
+				repo.setLogoPath(repoInfo.getIcon());
 			}
-			repoRegistry.setCreateUserId(publishTask.getCreateUserId());
-			repoRegistry.setCreateTime(LocalDateTime.now());
+			repo.setCreateUserId(publishTask.getCreateUserId());
+			repo.setCreateTime(LocalDateTime.now());
 			
-			savedRepoRegistry = componentRepoRegistryDao.save(repoRegistry);
+			savedCompRepo = componentRepoRegistryDao.save(repo);
 			logger.info("保存成功");
 		}
 		

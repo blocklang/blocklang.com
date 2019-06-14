@@ -3,7 +3,7 @@ package com.blocklang.marketplace.service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.blocklang.marketplace.model.ComponentRepoRegistry;
+import com.blocklang.marketplace.model.ComponentRepo;
 
 public interface ComponentRepoRegistryService {
 
@@ -14,6 +14,6 @@ public interface ComponentRepoRegistryService {
 	 * @param page
 	 * @return
 	 */
-	Page<ComponentRepoRegistry> findAllByNameOrLabel(String query, Pageable page);
+	Page<ComponentRepo> findAllByNameOrLabel(String query, Pageable page);
 
 }

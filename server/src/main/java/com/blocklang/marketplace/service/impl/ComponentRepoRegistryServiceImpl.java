@@ -7,7 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.blocklang.marketplace.dao.ComponentRepoRegistryDao;
-import com.blocklang.marketplace.model.ComponentRepoRegistry;
+import com.blocklang.marketplace.model.ComponentRepo;
 import com.blocklang.marketplace.service.ComponentRepoRegistryService;
 
 @Service
@@ -17,7 +17,7 @@ public class ComponentRepoRegistryServiceImpl implements ComponentRepoRegistrySe
 	private ComponentRepoRegistryDao componentRepoRegistryDao;
 	
 	@Override
-	public Page<ComponentRepoRegistry> findAllByNameOrLabel(String query, Pageable page) {
+	public Page<ComponentRepo> findAllByNameOrLabel(String query, Pageable page) {
 		if(StringUtils.isBlank(query)) {
 			return componentRepoRegistryDao.findAllByLastPublishTimeNotNull(page);
 		}

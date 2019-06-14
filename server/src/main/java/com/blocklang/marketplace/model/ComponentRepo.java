@@ -15,13 +15,13 @@ import com.blocklang.marketplace.constant.converter.LanguageConverter;
 import com.blocklang.marketplace.constant.converter.RepoCategoryConverter;
 
 @Entity
-@Table(name = "component_repo_registry", 
+@Table(name = "component_repo", 
 	uniqueConstraints = {
 		@UniqueConstraint(columnNames = { "create_user_id", "git_repo_url" }),
 		@UniqueConstraint(columnNames = { "create_user_id", "name" }) 
 	}
 )
-public class ComponentRepoRegistry extends PartialOperateFields {
+public class ComponentRepo extends PartialOperateFields {
 
 	private static final long serialVersionUID = 8362695653909646856L;
 

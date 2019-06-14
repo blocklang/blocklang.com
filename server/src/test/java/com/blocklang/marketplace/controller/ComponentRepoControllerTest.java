@@ -26,7 +26,7 @@ import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.test.AbstractControllerTest;
 import com.blocklang.marketplace.data.NewComponentRepoParam;
 import com.blocklang.marketplace.model.ComponentRepoPublishTask;
-import com.blocklang.marketplace.model.ComponentRepoRegistry;
+import com.blocklang.marketplace.model.ComponentRepo;
 import com.blocklang.marketplace.service.ComponentRepoPublishTaskService;
 import com.blocklang.marketplace.service.ComponentRepoRegistryService;
 import com.blocklang.marketplace.service.PublishService;
@@ -46,7 +46,7 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 	// 默认值，q 的值默认为 null，page 的值默认为 0
 	@Test
 	public void list_component_repos_q_is_null_and_page_is_null() {
-		Page<ComponentRepoRegistry> result = new PageImpl<ComponentRepoRegistry>(Collections.emptyList());
+		Page<ComponentRepo> result = new PageImpl<ComponentRepo>(Collections.emptyList());
 		when(componentRepoRegistryService.findAllByNameOrLabel(any(), any())).thenReturn(result);
 		
 		given()
@@ -60,7 +60,7 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 	
 	@Test
 	public void list_component_repos_q_is_empty_and_page_is_1() {
-		Page<ComponentRepoRegistry> result = new PageImpl<ComponentRepoRegistry>(Collections.emptyList());
+		Page<ComponentRepo> result = new PageImpl<ComponentRepo>(Collections.emptyList());
 		when(componentRepoRegistryService.findAllByNameOrLabel(any(), any())).thenReturn(result);
 		
 		given()
@@ -100,7 +100,7 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 	
 	@Test
 	public void list_component_repos_q_is_null_and_page_greater_than_total() {
-		Page<ComponentRepoRegistry> result = new PageImpl<ComponentRepoRegistry>(Collections.emptyList(), PageRequest.of(100, 6000), 1);
+		Page<ComponentRepo> result = new PageImpl<ComponentRepo>(Collections.emptyList(), PageRequest.of(100, 6000), 1);
 		
 		when(componentRepoRegistryService.findAllByNameOrLabel(any(), any())).thenReturn(result);
 		
@@ -116,8 +116,8 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 	
 	@Test
 	public void list_component_repos_success() {
-		ComponentRepoRegistry registry = new ComponentRepoRegistry();
-		Page<ComponentRepoRegistry> result = new PageImpl<ComponentRepoRegistry>(Collections.singletonList(registry));
+		ComponentRepo registry = new ComponentRepo();
+		Page<ComponentRepo> result = new PageImpl<ComponentRepo>(Collections.singletonList(registry));
 		when(componentRepoRegistryService.findAllByNameOrLabel(any(), any())).thenReturn(result);
 		
 		given()
