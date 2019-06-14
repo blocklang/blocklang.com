@@ -88,5 +88,8 @@ netstat -apn | grep 443
 kill -9 {pid}
 
 # 后台启动
+## 使用 setsid 命令
+setsid java -jar blocklang-0.0.1-SNAPSHOT.jar >> blocklang.log
+## 或者，使用 nohup 命令时
 nohup java -jar blocklang-0.0.1-SNAPSHOT.jar &
 ```
