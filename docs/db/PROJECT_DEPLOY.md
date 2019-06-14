@@ -19,4 +19,4 @@
 ## 说明
 
 1. `registration_token` 是22位的 UUID
-2. `deploy_state` 的值为：`01` 表示 `未部署`，
+2. `deploy_state` 的值为：`01` 表示 `未部署`
