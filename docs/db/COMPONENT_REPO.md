@@ -12,7 +12,7 @@
 | git_repo_owner    | git 仓库拥有者     | varchar  | 64   |        |      | 否   |
 | git_repo_name     | git 仓库名称       | varchar  | 64   |        |      | 否   |
 | name              | 组件库的名称       | varchar  | 64   |        |      | 否   |
-| version           | 组件库的版本号     | varchar  | 32   |        |      | 否   |
+| version           | 组件库的最新版本号 | varchar  | 32   |        |      | 否   |
 | label             | 组件库的显示名     | varchar  | 64   |        |      | 是   |
 | description       | 组件库的详细说明   | varchar  | 512  |        |      | 是   |
 | logo_path         | 项目 Logo 存储路径 | varchar  | 64   |        |      | 是   |
