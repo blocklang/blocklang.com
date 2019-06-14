@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+	<changeSet author="Zhengwei Jin" id="201906142025">
+		<createTable tableName="api_changelog" remarks="API 更新日志">
+			<column name="dbid" type="int" autoIncrement="true">
+				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_API_CHANGELOG" />
+			</column>
+			<column name="api_repo_id" remarks="API 仓库版本标识" type="int">
+				<constraints nullable="false" />
+			</column>
+			<column name="changelog_id" remarks="变更日志标识" type="varchar(255)">
+				<constraints nullable="false" />
+			</column>
+			<column name="changelog_author" remarks="变更日志的作者" type="varchar(255)">
+				<constraints nullable="false" />
+			</column>
+			<column name="changelog_file_name" remarks="变更日志的存储路径" type="varchar(255)">
+				<constraints nullable="false" />
+			</column>
+			<column name="execute_time" remarks="执行时间" type="${datetime}">
+				<constraints nullable="false" />
+			</column>
+			<column name="execute_order" remarks="执行顺序" type="int">
+				<constraints nullable="false" />
+			</column>
+			<column name="execute_result" remarks="执行结果" type="char(2)">
+				<constraints nullable="false" />
+			</column>
+			<column name="md5_sum" remarks="校验日志文件的 md5" type="varchar(64)">
+				<constraints nullable="false" />
+			</column>
+			<column name="deployment_id" remarks="部署标识" type="int">
+				<constraints nullable="false" />
+			</column>
+			<column name="create_user_id" remarks="创建人标识" type="int">
+				<constraints nullable="false" />
+			</column>
+			<column name="create_time" remarks="创建时间" type="${datetime}">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+
+		<addUniqueConstraint columnNames="api_repo_id,changelog_id,changelog_author,changelog_file_name"
+			constraintName="UK_API_CHANGELOG_ON_API_REPO_ID_AUTHOR_FILE"
+			tableName="api_changelog" />
+	</changeSet>
+
+</databaseChangeLog>

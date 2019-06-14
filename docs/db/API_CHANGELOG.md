@@ -11,13 +11,13 @@
 | changelog_id        | 变更日志标识       | varchar  | 255  |        |      | 否   |
 | changelog_author    | 变更日志的作者     | varchar  | 255  |        |      | 否   |
 | changelog_file_name | 变更日志的存储路径 | varchar  | 255  |        |      | 否   |
-| execute_time        | 执行时间           | varchar  | 255  |        |      | 否   |
+| execute_time        | 执行时间           | datetime |      |        |      | 否   |
 | execute_order       | 执行顺序           | int      |      |        |      | 否   |
 | execute_result      | 执行结果           | char     | 2    |        |      | 否   |
 | md5_sum             | 校验日志文件的 md5 | varchar  | 64   |        |      | 否   |
+| deployment_id       | 部署标识           | int      |      |        |      | 否   |
 | create_user_id      | 创建人标识         | int      |      |        |      | 否   |
 | create_time         | 创建时间           | datetime |      |        |      | 否   |
-| deployment_id       | 部署标识           | int      |      |        |      | 否   |
 
 ## 约束
 
