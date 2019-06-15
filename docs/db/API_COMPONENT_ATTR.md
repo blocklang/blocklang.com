@@ -10,7 +10,7 @@
 | name              | 属性的名称     | varchar | 64   |        |      | 否   |
 | label             | 属性的显示名   | varchar | 64   |        |      | 是   |
 | description       | 属性的详细说明 | varchar | 512  |        |      | 是   |
-| value_type        | 属性的值类型   | varchar | 32   |        |      | 是   |
+| value_type        | 属性的值类型   | varchar | 32   |        |      | 否   |
 | value_description | 属性的值描述   | varchar | 64   |        |      | 是   |
 | default_value     | 默认值         | varchar | 32   |        |      | 是   |
 

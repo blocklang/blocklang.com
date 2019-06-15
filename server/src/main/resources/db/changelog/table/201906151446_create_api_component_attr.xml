@@ -22,7 +22,9 @@
 			</column>
 			<column name="label" remarks="属性的显示名" type="varchar(64)" />
 			<column name="description" remarks="属性的详细说明" type="varchar(512)" />
-			<column name="value_type" remarks="属性的值类型" type="varchar(32)" />
+			<column name="value_type" remarks="属性的值类型" type="varchar(32)" >
+				<constraints nullable="false" />
+			</column>
 			<column name="value_description" remarks="属性的值描述" type="varchar(64)" />
 			<column name="default_value" remarks="默认值" type="varchar(32)" />
 		</createTable>
