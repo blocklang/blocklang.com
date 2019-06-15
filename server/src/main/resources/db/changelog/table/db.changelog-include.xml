@@ -38,5 +38,6 @@
 	<include file="db/changelog/table/201906150922_create_api_repo_version.xml" />
 	<include file="db/changelog/table/201906151133_create_api_component.xml" />
 	<include file="db/changelog/table/201906151446_create_api_component_attr.xml" />
+	<include file="db/changelog/table/201906151457_create_api_component_attr_val_opt.xml" />
 
 </databaseChangeLog>

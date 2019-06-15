@@ -22,6 +22,7 @@
 
 ## 说明
 
-1. `value_type` 的值为：`number(数字)`，`string(字符串)`，`boolean(布尔类型)`，`function(函数)`
-2. 不同版本的同一个部件的同一个属性，则 `code` 的值必须相同
-3. `CODE` 的值从 `0001` 开始，到 `9999` 结束
+1. 不需要四个常规字段，取 `API_COMPONENT` 中的值
+2. `value_type` 的值为：`number(数字)`，`string(字符串)`，`boolean(布尔类型)`，`function(函数)`
+3. 不同版本的同一个部件的同一个属性，则 `code` 的值必须相同
+4. `CODE` 的值从 `0001` 开始，到 `9999` 结束

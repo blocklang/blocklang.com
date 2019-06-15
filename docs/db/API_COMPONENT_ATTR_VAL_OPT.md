@@ -15,10 +15,10 @@
 
 * 主键：`PK_API_COMPONENT_ATTR_VAL_OPT`
 * 外键：(*未设置*)`FK_API_COMPONENT_ATTR_VAL_OPT`，`API_COMPONENT_ATTR_ID` 对应 `API_COMPONENT_ATTR` 表的 `dbid`
-* 索引：`UK_API_COMP_ATTR_ON_API_COMPONENT_NAME`，对应字段 `api_component_id`、`name`
+* 索引：`UK_API_COMP_ATTR_VAL_OPT_ON_ATTR_CODE`，对应字段 `api_component_attr_id`、`code`
 
 ## 说明
 
-1. 不需要四个常规字段
+1. 不需要四个常规字段，取 `API_COMPONENT` 中的值
 2. 不同版本的同一个部件的同一个属性的同一个可选值，则 `code` 的值必须相同
 3. `CODE` 的值从 `0001` 开始，到 `9999` 结束
