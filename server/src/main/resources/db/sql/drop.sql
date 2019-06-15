@@ -18,8 +18,10 @@ drop table project_authorization;
 drop table project_commit;
 drop table project_deploy;
 drop table persistent_logins;
-drop table component_repo_registry;
+drop table component_repo;
 drop table component_repo_publish_task;
+drop table api_changelog;
+drop table api_repo;
 
 drop table databasechangelog;
 drop table databasechangeloglock;
