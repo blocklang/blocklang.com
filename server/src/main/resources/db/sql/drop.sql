@@ -22,6 +22,7 @@ drop table component_repo;
 drop table component_repo_publish_task;
 drop table api_changelog;
 drop table api_repo;
+drop table api_repo_version;
 
 drop table databasechangelog;
 drop table databasechangeloglock;

@@ -35,5 +35,6 @@
 	<include file="db/changelog/table/201905280844_create_component_repo_publish_task.xml" />
 	<include file="db/changelog/table/201906142025_create_api_changelog.xml" />
 	<include file="db/changelog/table/201906150909_create_api_repo.xml" />
+	<include file="db/changelog/table/201906150922_create_api_repo_version.xml" />
 
 </databaseChangeLog>
