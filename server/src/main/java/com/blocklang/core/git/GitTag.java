@@ -73,4 +73,14 @@ public class GitTag {
 			throw new GitTagFailedException(e);
 		}
 	}
+	
+	public List<Ref> getTags(Path gitRepoPath) {
+		Path gitDir = gitRepoPath.resolve(Constants.DOT_GIT);
+		try (Repository repo = FileRepositoryBuilder.create(gitDir.toFile());
+			 Git git = new Git(repo)){
+			return git.tagList().call();
+		} catch (IOException | GitAPIException e) {
+			throw new GitTagFailedException(e);
+		}
+	}
 }

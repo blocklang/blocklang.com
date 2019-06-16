@@ -397,6 +397,18 @@ public class GitUtilsTest {
 	}
 	
 	@Test
+	public void get_tags() throws IOException {
+		File folder = tempFolder.newFolder(gitRepoDirectory);
+		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+		GitUtils.tag(folder.toPath(), "v0.1.0", "message1");
+		GitUtils.commit(folder.toPath(), "", "c.txt", "hello", "usera", "usera@email.com", "firstCommit");
+		GitUtils.tag(folder.toPath(), "v0.1.1", "message2");
+		
+		List<Ref> tags = GitUtils.getTags(folder.toPath());
+		assertThat(tags).hasSize(2);
+	}
+	
+	@Test
 	public void get_blob_from_branch_no_data() throws IOException {
 		File folder = tempFolder.newFolder(gitRepoDirectory);
 		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
