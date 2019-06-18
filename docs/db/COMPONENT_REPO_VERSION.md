@@ -21,3 +21,4 @@
 ## 说明
 
 1. 不需要 `last_update_user_id` 和 `last_update_time` 字段
+2. 只存储在 blocklang 组件市场发布的版本，并不是仓库中的所有 tag 都要存
