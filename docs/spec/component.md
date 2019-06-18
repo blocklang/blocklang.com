@@ -37,6 +37,8 @@
 3. 在项目的依赖配置中，可指定依赖的范围（scope），包括 dev 和 prod 两种，其中 prod 可指定多个 profile，但必须指定一个名为 `default` 的 profile
 4. 在发布时，默认按照 `default` 依赖生成软件，用户也可以指定 profile
 
+dev 模式的部件项目必须使用 dojo 开发，非 dev 模式的可使用任何语言或组件库开发。
+
 ## 项目结构
 
 一个组件由两类项目定义：
@@ -122,7 +124,7 @@ UI 部件支持以下命令：
 1. 修改已存在的属性和事件时，要使用 alter 命令，而不是组合使用 remove 和 add 命令
 2. 如果组件已经登记，则不允许删除组件（因为可能已被引用），所以增加时要慎重
 
-changlog 的 json 格式
+changelog 的 json 格式
 
 ```json
 {
@@ -222,6 +224,7 @@ root
     "description": "",
     "category": "Widget",
     "language": "Typescript",
+    "baseOn": "dojo",
     "components": [
         "src/widgets/button"
     ],
@@ -242,11 +245,12 @@ root
 5. `icon` - 组件库 logo 的存放路径(可选)
 6. `category` - 组件库种类，当前仅支持 `Widget`(必填)
 7. `language` - 开发语言，当前支持 `Typescript`(必填)
-8. `components` - 数组，存储 widget 的相对路径，如果 `Button` 部件类在 `src/widgets/button/index.ts` 文件中，则相对路径为 `src/widgets/button`
-9. `api` - 表示此仓库实现的是哪个 api 项目
-   1. `git` - git 仓库地址
-   2. `version` - 版本号
-10. `dev` 是否能用户开发模式，如果项目仅用于开发模式下，则将 `dev` 的值设置为 `true`，默认为 `false`。
+8. `baseOn` - 这个参数主要用于 Widget，常用的值有 `dojo`、`react`、`vue`、`angular` 等
+9. `components` - 数组，存储 widget 的相对路径，如果 `Button` 部件类在 `src/widgets/button/index.ts` 文件中，则相对路径为 `src/widgets/button`
+10. `api` - 表示此仓库实现的是哪个 api 项目
+    1. `git` - git 仓库地址
+    2. `version` - 版本号
+11. `dev` 是否能用户开发模式，如果项目仅用于开发模式下，则将 `dev` 的值设置为 `true`，默认为 `false`。
 
 注意：
 
