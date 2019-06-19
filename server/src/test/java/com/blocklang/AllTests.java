@@ -35,6 +35,8 @@ import com.blocklang.develop.service.impl.ProjectResourceServiceImplTest;
 import com.blocklang.develop.service.impl.ProjectServiceImplTest;
 import com.blocklang.marketplace.controller.ComponentRepoControllerTest;
 import com.blocklang.marketplace.service.impl.ComponentRepoRegistryServiceImplTest;
+import com.blocklang.marketplace.task.ChangelogParseTaskTest;
+import com.blocklang.marketplace.task.LocalRepoInfoTest;
 import com.blocklang.marketplace.task.MarketplacePublishContextTest;
 import com.blocklang.marketplace.task.TaskLoggerTest;
 import com.blocklang.release.api.AppApiTest;
@@ -69,7 +71,9 @@ import com.blocklang.release.task.GitTagTaskTest;
 	LoginTokenTest.class,
 	MarketplacePublishContextTest.class,
 	TaskLoggerTest.class,
+	LocalRepoInfoTest.class,
 	StringUtilsTest.class,
+	ChangelogParseTaskTest.class,
 	
 	UserValidatorTest.class,
 	
