@@ -141,7 +141,7 @@ changelog 的 json 格式
                     "name": "属性名",
                     "label": "属性显示名",
                     "value": "属性默认值",
-                    "valueType": "string | number | boolean | date",
+                    "valueType": "string | number | boolean",
                     "options": [{
                         "value": "选项值",
                         "label": "显示名",
@@ -157,7 +157,7 @@ changelog 的 json 格式
                         "name": "参数名",
                         "label": "显示名",
                         "value": "默认值",
-                        "valueType": "string | number | boolean | date"
+                        "valueType": "string | number | boolean"
                     }]
                 }]
             }
@@ -166,7 +166,12 @@ changelog 的 json 格式
 }
 ```
 
-注意：**要能跟踪部件名、属性名、事件名等，当给定唯一标识后，不能再变更此标识**
+注意：
+
+1. **要能跟踪部件名、属性名、事件名等，当给定唯一标识后，不能再变更此标识**
+2. 部件的图标在 API 库中管理
+3. 此处的 `appType` 与页面的 `appType` 的值相同，一个部件可支持多个 `appType`，当前仅支持 `web`
+4. `events` 下的 `valueType` (与 `name` 属性并列)的值只能是 `function`，所以不需要用户设置；如果设置为 `function` 也不会报错
 
 ### 组件项目
 

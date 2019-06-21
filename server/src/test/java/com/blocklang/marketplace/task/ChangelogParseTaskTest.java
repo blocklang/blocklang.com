@@ -8,12 +8,20 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.assertj.core.util.Arrays;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+
+import com.blocklang.marketplace.data.changelog.ChangeLog;
+import com.blocklang.marketplace.data.changelog.NewWidgetChange;
+import com.blocklang.marketplace.data.changelog.WidgetEvent;
+import com.blocklang.marketplace.data.changelog.WidgetEventArgument;
+import com.blocklang.marketplace.data.changelog.WidgetProperty;
+import com.blocklang.marketplace.data.changelog.WidgetPropertyOption;
 
 public class ChangelogParseTaskTest {
 	
@@ -960,6 +968,38 @@ public class ChangelogParseTaskTest {
 	}
 	
 	@Test
+	public void run_changes_new_widget_events_value_type_can_be_null() {
+		Map<String, Object> changelogMap = new HashMap<String, Object>();
+		changelogMap.put("id", "1");
+		changelogMap.put("author", "2");
+		
+		List<Map<String, Object>> changes = new ArrayList<Map<String,Object>>();
+		Map<String, Object> change1 = new HashMap<String, Object>();
+		
+		Map<String, Object> newWidget = new HashMap<String, Object>();
+		newWidget.put("name", "a");
+		newWidget.put("label", "b");
+		newWidget.put("iconClass", "c");
+		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("properties", Collections.emptyList());
+		
+		List<Map<String, Object>> events = new ArrayList<Map<String,Object>>();
+		Map<String, Object> eventMap = new HashMap<String, Object>();
+		eventMap.put("name", "a");
+		eventMap.put("label", "b");
+		// 不设置 valueType
+		// eventMap.put("valueType", "function");
+		events.add(eventMap);
+		newWidget.put("events", events);
+		change1.put("newWidget", newWidget);
+		changes.add(change1);
+		changelogMap.put("changes", changes);
+		
+		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		assertThat(task.run()).isPresent();
+	}
+	
+	@Test
 	public void run_changes_new_widget_events_value_type_can_only_be_function() {
 		Map<String, Object> changelogMap = new HashMap<String, Object>();
 		changelogMap.put("id", "1");
@@ -1286,5 +1326,100 @@ public class ChangelogParseTaskTest {
 
 	// 上面的用例都是校验
 	// 下面的用例都是获取值
-	
+	// 只需要一个包含最全数据的测试用例
+	@Test
+	public void run_parse_data() {
+		Map<String, Object> changelogMap = new HashMap<String, Object>();
+		changelogMap.put("id", "a");
+		changelogMap.put("author", "b");
+		
+		List<Map<String, Object>> changes = new ArrayList<Map<String,Object>>();
+		Map<String, Object> change1 = new HashMap<String, Object>();
+		
+		Map<String, Object> newWidget = new HashMap<String, Object>();
+		newWidget.put("name", "c");
+		newWidget.put("label", "d");
+		newWidget.put("iconClass", "e");
+		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		
+		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
+		Map<String, Object> propertyMap = new HashMap<String, Object>();
+		propertyMap.put("name", "f");
+		propertyMap.put("label", "g");
+		propertyMap.put("value", "h");
+		propertyMap.put("valueType", "string");
+		
+		List<Map<String, Object>> options = new ArrayList<Map<String,Object>>();
+		Map<String, Object> optionMap = new HashMap<String, Object>();
+		optionMap.put("value", "i");
+		optionMap.put("label", "j");
+		optionMap.put("title", "k");
+		optionMap.put("iconClass", "l");
+		options.add(optionMap);
+		propertyMap.put("options", options);
+		properties.add(propertyMap);
+		newWidget.put("properties", properties);
+		
+		List<Map<String, Object>> events = new ArrayList<Map<String,Object>>();
+		Map<String, Object> eventMap = new HashMap<String, Object>();
+		eventMap.put("name", "m");
+		eventMap.put("label", "n");
+		List<Map<String, Object>> arguments = new ArrayList<Map<String,Object>>();
+		Map<String, Object> argumentMap = new HashMap<String, Object>();
+		argumentMap.put("name", "o");
+		argumentMap.put("label", "p");
+		argumentMap.put("value", "q");
+		argumentMap.put("valueType", "string");
+		arguments.add(argumentMap);
+		eventMap.put("arguments", arguments);
+		events.add(eventMap);
+		newWidget.put("events", events);
+		change1.put("newWidget", newWidget);
+		changes.add(change1);
+		changelogMap.put("changes", changes);
+		
+		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		Optional<ChangeLog> changelogOption = task.run();
+		assertThat(changelogOption).isPresent();
+		
+		// 注意，event 的 valueType 的值为 function
+		ChangeLog changelog = changelogOption.get();
+		assertThat(changelog.getId()).isEqualTo("a");
+		assertThat(changelog.getAuthor()).isEqualTo("b");
+		assertThat(changelog.getChanges()).hasSize(1);
+		
+		NewWidgetChange newWidgetChange = (NewWidgetChange) changelog.getChanges().get(0);
+		assertThat(newWidgetChange.getName()).isEqualTo("c");
+		assertThat(newWidgetChange.getLabel()).isEqualTo("d");
+		assertThat(newWidgetChange.getIconClass()).isEqualTo("e");
+		assertThat(newWidgetChange.getAppType()).hasSize(1);
+		assertThat(newWidgetChange.getAppType().get(0)).isEqualTo("web");
+		assertThat(newWidgetChange.getProperties()).hasSize(1);
+		assertThat(newWidgetChange.getEvents()).hasSize(1);
+		
+		WidgetProperty property = newWidgetChange.getProperties().get(0);
+		assertThat(property.getName()).isEqualTo("f");
+		assertThat(property.getLabel()).isEqualTo("g");
+		assertThat(property.getValue()).isEqualTo("h");
+		assertThat(property.getValueType()).isEqualTo("string");
+		assertThat(property.getOptions()).hasSize(1);
+		
+		WidgetPropertyOption propertyOption = property.getOptions().get(0);
+		assertThat(propertyOption.getValue()).isEqualTo("i");
+		assertThat(propertyOption.getLabel()).isEqualTo("j");
+		assertThat(propertyOption.getTitle()).isEqualTo("k");
+		assertThat(propertyOption.getIconClass()).isEqualTo("l");
+		
+		WidgetEvent event = newWidgetChange.getEvents().get(0);
+		assertThat(event.getName()).isEqualTo("m");
+		assertThat(event.getLabel()).isEqualTo("n");
+		assertThat(event.getValueType()).isEqualTo("function");
+		assertThat(event.getArguments()).hasSize(1);
+		
+		WidgetEventArgument eventArgument = event.getArguments().get(0);
+		assertThat(eventArgument.getName()).isEqualTo("o");
+		assertThat(eventArgument.getLabel()).isEqualTo("p");
+		assertThat(eventArgument.getValue()).isEqualTo("q");
+		assertThat(eventArgument.getValueType()).isEqualTo("string");
+	}
 }

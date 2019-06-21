@@ -1,13 +1,21 @@
 package com.blocklang.marketplace.task;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.marketplace.constant.ComponentAttrValueType;
+import com.blocklang.marketplace.data.changelog.Change;
 import com.blocklang.marketplace.data.changelog.ChangeLog;
+import com.blocklang.marketplace.data.changelog.NewWidgetChange;
+import com.blocklang.marketplace.data.changelog.WidgetEvent;
+import com.blocklang.marketplace.data.changelog.WidgetEventArgument;
+import com.blocklang.marketplace.data.changelog.WidgetProperty;
+import com.blocklang.marketplace.data.changelog.WidgetPropertyOption;
 
 /**
  * TODO: 如何重构这个类，目前还没有思路，本版以实现功能为主，还做不到高可读、可扩展和通用。
@@ -41,14 +49,31 @@ public class ChangelogParseTask extends AbstractRepoPublishTask {
 		super(marketplacePublishContext);
 		this.changelogMap = changelogMap;
 	}
-
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	
+	/**
+	 * 将校验和解析两步完全分离，虽然会重复循环，但代码易读。
+	 */
 	@Override
 	public Optional<ChangeLog> run() {
 		if(this.changelogMap == null) {
 			logger.error("changelogMap 参数不能为 null");
 			return Optional.empty();
 		}
+		
+		if(!validate()) {
+			return Optional.empty();
+		}
+		
+		return Optional.of(this.parse());
+	}
+	
+	/**
+	 * 如果校验未通过，则返回 false，否则返回 true
+	 * 
+	 * @return
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private boolean validate() {
 		// 根结点下必须包含 id,author,changes 子节点
 		// 1. 只能是 id,author,changes
 		boolean hasErrors = false;
@@ -59,7 +84,7 @@ public class ChangelogParseTask extends AbstractRepoPublishTask {
 			}
 		}
 		if(hasErrors) {
-			return Optional.empty();
+			return false;
 		}
 		
 		hasErrors = false;
@@ -78,7 +103,7 @@ public class ChangelogParseTask extends AbstractRepoPublishTask {
 			hasErrors = true;
 		}
 		if(hasErrors) {
-			return Optional.empty();
+			return false;
 		}
 		
 		hasErrors = false;
@@ -100,13 +125,13 @@ public class ChangelogParseTask extends AbstractRepoPublishTask {
 			hasErrors = true;
 		}
 		if(hasErrors) {
-			return Optional.empty();
+			return false;
 		}
 		
 		List changeList = (List) changelogMap.get("changes");
 		if(changeList.isEmpty()) {
 			logger.error("changes 数组中没有任何内容，至少要包含一项内容");
-			return Optional.empty();
+			return false;
 		}
 		
 		hasErrors = false;
@@ -132,7 +157,7 @@ public class ChangelogParseTask extends AbstractRepoPublishTask {
 		}
 		
 		if(hasErrors) {
-			return Optional.empty();
+			return false;
 		}
 		
 		hasErrors = false;
@@ -151,7 +176,7 @@ public class ChangelogParseTask extends AbstractRepoPublishTask {
 			index++;
 		}
 		if(hasErrors) {
-			return Optional.empty();
+			return false;
 		}
 		
 		hasErrors = false;
@@ -350,13 +375,15 @@ public class ChangelogParseTask extends AbstractRepoPublishTask {
 									}
 									// valueType(可不填，默认是 function)
 									Object eventValueTypeObj = eventMap.get("valueType");
-									if(eventValueTypeObj != null && !String.class.isAssignableFrom(eventValueTypeObj.getClass())) {
-										logger.error("valueType 必须是字符串类型");
-										hasErrors = true;
-									} else {
-										if(!"function".equals(eventValueTypeObj)) {
-											logger.error("valueType 的值只能是 function。默认为 function，可不填写");
+									if(eventValueTypeObj != null) {
+										if(!String.class.isAssignableFrom(eventValueTypeObj.getClass())) {
+											logger.error("valueType 必须是字符串类型");
 											hasErrors = true;
+										} else {
+											if(!"function".equals(eventValueTypeObj)) {
+												logger.error("valueType 的值只能是 function。默认为 function，可不填写");
+												hasErrors = true;
+											}
 										}
 									}
 									// arguments
@@ -435,12 +462,120 @@ public class ChangelogParseTask extends AbstractRepoPublishTask {
 			index++;
 		}
 		if(hasErrors) {
-			return Optional.empty();
+			return false;
 		}
 		
-		
-		
-		return Optional.of(new ChangeLog());
+		return true;
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private ChangeLog parse() {
+		ChangeLog changelog = new ChangeLog();
+		changelog.setId(Objects.toString(changelogMap.get("id"), ""));
+		changelog.setAuthor(Objects.toString(changelogMap.get("author"), ""));
+		
+		List<Change> changes = new ArrayList<Change>();
+		
+		List<Object> changeList = (List<Object>) changelogMap.get("changes");
+		for(Object changeObj : changeList) {
+			Map changeMap = (Map)changeObj;
+			if(changeMap.containsKey("newWidget")) {
+				Map newWidgetMap = (Map) changeMap.get("newWidget");
+				NewWidgetChange newWidgetChange = new NewWidgetChange();
+				newWidgetChange.setName(newWidgetMap.getOrDefault("name", "").toString());
+				newWidgetChange.setLabel(newWidgetMap.getOrDefault("label", "").toString());
+				
+				Object iconClassObj = newWidgetMap.get("iconClass");
+				if(iconClassObj != null) {
+					newWidgetChange.setIconClass(newWidgetMap.get("iconClass").toString());
+				}
+				
+				newWidgetChange.setAppType((List<String>) newWidgetMap.get("appType"));
+				
+				List<WidgetProperty> properties = new ArrayList<WidgetProperty>();
+				Object propertyObj = newWidgetMap.get("properties");
+				if(propertyObj != null) {
+					List<Map> propertyList = (List<Map>)propertyObj;
+					for(Map propertyMap : propertyList) {
+						WidgetProperty widgetProperty = new WidgetProperty();
+						widgetProperty.setName(propertyMap.get("name").toString());
+						widgetProperty.setLabel(propertyMap.get("label").toString());
+						
+						Object propertyValue = propertyMap.get("value");
+						if(propertyValue != null) {
+							widgetProperty.setValue(propertyMap.get("value").toString());
+						}
+						
+						widgetProperty.setValueType(propertyMap.get("valueType").toString());
+						
+						List<WidgetPropertyOption> options = new ArrayList<WidgetPropertyOption>();
+						Object optionObj = propertyMap.get("options");
+						if(optionObj != null) {
+							List<Map> optionList = (List<Map>)optionObj;
+							for(Map optionMap : optionList) {
+								WidgetPropertyOption option = new WidgetPropertyOption();
+								option.setValue(optionMap.get("value").toString());
+								option.setLabel(optionMap.get("label").toString());
+								Object titleObj = optionMap.get("title");
+								if(titleObj != null) {
+									option.setTitle(titleObj.toString());
+								}
+								Object optionIconClassObj = optionMap.get("iconClass");
+								if(optionIconClassObj != null) {
+									option.setIconClass(optionIconClassObj.toString());
+								}
+								options.add(option);
+							}
+						}
+						widgetProperty.setOptions(options);
+						
+						properties.add(widgetProperty);
+					}
+				}
+				newWidgetChange.setProperties(properties);
+				
+				List<WidgetEvent> events = new ArrayList<WidgetEvent>();
+				Object eventObj = newWidgetMap.get("events");
+				if(eventObj != null) {
+					List<Map> eventList = (List<Map>)eventObj;
+					for(Map eventMap : eventList) {
+						WidgetEvent widgetEvent = new WidgetEvent();
+						widgetEvent.setName(eventMap.get("name").toString());
+						widgetEvent.setLabel(eventMap.get("label").toString());
+						Object valueTypeObj = eventMap.get("valueType");
+						if(valueTypeObj == null) {
+							widgetEvent.setValueType("function");
+						}else {
+							widgetEvent.setValueType(valueTypeObj.toString());
+						}
+						
+						List<WidgetEventArgument> arguments = new ArrayList<WidgetEventArgument>();
+						Object argumentObj = eventMap.get("arguments");
+						if(argumentObj != null) {
+							List<Map> argumentList = (List<Map>)argumentObj;
+							for(Map argumentMap : argumentList) {
+								WidgetEventArgument argument = new WidgetEventArgument();
+								argument.setName(argumentMap.get("name").toString());
+								argument.setLabel(argumentMap.get("label").toString());
+								argument.setValue(argumentMap.get("value").toString());
+								argument.setValueType(argumentMap.get("valueType").toString());
+								arguments.add(argument);
+							}
+						}
+						widgetEvent.setArguments(arguments);
+						
+						
+						events.add(widgetEvent);
+					}
+				}
+				newWidgetChange.setEvents(events);
+				
+				changes.add(newWidgetChange);
+			}
+		}
+		
+		changelog.setChanges(changes);
+		
+		return changelog;
+	}
 }
