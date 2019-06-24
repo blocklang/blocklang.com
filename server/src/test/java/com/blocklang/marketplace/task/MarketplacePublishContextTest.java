@@ -21,12 +21,7 @@ public class MarketplacePublishContextTest {
 	}
 	
 	@Test
-	public void get_repo_source_directory() {
-		assertThat(context.getRepoSourceDirectory().compareTo(Paths.get("c:/blocklang/marketplace/github.com/jack/app/source"))).isEqualTo(0);
-	}
-	
-	@Test
-	public void get_repo_publish_log_file() {
+	public void get_component_repo_publish_log_file() {
 		Path logFile = context.getRepoPublishLogFile();
 		assertThat(logFile.getParent().compareTo(Paths.get("c:/blocklang/marketplace/github.com/jack/app/publishLogs"))).isEqualTo(0);
 		
@@ -36,7 +31,7 @@ public class MarketplacePublishContextTest {
 	
 	// 在同一个上下文中，调用两次获取日志文件的方式时，返回的日志文件应该是同一个
 	@Test
-	public void get_repo_publish_log_file_call_twice() throws InterruptedException {
+	public void get_component_repo_publish_log_file_call_twice() throws InterruptedException {
 		String fileName1 = context.getRepoPublishLogFile().getFileName().toString();
 		TimeUnit.SECONDS.sleep(1);
 		String fileName2 = context.getRepoPublishLogFile().getFileName().toString();
@@ -45,9 +40,15 @@ public class MarketplacePublishContextTest {
 	}
 	
 	@Test
-	public void get_git_url_success() {
-		assertThat(context.getGitUrl()).isEqualTo("https://github.com/jack/app.git");
-		assertThat(context.getOwner()).isEqualTo("jack");
-		assertThat(context.getRepoName()).isEqualTo("app");
+	public void get_component_repo() {
+		assertThat(context.getComponentRepo()).isNotNull();
+		assertThat(context.getApiRepo()).isNull();
 	}
+	
+	@Test
+	public void get_api_repo() {
+		context.parseApiGitUrl("https://github.com/jack/api.git");
+		assertThat(context.getApiRepo()).isNotNull();
+	}
+
 }

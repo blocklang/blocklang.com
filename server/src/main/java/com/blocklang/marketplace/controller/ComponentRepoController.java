@@ -102,7 +102,7 @@ public class ComponentRepoController {
 		try {
 			uriish = new URIish(gitUrl);
 		} catch (URISyntaxException e) {
-			bindingResult.rejectValue("gitUrl", "NotValid.componentRepoGitUrl");
+			bindingResult.rejectValue("gitUrl", "NotValid.componentRepoGitUrl.invalidRemoteUrl");
 			throw new InvalidRequestException(bindingResult);
 		}
 		if(!uriish.isRemote()) {
@@ -120,6 +120,7 @@ public class ComponentRepoController {
 			throw new InvalidRequestException(bindingResult);
 		}
 		
+		// 如果已经发布过，则不允许新增发布任务；而是在之前任务的基础上重新发布或升级
 		componentRepoPublishTaskService.findByGitUrlAndUserId(currentUser.getId(), gitUrl).ifPresent(task -> {
 			bindingResult.rejectValue("gitUrl", "Duplicated.componentRepoGitUrl", new Object[] {principal.getName()}, null);
 			throw new InvalidRequestException(bindingResult);

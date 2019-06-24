@@ -1,55 +1,12 @@
 package com.blocklang.marketplace.data;
 
-public class ComponentRepoInfo {
+public class ComponentRepoInfo extends ApiRepoInfo{
 
-	private String name;
-	private String displayName;
-	private String version;
-	private String description;
-	private String category;
 	private String language;
 	private String icon;
-	private String[] widgets;
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getDisplayName() {
-		return displayName;
-	}
-
-	public void setDisplayName(String displayName) {
-		this.displayName = displayName;
-	}
-
-	public String getVersion() {
-		return version;
-	}
-
-	public void setVersion(String version) {
-		this.version = version;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String getCategory() {
-		return category;
-	}
-
-	public void setCategory(String category) {
-		this.category = category;
-	}
+	private String baseOn;
+	private Api api;
+	private Boolean dev = false;
 
 	public String getLanguage() {
 		return language;
@@ -67,15 +24,49 @@ public class ComponentRepoInfo {
 		this.icon = icon;
 	}
 
-	public String[] getWidgets() {
-		if(widgets == null) {
-			return new String[] {};
+	public Api getApi() {
+		return api;
+	}
+
+	public void setApi(Api api) {
+		this.api = api;
+	}
+
+	public Boolean getDev() {
+		return dev;
+	}
+
+	public void setDev(Boolean dev) {
+		this.dev = dev;
+	}
+
+	public String getBaseOn() {
+		return baseOn;
+	}
+
+	public void setBaseOn(String baseOn) {
+		this.baseOn = baseOn;
+	}
+
+	public class Api {
+		private String git;
+		private String version;
+
+		public String getGit() {
+			return git;
 		}
-		return widgets;
-	}
 
-	public void setWidgets(String[] widgets) {
-		this.widgets = widgets;
-	}
+		public void setGit(String git) {
+			this.git = git;
+		}
 
+		public String getVersion() {
+			return version;
+		}
+
+		public void setVersion(String version) {
+			this.version = version;
+		}
+	}
+	
 }

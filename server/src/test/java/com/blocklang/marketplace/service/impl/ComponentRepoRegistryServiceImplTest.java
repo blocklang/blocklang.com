@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import com.blocklang.core.test.AbstractServiceTest;
 import com.blocklang.marketplace.constant.Language;
 import com.blocklang.marketplace.constant.RepoCategory;
-import com.blocklang.marketplace.dao.ComponentRepoRegistryDao;
+import com.blocklang.marketplace.dao.ComponentRepoDao;
 import com.blocklang.marketplace.model.ComponentRepo;
 import com.blocklang.marketplace.service.ComponentRepoRegistryService;
 
@@ -23,7 +23,7 @@ public class ComponentRepoRegistryServiceImplTest extends AbstractServiceTest{
 	@Autowired
 	private ComponentRepoRegistryService componentRepoRegistryService;
 	@Autowired
-	private ComponentRepoRegistryDao componentRepoRegistryDao;
+	private ComponentRepoDao componentRepoRegistryDao;
 	
 	@Test
 	public void find_all_by_name_or_label_query_is_empty_no_data() {
