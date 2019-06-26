@@ -9,6 +9,7 @@
 | dbid              | 主键           | int      |      |        | 是   | 否   |
 | component_repo_id | 组件仓库标识   | int      |      |        |      | 否   |
 | version           | 组件库的版本号 | varchar  | 32   |        |      | 否   |
+| api_version       | API 库的版本号 | varchar  | 32   |        |      | 否   |
 | create_user_id    | 创建人标识     | int      |      |        |      | 否   |
 | create_time       | 创建时间       | datetime |      |        |      | 否   |
 
