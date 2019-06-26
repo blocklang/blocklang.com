@@ -24,6 +24,9 @@ public class ComponentRepoVersion extends PartialIdField {
 	
 	@Column(name = "version", nullable = false, length = 32)
 	private String version;
+	
+	@Column(name = "api_version", nullable = false, length = 32)
+	private String apiVersion;
 
 	@Column(name = "create_user_id", insertable = true, updatable = false, nullable = false)
 	private Integer createUserId;
@@ -45,6 +48,14 @@ public class ComponentRepoVersion extends PartialIdField {
 
 	public void setVersion(String version) {
 		this.version = version;
+	}
+
+	public String getApiVersion() {
+		return apiVersion;
+	}
+
+	public void setApiVersion(String apiVersion) {
+		this.apiVersion = apiVersion;
 	}
 
 	public Integer getCreateUserId() {

@@ -25,6 +25,9 @@ public class ComponentRepo extends PartialOperateFields {
 
 	private static final long serialVersionUID = 8362695653909646856L;
 
+	@Column(name = "api_repo_id", nullable = false)
+	private Integer apiRepoId;
+	
 	@Column(name = "git_repo_url", nullable = false, length = 128)
 	private String gitRepoUrl;
 
@@ -62,6 +65,14 @@ public class ComponentRepo extends PartialOperateFields {
 	
 	@Column(name = "last_publish_time" )
 	private LocalDateTime lastPublishTime;
+
+	public Integer getApiRepoId() {
+		return apiRepoId;
+	}
+
+	public void setApiRepoId(Integer apiRepoId) {
+		this.apiRepoId = apiRepoId;
+	}
 
 	public String getGitRepoUrl() {
 		return gitRepoUrl;

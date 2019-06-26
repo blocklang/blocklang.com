@@ -11,6 +11,9 @@
 			<column name="dbid" type="int" autoIncrement="true">
 				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_COMPONENT_REPO" />
 			</column>
+			<column name="api_repo_id" remarks="api 仓库标识" type="int">
+				<constraints nullable="false" />
+			</column>
 			<column name="git_repo_url" remarks="git 仓库地址" type="varchar(128)">
 				<constraints nullable="false" />
 			</column>
