@@ -10,11 +10,11 @@ import com.blocklang.core.git.exception.GitRepoNotFoundException;
 
 public class GitSyncApiRepoTask extends AbstractRepoPublishTask{
 
-	private LocalRepoInfo localRepoInfo;
+	private LocalRepoPath localRepoInfo;
 	
 	public GitSyncApiRepoTask(MarketplacePublishContext marketplacePublishContext) {
 		super(marketplacePublishContext);
-		this.localRepoInfo = marketplacePublishContext.getApiRepo();
+		this.localRepoInfo = marketplacePublishContext.getLocalApiRepoPath();
 	}
 
 	@Override

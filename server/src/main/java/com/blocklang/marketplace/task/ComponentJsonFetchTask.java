@@ -20,7 +20,7 @@ public class ComponentJsonFetchTask extends AbstractRepoPublishTask {
 	@Override
 	public Optional<String> run() {
 		try {
-			return GitUtils.getBlob(marketplacePublishContext.getComponentRepo().getRepoSourceDirectory(), ref,
+			return GitUtils.getBlob(marketplacePublishContext.getLocalComponentRepoPath().getRepoSourceDirectory(), ref,
 					"component.json").map(blobInfo -> blobInfo.getContent());
 		} catch (GitTagFailedException e) {
 			logger.error(e);

@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 
 import com.blocklang.core.constant.CmPropKey;
 import com.blocklang.core.git.GitUtils;
+import com.blocklang.core.git.exception.GitTagFailedException;
 import com.blocklang.core.service.PropertyService;
 import com.blocklang.marketplace.constant.Language;
 import com.blocklang.marketplace.constant.RepoCategory;
@@ -39,8 +40,8 @@ import com.blocklang.marketplace.dao.ApiRepoVersionDao;
 import com.blocklang.marketplace.dao.ComponentRepoDao;
 import com.blocklang.marketplace.dao.ComponentRepoPublishTaskDao;
 import com.blocklang.marketplace.dao.ComponentRepoVersionDao;
-import com.blocklang.marketplace.data.ApiRepoInfo;
-import com.blocklang.marketplace.data.ComponentRepoInfo;
+import com.blocklang.marketplace.data.ApiJson;
+import com.blocklang.marketplace.data.ComponentJson;
 import com.blocklang.marketplace.data.changelog.ChangeLog;
 import com.blocklang.marketplace.model.ApiChangelog;
 import com.blocklang.marketplace.model.ApiRepo;
@@ -109,7 +110,9 @@ public class PublishServiceImpl implements PublishService {
 		logger.setTaskId(publishTask.getId());
 		
 		logger.info(StringUtils.repeat("=", 60));
-		logger.info("开始发布 @{0}/{1} 组件库", context.getComponentRepo().getOwner(), context.getComponentRepo().getRepoName());
+		logger.info("开始发布 @{0}/{1} 组件库", 
+				context.getLocalComponentRepoPath().getOwner(), 
+				context.getLocalComponentRepoPath().getRepoName());
 		
 		boolean success = true;
 
@@ -164,12 +167,12 @@ public class PublishServiceImpl implements PublishService {
 		}
 		
 		// 将 json 字符串转换为 java 对象
-		ComponentRepoInfo componentRepoInfo = null;
+		ComponentJson componentJson = null;
 		if(success) {
 			logger.info("将 component.json 内容转换为 java 对象");
 			ObjectMapper objectMapper = new ObjectMapper();
 			try {
-				componentRepoInfo = objectMapper.readValue(componentJsonContent, ComponentRepoInfo.class);
+				componentJson = objectMapper.readValue(componentJsonContent, ComponentJson.class);
 				logger.info("转换完成");
 				success = true;
 			} catch (IOException e) {
@@ -210,7 +213,7 @@ public class PublishServiceImpl implements PublishService {
 		if(success) {
 			// name
 			boolean nameHasError = false;
-			String name = componentRepoInfo.getName();
+			String name = componentJson.getName();
 			if(StringUtils.isBlank(name)) {
 				logger.error("name - 值不能为空");
 				nameHasError = true;
@@ -242,7 +245,7 @@ public class PublishServiceImpl implements PublishService {
 			
 			// version
 			boolean versionHasError = false;
-			String version = componentRepoInfo.getVersion();
+			String version = componentJson.getVersion();
 			if(StringUtils.isBlank(version)) {
 				logger.error("version - 值不能为空");
 				versionHasError = true;
@@ -269,7 +272,7 @@ public class PublishServiceImpl implements PublishService {
 			
 			// category
 			boolean categoryHasError = false;
-			String category = componentRepoInfo.getCategory();
+			String category = componentJson.getCategory();
 			if(StringUtils.isBlank(category)) {
 				logger.error("category - 值不能为空");
 				categoryHasError = true;
@@ -283,7 +286,7 @@ public class PublishServiceImpl implements PublishService {
 			
 			// language
 			boolean languageHasError = false;
-			String language = componentRepoInfo.getLanguage();
+			String language = componentJson.getLanguage();
 			if(StringUtils.isBlank(language)) {
 				logger.error("language - 值不能为空");
 				languageHasError = true;
@@ -299,7 +302,7 @@ public class PublishServiceImpl implements PublishService {
 			
 			// description
 			boolean descriptionHasError = false;
-			String description = componentRepoInfo.getDescription();
+			String description = componentJson.getDescription();
 			if(com.blocklang.core.util.StringUtils.byteLength(description) > 500) {
 				logger.error("description - 值的长度不能超过500个字节(一个汉字占两个字节)");
 				descriptionHasError = true;
@@ -307,7 +310,7 @@ public class PublishServiceImpl implements PublishService {
 			
 			// icon
 			boolean iconHasError = false;
-			String icon = componentRepoInfo.getIcon();
+			String icon = componentJson.getIcon();
 			if(com.blocklang.core.util.StringUtils.byteLength(icon) > 60) {
 				logger.error("icon - 值的长度不能超过60个字节(一个汉字占两个字节)");
 				iconHasError = true;
@@ -315,7 +318,7 @@ public class PublishServiceImpl implements PublishService {
 			
 			// api.git
 			boolean apiGitHasError = false;
-			String apiGit = componentRepoInfo.getApi().getGit();
+			String apiGit = componentJson.getApi().getGit();
 			if(StringUtils.isBlank(apiGit)) {
 				logger.error("api.git - 值不能为空，一个组件库必须要实现一个 API");
 				apiGitHasError = true;
@@ -349,7 +352,7 @@ public class PublishServiceImpl implements PublishService {
 
 			// api.version
 			boolean apiVersionHasError = false;
-			String apiVersion = componentRepoInfo.getApi().getVersion();
+			String apiVersion = componentJson.getApi().getVersion();
 			if(StringUtils.isBlank(apiVersion)) {
 				logger.error("api.version - 值不能为空");
 				apiVersionHasError = true;
@@ -371,7 +374,7 @@ public class PublishServiceImpl implements PublishService {
 		// 对 component.json 文件校验通过后
 		// 开始下载 api 项目，并校验 api.json
 		if(success) {
-			context.parseApiGitUrl(componentRepoInfo.getApi().getGit().trim());
+			context.parseApiGitUrl(componentJson.getApi().getGit().trim());
 			// 下载 api 项目
 			logger.info(StringUtils.repeat("-", 45));
 			logger.info("四、开始获取 API 库源码");
@@ -389,7 +392,7 @@ public class PublishServiceImpl implements PublishService {
 		String apiRepoTagName = null;
 		if(success) {
 			// 确认指定版本的 tag 是否存在
-			String apiVersion = componentRepoInfo.getApi().getVersion().trim();
+			String apiVersion = componentJson.getApi().getVersion().trim();
 			logger.info(StringUtils.repeat("-", 45));
 			logger.info("五、检查 API 库中是否存在名为 {0} 的 tag", apiVersion);
 			
@@ -414,6 +417,7 @@ public class PublishServiceImpl implements PublishService {
 			logger.info("六、校验 API 仓库根目录下的 api.json 文件");
 			logger.info("在 Git Tag {0} 的根目录下查找 api.json 文件", apiRepoTagName);
 			
+			// 从组件库的 component.json 中指定的 api 版本中查找
 			ApiJsonFetchTask task = new ApiJsonFetchTask(context, apiRepoRefName);
 			Optional<String> contentOption = task.run();
 			success = contentOption.isPresent();
@@ -426,12 +430,12 @@ public class PublishServiceImpl implements PublishService {
 			}
 		}
 		// 将 json 字符串转换为 java 对象
-		ApiRepoInfo apiRepoInfo = null;
+		ApiJson apiJson = null;
 		if(success) {
 			logger.info("将 api.json 内容转换为 java 对象");
 			ObjectMapper objectMapper = new ObjectMapper();
 			try {
-				apiRepoInfo = objectMapper.readValue(apiJsonContent, ApiRepoInfo.class);
+				apiJson = objectMapper.readValue(apiJsonContent, ApiJson.class);
 				logger.info("转换完成");
 				success = true;
 			} catch (IOException e) {
@@ -441,13 +445,14 @@ public class PublishServiceImpl implements PublishService {
 			}
 		}
 
+		String[] apiComponents = null;
 		// 确定组件库实现了 api 库中的所有组件
 		if(success) {
 			logger.info(StringUtils.repeat("-", 45));
 			logger.info("七、校验 API 库中 api.json 的 components 中定义组件是否都在组件库中 component.json 的 components 中定义");
 			logger.info("注意：只判断路径最后一段是否相同");
-			String[] components = componentRepoInfo.getComponents();
-			String[] apiComponents = apiRepoInfo.getComponents();
+			String[] components = componentJson.getComponents();
+			apiComponents = apiJson.getComponents();
 			
 			for(String apiComponent : apiComponents) {
 				String[] apiSegments = apiComponent.split("/");
@@ -481,8 +486,6 @@ public class PublishServiceImpl implements PublishService {
 			logger.info(StringUtils.repeat("-", 45));
 			logger.info("八、开始逐个校验 API 项目中的组件定义");
 			
-			String[] apiComponents = apiRepoInfo.getComponents();
-			
 			// 逐个组件校验，是否存在 changelog 文件夹
 			// 逐个组件校验，是否在 changelog 文件夹中至少存在一个 json 文件
 			logger.info("api.json 文件中共存在 {0} 个组件", apiComponents.length);
@@ -490,7 +493,8 @@ public class PublishServiceImpl implements PublishService {
 			for(int i = 0; i < apiComponents.length; i++) {
 				String path = apiComponents[i];
 				logger.info("{0} {1} 部件", i+1, path);
-				Path componentRootPath = context.getApiRepo().getRepoSourceDirectory().resolve(path);
+				// TODO: 从指定的 tag 下获取，而不是获取仓库的当前路径
+				Path componentRootPath = context.getLocalApiRepoPath().getRepoSourceDirectory().resolve(path);
 				// 判断是否存在 changelog 文件夹
 				if(Files.notExists(componentRootPath.resolve("changelog"))) {
 					logger.error("在 {0} 文件夹下缺失 changelog 文件夹", path);
@@ -512,7 +516,7 @@ public class PublishServiceImpl implements PublishService {
 				// 先获取所有的 changelog 文件路径
 				List<String> allChangeFiles = new ArrayList<String>();
 				for(String eachPath : apiComponents) {
-					Path apiRootPath = context.getApiRepo().getRepoSourceDirectory().resolve(eachPath);
+					Path apiRootPath = context.getLocalApiRepoPath().getRepoSourceDirectory().resolve(eachPath);
 					String[] files = apiRootPath.resolve("changelog").toFile().list();
 					for(String file : files) {
 						allChangeFiles.add(eachPath + "/changelog/" + file);
@@ -521,7 +525,7 @@ public class PublishServiceImpl implements PublishService {
 				
 				// 查出所有已安装的文件
 				List<ApiChangelog> setupChangeFiles = apiRepoDao
-						.findByNameAndCreateUserId(apiRepoInfo.getName(), publishTask.getCreateUserId())
+						.findByNameAndCreateUserId(apiJson.getName(), publishTask.getCreateUserId())
 						.map(apiRepo -> apiChangelogDao.findAllByApiRepoId(apiRepo.getId()))
 						.orElse(Collections.emptyList());
 				
@@ -552,7 +556,7 @@ public class PublishServiceImpl implements PublishService {
 							.stream()
 							.filter(changelog -> {
 								String md5Now = "";
-								try (InputStream in = Files.newInputStream(context.getApiRepo().getRepoSourceDirectory().resolve(changelog.getChangelogFileName()))){
+								try (InputStream in = Files.newInputStream(context.getLocalApiRepoPath().getRepoSourceDirectory().resolve(changelog.getChangelogFileName()))){
 									md5Now = DigestUtils.md5Hex(in);
 								} catch (IOException e) {
 									logger.error(e);
@@ -590,7 +594,8 @@ public class PublishServiceImpl implements PublishService {
 							logger.info("开始解析 {0}", fileName);
 							ChangeLog changelogInfo = new ChangeLog();
 							try {
-								String fileContent = Files.readString(context.getApiRepo().getRepoSourceDirectory().resolve(fileName));
+								// TODO：从指定的 tag 下找，而不是在最新文件中查找
+								String fileContent = Files.readString(context.getLocalApiRepoPath().getRepoSourceDirectory().resolve(fileName));
 								ObjectMapper objectMapper = new ObjectMapper();
 								Map<?, ?> changelogMap = objectMapper.readValue(fileContent, Map.class);
 								ChangelogParseTask changelogParseTask = new ChangelogParseTask(context, changelogMap);
@@ -599,7 +604,9 @@ public class PublishServiceImpl implements PublishService {
 								if(hasErrors) {
 									logger.error("解析时出现错误");
 								} else {
-									changelogs.add(changelogOption.get());
+									ChangeLog cl = changelogOption.get();
+									cl.setFileName(fileName);
+									changelogs.add(cl);
 									logger.info("解析完成");
 								}
 							} catch (IOException e) {
@@ -616,7 +623,7 @@ public class PublishServiceImpl implements PublishService {
 		ComponentRepo savedCompRepo = null;
 		ComponentRepoVersion savedCompRepoVersion = null;
 		ApiRepo savedApiRepo = null;
-		ApiRepoVersion savedApiRepoVersion = null;
+		List<ApiRepoVersion> savedApiRepoVersions = new ArrayList<ApiRepoVersion>();
 		if(success) {
 			// 注册组件库
 			logger.info(StringUtils.repeat("-", 45));
@@ -625,18 +632,18 @@ public class PublishServiceImpl implements PublishService {
 			logger.info("保存组件库基本信息");
 			ComponentRepo repo = new ComponentRepo();
 			repo.setGitRepoUrl(publishTask.getGitUrl());
-			repo.setGitRepoWebsite(context.getComponentRepo().getWebsite());
-			repo.setGitRepoOwner(context.getComponentRepo().getOwner());
-			repo.setGitRepoName(context.getComponentRepo().getRepoName());
-			repo.setName(componentRepoInfo.getName().trim()); // name 必填
-			repo.setVersion(componentRepoInfo.getVersion().trim()); // version 必填
-			repo.setLabel(componentRepoInfo.getDisplayName());
-			repo.setDescription(componentRepoInfo.getDescription());
+			repo.setGitRepoWebsite(context.getLocalComponentRepoPath().getWebsite());
+			repo.setGitRepoOwner(context.getLocalComponentRepoPath().getOwner());
+			repo.setGitRepoName(context.getLocalComponentRepoPath().getRepoName());
+			repo.setName(componentJson.getName().trim()); // name 必填
+			repo.setVersion(componentJson.getVersion().trim()); // version 必填
+			repo.setLabel(componentJson.getDisplayName());
+			repo.setDescription(componentJson.getDescription());
 			// logo_path 未设置
-			repo.setCategory(RepoCategory.fromValue(componentRepoInfo.getCategory().trim()));
-			repo.setLanguage(Language.fromValue(componentRepoInfo.getLanguage().trim()));
-			if(StringUtils.isNotBlank(componentRepoInfo.getIcon())) {
-				repo.setLogoPath(componentRepoInfo.getIcon());
+			repo.setCategory(RepoCategory.fromValue(componentJson.getCategory().trim()));
+			repo.setLanguage(Language.fromValue(componentJson.getLanguage().trim()));
+			if(StringUtils.isNotBlank(componentJson.getIcon())) {
+				repo.setLogoPath(componentJson.getIcon());
 			}
 			repo.setCreateUserId(publishTask.getCreateUserId());
 			repo.setCreateTime(LocalDateTime.now());
@@ -647,7 +654,7 @@ public class PublishServiceImpl implements PublishService {
 			logger.info("保存组件库版本信息");
 			ComponentRepoVersion compRepoVersion = new ComponentRepoVersion();
 			compRepoVersion.setComponentRepoId(savedCompRepo.getId());
-			compRepoVersion.setVersion(componentRepoInfo.getVersion().trim());
+			compRepoVersion.setVersion(componentJson.getVersion().trim());
 			compRepoVersion.setCreateUserId(publishTask.getCreateUserId());
 			compRepoVersion.setCreateTime(LocalDateTime.now());
 			savedCompRepoVersion = componentRepoVersionDao.save(compRepoVersion);
@@ -659,43 +666,84 @@ public class PublishServiceImpl implements PublishService {
 			logger.info("保存 API 库基本信息");
 			// 先判断 API 库是否已存在
 			// 不存在则新增
-			Optional<ApiRepo> apiRepoOption = apiRepoDao.findByNameAndCreateUserId(apiRepoInfo.getName(), publishTask.getCreateUserId());
+			Optional<ApiRepo> apiRepoOption = apiRepoDao.findByNameAndCreateUserId(apiJson.getName(), publishTask.getCreateUserId());
 			if(apiRepoOption.isPresent()) {
 				savedApiRepo = apiRepoOption.get();
 				logger.info("已存在");
 			} else {
 				ApiRepo apiRepo = new ApiRepo();
-				apiRepo.setGitRepoUrl(context.getApiRepo().getGitUrl());
-				apiRepo.setGitRepoWebsite(context.getApiRepo().getWebsite());
-				apiRepo.setGitRepoOwner(context.getApiRepo().getOwner());
-				apiRepo.setGitRepoName(context.getApiRepo().getRepoName());
-				apiRepo.setName(apiRepoInfo.getName());
-				apiRepo.setVersion(apiRepoInfo.getVersion()); // 用哪个版本号？确保版本号一致
-				apiRepo.setLabel(apiRepoInfo.getDisplayName());
-				apiRepo.setDescription(apiRepoInfo.getDescription());
-				apiRepo.setCategory(RepoCategory.fromValue(apiRepoInfo.getCategory().trim()));
+				apiRepo.setGitRepoUrl(context.getLocalApiRepoPath().getGitUrl());
+				apiRepo.setGitRepoWebsite(context.getLocalApiRepoPath().getWebsite());
+				apiRepo.setGitRepoOwner(context.getLocalApiRepoPath().getOwner());
+				apiRepo.setGitRepoName(context.getLocalApiRepoPath().getRepoName());
+				apiRepo.setName(apiJson.getName());
+				apiRepo.setVersion(apiJson.getVersion()); // 用哪个版本号？确保版本号一致
+				apiRepo.setLabel(apiJson.getDisplayName());
+				apiRepo.setDescription(apiJson.getDescription());
+				apiRepo.setCategory(RepoCategory.fromValue(apiJson.getCategory().trim()));
 				apiRepo.setCreateUserId(publishTask.getCreateUserId());
 				apiRepo.setCreateTime(LocalDateTime.now());
 				savedApiRepo = apiRepoDao.save(apiRepo);
 				
-				logger.info("保存成功");
+				logger.info("保存成功"); 
 			}
 			
 			logger.info("保存 API 库版本信息");
-			Optional<ApiRepoVersion> apiRepoVersionOption = apiRepoVersionDao.findByApiRepoIdAndVersion(savedApiRepo.getId(), apiRepoInfo.getVersion());
+			Optional<ApiRepoVersion> apiRepoVersionOption = apiRepoVersionDao.findByApiRepoIdAndVersion(savedApiRepo.getId(), apiJson.getVersion());
 			if(apiRepoVersionOption.isPresent()) {
-				savedApiRepoVersion = apiRepoVersionOption.get();
 				logger.info("已存在");
 			} else {
 				// 关于 API repo 的发布，因为发布并不不能做到按照版本号顺序发布，所以需要注意：
 				// 1. 如果要新增，则可能发布的是最新版，也可能发布的是之前没有发布过的旧版
 				//   所以一定要精准的找到上一个版本
-				ApiRepoVersion apiRepoVersion = new ApiRepoVersion();
-				apiRepoVersion.setApiRepoId(savedApiRepo.getId());
-				apiRepoVersion.setVersion(apiRepoInfo.getVersion());
-				apiRepoVersion.setCreateUserId(publishTask.getCreateUserId());
-				apiRepoVersion.setCreateTime(LocalDateTime.now());
-				savedApiRepoVersion = apiRepoVersionDao.save(apiRepoVersion);
+				// 2. 要确保已存储所有版本
+				// 获取 api 仓库的 tag 列表
+				
+				List<String> apiVersions = new ArrayList<String>();
+				try {
+					apiVersions = GitUtils
+							.getTags(context.getLocalApiRepoPath().getRepoSourceDirectory())
+							.stream()
+							.map(ref -> {
+								String apiTagName = ref.getName().substring(Constants.R_TAGS.length());
+								if(apiTagName.toLowerCase().startsWith("v")) {
+									apiTagName = apiTagName.substring(1);
+								}
+								return apiTagName;
+							}).collect(Collectors.toList());
+				} catch (GitTagFailedException e) {
+					logger.error(e);
+				}
+				
+				Integer savedApiRepoId = savedApiRepo.getId();
+				Version currentApiRepoVersion = Version.parseVersion(apiJson.getVersion(), true);
+				savedApiRepoVersions = apiVersions.stream().filter(apiVersion -> {
+					Version version = Version.parseVersion(apiVersion, true);
+					return !currentApiRepoVersion.isGreaterThan(version);
+				}).map(apiVersion -> {
+					ApiRepoVersion apiRepoVersion = new ApiRepoVersion();
+					apiRepoVersion.setApiRepoId(savedApiRepoId);
+					apiRepoVersion.setVersion(apiVersion);
+					apiRepoVersion.setCreateUserId(publishTask.getCreateUserId());
+					apiRepoVersion.setCreateTime(LocalDateTime.now());
+					return apiRepoVersionDao.save(apiRepoVersion);
+				}).collect(Collectors.toList());
+				
+				// 先循环版本
+				for(ApiRepoVersion apiRepoVersion : savedApiRepoVersions) {
+					// 再嵌套循环组件
+					for(String component : apiComponents) {
+						// 如果当前版本存在 changelog 文件，则先查找是否存在上一个版本
+						// 如果存在上一个版本，则先复制上一个版本
+						// 然后在上一个版本的基础上，应用本版本的变更
+						
+						// 注意：变更文件的名称，是与版本号保持一致的，会存在某个组件在某个版本中没有变更的情况
+						// 所以要一直向上追溯，而不是只追溯到上一个版本
+						if(true) {
+							
+						}
+					}
+				}
 				
 				logger.info("保存成功");
 			}
@@ -714,6 +762,9 @@ public class PublishServiceImpl implements PublishService {
 			// 如果第二版已发布过，但是这里又要发布第一版，如何确保 code 的唯一？
 			// 所以，在第一次发布时，一定要第一版能够发布？
 			// 或者在发布时，将前面的每一版都检查并发布一遍？
+			
+			// 只有执行成功的，才往 changelog 历史表中存
+			// 出错了，要 rollback
 		}
 		
 		// 基于上一个版本做校验

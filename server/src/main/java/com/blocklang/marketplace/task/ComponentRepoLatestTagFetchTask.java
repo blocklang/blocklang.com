@@ -16,11 +16,10 @@ public class ComponentRepoLatestTagFetchTask extends AbstractRepoPublishTask{
 	@Override
 	public Optional<Ref> run() {
 		try {
-			return GitUtils.getLatestTag(marketplacePublishContext.getComponentRepo().getRepoSourceDirectory());
+			return GitUtils.getLatestTag(marketplacePublishContext.getLocalComponentRepoPath().getRepoSourceDirectory());
 		}catch (GitTagFailedException e) {
 			logger.error(e);
 			return Optional.empty();
 		}
-		
 	}
 }

@@ -3,9 +3,19 @@ package com.blocklang.marketplace.data.changelog;
 import java.util.List;
 
 public class ChangeLog {
+
+	private String fileName;
 	private String id;
 	private String author;
 	private List<Change> changes;
+
+	public String getFileName() {
+		return fileName;
+	}
+
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
 
 	public String getId() {
 		return id;

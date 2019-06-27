@@ -40,15 +40,15 @@ public class MarketplacePublishContextTest {
 	}
 	
 	@Test
-	public void get_component_repo() {
-		assertThat(context.getComponentRepo()).isNotNull();
-		assertThat(context.getApiRepo()).isNull();
+	public void get_local_component_repo_info() {
+		assertThat(context.getLocalComponentRepoPath()).isNotNull();
+		assertThat(context.getLocalApiRepoPath()).isNull();
 	}
 	
 	@Test
-	public void get_api_repo() {
+	public void get_local_api_repo_info() {
 		context.parseApiGitUrl("https://github.com/jack/api.git");
-		assertThat(context.getApiRepo()).isNotNull();
+		assertThat(context.getLocalApiRepoPath()).isNotNull();
 	}
 
 }

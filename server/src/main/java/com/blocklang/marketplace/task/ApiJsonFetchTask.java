@@ -20,7 +20,7 @@ public class ApiJsonFetchTask extends AbstractRepoPublishTask {
 	@Override
 	public Optional<String> run() {
 		try {
-			return GitUtils.getBlob(marketplacePublishContext.getApiRepo().getRepoSourceDirectory(), ref,
+			return GitUtils.getBlob(marketplacePublishContext.getLocalApiRepoPath().getRepoSourceDirectory(), ref,
 					"api.json").map(blobInfo -> blobInfo.getContent());
 		} catch (GitTagFailedException e) {
 			logger.error(e);
