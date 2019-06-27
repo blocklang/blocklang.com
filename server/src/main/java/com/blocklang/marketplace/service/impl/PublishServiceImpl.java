@@ -43,7 +43,7 @@ import com.blocklang.marketplace.dao.ComponentRepoVersionDao;
 import com.blocklang.marketplace.data.ApiJson;
 import com.blocklang.marketplace.data.ComponentJson;
 import com.blocklang.marketplace.data.changelog.ChangeLog;
-import com.blocklang.marketplace.model.ApiChangelog;
+import com.blocklang.marketplace.model.ApiChangeLog;
 import com.blocklang.marketplace.model.ApiRepo;
 import com.blocklang.marketplace.model.ApiRepoVersion;
 import com.blocklang.marketplace.model.ComponentRepo;
@@ -52,7 +52,7 @@ import com.blocklang.marketplace.model.ComponentRepoVersion;
 import com.blocklang.marketplace.service.PublishService;
 import com.blocklang.marketplace.task.ApiJsonFetchTask;
 import com.blocklang.marketplace.task.ApiRepoFindTagTask;
-import com.blocklang.marketplace.task.ChangelogParseTask;
+import com.blocklang.marketplace.task.ChangeLogParseTask;
 import com.blocklang.marketplace.task.ComponentJsonFetchTask;
 import com.blocklang.marketplace.task.ComponentRepoLatestTagFetchTask;
 import com.blocklang.marketplace.task.GitSyncApiRepoTask;
@@ -524,7 +524,7 @@ public class PublishServiceImpl implements PublishService {
 				}
 				
 				// 查出所有已安装的文件
-				List<ApiChangelog> setupChangeFiles = apiRepoDao
+				List<ApiChangeLog> setupChangeFiles = apiRepoDao
 						.findByNameAndCreateUserId(apiJson.getName(), publishTask.getCreateUserId())
 						.map(apiRepo -> apiChangelogDao.findAllByApiRepoId(apiRepo.getId()))
 						.orElse(Collections.emptyList());
@@ -532,7 +532,7 @@ public class PublishServiceImpl implements PublishService {
 				// 确认是否存在删了已安装的文件的情况
 				// 已 setup 中存在，但 all 中不存在
 				logger.info("检查是否存在，文件已安装，但在 API 项目中删掉的日志变更文件");
-				List<ApiChangelog> deleted = setupChangeFiles
+				List<ApiChangeLog> deleted = setupChangeFiles
 						.stream()
 						.filter(changelog -> {
 							boolean notContain = !allChangeFiles.contains(changelog.getChangelogFileName());
@@ -552,7 +552,7 @@ public class PublishServiceImpl implements PublishService {
 				if(success) {
 					logger.info("检查是否存在，文件已安装过，但内容被修改");
 					// 校验已安装的文件内容是否发生了变化
-					List<ApiChangelog> modified = setupChangeFiles
+					List<ApiChangeLog> modified = setupChangeFiles
 							.stream()
 							.filter(changelog -> {
 								String md5Now = "";
@@ -598,8 +598,8 @@ public class PublishServiceImpl implements PublishService {
 								String fileContent = Files.readString(context.getLocalApiRepoPath().getRepoSourceDirectory().resolve(fileName));
 								ObjectMapper objectMapper = new ObjectMapper();
 								Map<?, ?> changelogMap = objectMapper.readValue(fileContent, Map.class);
-								ChangelogParseTask changelogParseTask = new ChangelogParseTask(context, changelogMap);
-								Optional<ChangeLog> changelogOption = changelogParseTask.run();
+								ChangeLogParseTask changeLogParseTask = new ChangeLogParseTask(context, changelogMap);
+								Optional<ChangeLog> changelogOption = changeLogParseTask.run();
 								hasErrors = changelogOption.isPresent();
 								if(hasErrors) {
 									logger.error("解析时出现错误");

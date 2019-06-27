@@ -23,7 +23,7 @@ import com.blocklang.marketplace.data.changelog.WidgetEventArgument;
 import com.blocklang.marketplace.data.changelog.WidgetProperty;
 import com.blocklang.marketplace.data.changelog.WidgetPropertyOption;
 
-public class ChangelogParseTaskTest {
+public class ChangeLogParseTaskTest {
 	
 	private MarketplacePublishContext context;
 
@@ -38,13 +38,13 @@ public class ChangelogParseTaskTest {
 
 	@Test
 	public void run_can_not_null() {
-		ChangelogParseTask task = new ChangelogParseTask(context, null);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, null);
 		assertThat(task.run()).isEmpty();
 	}
 	
 	@Test
 	public void run_can_not_empty() {
-		ChangelogParseTask task = new ChangelogParseTask(context, Collections.emptyMap());
+		ChangeLogParseTask task = new ChangeLogParseTask(context, Collections.emptyMap());
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -53,7 +53,7 @@ public class ChangelogParseTaskTest {
 		Map<String, Object> changelogMap = new HashMap<String, Object>();
 		changelogMap.put("a", "1");
 		changelogMap.put("b", "2");
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -62,7 +62,7 @@ public class ChangelogParseTaskTest {
 		Map<String, Object> changelogMap = new HashMap<String, Object>();
 		changelogMap.put("author", "1");
 		changelogMap.put("changes", new ArrayList<Object>());
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -71,7 +71,7 @@ public class ChangelogParseTaskTest {
 		Map<String, Object> changelogMap = new HashMap<String, Object>();
 		changelogMap.put("id", "1");
 		changelogMap.put("changes", new ArrayList<Object>());
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -80,7 +80,7 @@ public class ChangelogParseTaskTest {
 		Map<String, Object> changelogMap = new HashMap<String, Object>();
 		changelogMap.put("id", "1");
 		changelogMap.put("author", "2");
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -96,7 +96,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -107,7 +107,7 @@ public class ChangelogParseTaskTest {
 		changelogMap.put("author", "2");
 		changelogMap.put("changes", "I am a String, Not a List");
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -118,7 +118,7 @@ public class ChangelogParseTaskTest {
 		changelogMap.put("author", "2");
 		changelogMap.put("changes", Collections.emptyList());
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -137,7 +137,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change2);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -153,7 +153,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -172,7 +172,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -196,7 +196,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -220,7 +220,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -244,7 +244,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -268,7 +268,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -292,7 +292,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -315,7 +315,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isPresent();
 	}
 	
@@ -339,7 +339,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -362,7 +362,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isPresent();
 	}
 	
@@ -386,7 +386,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -415,7 +415,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -448,7 +448,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -481,7 +481,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -514,7 +514,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -547,7 +547,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -580,7 +580,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -612,7 +612,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isPresent();
 	}
 	
@@ -645,7 +645,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -683,7 +683,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -722,7 +722,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -762,7 +762,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -802,7 +802,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -842,7 +842,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 
@@ -871,7 +871,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -901,7 +901,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -932,7 +932,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -963,7 +963,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -995,7 +995,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isPresent();
 	}
 	
@@ -1026,7 +1026,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -1058,7 +1058,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -1089,7 +1089,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isPresent();
 	}
 	
@@ -1126,7 +1126,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -1163,7 +1163,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -1201,7 +1201,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -1240,7 +1240,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -1280,7 +1280,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 	
@@ -1320,7 +1320,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
 	}
 
@@ -1378,7 +1378,7 @@ public class ChangelogParseTaskTest {
 		changes.add(change1);
 		changelogMap.put("changes", changes);
 		
-		ChangelogParseTask task = new ChangelogParseTask(context, changelogMap);
+		ChangeLogParseTask task = new ChangeLogParseTask(context, changelogMap);
 		Optional<ChangeLog> changelogOption = task.run();
 		assertThat(changelogOption).isPresent();
 		
