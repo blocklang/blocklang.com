@@ -476,6 +476,19 @@ public class GitUtilsTest {
 		assertThat(blob.getLatestFullMessage()).isEqualTo("second commit");
 		assertThat(blob.getLatestCommitTime()).isNotNull();
 	}
+	
+	@Test
+	public void get_version_from_ref_name_when_tag_name_is_null() {
+		assertThat(GitUtils.getVersionFromRefName(null)).isEmpty();
+		assertThat(GitUtils.getVersionFromRefName(" ")).isEmpty();
+	}
+	
+	@Test
+	public void get_version_from_ref_name_success() {
+		assertThat(GitUtils.getVersionFromRefName("0.1.0").get()).isEqualTo("0.1.0");
+		assertThat(GitUtils.getVersionFromRefName("refs/tags/0.1.0").get()).isEqualTo("0.1.0");
+		assertThat(GitUtils.getVersionFromRefName("refs/tags/v0.1.0").get()).isEqualTo("0.1.0");
+	}
 
 	private void assertContentEquals(Path filePath, String content) throws IOException{
 		assertThat(Files.readString(filePath)).isEqualTo(content);

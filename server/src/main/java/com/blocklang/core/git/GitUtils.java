@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Constants;
@@ -21,7 +22,6 @@ import org.eclipse.jgit.util.FS;
 import org.eclipse.jgit.util.FileUtils;
 
 import com.blocklang.core.constant.GitFileStatus;
-import com.nimbusds.oauth2.sdk.util.StringUtils;
 
 /**
  * git 帮助类，本工具类适合每次对 git 仓库做一个操作。
@@ -291,5 +291,24 @@ public class GitUtils {
 		}
 	}
 
+	public static Optional<String> getVersionFromRefName(String refName) {
+		if(StringUtils.isBlank(refName)) {
+			return Optional.empty();
+		}
+		
+		String stripedRefName = refName.strip();
+		if(stripedRefName.startsWith(Constants.R_TAGS)) {
+			stripedRefName = stripedRefName.substring(Constants.R_TAGS.length());
+		}
+		if(stripedRefName.toLowerCase().startsWith("v")) {
+			stripedRefName = stripedRefName.substring(1);
+		}
+		
+		if(StringUtils.isBlank(stripedRefName)) {
+			return Optional.empty();
+		}
+		
+		return Optional.of(stripedRefName);
+	}
 	
 }
