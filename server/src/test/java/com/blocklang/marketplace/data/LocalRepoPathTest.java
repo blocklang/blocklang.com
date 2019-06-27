@@ -1,4 +1,4 @@
-package com.blocklang.marketplace.task;
+package com.blocklang.marketplace.data;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -7,7 +7,9 @@ import java.nio.file.Paths;
 import org.junit.Before;
 import org.junit.Test;
 
-public class LocalRepoPathInfoTest {
+import com.blocklang.marketplace.data.LocalRepoPath;
+
+public class LocalRepoPathTest {
 
 	private LocalRepoPath localRepoPathInfo;
 	

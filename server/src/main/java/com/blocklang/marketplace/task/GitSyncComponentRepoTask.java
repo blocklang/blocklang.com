@@ -7,6 +7,7 @@ import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.git.exception.GitCloneFailedException;
 import com.blocklang.core.git.exception.GitPullFailedException;
 import com.blocklang.core.git.exception.GitRepoNotFoundException;
+import com.blocklang.marketplace.data.LocalRepoPath;
 
 public class GitSyncComponentRepoTask extends AbstractRepoPublishTask{
 
