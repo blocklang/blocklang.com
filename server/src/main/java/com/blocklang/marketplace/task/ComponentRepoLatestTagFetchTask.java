@@ -9,14 +9,14 @@ import com.blocklang.core.git.exception.GitTagFailedException;
 
 public class ComponentRepoLatestTagFetchTask extends AbstractRepoPublishTask{
 
-	public ComponentRepoLatestTagFetchTask(MarketplacePublishContext marketplacePublishContext) {
-		super(marketplacePublishContext);
+	public ComponentRepoLatestTagFetchTask(MarketplacePublishContext context) {
+		super(context);
 	}
 
 	@Override
 	public Optional<Ref> run() {
 		try {
-			return GitUtils.getLatestTag(marketplacePublishContext.getLocalComponentRepoPath().getRepoSourceDirectory());
+			return GitUtils.getLatestTag(context.getLocalComponentRepoPath().getRepoSourceDirectory());
 		}catch (GitTagFailedException e) {
 			logger.error(e);
 			return Optional.empty();
