@@ -115,7 +115,7 @@ public class ComponentJsonParseGroupTask extends AbstractRepoPublishTask {
 
 		// 校验 component.json 的 schema 和值的有效性
 		if(success) {
-			logger.info("校验 {0} 文件的 schema 和内容", MarketplaceConstant.FILE_NAME_COMPONENT);
+			logger.info("校验 {0} 文件的 schema 和值", MarketplaceConstant.FILE_NAME_COMPONENT);
 			
 			ComponentJsonValidateTask componentJsonValidateTask = new ComponentJsonValidateTask(context, componentRepoDao);
 			success = componentJsonValidateTask.run().isPresent();
