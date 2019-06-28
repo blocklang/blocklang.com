@@ -20,8 +20,8 @@ public class ApiRepoFindTagTask extends AbstractRepoPublishTask{
 	@Override
 	public Optional<Ref> run() {
 		try {
-			List<Ref> tags = GitUtils.getTags(marketplacePublishContext.getLocalApiRepoPath().getRepoSourceDirectory());
-			return tags.stream().filter(ref -> ref.getName().endsWith(this.version) || ref.getName().endsWith("v" + this.version)).findFirst();
+			List<Ref> tags = GitUtils.getTags(context.getLocalApiRepoPath().getRepoSourceDirectory());
+			return tags.stream().filter(ref -> ref.getName().endsWith(this.version)).findFirst();
 		}catch (GitTagFailedException e) {
 			logger.error(e);
 			return Optional.empty();
