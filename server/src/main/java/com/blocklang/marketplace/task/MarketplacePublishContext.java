@@ -12,6 +12,7 @@ import com.blocklang.marketplace.data.changelog.ComponentChangeLog;
 import com.blocklang.marketplace.model.ApiRepo;
 import com.blocklang.marketplace.model.ApiRepoVersion;
 import com.blocklang.marketplace.model.ComponentRepo;
+import com.blocklang.marketplace.model.ComponentRepoPublishTask;
 import com.blocklang.marketplace.model.ComponentRepoVersion;
 
 /**
@@ -22,6 +23,8 @@ import com.blocklang.marketplace.model.ComponentRepoVersion;
  */
 public class MarketplacePublishContext {
 	
+	private ComponentRepoPublishTask publishTask;
+	private boolean isFirstPublish = true;
 	private String dataRootPath;
 	
 	private LocalRepoPath localComponentRepoPath;
@@ -146,6 +149,22 @@ public class MarketplacePublishContext {
 
 	public void setComponentRepoLatestVersion(String componentRepoLatestVersion) {
 		this.componentRepoLatestVersion = componentRepoLatestVersion;
+	}
+
+	public ComponentRepoPublishTask getPublishTask() {
+		return publishTask;
+	}
+
+	public void setPublishTask(ComponentRepoPublishTask publishTask) {
+		this.publishTask = publishTask;
+	}
+
+	public boolean isFirstPublish() {
+		return isFirstPublish;
+	}
+
+	public void setFirstPublish(boolean isFirstPublish) {
+		this.isFirstPublish = isFirstPublish;
 	}
 
 }
