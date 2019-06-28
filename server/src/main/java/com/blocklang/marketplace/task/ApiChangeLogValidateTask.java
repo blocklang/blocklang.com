@@ -24,7 +24,7 @@ import com.blocklang.marketplace.data.changelog.WidgetPropertyOption;
  * @author Zhengwei Jin
  *
  */
-public class ChangeLogParseTask extends AbstractRepoPublishTask {
+public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 
 	private Map<?,?> changelogMap;
 	private List<String> childKeysForRoot = Arrays.asList("id", "author", "changes");
@@ -45,7 +45,7 @@ public class ChangeLogParseTask extends AbstractRepoPublishTask {
 	 */
 	private List<String> valueTypes = Arrays.asList("string", "number", "boolean");
 	
-	public ChangeLogParseTask(MarketplacePublishContext marketplacePublishContext, Map<?, ?> changelogMap) {
+	public ApiChangeLogValidateTask(MarketplacePublishContext marketplacePublishContext, Map<?, ?> changelogMap) {
 		super(marketplacePublishContext);
 		this.changelogMap = changelogMap;
 	}
