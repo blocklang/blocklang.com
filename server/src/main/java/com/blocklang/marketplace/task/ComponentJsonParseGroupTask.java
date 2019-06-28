@@ -103,6 +103,8 @@ public class ComponentJsonParseGroupTask extends AbstractRepoPublishTask {
 			ObjectMapper objectMapper = new ObjectMapper();
 			try {
 				componentJson = objectMapper.readValue(componentJsonContent, ComponentJson.class);
+				// 在这里往 context 中保存，这样在后续的校验子任务中，可以从 context 中获取 componentJson
+				context.setComponentJson(componentJson);
 				logger.info("转换完成");
 			} catch (IOException e) {
 				logger.error("转换失败");
@@ -125,8 +127,6 @@ public class ComponentJsonParseGroupTask extends AbstractRepoPublishTask {
 		}
 		
 		if(success) {
-			// 通过校验后，在 context 中保存 componentJson
-			context.setComponentJson(componentJson);
 			return Optional.of(true);
 		}
 		return Optional.empty();
