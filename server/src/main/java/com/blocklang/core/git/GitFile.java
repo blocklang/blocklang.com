@@ -19,8 +19,10 @@ import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.eclipse.jgit.treewalk.filter.PathSuffixFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.Assert;
 
 import com.blocklang.core.git.exception.GitFileNotFoundException;
 import com.blocklang.core.util.DateUtil;
@@ -123,8 +125,6 @@ public class GitFile {
 			}
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
-		} catch (GitFileNotFoundException e) {
-			logger.error(e.getMessage(), e);
 		}
 		
 		return files;
@@ -136,6 +136,44 @@ public class GitFile {
 			 throw new GitFileNotFoundException("Did not find expected file '" + path + "' in tree '" + tree.getName() + "'");
 		}
 		return treeWalk;
+	}
+
+	public List<GitFileInfo> getAllFilesFromTag(String refName, String pathSuffix) {
+		Assert.hasText(refName, "tag 的值不能为空");
+		List<GitFileInfo> files = new ArrayList<GitFileInfo>();
+		File gitDir = gitRepoPath.resolve(Constants.DOT_GIT).toFile();
+		if(!gitDir.exists()) {
+			return files;
+		}
+		
+		try(Repository repository = FileRepositoryBuilder.create(gitDir);
+				Git git = new Git(repository);
+				RevWalk walk = new RevWalk(repository)){
+			
+			Ref tag = repository.exactRef(refName);
+			ObjectId objectId = tag.getObjectId();
+			RevCommit commit = walk.parseCommit(objectId);
+			RevTree tree = commit.getTree();
+			
+			try(TreeWalk treeWalk = new TreeWalk(repository)) {
+				treeWalk.addTree(tree);
+				treeWalk.setRecursive(true);
+				if(StringUtils.isNotBlank(pathSuffix)) {
+					treeWalk.setFilter(PathSuffixFilter.create(pathSuffix));
+				}
+				while (treeWalk.next()) {
+					GitFileInfo fileInfo = new GitFileInfo();
+					fileInfo.setPath(treeWalk.getPathString());
+					fileInfo.setName(treeWalk.getNameString());
+					fileInfo.setFolder(treeWalk.isSubtree());
+
+					files.add(fileInfo);
+				}
+			} 
+		} catch (IOException e) {
+			logger.error(e.getMessage(), e);
+		}
+		return files;
 	}
 
 }

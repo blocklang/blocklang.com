@@ -199,6 +199,19 @@ public class GitUtils {
 	}
 	
 	/**
+	 * 从指定的 tag 下获取文件路径信息，不包括文件夹，但递归查找
+	 * 
+	 * @param gitRepoPath
+	 * @param refName 需要包含 refs/tags/ 前缀
+	 * @param pathSuffix 如果只查出 json 文件，则值为".json"；如果值为 null，显示全部
+	 * @return
+	 */
+	public static List<GitFileInfo> getAllFilesFromTag(Path gitRepoPath, String refName, String pathSuffix) {
+		GitFile file = new GitFile(gitRepoPath, null);
+		return file.getAllFilesFromTag(refName, pathSuffix);
+	}
+	
+	/**
 	 * 
 	 * @param gitRepoPath
 	 * @param ref 可以是分支或 tag。注意，不能使用简称，如不能为“master”，而应该为“refs/heads/master”；不能为“v0.1.0”，应该为“refs/tags/v0.1.0”

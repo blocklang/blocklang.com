@@ -54,5 +54,13 @@ public class GitFileInfo {
 	public void setLatestFullMessage(String latestFullMessage) {
 		this.latestFullMessage = latestFullMessage;
 	}
-	
+	public String getParentPath() {
+		if(this.path == null || this.name == null) {
+			return null;
+		}
+		if(this.path.equals(this.name)) {
+			return "";
+		}
+		return this.path.substring(0, this.path.length() - (this.name.length() + 1/*多余的/*/));
+	}
 }

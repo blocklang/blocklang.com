@@ -160,6 +160,7 @@ public class GitUtilsTest {
 		assertThat(gitFiles).isEmpty();
 	}
 	
+	// 只适用于 master 分支
 	@Test
 	public void get_files_at_root() throws IOException {
 		// 新建一个 git 仓库
@@ -191,6 +192,7 @@ public class GitUtilsTest {
 		
 	}
 	
+	// 只适用于 master 分支
 	@Test
 	public void get_files_folder_not_commit() throws IOException {
 		File folder = tempFolder.newFolder(gitRepoDirectory);
@@ -200,6 +202,7 @@ public class GitUtilsTest {
 		assertThat(gitFiles).isEmpty();
 	}
 	
+	// 只适用于 master 分支
 	@Test
 	public void get_files_at_sub_folder() throws IOException {
 		// 新建一个 git 仓库
@@ -228,6 +231,94 @@ public class GitUtilsTest {
 					gitFile.getPath().equals("a/2.txt") &&
 					gitFile.getLatestCommitTime() != null;
 		});
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void get_all_files_from_tag_ref_name_can_not_blank() throws IOException {
+		File folder = tempFolder.newFolder(gitRepoDirectory);
+		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+		
+		GitUtils.getAllFilesFromTag(folder.toPath(), null, null);
+		GitUtils.getAllFilesFromTag(folder.toPath(), " ", null);
+	}
+	
+	// 获取一个仓库中所有文件，不包括文件夹
+	@Test
+	public void get_all_files_from_tag_when_tag_not_exist() throws IOException {
+		File folder = tempFolder.newFolder(gitRepoDirectory);
+		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+		
+		List<GitFileInfo> gitFiles = GitUtils.getAllFilesFromTag(folder.toPath(), "refs/tags/v0.1.0", null);
+		assertThat(gitFiles).isEmpty();
+	}
+	
+	@Test
+	public void get_all_files_from_tag_at_root() throws IOException {
+		File folder = tempFolder.newFolder(gitRepoDirectory);
+		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+		GitUtils.commit(folder.toPath(), null, "1.txt", "hello", gitUserName, gitUserMail, "commit 1");
+		GitUtils.tag(folder.toPath(), "v0.1.0", "message");
+		
+		List<GitFileInfo> gitFiles = GitUtils.getAllFilesFromTag(folder.toPath(), "refs/tags/v0.1.0", null);
+		assertThat(gitFiles).hasSize(1);
+		GitFileInfo file = gitFiles.get(0);
+		assertThat(file.getPath()).isEqualTo("1.txt");
+		assertThat(file.getName()).isEqualTo("1.txt");
+		assertThat(file.getParentPath()).isEqualTo("");
+	}
+	
+	@Test
+	public void get_all_files_from_tag_at_sub_folder() throws IOException {
+		File folder = tempFolder.newFolder(gitRepoDirectory);
+		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+		GitUtils.commit(folder.toPath(), "a", "1.txt", "hello", gitUserName, gitUserMail, "commit 1");
+		GitUtils.tag(folder.toPath(), "v0.1.0", "message");
+		
+		List<GitFileInfo> gitFiles = GitUtils.getAllFilesFromTag(folder.toPath(), "refs/tags/v0.1.0", null);
+		assertThat(gitFiles).hasSize(1);
+		GitFileInfo file = gitFiles.get(0);
+		assertThat(file.getPath()).isEqualTo("a/1.txt");
+		assertThat(file.getName()).isEqualTo("1.txt");
+		assertThat(file.getParentPath()).isEqualTo("a");
+	}
+	
+	@Test
+	public void get_all_files_from_tag_at_sub_folder_filter() throws IOException {
+		File folder = tempFolder.newFolder(gitRepoDirectory);
+		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+		GitUtils.commit(folder.toPath(), "a", "1.txt", "hello", gitUserName, gitUserMail, "commit 1");
+		GitUtils.tag(folder.toPath(), "v0.1.0", "message");
+		
+		List<GitFileInfo> gitFiles = GitUtils.getAllFilesFromTag(folder.toPath(), "refs/tags/v0.1.0", ".json");
+		assertThat(gitFiles).isEmpty();
+		
+		gitFiles = GitUtils.getAllFilesFromTag(folder.toPath(), "refs/tags/v0.1.0", ".txt");
+		assertThat(gitFiles).hasSize(1);
+		GitFileInfo file = gitFiles.get(0);
+		assertThat(file.getPath()).isEqualTo("a/1.txt");
+		assertThat(file.getName()).isEqualTo("1.txt");
+		assertThat(file.getParentPath()).isEqualTo("a");
+	}
+	
+	@Test
+	public void get_all_files_from_tag_at_two_tags() throws IOException {
+		File folder = tempFolder.newFolder(gitRepoDirectory);
+		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+		GitUtils.commit(folder.toPath(), null, "1.txt", "hello", gitUserName, gitUserMail, "commit 1");
+		GitUtils.tag(folder.toPath(), "v0.1.0", "message");
+		
+		GitUtils.commit(folder.toPath(), null, "2.txt", "hello", gitUserName, gitUserMail, "commit 1");
+		GitUtils.tag(folder.toPath(), "v0.2.0", "message");
+		
+		List<GitFileInfo> gitFiles = GitUtils.getAllFilesFromTag(folder.toPath(), "refs/tags/v0.1.0", null);
+		assertThat(gitFiles).hasSize(1);
+		GitFileInfo file = gitFiles.get(0);
+		assertThat(file.getPath()).isEqualTo("1.txt");
+		assertThat(file.getName()).isEqualTo("1.txt");
+		assertThat(file.getParentPath()).isEqualTo("");
+		
+		gitFiles = GitUtils.getAllFilesFromTag(folder.toPath(), "refs/tags/v0.2.0", null);
+		assertThat(gitFiles).hasSize(2);
 	}
 	
 	@Test
