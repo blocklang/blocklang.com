@@ -264,9 +264,17 @@ public class ComponentJsonValidateTask extends AbstractRepoPublishTask {
 		}
 		// 注意：api 是通过组件引用的，所以 api 的版本号不一定是最新版的
 		// 后续要校验指定的 api 版本是否存在于 api 项目中
+		
+		// components
+		boolean componentsHasError = false;
+		String[] components = componentJson.getComponents();
+		if(components.length == 0) {
+			logger.error("components - 共发现 0 个组件，请先配置可发布的组件");
+			componentsHasError = true;
+		}
 
 		boolean success = !(nameHasError || displayNameHasError || versionHasError || categoryHasError || languageHasError
-				|| descriptionHasError || iconHasError || apiGitHasError || apiVersionHasError);
+				|| descriptionHasError || iconHasError || apiGitHasError || apiVersionHasError || componentsHasError);
 		
 		if(success) {
 			return Optional.of(true);
