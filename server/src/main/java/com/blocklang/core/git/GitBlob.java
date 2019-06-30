@@ -2,7 +2,10 @@ package com.blocklang.core.git;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -21,6 +24,7 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.Assert;
 
 import com.blocklang.core.git.exception.GitFileNotFoundException;
 import com.blocklang.core.util.DateUtil;
@@ -32,9 +36,13 @@ public class GitBlob {
 	private String ref; // branch/tag
 	private String filePath;
 	
-	public GitBlob(Path gitRepoPath, String ref, String filePath) {
+	public GitBlob(Path gitRepoPath, String ref) {
 		this.gitRepoPath = gitRepoPath;
 		this.ref = ref;
+	}
+	
+	public GitBlob(Path gitRepoPath, String ref, String filePath) {
+		this(gitRepoPath, ref);
 		this.filePath = filePath;
 	}
 
@@ -99,5 +107,57 @@ public class GitBlob {
 			 throw new GitFileNotFoundException("Did not find expected file '" + path + "' in tree '" + tree.getName() + "'");
 		}
 		return treeWalk;
+	}
+
+	public List<GitBlobInfo> loadDataFromTag(List<GitFileInfo> files) {
+		Assert.notNull(files, "传入的值不能为null");
+		if(files.isEmpty()) {
+			return Collections.emptyList();
+		}
+		
+		Path gitDir = gitRepoPath.resolve(Constants.DOT_GIT);
+		try (Repository repository = FileRepositoryBuilder.create(gitDir.toFile());
+				Git git = new Git(repository);
+				RevWalk walk = new RevWalk(repository)) {
+			Ref ref = repository.exactRef(this.ref);
+			if(ref == null) {
+				return Collections.emptyList();
+			}
+			
+			ObjectId objectId = ref.getObjectId();;
+
+			RevCommit commit = walk.parseCommit(objectId);
+			RevTree tree = commit.getTree();
+		
+			return files.stream().map(gitFileInfo -> {
+				try (TreeWalk treeWalk = buildTreeWalk(repository, tree, gitFileInfo.getPath())) {
+
+					if ((treeWalk.getFileMode(0).getBits() & FileMode.TYPE_FILE) == 0) {
+						throw new IllegalStateException("Tried to read the elements of a non-tree for commit '" + commit
+								+ "' and path '" + filePath + "', had filemode " + treeWalk.getFileMode(0).getBits());
+					}
+					
+					GitBlobInfo blobInfo = new GitBlobInfo();
+					blobInfo.setPath(treeWalk.getPathString());
+					blobInfo.setName(treeWalk.getNameString());
+					blobInfo.setFolder(false);
+
+					// 文件内容
+					ObjectId blobObjectId = treeWalk.getObjectId(0);
+					ObjectLoader loader = repository.open(blobObjectId);
+					blobInfo.setContent(new String(loader.getBytes()));
+
+					return blobInfo;
+				} catch (MissingObjectException e) {
+					logger.error(e.getMessage(), e);
+				} catch (IOException e) {
+					logger.error(e.getMessage(), e);
+				}
+				return null;
+			}).collect(Collectors.toList());
+		}catch (IOException e) {
+			logger.error(e.getMessage(), e);
+		}
+		return Collections.emptyList();
 	}
 }

@@ -223,6 +223,11 @@ public class GitUtils {
 		return blob.execute();
 	}
 	
+	public static List<GitBlobInfo> loadDataFromTag(Path gitRepoPath, String refName, List<GitFileInfo> files) {
+		GitBlob blob = new GitBlob(gitRepoPath, refName);
+		return blob.loadDataFromTag(files);
+	}
+	
 	/**
 	 * 
 	 * 

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -567,6 +568,33 @@ public class GitUtilsTest {
 		assertThat(blob.getLatestFullMessage()).isEqualTo("second commit");
 		assertThat(blob.getLatestCommitTime()).isNotNull();
 	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void load_data_param_is_null() throws IOException {
+		File folder = tempFolder.newFolder(gitRepoDirectory);
+		GitUtils.loadDataFromTag(folder.toPath(), Constants.R_TAGS + "v0.1.0", null);
+	}
+	
+	@Test
+	public void load_data_param_is_empty_list() throws IOException {
+		File folder = tempFolder.newFolder(gitRepoDirectory);
+		assertThat(GitUtils.loadDataFromTag(folder.toPath(), Constants.R_TAGS + "v0.1.0", Collections.emptyList())).isEmpty();
+	}
+	
+	@Test
+	public void load_data_success() throws IOException {
+		File folder = tempFolder.newFolder(gitRepoDirectory);
+		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+		GitUtils.commit(folder.toPath(), null, "1.txt", "hello", gitUserName, gitUserMail, "commit 1");
+		GitUtils.tag(folder.toPath(), "v0.1.0", "message");
+		
+		List<GitFileInfo> gitFiles = GitUtils.getAllFilesFromTag(folder.toPath(), "refs/tags/v0.1.0", null);
+		
+		List<GitBlobInfo> files = GitUtils.loadDataFromTag(folder.toPath(), "refs/tags/v0.1.0", gitFiles);
+		assertThat(files).hasSize(1);
+		assertThat(files.get(0).getContent()).isEqualTo("hello");
+	}
+	
 	
 	@Test
 	public void get_version_from_ref_name_when_tag_name_is_null() {
