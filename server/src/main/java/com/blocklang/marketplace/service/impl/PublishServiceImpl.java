@@ -1,67 +1,32 @@
 package com.blocklang.marketplace.service.impl;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
-import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.transport.URIish;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.blocklang.core.constant.CmPropKey;
-import com.blocklang.core.git.GitUtils;
-import com.blocklang.core.git.exception.GitTagFailedException;
 import com.blocklang.core.service.PropertyService;
-import com.blocklang.marketplace.constant.Language;
-import com.blocklang.marketplace.constant.RepoCategory;
-import com.blocklang.marketplace.dao.ApiChangelogDao;
+import com.blocklang.marketplace.constant.MarketplaceConstant;
+import com.blocklang.marketplace.dao.ApiChangeLogDao;
 import com.blocklang.marketplace.dao.ApiRepoDao;
 import com.blocklang.marketplace.dao.ApiRepoVersionDao;
 import com.blocklang.marketplace.dao.ComponentRepoDao;
 import com.blocklang.marketplace.dao.ComponentRepoPublishTaskDao;
 import com.blocklang.marketplace.dao.ComponentRepoVersionDao;
-import com.blocklang.marketplace.data.ApiJson;
-import com.blocklang.marketplace.data.ComponentJson;
-import com.blocklang.marketplace.data.changelog.ChangeLog;
-import com.blocklang.marketplace.model.ApiChangeLog;
-import com.blocklang.marketplace.model.ApiRepo;
-import com.blocklang.marketplace.model.ApiRepoVersion;
-import com.blocklang.marketplace.model.ComponentRepo;
 import com.blocklang.marketplace.model.ComponentRepoPublishTask;
-import com.blocklang.marketplace.model.ComponentRepoVersion;
 import com.blocklang.marketplace.service.PublishService;
-import com.blocklang.marketplace.task.ApiJsonFetchTask;
-import com.blocklang.marketplace.task.ApiRepoFindTagTask;
-import com.blocklang.marketplace.task.ChangeLogParseTask;
-import com.blocklang.marketplace.task.ComponentJsonFetchTask;
-import com.blocklang.marketplace.task.ComponentRepoLatestTagFetchTask;
-import com.blocklang.marketplace.task.GitSyncApiRepoTask;
-import com.blocklang.marketplace.task.GitSyncComponentRepoTask;
+import com.blocklang.marketplace.task.ApiChangeLogParseGroupTask;
+import com.blocklang.marketplace.task.ApiChangeLogsSetupGroupTask;
+import com.blocklang.marketplace.task.ApiJsonParseGroupTask;
+import com.blocklang.marketplace.task.ComponentJsonParseGroupTask;
 import com.blocklang.marketplace.task.MarketplacePublishContext;
 import com.blocklang.marketplace.task.TaskLogger;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import de.skuzzle.semantic.Version;
 
 @Service
 public class PublishServiceImpl implements PublishService {
@@ -79,7 +44,7 @@ public class PublishServiceImpl implements PublishService {
 	@Autowired
 	private ApiRepoVersionDao apiRepoVersionDao;
 	@Autowired
-	private ApiChangelogDao apiChangelogDao;
+	private ApiChangeLogDao apiChangeLogDao;
 	@Autowired
 	private SimpMessagingTemplate messagingTemplate;
 	
@@ -96,6 +61,7 @@ public class PublishServiceImpl implements PublishService {
 
 		String dataRootPath = propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).get();
 		MarketplacePublishContext context = new MarketplacePublishContext(dataRootPath, publishTask.getGitUrl());
+		context.setPublishTask(publishTask);
 		// 确保全程使用同一个 logger
 		Path logFile = context.getRepoPublishLogFile();
 		publishTask.setLogFileName(logFile.getFileName().toString());
@@ -116,638 +82,71 @@ public class PublishServiceImpl implements PublishService {
 		
 		boolean success = true;
 
-		// 从源代码托管网站下载组件的源代码
 		logger.info(StringUtils.repeat("-", 45));
-		logger.info("一、开始获取组件库源码");
-		GitSyncComponentRepoTask componentRepoTask = new GitSyncComponentRepoTask(context);
-		Optional<Boolean> gitSyncOption = componentRepoTask.run();
-		success = gitSyncOption.isPresent();
+		logger.info("一、开始解析组件仓库中的 {0}", MarketplaceConstant.FILE_NAME_COMPONENT);
+		ComponentJsonParseGroupTask componentJsonParseTask = new ComponentJsonParseGroupTask(
+				context,
+				componentRepoDao);
+		success = componentJsonParseTask.run().isPresent();
 		if(success) {
-			logger.info("完成");
+			logger.info("解析完成");
 		} else {
-			logger.error("失败");
-		}
-		
-		String refName = null;
-		String tagName = null;
-		if(success) {
-			logger.info(StringUtils.repeat("-", 45));
-			logger.info("二、开始获取最新的 Git Tag");
-			ComponentRepoLatestTagFetchTask gitTagFetchTask = new ComponentRepoLatestTagFetchTask(context);
-			Optional<Ref> gitTagFetchTaskOption = gitTagFetchTask.run();
-			success = gitTagFetchTaskOption.isPresent();
-			
-			if(success) {
-				refName = gitTagFetchTaskOption.get().getName();
-				tagName = refName.substring(Constants.R_TAGS.length());
-				logger.info("完成，最新的 git tag 版本为 {0}", tagName);
-			} else {
-				logger.error("在该仓库中没有找到 git tag，请为仓库标注 tag 后再重试");
-			}
-		}
-		
-		// 从最新的 git tag 中查找 component.json 文件
-		String componentJsonContent = null;
-		if(success) {
-			logger.info(StringUtils.repeat("-", 45));
-			logger.info("三、校验仓库根目录下的 component.json 文件");
-			
-			logger.info("在 Git Tag {0} 的根目录下查找 component.json 文件", tagName);
-			
-			ComponentJsonFetchTask task = new ComponentJsonFetchTask(context, refName);
-			Optional<String> contentOption = task.run();
-			success = contentOption.isPresent();
-			
-			if(success) {
-				componentJsonContent = contentOption.get();
-				logger.info("存在 component.json 文件");
-			} else {
-				logger.error("没有找到 component.json 文件");
-			}
-		}
-		
-		// 将 json 字符串转换为 java 对象
-		ComponentJson componentJson = null;
-		if(success) {
-			logger.info("将 component.json 内容转换为 java 对象");
-			ObjectMapper objectMapper = new ObjectMapper();
-			try {
-				componentJson = objectMapper.readValue(componentJsonContent, ComponentJson.class);
-				logger.info("转换完成");
-				success = true;
-			} catch (IOException e) {
-				logger.error("转换失败");
-				logger.error(e);
-				success = false;
-			}
-		}
-		
-		// 校验 component.json 中的字段
-		// name
-		// 1. 不能为空
-		// 2. 长度不能超过64个字节
-		// 3. 只能包含字母、数字、中划线和下划线
-		// 4. 同一个发布者没有发不过此名称的组件库
-		// version
-		// 1. 不能为空
-		// 2. 必须是有效的语义化版本
-		// 3. 必须大于最新的版本号
-		// category
-		// 1. 不能为空
-		// 2. 只能是 “Widget”（不区分大小写）
-		// language
-		// 1. 不能为空
-		// 2. 只能是“Typescript”、“Java”（不区分大小写）
-		// description
-		// 1. 长度不能超过512个字节
-		// icon
-		// 1. 长度不能超过64个字节
-		// api.git
-		// 1. 不能为空
-		// 2. 有效的 https 协议的 git 远程仓库地址
-		// 3. 根据此地址能找到远程仓库
-		// api.version
-		// 1. 不能为空
-		// 2. 有效的语义化版本号
-		
-		if(success) {
-			// name
-			boolean nameHasError = false;
-			String name = componentJson.getName();
-			if(StringUtils.isBlank(name)) {
-				logger.error("name - 值不能为空");
-				nameHasError = true;
-			}
-			String trimedName = Objects.toString(name, "").trim();
-			if(!nameHasError) {
-				// 之所以取 60 而并不是 64，因为 60 好记
-				if(com.blocklang.core.util.StringUtils.byteLength(trimedName) > 60) {
-					logger.error("name - 值的长度不能超过60个字节(一个汉字占两个字节)");
-					nameHasError = true;
-				}
-			}
-			if(!nameHasError) {
-				//校验：只支持英文字母、数字、中划线(-)、下划线(_)、点(.)
-				String regEx = "^[a-zA-Z0-9\\-\\w]+$";
-				Pattern pattern = Pattern.compile(regEx);
-				Matcher matcher = pattern.matcher(trimedName);
-				if(!matcher.matches()) {
-					logger.error("name - 值只支持英文字母、数字、中划线(-)、下划线(_)、点(.)，‘{0}’中包含非法字符", trimedName);
-					nameHasError = true;
-				}
-			}
-			if(!nameHasError) {
-				if(componentRepoDao.findByNameAndCreateUserId(trimedName, publishTask.getCreateUserId()).isPresent()) {
-					logger.error("name - {0} 下已注册名为 {1} 的组件库，请换一个名字", publishTask.getCreateUserName(), trimedName);
-					nameHasError = true;
-				}
-			}
-			
-			// version
-			boolean versionHasError = false;
-			String version = componentJson.getVersion();
-			if(StringUtils.isBlank(version)) {
-				logger.error("version - 值不能为空");
-				versionHasError = true;
-			}
-			String trimedVersion = Objects.toString(version, "").trim();
-			if(!versionHasError) {
-				if(!Version.isValidVersion(trimedVersion)) {
-					logger.error("version - 值 {0} 不是有效的语义化版本", trimedVersion);
-					versionHasError = true;
-				}
-			}
-			if(!versionHasError) {
-				// 获取最新发布的版本号
-				Optional<ComponentRepo> compRepoOption = componentRepoDao.findByNameAndCreateUserId(trimedName, publishTask.getCreateUserId());
-				if(compRepoOption.isPresent()) {
-					Version previousVersion = Version.parseVersion(compRepoOption.get().getVersion(), true);
-					Version currentVersion = Version.parseVersion(trimedVersion, true);
-					if(!currentVersion.isGreaterThan(previousVersion)) {
-						logger.error("version - 版本号应大于项目最新的版本号，但 {} 没有大于上一个版本号 {}", trimedVersion, compRepoOption.get().getVersion());
-						versionHasError = true;
-					}
-				}
-			}
-			
-			// category
-			boolean categoryHasError = false;
-			String category = componentJson.getCategory();
-			if(StringUtils.isBlank(category)) {
-				logger.error("category - 值不能为空");
-				categoryHasError = true;
-			}
-			if(!categoryHasError) {
-				if(!category.trim().equalsIgnoreCase("Widget")) {
-					logger.error("category - 值只能是 Widget");
-					categoryHasError = true;
-				}
-			}
-			
-			// language
-			boolean languageHasError = false;
-			String language = componentJson.getLanguage();
-			if(StringUtils.isBlank(language)) {
-				logger.error("language - 值不能为空");
-				languageHasError = true;
-			}
-			
-			if(!languageHasError) {
-				String trimedLanguage = language.trim();
-				if(!trimedLanguage.equalsIgnoreCase("Java") && !trimedLanguage.equalsIgnoreCase("TypeScript")) {
-					logger.error("language - 值只能是 Java 或 TypeScript");
-					languageHasError = true;
-				}
-			}
-			
-			// description
-			boolean descriptionHasError = false;
-			String description = componentJson.getDescription();
-			if(com.blocklang.core.util.StringUtils.byteLength(description) > 500) {
-				logger.error("description - 值的长度不能超过500个字节(一个汉字占两个字节)");
-				descriptionHasError = true;
-			}
-			
-			// icon
-			boolean iconHasError = false;
-			String icon = componentJson.getIcon();
-			if(com.blocklang.core.util.StringUtils.byteLength(icon) > 60) {
-				logger.error("icon - 值的长度不能超过60个字节(一个汉字占两个字节)");
-				iconHasError = true;
-			}
-			
-			// api.git
-			boolean apiGitHasError = false;
-			String apiGit = componentJson.getApi().getGit();
-			if(StringUtils.isBlank(apiGit)) {
-				logger.error("api.git - 值不能为空，一个组件库必须要实现一个 API");
-				apiGitHasError = true;
-			}
-			if(!apiGitHasError) {
-				String gitUrl = apiGit.trim();
-				
-				URIish uriish = null;
-				try {
-					uriish = new URIish(gitUrl);
-				} catch (URISyntaxException e) {
-					logger.error("api.git - Git 仓库地址的无效，不是有效的远程仓库地址");
-					logger.error(e);
-					apiGitHasError = true;
-				}
-				if(!apiGitHasError && !uriish.isRemote()) {
-					logger.error("api.git - Git 仓库地址的无效，不是有效的远程仓库地址");
-					apiGitHasError = true;
-				}
-				
-				if(!apiGitHasError && !"https".equalsIgnoreCase(uriish.getScheme())) {
-					logger.error("api.git - Git 仓库地址无效，请使用 HTTPS 协议的 git 仓库地址");
-					apiGitHasError = true;
-				}
-				
-				if(!apiGitHasError && !GitUtils.isValidRemoteRepository(gitUrl)) {
-					logger.error("api.git - Git 仓库地址无效，该仓库不存在");
-					apiGitHasError = true;
-				}
-			}
-
-			// api.version
-			boolean apiVersionHasError = false;
-			String apiVersion = componentJson.getApi().getVersion();
-			if(StringUtils.isBlank(apiVersion)) {
-				logger.error("api.version - 值不能为空");
-				apiVersionHasError = true;
-			}
-			if(!apiVersionHasError) {
-				String trimedApiVersion = apiVersion.trim();
-				if(!Version.isValidVersion(trimedApiVersion)) {
-					logger.error("api.version - 值 {0} 不是有效的语义化版本", trimedApiVersion);
-					apiVersionHasError = true;
-				}
-			}
-			// 注意：api 是通过组件引用的，所以 api 的版本号不一定是最新版的
-			// 后续要校验指定的 api 版本是否存在于 api 项目中
-
-			success = !(nameHasError || versionHasError || categoryHasError || languageHasError || descriptionHasError
-					|| iconHasError || apiGitHasError || apiVersionHasError);
+			logger.error("解析失败");
 		}
 		
 		// 对 component.json 文件校验通过后
 		// 开始下载 api 项目，并校验 api.json
 		if(success) {
-			context.parseApiGitUrl(componentJson.getApi().getGit().trim());
-			// 下载 api 项目
 			logger.info(StringUtils.repeat("-", 45));
-			logger.info("四、开始获取 API 库源码");
-			GitSyncApiRepoTask apiRepoTask = new GitSyncApiRepoTask(context);
-			Optional<Boolean> gitSyncApiOption = apiRepoTask.run();
-			success = gitSyncApiOption.isPresent();
-			if(success) {
-				logger.info("完成");
-			} else {
-				logger.error("失败");
-			}
+			logger.info("二、开始解析 API 库中的 {0}", MarketplaceConstant.FILE_NAME_API);
+			ApiJsonParseGroupTask apiJsonParseGroupTask = new ApiJsonParseGroupTask(context);
+			success = apiJsonParseGroupTask.run().isPresent();
+		}
+		if(success) {
+			logger.info("解析完成");
+		} else {
+			logger.error("解析失败");
 		}
 		
-		String apiRepoRefName = null;
-		String apiRepoTagName = null;
-		if(success) {
-			// 确认指定版本的 tag 是否存在
-			String apiVersion = componentJson.getApi().getVersion().trim();
-			logger.info(StringUtils.repeat("-", 45));
-			logger.info("五、检查 API 库中是否存在名为 {0} 的 tag", apiVersion);
-			
-			ApiRepoFindTagTask apiRepoFindTagTask = new ApiRepoFindTagTask(context, apiVersion);
-			Optional<Ref> apiRepoTag = apiRepoFindTagTask.run();
-			success = apiRepoTag.isPresent();
-			
-			if(success) {
-				apiRepoRefName = apiRepoTag.get().getName();
-				apiRepoTagName = apiRepoRefName.substring(Constants.R_TAGS.length());
-				logger.info("在 API 仓库中存在名为 {0} 的 tag", tagName);
-			} else {
-				logger.error("在 API 仓库中没有找到名为 {0} 的 tag", apiVersion);
-			}
-		}
-		
-		// 获取 api.json 内容
-		// 从最新的 git tag 中查找 component.json 文件
-		String apiJsonContent = null;
 		if(success) {
 			logger.info(StringUtils.repeat("-", 45));
-			logger.info("六、校验 API 仓库根目录下的 api.json 文件");
-			logger.info("在 Git Tag {0} 的根目录下查找 api.json 文件", apiRepoTagName);
-			
-			// 从组件库的 component.json 中指定的 api 版本中查找
-			ApiJsonFetchTask task = new ApiJsonFetchTask(context, apiRepoRefName);
-			Optional<String> contentOption = task.run();
-			success = contentOption.isPresent();
-			
-			if(success) {
-				apiJsonContent = contentOption.get();
-				logger.info("存在 api.json 文件");
-			} else {
-				logger.error("没有找到 api.json 文件");
-			}
+			logger.info("三、开始解析 API 库中的 change log 文件");
+			ApiChangeLogParseGroupTask apiChangeLogParseGroupTask = new ApiChangeLogParseGroupTask(context);
+			success = apiChangeLogParseGroupTask.run().isPresent();
 		}
-		// 将 json 字符串转换为 java 对象
-		ApiJson apiJson = null;
 		if(success) {
-			logger.info("将 api.json 内容转换为 java 对象");
-			ObjectMapper objectMapper = new ObjectMapper();
-			try {
-				apiJson = objectMapper.readValue(apiJsonContent, ApiJson.class);
-				logger.info("转换完成");
-				success = true;
-			} catch (IOException e) {
-				logger.error("转换失败");
-				logger.error(e);
-				success = false;
-			}
+			logger.info("解析完成");
+		} else {
+			logger.error("解析失败");
 		}
 
-		String[] apiComponents = null;
-		// 确定组件库实现了 api 库中的所有组件
+		// 开始逐个版本的安装 API
 		if(success) {
 			logger.info(StringUtils.repeat("-", 45));
-			logger.info("七、校验 API 库中 api.json 的 components 中定义组件是否都在组件库中 component.json 的 components 中定义");
-			logger.info("注意：只判断路径最后一段是否相同");
-			String[] components = componentJson.getComponents();
-			apiComponents = apiJson.getComponents();
-			
-			for(String apiComponent : apiComponents) {
-				String[] apiSegments = apiComponent.split("/");
-				String apiComponentName = apiSegments[apiSegments.length - 1];
-				boolean matched = false;
-				for(String component : components) {
-					// 存的是完整路径，完整路径肯定不相等，但最后一个 / 后的值可以约定相等
-					String[] segments = component.split("/");
-					String componentName = segments[segments.length - 1];
-					if(apiComponentName.trim().equalsIgnoreCase(componentName.trim())) {
-						matched = true;
-						break;
-					}
-				}
-				
-				if(!matched) {
-					logger.error("components - 组件库中未配置 API 库定义的 {0} 组件", apiComponent);
-					success = false;
-				}
-			}
-			
-			if(success) {
-				logger.info("校验通过");
-			}
+			logger.info("四、开始安装 API 变更文件");
+			ApiChangeLogsSetupGroupTask task = new ApiChangeLogsSetupGroupTask(
+					context, 
+					componentRepoDao,
+					componentRepoVersionDao,
+					apiRepoDao,
+					apiRepoVersionDao);
+			success = task.run().isPresent();
+		}
+		if(success) {
+			logger.info("安装完成");
+		} else {
+			logger.error("安装失败");
 		}
 		
-		List<ChangeLog> changelogs = new ArrayList<ChangeLog>();
-		if(success) {
-			// 开始逐个组件的校验 API 定义
-			// 以下，只解析 API 项目，不解析组件项目
-			logger.info(StringUtils.repeat("-", 45));
-			logger.info("八、开始逐个校验 API 项目中的组件定义");
-			
-			// 逐个组件校验，是否存在 changelog 文件夹
-			// 逐个组件校验，是否在 changelog 文件夹中至少存在一个 json 文件
-			logger.info("api.json 文件中共存在 {0} 个组件", apiComponents.length);
-			logger.info("校验是否存在 changelog 文件夹，并在 changelog 文件夹下定义了 API 变更文件");
-			for(int i = 0; i < apiComponents.length; i++) {
-				String path = apiComponents[i];
-				logger.info("{0} {1} 部件", i+1, path);
-				// TODO: 从指定的 tag 下获取，而不是获取仓库的当前路径
-				Path componentRootPath = context.getLocalApiRepoPath().getRepoSourceDirectory().resolve(path);
-				// 判断是否存在 changelog 文件夹
-				if(Files.notExists(componentRootPath.resolve("changelog"))) {
-					logger.error("在 {0} 文件夹下缺失 changelog 文件夹", path);
-					success = false;
-					continue;
-				}
-				// changelog 文件夹不能为空
-				if(componentRootPath.resolve("changelog").toFile().list().length == 0) {
-					logger.error("在 {0}/changelog 文件夹下缺失 API 定义文件，如 0_1_0.json", path);
-					success = false;
-					continue;
-				}
-				logger.info("校验通过");
-			}
-			
-			List<String> notSetupChangeFiles = new ArrayList<String>();
-			if(success) {
-				// 校验所有的 changelog 文件
-				// 先获取所有的 changelog 文件路径
-				List<String> allChangeFiles = new ArrayList<String>();
-				for(String eachPath : apiComponents) {
-					Path apiRootPath = context.getLocalApiRepoPath().getRepoSourceDirectory().resolve(eachPath);
-					String[] files = apiRootPath.resolve("changelog").toFile().list();
-					for(String file : files) {
-						allChangeFiles.add(eachPath + "/changelog/" + file);
-					}
-				}
-				
-				// 查出所有已安装的文件
-				List<ApiChangeLog> setupChangeFiles = apiRepoDao
-						.findByNameAndCreateUserId(apiJson.getName(), publishTask.getCreateUserId())
-						.map(apiRepo -> apiChangelogDao.findAllByApiRepoId(apiRepo.getId()))
-						.orElse(Collections.emptyList());
-				
-				// 确认是否存在删了已安装的文件的情况
-				// 已 setup 中存在，但 all 中不存在
-				logger.info("检查是否存在，文件已安装，但在 API 项目中删掉的日志变更文件");
-				List<ApiChangeLog> deleted = setupChangeFiles
-						.stream()
-						.filter(changelog -> {
-							boolean notContain = !allChangeFiles.contains(changelog.getChangelogFileName());
-							if(notContain) {
-								logger.error(changelog.getChangelogFileName());
-							}
-							return notContain;
-						})
-						.collect(Collectors.toList());
-				if(!deleted.isEmpty()) {
-					success = false;
-				} else {
-					// 很诡异，当值为“不存在”时，打印出的是 NX[(W
-					logger.info("无");
-				}
-				
-				if(success) {
-					logger.info("检查是否存在，文件已安装过，但内容被修改");
-					// 校验已安装的文件内容是否发生了变化
-					List<ApiChangeLog> modified = setupChangeFiles
-							.stream()
-							.filter(changelog -> {
-								String md5Now = "";
-								try (InputStream in = Files.newInputStream(context.getLocalApiRepoPath().getRepoSourceDirectory().resolve(changelog.getChangelogFileName()))){
-									md5Now = DigestUtils.md5Hex(in);
-								} catch (IOException e) {
-									logger.error(e);
-								}
-								boolean notEqual = !changelog.getMd5Sum().equals(md5Now);
-								if(notEqual) {
-									logger.error(changelog.getChangelogFileName());
-								}
-								return notEqual;
-							}).collect(Collectors.toList());
-					
-					if(!modified.isEmpty()) {
-						success = false;
-					} else {
-						logger.info("无");
-					}
-				}
-				
-				// 找出未安装的变更文件
-				if(success) {
-					notSetupChangeFiles = allChangeFiles.stream()
-							.filter(fileName -> !setupChangeFiles.stream()
-									.anyMatch(setupChange -> setupChange.getChangelogFileName().equals(fileName)))
-							.collect(Collectors.toList());
-					
-					// 如果没有找到未安装的文件，则给出提示信息
-					if(notSetupChangeFiles.isEmpty()) {
-						logger.info("已是最新版本，没有找到要安装的 API 文件");
-					} else {
-						// 开始逐个解析变更日志文件
-						// 要对所有文件都校验一遍，不能出现了错误就停止校验
-						logger.info("开始解析日志变更文件");
-						boolean hasErrors = false;
-						for(String fileName : notSetupChangeFiles) {
-							logger.info("开始解析 {0}", fileName);
-							ChangeLog changelogInfo = new ChangeLog();
-							try {
-								// TODO：从指定的 tag 下找，而不是在最新文件中查找
-								String fileContent = Files.readString(context.getLocalApiRepoPath().getRepoSourceDirectory().resolve(fileName));
-								ObjectMapper objectMapper = new ObjectMapper();
-								Map<?, ?> changelogMap = objectMapper.readValue(fileContent, Map.class);
-								ChangeLogParseTask changeLogParseTask = new ChangeLogParseTask(context, changelogMap);
-								Optional<ChangeLog> changelogOption = changeLogParseTask.run();
-								hasErrors = changelogOption.isPresent();
-								if(hasErrors) {
-									logger.error("解析时出现错误");
-								} else {
-									ChangeLog cl = changelogOption.get();
-									cl.setFileName(fileName);
-									changelogs.add(cl);
-									logger.info("解析完成");
-								}
-							} catch (IOException e) {
-								logger.error(e);
-							}
-							changelogs.add(changelogInfo);
-						}
-						success = !hasErrors;
-					}
-				}
-			}
-		}
+		// TODO: 确保 component.json 中的 api.version 与通过 version 选中的 api.json 中的 version 值一致
 		
-		ComponentRepo savedCompRepo = null;
-		ComponentRepoVersion savedCompRepoVersion = null;
-		ApiRepo savedApiRepo = null;
-		List<ApiRepoVersion> savedApiRepoVersions = new ArrayList<ApiRepoVersion>();
-		if(success) {
-			// 注册组件库
-			logger.info(StringUtils.repeat("-", 45));
-			logger.info("九、开始保存组件库信息");
-			
-			logger.info("保存组件库基本信息");
-			ComponentRepo repo = new ComponentRepo();
-			repo.setGitRepoUrl(publishTask.getGitUrl());
-			repo.setGitRepoWebsite(context.getLocalComponentRepoPath().getWebsite());
-			repo.setGitRepoOwner(context.getLocalComponentRepoPath().getOwner());
-			repo.setGitRepoName(context.getLocalComponentRepoPath().getRepoName());
-			repo.setName(componentJson.getName().trim()); // name 必填
-			repo.setVersion(componentJson.getVersion().trim()); // version 必填
-			repo.setLabel(componentJson.getDisplayName());
-			repo.setDescription(componentJson.getDescription());
-			// logo_path 未设置
-			repo.setCategory(RepoCategory.fromValue(componentJson.getCategory().trim()));
-			repo.setLanguage(Language.fromValue(componentJson.getLanguage().trim()));
-			if(StringUtils.isNotBlank(componentJson.getIcon())) {
-				repo.setLogoPath(componentJson.getIcon());
-			}
-			repo.setCreateUserId(publishTask.getCreateUserId());
-			repo.setCreateTime(LocalDateTime.now());
-			
-			savedCompRepo = componentRepoDao.save(repo);
-			logger.info("保存成功");
-			
-			logger.info("保存组件库版本信息");
-			ComponentRepoVersion compRepoVersion = new ComponentRepoVersion();
-			compRepoVersion.setComponentRepoId(savedCompRepo.getId());
-			compRepoVersion.setVersion(componentJson.getVersion().trim());
-			compRepoVersion.setCreateUserId(publishTask.getCreateUserId());
-			compRepoVersion.setCreateTime(LocalDateTime.now());
-			savedCompRepoVersion = componentRepoVersionDao.save(compRepoVersion);
-			logger.info("保存成功");
-			
-			logger.info(StringUtils.repeat("-", 45));
-			logger.info("十、开始保存 API 库信息");
-			
-			logger.info("保存 API 库基本信息");
-			// 先判断 API 库是否已存在
-			// 不存在则新增
-			Optional<ApiRepo> apiRepoOption = apiRepoDao.findByNameAndCreateUserId(apiJson.getName(), publishTask.getCreateUserId());
-			if(apiRepoOption.isPresent()) {
-				savedApiRepo = apiRepoOption.get();
-				logger.info("已存在");
-			} else {
-				ApiRepo apiRepo = new ApiRepo();
-				apiRepo.setGitRepoUrl(context.getLocalApiRepoPath().getGitUrl());
-				apiRepo.setGitRepoWebsite(context.getLocalApiRepoPath().getWebsite());
-				apiRepo.setGitRepoOwner(context.getLocalApiRepoPath().getOwner());
-				apiRepo.setGitRepoName(context.getLocalApiRepoPath().getRepoName());
-				apiRepo.setName(apiJson.getName());
-				apiRepo.setVersion(apiJson.getVersion()); // 用哪个版本号？确保版本号一致
-				apiRepo.setLabel(apiJson.getDisplayName());
-				apiRepo.setDescription(apiJson.getDescription());
-				apiRepo.setCategory(RepoCategory.fromValue(apiJson.getCategory().trim()));
-				apiRepo.setCreateUserId(publishTask.getCreateUserId());
-				apiRepo.setCreateTime(LocalDateTime.now());
-				savedApiRepo = apiRepoDao.save(apiRepo);
-				
-				logger.info("保存成功"); 
-			}
-			
-			logger.info("保存 API 库版本信息");
-			Optional<ApiRepoVersion> apiRepoVersionOption = apiRepoVersionDao.findByApiRepoIdAndVersion(savedApiRepo.getId(), apiJson.getVersion());
-			if(apiRepoVersionOption.isPresent()) {
-				logger.info("已存在");
-			} else {
-				// 关于 API repo 的发布，因为发布并不不能做到按照版本号顺序发布，所以需要注意：
-				// 1. 如果要新增，则可能发布的是最新版，也可能发布的是之前没有发布过的旧版
-				//   所以一定要精准的找到上一个版本
-				// 2. 要确保已存储所有版本
-				// 获取 api 仓库的 tag 列表
-				
-				List<String> apiVersions = new ArrayList<String>();
-				try {
-					apiVersions = GitUtils
-							.getTags(context.getLocalApiRepoPath().getRepoSourceDirectory())
-							.stream()
-							.map(ref -> {
-								String apiTagName = ref.getName().substring(Constants.R_TAGS.length());
-								if(apiTagName.toLowerCase().startsWith("v")) {
-									apiTagName = apiTagName.substring(1);
-								}
-								return apiTagName;
-							}).collect(Collectors.toList());
-				} catch (GitTagFailedException e) {
-					logger.error(e);
-				}
-				
-				Integer savedApiRepoId = savedApiRepo.getId();
-				Version currentApiRepoVersion = Version.parseVersion(apiJson.getVersion(), true);
-				savedApiRepoVersions = apiVersions.stream().filter(apiVersion -> {
-					Version version = Version.parseVersion(apiVersion, true);
-					return !currentApiRepoVersion.isGreaterThan(version);
-				}).map(apiVersion -> {
-					ApiRepoVersion apiRepoVersion = new ApiRepoVersion();
-					apiRepoVersion.setApiRepoId(savedApiRepoId);
-					apiRepoVersion.setVersion(apiVersion);
-					apiRepoVersion.setCreateUserId(publishTask.getCreateUserId());
-					apiRepoVersion.setCreateTime(LocalDateTime.now());
-					return apiRepoVersionDao.save(apiRepoVersion);
-				}).collect(Collectors.toList());
-				
-				// 先循环版本
-				for(ApiRepoVersion apiRepoVersion : savedApiRepoVersions) {
-					// 再嵌套循环组件
-					for(String component : apiComponents) {
-						// 如果当前版本存在 changelog 文件，则先查找是否存在上一个版本
-						// 如果存在上一个版本，则先复制上一个版本
-						// 然后在上一个版本的基础上，应用本版本的变更
-						
-						// 注意：变更文件的名称，是与版本号保持一致的，会存在某个组件在某个版本中没有变更的情况
-						// 所以要一直向上追溯，而不是只追溯到上一个版本
-						if(true) {
-							
-						}
-					}
-				}
-				
-				logger.info("保存成功");
-			}
-		}
+		
+		// 如果当前版本存在 changelog 文件，则先查找是否存在上一个版本
+		// 如果存在上一个版本，则先复制上一个版本
+		// 然后在上一个版本的基础上，应用本版本的变更
+		
+		// 注意：变更文件的名称，是与版本号保持一致的，会存在某个组件在某个版本中没有变更的情况
+		// 所以要一直向上追溯，而不是只追溯到上一个版本
 		
 		if(success) {
 			logger.info(StringUtils.repeat("-", 45));
