@@ -8,12 +8,8 @@ import java.util.List;
 import com.blocklang.marketplace.data.ApiJson;
 import com.blocklang.marketplace.data.ComponentJson;
 import com.blocklang.marketplace.data.LocalRepoPath;
-import com.blocklang.marketplace.data.changelog.ComponentChangeLog;
-import com.blocklang.marketplace.model.ApiRepo;
-import com.blocklang.marketplace.model.ApiRepoVersion;
-import com.blocklang.marketplace.model.ComponentRepo;
+import com.blocklang.marketplace.data.changelog.ComponentChangeLogs;
 import com.blocklang.marketplace.model.ComponentRepoPublishTask;
-import com.blocklang.marketplace.model.ComponentRepoVersion;
 
 /**
  * 在这里统一存储和查询发布过程中的信息
@@ -33,26 +29,16 @@ public class MarketplacePublishContext {
 	
 	private String componentRepoLatestVersion;
 	
+	// tag name 是包含 ref/tags/ 的完整名
+	private String apiRepoTagName;
+	
 	// 组件库描述信息
 	// 组件库最新版本中 component.json 中的内容
 	private ComponentJson componentJson;
 	private ApiJson apiJson;
 	
-	// 组件库基本信息
-	private ComponentRepo componentRepo;
-	// 组件库的最新版本
-	private ComponentRepoVersion componentRepoVersion;
-	
-	// API 库基本信息
-	private ApiRepo apiRepo;
-	// API 库的所有版本信息
-	private List<ApiRepoVersion> apiRepoVersions;
-	
 	// 按组件分组，并按照版本号正序排列的 changelog
-	// 只包含未发布的 changelog？
-	// 如何获取上一个版本？
-	private List<ComponentChangeLog> changeLogs;
-	
+	private List<ComponentChangeLogs> changeLogs;
 	
 	public MarketplacePublishContext(String dataRootPath, String componentGitUrl) {
 		this.dataRootPath = dataRootPath;
@@ -103,43 +89,11 @@ public class MarketplacePublishContext {
 		this.apiJson = apiJson;
 	}
 
-	public ComponentRepo getComponentRepo() {
-		return componentRepo;
-	}
-
-	public void setComponentRepo(ComponentRepo componentRepo) {
-		this.componentRepo = componentRepo;
-	}
-
-	public ComponentRepoVersion getComponentRepoVersion() {
-		return componentRepoVersion;
-	}
-
-	public void setComponentRepoVersion(ComponentRepoVersion componentRepoVersion) {
-		this.componentRepoVersion = componentRepoVersion;
-	}
-
-	public ApiRepo getApiRepo() {
-		return apiRepo;
-	}
-
-	public void setApiRepo(ApiRepo apiRepo) {
-		this.apiRepo = apiRepo;
-	}
-
-	public List<ApiRepoVersion> getApiRepoVersions() {
-		return apiRepoVersions;
-	}
-
-	public void setApiRepoVersions(List<ApiRepoVersion> apiRepoVersions) {
-		this.apiRepoVersions = apiRepoVersions;
-	}
-
-	public List<ComponentChangeLog> getChangeLogs() {
+	public List<ComponentChangeLogs> getChangeLogs() {
 		return changeLogs;
 	}
 
-	public void setChangeLogs(List<ComponentChangeLog> changeLogs) {
+	public void setChangeLogs(List<ComponentChangeLogs> changeLogs) {
 		this.changeLogs = changeLogs;
 	}
 
@@ -165,6 +119,14 @@ public class MarketplacePublishContext {
 
 	public void setFirstPublish(boolean isFirstPublish) {
 		this.isFirstPublish = isFirstPublish;
+	}
+
+	public String getApiRepoTagName() {
+		return apiRepoTagName;
+	}
+
+	public void setApiRepoTagName(String apiRepoTagName) {
+		this.apiRepoTagName = apiRepoTagName;
 	}
 
 }

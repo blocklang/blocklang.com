@@ -52,6 +52,7 @@ public class ApiJsonParseGroupTask extends AbstractRepoPublishTask {
 			success = apiRepoTag.isPresent();
 			if(success) {
 				apiRepoRefName = apiRepoTag.get().getName();
+				context.setApiRepoTagName(apiRepoRefName);
 				logger.info("存在 {0} 发行版", apiRepoVersion);
 			} else {
 				logger.error("不存在 {0} 发行版", apiRepoVersion);

@@ -38,7 +38,7 @@ import com.blocklang.marketplace.data.LocalRepoPathTest;
 import com.blocklang.marketplace.service.impl.ComponentRepoRegistryServiceImplTest;
 import com.blocklang.marketplace.task.ApiChangeLogValidateTaskTest;
 import com.blocklang.marketplace.task.MarketplacePublishContextTest;
-import com.blocklang.marketplace.task.SetupChangesTaskTest;
+import com.blocklang.marketplace.task.ApiChangeLogsSetupGroupTaskTest;
 import com.blocklang.marketplace.task.TaskLoggerTest;
 import com.blocklang.release.api.AppApiTest;
 import com.blocklang.release.api.InstallerApiTest;
@@ -75,7 +75,7 @@ import com.blocklang.release.task.GitTagTaskTest;
 	LocalRepoPathTest.class,
 	StringUtilsTest.class,
 	ApiChangeLogValidateTaskTest.class,
-	SetupChangesTaskTest.class,
+	ApiChangeLogsSetupGroupTaskTest.class,
 	
 	UserValidatorTest.class,
 	
