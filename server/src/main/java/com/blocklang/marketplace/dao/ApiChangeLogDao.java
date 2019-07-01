@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.blocklang.marketplace.model.ApiChangeLog;
 
-public interface ApiChangelogDao extends JpaRepository<ApiChangeLog, Integer> {
+public interface ApiChangeLogDao extends JpaRepository<ApiChangeLog, Integer> {
 
 	List<ApiChangeLog> findAllByApiRepoId(Integer apiRepoId);
 
