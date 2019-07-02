@@ -7,9 +7,9 @@ import org.eclipse.jgit.lib.Ref;
 import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.git.exception.GitTagFailedException;
 
-public class ComponentRepoLatestTagFetchTask extends AbstractRepoPublishTask{
+public class ComponentRepoLatestTagFindTask extends AbstractRepoPublishTask{
 
-	public ComponentRepoLatestTagFetchTask(MarketplacePublishContext context) {
+	public ComponentRepoLatestTagFindTask(MarketplacePublishContext context) {
 		super(context);
 	}
 

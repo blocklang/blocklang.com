@@ -56,11 +56,11 @@ public class ComponentJsonParseGroupTask extends AbstractRepoPublishTask {
 		String componentRepoLatestVersion = null;
 		if(success) {
 			logger.info("开始获取最新的 Git Tag");
-			ComponentRepoLatestTagFetchTask gitTagFetchTask = new ComponentRepoLatestTagFetchTask(context);
-			Optional<Ref> gitTagFetchTaskOption = gitTagFetchTask.run();
-			success = gitTagFetchTaskOption.isPresent();
+			ComponentRepoLatestTagFindTask gitTagFindTask = new ComponentRepoLatestTagFindTask(context);
+			Optional<Ref> gitTagFindTaskOption = gitTagFindTask.run();
+			success = gitTagFindTaskOption.isPresent();
 			if(success) {
-				componentRepoLatestRefName = gitTagFetchTaskOption.get().getName();
+				componentRepoLatestRefName = gitTagFindTaskOption.get().getName();
 				Optional<String> versionOption = GitUtils.getVersionFromRefName(componentRepoLatestRefName);
 				if(versionOption.isPresent()) {
 					String version = versionOption.get();
