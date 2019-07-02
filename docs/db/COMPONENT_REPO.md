@@ -24,7 +24,7 @@
 ## 约束
 
 * 主键：`PK_COMPONENT_REPO`
-* 外键：无
+* 外键：(*未设置*)`FK_COMPONENT_REPO_API_REPO`，`api_repo_id` 对应 `API_REPO` 的 `dbid`
 * 索引：`UK_COMP_REPO_ON_GIT_REPO_URL_USER_ID`，对应字段 `git_repo_url`、`create_user_id`；`UK_COMP_REPO_ON_NAME_USER_ID`，对应字段 `name`、`create_user_id`
 
 ## 说明

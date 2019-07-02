@@ -42,6 +42,7 @@ public class MarketplacePublishContext {
 	
 	public MarketplacePublishContext(String dataRootPath, ComponentRepoPublishTask publishTask) {
 		this.dataRootPath = dataRootPath;
+		this.publishTask = publishTask;
 		this.localComponentRepoPath = new LocalRepoPath(dataRootPath, publishTask.getGitUrl());
 	}
 	

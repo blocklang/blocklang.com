@@ -80,18 +80,12 @@ public class ApiChangeLogsSetupGroupTask extends AbstractRepoPublishTask {
 		this.apiRepoVersionDao = apiRepoVersionDao;
 	}
 
+	/**
+	 * 因为组件库依赖于 API 库，所以先保存 API 库，再保存组件库
+	 */
 	@Override
 	public Optional<Boolean> run() {
 		boolean success = true;
-		
-		// 保存组件库基本信息和最新版本信息
-		logger.info("开始保存组件库基本信息");
-		ComponentRepo savedCompRepo = saveComponentRepo();
-		logger.info("保存成功");
-		
-		logger.info("开始保存组件库的 {0} 版本信息", context.getComponentRepoLatestVersion());
-		ComponentRepoVersion savedCompRepoVersion = saveComponentRepoVersion(savedCompRepo.getId());
-		logger.info("保存成功");
 		
 		logger.info("开始保存 API 库基本信息");
 		ApiRepo savedApiRepo = null;
@@ -107,10 +101,12 @@ public class ApiChangeLogsSetupGroupTask extends AbstractRepoPublishTask {
 		// 保存 API 版本信息，API 是逐个版本累加的，所以要发布引用版本，就要发布之前的版本
 		logger.info("开始保存 API 库的版本信息");
 		List<ApiRepoVersion> savedApiRepoVersions = null;
+		Integer currentApiRepoVersionId = null;
 		Optional<ApiRepoVersion> apiRepoVersionOption = apiRepoVersionDao.findByApiRepoIdAndVersion(savedApiRepo.getId(), apiJson.getVersion());
 		if(apiRepoVersionOption.isPresent()) {
 			logger.info("已存在");
 			savedApiRepoVersions = Collections.emptyList();
+			currentApiRepoVersionId = apiRepoVersionOption.get().getId();
 		} else {
 			List<String> apiVersions = new ArrayList<String>();
 			try {
@@ -139,7 +135,21 @@ public class ApiChangeLogsSetupGroupTask extends AbstractRepoPublishTask {
 					.stream()
 					.map(apiVersion -> this.saveApiRepoVersion(savedApiRepoId, apiVersion))
 					.collect(Collectors.toList());
+			
+			// 最后一个，必须是当前引用的 API 版本信息
+			currentApiRepoVersionId = savedApiRepoVersions.get(savedApiRepoVersions.size() - 1).getId();
 		}
+		
+		// 保存组件库基本信息和最新版本信息
+		logger.info("开始保存组件库基本信息");
+		ComponentRepo savedCompRepo = saveComponentRepo(savedApiRepo.getId());
+		logger.info("保存成功");
+		
+		logger.info("开始保存组件库的 {0} 版本信息", context.getComponentRepoLatestVersion());
+		ComponentRepoVersion savedCompRepoVersion = saveComponentRepoVersion(savedCompRepo.getId(), currentApiRepoVersionId);
+		logger.info("保存成功");
+		
+
 
 		// 增量安装 API 变更
 		// 先循环组件，再嵌套循环版本
@@ -209,18 +219,20 @@ public class ApiChangeLogsSetupGroupTask extends AbstractRepoPublishTask {
 		return apiRepoDao.save(apiRepo);
 	}
 
-	private ComponentRepoVersion saveComponentRepoVersion(Integer compRepoId) {
+	private ComponentRepoVersion saveComponentRepoVersion(Integer compRepoId, Integer apiRepoVersionId) {
 		ComponentRepoVersion compRepoVersion = new ComponentRepoVersion();
 		compRepoVersion.setComponentRepoId(compRepoId);
-		// 确认 context.getComponentRepoLatestVersion() 的值与 componentJson.getVersion() 的值相同
+		compRepoVersion.setApiRepoVersionId(apiRepoVersionId);
+		// TODO: 确认 context.getComponentRepoLatestVersion() 的值与 componentJson.getVersion() 的值相同
 		compRepoVersion.setVersion(componentJson.getVersion().trim());
 		compRepoVersion.setCreateUserId(publishTask.getCreateUserId());
 		compRepoVersion.setCreateTime(LocalDateTime.now());
 		return componentRepoVersionDao.save(compRepoVersion);
 	}
 
-	private ComponentRepo saveComponentRepo() {
+	private ComponentRepo saveComponentRepo(Integer apiRepoId) {
 		ComponentRepo repo = new ComponentRepo();
+		repo.setApiRepoId(apiRepoId);
 		repo.setGitRepoUrl(publishTask.getGitUrl());
 		repo.setGitRepoWebsite(context.getLocalComponentRepoPath().getWebsite());
 		repo.setGitRepoOwner(context.getLocalComponentRepoPath().getOwner());

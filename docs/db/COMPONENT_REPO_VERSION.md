@@ -4,19 +4,19 @@
 
 ## 字段
 
-| 字段名            | 注释           | 类型     | 长度 | 默认值 | 主键 | 可空 |
-| ----------------- | -------------- | -------- | ---- | ------ | ---- | ---- |
-| dbid              | 主键           | int      |      |        | 是   | 否   |
-| component_repo_id | 组件仓库标识   | int      |      |        |      | 否   |
-| version           | 组件库的版本号 | varchar  | 32   |        |      | 否   |
-| api_version       | API 库的版本号 | varchar  | 32   |        |      | 否   |
-| create_user_id    | 创建人标识     | int      |      |        |      | 否   |
-| create_time       | 创建时间       | datetime |      |        |      | 否   |
+| 字段名              | 注释             | 类型     | 长度 | 默认值 | 主键 | 可空 |
+| ------------------- | ---------------- | -------- | ---- | ------ | ---- | ---- |
+| dbid                | 主键             | int      |      |        | 是   | 否   |
+| component_repo_id   | 组件仓库标识     | int      |      |        |      | 否   |
+| version             | 组件库的版本号   | varchar  | 32   |        |      | 否   |
+| api_repo_version_id | API 库的版本标识 | int      |      |        |      | 否   |
+| create_user_id      | 创建人标识       | int      |      |        |      | 否   |
+| create_time         | 创建时间         | datetime |      |        |      | 否   |
 
 ## 约束
 
 * 主键：`PK_COMPONENT_REPO_VERSION`
-* 外键：无
+* 外键：外键：(*未设置*)`FK_COMPONENT_REPO_VERSION_API_REPO_VERSION`，`api_repo_version_id` 对应 `API_REPO_VERSION` 的 `dbid`
 * 索引：`UK_COMPONENT_REPO_VERSION_ON_API_REPO_VERSION`，对应字段 `component_repo_id`、`version`
 
 ## 说明

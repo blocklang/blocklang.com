@@ -17,7 +17,7 @@
 			<column name="version" remarks="组件库的版本号" type="varchar(32)">
 				<constraints nullable="false" />
 			</column>
-			<column name="api_version" remarks="API 库的版本号" type="varchar(32)">
+			<column name="api_repo_version_id" remarks="API 库的版本标识" type="int">
 				<constraints nullable="false" />
 			</column>
 			<column name="create_user_id" remarks="创建人标识" type="int">

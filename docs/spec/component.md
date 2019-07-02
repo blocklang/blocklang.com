@@ -174,6 +174,7 @@ changelog 的 json 格式
 2. 部件的图标在 API 库中管理
 3. 此处的 `appType` 与页面的 `appType` 的值相同，一个部件可支持多个 `appType`，当前仅支持 `web`
 4. `events` 下的 `valueType` (与 `name` 属性并列)的值只能是 `function`，所以不需要用户设置；如果设置为 `function` 也不会报错
+5. changelog 文件的命名约定是，名称使用版本号，但要将版本中的点替换为下划线，如 `0_1_0.json`
 
 ### 组件项目
 
