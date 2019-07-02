@@ -1,17 +1,13 @@
 package com.blocklang.marketplace.task;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.jgit.lib.Ref;
 
-import com.blocklang.core.git.GitUtils;
-import com.blocklang.core.git.exception.GitTagFailedException;
 import com.blocklang.marketplace.constant.Language;
 import com.blocklang.marketplace.constant.RepoCategory;
 import com.blocklang.marketplace.dao.ApiRepoDao;
@@ -108,36 +104,33 @@ public class ApiChangeLogsSetupGroupTask extends AbstractRepoPublishTask {
 			savedApiRepoVersions = Collections.emptyList();
 			currentApiRepoVersionId = apiRepoVersionOption.get().getId();
 		} else {
-			List<String> apiVersions = new ArrayList<String>();
-			try {
-				List<Ref> tags = GitUtils.getTags(context.getLocalApiRepoPath().getRepoSourceDirectory());
-				for(Ref ref : tags) {
-					Optional<String> versionOption = GitUtils.getVersionFromRefName(ref.getName());
-					apiVersions.add(versionOption.get());
-				}
-			} catch (GitTagFailedException e) {
-				logger.error(e);
-			}
+			List<String> apiRepoVersions = context.getApiRepoVersions();
 			
 			List<ApiRepoVersion> setupedRepoVersions = apiRepoVersionDao.findAllByApiRepoId(savedApiRepo.getId());
 			// 删除已安装的版本
 			for(ApiRepoVersion apiRepoVersion : setupedRepoVersions) {
-				apiVersions.remove(apiRepoVersion.getVersion());
+				apiRepoVersions.remove(apiRepoVersion.getVersion());
 			}
 			// 删除比指定的版本号更大的版本
 			Version currentApiRepoVersion = Version.parseVersion(apiJson.getVersion());
-			apiVersions.removeIf(apiVersion -> {
+			apiRepoVersions.removeIf(apiVersion -> {
 				Version version = Version.parseVersion(apiVersion);
 				return version.isGreaterThan(currentApiRepoVersion);
 			});
 			Integer savedApiRepoId = savedApiRepo.getId();
-			savedApiRepoVersions = apiVersions
+			savedApiRepoVersions = apiRepoVersions
 					.stream()
 					.map(apiVersion -> this.saveApiRepoVersion(savedApiRepoId, apiVersion))
 					.collect(Collectors.toList());
 			
 			// 最后一个，必须是当前引用的 API 版本信息
-			currentApiRepoVersionId = savedApiRepoVersions.get(savedApiRepoVersions.size() - 1).getId();
+			if(savedApiRepoVersions.size() > 0) {
+				currentApiRepoVersionId = savedApiRepoVersions.get(savedApiRepoVersions.size() - 1).getId();
+			} else {
+				logger.error("");
+				success = false;
+			}
+			
 		}
 		
 		// 保存组件库基本信息和最新版本信息

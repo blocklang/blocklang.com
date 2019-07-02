@@ -31,6 +31,8 @@ public class MarketplacePublishContext {
 	
 	// tag name 是包含 ref/tags/ 的完整名
 	private String apiRepoTagName;
+	private List<String> allApiRepoTagNames; // tag 的名称
+	private List<String> apiRepoVersions; // version 是从 tag 名称中解析出来的
 	
 	// 组件库描述信息
 	// 组件库最新版本中 component.json 中的内容
@@ -124,6 +126,22 @@ public class MarketplacePublishContext {
 
 	public void setApiRepoTagName(String apiRepoTagName) {
 		this.apiRepoTagName = apiRepoTagName;
+	}
+
+	public List<String> getApiRepoVersions() {
+		return apiRepoVersions;
+	}
+
+	public void setApiRepoVersions(List<String> apiRepoVersions) {
+		this.apiRepoVersions = apiRepoVersions;
+	}
+
+	public List<String> getAllApiRepoTagNames() {
+		return allApiRepoTagNames;
+	}
+
+	public void setAllApiRepoTagNames(List<String> allApiRepoTagNames) {
+		this.allApiRepoTagNames = allApiRepoTagNames;
 	}
 
 }

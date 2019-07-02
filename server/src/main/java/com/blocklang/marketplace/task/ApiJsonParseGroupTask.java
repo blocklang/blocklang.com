@@ -3,8 +3,6 @@ package com.blocklang.marketplace.task;
 import java.io.IOException;
 import java.util.Optional;
 
-import org.eclipse.jgit.lib.Ref;
-
 import com.blocklang.marketplace.constant.MarketplaceConstant;
 import com.blocklang.marketplace.data.ApiJson;
 import com.blocklang.marketplace.data.ComponentJson;
@@ -39,19 +37,26 @@ public class ApiJsonParseGroupTask extends AbstractRepoPublishTask {
 			logger.error("失败");
 		}
 		
+		// 因为在后续保存 API 变更文件时，需要按照版本增量安装，所以这里获取 API 仓库的所有版本
+		if(success) {
+			logger.info("获取 API 仓库的所有版本号");
+			ApiRepoVersionsFindTask apiRepoVersionsFindTask = new ApiRepoVersionsFindTask(context);
+			success = apiRepoVersionsFindTask.run().isPresent();
+		}
+		
 		// 确认在 component.json 中指定的 api 仓库的版本号是否存在
 		String apiRepoRefName = null;
-		String apiRepoVersion = null;
 		if(success) {
 			// 确认在 API 仓库中是否存在指定的版本
-			apiRepoVersion = componentJson.getApi().getVersion().trim();
+			String apiRepoVersion = componentJson.getApi().getVersion().trim();
 			logger.info("检查 API 仓库中是否存在 {0} 发行版", apiRepoVersion);
 			
-			ApiRepoFindTagTask apiRepoFindTagTask = new ApiRepoFindTagTask(context, apiRepoVersion);
-			Optional<Ref> apiRepoTag = apiRepoFindTagTask.run();
-			success = apiRepoTag.isPresent();
+			Optional<String> tagNameOption = context.getAllApiRepoTagNames()
+					.stream().filter(tagName -> tagName.endsWith(apiRepoVersion))
+					.findFirst();
+			success = tagNameOption.isPresent();
 			if(success) {
-				apiRepoRefName = apiRepoTag.get().getName();
+				apiRepoRefName = tagNameOption.get();
 				context.setApiRepoTagName(apiRepoRefName);
 				logger.info("存在 {0} 发行版", apiRepoVersion);
 			} else {
