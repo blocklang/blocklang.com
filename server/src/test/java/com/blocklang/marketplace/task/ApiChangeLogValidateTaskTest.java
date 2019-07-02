@@ -3,6 +3,7 @@ package com.blocklang.marketplace.task;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,6 +23,8 @@ import com.blocklang.marketplace.data.changelog.WidgetEvent;
 import com.blocklang.marketplace.data.changelog.WidgetEventArgument;
 import com.blocklang.marketplace.data.changelog.WidgetProperty;
 import com.blocklang.marketplace.data.changelog.WidgetPropertyOption;
+import com.blocklang.marketplace.model.ComponentRepoPublishTask;
+import com.blocklang.release.constant.ReleaseResult;
 
 public class ApiChangeLogValidateTaskTest {
 	
@@ -33,7 +36,11 @@ public class ApiChangeLogValidateTaskTest {
 	@Before
 	public void setup() throws IOException {
 		String folder = temp.newFolder().getPath();
-		context = new MarketplacePublishContext(folder, "https://github.com/blocklang/blocklang.com.git");
+		ComponentRepoPublishTask publishTask = new ComponentRepoPublishTask();
+		publishTask.setGitUrl("https://github.com/blocklang/blocklang.com.git");
+		publishTask.setStartTime(LocalDateTime.now());
+		publishTask.setPublishResult(ReleaseResult.INITED);
+		context = new MarketplacePublishContext(folder, publishTask);
 	}
 
 	@Test

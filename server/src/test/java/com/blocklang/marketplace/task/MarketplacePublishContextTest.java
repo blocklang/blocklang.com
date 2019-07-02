@@ -9,15 +9,20 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.blocklang.marketplace.model.ComponentRepoPublishTask;
+
 public class MarketplacePublishContextTest {
 
 	private MarketplacePublishContext context;
 	
 	@Before
 	public void setUp() {
+		ComponentRepoPublishTask publishTask = new ComponentRepoPublishTask();
+		publishTask.setGitUrl("https://github.com/jack/app.git");
+		
 		context = new MarketplacePublishContext(
 				"c:/blocklang",
-				"https://github.com/jack/app.git");
+				publishTask);
 	}
 	
 	@Test

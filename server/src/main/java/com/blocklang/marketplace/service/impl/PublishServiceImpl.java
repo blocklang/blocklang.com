@@ -60,8 +60,7 @@ public class PublishServiceImpl implements PublishService {
 		StopWatch stopWatch = StopWatch.createStarted();
 
 		String dataRootPath = propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).get();
-		MarketplacePublishContext context = new MarketplacePublishContext(dataRootPath, publishTask.getGitUrl());
-		context.setPublishTask(publishTask);
+		MarketplacePublishContext context = new MarketplacePublishContext(dataRootPath, publishTask);
 		// 确保全程使用同一个 logger
 		Path logFile = context.getRepoPublishLogFile();
 		publishTask.setLogFileName(logFile.getFileName().toString());

@@ -40,9 +40,9 @@ public class MarketplacePublishContext {
 	// 按组件分组，并按照版本号正序排列的 changelog
 	private List<ComponentChangeLogs> changeLogs;
 	
-	public MarketplacePublishContext(String dataRootPath, String componentGitUrl) {
+	public MarketplacePublishContext(String dataRootPath, ComponentRepoPublishTask publishTask) {
 		this.dataRootPath = dataRootPath;
-		this.localComponentRepoPath = new LocalRepoPath(dataRootPath, componentGitUrl);
+		this.localComponentRepoPath = new LocalRepoPath(dataRootPath, publishTask.getGitUrl());
 	}
 	
 	public void parseApiGitUrl(String apiGitUrl) {
@@ -107,10 +107,6 @@ public class MarketplacePublishContext {
 
 	public ComponentRepoPublishTask getPublishTask() {
 		return publishTask;
-	}
-
-	public void setPublishTask(ComponentRepoPublishTask publishTask) {
-		this.publishTask = publishTask;
 	}
 
 	public boolean isFirstPublish() {
