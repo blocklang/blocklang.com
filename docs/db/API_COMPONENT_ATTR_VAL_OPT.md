@@ -9,7 +9,7 @@
 | code                  | 选项值编码         | char    | 4    |        |      | 否   |
 | value                 | 选项值             | varchar | 32   |        |      | 否   |
 | label                 | 选项值显示名       | varchar | 32   |        |      | 是   |
-| title                 | 选项值提示         | varchar | 32   |        |      | 是   |
+| description           | 选项值描述         | varchar | 512  |        |      | 是   |
 
 ## 约束
 

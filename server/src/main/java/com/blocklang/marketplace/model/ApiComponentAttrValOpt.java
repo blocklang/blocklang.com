@@ -29,8 +29,8 @@ public class ApiComponentAttrValOpt extends PartialIdField{
 	@Column(name = "label", length = 32)
 	private String label;
 	
-	@Column(name = "title", length = 32)
-	private String title;
+	@Column(name = "description", length = 512)
+	private String description;
 
 	public Integer getApiComponentAttrId() {
 		return apiComponentAttrId;
@@ -64,12 +64,12 @@ public class ApiComponentAttrValOpt extends PartialIdField{
 		this.label = label;
 	}
 
-	public String getTitle() {
-		return title;
+	public String getDescription() {
+		return description;
 	}
 
-	public void setTitle(String title) {
-		this.title = title;
+	public void setDescription(String description) {
+		this.description = description;
 	}
-	
+
 }

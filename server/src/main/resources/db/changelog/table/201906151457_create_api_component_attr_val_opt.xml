@@ -21,7 +21,7 @@
 				<constraints nullable="false" />
 			</column>
 			<column name="label" remarks="选项值显示名" type="varchar(32)" />
-			<column name="title" remarks="选项值提示" type="varchar(32)" />
+			<column name="description" remarks="选项值描述" type="varchar(512)" />
 		</createTable>
 
 		<addUniqueConstraint columnNames="api_component_attr_id,code"
