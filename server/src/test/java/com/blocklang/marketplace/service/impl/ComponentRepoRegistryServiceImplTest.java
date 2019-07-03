@@ -38,6 +38,7 @@ public class ComponentRepoRegistryServiceImplTest extends AbstractServiceTest{
 	@Test
 	public void find_all_by_name_or_label_query_is_empty_not_include_unpublished_repo() {
 		ComponentRepo registry = new ComponentRepo();
+		registry.setApiRepoId(1);
 		registry.setGitRepoUrl("url");
 		registry.setGitRepoWebsite("website");
 		registry.setGitRepoOwner("jack");
@@ -61,6 +62,7 @@ public class ComponentRepoRegistryServiceImplTest extends AbstractServiceTest{
 	@Test
 	public void find_all_by_name_or_label_query_is_not_empty_not_include_unpublished_repo() {
 		ComponentRepo registry = new ComponentRepo();
+		registry.setApiRepoId(1);
 		registry.setGitRepoUrl("url");
 		registry.setGitRepoWebsite("website");
 		registry.setGitRepoOwner("jack");
@@ -84,6 +86,7 @@ public class ComponentRepoRegistryServiceImplTest extends AbstractServiceTest{
 	@Test
 	public void find_all_by_name_or_label_label_is_not_empty_not_include_unpublished_repo() {
 		ComponentRepo registry = new ComponentRepo();
+		registry.setApiRepoId(1);
 		registry.setGitRepoUrl("url");
 		registry.setGitRepoWebsite("website");
 		registry.setGitRepoOwner("jack");
@@ -108,6 +111,7 @@ public class ComponentRepoRegistryServiceImplTest extends AbstractServiceTest{
 	@Test
 	public void find_all_by_name_or_label_query_is_empty_include_published_repo() {
 		ComponentRepo registry = new ComponentRepo();
+		registry.setApiRepoId(1);
 		registry.setGitRepoUrl("url");
 		registry.setGitRepoWebsite("website");
 		registry.setGitRepoOwner("jack");
@@ -132,6 +136,7 @@ public class ComponentRepoRegistryServiceImplTest extends AbstractServiceTest{
 	@Test
 	public void find_all_by_name_or_label_match_name_include_published_repo() {
 		ComponentRepo registry = new ComponentRepo();
+		registry.setApiRepoId(1);
 		registry.setGitRepoUrl("url");
 		registry.setGitRepoWebsite("website");
 		registry.setGitRepoOwner("jack");
@@ -156,6 +161,7 @@ public class ComponentRepoRegistryServiceImplTest extends AbstractServiceTest{
 	@Test
 	public void find_all_by_name_or_label_match_name_ignore_case_include_published_repo() {
 		ComponentRepo registry = new ComponentRepo();
+		registry.setApiRepoId(1);
 		registry.setGitRepoUrl("url");
 		registry.setGitRepoWebsite("website");
 		registry.setGitRepoOwner("jack");
@@ -180,6 +186,7 @@ public class ComponentRepoRegistryServiceImplTest extends AbstractServiceTest{
 	@Test
 	public void find_all_by_name_or_label_match_label_include_published_repo() {
 		ComponentRepo registry = new ComponentRepo();
+		registry.setApiRepoId(1);
 		registry.setGitRepoUrl("url");
 		registry.setGitRepoWebsite("website");
 		registry.setGitRepoOwner("jack");
@@ -205,6 +212,7 @@ public class ComponentRepoRegistryServiceImplTest extends AbstractServiceTest{
 	@Test
 	public void find_all_by_name_or_label_match_label_ignore_case_include_published_repo() {
 		ComponentRepo registry = new ComponentRepo();
+		registry.setApiRepoId(1);
 		registry.setGitRepoUrl("url");
 		registry.setGitRepoWebsite("website");
 		registry.setGitRepoOwner("jack");
@@ -230,6 +238,7 @@ public class ComponentRepoRegistryServiceImplTest extends AbstractServiceTest{
 	@Test
 	public void find_all_by_name_or_label_match_name_like() {
 		ComponentRepo registry = new ComponentRepo();
+		registry.setApiRepoId(1);
 		registry.setGitRepoUrl("url");
 		registry.setGitRepoWebsite("website");
 		registry.setGitRepoOwner("jack");
@@ -254,6 +263,7 @@ public class ComponentRepoRegistryServiceImplTest extends AbstractServiceTest{
 	@Test
 	public void find_all_by_name_or_label_order_by_last_publish_time_desc() {
 		ComponentRepo registry = new ComponentRepo();
+		registry.setApiRepoId(1);
 		registry.setGitRepoUrl("url");
 		registry.setGitRepoWebsite("website");
 		registry.setGitRepoOwner("jack");
@@ -268,6 +278,7 @@ public class ComponentRepoRegistryServiceImplTest extends AbstractServiceTest{
 		componentRepoRegistryDao.save(registry);
 		
 		registry = new ComponentRepo();
+		registry.setApiRepoId(1);
 		registry.setGitRepoUrl("url1");
 		registry.setGitRepoWebsite("website1");
 		registry.setGitRepoOwner("jack1");

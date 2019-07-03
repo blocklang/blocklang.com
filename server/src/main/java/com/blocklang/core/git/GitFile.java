@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.jgit.api.Git;
@@ -121,6 +122,8 @@ public class GitFile {
 					} catch (GitAPIException e) {
 						logger.error(e.getMessage(), e);
 					}
+				} catch (GitFileNotFoundException e) {
+					logger.error(e.getMessage(), e);
 				}
 			}
 		} catch (IOException e) {
@@ -140,10 +143,9 @@ public class GitFile {
 
 	public List<GitFileInfo> getAllFilesFromTag(String refName, String pathSuffix) {
 		Assert.hasText(refName, "tag 的值不能为空");
-		List<GitFileInfo> files = new ArrayList<GitFileInfo>();
 		File gitDir = gitRepoPath.resolve(Constants.DOT_GIT).toFile();
 		if(!gitDir.exists()) {
-			return files;
+			return Collections.emptyList();
 		}
 		
 		try(Repository repository = FileRepositoryBuilder.create(gitDir);
@@ -151,9 +153,14 @@ public class GitFile {
 				RevWalk walk = new RevWalk(repository)){
 			
 			Ref tag = repository.exactRef(refName);
+			if(tag == null) {
+				return Collections.emptyList();
+			}
 			ObjectId objectId = tag.getObjectId();
 			RevCommit commit = walk.parseCommit(objectId);
 			RevTree tree = commit.getTree();
+			
+			List<GitFileInfo> files = new ArrayList<GitFileInfo>();
 			
 			try(TreeWalk treeWalk = new TreeWalk(repository)) {
 				treeWalk.addTree(tree);
@@ -169,11 +176,12 @@ public class GitFile {
 
 					files.add(fileInfo);
 				}
-			} 
+			}
+			return files;
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
 		}
-		return files;
+		return Collections.emptyList();
 	}
 
 }
