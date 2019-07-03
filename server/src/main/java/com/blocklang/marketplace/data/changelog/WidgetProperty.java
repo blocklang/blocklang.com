@@ -6,7 +6,7 @@ public class WidgetProperty {
 
 	private String name;
 	private String label;
-	private String value;
+	private String defaultValue;
 	private String valueType;
 	private String description;
 	private List<WidgetPropertyOption> options;
@@ -27,12 +27,12 @@ public class WidgetProperty {
 		this.label = label;
 	}
 
-	public String getValue() {
-		return value;
+	public String getDefaultValue() {
+		return defaultValue;
 	}
 
-	public void setValue(String value) {
-		this.value = value;
+	public void setDefaultValue(String defaultValue) {
+		this.defaultValue = defaultValue;
 	}
 
 	public String getValueType() {

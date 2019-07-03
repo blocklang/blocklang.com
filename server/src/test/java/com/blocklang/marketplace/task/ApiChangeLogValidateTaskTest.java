@@ -518,7 +518,7 @@ public class ApiChangeLogValidateTaskTest {
 	}
 	
 	@Test
-	public void run_changes_new_widget_properties_value_should_be_string() {
+	public void run_changes_new_widget_properties_default_value_should_be_string() {
 		Map<String, Object> changelogMap = new HashMap<String, Object>();
 		changelogMap.put("id", "1");
 		changelogMap.put("author", "2");
@@ -536,7 +536,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> propertyMap = new HashMap<String, Object>();
 		propertyMap.put("name", "a");
 		propertyMap.put("label", "b");
-		propertyMap.put("value", 1);
+		propertyMap.put("defaultValue", 1);
 		propertyMap.put("valueType", "string");
 		propertyMap.put("options", Collections.emptyList());
 		properties.add(propertyMap);
@@ -669,7 +669,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> propertyMap = new HashMap<String, Object>();
 		propertyMap.put("name", "a");
 		propertyMap.put("label", "b");
-		propertyMap.put("value", "c");
+		propertyMap.put("defaultValue", "c");
 		propertyMap.put("valueType", "string");
 		properties.add(propertyMap);
 		newWidget.put("properties", properties);
@@ -859,48 +859,6 @@ public class ApiChangeLogValidateTaskTest {
 		optionMap.put("value", "a");
 		optionMap.put("label", "b");
 		optionMap.put("description", 1);
-		options.add(optionMap);
-		propertyMap.put("options", options);
-		properties.add(propertyMap);
-		newWidget.put("properties", properties);
-		newWidget.put("events", Collections.emptyList());
-		change1.put("newWidget", newWidget);
-		changes.add(change1);
-		changelogMap.put("changes", changes);
-		
-		ApiChangeLogValidateTask task = new ApiChangeLogValidateTask(context, changelogMap);
-		assertThat(task.run()).isEmpty();
-	}
-	
-	// value description 在界面上可作为 dom 节点的 title 显示
-	@Test
-	public void run_changes_new_widget_properties_options_value_description_should_be_string() {
-		Map<String, Object> changelogMap = new HashMap<String, Object>();
-		changelogMap.put("id", "1");
-		changelogMap.put("author", "2");
-		
-		List<Map<String, Object>> changes = new ArrayList<Map<String,Object>>();
-		Map<String, Object> change1 = new HashMap<String, Object>();
-		
-		Map<String, Object> newWidget = new HashMap<String, Object>();
-		newWidget.put("name", "a");
-		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
-		
-		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
-		Map<String, Object> propertyMap = new HashMap<String, Object>();
-		propertyMap.put("name", "a");
-		propertyMap.put("label", "b");
-		propertyMap.put("value", "c");
-		propertyMap.put("valueType", "string");
-		
-		List<Map<String, Object>> options = new ArrayList<Map<String,Object>>();
-		Map<String, Object> optionMap = new HashMap<String, Object>();
-		optionMap.put("value", "a");
-		optionMap.put("label", "b");
-		optionMap.put("description", "c");
-		optionMap.put("valueDescription", 1);
 		options.add(optionMap);
 		propertyMap.put("options", options);
 		properties.add(propertyMap);
@@ -1346,7 +1304,7 @@ public class ApiChangeLogValidateTaskTest {
 	}
 	
 	@Test
-	public void run_changes_new_widget_events_arguments_value_should_be_string() {
+	public void run_changes_new_widget_events_arguments_default_value_should_be_string() {
 		Map<String, Object> changelogMap = new HashMap<String, Object>();
 		changelogMap.put("id", "1");
 		changelogMap.put("author", "2");
@@ -1371,7 +1329,8 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> argumentMap = new HashMap<String, Object>();
 		argumentMap.put("name", "a");
 		argumentMap.put("label", "b");
-		argumentMap.put("value", 1);
+		argumentMap.put("defaultValue", 1);
+		argumentMap.put("valueType", "string");
 		arguments.add(argumentMap);
 		eventMap.put("arguments", arguments);
 		events.add(eventMap);
@@ -1528,7 +1487,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> propertyMap = new HashMap<String, Object>();
 		propertyMap.put("name", "widget_prop_name");
 		propertyMap.put("label", "widget_prop_label");
-		propertyMap.put("value", "widget_prop_value");
+		propertyMap.put("defaultValue", "widget_prop_default_value");
 		propertyMap.put("description", "widget_prop_description");
 		propertyMap.put("valueType", "string");
 		
@@ -1552,7 +1511,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> argumentMap = new HashMap<String, Object>();
 		argumentMap.put("name", "widget_event_argument_name");
 		argumentMap.put("label", "widget_event_argument_label");
-		argumentMap.put("value", "widget_event_argument_value");
+		argumentMap.put("defaultValue", "widget_event_argument_default_value");
 		argumentMap.put("valueType", "string");
 		argumentMap.put("description", "widget_event_argument_description");
 		arguments.add(argumentMap);
@@ -1586,7 +1545,7 @@ public class ApiChangeLogValidateTaskTest {
 		WidgetProperty property = newWidgetChange.getProperties().get(0);
 		assertThat(property.getName()).isEqualTo("widget_prop_name");
 		assertThat(property.getLabel()).isEqualTo("widget_prop_label");
-		assertThat(property.getValue()).isEqualTo("widget_prop_value");
+		assertThat(property.getDefaultValue()).isEqualTo("widget_prop_default_value");
 		assertThat(property.getDescription()).isEqualTo("widget_prop_description");
 		assertThat(property.getValueType()).isEqualTo("string");
 		assertThat(property.getOptions()).hasSize(1);
@@ -1607,7 +1566,7 @@ public class ApiChangeLogValidateTaskTest {
 		WidgetEventArgument eventArgument = event.getArguments().get(0);
 		assertThat(eventArgument.getName()).isEqualTo("widget_event_argument_name");
 		assertThat(eventArgument.getLabel()).isEqualTo("widget_event_argument_label");
-		assertThat(eventArgument.getValue()).isEqualTo("widget_event_argument_value");
+		assertThat(eventArgument.getDefaultValue()).isEqualTo("widget_event_argument_default_value");
 		assertThat(eventArgument.getValueType()).isEqualTo("string");
 		assertThat(eventArgument.getDescription()).isEqualTo("widget_event_argument_description");
 	}

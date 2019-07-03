@@ -30,10 +30,10 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 	private List<String> childKeysForRoot = Arrays.asList("id", "author", "changes");
 	private List<String> operators = Arrays.asList("newWidget");
 	private List<String> newWidgetKeys = Arrays.asList("name", "label", "description", "iconClass", "appType", "properties", "events");
-	private List<String> widgetPropertyKeys = Arrays.asList("name", "label", "value", "valueType", "description", "options");
+	private List<String> widgetPropertyKeys = Arrays.asList("name", "label", "defaultValue", "valueType", "description", "options");
 	private List<String> widgetEventKeys = Arrays.asList("name", "label", "valueType", "description", "arguments");
 	private List<String> widgetPropertyOptionKeys = Arrays.asList("value", "label", "description", "iconClass");
-	private List<String> widgetEventArgumentKeys = Arrays.asList("name", "label", "value", "valueType", "description");
+	private List<String> widgetEventArgumentKeys = Arrays.asList("name", "label", "defaultValue", "valueType", "description");
 	/**
 	 * @see AppType
 	 */
@@ -267,10 +267,10 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 										logger.error("label 的值必须是字符串类型");
 										hasErrors = true;
 									}
-									// value
-									Object propValueObj = propertyMap.get("value");
-									if(propValueObj != null && !String.class.isAssignableFrom(propValueObj.getClass())) {
-										logger.error("value 的值必须是字符串类型");
+									// default value
+									Object propDefaultValueObj = propertyMap.get("defaultValue");
+									if(propDefaultValueObj != null && !String.class.isAssignableFrom(propDefaultValueObj.getClass())) {
+										logger.error("defaultValue 的值必须是字符串类型");
 										hasErrors = true;
 									}
 									// valueType
@@ -451,10 +451,10 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 															hasErrors = true;
 														}
 														
-														// value
-														Object eventArgumentValueObj = eventArgumentMap.get("value");
-														if(eventArgumentValueObj != null && !String.class.isAssignableFrom(eventArgumentValueObj.getClass())) {
-															logger.error("value 的值必须是字符串类型");
+														// default value
+														Object eventArgumentDefaultValueObj = eventArgumentMap.get("defaultValue");
+														if(eventArgumentDefaultValueObj != null && !String.class.isAssignableFrom(eventArgumentDefaultValueObj.getClass())) {
+															logger.error("defaultValue 的值必须是字符串类型");
 															hasErrors = true;
 														}
 														// valueType
@@ -538,9 +538,9 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 						widgetProperty.setName(propertyMap.get("name").toString());
 						widgetProperty.setLabel(propertyMap.get("label").toString());
 						
-						Object propertyValue = propertyMap.get("value");
-						if(propertyValue != null) {
-							widgetProperty.setValue(propertyValue.toString());
+						Object propertyDefaultValue = propertyMap.get("defaultValue");
+						if(propertyDefaultValue != null) {
+							widgetProperty.setDefaultValue(propertyDefaultValue.toString());
 						}
 						
 						widgetProperty.setValueType(propertyMap.get("valueType").toString());
@@ -608,7 +608,12 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 								WidgetEventArgument argument = new WidgetEventArgument();
 								argument.setName(argumentMap.get("name").toString());
 								argument.setLabel(argumentMap.get("label").toString());
-								argument.setValue(argumentMap.get("value").toString());
+								
+								Object argumentDefaultValueObj = argumentMap.get("defaultValue");
+								if(argumentDefaultValueObj != null) {
+									argument.setDefaultValue(argumentDefaultValueObj.toString());
+								}
+								
 								argument.setValueType(argumentMap.get("valueType").toString());
 								
 								Object argumentDescriptionObj = argumentMap.get("description");

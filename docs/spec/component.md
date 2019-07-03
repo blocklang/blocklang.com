@@ -143,7 +143,7 @@ changelog 的 json 格式
                 "properties": [{
                     "name": "属性名",
                     "label": "属性显示名",
-                    "value": "属性默认值",
+                    "defaultValue": "属性默认值",
                     "valueType": "string | number | boolean",
                     "description": "属性详细说明",
                     "options": [{
@@ -162,7 +162,7 @@ changelog 的 json 格式
                     "arguments": [{
                         "name": "参数名",
                         "label": "显示名",
-                        "value": "默认值",
+                        "defaultValue": "默认值",
                         "valueType": "string | number | boolean",
                         "description": "事件输入参数的详细说明"
                     }]
