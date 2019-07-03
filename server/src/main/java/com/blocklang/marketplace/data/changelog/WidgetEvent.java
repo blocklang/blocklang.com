@@ -7,6 +7,7 @@ public class WidgetEvent {
 	private String name;
 	private String label;
 	private String valueType;
+	private String description;
 	private List<WidgetEventArgument> arguments;
 
 	public String getName() {
@@ -31,6 +32,14 @@ public class WidgetEvent {
 
 	public void setValueType(String valueType) {
 		this.valueType = valueType;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	public List<WidgetEventArgument> getArguments() {

@@ -137,6 +137,7 @@ changelog 的 json 格式
             "newWidget": {
                 "name": "部件名称，一个项目中要唯一",
                 "label": "部件显示名",
+                "description": "部件详细说明",
                 "iconClass": "部件图标",
                 "appType": ["web"],
                 "properties": [{
@@ -144,10 +145,12 @@ changelog 的 json 格式
                     "label": "属性显示名",
                     "value": "属性默认值",
                     "valueType": "string | number | boolean",
+                    "description": "属性详细说明",
                     "options": [{
                         "value": "选项值",
                         "label": "显示名",
-                        "title": "",
+                        "description": "选项的详细说明",
+                        "valueDescription": "选项值的详细说明",
                         "iconClass": ""
                     }]
                 }],
@@ -155,11 +158,13 @@ changelog 的 json 格式
                     "name": "onClick",
                     "label": "单击事件",
                     "valueType": "function",
+                    "description": "事件详细说明",
                     "arguments": [{
                         "name": "参数名",
                         "label": "显示名",
                         "value": "默认值",
-                        "valueType": "string | number | boolean"
+                        "valueType": "string | number | boolean",
+                        "description": "事件输入参数的详细说明"
                     }]
                 }]
             }

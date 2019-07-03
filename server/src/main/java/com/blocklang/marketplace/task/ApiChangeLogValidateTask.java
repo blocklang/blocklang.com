@@ -29,11 +29,11 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 	private Map<?,?> changelogMap;
 	private List<String> childKeysForRoot = Arrays.asList("id", "author", "changes");
 	private List<String> operators = Arrays.asList("newWidget");
-	private List<String> newWidgetKeys = Arrays.asList("name", "label", "iconClass", "appType", "properties", "events");
-	private List<String> widgetPropertyKeys = Arrays.asList("name", "label", "value", "valueType", "options");
-	private List<String> widgetEventKeys = Arrays.asList("name", "label", "valueType", "arguments");
-	private List<String> widgetPropertyOptionKeys = Arrays.asList("value", "label", "title", "iconClass");
-	private List<String> widgetEventArgumentKeys = Arrays.asList("name", "label", "value", "valueType");
+	private List<String> newWidgetKeys = Arrays.asList("name", "label", "description", "iconClass", "appType", "properties", "events");
+	private List<String> widgetPropertyKeys = Arrays.asList("name", "label", "value", "valueType", "description", "options");
+	private List<String> widgetEventKeys = Arrays.asList("name", "label", "valueType", "description", "arguments");
+	private List<String> widgetPropertyOptionKeys = Arrays.asList("value", "label", "description", "valueDescription", "iconClass");
+	private List<String> widgetEventArgumentKeys = Arrays.asList("name", "label", "value", "valueType", "description");
 	/**
 	 * @see AppType
 	 */
@@ -200,6 +200,13 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 					hasErrors = true;
 				}
 				
+				// description
+				Object descriptionObj = newWidgetMap.get("description");
+				if(descriptionObj != null && !String.class.isAssignableFrom(descriptionObj.getClass())) {
+					logger.error("description 的值必须是字符串类型");
+					hasErrors = true;
+				}
+				
 				// iconClass
 				Object iconClassObj = newWidgetMap.get("iconClass");
 				if(iconClassObj != null && !String.class.isAssignableFrom(iconClassObj.getClass())) {
@@ -277,6 +284,12 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 											hasErrors = true;
 										}
 									}
+									// description
+									Object propDescriptionObj = propertyMap.get("description");
+									if(propDescriptionObj != null && !String.class.isAssignableFrom(propDescriptionObj.getClass())) {
+										logger.error("description 的值必须是字符串类型");
+										hasErrors = true;
+									}
 									// options(不是必填项)
 									Object propOptionsObj = propertyMap.get("options");
 									if(propOptionsObj != null) {
@@ -310,10 +323,16 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 														logger.error("label 的值不能为空，且必须是字符串类型");
 														hasErrors = true;
 													}
-													// title
-													Object propOptionTitleObj = propOptionMap.get("title");
-													if(propOptionTitleObj != null && !String.class.isAssignableFrom(propOptionTitleObj.getClass())) {
-														logger.error("title 的值必须是字符串类型");
+													// description
+													Object propOptionDescriptionObj = propOptionMap.get("description");
+													if(propOptionDescriptionObj != null && !String.class.isAssignableFrom(propOptionDescriptionObj.getClass())) {
+														logger.error("description 的值必须是字符串类型");
+														hasErrors = true;
+													}
+													// value description
+													Object propOptionValueDescriptionObj = propOptionMap.get("valueDescription");
+													if(propOptionValueDescriptionObj != null && !String.class.isAssignableFrom(propOptionValueDescriptionObj.getClass())) {
+														logger.error("valueDescription 的值必须是字符串类型");
 														hasErrors = true;
 													}
 													// iconClass
@@ -386,6 +405,12 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 											}
 										}
 									}
+									// description
+									Object eventDescriptionObj = eventMap.get("description");
+									if(eventDescriptionObj != null && !String.class.isAssignableFrom(eventDescriptionObj.getClass())) {
+										logger.error("description 的值必须是字符串类型");
+										hasErrors = true;
+									}
 									// arguments
 									Object eventArgumentsObj = eventMap.get("arguments");
 									if(eventArgumentsObj != null) {
@@ -443,6 +468,13 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 																hasErrors = true;
 															}
 														}
+														
+														// description
+														Object eventArgumentDescriptionObj = eventArgumentMap.get("description");
+														if(eventArgumentDescriptionObj != null && !String.class.isAssignableFrom(eventArgumentDescriptionObj.getClass())) {
+															logger.error("description 的值必须是字符串类型");
+															hasErrors = true;
+														}
 													}
 												}
 												
@@ -485,9 +517,14 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 				newWidgetChange.setName(newWidgetMap.getOrDefault("name", "").toString());
 				newWidgetChange.setLabel(newWidgetMap.getOrDefault("label", "").toString());
 				
+				Object widgetDescription = newWidgetMap.get("description");
+				if(widgetDescription != null) {
+					newWidgetChange.setDescription(widgetDescription.toString());
+				}
+				
 				Object iconClassObj = newWidgetMap.get("iconClass");
 				if(iconClassObj != null) {
-					newWidgetChange.setIconClass(newWidgetMap.get("iconClass").toString());
+					newWidgetChange.setIconClass(iconClassObj.toString());
 				}
 				
 				newWidgetChange.setAppType((List<String>) newWidgetMap.get("appType"));
@@ -503,10 +540,15 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 						
 						Object propertyValue = propertyMap.get("value");
 						if(propertyValue != null) {
-							widgetProperty.setValue(propertyMap.get("value").toString());
+							widgetProperty.setValue(propertyValue.toString());
 						}
 						
 						widgetProperty.setValueType(propertyMap.get("valueType").toString());
+						
+						Object propertyDescription = propertyMap.get("description");
+						if(propertyDescription != null) {
+							widgetProperty.setDescription(propertyDescription.toString());
+						}
 						
 						List<WidgetPropertyOption> options = new ArrayList<WidgetPropertyOption>();
 						Object optionObj = propertyMap.get("options");
@@ -516,14 +558,22 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 								WidgetPropertyOption option = new WidgetPropertyOption();
 								option.setValue(optionMap.get("value").toString());
 								option.setLabel(optionMap.get("label").toString());
-								Object titleObj = optionMap.get("title");
-								if(titleObj != null) {
-									option.setTitle(titleObj.toString());
+								
+								Object descriptionObj = optionMap.get("description");
+								if(descriptionObj != null) {
+									option.setDescription(descriptionObj.toString());
 								}
+								
+								Object valueDescriptionObj = optionMap.get("valueDescription");
+								if(valueDescriptionObj != null) {
+									option.setValueDescription(valueDescriptionObj.toString());
+								}
+								
 								Object optionIconClassObj = optionMap.get("iconClass");
 								if(optionIconClassObj != null) {
 									option.setIconClass(optionIconClassObj.toString());
 								}
+								
 								options.add(option);
 							}
 						}
@@ -542,11 +592,17 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 						WidgetEvent widgetEvent = new WidgetEvent();
 						widgetEvent.setName(eventMap.get("name").toString());
 						widgetEvent.setLabel(eventMap.get("label").toString());
+						
 						Object valueTypeObj = eventMap.get("valueType");
 						if(valueTypeObj == null) {
 							widgetEvent.setValueType("function");
 						}else {
 							widgetEvent.setValueType(valueTypeObj.toString());
+						}
+						
+						Object descriptionObj = eventMap.get("description");
+						if(descriptionObj != null) {
+							widgetEvent.setDescription(descriptionObj.toString());
 						}
 						
 						List<WidgetEventArgument> arguments = new ArrayList<WidgetEventArgument>();
@@ -559,6 +615,12 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 								argument.setLabel(argumentMap.get("label").toString());
 								argument.setValue(argumentMap.get("value").toString());
 								argument.setValueType(argumentMap.get("valueType").toString());
+								
+								Object argumentDescriptionObj = argumentMap.get("description");
+								if(argumentDescriptionObj != null) {
+									argument.setDescription(argumentDescriptionObj.toString());
+								}
+								
 								arguments.add(argument);
 							}
 						}

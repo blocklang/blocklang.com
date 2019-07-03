@@ -6,6 +6,7 @@ public class NewWidgetChange implements Change {
 
 	private String name;
 	private String label;
+	private String description;
 	private String iconClass;
 	private List<String> appType;
 	private List<WidgetProperty> properties;
@@ -25,6 +26,14 @@ public class NewWidgetChange implements Change {
 
 	public void setLabel(String label) {
 		this.label = label;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	public String getIconClass() {

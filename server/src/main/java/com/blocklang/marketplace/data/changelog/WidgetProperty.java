@@ -8,6 +8,7 @@ public class WidgetProperty {
 	private String label;
 	private String value;
 	private String valueType;
+	private String description;
 	private List<WidgetPropertyOption> options;
 
 	public String getName() {
@@ -40,6 +41,14 @@ public class WidgetProperty {
 
 	public void setValueType(String valueType) {
 		this.valueType = valueType;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	public List<WidgetPropertyOption> getOptions() {

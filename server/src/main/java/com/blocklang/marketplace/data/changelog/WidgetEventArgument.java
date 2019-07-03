@@ -6,6 +6,7 @@ public class WidgetEventArgument {
 	private String label;
 	private String value;
 	private String valueType;
+	private String description;
 
 	public String getName() {
 		return name;
@@ -37,6 +38,14 @@ public class WidgetEventArgument {
 
 	public void setValueType(String valueType) {
 		this.valueType = valueType;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 }
