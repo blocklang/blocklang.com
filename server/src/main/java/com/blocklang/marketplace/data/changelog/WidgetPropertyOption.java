@@ -5,7 +5,6 @@ public class WidgetPropertyOption {
 	private String value;
 	private String label;
 	private String description;
-	private String valueDescription;
 	private String iconClass;
 
 	public String getValue() {
@@ -30,14 +29,6 @@ public class WidgetPropertyOption {
 
 	public void setDescription(String description) {
 		this.description = description;
-	}
-
-	public String getValueDescription() {
-		return valueDescription;
-	}
-
-	public void setValueDescription(String valueDescription) {
-		this.valueDescription = valueDescription;
 	}
 
 	public String getIconClass() {

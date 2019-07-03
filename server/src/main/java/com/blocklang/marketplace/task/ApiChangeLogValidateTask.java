@@ -32,7 +32,7 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 	private List<String> newWidgetKeys = Arrays.asList("name", "label", "description", "iconClass", "appType", "properties", "events");
 	private List<String> widgetPropertyKeys = Arrays.asList("name", "label", "value", "valueType", "description", "options");
 	private List<String> widgetEventKeys = Arrays.asList("name", "label", "valueType", "description", "arguments");
-	private List<String> widgetPropertyOptionKeys = Arrays.asList("value", "label", "description", "valueDescription", "iconClass");
+	private List<String> widgetPropertyOptionKeys = Arrays.asList("value", "label", "description", "iconClass");
 	private List<String> widgetEventArgumentKeys = Arrays.asList("name", "label", "value", "valueType", "description");
 	/**
 	 * @see AppType
@@ -562,11 +562,6 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 								Object descriptionObj = optionMap.get("description");
 								if(descriptionObj != null) {
 									option.setDescription(descriptionObj.toString());
-								}
-								
-								Object valueDescriptionObj = optionMap.get("valueDescription");
-								if(valueDescriptionObj != null) {
-									option.setValueDescription(valueDescriptionObj.toString());
 								}
 								
 								Object optionIconClassObj = optionMap.get("iconClass");

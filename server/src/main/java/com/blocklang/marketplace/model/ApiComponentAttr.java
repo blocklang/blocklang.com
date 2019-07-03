@@ -22,7 +22,7 @@ public class ApiComponentAttr extends PartialIdField{
 	private static final long serialVersionUID = -6776355043794409062L;
 
 	@Column(name = "api_component_id", nullable = false)
-	private String apiComponentId;
+	private Integer apiComponentId;
 	
 	@Column(name = "code", nullable = false, length = 4)
 	private String code;
@@ -39,18 +39,15 @@ public class ApiComponentAttr extends PartialIdField{
 	@Convert(converter = ComponentAttrValueTypeConverter.class)
 	@Column(name = "value_type", nullable = false, length = 32)
 	private ComponentAttrValueType valueType;
-	
-	@Column(name = "value_description", length = 64)
-	private String valueDescription;
-	
+
 	@Column(name = "default_value", length = 32)
 	private String defaultValue;
 
-	public String getApiComponentId() {
+	public Integer getApiComponentId() {
 		return apiComponentId;
 	}
 
-	public void setApiComponentId(String apiComponentId) {
+	public void setApiComponentId(Integer apiComponentId) {
 		this.apiComponentId = apiComponentId;
 	}
 
@@ -92,14 +89,6 @@ public class ApiComponentAttr extends PartialIdField{
 
 	public void setValueType(ComponentAttrValueType valueType) {
 		this.valueType = valueType;
-	}
-
-	public String getValueDescription() {
-		return valueDescription;
-	}
-
-	public void setValueDescription(String valueDescription) {
-		this.valueDescription = valueDescription;
 	}
 
 	public String getDefaultValue() {

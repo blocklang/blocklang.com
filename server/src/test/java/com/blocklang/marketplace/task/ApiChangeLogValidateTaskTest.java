@@ -1537,7 +1537,6 @@ public class ApiChangeLogValidateTaskTest {
 		optionMap.put("value", "widget_prop_option_value");
 		optionMap.put("label", "widget_prop_option_label");
 		optionMap.put("description", "widget_prop_option_description");
-		optionMap.put("valueDescription", "widget_prop_option_value_description");
 		optionMap.put("iconClass", "widget_prop_option_iconClass");
 		options.add(optionMap);
 		propertyMap.put("options", options);
@@ -1596,7 +1595,6 @@ public class ApiChangeLogValidateTaskTest {
 		assertThat(propertyOption.getValue()).isEqualTo("widget_prop_option_value");
 		assertThat(propertyOption.getLabel()).isEqualTo("widget_prop_option_label");
 		assertThat(propertyOption.getDescription()).isEqualTo("widget_prop_option_description");
-		assertThat(propertyOption.getValueDescription()).isEqualTo("widget_prop_option_value_description");
 		assertThat(propertyOption.getIconClass()).isEqualTo("widget_prop_option_iconClass");
 		
 		WidgetEvent event = newWidgetChange.getEvents().get(0);

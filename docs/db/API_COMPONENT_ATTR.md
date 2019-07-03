@@ -2,17 +2,16 @@
 
 ## 字段
 
-| 字段名            | 注释           | 类型    | 长度 | 默认值 | 主键 | 可空 |
-| ----------------- | -------------- | ------- | ---- | ------ | ---- | ---- |
-| dbid              | 主键           | int     |      |        | 是   | 否   |
-| api_component_id  | API 组件标识   | int     |      |        |      | 否   |
-| code              | 属性的编码     | char    | 4    |        |      | 否   |
-| name              | 属性的名称     | varchar | 64   |        |      | 否   |
-| label             | 属性的显示名   | varchar | 64   |        |      | 是   |
-| description       | 属性的详细说明 | varchar | 512  |        |      | 是   |
-| value_type        | 属性的值类型   | varchar | 32   |        |      | 否   |
-| value_description | 属性的值描述   | varchar | 64   |        |      | 是   |
-| default_value     | 默认值         | varchar | 32   |        |      | 是   |
+| 字段名           | 注释           | 类型    | 长度 | 默认值 | 主键 | 可空 |
+| ---------------- | -------------- | ------- | ---- | ------ | ---- | ---- |
+| dbid             | 主键           | int     |      |        | 是   | 否   |
+| api_component_id | API 组件标识   | int     |      |        |      | 否   |
+| code             | 属性的编码     | char    | 4    |        |      | 否   |
+| name             | 属性的名称     | varchar | 64   |        |      | 否   |
+| label            | 属性的显示名   | varchar | 64   |        |      | 是   |
+| description      | 属性的详细说明 | varchar | 512  |        |      | 是   |
+| value_type       | 属性的值类型   | varchar | 32   |        |      | 否   |
+| default_value    | 默认值         | varchar | 32   |        |      | 是   |
 
 ## 约束
 
