@@ -24,7 +24,7 @@
 			<column name="value_type" remarks="参数的值类型" type="varchar(32)" >
 				<constraints nullable="false" />
 			</column>
-			<column name="defaultValue" remarks="参数的默认值" type="varchar(32)" />
+			<column name="default_value" remarks="参数的默认值" type="varchar(32)" />
 			<column name="description" remarks="参数描述" type="varchar(512)" />
 		</createTable>
 

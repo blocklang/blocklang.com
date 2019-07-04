@@ -226,6 +226,8 @@ public class ApiChangeLogParseGroupTask extends AbstractRepoPublishTask {
 										changeLog.setAuthor(cl.getAuthor());
 										changeLog.setChanges(cl.getChanges());
 										changeLog.setVersion(parseVersion(changeLog.getFileName()));
+										changeLog.setMd5Sum(DigestUtils.md5Hex(gitBlobInfo.getContent()));
+										
 										logger.info("{0} 解析完成", changeLogFilePath);
 									} else {
 										logger.error("{0} 解析时出现错误", changeLogFilePath);

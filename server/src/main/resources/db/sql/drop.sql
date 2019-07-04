@@ -27,6 +27,7 @@ drop table api_repo_version;
 drop table api_component;
 drop table api_component_attr;
 drop table api_component_attr_val_opt;
+drop table api_component_attr_fun_arg;
 
 drop table databasechangelog;
 drop table databasechangeloglock;

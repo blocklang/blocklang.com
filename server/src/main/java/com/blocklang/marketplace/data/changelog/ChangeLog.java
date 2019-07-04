@@ -14,6 +14,7 @@ public class ChangeLog {
 	private String id;
 	private String author;
 	private String version;
+	private String md5Sum;
 	private List<Change> changes;
 
 	public String getFileName() {
@@ -46,6 +47,14 @@ public class ChangeLog {
 
 	public void setVersion(String version) {
 		this.version = version;
+	}
+
+	public String getMd5Sum() {
+		return md5Sum;
+	}
+
+	public void setMd5Sum(String md5Sum) {
+		this.md5Sum = md5Sum;
 	}
 
 	public List<Change> getChanges() {

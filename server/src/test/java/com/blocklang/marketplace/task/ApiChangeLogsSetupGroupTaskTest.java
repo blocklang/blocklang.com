@@ -19,13 +19,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.blocklang.core.test.AbstractServiceTest;
 import com.blocklang.marketplace.constant.Language;
 import com.blocklang.marketplace.constant.RepoCategory;
+import com.blocklang.marketplace.dao.ApiChangeLogDao;
+import com.blocklang.marketplace.dao.ApiComponentAttrDao;
+import com.blocklang.marketplace.dao.ApiComponentAttrFunArgDao;
+import com.blocklang.marketplace.dao.ApiComponentAttrValOptDao;
+import com.blocklang.marketplace.dao.ApiComponentDao;
 import com.blocklang.marketplace.dao.ApiRepoDao;
 import com.blocklang.marketplace.dao.ApiRepoVersionDao;
 import com.blocklang.marketplace.dao.ComponentRepoDao;
 import com.blocklang.marketplace.dao.ComponentRepoVersionDao;
 import com.blocklang.marketplace.data.ApiJson;
 import com.blocklang.marketplace.data.ComponentJson;
+import com.blocklang.marketplace.data.changelog.Change;
+import com.blocklang.marketplace.data.changelog.ChangeLog;
 import com.blocklang.marketplace.data.changelog.ComponentChangeLogs;
+import com.blocklang.marketplace.data.changelog.NewWidgetChange;
+import com.blocklang.marketplace.data.changelog.WidgetEvent;
+import com.blocklang.marketplace.data.changelog.WidgetEventArgument;
+import com.blocklang.marketplace.data.changelog.WidgetProperty;
+import com.blocklang.marketplace.data.changelog.WidgetPropertyOption;
 import com.blocklang.marketplace.model.ComponentRepoPublishTask;
 import com.blocklang.release.constant.ReleaseResult;
 
@@ -43,6 +55,16 @@ public class ApiChangeLogsSetupGroupTaskTest extends AbstractServiceTest {
 	private ApiRepoDao apiRepoDao;
 	@Autowired
 	private ApiRepoVersionDao apiRepoVersionDao;
+	@Autowired
+	private ApiComponentDao apiComponentDao;
+	@Autowired
+	private ApiComponentAttrDao apiComponentAttrDao;
+	@Autowired
+	private ApiComponentAttrValOptDao apiComponentAttrValOptDao;
+	@Autowired
+	private ApiComponentAttrFunArgDao apiComponentAttrFunArgDao;
+	@Autowired
+	private ApiChangeLogDao apiChangeLogDao;
 
 	@Before
 	public void setup() throws IOException {
@@ -78,26 +100,90 @@ public class ApiChangeLogsSetupGroupTaskTest extends AbstractServiceTest {
 		componentJson.setLanguage(Language.TYPESCRIPT.getValue());
 		context.setComponentJson(componentJson);
 		
-		List<ComponentChangeLogs> changeLogs = new ArrayList<ComponentChangeLogs>();
-		context.setChangeLogs(changeLogs);
+		List<ComponentChangeLogs> allComponentChangeLogs = new ArrayList<ComponentChangeLogs>();
+		ComponentChangeLogs componentChangeLogs = new ComponentChangeLogs();
+		componentChangeLogs.setComponentName("components/text-input");
+		List<ChangeLog> changeLogs = new ArrayList<ChangeLog>();
+		ChangeLog changeLog = new ChangeLog();
+		changeLog.setId("1");
+		changeLog.setAuthor("jack");
+		changeLog.setFileName("0_1_0.json");
+		changeLog.setMd5Sum("md5Sum");
+		List<Change> changes = new ArrayList<Change>();
+		NewWidgetChange change1 = new NewWidgetChange();
+		// FIXME: appType 放在 api 中是否合适？是不是放在组件库中更合适？
+		change1.setAppType(Arrays.asList("web", "wechat"));
+		change1.setName("Widget1");
+		change1.setLabel("Widget 1");
+		
+		List<WidgetProperty> properties = new ArrayList<WidgetProperty>();
+		WidgetProperty property1 = new WidgetProperty();
+		property1.setName("Prop1");
+		property1.setLabel("Prop 1");
+		property1.setDefaultValue("Default value 1");
+		property1.setValueType("string");
+		List<WidgetPropertyOption> propertyOptions = new ArrayList<WidgetPropertyOption>();
+		WidgetPropertyOption propertyOption1 = new WidgetPropertyOption();
+		propertyOption1.setLabel("optionLabel1");
+		propertyOption1.setDescription("optionDescription1");
+		propertyOption1.setValue("optionValue1");
+		propertyOptions.add(propertyOption1);
+		property1.setOptions(propertyOptions);
+		properties.add(property1);
+		change1.setProperties(properties);
+		
+		List<WidgetEvent> events = new ArrayList<WidgetEvent>();
+		WidgetEvent event1 = new WidgetEvent();
+		event1.setName("Event1");
+		event1.setLabel("Event 1");
+		event1.setValueType("function");
+		List<WidgetEventArgument> eventArguments = new ArrayList<WidgetEventArgument>();
+		WidgetEventArgument eventArgument1 = new WidgetEventArgument();
+		eventArgument1.setName("eventArgumentName");
+		eventArgument1.setLabel("Event Argument Label");
+		eventArgument1.setDefaultValue("eventArgumentDefaultValue");
+		eventArgument1.setValueType("string");
+		eventArguments.add(eventArgument1);
+		event1.setArguments(eventArguments);
+		events.add(event1);
+		change1.setEvents(events);
+		
+		changes.add(change1);
+		
+		changeLog.setVersion("0.1.0");
+		changeLog.setChanges(changes);
+		changeLogs.add(changeLog);
+		componentChangeLogs.setChangeLogs(changeLogs);
+		allComponentChangeLogs.add(componentChangeLogs);
+		context.setChangeLogs(allComponentChangeLogs);
 	}
 	
 	@Test
-	public void run_one_change_new_widget() {
+	public void run_one_change_with_one_new_widget() {
 		ApiChangeLogsSetupGroupTask task = new ApiChangeLogsSetupGroupTask(
 				context,
 				componentRepoDao,
 				componentRepoVersionDao,
 				apiRepoDao,
-				apiRepoVersionDao);
+				apiRepoVersionDao,
+				apiComponentDao,
+				apiComponentAttrDao,
+				apiComponentAttrValOptDao,
+				apiComponentAttrFunArgDao,
+				apiChangeLogDao);
 		assertThat(task.run()).isPresent();
-//		task.setComponentRepo();
-//		task.setComponentRepoVersion();
-//		task.setApiRepo();
-//		task.setApiRepoVersions();
-		// 要包含所有的 changelog（注意，是指定版本的下的所有 changelog 文件）
-		// 约定以当前版中的 changelog 为准，不用逐个版本的获取 changelog 文件
-		// changelog 列表中是以版本号从小到大排列的
+
+		assertThat(countRowsInTable("API_REPO")).isEqualTo(1);
+		assertThat(countRowsInTable("API_REPO_VERSION")).isEqualTo(1);
+		assertThat(countRowsInTable("COMPONENT_REPO")).isEqualTo(1);
+		assertThat(countRowsInTable("COMPONENT_REPO_VERSION")).isEqualTo(1);
+		assertThat(countRowsInTable("API_COMPONENT")).isEqualTo(1);
+		assertThat(countRowsInTable("API_COMPONENT_ATTR")).isEqualTo(2);
+		assertThat(countRowsInTable("API_COMPONENT_ATTR_VAL_OPT")).isEqualTo(1);
+		assertThat(countRowsInTable("API_COMPONENT_ATTR_FUN_ARG")).isEqualTo(1);
+		assertThat(countRowsInTable("API_CHANGELOG")).isEqualTo(1);
+		
+		// TODO: code 是特殊字段，需要专门断言
 		
 	}
 	

@@ -8,8 +8,15 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.blocklang.marketplace.constant.ChangelogExecuteResult;
+import com.blocklang.marketplace.constant.ComponentAttrValueType;
 import com.blocklang.marketplace.constant.Language;
 import com.blocklang.marketplace.constant.RepoCategory;
+import com.blocklang.marketplace.dao.ApiChangeLogDao;
+import com.blocklang.marketplace.dao.ApiComponentAttrDao;
+import com.blocklang.marketplace.dao.ApiComponentAttrFunArgDao;
+import com.blocklang.marketplace.dao.ApiComponentAttrValOptDao;
+import com.blocklang.marketplace.dao.ApiComponentDao;
 import com.blocklang.marketplace.dao.ApiRepoDao;
 import com.blocklang.marketplace.dao.ApiRepoVersionDao;
 import com.blocklang.marketplace.dao.ComponentRepoDao;
@@ -20,7 +27,15 @@ import com.blocklang.marketplace.data.changelog.Change;
 import com.blocklang.marketplace.data.changelog.ChangeLog;
 import com.blocklang.marketplace.data.changelog.ComponentChangeLogs;
 import com.blocklang.marketplace.data.changelog.NewWidgetChange;
+import com.blocklang.marketplace.data.changelog.WidgetEvent;
+import com.blocklang.marketplace.data.changelog.WidgetEventArgument;
+import com.blocklang.marketplace.data.changelog.WidgetProperty;
+import com.blocklang.marketplace.data.changelog.WidgetPropertyOption;
+import com.blocklang.marketplace.model.ApiChangeLog;
 import com.blocklang.marketplace.model.ApiComponent;
+import com.blocklang.marketplace.model.ApiComponentAttr;
+import com.blocklang.marketplace.model.ApiComponentAttrFunArg;
+import com.blocklang.marketplace.model.ApiComponentAttrValOpt;
 import com.blocklang.marketplace.model.ApiRepo;
 import com.blocklang.marketplace.model.ApiRepoVersion;
 import com.blocklang.marketplace.model.ComponentRepo;
@@ -57,13 +72,23 @@ public class ApiChangeLogsSetupGroupTask extends AbstractRepoPublishTask {
 	private ComponentRepoVersionDao componentRepoVersionDao;
 	private ApiRepoDao apiRepoDao;
 	private ApiRepoVersionDao apiRepoVersionDao;
+	private ApiComponentDao apiComponentDao;
+	private ApiComponentAttrDao apiComponentAttrDao;
+	private ApiComponentAttrValOptDao apiComponentAttrValOptDao;
+	private ApiComponentAttrFunArgDao apiComponentAttrFunArgDao;
+	private ApiChangeLogDao apiChangeLogDao;
 	
 	public ApiChangeLogsSetupGroupTask(
 			MarketplacePublishContext marketplacePublishContext, 
 			ComponentRepoDao componentRepoDao,
 			ComponentRepoVersionDao componentRepoVersionDao,
 			ApiRepoDao apiRepoDao,
-			ApiRepoVersionDao apiRepoVersionDao) {
+			ApiRepoVersionDao apiRepoVersionDao,
+			ApiComponentDao apiComponentDao,
+			ApiComponentAttrDao apiComponentAttrDao,
+			ApiComponentAttrValOptDao apiComponentAttrValOptDao,
+			ApiComponentAttrFunArgDao apiComponentAttrFunArgDao,
+			ApiChangeLogDao apiChangeLogDao) {
 		super(marketplacePublishContext);
 		
 		this.publishTask = context.getPublishTask();
@@ -74,6 +99,11 @@ public class ApiChangeLogsSetupGroupTask extends AbstractRepoPublishTask {
 		this.componentRepoVersionDao = componentRepoVersionDao;
 		this.apiRepoDao = apiRepoDao;
 		this.apiRepoVersionDao = apiRepoVersionDao;
+		this.apiComponentDao = apiComponentDao;
+		this.apiComponentAttrDao = apiComponentAttrDao;
+		this.apiComponentAttrValOptDao = apiComponentAttrValOptDao;
+		this.apiComponentAttrFunArgDao = apiComponentAttrFunArgDao;
+		this.apiChangeLogDao = apiChangeLogDao;
 	}
 
 	/**
@@ -141,37 +171,62 @@ public class ApiChangeLogsSetupGroupTask extends AbstractRepoPublishTask {
 		logger.info("开始保存组件库的 {0} 版本信息", context.getComponentRepoLatestVersion());
 		ComponentRepoVersion savedCompRepoVersion = saveComponentRepoVersion(savedCompRepo.getId(), currentApiRepoVersionId);
 		logger.info("保存成功");
-		
-
 
 		// 增量安装 API 变更
 		// 先循环组件，再嵌套循环版本
 		List<ComponentChangeLogs> allChangeLogs = context.getChangeLogs();
 		for(ComponentChangeLogs component : allChangeLogs) {
 			String latestPublishVersion = component.getLatestPublishVersion();
-			if(latestPublishVersion == null) {
-				// 第一次发布
-				for(ChangeLog changeLog : component.getChangeLogs()) {
+			if(latestPublishVersion != null) {
+				// 如果之前发布过，需要在上一个版本的基础上增量发布
+				throw new UnsupportedOperationException();
+			}
+			
+			for(ChangeLog changeLog : component.getChangeLogs()) {
+				Optional<ApiRepoVersion> currentApiRepoVersionOption = apiRepoVersionDao.findByApiRepoIdAndVersion(savedApiRepo.getId(), changeLog.getVersion());
+				if(currentApiRepoVersionOption.isPresent()) {
+					Integer apiRepoVersionId = currentApiRepoVersionOption.get().getId();
 					for(Change change : changeLog.getChanges()) {
 						if(NewWidgetChange.class.isAssignableFrom(change.getClass())) {
 							NewWidgetChange newWidgetChange = (NewWidgetChange)change;
-							// TODO: 
-							Integer apiRepoVersionId = null;
-							this.saveWidget(apiRepoVersionId, newWidgetChange);
+							this.newWidget(apiRepoVersionId, newWidgetChange);
 						} else {
 							logger.error("不是有效的变更操作");
 						}
 					}
-					
-					latestPublishVersion = changeLog.getVersion();
+				} else {
+					logger.error("在数据库中未能找到 apiRepoId = {0} 和 version = {1} 的记录", savedApiRepo.getId(), changeLog.getVersion());
+					success = false;
 				}
-			} else {
-				// 需要在上一个版本的基础上增量发布
-				throw new UnsupportedOperationException();
+				
+				latestPublishVersion = changeLog.getVersion();
 			}
 		}
 		
-		
+		// 当所有 change log 都安装完后，再保存安装记录
+		int executeOrder = 1;
+		for(ComponentChangeLogs component : allChangeLogs) {
+			for(ChangeLog changeLog : component.getChangeLogs()) {
+				Optional<ApiRepoVersion> currentApiRepoVersionOption = apiRepoVersionDao.findByApiRepoIdAndVersion(savedApiRepo.getId(), changeLog.getVersion());
+				
+				ApiChangeLog apiChangeLog = new ApiChangeLog();
+				apiChangeLog.setApiRepoId(savedApiRepo.getId());
+				apiChangeLog.setChangelogId(changeLog.getId());
+				apiChangeLog.setChangelogAuthor(changeLog.getAuthor());
+				apiChangeLog.setChangelogFileName(component.getComponentName() + "/changelog/" + changeLog.getFileName());
+				apiChangeLog.setExecuteTime(LocalDateTime.now());
+				apiChangeLog.setExecuteOrder(executeOrder);
+				apiChangeLog.setExecuteResult(ChangelogExecuteResult.SUCCESS);
+				apiChangeLog.setMd5Sum(changeLog.getMd5Sum());
+				apiChangeLog.setDeploymentId(currentApiRepoVersionOption.get().getId());
+				apiChangeLog.setCreateUserId(publishTask.getCreateUserId());
+				apiChangeLog.setCreateTime(LocalDateTime.now());
+				
+				apiChangeLogDao.save(apiChangeLog);
+				
+				executeOrder++;
+			}
+		}
 		
 		
 		if(success) {
@@ -180,11 +235,94 @@ public class ApiChangeLogsSetupGroupTask extends AbstractRepoPublishTask {
 		return Optional.empty();
 	}
 
-	private void saveWidget(Integer apiRepoVersionId, NewWidgetChange newWidgetChange) {
+	// 注意，方法名要与操作名相同
+	private void newWidget(Integer apiRepoVersionId, NewWidgetChange newWidgetChange) {
 		// code
 		// 获取下一个有效的 code
-		ApiComponent component = new ApiComponent();
+		ApiComponent savedApiComponent = saveApiComponent(apiRepoVersionId, newWidgetChange);
 		
+		for(WidgetProperty property : newWidgetChange.getProperties()) {
+			Integer apiComponentId = savedApiComponent.getId();
+			ApiComponentAttr savedApiComponentAttr = saveComponentAttr(apiComponentId, property);
+		
+			for(WidgetPropertyOption option : property.getOptions()) {
+				Integer apiComponentAttrId = savedApiComponentAttr.getId();
+				saveApiComponentAttrOpt(apiComponentAttrId, option);
+			}
+		}
+		
+		for(WidgetEvent event : newWidgetChange.getEvents()) {
+			Integer apiComponentId = savedApiComponent.getId();
+			ApiComponentAttr savedApiComponentAttr = saveComponentAttr(apiComponentId, event);
+		
+			for(WidgetEventArgument argument : event.getArguments()) {
+				Integer apiComponentAttrId = savedApiComponentAttr.getId();
+				saveApiComponentFunArg(apiComponentAttrId, argument);
+			}
+		}
+	}
+
+	private ApiComponent saveApiComponent(Integer apiRepoVersionId, NewWidgetChange newWidgetChange) {
+		ApiComponent apiComponent = new ApiComponent();
+		apiComponent.setApiRepoVersionId(apiRepoVersionId);
+		apiComponent.setCode("0001"); // TODO: 动态生成
+		apiComponent.setName(newWidgetChange.getName());
+		apiComponent.setLabel(newWidgetChange.getLabel());
+		// TODO: appType 放在哪里？
+		apiComponent.setDescription(newWidgetChange.getDescription());
+		apiComponent.setCreateTime(LocalDateTime.now());
+		apiComponent.setCreateUserId(publishTask.getCreateUserId());
+		
+		ApiComponent savedApiComponent = apiComponentDao.save(apiComponent);
+		return savedApiComponent;
+	}
+
+	private void saveApiComponentFunArg(Integer apiComponentAttrId, WidgetEventArgument argument) {
+		ApiComponentAttrFunArg arg = new ApiComponentAttrFunArg();
+		arg.setApiComponentAttrId(apiComponentAttrId);
+		arg.setCode("0001");
+		arg.setName(argument.getName());
+		arg.setLabel(argument.getLabel());
+		arg.setValueType(ComponentAttrValueType.fromKey(argument.getValueType()));
+		arg.setDefaultValue(argument.getDefaultValue());
+		arg.setDescription(argument.getDescription());
+
+		this.apiComponentAttrFunArgDao.save(arg);
+	}
+
+	private void saveApiComponentAttrOpt(Integer apiComponentAttrId, WidgetPropertyOption option) {
+		ApiComponentAttrValOpt opt = new ApiComponentAttrValOpt();
+		opt.setApiComponentAttrId(apiComponentAttrId);
+		opt.setCode("0001");
+		opt.setValue(option.getValue());
+		opt.setLabel(option.getLabel());
+		opt.setDescription(option.getDescription());
+		this.apiComponentAttrValOptDao.save(opt);
+	}
+
+	private ApiComponentAttr saveComponentAttr(Integer apiComponentId, WidgetProperty property) {
+		ApiComponentAttr attr = new ApiComponentAttr();
+		attr.setApiComponentId(apiComponentId);
+		attr.setCode("0001"); // TODO: 动态生成
+		attr.setName(property.getName());
+		attr.setLabel(property.getLabel());
+		attr.setDescription(property.getDescription());
+		attr.setValueType(ComponentAttrValueType.fromKey(property.getValueType()));
+		attr.setDefaultValue(property.getDefaultValue());
+		
+		return apiComponentAttrDao.save(attr);
+	}
+	
+	private ApiComponentAttr saveComponentAttr(Integer apiComponentId, WidgetEvent event) {
+		ApiComponentAttr attr = new ApiComponentAttr();
+		attr.setApiComponentId(apiComponentId);
+		attr.setCode("0002"); // TODO: 动态生成
+		attr.setName(event.getName());
+		attr.setLabel(event.getLabel());
+		attr.setValueType(ComponentAttrValueType.fromKey(event.getValueType()));
+		attr.setDescription(event.getDescription());
+		
+		return apiComponentAttrDao.save(attr);
 	}
 
 	private ApiRepoVersion saveApiRepoVersion(Integer savedApiRepoId, String apiVersion) {
