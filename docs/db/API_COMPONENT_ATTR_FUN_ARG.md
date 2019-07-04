@@ -10,11 +10,11 @@
 | --------------------- | ------------------ | ------- | ---- | ------ | ---- | ---- |
 | dbid                  | 主键               | int     |      |        | 是   | 否   |
 | api_component_attr_id | API 组件的属性标识 | int     |      |        |      | 否   |
-| code                  | 选项值编码         | char    | 4    |        |      | 否   |
+| code                  | 参数编码           | char    | 4    |        |      | 否   |
 | name                  | 参数名             | varchar | 32   |        |      | 否   |
 | label                 | 参数的显示名       | varchar | 32   |        |      | 是   |
 | value_type            | 参数的值类型       | varchar | 32   |        |      | 否   |
-| defaultValue          | 参数的默认值       | varchar | 32   |        |      | 否   |
+| defaultValue          | 参数的默认值       | varchar | 32   |        |      | 是   |
 | description           | 参数描述           | varchar | 512  |        |      | 是   |
 
 ## 约束
