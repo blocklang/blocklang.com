@@ -4,6 +4,12 @@ import java.util.Arrays;
 
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * 使用于组件属性值、组件属性的可选值、部件事件的参数值
+ * 
+ * @author Zhengwei Jin
+ *
+ */
 public enum ComponentAttrValueType {
 
 	NUMBER("number", "数字"),

@@ -14,7 +14,7 @@
 | name                  | 参数名             | varchar | 32   |        |      | 否   |
 | label                 | 参数的显示名       | varchar | 32   |        |      | 是   |
 | value_type            | 参数的值类型       | varchar | 32   |        |      | 否   |
-| defaultValue          | 参数的默认值       | varchar | 32   |        |      | 是   |
+| default_value         | 参数的默认值       | varchar | 32   |        |      | 是   |
 | description           | 参数描述           | varchar | 512  |        |      | 是   |
 
 ## 约束
