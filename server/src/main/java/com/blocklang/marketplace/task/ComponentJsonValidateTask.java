@@ -94,6 +94,7 @@ public class ComponentJsonValidateTask extends AbstractRepoPublishTask {
 		super(context);
 		this.componentJson = context.getComponentJson();
 		this.isFirstPublish = context.isFirstPublish();
+		this.publishTask = context.getPublishTask();
 		this.componentRepoDao = componentRepoDao;
 	}
 

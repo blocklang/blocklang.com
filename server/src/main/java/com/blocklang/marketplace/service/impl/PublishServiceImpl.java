@@ -14,6 +14,10 @@ import com.blocklang.core.constant.CmPropKey;
 import com.blocklang.core.service.PropertyService;
 import com.blocklang.marketplace.constant.MarketplaceConstant;
 import com.blocklang.marketplace.dao.ApiChangeLogDao;
+import com.blocklang.marketplace.dao.ApiComponentAttrDao;
+import com.blocklang.marketplace.dao.ApiComponentAttrFunArgDao;
+import com.blocklang.marketplace.dao.ApiComponentAttrValOptDao;
+import com.blocklang.marketplace.dao.ApiComponentDao;
 import com.blocklang.marketplace.dao.ApiRepoDao;
 import com.blocklang.marketplace.dao.ApiRepoVersionDao;
 import com.blocklang.marketplace.dao.ComponentRepoDao;
@@ -43,6 +47,14 @@ public class PublishServiceImpl implements PublishService {
 	private ApiRepoDao apiRepoDao;
 	@Autowired
 	private ApiRepoVersionDao apiRepoVersionDao;
+	@Autowired
+	private ApiComponentDao apiComponentDao;
+	@Autowired
+	private ApiComponentAttrDao apiComponentAttrDao;
+	@Autowired
+	private ApiComponentAttrValOptDao apiComponentAttrValOptDao;
+	@Autowired
+	private ApiComponentAttrFunArgDao apiComponentAttrFunArgDao;
 	@Autowired
 	private ApiChangeLogDao apiChangeLogDao;
 	@Autowired
@@ -128,7 +140,12 @@ public class PublishServiceImpl implements PublishService {
 					componentRepoDao,
 					componentRepoVersionDao,
 					apiRepoDao,
-					apiRepoVersionDao);
+					apiRepoVersionDao,
+					apiComponentDao,
+					apiComponentAttrDao,
+					apiComponentAttrValOptDao,
+					apiComponentAttrFunArgDao,
+					apiChangeLogDao);
 			success = task.run().isPresent();
 		}
 		if(success) {
