@@ -16,10 +16,6 @@
 
 	<properties>
 		<java.version>11</java.version>
-		
-		<!-- 3.1.2 中有 bug, 降级到 3.1.1 -->
-		<!-- https://bugs.eclipse.org/bugs/show_bug.cgi?id=547340 -->
-		<maven-jar-plugin.version>3.1.1</maven-jar-plugin.version>
 	</properties>
 
 	<dependencies>
