@@ -41,6 +41,7 @@ import com.blocklang.marketplace.service.impl.PublishServiceImplTest;
 import com.blocklang.marketplace.task.ApiChangeLogValidateTaskTest;
 import com.blocklang.marketplace.task.MarketplacePublishContextTest;
 import com.blocklang.marketplace.task.ApiChangeLogsSetupGroupTaskTest;
+import com.blocklang.marketplace.task.CodeGeneratorTest;
 import com.blocklang.marketplace.task.TaskLoggerTest;
 import com.blocklang.release.api.AppApiTest;
 import com.blocklang.release.api.InstallerApiTest;
@@ -78,6 +79,7 @@ import com.blocklang.release.task.GitTagTaskTest;
 	StringUtilsTest.class,
 	ApiChangeLogValidateTaskTest.class,
 	ApiChangeLogsSetupGroupTaskTest.class,
+	CodeGeneratorTest.class,
 	
 	UserValidatorTest.class,
 	
