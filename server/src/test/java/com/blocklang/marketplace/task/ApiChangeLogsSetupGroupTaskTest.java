@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.jgit.lib.Constants;
 import org.junit.Before;
@@ -69,17 +70,23 @@ public class ApiChangeLogsSetupGroupTaskTest extends AbstractServiceTest {
 	@Before
 	public void setup() throws IOException {
 		String folder = temp.newFolder().getPath();
-		
-		ComponentRepoPublishTask publishTask = new ComponentRepoPublishTask();
-		publishTask.setGitUrl("https://a.com/user/component.repo.git");
-		publishTask.setStartTime(LocalDateTime.now());
-		publishTask.setPublishResult(ReleaseResult.INITED);
-		publishTask.setCreateUserId(1);
-		publishTask.setCreateTime(LocalDateTime.now());
-		
-		context = new MarketplacePublishContext(folder, publishTask);
-		context.parseApiGitUrl("https://a.com/user/api.repo.git");
-		
+		preparePublishTask(folder);
+		prepareApiJson();
+		prepareComponentJson();
+	}
+
+	private void prepareComponentJson() {
+		ComponentJson componentJson = new ComponentJson();
+		componentJson.setName("component-a");
+		componentJson.setVersion("0.1.0");
+		componentJson.setDisplayName("Component A");
+		componentJson.setDescription("component description");
+		componentJson.setCategory(RepoCategory.WIDGET.getValue());
+		componentJson.setLanguage(Language.TYPESCRIPT.getValue());
+		context.setComponentJson(componentJson);
+	}
+
+	private void prepareApiJson() {
 		ApiJson apiJson = new ApiJson();
 		apiJson.setName("api-a");
 		apiJson.setVersion("0.1.0");
@@ -90,16 +97,58 @@ public class ApiChangeLogsSetupGroupTaskTest extends AbstractServiceTest {
 		
 		context.setAllApiRepoTagNames(Collections.singletonList(Constants.R_TAGS + "v0.1.0"));
 		context.setApiRepoVersions(Arrays.asList(new String[] {"0.1.0"}));
+	}
+
+	private void preparePublishTask(String folder) {
+		ComponentRepoPublishTask publishTask = new ComponentRepoPublishTask();
+		publishTask.setGitUrl("https://a.com/user/component.repo.git");
+		publishTask.setStartTime(LocalDateTime.now());
+		publishTask.setPublishResult(ReleaseResult.INITED);
+		publishTask.setCreateUserId(1);
+		publishTask.setCreateTime(LocalDateTime.now());
 		
-		ComponentJson componentJson = new ComponentJson();
-		componentJson.setName("component-a");
-		componentJson.setVersion("0.1.0");
-		componentJson.setDisplayName("Component A");
-		componentJson.setDescription("component description");
-		componentJson.setCategory(RepoCategory.WIDGET.getValue());
-		componentJson.setLanguage(Language.TYPESCRIPT.getValue());
-		context.setComponentJson(componentJson);
+		context = new MarketplacePublishContext(folder, publishTask);
+		context.parseApiGitUrl("https://a.com/user/api.repo.git");
+	}
+	
+	@Test
+	public void run_one_change_with_one_new_widget() {
+		prepareChangeLogs_1();
 		
+		ApiChangeLogsSetupGroupTask task = new ApiChangeLogsSetupGroupTask(
+				context,
+				componentRepoDao,
+				componentRepoVersionDao,
+				apiRepoDao,
+				apiRepoVersionDao,
+				apiComponentDao,
+				apiComponentAttrDao,
+				apiComponentAttrValOptDao,
+				apiComponentAttrFunArgDao,
+				apiChangeLogDao);
+		assertThat(task.run()).isPresent();
+
+		assertThat(countRowsInTable("API_REPO")).isEqualTo(1);
+		assertThat(countRowsInTable("API_REPO_VERSION")).isEqualTo(1);
+		assertThat(countRowsInTable("COMPONENT_REPO")).isEqualTo(1);
+		assertThat(countRowsInTable("COMPONENT_REPO_VERSION")).isEqualTo(1);
+		assertThat(countRowsInTable("API_COMPONENT")).isEqualTo(1);
+		assertThat(countRowsInTable("API_COMPONENT_ATTR")).isEqualTo(2);
+		assertThat(countRowsInTable("API_COMPONENT_ATTR_VAL_OPT")).isEqualTo(1);
+		assertThat(countRowsInTable("API_COMPONENT_ATTR_FUN_ARG")).isEqualTo(1);
+		assertThat(countRowsInTable("API_CHANGELOG")).isEqualTo(1);
+		
+		assertThat(apiComponentDao.findAll().get(0).getCode()).isEqualTo("0001");
+		assertThat(apiComponentAttrDao.findAll()
+				.stream()
+				.map(apiComponentAttr -> apiComponentAttr.getCode()).collect(Collectors.toList()))
+			.startsWith("0001")
+			.endsWith("0002");
+		assertThat(apiComponentAttrValOptDao.findAll().get(0).getCode()).isEqualTo("0001");
+		assertThat(apiComponentAttrFunArgDao.findAll().get(0).getCode()).isEqualTo("0001");
+	}
+	
+	private void prepareChangeLogs_1() {
 		List<ComponentChangeLogs> allComponentChangeLogs = new ArrayList<ComponentChangeLogs>();
 		ComponentChangeLogs componentChangeLogs = new ComponentChangeLogs();
 		componentChangeLogs.setComponentName("components/text-input");
@@ -156,35 +205,6 @@ public class ApiChangeLogsSetupGroupTaskTest extends AbstractServiceTest {
 		componentChangeLogs.setChangeLogs(changeLogs);
 		allComponentChangeLogs.add(componentChangeLogs);
 		context.setChangeLogs(allComponentChangeLogs);
-	}
-	
-	@Test
-	public void run_one_change_with_one_new_widget() {
-		ApiChangeLogsSetupGroupTask task = new ApiChangeLogsSetupGroupTask(
-				context,
-				componentRepoDao,
-				componentRepoVersionDao,
-				apiRepoDao,
-				apiRepoVersionDao,
-				apiComponentDao,
-				apiComponentAttrDao,
-				apiComponentAttrValOptDao,
-				apiComponentAttrFunArgDao,
-				apiChangeLogDao);
-		assertThat(task.run()).isPresent();
-
-		assertThat(countRowsInTable("API_REPO")).isEqualTo(1);
-		assertThat(countRowsInTable("API_REPO_VERSION")).isEqualTo(1);
-		assertThat(countRowsInTable("COMPONENT_REPO")).isEqualTo(1);
-		assertThat(countRowsInTable("COMPONENT_REPO_VERSION")).isEqualTo(1);
-		assertThat(countRowsInTable("API_COMPONENT")).isEqualTo(1);
-		assertThat(countRowsInTable("API_COMPONENT_ATTR")).isEqualTo(2);
-		assertThat(countRowsInTable("API_COMPONENT_ATTR_VAL_OPT")).isEqualTo(1);
-		assertThat(countRowsInTable("API_COMPONENT_ATTR_FUN_ARG")).isEqualTo(1);
-		assertThat(countRowsInTable("API_CHANGELOG")).isEqualTo(1);
-		
-		// TODO: code 是特殊字段，需要专门断言
-		
 	}
 	
 }
