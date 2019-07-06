@@ -179,7 +179,7 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 			.post("/component-repos")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
-			.body("errors.gitUrl", hasItem("Git 仓库地址的无效，不是有效的远程仓库地址"),
+			.body("errors.gitUrl", hasItem("不是有效的远程 git 仓库地址"),
 					"errors.gitUrl.size()", is(1));
 	}
 	
