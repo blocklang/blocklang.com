@@ -1,7 +1,9 @@
 import { createProcess } from '@dojo/framework/stores/process';
-import { commandFactory, getHeaders } from './utils';
+import { commandFactory, getHeaders, linkTo } from './utils';
 import { baseUrl } from '../config';
 import { replace } from '@dojo/framework/stores/state/operations';
+import { UrlPayload } from './interfaces';
+import { ValidateStatus } from '../constant';
 
 const getComponentReposCommand = commandFactory(async ({ path, payload: { query = '', page = 0 } }) => {
 	// page 是从 0 开始的
@@ -19,6 +21,88 @@ const getComponentReposCommand = commandFactory(async ({ path, payload: { query 
 	return [replace(path('pagedComponentRepos'), json)];
 });
 
-export const initForListComponentReposProcess = createProcess('init-for-list-component-repo', [
+const startInitForNewComponentRepoCommand = commandFactory(({ path }) => {
+	return [
+		replace(path('componentRepoUrlInputValidation', 'componentRepoUrlValidateStatus'), ValidateStatus.UNVALIDATED),
+		replace(path('componentRepoUrlInputValidation', 'componentRepoUrlErrorMessage'), undefined),
+		replace(path('componentRepoUrlInputValidation', 'componentRepoUrlValidMessage'), undefined),
+		replace(path('componentRepoUrl'), undefined)
+	];
+});
+
+const componentRepoUrlInputCommand = commandFactory<UrlPayload>(({ path, payload: { url } }) => {
+	const trimedUrl = url.trim();
+	// 校验是否已填写 url
+	if (trimedUrl === '') {
+		return [
+			replace(path('componentRepoUrlInputValidation', 'componentRepoUrlValidateStatus'), ValidateStatus.INVALID),
+			replace(path('componentRepoUrlInputValidation', 'componentRepoUrlErrorMessage'), '不能为空'),
+			replace(path('componentRepoUrlInputValidation', 'componentRepoUrlValidMessage'), undefined)
+		];
+	}
+
+	return [
+		replace(path('componentRepoUrlInputValidation', 'componentRepoUrlValidateStatus'), ValidateStatus.VALID),
+		replace(path('componentRepoUrlInputValidation', 'componentRepoUrlErrorMessage'), undefined),
+		replace(path('componentRepoUrlInputValidation', 'componentRepoUrlValidMessage'), undefined),
+		replace(path('componentRepoUrl'), trimedUrl)
+	];
+});
+
+const publishComponentRepoCommand = commandFactory(async ({ path, get }) => {
+	const gitUrl = get(path('componentRepoUrl')) || '';
+	const result = [];
+
+	// 校验是否已填写 url
+	if (gitUrl === '') {
+		result.push(
+			replace(path('componentRepoUrlInputValidation', 'componentRepoUrlValidateStatus'), ValidateStatus.INVALID)
+		);
+		result.push(replace(path('componentRepoUrlInputValidation', 'componentRepoUrlErrorMessage'), '不能为空'));
+		result.push(replace(path('componentRepoUrlInputValidation', 'componentRepoUrlValidMessage'), undefined));
+		return result;
+	}
+
+	// 服务器端校验，校验登录用户下是否存在该项目名
+	const response = await fetch(`${baseUrl}/component-repos`, {
+		method: 'POST',
+		headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
+		body: JSON.stringify({
+			gitUrl
+		})
+	});
+	const json = await response.json();
+	if (!response.ok) {
+		console.log(response, json);
+
+		result.push(
+			replace(path('componentRepoUrlInputValidation', 'componentRepoUrlValidateStatus'), ValidateStatus.INVALID)
+		);
+		result.push(
+			replace(path('componentRepoUrlInputValidation', 'componentRepoUrlErrorMessage'), json.errors.gitUrl)
+		);
+		result.push(replace(path('componentRepoUrlInputValidation', 'componentRepoUrlValidMessage'), undefined));
+		return result;
+	}
+
+	// 校验通过
+	return [
+		replace(path('componentRepoUrlInputValidation', 'componentRepoUrlValidateStatus'), ValidateStatus.VALID),
+		replace(path('componentRepoUrlInputValidation', 'componentRepoUrlErrorMessage'), undefined),
+		replace(
+			path('componentRepoUrlInputValidation', 'componentRepoUrlValidMessage'),
+			'是有效的 git 远程仓库，开始发布'
+		),
+		// 跳转到发布详情页面
+		...linkTo(path, 'view-component-repo-publish-task', { taskId: json.id })
+	];
+});
+
+export const initForListComponentReposProcess = createProcess('init-for-list-component-repos', [
 	getComponentReposCommand
 ]);
+export const initForListMyComponentReposProcess = createProcess('init-for-list-my-component-repos', [
+	startInitForNewComponentRepoCommand
+]);
+export const componentRepoUrlInputProcess = createProcess('component-repo-url-input', [componentRepoUrlInputCommand]);
+export const publishComponentRepoProcess = createProcess('publish-component-repo', [publishComponentRepoCommand]);

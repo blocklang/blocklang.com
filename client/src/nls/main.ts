@@ -27,11 +27,11 @@ export default {
 		marketplaceTitle: '组件市场',
 		publishComponentLabel: '发布组件',
 		componentSearchPlaceholder: '填写组件名称，淘一淘……',
-		componentSearchHelp: '欢迎大家在此发布组件！',
+		componentSearchHelp: '欢迎大家发布组件！',
 		noComponentTitle: '空空如也',
-		noComponentTipLine1: '在基于 git 的源代码托管网站(如 github 或码云等)上创建组件项目；',
-		noComponentTipLine2: '遵循 Block Lang 组件开发规范，为组件添加接口说明文件；',
-		noComponentTipLine3: '在 Block Lang 组件市场注册组件项目，并按版本发布组件。',
+		noComponentTipLine1: '选择或创建 API 仓库，其中定义 API 规范；',
+		noComponentTipLine2: '创建组件仓库，创建组件并实现选择的 API 规范；',
+		noComponentTipLine3: '在组件市场中按版本发布组件。',
 
 		// new project
 		newProjectHelp: '项目包含页面、页面分组、页面模板以及变更历史等。',

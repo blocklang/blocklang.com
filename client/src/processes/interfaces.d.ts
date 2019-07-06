@@ -97,3 +97,7 @@ export interface UnstagedChangesPayload extends StagedChangesPayload {}
 export interface CommitMessagePayload {
 	commitMessage: string;
 }
+
+export interface UrlPayload {
+	url: string;
+}

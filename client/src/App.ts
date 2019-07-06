@@ -17,6 +17,16 @@ import About from './widgets/About';
 
 import 'bootstrap';
 
+import * as css from './App.m.css';
+import Exception from './pages/error/Exception';
+import ViewReleaseContainer from './containers/release/ViewReleaseContainer';
+import NewPageContainer from './containers/resource/NewPageContainer';
+import NewGroupContainer from './containers/resource/NewGroupContainer';
+import ViewProjectGroupContainer from './containers/project/ViewProjectGroupContainer';
+import ListComponentRepoContainer from './containers/marketplace/ListComponentRepoContainer';
+import ListMyComponentRepoContainer from './containers/user/settings/ListMyComponentRepoContainer';
+import ViewComponentRepoPublishTaskContainer from './containers/user/settings/ViewComponentRepoPublishTaskContainer';
+
 import { library } from '@fortawesome/fontawesome-svg-core';
 
 import { faGithub } from '@fortawesome/free-brands-svg-icons/faGithub';
@@ -90,15 +100,6 @@ library.add(
 	faPuzzlePiece
 );
 
-import * as css from './App.m.css';
-import Exception from './pages/error/Exception';
-import ViewReleaseContainer from './containers/release/ViewReleaseContainer';
-import NewPageContainer from './containers/resource/NewPageContainer';
-import NewGroupContainer from './containers/resource/NewGroupContainer';
-import ViewProjectGroupContainer from './containers/project/ViewProjectGroupContainer';
-import ListComponentRepoContainer from './containers/marketplace/ListComponentRepoContainer';
-import ListMyComponentRepoContainer from './containers/user/settings/ListMyComponentRepoContainer';
-
 export default class App extends WidgetBase {
 	protected render() {
 		return v('div', { classes: [css.root] }, [
@@ -149,6 +150,11 @@ export default class App extends WidgetBase {
 					key: 'settings-marketplace',
 					id: 'settings-marketplace',
 					renderer: () => w(ListMyComponentRepoContainer, {})
+				}),
+				w(Outlet, {
+					key: 'view-component-repo-publish-task',
+					id: 'view-component-repo-publish-task',
+					renderer: () => w(ViewComponentRepoPublishTaskContainer, {})
 				}),
 				w(Outlet, { key: 'about', id: 'about', renderer: () => w(About, {}) }),
 				w(Outlet, {

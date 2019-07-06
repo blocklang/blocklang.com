@@ -280,6 +280,12 @@ interface PagedComponentRepos extends Page {
 	content: ComponentRepo[];
 }
 
+interface ComponentRepoUrlInputValidation {
+	componentRepoUrlValidateStatus?: ValidateStatus;
+	componentRepoUrlErrorMessage?: string;
+	componentRepoUrlValidMessage?: string;
+}
+
 export interface State {
 	errors: Errors;
 	routing: Routing;
@@ -327,6 +333,8 @@ export interface State {
 	// marketplace
 	pagedComponentRepos: PagedComponentRepos;
 	marketplacePageStatusCode: number;
+	componentRepoUrlInputValidation: ComponentRepoUrlInputValidation;
+	componentRepoUrl: string;
 
 	help: Help;
 }

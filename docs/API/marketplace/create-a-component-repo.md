@@ -2,7 +2,7 @@
 
 往 Block Lang 组件仓库中发布一个组件库。组件库可以是托管在任一基于 git 的源代码托管网站上的一个仓库。
 
-如果是一个 web 版 UI 部件，则在仓库的根目录要包含 `blocklang.json` 文件，其中要包含以下信息
+组件仓库的根目录要包含 `component.json` 文件，其中要包含以下信息
 
 1. `name` - 组件库的名称(必填)
 2. `version` - 组件库的版本(必填)
@@ -48,10 +48,6 @@ Status: 422 Unprocessable Entity
 2. `gitUrl` 是一个有效的基于 https 协议的 git 仓库地址
 3. `gitUrl` 指定的是一个有效的 git 远程仓库
 4. 判断在登录用户是否发布过 `gitUrl`
-5. git 仓库的根目录下包含一个 `blocklang.json` 文件
-6. `blocklang.json` 中包含 `name`、`version`、`category` 和 `language` 等信息
-7. 如果是 `Widget` 仓库，则按照约定的目录结构，找到部件的 `changelog` 信息，校验格式是否有效
-8. 校验项目是否能编译通过
 
 创建成功
 

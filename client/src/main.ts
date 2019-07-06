@@ -32,7 +32,7 @@ import { initForViewDocumentProcess } from './processes/documentProcess';
 import { setSessionProcess } from './processes/loginProcesses';
 import { initForNewPageProcess } from './processes/pageProcesses';
 import { initForNewGroupProcess } from './processes/groupProcesses';
-import { initForListComponentReposProcess } from './processes/componentRepoProcess';
+import { initForListComponentReposProcess, initForListMyComponentReposProcess } from './processes/componentRepoProcess';
 
 const store = new Store<State>();
 
@@ -142,6 +142,9 @@ router.on('outlet', ({ outlet, action }) => {
 				break;
 			case 'list-component-repo':
 				initForListComponentReposProcess(store)({});
+				break;
+			case 'settings-marketplace':
+				initForListMyComponentReposProcess(store)({});
 				break;
 			case 'docs':
 				initForViewDocumentProcess(store)({ fileName: outlet.params.fileName });

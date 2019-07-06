@@ -3,18 +3,50 @@ import * as c from '../../../className';
 import * as css from './ListMyComponentRepo.m.css';
 import ThemedMixin, { theme } from '@dojo/framework/widget-core/mixins/Themed';
 import I18nMixin from '@dojo/framework/widget-core/mixins/I18n';
-import { ListComponentRepoProperties } from '../../marketplace/ListComponentRepo';
 import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
 import { v, w } from '@dojo/framework/widget-core/d';
 import Link from '@dojo/framework/routing/Link';
 import Spinner from '../../../widgets/spinner';
 import FontAwesomeIcon from '../../../widgets/fontawesome-icon';
+import { PagedComponentRepos, WithTarget } from '../../../interfaces';
+import { ValidateStatus } from '../../../constant';
+import { UrlPayload } from '../../../processes/interfaces';
+
+export interface ListMyComponentRepoProperties {
+	loggedUsername: string;
+	pagedComponentRepos: PagedComponentRepos;
+	marketplacePageStatusCode: number;
+	repoUrl: string;
+	// validation
+	repoUrlValidateStatus?: ValidateStatus;
+	repoUrlErrorMessage?: string;
+	repoUrlValidMessage?: string;
+
+	// event
+	onComponentRepoUrlInput: (opts: UrlPayload) => void;
+	onPublishComponentRepo: (opts: object) => void;
+}
 
 @theme(css)
-export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBase))<ListComponentRepoProperties> {
+export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBase))<ListMyComponentRepoProperties> {
 	private _localizedMessages = this.localizeBundle(messageBundle);
 
 	protected render() {
+		const { repoUrlValidateStatus, repoUrlErrorMessage, repoUrlValidMessage } = this.properties;
+
+		const inputClasses = [c.form_control];
+
+		let repoUrlMessageVDom = null;
+		if (repoUrlValidateStatus === ValidateStatus.INVALID) {
+			repoUrlMessageVDom = v('div', { classes: [c.invalid_tooltip] }, [`${repoUrlErrorMessage}`]);
+			inputClasses.push(c.is_invalid);
+		} else if (repoUrlValidateStatus === ValidateStatus.VALID) {
+			if (repoUrlValidMessage) {
+				repoUrlMessageVDom = v('div', { classes: [c.valid_tooltip] }, [`${repoUrlValidMessage}`]);
+				inputClasses.push(c.is_valid);
+			}
+		}
+
 		return v('div', { classes: [css.root, c.container, c.mt_5] }, [
 			v('div', { classes: [c.row] }, [
 				v('div', { classes: [c.col_3] }, [
@@ -36,10 +68,12 @@ export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBas
 							v('div', { classes: [c.input_group] }, [
 								v('input', {
 									type: 'text',
-									classes: [c.form_control],
-									placeholder: 'HTTPS 协议的 git 仓库地址',
+									classes: inputClasses,
+									placeholder:
+										'HTTPS 协议的 Git 仓库地址，如 https://github.com/blocklang/widgets-bootstrap.git',
 									'aria-label': 'git 仓库地址',
-									'aria-describedby': 'btn-addon'
+									'aria-describedby': 'btn-addon',
+									oninput: this._onComponentRepoUrlInput
 								}),
 								v('div', { classes: [c.input_group_append] }, [
 									v(
@@ -47,15 +81,15 @@ export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBas
 										{
 											classes: [c.btn, c.btn_outline_primary],
 											type: 'button',
-											id: 'btn-addon'
+											id: 'btn-addon',
+											onclick: this._publishComponentRepo
 										},
 										['发布']
 									)
-								])
+								]),
+								repoUrlMessageVDom
 							]),
-							v('small', { classes: [c.form_text, c.text_muted] }, [
-								'发布功能是基于 git 仓库的历史标记(Tag)的，敲回车或按“发布”按钮'
-							])
+							v('small', { classes: [c.form_text, c.text_muted] }, ['填写组件仓库的 HTTPS 协议克隆地址'])
 						])
 					]),
 
@@ -63,6 +97,14 @@ export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBas
 				])
 			])
 		]);
+	}
+
+	private _publishComponentRepo() {
+		this.properties.onPublishComponentRepo({});
+	}
+
+	private _onComponentRepoUrlInput({ target: { value: url } }: WithTarget) {
+		this.properties.onComponentRepoUrlInput({ url });
 	}
 
 	private _renderCompomentReposBlock() {
@@ -82,7 +124,7 @@ export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBas
 	private _renderEmptyComponentRepo() {
 		const { messages } = this._localizedMessages;
 
-		return v('div', { classes: [c.jumbotron, c.mx_auto, c.text_center, c.mt_3], styles: { maxWidth: '544px' } }, [
+		return v('div', { classes: [c.jumbotron, c.mx_auto, c.text_center, c.mt_5], styles: { maxWidth: '544px' } }, [
 			w(FontAwesomeIcon, { icon: 'puzzle-piece', size: '2x', classes: [c.text_muted] }),
 			v('h3', { classes: [c.mt_3] }, [`${messages.noComponentTitle}`]),
 			v('p', [

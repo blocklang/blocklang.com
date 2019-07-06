@@ -69,8 +69,8 @@ export default [
 		outlet: 'list-component-repo'
 	},
 	{
-		path: 'settings/marketplace/repo/new',
-		outlet: 'new-component-repo'
+		path: 'settings/marketplace/repo/{taskId}',
+		outlet: 'view-component-repo-publish-task'
 	},
 	{
 		path: 'docs/{fileName}',
