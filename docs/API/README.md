@@ -64,7 +64,8 @@
 3. [获取登录用户简要信息](./user/get-the-authenticated-user.md)
 4. [获取登录用户详细信息](./user/get-user-profile.md)
 5. [查看我的项目](./user/list-my-projects.md)
-6. [修改用户信息](./user/update-user-profile.md)
+6. [获取登录用户发布的组件库](./user/list-my-component-repos.md)
+7. [修改用户信息](./user/update-user-profile.md)
 
 ## 教程
 
