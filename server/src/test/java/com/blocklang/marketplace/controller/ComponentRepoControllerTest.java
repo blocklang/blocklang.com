@@ -28,7 +28,7 @@ import com.blocklang.marketplace.data.NewComponentRepoParam;
 import com.blocklang.marketplace.model.ComponentRepo;
 import com.blocklang.marketplace.model.ComponentRepoPublishTask;
 import com.blocklang.marketplace.service.ComponentRepoPublishTaskService;
-import com.blocklang.marketplace.service.ComponentRepoRegistryService;
+import com.blocklang.marketplace.service.ComponentRepoService;
 import com.blocklang.marketplace.service.PublishService;
 
 import io.restassured.http.ContentType;
@@ -37,7 +37,7 @@ import io.restassured.http.ContentType;
 public class ComponentRepoControllerTest extends AbstractControllerTest{
 
 	@MockBean
-	private ComponentRepoRegistryService componentRepoRegistryService;
+	private ComponentRepoService componentRepoRegistryService;
 	@MockBean
 	private ComponentRepoPublishTaskService componentRepoPublishTaskService;
 	@MockBean

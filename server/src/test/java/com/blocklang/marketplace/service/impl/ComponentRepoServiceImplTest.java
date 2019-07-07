@@ -16,18 +16,18 @@ import com.blocklang.marketplace.constant.Language;
 import com.blocklang.marketplace.constant.RepoCategory;
 import com.blocklang.marketplace.dao.ComponentRepoDao;
 import com.blocklang.marketplace.model.ComponentRepo;
-import com.blocklang.marketplace.service.ComponentRepoRegistryService;
+import com.blocklang.marketplace.service.ComponentRepoService;
 
-public class ComponentRepoRegistryServiceImplTest extends AbstractServiceTest{
+public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 
 	@Autowired
-	private ComponentRepoRegistryService componentRepoRegistryService;
+	private ComponentRepoService componentRepoService;
 	@Autowired
-	private ComponentRepoDao componentRepoRegistryDao;
+	private ComponentRepoDao componentRepoDao;
 	
 	@Test
 	public void find_all_by_name_or_label_query_is_empty_no_data() {
-		Page<ComponentRepo> result = componentRepoRegistryService.findAllByNameOrLabel("", PageRequest.of(0, 10));
+		Page<ComponentRepo> result = componentRepoService.findAllByNameOrLabel("", PageRequest.of(0, 10));
 		assertThat(result.getContent()).isEmpty();
 		assertThat(result.getTotalPages()).isEqualTo(0);
 		assertThat(result.getSize()).isEqualTo(10);
@@ -49,9 +49,9 @@ public class ComponentRepoRegistryServiceImplTest extends AbstractServiceTest{
 		registry.setCreateUserId(1);
 		registry.setCreateTime(LocalDateTime.now());
 		registry.setLanguage(Language.TYPESCRIPT);
-		componentRepoRegistryDao.save(registry);
+		componentRepoDao.save(registry);
 		
-		Page<ComponentRepo> result = componentRepoRegistryService.findAllByNameOrLabel("", PageRequest.of(0, 10));
+		Page<ComponentRepo> result = componentRepoService.findAllByNameOrLabel("", PageRequest.of(0, 10));
 		assertThat(result.getContent()).isEmpty();
 		assertThat(result.getTotalPages()).isEqualTo(0);
 		assertThat(result.getSize()).isEqualTo(10);
@@ -73,9 +73,9 @@ public class ComponentRepoRegistryServiceImplTest extends AbstractServiceTest{
 		registry.setCreateUserId(1);
 		registry.setCreateTime(LocalDateTime.now());
 		registry.setLanguage(Language.TYPESCRIPT);
-		componentRepoRegistryDao.save(registry);
+		componentRepoDao.save(registry);
 		
-		Page<ComponentRepo> result = componentRepoRegistryService.findAllByNameOrLabel("name", PageRequest.of(0, 10));
+		Page<ComponentRepo> result = componentRepoService.findAllByNameOrLabel("name", PageRequest.of(0, 10));
 		assertThat(result.getContent()).isEmpty();
 		assertThat(result.getTotalPages()).isEqualTo(0);
 		assertThat(result.getSize()).isEqualTo(10);
@@ -98,9 +98,9 @@ public class ComponentRepoRegistryServiceImplTest extends AbstractServiceTest{
 		registry.setCreateUserId(1);
 		registry.setCreateTime(LocalDateTime.now());
 		registry.setLanguage(Language.TYPESCRIPT);
-		componentRepoRegistryDao.save(registry);
+		componentRepoDao.save(registry);
 		
-		Page<ComponentRepo> result = componentRepoRegistryService.findAllByNameOrLabel("label", PageRequest.of(0, 10));
+		Page<ComponentRepo> result = componentRepoService.findAllByNameOrLabel("label", PageRequest.of(0, 10));
 		assertThat(result.getContent()).isEmpty();
 		assertThat(result.getTotalPages()).isEqualTo(0);
 		assertThat(result.getSize()).isEqualTo(10);
@@ -123,9 +123,9 @@ public class ComponentRepoRegistryServiceImplTest extends AbstractServiceTest{
 		registry.setCreateTime(LocalDateTime.now());
 		registry.setLastPublishTime(LocalDateTime.now());
 		registry.setLanguage(Language.TYPESCRIPT);
-		componentRepoRegistryDao.save(registry);
+		componentRepoDao.save(registry);
 		
-		Page<ComponentRepo> result = componentRepoRegistryService.findAllByNameOrLabel("", PageRequest.of(0, 10));
+		Page<ComponentRepo> result = componentRepoService.findAllByNameOrLabel("", PageRequest.of(0, 10));
 		assertThat(result.getContent()).hasSize(1);
 		assertThat(result.getTotalPages()).isEqualTo(1);
 		assertThat(result.getSize()).isEqualTo(10);
@@ -148,9 +148,9 @@ public class ComponentRepoRegistryServiceImplTest extends AbstractServiceTest{
 		registry.setCreateTime(LocalDateTime.now());
 		registry.setLastPublishTime(LocalDateTime.now());
 		registry.setLanguage(Language.TYPESCRIPT);
-		componentRepoRegistryDao.save(registry);
+		componentRepoDao.save(registry);
 		
-		Page<ComponentRepo> result = componentRepoRegistryService.findAllByNameOrLabel("name", PageRequest.of(0, 10));
+		Page<ComponentRepo> result = componentRepoService.findAllByNameOrLabel("name", PageRequest.of(0, 10));
 		assertThat(result.getContent()).hasSize(1);
 		assertThat(result.getTotalPages()).isEqualTo(1);
 		assertThat(result.getSize()).isEqualTo(10);
@@ -173,9 +173,9 @@ public class ComponentRepoRegistryServiceImplTest extends AbstractServiceTest{
 		registry.setCreateTime(LocalDateTime.now());
 		registry.setLastPublishTime(LocalDateTime.now());
 		registry.setLanguage(Language.TYPESCRIPT);
-		componentRepoRegistryDao.save(registry);
+		componentRepoDao.save(registry);
 		
-		Page<ComponentRepo> result = componentRepoRegistryService.findAllByNameOrLabel("NAME", PageRequest.of(0, 10));
+		Page<ComponentRepo> result = componentRepoService.findAllByNameOrLabel("NAME", PageRequest.of(0, 10));
 		assertThat(result.getContent()).hasSize(1);
 		assertThat(result.getTotalPages()).isEqualTo(1);
 		assertThat(result.getSize()).isEqualTo(10);
@@ -199,9 +199,9 @@ public class ComponentRepoRegistryServiceImplTest extends AbstractServiceTest{
 		registry.setCreateTime(LocalDateTime.now());
 		registry.setLastPublishTime(LocalDateTime.now());
 		registry.setLanguage(Language.TYPESCRIPT);
-		componentRepoRegistryDao.save(registry);
+		componentRepoDao.save(registry);
 		
-		Page<ComponentRepo> result = componentRepoRegistryService.findAllByNameOrLabel("label", PageRequest.of(0, 10));
+		Page<ComponentRepo> result = componentRepoService.findAllByNameOrLabel("label", PageRequest.of(0, 10));
 		assertThat(result.getContent()).hasSize(1);
 		assertThat(result.getTotalPages()).isEqualTo(1);
 		assertThat(result.getSize()).isEqualTo(10);
@@ -225,9 +225,9 @@ public class ComponentRepoRegistryServiceImplTest extends AbstractServiceTest{
 		registry.setCreateTime(LocalDateTime.now());
 		registry.setLastPublishTime(LocalDateTime.now());
 		registry.setLanguage(Language.TYPESCRIPT);
-		componentRepoRegistryDao.save(registry);
+		componentRepoDao.save(registry);
 		
-		Page<ComponentRepo> result = componentRepoRegistryService.findAllByNameOrLabel("LABEL", PageRequest.of(0, 10));
+		Page<ComponentRepo> result = componentRepoService.findAllByNameOrLabel("LABEL", PageRequest.of(0, 10));
 		assertThat(result.getContent()).hasSize(1);
 		assertThat(result.getTotalPages()).isEqualTo(1);
 		assertThat(result.getSize()).isEqualTo(10);
@@ -250,9 +250,9 @@ public class ComponentRepoRegistryServiceImplTest extends AbstractServiceTest{
 		registry.setCreateTime(LocalDateTime.now());
 		registry.setLastPublishTime(LocalDateTime.now());
 		registry.setLanguage(Language.TYPESCRIPT);
-		componentRepoRegistryDao.save(registry);
+		componentRepoDao.save(registry);
 		
-		Page<ComponentRepo> result = componentRepoRegistryService.findAllByNameOrLabel("am", PageRequest.of(0, 10));
+		Page<ComponentRepo> result = componentRepoService.findAllByNameOrLabel("am", PageRequest.of(0, 10));
 		assertThat(result.getContent()).hasSize(1);
 		assertThat(result.getTotalPages()).isEqualTo(1);
 		assertThat(result.getSize()).isEqualTo(10);
@@ -275,7 +275,7 @@ public class ComponentRepoRegistryServiceImplTest extends AbstractServiceTest{
 		registry.setCreateTime(LocalDateTime.now());
 		registry.setLastPublishTime(LocalDateTime.now().minusSeconds(2));
 		registry.setLanguage(Language.TYPESCRIPT);
-		componentRepoRegistryDao.save(registry);
+		componentRepoDao.save(registry);
 		
 		registry = new ComponentRepo();
 		registry.setApiRepoId(1);
@@ -290,9 +290,9 @@ public class ComponentRepoRegistryServiceImplTest extends AbstractServiceTest{
 		registry.setCreateTime(LocalDateTime.now());
 		registry.setLastPublishTime(LocalDateTime.now());
 		registry.setLanguage(Language.TYPESCRIPT);
-		componentRepoRegistryDao.save(registry);
+		componentRepoDao.save(registry);
 		
-		Page<ComponentRepo> result = componentRepoRegistryService.findAllByNameOrLabel("name", PageRequest.of(0, 10, Sort.by(Direction.DESC, "lastPublishTime")));
+		Page<ComponentRepo> result = componentRepoService.findAllByNameOrLabel("name", PageRequest.of(0, 10, Sort.by(Direction.DESC, "lastPublishTime")));
 		assertThat(result.getContent()).hasSize(2);
 		assertThat(result.getTotalPages()).isEqualTo(1);
 		assertThat(result.getSize()).isEqualTo(10);

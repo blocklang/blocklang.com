@@ -8,20 +8,20 @@ import org.springframework.stereotype.Service;
 
 import com.blocklang.marketplace.dao.ComponentRepoDao;
 import com.blocklang.marketplace.model.ComponentRepo;
-import com.blocklang.marketplace.service.ComponentRepoRegistryService;
+import com.blocklang.marketplace.service.ComponentRepoService;
 
 @Service
-public class ComponentRepoRegistryServiceImpl implements ComponentRepoRegistryService {
+public class ComponentRepoServiceImpl implements ComponentRepoService {
 
 	@Autowired
-	private ComponentRepoDao componentRepoRegistryDao;
+	private ComponentRepoDao componentRepoDao;
 	
 	@Override
 	public Page<ComponentRepo> findAllByNameOrLabel(String query, Pageable page) {
 		if(StringUtils.isBlank(query)) {
-			return componentRepoRegistryDao.findAllByLastPublishTimeNotNull(page);
+			return componentRepoDao.findAllByLastPublishTimeNotNull(page);
 		}
-		return componentRepoRegistryDao.findAllByLastPublishTimeNotNullAndNameContainingIgnoreCaseOrLastPublishTimeNotNullAndLabelContainingIgnoreCase(query, query, page);
+		return componentRepoDao.findAllByLastPublishTimeNotNullAndNameContainingIgnoreCaseOrLastPublishTimeNotNullAndLabelContainingIgnoreCase(query, query, page);
 	}
 
 	@Override

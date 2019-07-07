@@ -33,7 +33,7 @@ import com.blocklang.marketplace.data.NewComponentRepoParam;
 import com.blocklang.marketplace.model.ComponentRepoPublishTask;
 import com.blocklang.marketplace.model.ComponentRepo;
 import com.blocklang.marketplace.service.ComponentRepoPublishTaskService;
-import com.blocklang.marketplace.service.ComponentRepoRegistryService;
+import com.blocklang.marketplace.service.ComponentRepoService;
 import com.blocklang.marketplace.service.PublishService;
 import com.blocklang.release.constant.ReleaseResult;
 
@@ -43,7 +43,7 @@ public class ComponentRepoController {
 	@Autowired
 	private UserService userService;
 	@Autowired
-	private ComponentRepoRegistryService componentRepoRegistryService;
+	private ComponentRepoService componentRepoService;
 	@Autowired
 	private ComponentRepoPublishTaskService componentRepoPublishTaskService;
 	@Autowired
@@ -70,7 +70,7 @@ public class ComponentRepoController {
 		
 		// 默认一页显示 60 项组件仓库
 		Pageable pageable = PageRequest.of(iPage, 60, Sort.by(Direction.DESC, "lastPublishTime"));
-		Page<ComponentRepo> result = componentRepoRegistryService.findAllByNameOrLabel(query, pageable);
+		Page<ComponentRepo> result = componentRepoService.findAllByNameOrLabel(query, pageable);
 		
 		if(iPage > result.getTotalPages()) {
 			throw new ResourceNotFoundException();
@@ -107,7 +107,7 @@ public class ComponentRepoController {
 		Pageable pageable = PageRequest.of(iPage, 60, Sort.by(Direction.DESC, "lastPublishTime"));
 		
 		UserInfo userInfo = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
-		Page<ComponentRepo> result = componentRepoRegistryService.findAllByNameOrLabel(userInfo.getId(), query, pageable);
+		Page<ComponentRepo> result = componentRepoService.findAllByNameOrLabel(userInfo.getId(), query, pageable);
 		
 		if(iPage > result.getTotalPages()) {
 			throw new ResourceNotFoundException();

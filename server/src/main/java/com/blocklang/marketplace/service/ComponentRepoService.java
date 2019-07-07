@@ -5,7 +5,7 @@ import org.springframework.data.domain.Pageable;
 
 import com.blocklang.marketplace.model.ComponentRepo;
 
-public interface ComponentRepoRegistryService {
+public interface ComponentRepoService {
 
 	/**
 	 * 只查找已发布的组件库，如果组件库已登记，但是没有发布，则不返回。
