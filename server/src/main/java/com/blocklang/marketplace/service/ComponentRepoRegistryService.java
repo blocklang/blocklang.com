@@ -16,4 +16,6 @@ public interface ComponentRepoRegistryService {
 	 */
 	Page<ComponentRepo> findAllByNameOrLabel(String query, Pageable page);
 
+	Page<ComponentRepo> findAllByNameOrLabel(Integer createUserId, String query, Pageable page);
+
 }

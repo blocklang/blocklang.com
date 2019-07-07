@@ -79,6 +79,43 @@ public class ComponentRepoController {
 		return ResponseEntity.ok(result);
 	}
 	
+	@GetMapping("/user/component-repos")
+	public ResponseEntity<Page<ComponentRepo>> listMyComponentRepos(
+			Principal principal,
+			@RequestParam(value="q", required = false)String query, 
+			@RequestParam(required = false) String page) {
+		if(principal == null) {
+			throw new NoAuthorizationException();
+		}
+		
+		Integer iPage = null;
+		if(StringUtils.isBlank(page)){
+			iPage = 0;
+		}else {
+			try {
+				iPage = Integer.valueOf(page);
+			}catch (NumberFormatException e) {
+				throw new ResourceNotFoundException();
+			}
+		}
+		
+		if(iPage < 0) {
+			throw new ResourceNotFoundException();
+		}
+		
+		// 默认一页显示 60 项组件仓库
+		Pageable pageable = PageRequest.of(iPage, 60, Sort.by(Direction.DESC, "lastPublishTime"));
+		
+		UserInfo userInfo = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
+		Page<ComponentRepo> result = componentRepoRegistryService.findAllByNameOrLabel(userInfo.getId(), query, pageable);
+		
+		if(iPage > result.getTotalPages()) {
+			throw new ResourceNotFoundException();
+		}
+		
+		return ResponseEntity.ok(result);
+	}
+	
 	@PostMapping("/component-repos")
 	public ResponseEntity<ComponentRepoPublishTask> newComponentRepo(
 			Principal principal,

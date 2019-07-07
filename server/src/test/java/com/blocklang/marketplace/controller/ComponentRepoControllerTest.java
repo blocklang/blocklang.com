@@ -5,8 +5,8 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -25,8 +25,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.test.AbstractControllerTest;
 import com.blocklang.marketplace.data.NewComponentRepoParam;
-import com.blocklang.marketplace.model.ComponentRepoPublishTask;
 import com.blocklang.marketplace.model.ComponentRepo;
+import com.blocklang.marketplace.model.ComponentRepoPublishTask;
 import com.blocklang.marketplace.service.ComponentRepoPublishTaskService;
 import com.blocklang.marketplace.service.ComponentRepoRegistryService;
 import com.blocklang.marketplace.service.PublishService;
@@ -101,7 +101,6 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 	@Test
 	public void list_component_repos_q_is_null_and_page_greater_than_total() {
 		Page<ComponentRepo> result = new PageImpl<ComponentRepo>(Collections.emptyList(), PageRequest.of(100, 6000), 1);
-		
 		when(componentRepoRegistryService.findAllByNameOrLabel(any(), any())).thenReturn(result);
 		
 		given()
@@ -126,6 +125,128 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 			.param("page", 0)
 		.when()
 			.get("/component-repos")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body("content.size()", is(1));
+	}
+
+	@Test
+	public void list_my_component_repos_anonymous_forbidden() {
+		Page<ComponentRepo> result = new PageImpl<ComponentRepo>(Collections.emptyList());
+		when(componentRepoRegistryService.findAllByNameOrLabel(anyInt(), any(), any())).thenReturn(result);
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/user/component-repos")
+		.then()
+			.statusCode(HttpStatus.SC_FORBIDDEN);
+	}
+	
+	// 默认值，q 的值默认为 null，page 的值默认为 0
+	@WithMockUser("jack")
+	@Test
+	public void list_my_component_repos_q_is_null_and_page_is_null() {
+		UserInfo userInfo = new UserInfo();
+		userInfo.setId(1);
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(userInfo));
+		
+		Page<ComponentRepo> result = new PageImpl<ComponentRepo>(Collections.emptyList());
+		when(componentRepoRegistryService.findAllByNameOrLabel(anyInt(), any(), any())).thenReturn(result);
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/user/component-repos")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body("content.size()", is(0));
+	}
+	
+	@WithMockUser("jack")
+	@Test
+	public void list_my_component_repos_q_is_empty_and_page_is_1() {
+		UserInfo userInfo = new UserInfo();
+		userInfo.setId(1);
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(userInfo));
+		
+		Page<ComponentRepo> result = new PageImpl<ComponentRepo>(Collections.emptyList());
+		when(componentRepoRegistryService.findAllByNameOrLabel(anyInt(), any(), any())).thenReturn(result);
+		
+		given()
+			.contentType(ContentType.JSON)
+			.param("q", "")
+			.param("page", 1)
+		.when()
+			.get("/user/component-repos")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body("content.size()", is(0));
+	}
+	
+	@WithMockUser("jack")
+	@Test
+	public void list_my_component_repos_q_is_null_and_page_is_not_a_number() {
+		given()
+			.contentType(ContentType.JSON)
+			.param("q", "")
+			.param("page", "not-a-number")
+		.when()
+			.get("/user/component-repos")
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	@WithMockUser("jack")
+	@Test
+	public void list_my_component_repos_q_is_null_and_page_less_than_0() {
+		given()
+			.contentType(ContentType.JSON)
+			.param("q", "")
+			.param("page", -1)
+		.when()
+			.get("/user/component-repos")
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	@WithMockUser("jack")
+	@Test
+	public void list_my_component_repos_q_is_null_and_page_greater_than_total() {
+		UserInfo userInfo = new UserInfo();
+		userInfo.setId(1);
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(userInfo));
+		
+		Page<ComponentRepo> result = new PageImpl<ComponentRepo>(Collections.emptyList(), PageRequest.of(100, 6000), 1);
+		when(componentRepoRegistryService.findAllByNameOrLabel(anyInt(), any(), any())).thenReturn(result);
+		
+		given()
+			.contentType(ContentType.JSON)
+			.param("q", "")
+			.param("page", 100)
+		.when()
+			.get("/user/component-repos")
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	@WithMockUser("jack")
+	@Test
+	public void list_my_component_repos_success() {
+		UserInfo userInfo = new UserInfo();
+		userInfo.setId(1);
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(userInfo));
+		
+		ComponentRepo registry = new ComponentRepo();
+		Page<ComponentRepo> result = new PageImpl<ComponentRepo>(Collections.singletonList(registry));
+		when(componentRepoRegistryService.findAllByNameOrLabel(anyInt(), any(), any())).thenReturn(result);
+		
+		given()
+			.contentType(ContentType.JSON)
+			.param("q", "a")
+			.param("page", 0)
+		.when()
+			.get("/user/component-repos")
 		.then()
 			.statusCode(HttpStatus.SC_OK)
 			.body("content.size()", is(1));

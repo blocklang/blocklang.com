@@ -24,4 +24,10 @@ public class ComponentRepoRegistryServiceImpl implements ComponentRepoRegistrySe
 		return componentRepoRegistryDao.findAllByLastPublishTimeNotNullAndNameContainingIgnoreCaseOrLastPublishTimeNotNullAndLabelContainingIgnoreCase(query, query, page);
 	}
 
+	@Override
+	public Page<ComponentRepo> findAllByNameOrLabel(Integer createUserId, String query, Pageable page) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
