@@ -13,6 +13,16 @@ import com.blocklang.core.model.PartialOperateFields;
 import com.blocklang.release.constant.ReleaseResult;
 import com.blocklang.release.constant.converter.ReleaseResultConverter;
 
+/**
+ *一个组件库只能对应一个任务。 
+ * 
+ * <p>
+ * 注意：此任务可重复运行。
+ * </p>
+ * 
+ * @author Zhengwei Jin
+ *
+ */
 @Entity
 @Table(name = "component_repo_publish_task", 
 	uniqueConstraints = {@UniqueConstraint(columnNames = {"create_user_id", "git_url"}) }

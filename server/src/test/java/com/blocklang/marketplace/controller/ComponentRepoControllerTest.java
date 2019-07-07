@@ -24,6 +24,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.test.AbstractControllerTest;
+import com.blocklang.marketplace.data.ComponentRepoResult;
 import com.blocklang.marketplace.data.NewComponentRepoParam;
 import com.blocklang.marketplace.model.ComponentRepo;
 import com.blocklang.marketplace.model.ComponentRepoPublishTask;
@@ -37,7 +38,7 @@ import io.restassured.http.ContentType;
 public class ComponentRepoControllerTest extends AbstractControllerTest{
 
 	@MockBean
-	private ComponentRepoService componentRepoRegistryService;
+	private ComponentRepoService componentRepoService;
 	@MockBean
 	private ComponentRepoPublishTaskService componentRepoPublishTaskService;
 	@MockBean
@@ -47,7 +48,7 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 	@Test
 	public void list_component_repos_q_is_null_and_page_is_null() {
 		Page<ComponentRepo> result = new PageImpl<ComponentRepo>(Collections.emptyList());
-		when(componentRepoRegistryService.findAllByNameOrLabel(any(), any())).thenReturn(result);
+		when(componentRepoService.findAllByNameOrLabel(any(), any())).thenReturn(result);
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -61,7 +62,7 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 	@Test
 	public void list_component_repos_q_is_empty_and_page_is_1() {
 		Page<ComponentRepo> result = new PageImpl<ComponentRepo>(Collections.emptyList());
-		when(componentRepoRegistryService.findAllByNameOrLabel(any(), any())).thenReturn(result);
+		when(componentRepoService.findAllByNameOrLabel(any(), any())).thenReturn(result);
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -101,7 +102,7 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 	@Test
 	public void list_component_repos_q_is_null_and_page_greater_than_total() {
 		Page<ComponentRepo> result = new PageImpl<ComponentRepo>(Collections.emptyList(), PageRequest.of(100, 6000), 1);
-		when(componentRepoRegistryService.findAllByNameOrLabel(any(), any())).thenReturn(result);
+		when(componentRepoService.findAllByNameOrLabel(any(), any())).thenReturn(result);
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -117,7 +118,7 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 	public void list_component_repos_success() {
 		ComponentRepo registry = new ComponentRepo();
 		Page<ComponentRepo> result = new PageImpl<ComponentRepo>(Collections.singletonList(registry));
-		when(componentRepoRegistryService.findAllByNameOrLabel(any(), any())).thenReturn(result);
+		when(componentRepoService.findAllByNameOrLabel(any(), any())).thenReturn(result);
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -132,8 +133,8 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 
 	@Test
 	public void list_my_component_repos_anonymous_forbidden() {
-		Page<ComponentRepo> result = new PageImpl<ComponentRepo>(Collections.emptyList());
-		when(componentRepoRegistryService.findAllByNameOrLabel(anyInt(), any(), any())).thenReturn(result);
+		Page<ComponentRepoResult> result = new PageImpl<ComponentRepoResult>(Collections.emptyList());
+		when(componentRepoPublishTaskService.findAllByNameOrLabel(anyInt(), any(), any())).thenReturn(result);
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -151,8 +152,8 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 		userInfo.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(userInfo));
 		
-		Page<ComponentRepo> result = new PageImpl<ComponentRepo>(Collections.emptyList());
-		when(componentRepoRegistryService.findAllByNameOrLabel(anyInt(), any(), any())).thenReturn(result);
+		Page<ComponentRepoResult> result = new PageImpl<ComponentRepoResult>(Collections.emptyList());
+		when(componentRepoPublishTaskService.findAllByNameOrLabel(anyInt(), any(), any())).thenReturn(result);
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -170,8 +171,8 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 		userInfo.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(userInfo));
 		
-		Page<ComponentRepo> result = new PageImpl<ComponentRepo>(Collections.emptyList());
-		when(componentRepoRegistryService.findAllByNameOrLabel(anyInt(), any(), any())).thenReturn(result);
+		Page<ComponentRepoResult> result = new PageImpl<ComponentRepoResult>(Collections.emptyList());
+		when(componentRepoPublishTaskService.findAllByNameOrLabel(anyInt(), any(), any())).thenReturn(result);
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -217,8 +218,8 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 		userInfo.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(userInfo));
 		
-		Page<ComponentRepo> result = new PageImpl<ComponentRepo>(Collections.emptyList(), PageRequest.of(100, 6000), 1);
-		when(componentRepoRegistryService.findAllByNameOrLabel(anyInt(), any(), any())).thenReturn(result);
+		Page<ComponentRepoResult> result = new PageImpl<ComponentRepoResult>(Collections.emptyList(), PageRequest.of(100, 6000), 1);
+		when(componentRepoPublishTaskService.findAllByNameOrLabel(anyInt(), any(), any())).thenReturn(result);
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -237,9 +238,9 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 		userInfo.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(userInfo));
 		
-		ComponentRepo registry = new ComponentRepo();
-		Page<ComponentRepo> result = new PageImpl<ComponentRepo>(Collections.singletonList(registry));
-		when(componentRepoRegistryService.findAllByNameOrLabel(anyInt(), any(), any())).thenReturn(result);
+		ComponentRepoResult repo = new ComponentRepoResult();
+		Page<ComponentRepoResult> result = new PageImpl<ComponentRepoResult>(Collections.singletonList(repo));
+		when(componentRepoPublishTaskService.findAllByNameOrLabel(anyInt(), any(), any())).thenReturn(result);
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -397,6 +398,5 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 		
 		verify(publishService).asyncPublish(any());
 	}
-
 	
 }

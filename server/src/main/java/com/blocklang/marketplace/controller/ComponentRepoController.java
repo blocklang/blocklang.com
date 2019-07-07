@@ -29,6 +29,7 @@ import com.blocklang.core.exception.ResourceNotFoundException;
 import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.UserService;
+import com.blocklang.marketplace.data.ComponentRepoResult;
 import com.blocklang.marketplace.data.NewComponentRepoParam;
 import com.blocklang.marketplace.model.ComponentRepoPublishTask;
 import com.blocklang.marketplace.model.ComponentRepo;
@@ -80,7 +81,7 @@ public class ComponentRepoController {
 	}
 	
 	@GetMapping("/user/component-repos")
-	public ResponseEntity<Page<ComponentRepo>> listMyComponentRepos(
+	public ResponseEntity<Page<ComponentRepoResult>> listMyComponentRepos(
 			Principal principal,
 			@RequestParam(value="q", required = false)String query, 
 			@RequestParam(required = false) String page) {
@@ -103,11 +104,11 @@ public class ComponentRepoController {
 			throw new ResourceNotFoundException();
 		}
 		
-		// 默认一页显示 60 项组件仓库
-		Pageable pageable = PageRequest.of(iPage, 60, Sort.by(Direction.DESC, "lastPublishTime"));
+		// TODO: 在页面上未实现分页和过滤功能，先只支持一个用户最多发布 100 个组件库
+		Pageable pageable = PageRequest.of(iPage, 100, Sort.by(Direction.DESC, "lastPublishTime"));
 		
 		UserInfo userInfo = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
-		Page<ComponentRepo> result = componentRepoService.findAllByNameOrLabel(userInfo.getId(), query, pageable);
+		Page<ComponentRepoResult> result = componentRepoPublishTaskService.findAllByNameOrLabel(userInfo.getId(), query, pageable);
 		
 		if(iPage > result.getTotalPages()) {
 			throw new ResourceNotFoundException();
