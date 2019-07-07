@@ -56,6 +56,21 @@ public class ComponentRepoPublishTaskServiceImplTest extends AbstractServiceTest
 	}
 	
 	@Test
+	public void find_component_repos_task_not_save_and_repo_not_save() {
+		Integer anotherUserId = 2;
+		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
+		task.setGitUrl("git-url");
+		task.setStartTime(LocalDateTime.now());
+		task.setPublishResult(ReleaseResult.STARTED);
+		task.setCreateTime(LocalDateTime.now());
+		task.setCreateUserId(anotherUserId);
+		componentRepoPublishTaskService.save(task);
+		
+		List<ComponentRepoResult> componentRepoResultList = componentRepoPublishTaskService.findComponentRepos(1);
+		assertThat(componentRepoResultList).isEmpty();
+	}
+	
+	@Test
 	public void find_component_repos_task_saved_and_repo_not_save() {
 		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
 		task.setGitUrl("git-url");
