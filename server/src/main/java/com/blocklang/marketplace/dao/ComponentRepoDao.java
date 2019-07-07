@@ -16,4 +16,6 @@ public interface ComponentRepoDao extends JpaRepository<ComponentRepo, Integer>{
 
 	Optional<ComponentRepo> findByNameAndCreateUserId(String name, Integer userId);
 
+	Optional<ComponentRepo> findByGitRepoUrlAndCreateUserId(String gitUrl, Integer userId);
+
 }

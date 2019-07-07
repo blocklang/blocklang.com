@@ -1,12 +1,13 @@
 package com.blocklang.marketplace.service.impl;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.blocklang.marketplace.dao.ComponentRepoDao;
 import com.blocklang.marketplace.dao.ComponentRepoPublishTaskDao;
 import com.blocklang.marketplace.data.ComponentRepoResult;
 import com.blocklang.marketplace.model.ComponentRepoPublishTask;
@@ -17,6 +18,8 @@ public class ComponentRepoPublishTaskServiceImpl implements ComponentRepoPublish
 
 	@Autowired
 	private ComponentRepoPublishTaskDao componentRepoPublishTaskDao;
+	@Autowired
+	private ComponentRepoDao componentRepoDao;
 	
 	@Override
 	public ComponentRepoPublishTask save(ComponentRepoPublishTask task) {
@@ -29,9 +32,17 @@ public class ComponentRepoPublishTaskServiceImpl implements ComponentRepoPublish
 	}
 
 	@Override
-	public Page<ComponentRepoResult> findAllByNameOrLabel(Integer createUserId, String query, Pageable page) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<ComponentRepoResult> findComponentRepos(Integer createUserId) {
+		List<ComponentRepoPublishTask> tasks = componentRepoPublishTaskDao.findAllByCreateUserIdOrderByCreateTimeDesc(createUserId);
+		
+		return tasks.stream().map(task -> {
+			ComponentRepoResult result = new ComponentRepoResult();
+			result.setPublishTask(task);
+			
+			componentRepoDao.findByGitRepoUrlAndCreateUserId(task.getGitUrl(), createUserId).ifPresent(repo -> result.setComponentRepo(repo));
+			
+			return result;
+		}).collect(Collectors.toList());
 	}
 
 }

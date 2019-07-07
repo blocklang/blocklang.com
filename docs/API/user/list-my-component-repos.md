@@ -3,15 +3,12 @@
 获取登录用户发布的组件库，从登记的发布任务中获取，如果任务发布失败，则允许用户重新发布。
 
 ```text
-GET /user/component-repos?q={query}&page={page}
+GET /user/component-repos
 ```
 
 ## Parameters
 
-| Name    | Type     | Description                |
-| ------- | -------- | -------------------------- |
-| `query` | `string` | 与组件库的名称或显示名匹配 |
-| `page`  | `int`    | 当前页码                   |
+无
 
 ## Response
 
@@ -21,20 +18,7 @@ GET /user/component-repos?q={query}&page={page}
 Status: 200 OK
 ```
 
-返回一个 JSON 数组，其中包含分页信息
-
-```json
-{
-    "totalPages": 0,
-    "number": 0,
-    "size": 10,
-    "first": true,
-    "last": true,
-    "content": []
-}
-```
-
-`content` 数组中的 JSON 对象字段为：
+返回一个 JSON 数组
 
 | Name              | Type     | Description        |
 | ----------------- | -------- | ------------------ |

@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.apache.http.HttpStatus;
@@ -133,8 +134,8 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 
 	@Test
 	public void list_my_component_repos_anonymous_forbidden() {
-		Page<ComponentRepoResult> result = new PageImpl<ComponentRepoResult>(Collections.emptyList());
-		when(componentRepoPublishTaskService.findAllByNameOrLabel(anyInt(), any(), any())).thenReturn(result);
+		List<ComponentRepoResult> result = Collections.emptyList();
+		when(componentRepoPublishTaskService.findComponentRepos(anyInt())).thenReturn(result);
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -142,93 +143,6 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 			.get("/user/component-repos")
 		.then()
 			.statusCode(HttpStatus.SC_FORBIDDEN);
-	}
-	
-	// 默认值，q 的值默认为 null，page 的值默认为 0
-	@WithMockUser("jack")
-	@Test
-	public void list_my_component_repos_q_is_null_and_page_is_null() {
-		UserInfo userInfo = new UserInfo();
-		userInfo.setId(1);
-		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(userInfo));
-		
-		Page<ComponentRepoResult> result = new PageImpl<ComponentRepoResult>(Collections.emptyList());
-		when(componentRepoPublishTaskService.findAllByNameOrLabel(anyInt(), any(), any())).thenReturn(result);
-		
-		given()
-			.contentType(ContentType.JSON)
-		.when()
-			.get("/user/component-repos")
-		.then()
-			.statusCode(HttpStatus.SC_OK)
-			.body("content.size()", is(0));
-	}
-	
-	@WithMockUser("jack")
-	@Test
-	public void list_my_component_repos_q_is_empty_and_page_is_1() {
-		UserInfo userInfo = new UserInfo();
-		userInfo.setId(1);
-		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(userInfo));
-		
-		Page<ComponentRepoResult> result = new PageImpl<ComponentRepoResult>(Collections.emptyList());
-		when(componentRepoPublishTaskService.findAllByNameOrLabel(anyInt(), any(), any())).thenReturn(result);
-		
-		given()
-			.contentType(ContentType.JSON)
-			.param("q", "")
-			.param("page", 1)
-		.when()
-			.get("/user/component-repos")
-		.then()
-			.statusCode(HttpStatus.SC_OK)
-			.body("content.size()", is(0));
-	}
-	
-	@WithMockUser("jack")
-	@Test
-	public void list_my_component_repos_q_is_null_and_page_is_not_a_number() {
-		given()
-			.contentType(ContentType.JSON)
-			.param("q", "")
-			.param("page", "not-a-number")
-		.when()
-			.get("/user/component-repos")
-		.then()
-			.statusCode(HttpStatus.SC_NOT_FOUND);
-	}
-	
-	@WithMockUser("jack")
-	@Test
-	public void list_my_component_repos_q_is_null_and_page_less_than_0() {
-		given()
-			.contentType(ContentType.JSON)
-			.param("q", "")
-			.param("page", -1)
-		.when()
-			.get("/user/component-repos")
-		.then()
-			.statusCode(HttpStatus.SC_NOT_FOUND);
-	}
-	
-	@WithMockUser("jack")
-	@Test
-	public void list_my_component_repos_q_is_null_and_page_greater_than_total() {
-		UserInfo userInfo = new UserInfo();
-		userInfo.setId(1);
-		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(userInfo));
-		
-		Page<ComponentRepoResult> result = new PageImpl<ComponentRepoResult>(Collections.emptyList(), PageRequest.of(100, 6000), 1);
-		when(componentRepoPublishTaskService.findAllByNameOrLabel(anyInt(), any(), any())).thenReturn(result);
-		
-		given()
-			.contentType(ContentType.JSON)
-			.param("q", "")
-			.param("page", 100)
-		.when()
-			.get("/user/component-repos")
-		.then()
-			.statusCode(HttpStatus.SC_NOT_FOUND);
 	}
 	
 	@WithMockUser("jack")
@@ -239,13 +153,10 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(userInfo));
 		
 		ComponentRepoResult repo = new ComponentRepoResult();
-		Page<ComponentRepoResult> result = new PageImpl<ComponentRepoResult>(Collections.singletonList(repo));
-		when(componentRepoPublishTaskService.findAllByNameOrLabel(anyInt(), any(), any())).thenReturn(result);
+		when(componentRepoPublishTaskService.findComponentRepos(anyInt())).thenReturn(Collections.singletonList(repo));
 		
 		given()
 			.contentType(ContentType.JSON)
-			.param("q", "a")
-			.param("page", 0)
 		.when()
 			.get("/user/component-repos")
 		.then()
