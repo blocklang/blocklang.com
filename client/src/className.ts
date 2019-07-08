@@ -173,6 +173,9 @@ export const navbar_collapse: string = 'navbar-collapse';
 
 //      spinner
 export const spinner_border: string = 'spinner-border';
+export const spinner_border_sm: string = 'spinner-border-sm';
+export const spinner_grow: string = 'spinner-grow';
+export const spinner_grow_sm: string = 'spinner-grow-sm';
 
 // Utilities
 //     border
