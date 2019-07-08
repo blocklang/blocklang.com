@@ -18,10 +18,15 @@
 				<constraints nullable="false" />
 			</column>
 			<column name="end_time" remarks="结束时间" type="${datetime}" />
+			<column name="publish_type" remarks="发布类型" type="char(2)" defaultValue="01">
+				<constraints nullable="false" />
+			</column>
 			<column name="publish_result" remarks="发布结果" type="char(2)" defaultValue="01">
 				<constraints nullable="false" />
 			</column>
 			<column name="log_file_name" remarks="日志文件名" type="varchar(255)" />
+			<column name="from_version" remarks="升级前版本号" type="varchar(32)" />
+			<column name="to_version" remarks="升级后版本号" type="varchar(32)" />
 			<column name="create_user_id" remarks="创建人标识" type="int">
 				<constraints nullable="false" />
 			</column>
@@ -31,11 +36,12 @@
 			<column name="last_update_user_id" remarks="最近修改人标识" type="int" />
 			<column name="last_update_time" remarks="最近修改时间" type="${datetime}" />
 		</createTable>
-		
-		<addUniqueConstraint
-			columnNames="git_url,create_user_id"
-			constraintName="UK_COMP_REPO_PUBLISH_TASK_ON_GIT_URL_USER_ID"
-			tableName="component_repo_publish_task" />
+			
+		<createIndex indexName="IDX_COMP_REPO_PUBLISH_TASK_ON_RESULT_USER_ID"
+			tableName="component_repo_publish_task">
+			<column name="publish_result" />
+			<column name="create_user_id" />
+		</createIndex>
 	</changeSet>
 
 </databaseChangeLog>

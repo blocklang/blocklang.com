@@ -10,7 +10,7 @@
 | git_url        | git 仓库地址 | varchar  | 128  |        |      | 否   |
 | start_time     | 开始时间     | datetime |      |        |      | 否   |
 | end_time       | 结束时间     | datetime |      |        |      | 是   |
-| publish_type   | 发布类型     | char     | 2    |        |      | 否   |
+| publish_type   | 发布类型     | char     | 2    | 01     |      | 否   |
 | publish_result | 发布结果     | char     | 2    | 01     |      | 否   |
 | log_file_name  | 日志文件名   | varchar  | 255  |        |      | 是   |
 | from_version   | 升级前版本号 | varchar  | 32   |        |      | 是   |

@@ -5,11 +5,14 @@ import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import com.blocklang.core.model.PartialOperateFields;
+import com.blocklang.marketplace.constant.PublishType;
+import com.blocklang.marketplace.constant.converter.PublishTypeConverter;
 import com.blocklang.release.constant.ReleaseResult;
 import com.blocklang.release.constant.converter.ReleaseResultConverter;
 
@@ -25,7 +28,7 @@ import com.blocklang.release.constant.converter.ReleaseResultConverter;
  */
 @Entity
 @Table(name = "component_repo_publish_task", 
-	uniqueConstraints = {@UniqueConstraint(columnNames = {"create_user_id", "git_url"}) }
+	indexes = {@Index(columnList = "create_user_id,publish_result")}
 )
 public class ComponentRepoPublishTask extends PartialOperateFields {
 
@@ -39,14 +42,24 @@ public class ComponentRepoPublishTask extends PartialOperateFields {
 
 	@Column(name = "end_time")
 	private LocalDateTime endTime;
+	
+	@Convert(converter = PublishTypeConverter.class)
+	@Column(name = "publish_type", length = 2, nullable = false)
+	private PublishType publishType = PublishType.NEW;
 
 	// 因为 publish_result 的值与 release_result 的值相同，所以使用 ReleaseResult 相关类
 	@Convert(converter = ReleaseResultConverter.class)
 	@Column(name = "publish_result", length = 2, nullable = false)
-	private ReleaseResult publishResult;
+	private ReleaseResult publishResult = ReleaseResult.INITED;
 
 	@Column(name = "log_file_name", length = 255)
 	private String logFileName;
+	
+	@Column(name = "from_version", length = 32)
+	private String fromVersion;
+	
+	@Column(name = "to_version", length = 32)
+	private String toVersion;
 
 	@Transient
 	private String createUserName;
@@ -107,6 +120,30 @@ public class ComponentRepoPublishTask extends PartialOperateFields {
 
 	public void setCreateUserAvatarUrl(String createUserAvatarUrl) {
 		this.createUserAvatarUrl = createUserAvatarUrl;
+	}
+
+	public PublishType getPublishType() {
+		return publishType;
+	}
+
+	public void setPublishType(PublishType publishType) {
+		this.publishType = publishType;
+	}
+
+	public String getFromVersion() {
+		return fromVersion;
+	}
+
+	public void setFromVersion(String fromVersion) {
+		this.fromVersion = fromVersion;
+	}
+
+	public String getToVersion() {
+		return toVersion;
+	}
+
+	public void setToVersion(String toVersion) {
+		this.toVersion = toVersion;
 	}
 
 }
