@@ -65,7 +65,8 @@
 4. [获取登录用户详细信息](./user/get-user-profile.md)
 5. [查看我的项目](./user/list-my-projects.md)
 6. [获取登录用户发布的组件库](./user/list-my-component-repos.md)
-7. [修改用户信息](./user/update-user-profile.md)
+7. [获取登录用户正在运行的组件库发布任务](./user/list-my-component-repo-publishing-tasks.md)
+8. [修改用户信息](./user/update-user-profile.md)
 
 ## 教程
 
