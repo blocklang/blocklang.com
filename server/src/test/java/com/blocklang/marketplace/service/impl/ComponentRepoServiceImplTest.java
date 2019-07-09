@@ -1,15 +1,17 @@
 package com.blocklang.marketplace.service.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.List;
+
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.time.LocalDateTime;
 
 import com.blocklang.core.test.AbstractServiceTest;
 import com.blocklang.marketplace.constant.Language;
@@ -301,4 +303,83 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		
 		assertThat(result.getContent().get(0).getName()).isEqualTo("name1");
 	}
+
+	@Test
+	public void find_user_component_repos_no_data() {
+		List<ComponentRepo> componentRepos = componentRepoService.findUserComponentRepos(1);
+		assertThat(componentRepos).isEmpty();
+	}
+	
+	@Test
+	public void find_user_component_repos_success() {
+		Integer createUserId = 1;
+		
+		ComponentRepo repo = new ComponentRepo();
+		repo.setApiRepoId(1);
+		repo.setGitRepoUrl("url");
+		repo.setGitRepoWebsite("website");
+		repo.setGitRepoOwner("jack");
+		repo.setGitRepoName("repo");
+		repo.setName("name");
+		repo.setVersion("version");
+		repo.setCategory(RepoCategory.WIDGET);
+		repo.setCreateUserId(createUserId);
+		repo.setCreateTime(LocalDateTime.now());
+		repo.setLanguage(Language.TYPESCRIPT);
+		componentRepoDao.save(repo);
+		
+		repo = new ComponentRepo();
+		repo.setApiRepoId(1);
+		repo.setGitRepoUrl("url-2");
+		repo.setGitRepoWebsite("website");
+		repo.setGitRepoOwner("jack");
+		repo.setGitRepoName("repo");
+		repo.setName("name-2");
+		repo.setVersion("version");
+		repo.setCategory(RepoCategory.WIDGET);
+		repo.setCreateUserId(2);
+		repo.setCreateTime(LocalDateTime.now());
+		repo.setLanguage(Language.TYPESCRIPT);
+		componentRepoDao.save(repo);
+		
+		List<ComponentRepo> componentRepos = componentRepoService.findUserComponentRepos(1);
+		assertThat(componentRepos).hasSize(1);
+	}
+	
+	@Test
+	public void find_user_component_repos_sort_by_name_asc() {
+		Integer createUserId = 1;
+		
+		ComponentRepo repo = new ComponentRepo();
+		repo.setApiRepoId(1);
+		repo.setGitRepoUrl("url");
+		repo.setGitRepoWebsite("website");
+		repo.setGitRepoOwner("jack");
+		repo.setGitRepoName("repo");
+		repo.setName("b");
+		repo.setVersion("version");
+		repo.setCategory(RepoCategory.WIDGET);
+		repo.setCreateUserId(createUserId);
+		repo.setCreateTime(LocalDateTime.now());
+		repo.setLanguage(Language.TYPESCRIPT);
+		componentRepoDao.save(repo);
+		
+		repo = new ComponentRepo();
+		repo.setApiRepoId(1);
+		repo.setGitRepoUrl("url-2");
+		repo.setGitRepoWebsite("website");
+		repo.setGitRepoOwner("jack");
+		repo.setGitRepoName("repo");
+		repo.setName("a");
+		repo.setVersion("version");
+		repo.setCategory(RepoCategory.WIDGET);
+		repo.setCreateUserId(createUserId);
+		repo.setCreateTime(LocalDateTime.now());
+		repo.setLanguage(Language.TYPESCRIPT);
+		componentRepoDao.save(repo);
+		
+		List<ComponentRepo> componentRepos = componentRepoService.findUserComponentRepos(createUserId);
+		assertThat(componentRepos).hasSize(2).isSortedAccordingTo(Comparator.comparing(ComponentRepo::getName));
+	}
+
 }

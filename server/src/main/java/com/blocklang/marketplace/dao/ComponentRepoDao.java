@@ -1,5 +1,6 @@
 package com.blocklang.marketplace.dao;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -17,5 +18,7 @@ public interface ComponentRepoDao extends JpaRepository<ComponentRepo, Integer>{
 	Optional<ComponentRepo> findByNameAndCreateUserId(String name, Integer userId);
 
 	Optional<ComponentRepo> findByGitRepoUrlAndCreateUserId(String gitUrl, Integer userId);
+
+	List<ComponentRepo> findAllByCreateUserIdOrderByName(Integer userId);
 
 }

@@ -11,7 +11,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 import org.apache.http.HttpStatus;
@@ -25,7 +24,6 @@ import org.springframework.security.test.context.support.WithMockUser;
 
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.test.AbstractControllerTest;
-import com.blocklang.marketplace.data.ComponentRepoResult;
 import com.blocklang.marketplace.data.NewComponentRepoParam;
 import com.blocklang.marketplace.model.ComponentRepo;
 import com.blocklang.marketplace.model.ComponentRepoPublishTask;
@@ -134,9 +132,6 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 
 	@Test
 	public void list_my_component_repos_anonymous_forbidden() {
-		List<ComponentRepoResult> result = Collections.emptyList();
-		when(componentRepoPublishTaskService.findComponentRepos(anyInt())).thenReturn(result);
-		
 		given()
 			.contentType(ContentType.JSON)
 		.when()
@@ -152,8 +147,8 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 		userInfo.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(userInfo));
 		
-		ComponentRepoResult repo = new ComponentRepoResult();
-		when(componentRepoPublishTaskService.findComponentRepos(anyInt())).thenReturn(Collections.singletonList(repo));
+		ComponentRepo repo = new ComponentRepo();
+		when(componentRepoService.findUserComponentRepos(anyInt())).thenReturn(Collections.singletonList(repo));
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -161,7 +156,7 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 			.get("/user/component-repos")
 		.then()
 			.statusCode(HttpStatus.SC_OK)
-			.body("content.size()", is(1));
+			.body("size()", is(1));
 	}
 
 	@Test

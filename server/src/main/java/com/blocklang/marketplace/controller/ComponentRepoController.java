@@ -30,7 +30,6 @@ import com.blocklang.core.exception.ResourceNotFoundException;
 import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.UserService;
-import com.blocklang.marketplace.data.ComponentRepoResult;
 import com.blocklang.marketplace.data.NewComponentRepoParam;
 import com.blocklang.marketplace.model.ComponentRepo;
 import com.blocklang.marketplace.model.ComponentRepoPublishTask;
@@ -82,13 +81,13 @@ public class ComponentRepoController {
 	}
 	
 	@GetMapping("/user/component-repos")
-	public ResponseEntity<List<ComponentRepoResult>> listMyComponentRepos(
+	public ResponseEntity<List<ComponentRepo>> listMyComponentRepos(
 			Principal principal) {
 		if(principal == null) {
 			throw new NoAuthorizationException();
 		}
 		UserInfo userInfo = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
-		List<ComponentRepoResult> result = componentRepoPublishTaskService.findComponentRepos(userInfo.getId());
+		List<ComponentRepo> result = componentRepoService.findUserComponentRepos(userInfo.getId());
 
 		return ResponseEntity.ok(result);
 	}
