@@ -226,6 +226,7 @@ export const d_table_cell: string = 'd-table-cell';
 export const d_table_row: string = 'd-table-row';
 export const d_flex: string = 'd-flex';
 export const d_inline_flex: string = 'd-inline-flex';
+export const flex_grow_1: string = 'flex-grow-1';
 export const d_md_block: string = 'd-md-block';
 export const d_md_none: string = 'd-md-none';
 

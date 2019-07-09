@@ -1,4 +1,4 @@
-import { ValidateStatus, ResourceType, GitFileStatus, ReleaseResult, AccessLevel } from './constant';
+import { ValidateStatus, ResourceType, GitFileStatus, ReleaseResult, AccessLevel, PublishType } from './constant';
 import { IconName } from '@fortawesome/fontawesome-svg-core';
 
 // 注意：一些公共信息，要做成全局变量，不然会存储很多无用的信息
@@ -261,6 +261,17 @@ interface Page {
 	last: boolean;
 }
 
+interface ComponentRepoPublishTask {
+	id?: number;
+	gitUrl: string;
+	startTime: string;
+	endTime: string;
+	publishType: PublishType;
+	publishResult: ReleaseResult;
+	fromVersion: String;
+	toVersion: string;
+}
+
 interface ComponentRepo {
 	id?: number;
 	gitRepoUrl: string;
@@ -335,6 +346,9 @@ export interface State {
 	marketplacePageStatusCode: number;
 	componentRepoUrlInputValidation: ComponentRepoUrlInputValidation;
 	componentRepoUrl: string;
+	// 用户正在发布的组件库任务
+	userComponentRepoPublishingTasks: ComponentRepoPublishTask[];
+	userComponentRepos: ComponentRepo[];
 
 	help: Help;
 }

@@ -32,6 +32,11 @@ export enum ReleaseResult {
 	Canceled = '05'
 }
 
+export enum PublishType {
+	New = '01',
+	Upgrade = '02'
+}
+
 export enum AccessLevel {
 	Forbidden = '01',
 	Read = '02',

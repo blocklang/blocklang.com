@@ -30,6 +30,30 @@ const startInitForNewComponentRepoCommand = commandFactory(({ path }) => {
 	];
 });
 
+const getUserPublishingComponentRepoTasksCommand = commandFactory(async ({ path }) => {
+	const response = await fetch(`${baseUrl}/user/component-repos/publishing-tasks`, {
+		headers: getHeaders()
+	});
+	const json = await response.json();
+	if (!response.ok) {
+		return [replace(path('userComponentRepoPublishingTasks'), undefined)];
+	}
+
+	return [replace(path('userComponentRepoPublishingTasks'), json)];
+});
+
+const getUserComponentReposCommand = commandFactory(async ({ path }) => {
+	const response = await fetch(`${baseUrl}/user/component-repos`, {
+		headers: getHeaders()
+	});
+	const json = await response.json();
+	if (!response.ok) {
+		return [replace(path('userComponentRepos'), undefined)];
+	}
+
+	return [replace(path('userComponentRepos'), json)];
+});
+
 const componentRepoUrlInputCommand = commandFactory<UrlPayload>(({ path, payload: { url } }) => {
 	const trimedUrl = url.trim();
 	// 校验是否已填写 url
@@ -102,7 +126,9 @@ export const initForListComponentReposProcess = createProcess('init-for-list-com
 	getComponentReposCommand
 ]);
 export const initForListMyComponentReposProcess = createProcess('init-for-list-my-component-repos', [
-	startInitForNewComponentRepoCommand
+	startInitForNewComponentRepoCommand,
+	getUserPublishingComponentRepoTasksCommand,
+	getUserComponentReposCommand
 ]);
 export const componentRepoUrlInputProcess = createProcess('component-repo-url-input', [componentRepoUrlInputCommand]);
 export const publishComponentRepoProcess = createProcess('publish-component-repo', [publishComponentRepoCommand]);
