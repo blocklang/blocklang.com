@@ -8,7 +8,6 @@ import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
 
 import com.blocklang.core.model.PartialOperateFields;
 import com.blocklang.marketplace.constant.PublishType;
@@ -17,11 +16,7 @@ import com.blocklang.release.constant.ReleaseResult;
 import com.blocklang.release.constant.converter.ReleaseResultConverter;
 
 /**
- *一个组件库只能对应一个任务。 
- * 
- * <p>
- * 注意：此任务可重复运行。
- * </p>
+ * 发布组件库的任务信息
  * 
  * @author Zhengwei Jin
  *

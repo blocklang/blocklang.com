@@ -3,7 +3,6 @@ package com.blocklang.marketplace.service;
 import java.util.List;
 import java.util.Optional;
 
-import com.blocklang.marketplace.data.ComponentRepoResult;
 import com.blocklang.marketplace.model.ComponentRepoPublishTask;
 
 public interface ComponentRepoPublishTaskService {
@@ -12,5 +11,5 @@ public interface ComponentRepoPublishTaskService {
 
 	public Optional<ComponentRepoPublishTask> findByGitUrlAndUserId(Integer userId, String gitUrl);
 
-	public List<ComponentRepoResult> findComponentRepos(Integer createUserId);
+	public List<ComponentRepoPublishTask> findUserPublishingTasks(Integer userId);
 }

@@ -34,6 +34,7 @@ import com.blocklang.develop.service.impl.ProjectFileServiceImplTest;
 import com.blocklang.develop.service.impl.ProjectResourceServiceImplTest;
 import com.blocklang.develop.service.impl.ProjectServiceImplTest;
 import com.blocklang.marketplace.controller.ComponentRepoControllerTest;
+import com.blocklang.marketplace.controller.ComponentRepoPublishTaskControllerTest;
 import com.blocklang.marketplace.data.LocalRepoPathTest;
 import com.blocklang.marketplace.service.impl.ComponentRepoPublishTaskServiceImplTest;
 import com.blocklang.marketplace.service.impl.ComponentRepoServiceImplTest;
@@ -98,6 +99,7 @@ import com.blocklang.release.task.GitTagTaskTest;
 	GroupControllerTest.class,
 	CommitControllerTest.class,
 	ComponentRepoControllerTest.class,
+	ComponentRepoPublishTaskControllerTest.class,
 
 	// service tests
 	AppServiceImplTest.class,
