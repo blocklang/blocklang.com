@@ -4,6 +4,8 @@ import java.util.Arrays;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum PublishType {
 
 	NEW("01", "new"),
@@ -17,6 +19,7 @@ public enum PublishType {
 		this.value = value;
 	}
 
+	@JsonValue
 	public String getKey() {
 		return this.key;
 	}

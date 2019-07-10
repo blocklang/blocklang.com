@@ -5,9 +5,9 @@ import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
-import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 
 import com.blocklang.core.model.PartialOperateFields;
 import com.blocklang.marketplace.constant.PublishType;
@@ -23,7 +23,9 @@ import com.blocklang.release.constant.converter.ReleaseResultConverter;
  */
 @Entity
 @Table(name = "component_repo_publish_task", 
-	indexes = {@Index(columnList = "create_user_id,publish_result")}
+	uniqueConstraints = {
+		@UniqueConstraint(columnNames = { "git_url", "seq", "create_user_id" })
+	}
 )
 public class ComponentRepoPublishTask extends PartialOperateFields {
 
@@ -31,6 +33,9 @@ public class ComponentRepoPublishTask extends PartialOperateFields {
 
 	@Column(name = "git_url", nullable = false, length = 128)
 	private String gitUrl;
+	
+	@Column(name = "seq", nullable = false)
+	private Integer seq;
 
 	@Column(name = "start_time", nullable = false)
 	private LocalDateTime startTime;
@@ -60,6 +65,12 @@ public class ComponentRepoPublishTask extends PartialOperateFields {
 	private String createUserName;
 	@Transient
 	private String createUserAvatarUrl;
+	@Transient
+	private String website;
+	@Transient
+	private String owner;
+	@Transient
+	private String repoName;
 
 	public String getGitUrl() {
 		return gitUrl;
@@ -67,6 +78,7 @@ public class ComponentRepoPublishTask extends PartialOperateFields {
 
 	public void setGitUrl(String gitUrl) {
 		this.gitUrl = gitUrl;
+		
 	}
 
 	public LocalDateTime getStartTime() {
@@ -139,6 +151,18 @@ public class ComponentRepoPublishTask extends PartialOperateFields {
 
 	public void setToVersion(String toVersion) {
 		this.toVersion = toVersion;
+	}
+
+	public String getWebsite() {
+		return website;
+	}
+
+	public String getOwner() {
+		return owner;
+	}
+
+	public String getRepoName() {
+		return repoName;
 	}
 
 }

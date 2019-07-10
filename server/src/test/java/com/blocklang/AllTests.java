@@ -14,6 +14,7 @@ import com.blocklang.core.service.impl.PropertyServiceImplTest;
 import com.blocklang.core.service.impl.QqLoginServiceImplTest;
 import com.blocklang.core.service.impl.UserBindServiceImplTest;
 import com.blocklang.core.service.impl.UserServiceImplTest;
+import com.blocklang.core.util.GitUrlParserTest;
 import com.blocklang.core.util.IdGeneratorTest;
 import com.blocklang.core.util.LoginTokenTest;
 import com.blocklang.core.util.RangeHeaderTest;
@@ -81,6 +82,7 @@ import com.blocklang.release.task.GitTagTaskTest;
 	ApiChangeLogValidateTaskTest.class,
 	ApiChangeLogsSetupGroupTaskTest.class,
 	CodeGeneratorTest.class,
+	GitUrlParserTest.class,
 	
 	UserValidatorTest.class,
 	

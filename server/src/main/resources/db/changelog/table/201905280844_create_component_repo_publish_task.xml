@@ -14,6 +14,9 @@
 			<column name="git_url" remarks="git 仓库地址" type="varchar(128)">
 				<constraints nullable="false" />
 			</column>
+			<column name="seq" remarks="仓库的发布编号" type="int">
+				<constraints nullable="false" />
+			</column>
 			<column name="start_time" remarks="开始时间" type="${datetime}">
 				<constraints nullable="false" />
 			</column>
@@ -36,12 +39,10 @@
 			<column name="last_update_user_id" remarks="最近修改人标识" type="int" />
 			<column name="last_update_time" remarks="最近修改时间" type="${datetime}" />
 		</createTable>
-			
-		<createIndex indexName="IDX_COMP_REPO_PUBLISH_TASK_ON_RESULT_USER_ID"
-			tableName="component_repo_publish_task">
-			<column name="publish_result" />
-			<column name="create_user_id" />
-		</createIndex>
+
+		<addUniqueConstraint columnNames="git_url,seq,create_user_id"
+			constraintName="UK_COMP_REPO_PUBLISH_TASK_ON_URL_USER_SEQ"
+			tableName="component_repo_publish_task" />
 	</changeSet>
 
 </databaseChangeLog>
