@@ -4,22 +4,23 @@
 
 ## 字段
 
-| 字段名         | 注释         | 类型     | 长度 | 默认值 | 主键 | 可空 |
-| -------------- | ------------ | -------- | ---- | ------ | ---- | ---- |
-| dbid           | 主键         | int      |      |        | 是   | 否   |
-| git_url        | git 仓库地址 | varchar  | 128  |        |      | 否   |
-| start_time     | 开始时间     | datetime |      |        |      | 否   |
-| end_time       | 结束时间     | datetime |      |        |      | 是   |
-| publish_type   | 发布类型     | char     | 2    | 01     |      | 否   |
-| publish_result | 发布结果     | char     | 2    | 01     |      | 否   |
-| log_file_name  | 日志文件名   | varchar  | 255  |        |      | 是   |
-| from_version   | 升级前版本号 | varchar  | 32   |        |      | 是   |
-| to_version     | 升级后版本号 | varchar  | 32   |        |      | 是   |
+| 字段名         | 注释           | 类型     | 长度 | 默认值 | 主键 | 可空 |
+| -------------- | -------------- | -------- | ---- | ------ | ---- | ---- |
+| dbid           | 主键           | int      |      |        | 是   | 否   |
+| git_url        | git 仓库地址   | varchar  | 128  |        |      | 否   |
+| seq            | 仓库的发布编号 | int      |      |        |      | 否   |
+| start_time     | 开始时间       | datetime |      |        |      | 否   |
+| end_time       | 结束时间       | datetime |      |        |      | 是   |
+| publish_type   | 发布类型       | char     | 2    | 01     |      | 否   |
+| publish_result | 发布结果       | char     | 2    | 01     |      | 否   |
+| log_file_name  | 日志文件名     | varchar  | 255  |        |      | 是   |
+| from_version   | 升级前版本号   | varchar  | 32   |        |      | 是   |
+| to_version     | 升级后版本号   | varchar  | 32   |        |      | 是   |
 
 ## 约束
 
 * 主键：`PK_COMPONENT_REPO_PUBLISH_TASK`
-* 索引：`IDX_COMP_REPO_PUBLISH_TASK_ON_RESULT_USER_ID`(普通索引)，对应字段 `publish_result`、`create_user_id`
+* 索引：`UK_COMP_REPO_PUBLISH_TASK_ON_URL_USER_SEQ`(唯一索引)，对应字段 `git_url`、`seq`、`create_user_id`
 
 ## 说明
 
@@ -29,3 +30,5 @@
 4. `from_version` 和 `to_version` 仅用于 `publish_type` 的值为 `02` 时
 5. 为了避免有人在市场中抢注仓库名，使用 `@{publisher}/{repo}` 的形式唯一定位一个组件库
 6. 用户可以重复为一个组件库添加多次发布，但后续会执行严格校验，以决定是升级还是无需重复发布
+7. `seq` 是从 1 开始计数的，因为一个项目可由多人发布，所以需要使用 `git_url`、`seq` 和 `create_user_id` 三个字段联合唯一
+8. 在第一次发布时，`from_version` 的值为 `null`，`to_version` 的值为当前版本
