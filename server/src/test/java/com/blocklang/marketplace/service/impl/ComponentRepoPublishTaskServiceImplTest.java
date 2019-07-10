@@ -22,7 +22,8 @@ public class ComponentRepoPublishTaskServiceImplTest extends AbstractServiceTest
 	@Test
 	public void save_success() {
 		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
-		task.setGitUrl("a");
+		task.setGitUrl("https://a.com/jack/repo");
+		task.setSeq(1);
 		task.setStartTime(LocalDateTime.now());
 		task.setPublishResult(ReleaseResult.STARTED);
 		task.setCreateTime(LocalDateTime.now());
@@ -39,14 +40,15 @@ public class ComponentRepoPublishTaskServiceImplTest extends AbstractServiceTest
 	@Test
 	public void find_by_gitUrl_and_userId_success() {
 		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
-		task.setGitUrl("git-url");
+		task.setGitUrl("https://a.com/jack/repo");
+		task.setSeq(1);
 		task.setStartTime(LocalDateTime.now());
 		task.setPublishResult(ReleaseResult.STARTED);
 		task.setCreateTime(LocalDateTime.now());
 		task.setCreateUserId(1);
 		componentRepoPublishTaskService.save(task);
 		
-		assertThat(componentRepoPublishTaskService.findByGitUrlAndUserId(1, "git-url")).isPresent();
+		assertThat(componentRepoPublishTaskService.findByGitUrlAndUserId(1, "https://a.com/jack/repo")).isPresent();
 	}
 	
 	@Test
@@ -60,7 +62,8 @@ public class ComponentRepoPublishTaskServiceImplTest extends AbstractServiceTest
 		Integer createUserId = 1;
 		
 		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
-		task.setGitUrl("git-url-1");
+		task.setGitUrl("https://a.com/jack/repo-1");
+		task.setSeq(1);
 		task.setStartTime(LocalDateTime.now());
 		task.setPublishResult(ReleaseResult.STARTED);
 		task.setCreateTime(LocalDateTime.now());
@@ -68,7 +71,8 @@ public class ComponentRepoPublishTaskServiceImplTest extends AbstractServiceTest
 		componentRepoPublishTaskService.save(task);
 		
 		task = new ComponentRepoPublishTask();
-		task.setGitUrl("git-url-2");
+		task.setGitUrl("https://a.com/jack/repo-2");
+		task.setSeq(1);
 		task.setStartTime(LocalDateTime.now());
 		task.setPublishResult(ReleaseResult.STARTED);
 		task.setCreateTime(LocalDateTime.now());
@@ -84,7 +88,8 @@ public class ComponentRepoPublishTaskServiceImplTest extends AbstractServiceTest
 		Integer createUserId = 1;
 		
 		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
-		task.setGitUrl("git-url-1");
+		task.setGitUrl("https://a.com/jack/repo-1");
+		task.setSeq(1);
 		task.setStartTime(LocalDateTime.now());
 		task.setPublishResult(ReleaseResult.INITED);
 		task.setCreateTime(LocalDateTime.now());
@@ -92,7 +97,8 @@ public class ComponentRepoPublishTaskServiceImplTest extends AbstractServiceTest
 		componentRepoPublishTaskService.save(task);
 		
 		task = new ComponentRepoPublishTask();
-		task.setGitUrl("git-url-2");
+		task.setGitUrl("https://a.com/jack/repo-2");
+		task.setSeq(1);
 		task.setStartTime(LocalDateTime.now());
 		task.setPublishResult(ReleaseResult.FAILED);
 		task.setCreateTime(LocalDateTime.now());
@@ -100,7 +106,8 @@ public class ComponentRepoPublishTaskServiceImplTest extends AbstractServiceTest
 		componentRepoPublishTaskService.save(task);
 		
 		task = new ComponentRepoPublishTask();
-		task.setGitUrl("git-url-3");
+		task.setGitUrl("https://a.com/jack/repo-3");
+		task.setSeq(1);
 		task.setStartTime(LocalDateTime.now());
 		task.setPublishResult(ReleaseResult.PASSED);
 		task.setCreateTime(LocalDateTime.now());
@@ -108,7 +115,8 @@ public class ComponentRepoPublishTaskServiceImplTest extends AbstractServiceTest
 		componentRepoPublishTaskService.save(task);
 		
 		task = new ComponentRepoPublishTask();
-		task.setGitUrl("git-url-4");
+		task.setGitUrl("https://a.com/jack/repo-4");
+		task.setSeq(1);
 		task.setStartTime(LocalDateTime.now());
 		task.setPublishResult(ReleaseResult.CANCELED);
 		task.setCreateTime(LocalDateTime.now());
@@ -124,7 +132,8 @@ public class ComponentRepoPublishTaskServiceImplTest extends AbstractServiceTest
 		Integer createUserId = 1;
 		
 		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
-		task.setGitUrl("git-url-1");
+		task.setGitUrl("https://a.com/jack/repo-1");
+		task.setSeq(1);
 		task.setStartTime(LocalDateTime.now());
 		task.setPublishResult(ReleaseResult.STARTED);
 		task.setCreateTime(LocalDateTime.now().minusSeconds(1));
@@ -132,7 +141,8 @@ public class ComponentRepoPublishTaskServiceImplTest extends AbstractServiceTest
 		componentRepoPublishTaskService.save(task);
 		
 		task = new ComponentRepoPublishTask();
-		task.setGitUrl("git-url-2");
+		task.setGitUrl("https://a.com/jack/repo-2");
+		task.setSeq(1);
 		task.setStartTime(LocalDateTime.now());
 		task.setPublishResult(ReleaseResult.STARTED);
 		task.setCreateTime(LocalDateTime.now());
