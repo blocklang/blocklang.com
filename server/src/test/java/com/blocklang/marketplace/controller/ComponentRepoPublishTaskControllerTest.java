@@ -70,4 +70,58 @@ public class ComponentRepoPublishTaskControllerTest extends AbstractControllerTe
 			.body("size()", is(1));
 	}
 	
+	@Test
+	public void get_component_repo_publish_task_anonymous_forbidden() {
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/marketplace/publish/{taskId}", 1)
+		.then()
+			.statusCode(HttpStatus.SC_FORBIDDEN);
+	}
+	
+	@WithMockUser("jack")
+	@Test
+	public void get_component_repo_publish_task_task_not_exist() {
+		when(componentRepoPublishTaskService.findById(anyInt())).thenReturn(Optional.empty());
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/marketplace/publish/{taskId}", 1)
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	@WithMockUser("jack")
+	@Test
+	public void get_component_repo_publish_task_login_user_is_not_creator_forbidden() {
+		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
+		task.setCreateUserName("not-jack");
+		when(componentRepoPublishTaskService.findById(anyInt())).thenReturn(Optional.of(task));
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/marketplace/publish/{taskId}", 1)
+		.then()
+			.statusCode(HttpStatus.SC_FORBIDDEN);
+	}
+	
+	@WithMockUser("jack")
+	@Test
+	public void get_component_repo_publish_task_success() {
+		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
+		task.setId(1);
+		task.setCreateUserName("jack");
+		task.setGitUrl("https://a.com/owner/repo");
+		when(componentRepoPublishTaskService.findById(anyInt())).thenReturn(Optional.of(task));
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/marketplace/publish/{taskId}", 1)
+		.then()
+			.statusCode(HttpStatus.SC_OK);
+	}
 }

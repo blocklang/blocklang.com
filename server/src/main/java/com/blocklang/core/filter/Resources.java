@@ -67,7 +67,8 @@ public abstract class Resources {
 		"user",                            // 登录用户信息
 		"docs",                            // 帮助文档
 		"properties",                      // 信息分类编码
-		"component-repos"                  // 组件库
+		"component-repos",                 // 组件库
+		"marketplace"                      // 组件市场
 		
 //		"/session", // 用户登录
 //		"/mocksession", // 开发环境下，模拟用户登录

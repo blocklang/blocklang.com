@@ -12,4 +12,6 @@ public interface ComponentRepoPublishTaskService {
 	public Optional<ComponentRepoPublishTask> findByGitUrlAndUserId(Integer userId, String gitUrl);
 
 	public List<ComponentRepoPublishTask> findUserPublishingTasks(Integer userId);
+
+	public Optional<ComponentRepoPublishTask> findById(Integer taskId);
 }
