@@ -13,5 +13,11 @@ public interface ComponentRepoPublishTaskService {
 
 	public List<ComponentRepoPublishTask> findUserPublishingTasks(Integer userId);
 
+	/**
+	 * 需要获取创建者的用户名
+	 * 
+	 * @param taskId
+	 * @return
+	 */
 	public Optional<ComponentRepoPublishTask> findById(Integer taskId);
 }

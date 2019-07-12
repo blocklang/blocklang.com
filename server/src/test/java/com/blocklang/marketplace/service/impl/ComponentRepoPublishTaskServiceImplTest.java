@@ -9,6 +9,8 @@ import java.util.List;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.blocklang.core.dao.UserDao;
+import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.test.AbstractServiceTest;
 import com.blocklang.marketplace.model.ComponentRepoPublishTask;
 import com.blocklang.marketplace.service.ComponentRepoPublishTaskService;
@@ -18,6 +20,8 @@ public class ComponentRepoPublishTaskServiceImplTest extends AbstractServiceTest
 
 	@Autowired
 	private ComponentRepoPublishTaskService componentRepoPublishTaskService;
+	@Autowired
+	private UserDao userDao;
 	
 	@Test
 	public void save_success() {
@@ -151,5 +155,23 @@ public class ComponentRepoPublishTaskServiceImplTest extends AbstractServiceTest
 		
 		List<ComponentRepoPublishTask> result = componentRepoPublishTaskService.findUserPublishingTasks(createUserId);
 		assertThat(result).hasSize(2).isSortedAccordingTo(Comparator.comparing(ComponentRepoPublishTask::getCreateTime).reversed());
+	}
+	
+	@Test
+	public void find_by_id_get_create_user_name() {
+		UserInfo user = new UserInfo();
+		user.setLoginName("jack");
+		user.setAvatarUrl("avatar_url");
+		user.setCreateTime(LocalDateTime.now());
+		UserInfo savedUser = userDao.save(user);
+		
+		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
+		task.setGitUrl("https://a.com/jack/repo-1");
+		task.setSeq(1);
+		task.setStartTime(LocalDateTime.now());
+		task.setPublishResult(ReleaseResult.STARTED);
+		task.setCreateTime(LocalDateTime.now().minusSeconds(1));
+		task.setCreateUserId(savedUser.getId());
+		assertThat(componentRepoPublishTaskService.findById(componentRepoPublishTaskService.save(task).getId()).get().getCreateUserName()).isEqualTo("jack");
 	}
 }

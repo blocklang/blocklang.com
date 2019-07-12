@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.blocklang.core.service.UserService;
 import com.blocklang.marketplace.dao.ComponentRepoPublishTaskDao;
 import com.blocklang.marketplace.model.ComponentRepoPublishTask;
 import com.blocklang.marketplace.service.ComponentRepoPublishTaskService;
@@ -16,6 +17,8 @@ public class ComponentRepoPublishTaskServiceImpl implements ComponentRepoPublish
 
 	@Autowired
 	private ComponentRepoPublishTaskDao componentRepoPublishTaskDao;
+	@Autowired
+	private UserService userService;
 	
 	@Override
 	public ComponentRepoPublishTask save(ComponentRepoPublishTask task) {
@@ -30,6 +33,14 @@ public class ComponentRepoPublishTaskServiceImpl implements ComponentRepoPublish
 	@Override
 	public List<ComponentRepoPublishTask> findUserPublishingTasks(Integer userId) {
 		return componentRepoPublishTaskDao.findAllByCreateUserIdAndPublishResultOrderByCreateTimeDesc(userId, ReleaseResult.STARTED);
+	}
+
+	@Override
+	public Optional<ComponentRepoPublishTask> findById(Integer taskId) {
+		return componentRepoPublishTaskDao.findById(taskId).map(task ->{
+			userService.findById(task.getCreateUserId()).ifPresent(user -> task.setCreateUserName(user.getLoginName()));
+			return task;
+		});
 	}
 
 }
