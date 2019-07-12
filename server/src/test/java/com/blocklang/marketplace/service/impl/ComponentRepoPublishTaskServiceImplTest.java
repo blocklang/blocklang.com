@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.blocklang.core.dao.UserDao;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.test.AbstractServiceTest;
+import com.blocklang.marketplace.constant.PublishType;
 import com.blocklang.marketplace.model.ComponentRepoPublishTask;
 import com.blocklang.marketplace.service.ComponentRepoPublishTaskService;
 import com.blocklang.release.constant.ReleaseResult;
@@ -27,13 +28,60 @@ public class ComponentRepoPublishTaskServiceImplTest extends AbstractServiceTest
 	public void save_success() {
 		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
 		task.setGitUrl("https://a.com/jack/repo");
-		task.setSeq(1);
 		task.setStartTime(LocalDateTime.now());
 		task.setPublishResult(ReleaseResult.STARTED);
 		task.setCreateTime(LocalDateTime.now());
 		task.setCreateUserId(1);
 		
-		assertThat(componentRepoPublishTaskService.save(task).getId()).isNotNull();
+		ComponentRepoPublishTask savedTask = componentRepoPublishTaskService.save(task);
+		assertThat(savedTask.getId()).isNotNull();
+		assertThat(savedTask.getSeq()).isEqualTo(1);
+	}
+	
+	@Test
+	public void save_seq_increase() {
+		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
+		task.setGitUrl("https://a.com/jack/repo");
+		task.setStartTime(LocalDateTime.now());
+		task.setPublishResult(ReleaseResult.STARTED);
+		task.setCreateTime(LocalDateTime.now());
+		task.setCreateUserId(1);
+		ComponentRepoPublishTask savedTask = componentRepoPublishTaskService.save(task);
+		
+		task = new ComponentRepoPublishTask();
+		task.setGitUrl("https://a.com/jack/repo");
+		task.setStartTime(LocalDateTime.now());
+		task.setPublishType(PublishType.UPGRADE);
+		task.setPublishResult(ReleaseResult.STARTED);
+		task.setCreateTime(LocalDateTime.now());
+		task.setCreateUserId(1);
+		
+		savedTask = componentRepoPublishTaskService.save(task);
+		assertThat(savedTask.getId()).isNotNull();
+		assertThat(savedTask.getSeq()).isEqualTo(2);
+	}
+	
+	@Test
+	public void save_seq_start_from_1() {
+		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
+		task.setGitUrl("https://a.com/jack/repo-A");
+		task.setStartTime(LocalDateTime.now());
+		task.setPublishResult(ReleaseResult.STARTED);
+		task.setCreateTime(LocalDateTime.now());
+		task.setCreateUserId(1);
+		ComponentRepoPublishTask savedTask = componentRepoPublishTaskService.save(task);
+		
+		assertThat(savedTask.getSeq()).isEqualTo(1);
+		
+		task = new ComponentRepoPublishTask();
+		task.setGitUrl("https://a.com/jack/repo-B");
+		task.setStartTime(LocalDateTime.now());
+		task.setPublishResult(ReleaseResult.STARTED);
+		task.setCreateTime(LocalDateTime.now());
+		task.setCreateUserId(1);
+		
+		savedTask = componentRepoPublishTaskService.save(task);
+		assertThat(savedTask.getSeq()).isEqualTo(1);
 	}
 	
 	@Test

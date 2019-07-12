@@ -22,6 +22,11 @@ public class ComponentRepoPublishTaskServiceImpl implements ComponentRepoPublish
 	
 	@Override
 	public ComponentRepoPublishTask save(ComponentRepoPublishTask task) {
+		Integer maxSeq = componentRepoPublishTaskDao
+			.findFirstByGitUrlAndCreateUserIdOrderBySeqDesc(task.getGitUrl(), task.getCreateUserId())
+			.map(ComponentRepoPublishTask::getSeq)
+			.orElse(0);
+		task.setSeq(maxSeq + 1);
 		return componentRepoPublishTaskDao.save(task);
 	}
 
