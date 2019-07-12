@@ -20,7 +20,7 @@ public class LocalRepoPath {
 	public LocalRepoPath(String dataRootPath, String gitUrl) {
 		this.dataRootPath = dataRootPath;
 		this.gitUrl = gitUrl;
-		this.gitUrlSegment = GitUrlParser.parse(gitUrl);
+		this.gitUrlSegment = GitUrlParser.parse(gitUrl).orElse(null);
 	}
 
 	public Path getRepoSourceDirectory() {

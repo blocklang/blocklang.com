@@ -76,7 +76,7 @@ public class ComponentRepoPublishTask extends PartialOperateFields {
 
 	public void setGitUrl(String gitUrl) {
 		this.gitUrl = gitUrl;
-		this.gitUrlSegment = GitUrlParser.parse(gitUrl);
+		this.gitUrlSegment = GitUrlParser.parse(gitUrl).orElse(null);
 	}
 
 	public LocalDateTime getStartTime() {
