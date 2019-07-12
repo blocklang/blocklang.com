@@ -26,8 +26,8 @@ Status: 200 OK
 
 ```json
 [
-    'line content 1',
-    'line content 2'
+    "line content 1",
+    "line content 2"
 ]
 ```
 

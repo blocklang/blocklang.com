@@ -10,6 +10,7 @@
 
 1. [获取组件仓库列表](./marketplace/list-component-repos.md)
 2. [发布一个组件仓库](./marketplace/create-a-component-repo.md)
+3. [获取一个组件库发布任务](./marketplace/get-a-publish-task.md)
 
 ## 项目
 
