@@ -28,6 +28,7 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 
 	private Map<?,?> changelogMap;
 	private List<String> childKeysForRoot = Arrays.asList("id", "author", "changes");
+	
 	private List<String> operators = Arrays.asList("newWidget");
 	private List<String> newWidgetKeys = Arrays.asList("name", "label", "description", "iconClass", "appType", "properties", "events");
 	private List<String> widgetPropertyKeys = Arrays.asList("name", "label", "defaultValue", "valueType", "description", "options");
@@ -215,16 +216,19 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 				}
 				
 				// appType
+				// TODO: 目前还未确定 appType 放在此处是否合适，先将此字段按非必填处理
 				Object appTypeObj = newWidgetMap.get("appType");
-				if(appTypeObj == null || !List.class.isAssignableFrom(appTypeObj.getClass())) {
-					logger.error("appType 的值必须是字符串类型的数组");
-					hasErrors = true;
-				} else {
-					List<Object> appTypeList = (List<Object>)appTypeObj;
-					for(Object appType : appTypeList) {
-						if(!this.appTypes.contains(appType)) {
-							logger.error("appType 的值只能是 {0}，不能是 {1}", String.join("、", this.appTypes), appType);
-							hasErrors = true;
+				if(appTypeObj != null) {
+					if(!List.class.isAssignableFrom(appTypeObj.getClass())) {
+						logger.error("appType 的值必须是字符串类型的数组");
+						hasErrors = true;
+					} else {
+						List<Object> appTypeList = (List<Object>)appTypeObj;
+						for(Object appType : appTypeList) {
+							if(!this.appTypes.contains(appType)) {
+								logger.error("appType 的值只能是 {0}，不能是 {1}", String.join("、", this.appTypes), appType);
+								hasErrors = true;
+							}
 						}
 					}
 				}
@@ -267,29 +271,49 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 										logger.error("label 的值必须是字符串类型");
 										hasErrors = true;
 									}
-									// default value
-									Object propDefaultValueObj = propertyMap.get("defaultValue");
-									if(propDefaultValueObj != null && !String.class.isAssignableFrom(propDefaultValueObj.getClass())) {
-										logger.error("defaultValue 的值必须是字符串类型");
-										hasErrors = true;
-									}
+									
 									// valueType
+									boolean valueTypeHasError = false;
 									Object propValueTypeObj = propertyMap.get("valueType");
 									if(propValueTypeObj == null || !String.class.isAssignableFrom(propValueTypeObj.getClass())) {
 										logger.error("valueType 的值必须是字符串类型");
 										hasErrors = true;
+										valueTypeHasError = true;
 									} else {
 										if(!valueTypes.contains(propValueTypeObj)) {
 											logger.error("valueType 的值只能是 {0}，不支持 {1}", String.join("、", valueTypes), propertiesObj);
 											hasErrors = true;
+											valueTypeHasError = true;
 										}
 									}
+									
+									// defaulValue
+									// 默认值的类型要与 valueType 声明的保持一致
+									if(!valueTypeHasError) {
+										Object propDefaultValueObj = propertyMap.get("defaultValue");
+										if(propDefaultValueObj != null) {
+											if("string".equals(propValueTypeObj) && !String.class.isAssignableFrom(propDefaultValueObj.getClass())) {
+												logger.error("当 valueType 为 string 时，defaultValue 的值必须是字符串类型");
+												hasErrors = true;
+											}else if("boolean".equals(propValueTypeObj) && !Boolean.class.isAssignableFrom(propDefaultValueObj.getClass())) {
+												logger.error("当 valueType 为 boolean 时，defaultValue 的值必须是布尔类型");
+												hasErrors = true;
+											}else if("number".equals(propValueTypeObj) && !Number.class.isAssignableFrom(propDefaultValueObj.getClass())) {
+												logger.error("当 valueType 为 number 时，defaultValue 的值必须是数字类型");
+												hasErrors = true;
+											}
+										}
+									} else {
+										// do nothing
+									}
+									
 									// description
 									Object propDescriptionObj = propertyMap.get("description");
 									if(propDescriptionObj != null && !String.class.isAssignableFrom(propDescriptionObj.getClass())) {
 										logger.error("description 的值必须是字符串类型");
 										hasErrors = true;
 									}
+									
 									// options(不是必填项)
 									Object propOptionsObj = propertyMap.get("options");
 									if(propOptionsObj != null) {
@@ -451,24 +475,41 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 															hasErrors = true;
 														}
 														
-														// default value
-														Object eventArgumentDefaultValueObj = eventArgumentMap.get("defaultValue");
-														if(eventArgumentDefaultValueObj != null && !String.class.isAssignableFrom(eventArgumentDefaultValueObj.getClass())) {
-															logger.error("defaultValue 的值必须是字符串类型");
-															hasErrors = true;
-														}
 														// valueType
+														boolean eventArgumentValueTypeHasError = false;
 														Object eventArgumentValueTypeObj = eventArgumentMap.get("valueType");
 														if(eventArgumentValueTypeObj != null && !String.class.isAssignableFrom(eventArgumentValueTypeObj.getClass())) {
 															logger.error("valueType 的值必须是字符串类型");
 															hasErrors = true;
+															eventArgumentValueTypeHasError = true;
 														} else {
 															if(!this.valueTypes.contains(eventArgumentValueTypeObj)) {
 																logger.error("valueType 的值只能是 {0}，不支持 {1}", String.join("、", valueTypes), eventArgumentValueTypeObj);
 																hasErrors = true;
+																eventArgumentValueTypeHasError = true;
 															}
 														}
 														
+														// defaultValue
+														// 默认值的类型要与 valueType 声明的保持一致
+														if(!eventArgumentValueTypeHasError) {
+															Object eventArgumentDefaultValueObj = eventArgumentMap.get("defaultValue");
+															if(eventArgumentDefaultValueObj != null) {
+																if("string".equals(eventArgumentValueTypeObj) && !String.class.isAssignableFrom(eventArgumentDefaultValueObj.getClass())) {
+																	logger.error("当 valueType 为 string 时，defaultValue 的值必须是字符串类型");
+																	hasErrors = true;
+																}else if("boolean".equals(eventArgumentValueTypeObj) && !Boolean.class.isAssignableFrom(eventArgumentDefaultValueObj.getClass())) {
+																	logger.error("当 valueType 为 boolean 时，defaultValue 的值必须是布尔类型");
+																	hasErrors = true;
+																}else if("number".equals(eventArgumentValueTypeObj) && !Number.class.isAssignableFrom(eventArgumentDefaultValueObj.getClass())) {
+																	logger.error("当 valueType 为 number 时，defaultValue 的值必须是数字类型");
+																	hasErrors = true;
+																}
+															}
+														}else {
+															// do nothing
+														}
+
 														// description
 														Object eventArgumentDescriptionObj = eventArgumentMap.get("description");
 														if(eventArgumentDescriptionObj != null && !String.class.isAssignableFrom(eventArgumentDescriptionObj.getClass())) {
@@ -538,12 +579,13 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 						widgetProperty.setName(propertyMap.get("name").toString());
 						widgetProperty.setLabel(propertyMap.get("label").toString());
 						
+						String valueType = propertyMap.get("valueType").toString();
+						widgetProperty.setValueType(valueType);
+						
 						Object propertyDefaultValue = propertyMap.get("defaultValue");
 						if(propertyDefaultValue != null) {
-							widgetProperty.setDefaultValue(propertyDefaultValue.toString());
+							widgetProperty.setDefaultValue(propertyDefaultValue);
 						}
-						
-						widgetProperty.setValueType(propertyMap.get("valueType").toString());
 						
 						Object propertyDescription = propertyMap.get("description");
 						if(propertyDescription != null) {
@@ -609,13 +651,13 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 								argument.setName(argumentMap.get("name").toString());
 								argument.setLabel(argumentMap.get("label").toString());
 								
-								Object argumentDefaultValueObj = argumentMap.get("defaultValue");
-								if(argumentDefaultValueObj != null) {
-									argument.setDefaultValue(argumentDefaultValueObj.toString());
-								}
-								
 								argument.setValueType(argumentMap.get("valueType").toString());
 								
+								Object argumentDefaultValueObj = argumentMap.get("defaultValue");
+								if(argumentDefaultValueObj != null) {
+									argument.setDefaultValue(argumentDefaultValueObj);
+								}
+
 								Object argumentDescriptionObj = argumentMap.get("description");
 								if(argumentDescriptionObj != null) {
 									argument.setDescription(argumentDescriptionObj.toString());

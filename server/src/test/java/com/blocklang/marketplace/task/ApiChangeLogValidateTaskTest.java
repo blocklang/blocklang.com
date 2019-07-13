@@ -518,7 +518,7 @@ public class ApiChangeLogValidateTaskTest {
 	}
 	
 	@Test
-	public void run_changes_new_widget_properties_default_value_should_be_string() {
+	public void run_changes_new_widget_properties_if_value_type_is_string_then_default_value_should_be_string() {
 		Map<String, Object> changelogMap = new HashMap<String, Object>();
 		changelogMap.put("id", "1");
 		changelogMap.put("author", "2");
@@ -538,6 +538,72 @@ public class ApiChangeLogValidateTaskTest {
 		propertyMap.put("label", "b");
 		propertyMap.put("defaultValue", 1);
 		propertyMap.put("valueType", "string");
+		propertyMap.put("options", Collections.emptyList());
+		properties.add(propertyMap);
+		newWidget.put("properties", properties);
+		newWidget.put("events", Collections.emptyList());
+		change1.put("newWidget", newWidget);
+		changes.add(change1);
+		changelogMap.put("changes", changes);
+		
+		ApiChangeLogValidateTask task = new ApiChangeLogValidateTask(context, changelogMap);
+		assertThat(task.run()).isEmpty();
+	}
+	
+	@Test
+	public void run_changes_new_widget_properties_if_value_type_is_boolean_then_default_value_should_be_boolean() {
+		Map<String, Object> changelogMap = new HashMap<String, Object>();
+		changelogMap.put("id", "1");
+		changelogMap.put("author", "2");
+		
+		List<Map<String, Object>> changes = new ArrayList<Map<String,Object>>();
+		Map<String, Object> change1 = new HashMap<String, Object>();
+		
+		Map<String, Object> newWidget = new HashMap<String, Object>();
+		newWidget.put("name", "a");
+		newWidget.put("label", "b");
+		newWidget.put("iconClass", "c");
+		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		
+		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
+		Map<String, Object> propertyMap = new HashMap<String, Object>();
+		propertyMap.put("name", "a");
+		propertyMap.put("label", "b");
+		propertyMap.put("defaultValue", "true"); // 应该为 boolean 类型
+		propertyMap.put("valueType", "boolean");
+		propertyMap.put("options", Collections.emptyList());
+		properties.add(propertyMap);
+		newWidget.put("properties", properties);
+		newWidget.put("events", Collections.emptyList());
+		change1.put("newWidget", newWidget);
+		changes.add(change1);
+		changelogMap.put("changes", changes);
+		
+		ApiChangeLogValidateTask task = new ApiChangeLogValidateTask(context, changelogMap);
+		assertThat(task.run()).isEmpty();
+	}
+	
+	@Test
+	public void run_changes_new_widget_properties_if_value_type_is_number_then_default_value_should_be_number() {
+		Map<String, Object> changelogMap = new HashMap<String, Object>();
+		changelogMap.put("id", "1");
+		changelogMap.put("author", "2");
+		
+		List<Map<String, Object>> changes = new ArrayList<Map<String,Object>>();
+		Map<String, Object> change1 = new HashMap<String, Object>();
+		
+		Map<String, Object> newWidget = new HashMap<String, Object>();
+		newWidget.put("name", "a");
+		newWidget.put("label", "b");
+		newWidget.put("iconClass", "c");
+		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		
+		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
+		Map<String, Object> propertyMap = new HashMap<String, Object>();
+		propertyMap.put("name", "a");
+		propertyMap.put("label", "b");
+		propertyMap.put("defaultValue", "1"); // 应该为 number 类型
+		propertyMap.put("valueType", "number");
 		propertyMap.put("options", Collections.emptyList());
 		properties.add(propertyMap);
 		newWidget.put("properties", properties);
@@ -1304,7 +1370,7 @@ public class ApiChangeLogValidateTaskTest {
 	}
 	
 	@Test
-	public void run_changes_new_widget_events_arguments_default_value_should_be_string() {
+	public void run_changes_new_widget_events_arguments_default_value_if_value_type_is_string_then_should_be_string() {
 		Map<String, Object> changelogMap = new HashMap<String, Object>();
 		changelogMap.put("id", "1");
 		changelogMap.put("author", "2");
@@ -1331,6 +1397,86 @@ public class ApiChangeLogValidateTaskTest {
 		argumentMap.put("label", "b");
 		argumentMap.put("defaultValue", 1);
 		argumentMap.put("valueType", "string");
+		arguments.add(argumentMap);
+		eventMap.put("arguments", arguments);
+		events.add(eventMap);
+		newWidget.put("events", events);
+		change1.put("newWidget", newWidget);
+		changes.add(change1);
+		changelogMap.put("changes", changes);
+		
+		ApiChangeLogValidateTask task = new ApiChangeLogValidateTask(context, changelogMap);
+		assertThat(task.run()).isEmpty();
+	}
+	
+	@Test
+	public void run_changes_new_widget_events_arguments_default_value_if_value_type_is_booleanstring_then_should_be_boolean() {
+		Map<String, Object> changelogMap = new HashMap<String, Object>();
+		changelogMap.put("id", "1");
+		changelogMap.put("author", "2");
+		
+		List<Map<String, Object>> changes = new ArrayList<Map<String,Object>>();
+		Map<String, Object> change1 = new HashMap<String, Object>();
+		
+		Map<String, Object> newWidget = new HashMap<String, Object>();
+		newWidget.put("name", "a");
+		newWidget.put("label", "b");
+		newWidget.put("iconClass", "c");
+		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("properties", Collections.emptyList());
+		
+		List<Map<String, Object>> events = new ArrayList<Map<String,Object>>();
+		Map<String, Object> eventMap = new HashMap<String, Object>();
+		eventMap.put("name", "a");
+		eventMap.put("label", "b");
+		eventMap.put("valueType", "function");
+		
+		List<Map<String, Object>> arguments = new ArrayList<Map<String,Object>>();
+		Map<String, Object> argumentMap = new HashMap<String, Object>();
+		argumentMap.put("name", "a");
+		argumentMap.put("label", "b");
+		argumentMap.put("defaultValue", "true"); // 应该是 boolean 类型
+		argumentMap.put("valueType", "boolean");
+		arguments.add(argumentMap);
+		eventMap.put("arguments", arguments);
+		events.add(eventMap);
+		newWidget.put("events", events);
+		change1.put("newWidget", newWidget);
+		changes.add(change1);
+		changelogMap.put("changes", changes);
+		
+		ApiChangeLogValidateTask task = new ApiChangeLogValidateTask(context, changelogMap);
+		assertThat(task.run()).isEmpty();
+	}
+	
+	@Test
+	public void run_changes_new_widget_events_arguments_default_value_if_value_type_is_number_then_should_be_number() {
+		Map<String, Object> changelogMap = new HashMap<String, Object>();
+		changelogMap.put("id", "1");
+		changelogMap.put("author", "2");
+		
+		List<Map<String, Object>> changes = new ArrayList<Map<String,Object>>();
+		Map<String, Object> change1 = new HashMap<String, Object>();
+		
+		Map<String, Object> newWidget = new HashMap<String, Object>();
+		newWidget.put("name", "a");
+		newWidget.put("label", "b");
+		newWidget.put("iconClass", "c");
+		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("properties", Collections.emptyList());
+		
+		List<Map<String, Object>> events = new ArrayList<Map<String,Object>>();
+		Map<String, Object> eventMap = new HashMap<String, Object>();
+		eventMap.put("name", "a");
+		eventMap.put("label", "b");
+		eventMap.put("valueType", "function");
+		
+		List<Map<String, Object>> arguments = new ArrayList<Map<String,Object>>();
+		Map<String, Object> argumentMap = new HashMap<String, Object>();
+		argumentMap.put("name", "a");
+		argumentMap.put("label", "b");
+		argumentMap.put("defaultValue", "1"); // 应该是 number 类型
+		argumentMap.put("valueType", "number");
 		arguments.add(argumentMap);
 		eventMap.put("arguments", arguments);
 		events.add(eventMap);
@@ -1468,7 +1614,7 @@ public class ApiChangeLogValidateTaskTest {
 	// 下面的用例都是获取值
 	// 只需要一个包含最全数据的测试用例
 	@Test
-	public void run_parse_data() {
+	public void run_parse_data_value_type_is_string() {
 		Map<String, Object> changelogMap = new HashMap<String, Object>();
 		changelogMap.put("id", "change_id");
 		changelogMap.put("author", "change_author");
@@ -1568,6 +1714,214 @@ public class ApiChangeLogValidateTaskTest {
 		assertThat(eventArgument.getLabel()).isEqualTo("widget_event_argument_label");
 		assertThat(eventArgument.getDefaultValue()).isEqualTo("widget_event_argument_default_value");
 		assertThat(eventArgument.getValueType()).isEqualTo("string");
+		assertThat(eventArgument.getDescription()).isEqualTo("widget_event_argument_description");
+	}
+	
+	@Test
+	public void run_parse_data_value_type_is_boolean() {
+		Map<String, Object> changelogMap = new HashMap<String, Object>();
+		changelogMap.put("id", "change_id");
+		changelogMap.put("author", "change_author");
+		
+		List<Map<String, Object>> changes = new ArrayList<Map<String,Object>>();
+		Map<String, Object> change1 = new HashMap<String, Object>();
+		
+		Map<String, Object> newWidget = new HashMap<String, Object>();
+		newWidget.put("name", "widget_name");
+		newWidget.put("label", "widget_label");
+		newWidget.put("description", "widget_description");
+		newWidget.put("iconClass", "widget_iconClass");
+		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		
+		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
+		Map<String, Object> propertyMap = new HashMap<String, Object>();
+		propertyMap.put("name", "widget_prop_name");
+		propertyMap.put("label", "widget_prop_label");
+		propertyMap.put("defaultValue", true);
+		propertyMap.put("description", "widget_prop_description");
+		propertyMap.put("valueType", "boolean");
+		
+		List<Map<String, Object>> options = new ArrayList<Map<String,Object>>();
+		Map<String, Object> optionMap = new HashMap<String, Object>();
+		optionMap.put("value", "widget_prop_option_value");
+		optionMap.put("label", "widget_prop_option_label");
+		optionMap.put("description", "widget_prop_option_description");
+		optionMap.put("iconClass", "widget_prop_option_iconClass");
+		options.add(optionMap);
+		propertyMap.put("options", options);
+		properties.add(propertyMap);
+		newWidget.put("properties", properties);
+		
+		List<Map<String, Object>> events = new ArrayList<Map<String,Object>>();
+		Map<String, Object> eventMap = new HashMap<String, Object>();
+		eventMap.put("name", "widget_event_name");
+		eventMap.put("label", "widget_event_label");
+		eventMap.put("description", "widget_event_description");
+		List<Map<String, Object>> arguments = new ArrayList<Map<String,Object>>();
+		Map<String, Object> argumentMap = new HashMap<String, Object>();
+		argumentMap.put("name", "widget_event_argument_name");
+		argumentMap.put("label", "widget_event_argument_label");
+		argumentMap.put("defaultValue", true);
+		argumentMap.put("valueType", "boolean");
+		argumentMap.put("description", "widget_event_argument_description");
+		arguments.add(argumentMap);
+		eventMap.put("arguments", arguments);
+		events.add(eventMap);
+		newWidget.put("events", events);
+		change1.put("newWidget", newWidget);
+		changes.add(change1);
+		changelogMap.put("changes", changes);
+		
+		ApiChangeLogValidateTask task = new ApiChangeLogValidateTask(context, changelogMap);
+		Optional<ChangeLog> changelogOption = task.run();
+		assertThat(changelogOption).isPresent();
+		
+		// 注意，event 的 valueType 的值为 function
+		ChangeLog changelog = changelogOption.get();
+		assertThat(changelog.getId()).isEqualTo("change_id");
+		assertThat(changelog.getAuthor()).isEqualTo("change_author");
+		assertThat(changelog.getChanges()).hasSize(1);
+		
+		NewWidgetChange newWidgetChange = (NewWidgetChange) changelog.getChanges().get(0);
+		assertThat(newWidgetChange.getName()).isEqualTo("widget_name");
+		assertThat(newWidgetChange.getLabel()).isEqualTo("widget_label");
+		assertThat(newWidgetChange.getDescription()).isEqualTo("widget_description");
+		assertThat(newWidgetChange.getIconClass()).isEqualTo("widget_iconClass");
+		assertThat(newWidgetChange.getAppType()).hasSize(1);
+		assertThat(newWidgetChange.getAppType().get(0)).isEqualTo("web");
+		assertThat(newWidgetChange.getProperties()).hasSize(1);
+		assertThat(newWidgetChange.getEvents()).hasSize(1);
+		
+		WidgetProperty property = newWidgetChange.getProperties().get(0);
+		assertThat(property.getName()).isEqualTo("widget_prop_name");
+		assertThat(property.getLabel()).isEqualTo("widget_prop_label");
+		assertThat(property.getDefaultValue()).isEqualTo(true);
+		assertThat(property.getDescription()).isEqualTo("widget_prop_description");
+		assertThat(property.getValueType()).isEqualTo("boolean");
+		assertThat(property.getOptions()).hasSize(1);
+		
+		WidgetPropertyOption propertyOption = property.getOptions().get(0);
+		assertThat(propertyOption.getValue()).isEqualTo("widget_prop_option_value");
+		assertThat(propertyOption.getLabel()).isEqualTo("widget_prop_option_label");
+		assertThat(propertyOption.getDescription()).isEqualTo("widget_prop_option_description");
+		assertThat(propertyOption.getIconClass()).isEqualTo("widget_prop_option_iconClass");
+		
+		WidgetEvent event = newWidgetChange.getEvents().get(0);
+		assertThat(event.getName()).isEqualTo("widget_event_name");
+		assertThat(event.getLabel()).isEqualTo("widget_event_label");
+		assertThat(event.getValueType()).isEqualTo("function");
+		assertThat(event.getDescription()).isEqualTo("widget_event_description");
+		assertThat(event.getArguments()).hasSize(1);
+		
+		WidgetEventArgument eventArgument = event.getArguments().get(0);
+		assertThat(eventArgument.getName()).isEqualTo("widget_event_argument_name");
+		assertThat(eventArgument.getLabel()).isEqualTo("widget_event_argument_label");
+		assertThat(eventArgument.getDefaultValue()).isEqualTo(true);
+		assertThat(eventArgument.getValueType()).isEqualTo("boolean");
+		assertThat(eventArgument.getDescription()).isEqualTo("widget_event_argument_description");
+	}
+	
+	@Test
+	public void run_parse_data_value_type_is_number() {
+		Map<String, Object> changelogMap = new HashMap<String, Object>();
+		changelogMap.put("id", "change_id");
+		changelogMap.put("author", "change_author");
+		
+		List<Map<String, Object>> changes = new ArrayList<Map<String,Object>>();
+		Map<String, Object> change1 = new HashMap<String, Object>();
+		
+		Map<String, Object> newWidget = new HashMap<String, Object>();
+		newWidget.put("name", "widget_name");
+		newWidget.put("label", "widget_label");
+		newWidget.put("description", "widget_description");
+		newWidget.put("iconClass", "widget_iconClass");
+		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		
+		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
+		Map<String, Object> propertyMap = new HashMap<String, Object>();
+		propertyMap.put("name", "widget_prop_name");
+		propertyMap.put("label", "widget_prop_label");
+		propertyMap.put("defaultValue", 1);
+		propertyMap.put("description", "widget_prop_description");
+		propertyMap.put("valueType", "number");
+		
+		List<Map<String, Object>> options = new ArrayList<Map<String,Object>>();
+		Map<String, Object> optionMap = new HashMap<String, Object>();
+		optionMap.put("value", "widget_prop_option_value");
+		optionMap.put("label", "widget_prop_option_label");
+		optionMap.put("description", "widget_prop_option_description");
+		optionMap.put("iconClass", "widget_prop_option_iconClass");
+		options.add(optionMap);
+		propertyMap.put("options", options);
+		properties.add(propertyMap);
+		newWidget.put("properties", properties);
+		
+		List<Map<String, Object>> events = new ArrayList<Map<String,Object>>();
+		Map<String, Object> eventMap = new HashMap<String, Object>();
+		eventMap.put("name", "widget_event_name");
+		eventMap.put("label", "widget_event_label");
+		eventMap.put("description", "widget_event_description");
+		List<Map<String, Object>> arguments = new ArrayList<Map<String,Object>>();
+		Map<String, Object> argumentMap = new HashMap<String, Object>();
+		argumentMap.put("name", "widget_event_argument_name");
+		argumentMap.put("label", "widget_event_argument_label");
+		argumentMap.put("defaultValue", 1);
+		argumentMap.put("valueType", "number");
+		argumentMap.put("description", "widget_event_argument_description");
+		arguments.add(argumentMap);
+		eventMap.put("arguments", arguments);
+		events.add(eventMap);
+		newWidget.put("events", events);
+		change1.put("newWidget", newWidget);
+		changes.add(change1);
+		changelogMap.put("changes", changes);
+		
+		ApiChangeLogValidateTask task = new ApiChangeLogValidateTask(context, changelogMap);
+		Optional<ChangeLog> changelogOption = task.run();
+		assertThat(changelogOption).isPresent();
+		
+		// 注意，event 的 valueType 的值为 function
+		ChangeLog changelog = changelogOption.get();
+		assertThat(changelog.getId()).isEqualTo("change_id");
+		assertThat(changelog.getAuthor()).isEqualTo("change_author");
+		assertThat(changelog.getChanges()).hasSize(1);
+		
+		NewWidgetChange newWidgetChange = (NewWidgetChange) changelog.getChanges().get(0);
+		assertThat(newWidgetChange.getName()).isEqualTo("widget_name");
+		assertThat(newWidgetChange.getLabel()).isEqualTo("widget_label");
+		assertThat(newWidgetChange.getDescription()).isEqualTo("widget_description");
+		assertThat(newWidgetChange.getIconClass()).isEqualTo("widget_iconClass");
+		assertThat(newWidgetChange.getAppType()).hasSize(1);
+		assertThat(newWidgetChange.getAppType().get(0)).isEqualTo("web");
+		assertThat(newWidgetChange.getProperties()).hasSize(1);
+		assertThat(newWidgetChange.getEvents()).hasSize(1);
+		
+		WidgetProperty property = newWidgetChange.getProperties().get(0);
+		assertThat(property.getName()).isEqualTo("widget_prop_name");
+		assertThat(property.getLabel()).isEqualTo("widget_prop_label");
+		assertThat(property.getDefaultValue()).isEqualTo(1);
+		assertThat(property.getDescription()).isEqualTo("widget_prop_description");
+		assertThat(property.getValueType()).isEqualTo("number");
+		assertThat(property.getOptions()).hasSize(1);
+		
+		WidgetPropertyOption propertyOption = property.getOptions().get(0);
+		assertThat(propertyOption.getValue()).isEqualTo("widget_prop_option_value");
+		assertThat(propertyOption.getLabel()).isEqualTo("widget_prop_option_label");
+		assertThat(propertyOption.getDescription()).isEqualTo("widget_prop_option_description");
+		assertThat(propertyOption.getIconClass()).isEqualTo("widget_prop_option_iconClass");
+		
+		WidgetEvent event = newWidgetChange.getEvents().get(0);
+		assertThat(event.getName()).isEqualTo("widget_event_name");
+		assertThat(event.getLabel()).isEqualTo("widget_event_label");
+		assertThat(event.getValueType()).isEqualTo("function");
+		assertThat(event.getDescription()).isEqualTo("widget_event_description");
+		assertThat(event.getArguments()).hasSize(1);
+		
+		WidgetEventArgument eventArgument = event.getArguments().get(0);
+		assertThat(eventArgument.getName()).isEqualTo("widget_event_argument_name");
+		assertThat(eventArgument.getLabel()).isEqualTo("widget_event_argument_label");
+		assertThat(eventArgument.getDefaultValue()).isEqualTo(1);
+		assertThat(eventArgument.getValueType()).isEqualTo("number");
 		assertThat(eventArgument.getDescription()).isEqualTo("widget_event_argument_description");
 	}
 }

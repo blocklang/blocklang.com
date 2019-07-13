@@ -4,7 +4,7 @@ public class WidgetEventArgument {
 
 	private String name;
 	private String label;
-	private String defaultValue;
+	private Object defaultValue; // defaultValue 的类型要与 valueType 指定的值匹配
 	private String valueType;
 	private String description;
 
@@ -24,11 +24,11 @@ public class WidgetEventArgument {
 		this.label = label;
 	}
 
-	public String getDefaultValue() {
+	public Object getDefaultValue() {
 		return defaultValue;
 	}
 
-	public void setDefaultValue(String defaultValue) {
+	public void setDefaultValue(Object defaultValue) {
 		this.defaultValue = defaultValue;
 	}
 
