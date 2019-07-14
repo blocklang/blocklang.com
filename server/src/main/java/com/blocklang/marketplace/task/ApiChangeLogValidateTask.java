@@ -110,19 +110,19 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 		hasErrors = false;
 		Object idObj = changelogMap.get("id");
 		if(idObj == null || !String.class.isAssignableFrom(idObj.getClass())) {
-			logger.error("id 的值必须是字符串类型");
+			logger.error("/id 的值必须是字符串类型");
 			hasErrors = true;
 		}
 		
 		Object authorObj = changelogMap.get("author");
 		if(authorObj == null || !String.class.isAssignableFrom(authorObj.getClass())) {
-			logger.error("author 的值必须是字符串类型");
+			logger.error("/author 的值必须是字符串类型");
 			hasErrors = true;
 		}
 		
 		Object changesObj = changelogMap.get("changes");
 		if(changesObj == null || !List.class.isAssignableFrom(changesObj.getClass())) {
-			logger.error("changes 的值必须是数组类型");
+			logger.error("/changes 的值必须是数组类型");
 			hasErrors = true;
 		}
 		if(hasErrors) {
@@ -131,7 +131,7 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 		
 		List changeList = (List) changelogMap.get("changes");
 		if(changeList.isEmpty()) {
-			logger.error("changes 数组中没有任何内容，至少要包含一项内容");
+			logger.error("/changes 数组中没有任何内容，至少要包含一项内容");
 			return false;
 		}
 		
@@ -140,7 +140,7 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 		for(Object changeObj : changeList) {
 			Map changeMap = (Map)changeObj;
 			if(changeMap.size() > 1) {
-				logger.error("第 {0} 个元素：包含了 {1} 个操作，只能包含一个操作", index + 1, changeMap.size());
+				logger.error("/changes 的第 {0} 个元素：包含了 {1} 个操作，只能包含一个操作", index + 1, changeMap.size());
 				hasErrors = true;
 			}
 			index++;
@@ -150,7 +150,7 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 			Map changeMap = (Map)changeObj;
 			for(Object key : changeMap.keySet()) {
 				if(!operators.contains(key)) {
-					logger.error("第 {0} 个元素：不支持的操作，当前只支持 {1}", index + 1, String.join("、", operators));
+					logger.error("/changes 的第 {0} 个元素：不支持的操作，当前只支持 {1}", index + 1, String.join("、", operators));
 					hasErrors = true;
 				}
 			}
@@ -169,7 +169,7 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 				Map newWidgetMap = (Map)changeMap.get("newWidget");
 				for(Object key : newWidgetMap.keySet()) {
 					if(!newWidgetKeys.contains(key)) {
-						logger.error("newWidget 节点下只支持 {0}，不支持 {1}", String.join("、", newWidgetKeys.toArray(new String[0])), key);
+						logger.error("/changes 的第 {0} 个元素 newWidget 节点下只支持 {1}，不支持 {2}", index + 1, String.join("、", newWidgetKeys.toArray(new String[0])), key);
 						hasErrors = true;
 					}
 				}
@@ -186,6 +186,8 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 			Map changeMap = (Map)changeObj;
 			if(changeMap.containsKey("newWidget")) {
 				Map newWidgetMap = (Map)changeMap.get("newWidget");
+				logger.info("校验 /changes 的第 {0} 个元素 newWidget 节点下的元素", index + 1);
+
 				// name
 				Object nameObj = newWidgetMap.get("name");
 				// name 不能为空
