@@ -8,11 +8,11 @@ GET /projects/{owner}/{projectName}/releases/{version}/log
 
 ## Parameters
 
-| Name          | Type     | Description                                           |
-| ------------- | -------- | ----------------------------------------------------- |
-| `owner`       | `string` | **Required**. 用户登录名                              |
-| `projectName` | `string` | **Required**. 项目名称                                |
-| `version`     | `string` | 语义化版本，如 0.1.0                                  |
+| Name          | Type     | Description              |
+| ------------- | -------- | ------------------------ |
+| `owner`       | `string` | **Required**. 用户登录名 |
+| `projectName` | `string` | **Required**. 项目名称   |
+| `version`     | `string` | 语义化版本，如 0.1.0     |
 
 ## Response
 
