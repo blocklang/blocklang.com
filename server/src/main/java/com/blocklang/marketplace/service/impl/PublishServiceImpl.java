@@ -1,6 +1,7 @@
 package com.blocklang.marketplace.service.impl;
 
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
@@ -31,6 +32,7 @@ import com.blocklang.marketplace.task.ApiJsonParseGroupTask;
 import com.blocklang.marketplace.task.ComponentJsonParseGroupTask;
 import com.blocklang.marketplace.task.MarketplacePublishContext;
 import com.blocklang.marketplace.task.TaskLogger;
+import com.blocklang.release.constant.ReleaseResult;
 
 @Service
 public class PublishServiceImpl implements PublishService {
@@ -122,7 +124,7 @@ public class PublishServiceImpl implements PublishService {
 		if(success) {
 			logger.info(StringUtils.repeat("-", 45));
 			logger.info("三、开始解析 API 库中的 change log 文件");
-			ApiChangeLogParseGroupTask apiChangeLogParseGroupTask = new ApiChangeLogParseGroupTask(context);
+			ApiChangeLogParseGroupTask apiChangeLogParseGroupTask = new ApiChangeLogParseGroupTask(context, apiRepoDao, apiChangeLogDao);
 			success = apiChangeLogParseGroupTask.run().isPresent();
 		}
 		if(success) {
@@ -147,12 +149,13 @@ public class PublishServiceImpl implements PublishService {
 					apiComponentAttrFunArgDao,
 					apiChangeLogDao);
 			success = task.run().isPresent();
+			if(success) {
+				logger.info("安装完成");
+			} else {
+				logger.error("安装失败");
+			}
 		}
-		if(success) {
-			logger.info("安装完成");
-		} else {
-			logger.error("安装失败");
-		}
+		
 		
 		// TODO: 确保 component.json 中的 api.version 与通过 version 选中的 api.json 中的 version 值一致
 		
@@ -165,8 +168,7 @@ public class PublishServiceImpl implements PublishService {
 		// 所以要一直向上追溯，而不是只追溯到上一个版本
 		
 		if(success) {
-			logger.info(StringUtils.repeat("-", 45));
-			logger.info("十一、开始校验是否存在无效的变更");
+			
 			// 如果是第一个变动，则与上一个版本做比较
 			// 如果是第二个及后续变动，则与上一个变动后的版本做比较
 			// 如果是新增部件，则判断该部件名是否已被占用，如果已占用，则给出错误信息
@@ -251,7 +253,22 @@ public class PublishServiceImpl implements PublishService {
 		// 当检测通过之后，才开始往数据库中存储 ui 部件的元数据
 		// 编译 ts 文件？
 		
-		// TODO:当组件库中的组件解析完成后，再填写发布时间
+		
+		
+		// 更新发布任务的状态
+		ReleaseResult releaseResult = success ? ReleaseResult.PASSED : ReleaseResult.FAILED;
+		
+		publishTask.setEndTime(LocalDateTime.now());
+		publishTask.setPublishResult(releaseResult);
+		publishTask.setLastUpdateTime(LocalDateTime.now());
+		publishTask.setLastUpdateUserId(publishTask.getCreateUserId());
+		componentRepoPublishTaskDao.save(publishTask);
+		
+		if(success) {
+			logger.info("发布完成");
+		} else {
+			logger.error("发布失败");
+		}
 		
 		stopWatch.stop();
 		long seconds = stopWatch.getTime(TimeUnit.SECONDS);
