@@ -1,2 +1,67 @@
 .root {
 }
+
+.active {
+	color: #24292e;
+	cursor: default;
+	font-weight: 600;
+}
+
+.active::before {
+	background-color: #e36209;
+	bottom: 0;
+	content: '';
+	left: 0;
+	position: absolute;
+	top: 0;
+	width: 2px;
+}
+
+.navOl {
+	background-color: white;
+	padding: 5px 0px;
+	margin-bottom: 0px;
+}
+
+/** 以下样式与 release/ViewRelease.m.css 中的样式重复 **/
+.logBody pre {
+	color: #f1f1f1;
+	font-family: Consolas, 'Courier New', monospace;
+	font-size: 12px;
+	white-space: pre-wrap;
+	word-wrap: break-word;
+	counter-reset: line-numbering;
+
+	background-color: #222;
+
+	font-weight: 400;
+	padding: 15px 0;
+}
+
+.logBody .logLine:hover {
+	background-color: #444 !important;
+}
+
+.logBody .logLine {
+	position: relative;
+	padding: 0 15px 0 62px;
+	margin: 0;
+	min-height: 19px;
+}
+
+.logBody .logLine a {
+	display: inline-block;
+	text-align: right;
+	min-width: 40px;
+	margin-left: -40px;
+	cursor: pointer;
+	text-decoration: none;
+	position: absolute;
+	color: #666;
+}
+
+.logBody .logLine a::before {
+	content: counter(line-numbering);
+	counter-increment: line-numbering;
+	padding-right: 1em;
+}

@@ -39,37 +39,44 @@ export default class Profile extends ThemedMixin(I18nMixin(WidgetBase))<ProfileP
 			return w(Exception, { type: '403' });
 		}
 
+		return v('div', { classes: [css.root, c.container, c.mt_5] }, [
+			v('div', { classes: [c.row] }, [
+				v('div', { classes: [c.col_3] }, [this._renderMenu()]),
+				v('div', { classes: [c.col_9] }, [this._renderHeader(), this._renderEditProfileForm()])
+			])
+		]);
+	}
+
+	private _renderEditProfileForm() {
 		const {
 			profile: { email },
 			profileUpdateSuccessMessage
 		} = this.properties;
 
-		const { messages } = this._localizedMessages;
+		return v('form', { classes: [c.needs_validation], novalidate: true }, [
+			this._renderNickname(),
+			email ? this._renderEmail() : null,
+			this._renderWebsiteUrl(),
+			this._renderCompany(),
+			this._renderLocation(),
+			this._renderBio(),
+			v('hr'),
+			this._renderSaveButton(),
+			profileUpdateSuccessMessage ? this._renderSaveSuccessTip() : null
+		]);
+	}
 
-		return v('div', { classes: [css.root, c.container, c.mt_5] }, [
-			v('div', { classes: [c.row] }, [
-				v('div', { classes: [c.col_3] }, [
-					v('ul', { classes: [c.list_group] }, [
-						v('li', { classes: [c.list_group_item, css.active] }, ['个人资料']),
-						v('li', { classes: [c.list_group_item] }, [
-							w(Link, { to: 'settings-marketplace' }, ['组件市场'])
-						])
-					])
-				]),
-				v('div', { classes: [c.col_9] }, [
-					v('div', [v('h4', [`${messages.publicProfile}`]), v('hr')]),
-					v('form', { classes: [c.needs_validation], novalidate: true }, [
-						this._renderNickname(),
-						email ? this._renderEmail() : null,
-						this._renderWebsiteUrl(),
-						this._renderCompany(),
-						this._renderLocation(),
-						this._renderBio(),
-						v('hr'),
-						this._renderSaveButton(),
-						profileUpdateSuccessMessage ? this._renderSaveSuccessTip() : null
-					])
-				])
+	private _renderHeader() {
+		const { messages } = this._localizedMessages;
+		return v('div', [v('h4', [`${messages.publicProfile}`]), v('hr')]);
+	}
+
+	private _renderMenu() {
+		const { messages } = this._localizedMessages;
+		return v('ul', { classes: [c.list_group] }, [
+			v('li', { classes: [c.list_group_item, css.active] }, [`${messages.userSettingMenuProfile}`]),
+			v('li', { classes: [c.list_group_item] }, [
+				w(Link, { to: 'settings-marketplace' }, [`${messages.userSettingMenuMarketplace}`])
 			])
 		]);
 	}

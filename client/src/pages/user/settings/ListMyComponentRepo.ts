@@ -12,6 +12,7 @@ import { WithTarget, ComponentRepoPublishTask, ComponentRepo } from '../../../in
 import { ValidateStatus, PublishType } from '../../../constant';
 import { UrlPayload } from '../../../processes/interfaces';
 import Moment from '../../../widgets/moment';
+import Exception from '../../error/Exception';
 
 export interface ListMyComponentRepoProperties {
 	loggedUsername: string;
@@ -36,6 +37,10 @@ export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBas
 	private _localizedMessages = this.localizeBundle(messageBundle);
 
 	protected render() {
+		if (!this._isAuthenticated()) {
+			return w(Exception, { type: '403' });
+		}
+
 		return v('div', { classes: [css.root, c.container, c.mt_5] }, [
 			v('div', { classes: [c.row] }, [
 				v('div', { classes: [c.col_3] }, [this._renderMenu()]),
@@ -49,15 +54,25 @@ export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBas
 		]);
 	}
 
+	private _isAuthenticated() {
+		const { loggedUsername } = this.properties;
+		return !!loggedUsername;
+	}
+
 	private _renderMenu() {
+		const { messages } = this._localizedMessages;
+
 		return v('ul', { classes: [c.list_group] }, [
-			v('li', { classes: [c.list_group_item] }, [w(Link, { to: 'settings-profile' }, ['个人资料'])]),
-			v('li', { classes: [c.list_group_item, css.active] }, ['组件市场'])
+			v('li', { classes: [c.list_group_item] }, [
+				w(Link, { to: 'settings-profile' }, [`${messages.userSettingMenuProfile}`])
+			]),
+			v('li', { classes: [c.list_group_item, css.active] }, [`${messages.userSettingMenuMarketplace}`])
 		]);
 	}
 
 	private _renderHeader() {
-		return v('div', [v('h4', ['组件市场']), v('hr')]);
+		const { messages } = this._localizedMessages;
+		return v('div', [v('h4', [`${messages.userSettingMenuMarketplace}`]), v('hr')]);
 	}
 
 	// 发布组件 form 表单
@@ -120,41 +135,48 @@ export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBas
 		if (publishTasks.length > 0) {
 			return v('div', { classes: [c.mb_4] }, [
 				v('h6', { classes: c.font_weight_normal }, ['正在发布']),
-				v(
-					'ul',
-					{ classes: [c.list_group, c.mt_2] },
-					publishTasks.map((task) =>
-						v('li', { classes: [c.list_group_item, c.d_flex] }, [
-							v(
-								'div',
-								{
-									classes: [c.spinner_border, c.spinner_border_sm, c.text_warning, c.mr_2, c.mt_1],
-									role: 'status'
-								},
-								[v('span', { classes: [c.sr_only] }, ['发布中……'])]
-							),
-							v('div', { classes: [c.flex_grow_1] }, [
-								v('div', {}, [
-									v(
-										'a',
-										{ href: `${task.gitUrl}`, classes: [c.font_weight_bold], target: '_blank' },
-										[`${task.gitUrl}`]
-									),
-									w(Link, { to: '', classes: [c.float_right] }, ['发布日志'])
-								]),
-								v('div', { classes: [c.text_muted, c.mt_2] }, [
-									v('span', {}, [
-										w(FontAwesomeIcon, { icon: 'clock' }),
-										task.publishType === PublishType.New ? ' 首次发布于 ' : ' 升级于 ',
-										w(Moment, { datetime: task.startTime })
-									])
-								])
-							])
-						])
-					)
-				)
+				v('ul', { classes: [c.list_group, c.mt_2] }, publishTasks.map((task) => this._renderTask(task)))
 			]);
 		}
+	}
+
+	private _renderTask(task: ComponentRepoPublishTask) {
+		return v('li', { classes: [c.list_group_item, c.d_flex] }, [
+			v(
+				'div',
+				{
+					classes: [c.spinner_border, c.spinner_border_sm, c.text_warning, c.mr_2, c.mt_1],
+					role: 'status'
+				},
+				[v('span', { classes: [c.sr_only] }, ['发布中……'])]
+			),
+			v('div', { classes: [c.flex_grow_1] }, [
+				v('div', {}, [
+					v('a', { href: `${task.gitUrl}`, classes: [c.font_weight_bold], target: '_blank' }, [
+						`${task.gitUrl}`
+					]),
+					w(
+						Link,
+						{
+							to: 'view-component-repo-publish-task',
+							params: { taskId: `${task.id}` },
+							classes: [c.float_right]
+						},
+						['发布日志']
+					)
+				]),
+				v('div', { classes: [c.text_muted, c.mt_2] }, [
+					v('span', { classes: [c.mr_2], title: '任务编号' }, [`#${task.seq}`]),
+					v('span', {}, [
+						w(FontAwesomeIcon, { icon: 'clock' }),
+						task.publishType === PublishType.New
+							? ' 首次发布 · '
+							: ` 升级 ${task.fromVersion} -> ${task.toVersion} · `,
+						w(Moment, { datetime: task.startTime })
+					])
+				])
+			])
+		]);
 	}
 
 	private _publishComponentRepo() {

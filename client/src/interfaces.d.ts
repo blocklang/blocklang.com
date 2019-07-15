@@ -264,12 +264,20 @@ interface Page {
 interface ComponentRepoPublishTask {
 	id?: number;
 	gitUrl: string;
+	seq: number;
+	website: string;
+	owner: string;
+	repoName: string;
+
 	startTime: string;
 	endTime: string;
 	publishType: PublishType;
 	publishResult: ReleaseResult;
 	fromVersion: String;
 	toVersion: string;
+
+	createUserId: number;
+	createUserName: string;
 }
 
 interface ComponentRepo {
@@ -294,7 +302,6 @@ interface PagedComponentRepos extends Page {
 interface ComponentRepoUrlInputValidation {
 	componentRepoUrlValidateStatus?: ValidateStatus;
 	componentRepoUrlErrorMessage?: string;
-	componentRepoUrlValidMessage?: string;
 }
 
 export interface State {
@@ -349,6 +356,7 @@ export interface State {
 	// 用户正在发布的组件库任务
 	userComponentRepoPublishingTasks: ComponentRepoPublishTask[];
 	userComponentRepos: ComponentRepo[];
+	componentRepoPublishTask: ComponentRepoPublishTask;
 
 	help: Help;
 }

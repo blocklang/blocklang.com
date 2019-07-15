@@ -181,6 +181,14 @@ changelog 的 json 格式
 4. `events` 下的 `valueType` (与 `name` 属性并列)的值只能是 `function`，所以不需要用户设置；如果设置为 `function` 也不会报错
 5. changelog 文件的命名约定是，名称使用版本号，但要将版本中的点替换为下划线，如 `0_1_0.json`
 
+##### Value Or Default Value
+
+部件的属性值只使用 `value`，还是组合使用 `value` 和 `defaultValue`?
+
+刚开始时属性值为 `value`，但是在设计 api 时，发现取名为 `defaultValue` 更贴切，因为在 `api.json` 中设置的值就是默认值，但是在设计部件时却需要使用 `value`，一个部件的值是会变化的，`defaultValue` 只是部件的初始值，是一个特殊阶段的值。
+
+在 API 中的 `defaultValue` 指的是各属性的默认值；在部件中的 `value` 指的是 `value` 属性。这两者不是一回事，概念不能混淆。
+
 ### 组件项目
 
 #### UI 部件

@@ -105,6 +105,11 @@ export default {
 		completeUserInfoTip: '请完善用户信息',
 		loginNameHelpText:
 			'只能包含英文字母、数字、中划线（-）或下划线（_），只能以英文字母或数字开头或结尾，不区分大小写。',
-		ok: '完成'
+		ok: '完成',
+
+		// user settings
+		userSettingMenuProfile: '个人资料',
+		userSettingMenuMarketplace: '组件市场',
+		componentRepoPublishMenuItem: '发布'
 	}
 };

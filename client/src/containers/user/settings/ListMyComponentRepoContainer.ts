@@ -15,7 +15,6 @@ function getProperties(store: Store<State>): ListMyComponentRepoProperties {
 		componentRepoUrl: get(path('componentRepoUrl')),
 		repoUrlValidateStatus: get(path('componentRepoUrlInputValidation', 'componentRepoUrlValidateStatus')),
 		repoUrlErrorMessage: get(path('componentRepoUrlInputValidation', 'componentRepoUrlErrorMessage')),
-		repoUrlValidMessage: get(path('componentRepoUrlInputValidation', 'componentRepoUrlValidMessage')),
 		onComponentRepoUrlInput: componentRepoUrlInputProcess(store),
 		onPublishComponentRepo: publishComponentRepoProcess(store)
 	};

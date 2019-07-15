@@ -201,6 +201,16 @@ export const border_light: string = 'border-light';
 export const border_dark: string = 'border-dark';
 export const border_white: string = 'border-white';
 
+//     border-radius
+export const rounded: string = 'rounded';
+export const rounded_top: string = 'rounded-top';
+export const rounded_right: string = 'rounded-right';
+export const rounded_bottom: string = 'rounded-bottom';
+export const rounded_left: string = 'rounded-left';
+export const rounded_circle: string = 'rounded-circle';
+export const rounded_pill: string = 'rounded-pill';
+export const rounded_0: string = 'rounded-0';
+
 //     color
 export const text_primary: string = 'text-primary';
 export const text_secondary: string = 'text-secondary';

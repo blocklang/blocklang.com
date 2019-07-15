@@ -16,6 +16,11 @@ export interface MomentProperties extends ThemedProperties {
 
 export const ThemedBase = ThemedMixin(WidgetBase);
 
+/**
+ * TODO: 使用一个 timer 循环调度，而不是一个部件创建一个 timer
+ *
+ */
+
 @customElement<MomentProperties>({
 	tag: 'bl-moment'
 })

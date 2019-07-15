@@ -69,7 +69,7 @@ export default [
 		outlet: 'list-component-repo'
 	},
 	{
-		path: 'settings/marketplace/repo/{taskId}',
+		path: 'settings/marketplace/publish/{taskId}',
 		outlet: 'view-component-repo-publish-task'
 	},
 	{

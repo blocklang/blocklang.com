@@ -32,7 +32,11 @@ import { initForViewDocumentProcess } from './processes/documentProcess';
 import { setSessionProcess } from './processes/loginProcesses';
 import { initForNewPageProcess } from './processes/pageProcesses';
 import { initForNewGroupProcess } from './processes/groupProcesses';
-import { initForListComponentReposProcess, initForListMyComponentReposProcess } from './processes/componentRepoProcess';
+import {
+	initForListComponentReposProcess,
+	initForListMyComponentReposProcess,
+	initForComponentRepoPublishTask
+} from './processes/componentRepoProcess';
 
 const store = new Store<State>();
 
@@ -151,6 +155,9 @@ router.on('outlet', ({ outlet, action }) => {
 				break;
 			case 'settings-profile':
 				initForUserProfileProcess(store)({});
+				break;
+			case 'view-component-repo-publish-task':
+				initForComponentRepoPublishTask(store)({ taskId: outlet.params.taskId });
 				break;
 		}
 	}

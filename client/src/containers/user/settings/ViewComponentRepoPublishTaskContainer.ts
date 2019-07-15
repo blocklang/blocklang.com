@@ -6,12 +6,15 @@ import ViewComponentRepoPublishTask, {
 } from '../../../pages/user/settings/ViewComponentRepoPublishTask';
 
 function getProperties(store: Store<State>): ViewComponentRepoPublishTaskProperties {
-	// const { get, path } = store;
+	const { get, path } = store;
 
-	return {};
+	return {
+		loggedUsername: get(path('user', 'loginName')),
+		publishTask: get(path('componentRepoPublishTask'))
+	};
 }
 
 export default StoreContainer(ViewComponentRepoPublishTask, 'state', {
-	paths: [['user']],
+	paths: [['user'], ['componentRepoPublishTask']],
 	getProperties
 });
