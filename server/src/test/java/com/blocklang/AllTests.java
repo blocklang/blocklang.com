@@ -16,6 +16,7 @@ import com.blocklang.core.service.impl.UserBindServiceImplTest;
 import com.blocklang.core.service.impl.UserServiceImplTest;
 import com.blocklang.core.util.GitUrlParserTest;
 import com.blocklang.core.util.IdGeneratorTest;
+import com.blocklang.core.util.LogFileReaderTest;
 import com.blocklang.core.util.LoginTokenTest;
 import com.blocklang.core.util.RangeHeaderTest;
 import com.blocklang.core.util.StringUtilsTest;
@@ -83,6 +84,7 @@ import com.blocklang.release.task.GitTagTaskTest;
 	ApiChangeLogsSetupGroupTaskTest.class,
 	CodeGeneratorTest.class,
 	GitUrlParserTest.class,
+	LogFileReaderTest.class,
 	
 	UserValidatorTest.class,
 	

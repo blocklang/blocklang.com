@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.blocklang.marketplace.data.ApiJson;
 import com.blocklang.marketplace.data.ComponentJson;
 import com.blocklang.marketplace.data.LocalRepoPath;
@@ -52,9 +54,15 @@ public class MarketplacePublishContext {
 		this.localApiRepoPath = new LocalRepoPath(dataRootPath, apiGitUrl);
 	}
 
+	/**
+	 * 如果 publishTask 中已包含 logFileName，则取此名；否则重新生成一个日志文件名。
+	 * 
+	 * @return
+	 */
 	public Path getRepoPublishLogFile() {
 		if(this.logFile == null) {
-			this.logFile = this.getRepoPublishLogDirectory().resolve(this.getRepoPublishLogFileName());
+			String logFileName = StringUtils.isNotBlank(publishTask.getLogFileName()) ? publishTask.getLogFileName() : this.getRepoPublishLogFileName();
+			this.logFile = this.getRepoPublishLogDirectory().resolve(logFileName);
 		}
 		return this.logFile;
 	}
