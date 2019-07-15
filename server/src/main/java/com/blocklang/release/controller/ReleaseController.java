@@ -31,6 +31,7 @@ import com.blocklang.core.exception.ResourceNotFoundException;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.PropertyService;
 import com.blocklang.core.service.UserService;
+import com.blocklang.core.util.LogFileReader;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.service.ProjectService;
 import com.blocklang.release.constant.ReleaseResult;
@@ -232,6 +233,6 @@ public class ReleaseController {
 			logger.warn("获取日志文件失败", e);
 		}
 		
-		return ResponseEntity.ok(projectReleaseTaskService.getLogContent(logFilePath));
+		return ResponseEntity.ok(LogFileReader.readAllLines(logFilePath));
 	}
 }

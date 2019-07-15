@@ -15,6 +15,9 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -560,7 +563,6 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 					"version", equalTo("0.1.0"));
 	}
 	
-	
 	@Test
 	public void get_a_release_log_then_project_not_found() {
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
@@ -605,18 +607,7 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 		when(projectReleaseTaskService.findByProjectIdAndVersion(anyInt(), anyString())).thenReturn(Optional.of(task));
 		
 		File dataRootDirectory = tempFolder.newFolder();
-		// 测试完后，要删除生成的日志文件
-		new AppBuildContext.LogPathBuilder()
-				.setDataRootPath(dataRootDirectory.getPath())
-				.setOwner("jack")
-				.setProjectName("demo_project")
-				.setLogFileName("get_a_release_log_success.log")
-				.build()
-				.getLogFilePath();
 		when(propertyService.findStringValue(anyString())).thenReturn(Optional.of(dataRootDirectory.getPath()));
-
-		// 如果如果没有找到日志文件，则只在系统日志中打印 warn 信息，但不要抛出异常，而是返回一个空列表
-		when(projectReleaseTaskService.getLogContent(any())).thenReturn(Collections.emptyList());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -643,18 +634,17 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 		when(projectReleaseTaskService.findByProjectIdAndVersion(anyInt(), anyString())).thenReturn(Optional.of(task));
 
 		File dataRootDirectory = tempFolder.newFolder();
+		when(propertyService.findStringValue(anyString())).thenReturn(Optional.of(dataRootDirectory.getPath()));
 		// 测试完后，要删除生成的日志文件
-		new AppBuildContext.LogPathBuilder()
+		// TODO: 重构 AppBuildContext 抽出 TaskLogger
+		Path logFilePath = new AppBuildContext.LogPathBuilder()
 				.setDataRootPath(dataRootDirectory.getPath())
 				.setOwner("jack")
 				.setProjectName("demo_project")
 				.setLogFileName("get_a_release_log_success.log")
 				.build()
 				.getLogFilePath();
-		
-		when(propertyService.findStringValue(anyString())).thenReturn(Optional.of(dataRootDirectory.getPath()));
-		
-		when(projectReleaseTaskService.getLogContent(any())).thenReturn(Arrays.asList("a", "b"));
+		Files.write(logFilePath, Arrays.asList("a", "b"), StandardOpenOption.APPEND);
 		
 		given()
 			.contentType(ContentType.JSON)
