@@ -10,8 +10,6 @@ import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import com.blocklang.core.model.PartialOperateFields;
-import com.blocklang.core.util.GitUrlParser;
-import com.blocklang.core.util.GitUrlSegment;
 import com.blocklang.marketplace.constant.PublishType;
 import com.blocklang.marketplace.constant.converter.PublishTypeConverter;
 import com.blocklang.release.constant.ReleaseResult;
@@ -68,7 +66,11 @@ public class ComponentRepoPublishTask extends PartialOperateFields {
 	@Transient
 	private String createUserAvatarUrl;
 	@Transient
-	private GitUrlSegment gitUrlSegment;
+	private String website;
+	@Transient
+	private String owner;
+	@Transient
+	private String repoName;
 
 	public String getGitUrl() {
 		return gitUrl;
@@ -76,7 +78,6 @@ public class ComponentRepoPublishTask extends PartialOperateFields {
 
 	public void setGitUrl(String gitUrl) {
 		this.gitUrl = gitUrl;
-		this.gitUrlSegment = GitUrlParser.parse(gitUrl).orElse(null);
 	}
 
 	public LocalDateTime getStartTime() {
@@ -159,16 +160,27 @@ public class ComponentRepoPublishTask extends PartialOperateFields {
 		this.seq = seq;
 	}
 
+	public void setWebsite(String website) {
+		this.website = website;
+	}
+
+	public void setOwner(String owner) {
+		this.owner = owner;
+	}
+
+	public void setRepoName(String repoName) {
+		this.repoName = repoName;
+	}
 
 	public String getWebsite() {
-		return this.gitUrlSegment.getWebsite();
+		return this.website;
 	}
 
 	public String getOwner() {
-		return this.gitUrlSegment.getOwner();
+		return this.owner;
 	}
 
 	public String getRepoName() {
-		return this.gitUrlSegment.getRepoName();
+		return this.repoName;
 	}
 }

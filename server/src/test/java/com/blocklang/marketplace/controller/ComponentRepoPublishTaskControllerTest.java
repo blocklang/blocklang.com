@@ -1,16 +1,22 @@
 package com.blocklang.marketplace.controller;
 
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
-import static org.hamcrest.Matchers.is;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Optional;
 
 import org.apache.http.HttpStatus;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -19,12 +25,17 @@ import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.test.AbstractControllerTest;
 import com.blocklang.marketplace.model.ComponentRepoPublishTask;
 import com.blocklang.marketplace.service.ComponentRepoPublishTaskService;
+import com.blocklang.marketplace.task.MarketplacePublishContext;
+import com.blocklang.marketplace.task.TaskLogger;
 
 import io.restassured.http.ContentType;
 
 @WebMvcTest(ComponentRepoPublishTaskController.class)
 public class ComponentRepoPublishTaskControllerTest extends AbstractControllerTest {
-
+	
+	@Rule
+	public TemporaryFolder tempFolder = new TemporaryFolder();
+	
 	@MockBean
 	private ComponentRepoPublishTaskService componentRepoPublishTaskService;
 	
@@ -114,7 +125,7 @@ public class ComponentRepoPublishTaskControllerTest extends AbstractControllerTe
 		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
 		task.setId(1);
 		task.setCreateUserName("jack");
-		task.setGitUrl("https://a.com/owner/repo");
+		task.setGitUrl("https://a.com/owner/repo.git");
 		when(componentRepoPublishTaskService.findById(anyInt())).thenReturn(Optional.of(task));
 		
 		given()
@@ -123,5 +134,96 @@ public class ComponentRepoPublishTaskControllerTest extends AbstractControllerTe
 			.get("/marketplace/publish/{taskId}", 1)
 		.then()
 			.statusCode(HttpStatus.SC_OK);
+	}
+
+	@Test
+	public void get_publish_log_anonymous_forbidden() {
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/marketplace/publish/{taskId}/log", 1)
+		.then()
+			.statusCode(HttpStatus.SC_FORBIDDEN);
+	}
+	
+	@WithMockUser("jack")
+	@Test
+	public void get_publish_log_task_not_exist() {
+		when(componentRepoPublishTaskService.findById(anyInt())).thenReturn(Optional.empty());
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/marketplace/publish/{taskId}/log", 1)
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	@WithMockUser("user-not-publisher")
+	@Test
+	public void get_publish_log_user_not_exist_forbidden() {
+		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
+		task.setId(1);
+		task.setCreateUserName("jack");
+		task.setGitUrl("https://a.com/owner/repo.git");
+		when(componentRepoPublishTaskService.findById(anyInt())).thenReturn(Optional.of(task));
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/marketplace/publish/{taskId}/log", 1)
+		.then()
+			.statusCode(HttpStatus.SC_FORBIDDEN);
+	}
+	
+	@WithMockUser("jack")
+	@Test
+	public void get_publish_log_root_path_property_not_config() throws IOException {
+		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
+		task.setId(1);
+		task.setCreateUserName("jack");
+		task.setGitUrl("https://a.com/owner/repo.git");
+		task.setLogFileName("get_publish_log_task_log_file_not_found.log");
+		when(componentRepoPublishTaskService.findById(anyInt())).thenReturn(Optional.of(task));
+
+		when(propertyService.findStringValue(anyString())).thenReturn(Optional.empty());
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/marketplace/publish/{taskId}/log", 1)
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	@WithMockUser("jack")
+	@Test
+	public void get_publish_log_success() throws IOException {
+		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
+		task.setId(1);
+		task.setCreateUserName("jack");
+		task.setGitUrl("https://a.com/owner/repo.git");
+		task.setLogFileName("get_publish_log_success.log");
+		when(componentRepoPublishTaskService.findById(anyInt())).thenReturn(Optional.of(task));
+
+		File dataRootDirectory = tempFolder.newFolder();
+		when(propertyService.findStringValue(anyString())).thenReturn(Optional.of(dataRootDirectory.getPath()));
+
+		// 创建一个日志文件，其中写入两行文字
+		// 这里借助 MarketplacePublishContext 类生成完整的日志文件
+		MarketplacePublishContext context = new MarketplacePublishContext(dataRootDirectory.getPath(), task);
+		Path logFolderPath = context.getLocalComponentRepoPath().getRepoRootDirectory().resolve("publishLogs");
+		Path logFilePath = logFolderPath.resolve("get_publish_log_success.log");
+		TaskLogger logger = new TaskLogger(logFilePath);
+		logger.log("a");
+		logger.log("b");
+
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/marketplace/publish/{taskId}/log", 1)
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body("size()", equalTo(2));
 	}
 }

@@ -9,8 +9,7 @@ public interface ComponentRepoPublishTaskService {
 
 	public ComponentRepoPublishTask save(ComponentRepoPublishTask task);
 
-	@Deprecated
-	public Optional<ComponentRepoPublishTask> findByGitUrlAndUserId(Integer userId, String gitUrl);
+	public boolean existsByCreateUserIdAndGitUrl(Integer userId, String gitUrl);
 
 	public List<ComponentRepoPublishTask> findUserPublishingTasks(Integer userId);
 

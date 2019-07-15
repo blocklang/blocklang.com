@@ -15,9 +15,8 @@ public interface ComponentRepoPublishTaskDao extends JpaRepository<ComponentRepo
 	 * @param gitUrl
 	 * @param userId
 	 * @return
-	 * @deprecated 一个用户对同一个组件库，可以发布多次，如第一次发布和后续升级，所以此接口应返回 List
 	 */
-	Optional<ComponentRepoPublishTask> findByGitUrlAndCreateUserId(String gitUrl, Integer userId);
+	boolean existsByCreateUserIdAndGitUrl(Integer userId, String gitUrl);
 
 	List<ComponentRepoPublishTask> findAllByCreateUserIdOrderByCreateTimeDesc(Integer createUserId);
 

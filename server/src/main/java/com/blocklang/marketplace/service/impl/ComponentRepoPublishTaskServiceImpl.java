@@ -31,8 +31,8 @@ public class ComponentRepoPublishTaskServiceImpl implements ComponentRepoPublish
 	}
 
 	@Override
-	public Optional<ComponentRepoPublishTask> findByGitUrlAndUserId(Integer userId, String gitUrl) {
-		return componentRepoPublishTaskDao.findByGitUrlAndCreateUserId(gitUrl, userId);
+	public boolean existsByCreateUserIdAndGitUrl(Integer userId, String gitUrl) {
+		return componentRepoPublishTaskDao.existsByCreateUserIdAndGitUrl(userId, gitUrl);
 	}
 
 	@Override
