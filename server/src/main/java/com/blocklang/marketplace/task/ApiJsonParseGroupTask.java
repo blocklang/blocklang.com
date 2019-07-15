@@ -3,6 +3,7 @@ package com.blocklang.marketplace.task;
 import java.io.IOException;
 import java.util.Optional;
 
+import com.blocklang.core.git.GitUtils;
 import com.blocklang.marketplace.constant.MarketplaceConstant;
 import com.blocklang.marketplace.data.ApiJson;
 import com.blocklang.marketplace.data.ComponentJson;
@@ -24,17 +25,28 @@ public class ApiJsonParseGroupTask extends AbstractRepoPublishTask {
 		}
 		
 		boolean success = true;
+		String gitUrl = componentJson.getApi().getGit().trim();
+		logger.info("开始校验 {0} 仓库是否存在", gitUrl);
+		success = GitUtils.isValidRemoteRepository(gitUrl);
+		if(success) {
+			logger.info("存在");
+		}else {
+			logger.error("不存在");
+		}
+		
 		// 从源代码托管网站下载 API 项目
 		// 开始解析 api 项目
-		context.parseApiGitUrl(componentJson.getApi().getGit().trim());
-		logger.info("开始下载 API 仓库源码");
-		GitSyncApiRepoTask apiRepoTask = new GitSyncApiRepoTask(context);
-		Optional<Boolean> gitSyncApiOption = apiRepoTask.run();
-		success = gitSyncApiOption.isPresent();
 		if(success) {
-			logger.info("完成");
-		} else {
-			logger.error("失败");
+			context.parseApiGitUrl(gitUrl);
+			logger.info("开始下载 API 仓库源码");
+			GitSyncApiRepoTask apiRepoTask = new GitSyncApiRepoTask(context);
+			Optional<Boolean> gitSyncApiOption = apiRepoTask.run();
+			success = gitSyncApiOption.isPresent();
+			if(success) {
+				logger.info("完成");
+			} else {
+				logger.error("失败");
+			}
 		}
 		
 		// 因为在后续保存 API 变更文件时，需要按照版本增量安装，所以这里获取 API 仓库的所有版本
@@ -58,9 +70,9 @@ public class ApiJsonParseGroupTask extends AbstractRepoPublishTask {
 			if(success) {
 				apiRepoRefName = tagNameOption.get();
 				context.setApiRepoTagName(apiRepoRefName);
-				logger.info("存在 {0} 发行版", apiRepoVersion);
+				logger.info("存在");
 			} else {
-				logger.error("不存在 {0} 发行版", apiRepoVersion);
+				logger.error("不存在");
 			}
 		}
 		
@@ -74,9 +86,9 @@ public class ApiJsonParseGroupTask extends AbstractRepoPublishTask {
 			success = contentOption.isPresent();
 			if(success) {
 				apiJsonContent = contentOption.get();
-				logger.info("存在{0} 文件", MarketplaceConstant.FILE_NAME_API);
+				logger.info("存在");
 			} else {
-				logger.error("没有找到 {0} 文件", MarketplaceConstant.FILE_NAME_API);
+				logger.error("不存在");
 			}
 		}
 		
@@ -104,7 +116,7 @@ public class ApiJsonParseGroupTask extends AbstractRepoPublishTask {
 			ApiJsonValidateTask apiJsonValidateTask = new ApiJsonValidateTask(context);
 			success = apiJsonValidateTask.run().isPresent();
 			if(success) {
-				logger.error("校验通过");
+				logger.info("校验通过");
 			}else {
 				logger.error("校验未通过");
 			}

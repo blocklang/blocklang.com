@@ -160,10 +160,6 @@ public class ApiJsonValidateTask extends AbstractRepoPublishTask {
 					success = false;
 				}
 			}
-			
-			if(success) {
-				logger.info("校验通过");
-			}
 		}
 		
 		if(success) {

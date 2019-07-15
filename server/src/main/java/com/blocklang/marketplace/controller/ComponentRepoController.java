@@ -27,9 +27,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.blocklang.core.exception.InvalidRequestException;
 import com.blocklang.core.exception.NoAuthorizationException;
 import com.blocklang.core.exception.ResourceNotFoundException;
-import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.UserService;
+import com.blocklang.core.util.GitUrlParser;
+import com.blocklang.core.util.GitUrlSegment;
+import com.blocklang.marketplace.constant.PublishType;
 import com.blocklang.marketplace.data.NewComponentRepoParam;
 import com.blocklang.marketplace.model.ComponentRepo;
 import com.blocklang.marketplace.model.ComponentRepoPublishTask;
@@ -92,6 +94,25 @@ public class ComponentRepoController {
 		return ResponseEntity.ok(result);
 	}
 	
+	/**
+	 * 
+	 * 
+	 * <p>
+	 * controller 中只做两件事
+	 * <ol>
+	 * <li>校验 git url 是否为空</li>
+	 * <li>保存组件库发布任务</li>
+	 * </ol>
+	 * 
+	 * 其余放在异步 service 中处理
+	 * </p>
+	 * 
+	 * 
+	 * @param principal
+	 * @param param
+	 * @param bindingResult
+	 * @return
+	 */
 	@PostMapping("/component-repos")
 	public ResponseEntity<ComponentRepoPublishTask> newComponentRepo(
 			Principal principal,
@@ -105,9 +126,6 @@ public class ComponentRepoController {
 		if(bindingResult.hasErrors()) {
 			throw new InvalidRequestException(bindingResult);
 		}
-		
-		UserInfo currentUser = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
-		Integer currentUserId = currentUser.getId();
 		
 		String gitUrl = param.getGitUrl().trim();
 		
@@ -128,29 +146,38 @@ public class ComponentRepoController {
 			throw new InvalidRequestException(bindingResult);
 		}
 		
-		if(!GitUtils.isValidRemoteRepository(gitUrl)) {
-			bindingResult.rejectValue("gitUrl", "NotValid.componentRepoGitUrl.repoNotExist");
-			throw new InvalidRequestException(bindingResult);
-		}
-		
-		// 如果已经发布过，则不允许新增发布任务；而是在之前任务的基础上重新发布或升级
-		componentRepoPublishTaskService.findByGitUrlAndUserId(currentUser.getId(), gitUrl).ifPresent(task -> {
-			bindingResult.rejectValue("gitUrl", "Duplicated.componentRepoGitUrl", new Object[] {principal.getName()}, null);
+		GitUrlSegment gitUrlSegment = GitUrlParser.parse(gitUrl).orElseThrow(() -> {
+			bindingResult.rejectValue("gitUrl", "NotValid.componentRepoGitUrl.shouldBeHttps");
 			throw new InvalidRequestException(bindingResult);
 		});
+		
+		UserInfo currentUser = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
+		Integer currentUserId = currentUser.getId();
+		
+		// 如果已经发布过，则不允许新增发布任务；而是在之前任务的基础上重新发布或升级
+		if(componentRepoPublishTaskService.existsByCreateUserIdAndGitUrl(currentUser.getId(), gitUrl)){
+			bindingResult.rejectValue("gitUrl", "Duplicated.componentRepoGitUrl", new Object[] {principal.getName()}, null);
+			throw new InvalidRequestException(bindingResult);
+		};
 		
 		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
 		task.setGitUrl(gitUrl);
 		task.setStartTime(LocalDateTime.now());
+		task.setPublishType(PublishType.NEW);
 		task.setPublishResult(ReleaseResult.STARTED);
 		task.setCreateTime(LocalDateTime.now());
 		task.setCreateUserId(currentUserId);
 		task.setCreateUserName(principal.getName());
 		ComponentRepoPublishTask savedTask = componentRepoPublishTaskService.save(task);
 
+		// 派生字段
+		savedTask.setWebsite(gitUrlSegment.getWebsite());
+		savedTask.setOwner(gitUrlSegment.getOwner());
+		savedTask.setRepoName(gitUrlSegment.getRepoName());
 		// 异步任务
 		publishService.asyncPublish(savedTask);
 		
+		// 这里的 CREATED 只表示 task 创建成功，并不表示发布成功
 		return new ResponseEntity<ComponentRepoPublishTask>(savedTask, HttpStatus.CREATED);
 	}
 	

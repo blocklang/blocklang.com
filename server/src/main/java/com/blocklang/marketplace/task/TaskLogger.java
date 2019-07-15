@@ -92,11 +92,4 @@ public class TaskLogger {
 		this.taskId = taskId;
 	}
 
-	
-
-	
-
-	
-
-	
 }

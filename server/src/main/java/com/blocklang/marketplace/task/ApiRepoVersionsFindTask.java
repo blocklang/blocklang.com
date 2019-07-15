@@ -38,12 +38,7 @@ public class ApiRepoVersionsFindTask extends AbstractRepoPublishTask{
 				.map(ref -> GitUtils.getVersionFromRefName(ref.getName()))
 				.flatMap(Optional::stream)
 				.filter(version -> {
-					if(Version.isValidPreRelease(version)) {
-						logger.info("过滤掉预发布版本号 {0}", version);
-						return false;
-					}
-					boolean valid = Version.isValidVersion(version);
-					if(!valid) {
+					if(!Version.isValidVersion(version)) {
 						logger.info("过滤掉无效的版本号 {0}", version);
 						return false;
 					}

@@ -234,27 +234,6 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser("jack")
 	@Test
-	public void new_component_repo_git_url_repo_not_exist() {
-		NewComponentRepoParam param = new NewComponentRepoParam();
-		param.setGitUrl("https://github.com/blocklang/not-exist-repo.git");
-
-		UserInfo userInfo = new UserInfo();
-		userInfo.setId(1);
-		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(userInfo));
-		
-		given()
-			.contentType(ContentType.JSON)
-			.body(param)
-		.when()
-			.post("/component-repos")
-		.then()
-			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
-			.body("errors.gitUrl", hasItem("Git 仓库地址无效，该仓库不存在"),
-					"errors.gitUrl.size()", is(1));
-	}
-	
-	@WithMockUser("jack")
-	@Test
 	public void new_component_repo_git_url_is_used() {
 		NewComponentRepoParam param = new NewComponentRepoParam();
 		param.setGitUrl("https://github.com/blocklang/blocklang.com.git");
@@ -263,8 +242,7 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 		userInfo.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(userInfo));
 		
-		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
-		when(componentRepoPublishTaskService.findByGitUrlAndUserId(anyInt(), any())).thenReturn(Optional.of(task));
+		when(componentRepoPublishTaskService.existsByCreateUserIdAndGitUrl(anyInt(), any())).thenReturn(true);
 		
 		given()
 			.contentType(ContentType.JSON)

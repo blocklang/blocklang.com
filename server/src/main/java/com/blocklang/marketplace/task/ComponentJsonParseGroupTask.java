@@ -40,15 +40,27 @@ public class ComponentJsonParseGroupTask extends AbstractRepoPublishTask {
 	@Override
 	public Optional<Boolean> run() {
 		boolean success = true;
-		// 从源代码托管网站下载组件的源代码
-		logger.info("开始下载组件仓库的源码");
-		GitSyncComponentRepoTask componentRepoTask = new GitSyncComponentRepoTask(context);
-		Optional<Boolean> gitSyncOption = componentRepoTask.run();
-		success = gitSyncOption.isPresent();
+		// 校验远程仓库是否存在
+		String gitUrl = context.getPublishTask().getGitUrl();
+		logger.info("开始校验 {0} 仓库是否存在", gitUrl);
+		success = GitUtils.isValidRemoteRepository(gitUrl);
 		if(success) {
-			logger.info("完成");
-		} else {
-			logger.error("失败");
+			logger.info("存在");
+		}else {
+			logger.error("不存在");
+		}
+		
+		// 从源代码托管网站下载组件的源代码
+		if(success) {
+			logger.info("开始下载组件仓库的源码");
+			GitSyncComponentRepoTask componentRepoTask = new GitSyncComponentRepoTask(context);
+			Optional<Boolean> gitSyncOption = componentRepoTask.run();
+			success = gitSyncOption.isPresent();
+			if(success) {
+				logger.info("完成");
+			} else {
+				logger.error("失败");
+			}
 		}
 		
 		// 获取组件库的最新的 tag（即最新的发行版）
@@ -90,16 +102,16 @@ public class ComponentJsonParseGroupTask extends AbstractRepoPublishTask {
 			success = contentOption.isPresent();
 			if(success) {
 				componentJsonContent = contentOption.get();
-				logger.info("存在 {0} 文件", MarketplaceConstant.FILE_NAME_COMPONENT);
+				logger.info("存在");
 			} else {
-				logger.error("没有找到 {0} 文件", MarketplaceConstant.FILE_NAME_COMPONENT);
+				logger.error("没有找到");
 			}
 		}
 		
 		// 将 json 字符串转换为 java 对象
 		ComponentJson componentJson = null;
 		if(success) {
-			logger.info("将{0} 中的文本转换为 java 对象", MarketplaceConstant.FILE_NAME_COMPONENT);
+			logger.info("将 {0} 中的文本转换为 java 对象", MarketplaceConstant.FILE_NAME_COMPONENT);
 			ObjectMapper objectMapper = new ObjectMapper();
 			try {
 				componentJson = objectMapper.readValue(componentJsonContent, ComponentJson.class);
@@ -120,7 +132,7 @@ public class ComponentJsonParseGroupTask extends AbstractRepoPublishTask {
 			ComponentJsonValidateTask componentJsonValidateTask = new ComponentJsonValidateTask(context, componentRepoDao);
 			success = componentJsonValidateTask.run().isPresent();
 			if(success) {
-				logger.error("校验通过");
+				logger.info("校验通过");
 			}else {
 				logger.error("校验未通过");
 			}

@@ -289,7 +289,7 @@ public class ApiChangeLogsSetupGroupTask extends AbstractRepoPublishTask {
 		arg.setName(argument.getName());
 		arg.setLabel(argument.getLabel());
 		arg.setValueType(ComponentAttrValueType.fromKey(argument.getValueType()));
-		arg.setDefaultValue(argument.getDefaultValue());
+		arg.setDefaultValue(argument.getDefaultValue().toString());
 		arg.setDescription(argument.getDescription());
 
 		this.apiComponentAttrFunArgDao.save(arg);
@@ -313,7 +313,7 @@ public class ApiChangeLogsSetupGroupTask extends AbstractRepoPublishTask {
 		attr.setLabel(property.getLabel());
 		attr.setDescription(property.getDescription());
 		attr.setValueType(ComponentAttrValueType.fromKey(property.getValueType()));
-		attr.setDefaultValue(property.getDefaultValue());
+		attr.setDefaultValue(property.getDefaultValue().toString());
 		
 		return apiComponentAttrDao.save(attr);
 	}
@@ -384,6 +384,9 @@ public class ApiChangeLogsSetupGroupTask extends AbstractRepoPublishTask {
 		}
 		repo.setCreateUserId(publishTask.getCreateUserId());
 		repo.setCreateTime(LocalDateTime.now());
+		
+		// 在这里已保存最近发布时间，不需要在最后再保存
+		repo.setLastPublishTime(LocalDateTime.now());
 		
 		return componentRepoDao.save(repo);
 	}

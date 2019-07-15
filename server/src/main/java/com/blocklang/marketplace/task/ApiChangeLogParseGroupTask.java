@@ -29,9 +29,11 @@ public class ApiChangeLogParseGroupTask extends AbstractRepoPublishTask {
 	private ApiRepoDao apiRepoDao;
 	private ApiChangeLogDao apiChangelogDao;
 	
-	public ApiChangeLogParseGroupTask(MarketplacePublishContext context) {
+	public ApiChangeLogParseGroupTask(MarketplacePublishContext context, ApiRepoDao apiRepoDao, ApiChangeLogDao apiChangelogDao) {
 		super(context);
 		this.apiJson = context.getApiJson();
+		this.apiRepoDao = apiRepoDao;
+		this.apiChangelogDao = apiChangelogDao;
 	}
 
 	@Override
@@ -51,8 +53,11 @@ public class ApiChangeLogParseGroupTask extends AbstractRepoPublishTask {
 				// 放在组件的 changelog 文件夹下的 json 文件都可看做 api 变更文件
 				.filter(gitFileInfo -> {
 					String parentPath = gitFileInfo.getParentPath();
-					String componentPath = parentPath.substring(0, parentPath.length() - "/changelog".length());
-					return apiComponents.contains(componentPath);
+					if(parentPath.endsWith("/changelog")) {
+						String componentPath = parentPath.substring(0, parentPath.length() - "/changelog".length());
+						return apiComponents.contains(componentPath);
+					}
+					return false;
 				}).collect(Collectors.toList());
 		
 		// 按照组件分组
@@ -128,7 +133,7 @@ public class ApiChangeLogParseGroupTask extends AbstractRepoPublishTask {
 			}
 		}
 		if(success) {
-			logger.info("校验完成");
+			logger.info("不存在");
 		}
 		
 		List<GitBlobInfo> blobs = new ArrayList<GitBlobInfo>();
@@ -157,7 +162,7 @@ public class ApiChangeLogParseGroupTask extends AbstractRepoPublishTask {
 			}
 		}
 		if(success) {
-			logger.info("校验完成");
+			logger.info("不存在");
 		}
 		
 		if(success) {
@@ -176,16 +181,18 @@ public class ApiChangeLogParseGroupTask extends AbstractRepoPublishTask {
 				List<ChangeLog> allChangeLogs = componentChangeLogs.getChangeLogs();
 				List<ApiChangeLog> setupedChangeLogs = groupedSetupChangeFiles.get(componentChangeLogs.getComponentName());
 				
-				// 文件名必须使用版本号，如版本号为 0.1.0，则文件名为 0_1_0.json
-				String latestPublishVersion = null;
-				if(setupedChangeLogs.size() > 0) {
-					String fileName = allChangeLogs.get(setupedChangeLogs.size() - 1).getFileName();
-					latestPublishVersion = parseVersion(fileName);
-				}
-				componentChangeLogs.setLatestPublishVersion(latestPublishVersion);
-				// 去掉已安装的文件
-				for(int index = 0; index < setupedChangeLogs.size(); index++) {
-					allChangeLogs.remove(0);
+				if(setupedChangeLogs != null) {
+					// 文件名必须使用版本号，如版本号为 0.1.0，则文件名为 0_1_0.json
+					String latestPublishVersion = null;
+					if(setupedChangeLogs.size() > 0) {
+						String fileName = allChangeLogs.get(setupedChangeLogs.size() - 1).getFileName();
+						latestPublishVersion = parseVersion(fileName);
+					}
+					componentChangeLogs.setLatestPublishVersion(latestPublishVersion);
+					// 去掉已安装的文件
+					for(int index = 0; index < setupedChangeLogs.size(); index++) {
+						allChangeLogs.remove(0);
+					}
 				}
 				
 				unsetupCount += allChangeLogs.size();

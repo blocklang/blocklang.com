@@ -57,6 +57,15 @@ public class AutoLoginFilter implements Filter{
 			userService.findByLoginToken(loginToken.getToken()).ifPresent(userInfo -> {
 				UserSession.storeUserToSecurityContext(loginToken.getProvider(), userInfo, strLogginToken);
 			});
+			
+			// 如果同一个用户，先用 firefox 浏览器成功登录，然后再使用 chrome 浏览器成功登录，
+			// 此时会出现同一个用户，但是在两个浏览器中缓存的 token 值不同
+			// 所以当 firefox 浏览器的 session 失效后，尝试使用 firefox 中存的 token 自动登录，
+			// 就无法登录成功，因为 token 已经被 chrome 浏览器改写了。
+			// 这种情况会出现在，同一个用户：
+			// 1. 同一台电脑上，使用不同的浏览器先后登录，然后第一个浏览器的 session 过期后
+			// 2. 两台电脑上，使用相同或不同的浏览器先后登录，然后第一台上脑的 session 过期后
+			
 		}
 	}
 }
