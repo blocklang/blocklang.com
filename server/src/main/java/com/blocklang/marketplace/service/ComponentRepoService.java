@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import com.blocklang.marketplace.data.ComponentRepoInfo;
 import com.blocklang.marketplace.model.ComponentRepo;
 
 public interface ComponentRepoService {
@@ -23,6 +24,6 @@ public interface ComponentRepoService {
 	 * @param userId
 	 * @return
 	 */
-	List<ComponentRepo> findUserComponentRepos(Integer userId);
+	List<ComponentRepoInfo> findUserComponentRepos(Integer userId);
 
 }

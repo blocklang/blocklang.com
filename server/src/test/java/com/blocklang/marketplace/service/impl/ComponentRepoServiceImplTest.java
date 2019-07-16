@@ -17,6 +17,7 @@ import com.blocklang.core.test.AbstractServiceTest;
 import com.blocklang.marketplace.constant.Language;
 import com.blocklang.marketplace.constant.RepoCategory;
 import com.blocklang.marketplace.dao.ComponentRepoDao;
+import com.blocklang.marketplace.data.ComponentRepoInfo;
 import com.blocklang.marketplace.model.ComponentRepo;
 import com.blocklang.marketplace.service.ComponentRepoService;
 
@@ -306,7 +307,7 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 
 	@Test
 	public void find_user_component_repos_no_data() {
-		List<ComponentRepo> componentRepos = componentRepoService.findUserComponentRepos(1);
+		List<ComponentRepoInfo> componentRepos = componentRepoService.findUserComponentRepos(1);
 		assertThat(componentRepos).isEmpty();
 	}
 	
@@ -342,7 +343,7 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		repo.setLanguage(Language.TYPESCRIPT);
 		componentRepoDao.save(repo);
 		
-		List<ComponentRepo> componentRepos = componentRepoService.findUserComponentRepos(1);
+		List<ComponentRepoInfo> componentRepos = componentRepoService.findUserComponentRepos(1);
 		assertThat(componentRepos).hasSize(1);
 	}
 	
@@ -378,8 +379,8 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		repo.setLanguage(Language.TYPESCRIPT);
 		componentRepoDao.save(repo);
 		
-		List<ComponentRepo> componentRepos = componentRepoService.findUserComponentRepos(createUserId);
-		assertThat(componentRepos).hasSize(2).isSortedAccordingTo(Comparator.comparing(ComponentRepo::getName));
+		List<ComponentRepoInfo> componentRepos = componentRepoService.findUserComponentRepos(createUserId);
+		assertThat(componentRepos).hasSize(2).isSortedAccordingTo(Comparator.comparing(item -> item.getComponentRepo().getName()));
 	}
 
 }

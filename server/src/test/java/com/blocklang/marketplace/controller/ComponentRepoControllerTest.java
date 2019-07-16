@@ -24,6 +24,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.test.AbstractControllerTest;
+import com.blocklang.marketplace.data.ComponentRepoInfo;
 import com.blocklang.marketplace.data.NewComponentRepoParam;
 import com.blocklang.marketplace.model.ComponentRepo;
 import com.blocklang.marketplace.model.ComponentRepoPublishTask;
@@ -147,7 +148,7 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 		userInfo.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(userInfo));
 		
-		ComponentRepo repo = new ComponentRepo();
+		ComponentRepoInfo repo = new ComponentRepoInfo(null, null);
 		when(componentRepoService.findUserComponentRepos(anyInt())).thenReturn(Collections.singletonList(repo));
 		
 		given()
