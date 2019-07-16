@@ -8,8 +8,8 @@ import { v, w } from '@dojo/framework/widget-core/d';
 import Link from '@dojo/framework/routing/Link';
 import Spinner from '../../../widgets/spinner';
 import FontAwesomeIcon from '../../../widgets/fontawesome-icon';
-import { WithTarget, ComponentRepoPublishTask, ComponentRepo } from '../../../interfaces';
-import { ValidateStatus, PublishType } from '../../../constant';
+import { WithTarget, ComponentRepoPublishTask, ComponentRepoInfo } from '../../../interfaces';
+import { ValidateStatus, PublishType, ProgrammingLanguage, RepoCategory } from '../../../constant';
 import { UrlPayload } from '../../../processes/interfaces';
 import Moment from '../../../widgets/moment';
 import Exception from '../../error/Exception';
@@ -18,7 +18,7 @@ export interface ListMyComponentRepoProperties {
 	loggedUsername: string;
 	componentRepoUrl: string;
 	publishTasks: ComponentRepoPublishTask[];
-	componentRepos: ComponentRepo[];
+	componentRepoInfos: ComponentRepoInfo[];
 
 	marketplacePageStatusCode: number;
 
@@ -188,13 +188,13 @@ export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBas
 	}
 
 	private _renderCompomentReposBlock() {
-		const { componentRepos } = this.properties;
+		const { componentRepoInfos } = this.properties;
 
-		if (!componentRepos) {
+		if (!componentRepoInfos) {
 			return w(Spinner, {});
 		}
 
-		if (componentRepos.length === 0) {
+		if (componentRepoInfos.length === 0) {
 			return this._renderEmptyComponentRepo();
 		}
 
@@ -218,25 +218,117 @@ export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBas
 	}
 
 	private _renderComponentRepos() {
-		const { componentRepos } = this.properties;
+		const { componentRepoInfos } = this.properties;
 
 		return v('div', [
 			v('h6', { classes: [c.font_weight_normal] }, ['已发布']),
 			v(
 				'ul',
 				{ classes: [c.list_group, c.mt_2] },
-				componentRepos.map((repo) => {
+				componentRepoInfos.map((repo) => {
+					const { componentRepo, apiRepo } = repo;
+					const displayName = componentRepo.label ? componentRepo.label : componentRepo.name;
+
 					return v('li', { classes: [c.list_group_item] }, [
-						// v('div', {}, [
-						// 	v('a', {href: `${repo.publishTask.gitUrl}`, target: '_blank'}, [`${repo.publishTask.gitUrl}`]),
-						// 	repo.componentRepo && repo.componentRepo.version ? v('span', {classes: [c.ml_1]}, [
-						// 		w(FontAwesomeIcon, { icon: 'tag', classes: [c.text_muted] }),
-						// 		`${repo.componentRepo.version}`
-						// 	]) : null
-						// ])
+						v('div', {}, [
+							v('div', {}, [
+								v('span', { classes: [c.font_weight_bold, c.mr_2] }, [`${displayName}`]),
+								v('span', { classes: [c.text_muted] }, [`${componentRepo.name}`])
+							]),
+							v('p', { itemprop: 'description', classes: [c.text_muted, c.mb_0] }, [
+								`${componentRepo.description}`
+							]),
+							v('div', { classes: [c.my_2] }, [
+								v('span', { classes: [c.border, c.rounded, c.px_1] }, [
+									v('span', {}, ['API: ']),
+									v(
+										'a',
+										{
+											target: '_blank',
+											href: `${apiRepo.gitRepoUrl}`,
+											title: '跳转到 API 仓库',
+											classes: [c.mr_1]
+										},
+										[`${apiRepo.gitRepoOwner}/${apiRepo.gitRepoName}`]
+									),
+									// 必须确保此版本号正是最新版组件库实现的 API 版本
+									v('span', {}, [`${apiRepo.version}`])
+								]),
+								' -> ',
+								v('span', { classes: [c.border, c.rounded, c.px_1] }, [
+									v('span', {}, ['实现: ']),
+									v(
+										'a',
+										{
+											target: '_blank',
+											href: `${componentRepo.gitRepoUrl}`,
+											title: '跳转到组件仓库',
+											classes: [c.mr_1]
+										},
+										[`${componentRepo.gitRepoOwner}/${componentRepo.gitRepoName}`]
+									),
+									// 组件库的最新版本
+									v('span', {}, [`${componentRepo.version}`])
+								])
+							]),
+							v('small', { classes: [c.text_muted] }, [
+								v('span', { classes: [c.mr_3] }, [
+									v('span', {
+										classes: [css.repoLanguageColor, c.mr_1],
+										styles: {
+											backgroundColor: `${this._getProgramingLanguageColor(
+												componentRepo.language
+											)}`
+										}
+									}),
+									v('span', { itemprop: 'programmingLanguage' }, [
+										`${this._getProgramingLanguageName(componentRepo.language)}`
+									])
+								]),
+								v('span', { classes: [c.mr_3] }, [
+									`${this._getRepoCategoryName(componentRepo.category)}`
+								]),
+								v('span', { classes: [c.mr_3], title: '使用次数' }, [
+									w(FontAwesomeIcon, { icon: 'cube', classes: [c.mr_1] }),
+									'0'
+								]),
+								v('span', {}, [
+									w(FontAwesomeIcon, { icon: 'clock', classes: [c.mr_1] }),
+									'最近发布 · ',
+									w(Moment, { datetime: componentRepo.lastPublishTime })
+								])
+							])
+						])
 					]);
 				})
 			)
 		]);
+	}
+
+	private _getProgramingLanguageColor(language: ProgrammingLanguage) {
+		if (language === ProgrammingLanguage.Java) {
+			return '#b07219';
+		}
+		if (language === ProgrammingLanguage.TypeScript) {
+			return '#2b7489';
+		}
+		return 'white';
+	}
+
+	private _getProgramingLanguageName(language: ProgrammingLanguage) {
+		if (language === ProgrammingLanguage.Java) {
+			return 'Java';
+		}
+		if (language === ProgrammingLanguage.TypeScript) {
+			return 'TypeScript';
+		}
+		return '';
+	}
+
+	private _getRepoCategoryName(category: RepoCategory) {
+		if (category === RepoCategory.Widget) {
+			return 'UI 部件';
+		}
+		return '';
 	}
 }

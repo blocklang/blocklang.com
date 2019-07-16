@@ -4,6 +4,8 @@ import java.util.Arrays;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum RepoCategory {
 
 	WIDGET("01", "Widget"),
@@ -19,6 +21,7 @@ public enum RepoCategory {
 		this.value = value;
 	}
 
+	@JsonValue
 	public String getKey() {
 		return this.key;
 	}

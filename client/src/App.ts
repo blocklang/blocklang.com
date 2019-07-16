@@ -63,6 +63,7 @@ import { faMinus } from '@fortawesome/free-solid-svg-icons/faMinus';
 import { faSearch } from '@fortawesome/free-solid-svg-icons/faSearch';
 import { faLightbulb } from '@fortawesome/free-solid-svg-icons/faLightbulb';
 import { faPuzzlePiece } from '@fortawesome/free-solid-svg-icons/faPuzzlePiece';
+import { faCube } from '@fortawesome/free-solid-svg-icons/faCube';
 
 library.add(
 	faGithub,
@@ -97,7 +98,8 @@ library.add(
 	faMinus,
 	faSearch,
 	faLightbulb,
-	faPuzzlePiece
+	faPuzzlePiece,
+	faCube
 );
 
 export default class App extends WidgetBase {

@@ -1,4 +1,13 @@
-import { ValidateStatus, ResourceType, GitFileStatus, ReleaseResult, AccessLevel, PublishType } from './constant';
+import {
+	ValidateStatus,
+	ResourceType,
+	GitFileStatus,
+	ReleaseResult,
+	AccessLevel,
+	PublishType,
+	ProgrammingLanguage,
+	RepoCategory
+} from './constant';
 import { IconName } from '@fortawesome/fontawesome-svg-core';
 
 // 注意：一些公共信息，要做成全局变量，不然会存储很多无用的信息
@@ -280,7 +289,7 @@ interface ComponentRepoPublishTask {
 	createUserName: string;
 }
 
-interface ComponentRepo {
+interface ApiRepo {
 	id?: number;
 	gitRepoUrl: string;
 	gitRepoWebsite: string;
@@ -290,9 +299,19 @@ interface ComponentRepo {
 	version: string;
 	label?: string;
 	description?: string;
-	logoPath: string;
-	category: string;
+	category: RepoCategory;
 	lastPublishTime: string;
+}
+
+interface ComponentRepo extends ApiRepo {
+	apiRepoId: number;
+	logoPath: string;
+	language: ProgrammingLanguage;
+}
+
+interface ComponentRepoInfo {
+	componentRepo: ComponentRepo;
+	apiRepo: ApiRepo;
 }
 
 interface PagedComponentRepos extends Page {
@@ -355,7 +374,7 @@ export interface State {
 	componentRepoUrl: string;
 	// 用户正在发布的组件库任务
 	userComponentRepoPublishingTasks: ComponentRepoPublishTask[];
-	userComponentRepos: ComponentRepo[];
+	userComponentRepoInfos: ComponentRepoInfo[];
 	componentRepoPublishTask: ComponentRepoPublishTask;
 
 	help: Help;

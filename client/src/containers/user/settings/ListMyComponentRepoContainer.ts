@@ -10,7 +10,7 @@ function getProperties(store: Store<State>): ListMyComponentRepoProperties {
 	return {
 		loggedUsername: get(path('user', 'loginName')),
 		publishTasks: get(path('userComponentRepoPublishingTasks')),
-		componentRepos: get(path('userComponentRepos')),
+		componentRepoInfos: get(path('userComponentRepoInfos')),
 		marketplacePageStatusCode: get(path('marketplacePageStatusCode')),
 		componentRepoUrl: get(path('componentRepoUrl')),
 		repoUrlValidateStatus: get(path('componentRepoUrlInputValidation', 'componentRepoUrlValidateStatus')),
@@ -23,7 +23,7 @@ function getProperties(store: Store<State>): ListMyComponentRepoProperties {
 export default StoreContainer(ListMyComponentRepo, 'state', {
 	paths: [
 		['user'],
-		['userComponentRepos'],
+		['userComponentRepoInfos'],
 		['userComponentRepoPublishingTasks'],
 		['marketplacePageStatusCode'],
 		['componentRepoUrl'],

@@ -43,3 +43,14 @@ export enum AccessLevel {
 	Write = '03',
 	Admin = '04'
 }
+
+export enum ProgrammingLanguage {
+	Java = '01',
+	TypeScript = '02'
+}
+
+export enum RepoCategory {
+	Widget = '01',
+	ClientApi = '02',
+	ServerApi = '03'
+}

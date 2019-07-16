@@ -47,10 +47,10 @@ const getUserComponentReposCommand = commandFactory(async ({ path }) => {
 	});
 	const json = await response.json();
 	if (!response.ok) {
-		return [replace(path('userComponentRepos'), undefined)];
+		return [replace(path('userComponentRepoInfos'), undefined)];
 	}
 
-	return [replace(path('userComponentRepos'), json)];
+	return [replace(path('userComponentRepoInfos'), json)];
 });
 
 const getComponentRepoPublishTask = commandFactory(async ({ path, payload: { taskId } }) => {
