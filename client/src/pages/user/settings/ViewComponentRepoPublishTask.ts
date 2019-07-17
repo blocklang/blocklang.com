@@ -7,7 +7,7 @@ import * as c from '../../../className';
 import * as css from './ViewComponentRepoPublishTask.m.css';
 import { v, w } from '@dojo/framework/widget-core/d';
 import Link from '@dojo/framework/routing/Link';
-import { ComponentRepoPublishTask } from '../../../interfaces';
+import { ComponentRepoPublishTask, WsMessage } from '../../../interfaces';
 import Exception from '../../error/Exception';
 import FontAwesomeIcon from '../../../widgets/fontawesome-icon';
 import Moment from '../../../widgets/moment';
@@ -16,6 +16,9 @@ import { IconName } from '@fortawesome/fontawesome-svg-core';
 import { baseUrl } from '../../../config';
 import { getHeaders } from '../../../processes/utils';
 import watch from '@dojo/framework/widget-core/decorators/watch';
+
+import * as SockJS from 'sockjs-client';
+import { Client, IFrame } from '@stomp/stompjs';
 
 export interface ViewComponentRepoPublishTaskProperties {
 	loggedUsername: string;
@@ -28,8 +31,33 @@ export default class ViewComponentRepoPublishTask extends ThemedMixin(I18nMixin(
 > {
 	private _localizedMessages = this.localizeBundle(messageBundle);
 	private _logLoaded: boolean = false;
+
 	@watch()
 	private _logs: string[] = []; // 存历史日志
+
+	private _watingConsole: WsMessage[] = [];
+	private _console: string[] = []; // 存实时刷新的日志
+	private _publishResult: string = '';
+	private _wsClient: Client;
+
+	constructor() {
+		super();
+
+		this._wsClient = new Client({});
+		this._wsClient.webSocketFactory = function() {
+			return new SockJS('/release-console');
+		};
+		this._wsClient.onStompError = (frame: IFrame) => {
+			console.log('Broker reported error: ' + frame.headers['message']);
+			console.log('Additional details: ' + frame.body);
+		};
+	}
+
+	protected onDetach() {
+		if (this._wsClient.active) {
+			this._wsClient.deactivate();
+		}
+	}
 
 	protected render() {
 		if (!this._isAuthenticated()) {
@@ -45,12 +73,79 @@ export default class ViewComponentRepoPublishTask extends ThemedMixin(I18nMixin(
 			return;
 		}
 
-		const publishResult = publishTask.publishResult;
+		if (this._publishResult === '') {
+			// 使用从部件外传来的值初始化
+			this._publishResult = publishTask.publishResult;
+		}
 
-		if (
-			publishResult === ReleaseResult.Failed ||
-			publishResult === ReleaseResult.Passed ||
-			publishResult === ReleaseResult.Canceled
+		if (this._publishResult === ReleaseResult.Started) {
+			if (!this._wsClient.active) {
+				const taskId = publishTask.id;
+				this._wsClient.onConnect = (frame: IFrame) => {
+					this._wsClient.subscribe(`/topic/publish/${taskId}`, (message) => {
+						const body = JSON.parse(message.body);
+						const {
+							payload,
+							headers: { event, releaseResult }
+						} = body as WsMessage;
+
+						if (event === 'finish') {
+							// 已读完，则关闭
+							this._wsClient.deactivate();
+							this._publishResult = releaseResult!;
+							this.invalidate();
+						} else if (event === 'console') {
+							if (!this._logLoaded) {
+								this._watingConsole.push(body);
+							} else {
+								const logLineCount = this._logs.length; // 行号是从 0 开始计算的
+								if (this._watingConsole.length > 0) {
+									this._watingConsole
+										.filter((item) => {
+											const lineNum = item.headers.lineNum;
+											if (lineNum === logLineCount) {
+												console.log(
+													`历史日志的结束行是 ${logLineCount -
+														1}，实时日志的开始行是 ${lineNum},正好接上。`
+												);
+												return true;
+											} else if (lineNum > logLineCount) {
+												console.log(
+													`历史日志的结束行是 ${logLineCount -
+														1}，实时日志的开始行是 ${lineNum},中间出现缺失。`
+												);
+												return true;
+											} else {
+												console.log(
+													`历史日志的结束行是 ${logLineCount -
+														1}，实时日志的开始行是 ${lineNum},中间出现重复。`
+												);
+												// 去重
+												return false;
+											}
+										})
+										.forEach((item) => {
+											this._appendToConsole(item.payload);
+										});
+									this._watingConsole = [];
+									this.invalidate();
+								} else {
+									this._appendToConsole(payload);
+									this.invalidate();
+								}
+							}
+						}
+					});
+
+					this._fetchLog();
+				};
+
+				this._wsClient.activate();
+			}
+		} else if (
+			this._publishResult === ReleaseResult.Failed ||
+			this._publishResult === ReleaseResult.Passed ||
+			this._publishResult === ReleaseResult.Canceled
 		) {
 			if (!this._logLoaded) {
 				this._fetchLog();
@@ -63,7 +158,8 @@ export default class ViewComponentRepoPublishTask extends ThemedMixin(I18nMixin(
 				v('div', { classes: [c.col_9] }, [
 					this._renderHeader(),
 					this._renderTaskInfo(),
-					this._renderPublishLog()
+					this._renderPublishLog(),
+					this._renderScrollToEndLineAnchor()
 				])
 			])
 		]);
@@ -82,6 +178,10 @@ export default class ViewComponentRepoPublishTask extends ThemedMixin(I18nMixin(
 			this._logs = [];
 		}
 		this._logLoaded = true;
+	}
+
+	private _appendToConsole(lineContent: string) {
+		this._console.push(lineContent);
 	}
 
 	private _isAuthenticated() {
@@ -129,7 +229,8 @@ export default class ViewComponentRepoPublishTask extends ThemedMixin(I18nMixin(
 	private _renderTaskInfo() {
 		const { publishTask } = this.properties;
 
-		const { publishResult, publishType, fromVersion, toVersion } = publishTask;
+		const { publishType, fromVersion, toVersion } = publishTask;
+		const publishResult = this._publishResult;
 
 		let borderColorClass = '';
 		let resultClasses = '';
@@ -191,11 +292,22 @@ export default class ViewComponentRepoPublishTask extends ThemedMixin(I18nMixin(
 
 	private _renderPublishLog() {
 		return v('div', { classes: [css.logBody] }, [
-			v('pre', {}, [...this._logs.map((lineContent) => this._renderLine(lineContent))])
+			v('pre', {}, [
+				...this._logs.map((lineContent) => this._renderLine(lineContent)),
+				...this._console.map((lineContent) => this._renderLine(lineContent))
+			])
 		]);
 	}
 
 	private _renderLine(lineContent: string) {
 		return v('div', { key: '', classes: [css.logLine] }, [v('a'), v('span', [lineContent])]);
+	}
+
+	private _renderScrollToEndLineAnchor() {
+		return v('div', {
+			scrollIntoView: () => {
+				return this._publishResult === ReleaseResult.Started;
+			}
+		});
 	}
 }
