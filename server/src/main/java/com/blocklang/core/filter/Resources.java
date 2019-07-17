@@ -98,6 +98,7 @@ public abstract class Resources {
 //		"/servicesGo" // 服务调用
 	}; 
 	
+	// 项目发布
 	public static final String WS_RELEASE_CONSOLE = "/release-console";
 	public static String[] WS_ENDPOINTS = {
 		WS_RELEASE_CONSOLE

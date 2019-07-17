@@ -17,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,6 +42,7 @@ import com.blocklang.marketplace.service.ComponentRepoService;
 import com.blocklang.marketplace.service.PublishService;
 import com.blocklang.release.constant.ReleaseResult;
 
+@EnableAsync
 @RestController
 public class ComponentRepoController {
 	

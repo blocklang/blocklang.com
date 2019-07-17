@@ -87,6 +87,8 @@ public class PublishServiceImpl implements PublishService {
 		logger.setSendMessage(true);
 		logger.setMessagingTemplate(messagingTemplate);
 		logger.setTaskId(publishTask.getId());
+		// 所有的任务公用同一个日志
+		context.setLogger(logger);
 		
 		logger.info(StringUtils.repeat("=", 60));
 		logger.info("开始发布 @{0}/{1} 组件库", 
@@ -275,7 +277,7 @@ public class PublishServiceImpl implements PublishService {
 		logger.info("共耗时：{0} 秒", seconds);
 		logger.info(StringUtils.repeat("=", 60));
 		
-		// context.finished(releaseResult);
+		logger.finished(releaseResult);
 	}
 
 }

@@ -36,6 +36,8 @@ public class MarketplacePublishContext {
 	private List<String> allApiRepoTagNames; // tag 的名称
 	private List<String> apiRepoVersions; // version 是从 tag 名称中解析出来的
 	
+	private TaskLogger logger;
+	
 	// 组件库描述信息
 	// 组件库最新版本中 component.json 中的内容
 	private ComponentJson componentJson;
@@ -150,6 +152,14 @@ public class MarketplacePublishContext {
 
 	public void setAllApiRepoTagNames(List<String> allApiRepoTagNames) {
 		this.allApiRepoTagNames = allApiRepoTagNames;
+	}
+	
+	public void setLogger(TaskLogger logger) {
+		this.logger = logger;
+	}
+
+	public TaskLogger getLogger() {
+		return this.logger;
 	}
 
 }

@@ -1,7 +1,6 @@
 package com.blocklang.marketplace.task;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -9,7 +8,11 @@ import java.text.MessageFormat;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.support.MessageBuilder;
+
+import com.blocklang.release.constant.ReleaseResult;
 
 public class TaskLogger {
 	
@@ -19,9 +22,15 @@ public class TaskLogger {
 	private Path logFile;
 	
 	// 发送远程日志
+	//
+	// 网页控制台是一行一输出
+	// 日志格式为 'lineNum:content'
+	// lineNum 从 0 开始
 	private boolean sendMessage;
 	private SimpMessagingTemplate simpMessagingTemplate;
 	private Integer taskId;
+	
+	private Integer lineNum = 0; // 跟踪日志文件的记录行号
 
 	public TaskLogger(Path logFile) {
 		this.logFile = logFile;
@@ -77,6 +86,12 @@ public class TaskLogger {
 		} catch (IOException e) {
 			logger.error("not found log file", e);
 		}
+		
+		if(sendMessage && taskId != null) {
+			this.sendReleaseMessage(lineNum, content);
+		}
+		
+		lineNum++;
 	}
 
 	public void setSendMessage(boolean sendMessage) {
@@ -84,12 +99,37 @@ public class TaskLogger {
 	}
 
 	public void setMessagingTemplate(SimpMessagingTemplate messagingTemplate) {
-		this.simpMessagingTemplate = simpMessagingTemplate;
+		this.simpMessagingTemplate = messagingTemplate;
 	}
-
 
 	public void setTaskId(Integer taskId) {
 		this.taskId = taskId;
 	}
+	
+	private void sendReleaseMessage(long lineNum, String lineContent) {
+		Message<String> message = MessageBuilder.withPayload(lineContent)
+				.setHeader("lineNum", lineNum)
+				.setHeader("event", "console")
+				.build();
+		sendWsMessage(message);
+	}
 
+	public void finished(ReleaseResult releaseResult) {
+		if(sendMessage && taskId != null) {
+			this.sendFinishMessage(releaseResult);
+		}
+	}
+	
+	private void sendFinishMessage(ReleaseResult releaseResult) {
+		Message<String> message = MessageBuilder.withPayload("")
+				.setHeader("lineNum", lineNum)
+				.setHeader("event", "finish")
+				.setHeader("releaseResult", releaseResult.getKey())
+				.build();
+		sendWsMessage(message);
+	}
+
+	private void sendWsMessage(Message<String> message) {
+		simpMessagingTemplate.convertAndSend("/topic/publish/" + taskId, message);
+	}
 }

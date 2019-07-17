@@ -8,7 +8,7 @@ public abstract class AbstractRepoPublishTask {
 	
 	public AbstractRepoPublishTask(MarketplacePublishContext context) {
 		this.context = context;
-		this.logger = new TaskLogger(context.getRepoPublishLogFile());
+		this.logger = context.getLogger();
 	}
 	
 	public abstract Optional<?> run();
