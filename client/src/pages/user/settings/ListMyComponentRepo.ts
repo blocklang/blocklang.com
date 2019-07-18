@@ -8,11 +8,13 @@ import { v, w } from '@dojo/framework/widget-core/d';
 import Link from '@dojo/framework/routing/Link';
 import Spinner from '../../../widgets/spinner';
 import FontAwesomeIcon from '../../../widgets/fontawesome-icon';
-import { WithTarget, ComponentRepoPublishTask, ComponentRepoInfo } from '../../../interfaces';
-import { ValidateStatus, PublishType, ProgrammingLanguage, RepoCategory } from '../../../constant';
+import { WithTarget, ComponentRepoPublishTask, ComponentRepoInfo, WsMessage } from '../../../interfaces';
+import { ValidateStatus, PublishType, ProgrammingLanguage, RepoCategory, ReleaseResult } from '../../../constant';
 import { UrlPayload } from '../../../processes/interfaces';
 import Moment from '../../../widgets/moment';
 import Exception from '../../error/Exception';
+import { Client, IFrame } from '@stomp/stompjs';
+import SockJS = require('sockjs-client');
 
 export interface ListMyComponentRepoProperties {
 	loggedUsername: string;
@@ -30,11 +32,35 @@ export interface ListMyComponentRepoProperties {
 	// event
 	onComponentRepoUrlInput: (opts: UrlPayload) => void;
 	onPublishComponentRepo: (opts: object) => void;
+	reloadUserComponentRepos: (opts: object) => void;
 }
 
 @theme(css)
 export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBase))<ListMyComponentRepoProperties> {
 	private _localizedMessages = this.localizeBundle(messageBundle);
+
+	private _wsClient: Client;
+
+	constructor() {
+		super();
+
+		this._wsClient = new Client({});
+
+		this._wsClient.webSocketFactory = function() {
+			return new SockJS('/release-console');
+		};
+
+		this._wsClient.onStompError = function(frame: IFrame) {
+			console.log('Broker reported error: ' + frame.headers['message']);
+			console.log('Additional details: ' + frame.body);
+		};
+	}
+
+	protected onDetach() {
+		if (this._wsClient.active) {
+			this._wsClient.deactivate();
+		}
+	}
 
 	protected render() {
 		if (!this._isAuthenticated()) {
@@ -125,6 +151,7 @@ export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBas
 		]);
 	}
 
+	// TODO: 需增加：实时显示新增内容
 	private _renderPublishTasksBlock() {
 		const { publishTasks } = this.properties;
 
@@ -133,11 +160,41 @@ export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBas
 		}
 
 		if (publishTasks.length > 0) {
-			return v('div', { classes: [c.mb_4] }, [
-				v('h6', { classes: c.font_weight_normal }, ['正在发布']),
-				v('ul', { classes: [c.list_group, c.mt_2] }, publishTasks.map((task) => this._renderTask(task)))
-			]);
+			if (!this._wsClient.active) {
+				this._wsClient.onConnect = (frame: IFrame) => {
+					publishTasks.forEach((item) => {
+						this._wsClient.subscribe(`/topic/publish/${item.id}`, (message) => {
+							const body = JSON.parse(message.body);
+							const {
+								headers: { event, releaseResult }
+							} = body as WsMessage;
+							if (event === 'finish') {
+								item.publishResult = releaseResult!;
+								this._onReloadComponentRepos();
+								this.invalidate();
+							}
+						});
+					});
+				};
+				this._wsClient.activate();
+			}
+
+			const filterPublishTask = publishTasks.filter((task) => task.publishResult === ReleaseResult.Started);
+			if (filterPublishTask.length > 0) {
+				return v('div', { classes: [c.mb_4] }, [
+					v('h6', { classes: c.font_weight_normal }, ['正在发布']),
+					v(
+						'ul',
+						{ classes: [c.list_group, c.mt_2] },
+						filterPublishTask.map((task) => this._renderTask(task))
+					)
+				]);
+			}
 		}
+	}
+
+	private _onReloadComponentRepos() {
+		this.properties.reloadUserComponentRepos({});
 	}
 
 	private _renderTask(task: ComponentRepoPublishTask) {

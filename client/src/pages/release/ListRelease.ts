@@ -127,6 +127,7 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 		]);
 	}
 
+	// TODO: 需增加：如果在另一个浏览器有新增发布，则在当前浏览器上应显示出新增任务
 	private _renderReleases(releases: ProjectRelease[]) {
 		// 监听发布状态
 		if (this._runningReleases.length === 0) {

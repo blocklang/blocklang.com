@@ -200,7 +200,7 @@ type WsEvent = 'console' | 'finish';
 interface WsMessageHeader {
 	lineNum: number;
 	event: WsEvent;
-	releaseResult?: string;
+	releaseResult?: ReleaseResult;
 }
 
 interface WsMessage {

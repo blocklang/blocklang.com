@@ -2,7 +2,11 @@ import Store from '@dojo/framework/stores/Store';
 import { State } from '../../../interfaces';
 import { StoreContainer } from '@dojo/framework/stores/StoreInjector';
 import ListMyComponentRepo, { ListMyComponentRepoProperties } from '../../../pages/user/settings/ListMyComponentRepo';
-import { componentRepoUrlInputProcess, publishComponentRepoProcess } from '../../../processes/componentRepoProcess';
+import {
+	componentRepoUrlInputProcess,
+	publishComponentRepoProcess,
+	getUserComponentReposProcess
+} from '../../../processes/componentRepoProcess';
 
 function getProperties(store: Store<State>): ListMyComponentRepoProperties {
 	const { get, path } = store;
@@ -16,7 +20,8 @@ function getProperties(store: Store<State>): ListMyComponentRepoProperties {
 		repoUrlValidateStatus: get(path('componentRepoUrlInputValidation', 'componentRepoUrlValidateStatus')),
 		repoUrlErrorMessage: get(path('componentRepoUrlInputValidation', 'componentRepoUrlErrorMessage')),
 		onComponentRepoUrlInput: componentRepoUrlInputProcess(store),
-		onPublishComponentRepo: publishComponentRepoProcess(store)
+		onPublishComponentRepo: publishComponentRepoProcess(store),
+		reloadUserComponentRepos: getUserComponentReposProcess(store)
 	};
 }
 

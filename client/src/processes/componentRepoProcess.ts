@@ -131,3 +131,4 @@ export const initForComponentRepoPublishTask = createProcess('init-for-component
 ]);
 export const componentRepoUrlInputProcess = createProcess('component-repo-url-input', [componentRepoUrlInputCommand]);
 export const publishComponentRepoProcess = createProcess('publish-component-repo', [publishComponentRepoCommand]);
+export const getUserComponentReposProcess = createProcess('get-user-component-repos', [getUserComponentReposCommand]);
