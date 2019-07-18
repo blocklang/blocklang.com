@@ -13,12 +13,12 @@ const getComponentReposCommand = commandFactory(async ({ path, payload: { query 
 	const json = await response.json();
 	if (!response.ok) {
 		return [
-			replace(path('pagedComponentRepos'), undefined),
+			replace(path('pagedComponentRepoInfos'), undefined),
 			replace(path('marketplacePageStatusCode'), response.status)
 		];
 	}
 
-	return [replace(path('pagedComponentRepos'), json)];
+	return [replace(path('pagedComponentRepoInfos'), json)];
 });
 
 const startInitForNewComponentRepoCommand = commandFactory(({ path }) => {
@@ -121,6 +121,7 @@ const publishComponentRepoCommand = commandFactory(async ({ path, get }) => {
 export const initForListComponentReposProcess = createProcess('init-for-list-component-repos', [
 	getComponentReposCommand
 ]);
+export const queryComponentReposProcess = createProcess('query-component-repos', [getComponentReposCommand]);
 export const initForListMyComponentReposProcess = createProcess('init-for-list-my-component-repos', [
 	startInitForNewComponentRepoCommand,
 	getUserPublishingComponentRepoTasksCommand,

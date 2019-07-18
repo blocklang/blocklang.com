@@ -9,12 +9,13 @@ import Link from '@dojo/framework/routing/Link';
 import Spinner from '../../../widgets/spinner';
 import FontAwesomeIcon from '../../../widgets/fontawesome-icon';
 import { WithTarget, ComponentRepoPublishTask, ComponentRepoInfo, WsMessage } from '../../../interfaces';
-import { ValidateStatus, PublishType, ProgrammingLanguage, RepoCategory, ReleaseResult } from '../../../constant';
+import { ValidateStatus, PublishType, ReleaseResult } from '../../../constant';
 import { UrlPayload } from '../../../processes/interfaces';
 import Moment from '../../../widgets/moment';
 import Exception from '../../error/Exception';
 import { Client, IFrame } from '@stomp/stompjs';
 import SockJS = require('sockjs-client');
+import { getRepoCategoryName, getProgramingLanguageName, getProgramingLanguageColor } from '../../../util';
 
 export interface ListMyComponentRepoProperties {
 	loggedUsername: string;
@@ -333,18 +334,14 @@ export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBas
 									v('span', {
 										classes: [css.repoLanguageColor, c.mr_1],
 										styles: {
-											backgroundColor: `${this._getProgramingLanguageColor(
-												componentRepo.language
-											)}`
+											backgroundColor: `${getProgramingLanguageColor(componentRepo.language)}`
 										}
 									}),
 									v('span', { itemprop: 'programmingLanguage' }, [
-										`${this._getProgramingLanguageName(componentRepo.language)}`
+										`${getProgramingLanguageName(componentRepo.language)}`
 									])
 								]),
-								v('span', { classes: [c.mr_3] }, [
-									`${this._getRepoCategoryName(componentRepo.category)}`
-								]),
+								v('span', { classes: [c.mr_3] }, [`${getRepoCategoryName(componentRepo.category)}`]),
 								v('span', { classes: [c.mr_3], title: '使用次数' }, [
 									w(FontAwesomeIcon, { icon: 'cube', classes: [c.mr_1] }),
 									'0'
@@ -360,32 +357,5 @@ export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBas
 				})
 			)
 		]);
-	}
-
-	private _getProgramingLanguageColor(language: ProgrammingLanguage) {
-		if (language === ProgrammingLanguage.Java) {
-			return '#b07219';
-		}
-		if (language === ProgrammingLanguage.TypeScript) {
-			return '#2b7489';
-		}
-		return 'white';
-	}
-
-	private _getProgramingLanguageName(language: ProgrammingLanguage) {
-		if (language === ProgrammingLanguage.Java) {
-			return 'Java';
-		}
-		if (language === ProgrammingLanguage.TypeScript) {
-			return 'TypeScript';
-		}
-		return '';
-	}
-
-	private _getRepoCategoryName(category: RepoCategory) {
-		if (category === RepoCategory.Widget) {
-			return 'UI 部件';
-		}
-		return '';
 	}
 }

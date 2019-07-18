@@ -101,3 +101,7 @@ export interface CommitMessagePayload {
 export interface UrlPayload {
 	url: string;
 }
+
+export interface QueryPayload {
+	query: string;
+}

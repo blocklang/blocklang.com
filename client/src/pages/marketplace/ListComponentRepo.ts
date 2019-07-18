@@ -8,14 +8,18 @@ import * as c from '../../className';
 import * as css from './ListComponentRepo.m.css';
 import FontAwesomeIcon from '../../widgets/fontawesome-icon';
 import Link from '@dojo/framework/routing/Link';
-import { PagedComponentRepos } from '../../interfaces';
+import { PagedComponentRepos, ComponentRepoInfo, WithTarget } from '../../interfaces';
 import Spinner from '../../widgets/spinner';
 import Exception from '../error/Exception';
+import Moment from '../../widgets/moment';
+import { getRepoCategoryName, getProgramingLanguageName, getProgramingLanguageColor } from '../../util';
+import { QueryPayload } from '../../processes/interfaces';
 
 export interface ListComponentRepoProperties {
 	loggedUsername: string;
 	pagedComponentRepos: PagedComponentRepos;
 	marketplacePageStatusCode: number;
+	onQueryComponentRepos: (opts: QueryPayload) => void;
 }
 
 @theme(css)
@@ -44,7 +48,7 @@ export default class ListComponentRepo extends ThemedMixin(I18nMixin(WidgetBase)
 			// 部件列表
 			this._renderCompomentReposBlock(),
 			// 分页
-			v('div', [])
+			this._renderPagination()
 		]);
 	}
 
@@ -74,7 +78,8 @@ export default class ListComponentRepo extends ThemedMixin(I18nMixin(WidgetBase)
 						type: 'text',
 						classes: [c.form_control],
 						'aria-describedby': 'btnSearch',
-						placeholder: `${messages.componentSearchPlaceholder}`
+						placeholder: `${messages.componentSearchPlaceholder}`,
+						oninput: this._onInputQueryString
 					}),
 					v('small', { classes: [c.form_text, c.text_muted] }, [
 						w(FontAwesomeIcon, { icon: 'lightbulb' }),
@@ -83,6 +88,10 @@ export default class ListComponentRepo extends ThemedMixin(I18nMixin(WidgetBase)
 				])
 			])
 		]);
+	}
+
+	private _onInputQueryString({ target: { value: query } }: WithTarget) {
+		this.properties.onQueryComponentRepos({ query });
 	}
 
 	private _renderEmptyComponentRepo() {
@@ -117,6 +126,141 @@ export default class ListComponentRepo extends ThemedMixin(I18nMixin(WidgetBase)
 	}
 
 	private _renderComponentRepos() {
-		return v('div', { classes: [c.mt_3] }, []);
+		const { pagedComponentRepos } = this.properties;
+
+		return v(
+			'ul',
+			{ classes: [c.list_group, c.mt_2] },
+			pagedComponentRepos.content.map((item) => this._renderComponentRepoItem(item))
+		);
+	}
+
+	private _renderComponentRepoItem(item: ComponentRepoInfo) {
+		const { componentRepo, apiRepo } = item;
+		const displayName = componentRepo.label ? componentRepo.label : componentRepo.name;
+		return v('li', { classes: [c.list_group_item] }, [
+			v('div', {}, [
+				v('span', { classes: [c.font_weight_bold, c.mr_2] }, [
+					v('img', {
+						width: 20,
+						height: 20,
+						classes: [c.avatar, c.mr_1],
+						src: `${componentRepo.createUserAvatarUrl}`
+					}),
+					`${componentRepo.createUserName} / ${displayName}`
+				]),
+				v('span', { classes: [c.text_muted] }, [`${componentRepo.name}`])
+			]),
+			v('p', { itemprop: 'description', classes: [c.text_muted, c.mb_0] }, [`${componentRepo.description}`]),
+			v('div', { classes: [c.my_2] }, [
+				v('span', { classes: [c.border, c.rounded, c.px_1] }, [
+					v('span', {}, ['API: ']),
+					v(
+						'a',
+						{
+							target: '_blank',
+							href: `${apiRepo.gitRepoUrl}`,
+							title: '跳转到 API 仓库',
+							classes: [c.mr_1]
+						},
+						[`${apiRepo.gitRepoOwner}/${apiRepo.gitRepoName}`]
+					),
+					// 必须确保此版本号正是最新版组件库实现的 API 版本
+					v('span', {}, [`${apiRepo.version}`])
+				]),
+				' -> ',
+				v('span', { classes: [c.border, c.rounded, c.px_1] }, [
+					v('span', {}, ['实现: ']),
+					v(
+						'a',
+						{
+							target: '_blank',
+							href: `${componentRepo.gitRepoUrl}`,
+							title: '跳转到组件仓库',
+							classes: [c.mr_1]
+						},
+						[`${componentRepo.gitRepoOwner}/${componentRepo.gitRepoName}`]
+					),
+					// 组件库的最新版本
+					v('span', {}, [`${componentRepo.version}`])
+				])
+			]),
+			v('small', { classes: [c.text_muted] }, [
+				v('span', { classes: [c.mr_3] }, [
+					v('span', {
+						classes: [css.repoLanguageColor, c.mr_1],
+						styles: {
+							backgroundColor: `${getProgramingLanguageColor(componentRepo.language)}`
+						}
+					}),
+					v('span', { itemprop: 'programmingLanguage' }, [
+						`${getProgramingLanguageName(componentRepo.language)}`
+					])
+				]),
+				v('span', { classes: [c.mr_3] }, [`${getRepoCategoryName(componentRepo.category)}`]),
+				v('span', { classes: [c.mr_3], title: '使用次数' }, [
+					w(FontAwesomeIcon, { icon: 'cube', classes: [c.mr_1] }),
+					'0'
+				]),
+				v('span', {}, [
+					w(FontAwesomeIcon, { icon: 'clock', classes: [c.mr_1] }),
+					'最近发布 · ',
+					w(Moment, { datetime: componentRepo.lastPublishTime })
+				])
+			])
+		]);
+	}
+
+	private _renderPagination() {
+		const { pagedComponentRepos } = this.properties;
+
+		if (!pagedComponentRepos) {
+			return;
+		}
+
+		// 只有当页数大于 1 时才显示分页栏
+		if (pagedComponentRepos.totalPages <= 1) {
+			return;
+		}
+
+		let isFirst: boolean = pagedComponentRepos.first;
+		let isLast: boolean = pagedComponentRepos.last;
+
+		return v('nav', { 'aria-label': 'Page', classes: [c.my_4] }, [
+			v(
+				'ul',
+				{
+					classes: [c.pagination, c.justify_content_center]
+				},
+				[
+					v('li', { classes: [c.page_item, isFirst ? c.disabled : undefined] }, [
+						isFirst
+							? v('a', { classes: [c.page_link], tabIndex: -1, 'aria-disabled': 'true' }, ['上一页'])
+							: w(
+									Link,
+									{
+										classes: [c.page_link],
+										to: 'marketplace',
+										params: { page: `${pagedComponentRepos.number - 1}` }
+									},
+									['上一页']
+							  )
+					]),
+					v('li', { classes: [c.page_item, isLast ? c.disabled : undefined] }, [
+						isLast
+							? v('a', { classes: [c.page_link], tabIndex: -1, 'aria-disabled': 'true' }, ['下一页'])
+							: w(
+									Link,
+									{
+										classes: [c.page_link],
+										to: 'marketplace',
+										params: { page: `${pagedComponentRepos.number + 1}` }
+									},
+									['下一页']
+							  )
+					])
+				]
+			)
+		]);
 	}
 }

@@ -301,6 +301,8 @@ interface ApiRepo {
 	description?: string;
 	category: RepoCategory;
 	lastPublishTime: string;
+	createUserName: string;
+	createUserAvatarUrl: string;
 }
 
 interface ComponentRepo extends ApiRepo {
@@ -315,7 +317,7 @@ interface ComponentRepoInfo {
 }
 
 interface PagedComponentRepos extends Page {
-	content: ComponentRepo[];
+	content: ComponentRepoInfo[];
 }
 
 interface ComponentRepoUrlInputValidation {
@@ -368,7 +370,7 @@ export interface State {
 	releaseCount: number;
 
 	// marketplace
-	pagedComponentRepos: PagedComponentRepos;
+	pagedComponentRepoInfos: PagedComponentRepos;
 	marketplacePageStatusCode: number;
 	componentRepoUrlInputValidation: ComponentRepoUrlInputValidation;
 	componentRepoUrl: string;

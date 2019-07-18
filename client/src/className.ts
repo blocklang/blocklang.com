@@ -20,6 +20,7 @@ export const container: string = 'container';
 //     grid
 export const row: string = 'row';
 export const cell: string = 'cell';
+export const col: string = 'col';
 export const col_4: string = 'col-4';
 export const col_8: string = 'col-8';
 export const col_3: string = 'col-3';
@@ -27,6 +28,7 @@ export const col_9: string = 'col-9';
 export const col_2: string = 'col-2';
 export const col_10: string = 'col-10';
 export const col_12: string = 'col-12';
+export const col_6: string = 'col-6';
 export const col_md_4: string = 'col-md-4';
 export const col_md_8: string = 'col-md-8';
 export const col_md_3: string = 'col-md-3';
@@ -170,6 +172,11 @@ export const navbar_brand: string = 'navbar-brand';
 export const navbar_nav: string = 'navbar-nav';
 export const collapse: string = 'collapse';
 export const navbar_collapse: string = 'navbar-collapse';
+
+//      pagination
+export const pagination: string = 'pagination';
+export const page_item: string = 'page-item';
+export const page_link: string = 'page-link';
 
 //      spinner
 export const spinner_border: string = 'spinner-border';
