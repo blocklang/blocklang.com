@@ -41,6 +41,9 @@ public class ApiChangeLogValidateTaskTest {
 		publishTask.setStartTime(LocalDateTime.now());
 		publishTask.setPublishResult(ReleaseResult.INITED);
 		context = new MarketplacePublishContext(folder, publishTask);
+		
+		TaskLogger logger = new TaskLogger(context.getRepoPublishLogFile());
+		context.setLogger(logger);
 	}
 
 	@Test

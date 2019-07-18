@@ -8,15 +8,15 @@ import org.junit.rules.TemporaryFolder;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.blocklang.core.test.AbstractServiceTest;
-import com.blocklang.marketplace.dao.ComponentRepoPublishTaskDao;
 import com.blocklang.marketplace.model.ComponentRepoPublishTask;
+import com.blocklang.marketplace.service.ComponentRepoPublishTaskService;
 import com.blocklang.marketplace.service.PublishService;
 import com.blocklang.release.constant.ReleaseResult;
 
 public class PublishServiceImplTest extends AbstractServiceTest{
 
 	@Autowired
-	private ComponentRepoPublishTaskDao componentRepoPublishTaskDao;
+	private ComponentRepoPublishTaskService componentRepoPublishTaskService;
 	@Autowired
 	private PublishService publishService;
 	@Rule
@@ -31,7 +31,7 @@ public class PublishServiceImplTest extends AbstractServiceTest{
 		task.setCreateTime(LocalDateTime.now());
 		task.setStartTime(LocalDateTime.now());
 		
-		ComponentRepoPublishTask savedTask = componentRepoPublishTaskDao.save(task);
+		ComponentRepoPublishTask savedTask = componentRepoPublishTaskService.save(task);
 		publishService.publish(savedTask);
 	}
 }

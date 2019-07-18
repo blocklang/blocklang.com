@@ -109,6 +109,9 @@ public class ApiChangeLogsSetupGroupTaskTest extends AbstractServiceTest {
 		
 		context = new MarketplacePublishContext(folder, publishTask);
 		context.parseApiGitUrl("https://a.com/user/api.repo.git");
+		
+		TaskLogger logger = new TaskLogger(context.getRepoPublishLogFile());
+		context.setLogger(logger);
 	}
 	
 	@Test
