@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.blocklang.core.service.UserService;
 import com.blocklang.marketplace.dao.ApiRepoDao;
 import com.blocklang.marketplace.dao.ComponentRepoDao;
 import com.blocklang.marketplace.data.ComponentRepoInfo;
@@ -23,6 +24,8 @@ public class ComponentRepoServiceImpl implements ComponentRepoService {
 	private ComponentRepoDao componentRepoDao;
 	@Autowired
 	private ApiRepoDao apiRepoDao;
+	@Autowired
+	private UserService userService;
 	
 	@Override
 	public Page<ComponentRepoInfo> findAllByNameOrLabel(String query, Pageable page) {
@@ -33,6 +36,10 @@ public class ComponentRepoServiceImpl implements ComponentRepoService {
 		repos = componentRepoDao.findAllByNameContainingIgnoreCaseOrLabelContainingIgnoreCase(query, query, page);
 		
 		return repos.map(componentRepo -> {
+			userService.findById(componentRepo.getCreateUserId()).ifPresent(user -> {
+				componentRepo.setCreateUserName(user.getLoginName());
+				componentRepo.setCreateUserAvatarUrl(user.getAvatarUrl());
+			});
 			ApiRepo apiRepo = apiRepoDao.findById(componentRepo.getApiRepoId()).orElse(null);
 			return new ComponentRepoInfo(componentRepo, apiRepo);
 		});

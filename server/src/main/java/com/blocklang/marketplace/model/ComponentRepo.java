@@ -6,6 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import com.blocklang.core.model.PartialOperateFields;
@@ -66,6 +67,11 @@ public class ComponentRepo extends PartialOperateFields {
 	@Column(name = "last_publish_time" )
 	private LocalDateTime lastPublishTime;
 
+	@Transient
+	private String createUserName;
+	@Transient
+	private String createUserAvatarUrl;
+	
 	public Integer getApiRepoId() {
 		return apiRepoId;
 	}
@@ -168,6 +174,22 @@ public class ComponentRepo extends PartialOperateFields {
 
 	public void setLastPublishTime(LocalDateTime lastPublishTime) {
 		this.lastPublishTime = lastPublishTime;
+	}
+
+	public String getCreateUserName() {
+		return createUserName;
+	}
+
+	public void setCreateUserName(String createUserName) {
+		this.createUserName = createUserName;
+	}
+
+	public String getCreateUserAvatarUrl() {
+		return createUserAvatarUrl;
+	}
+
+	public void setCreateUserAvatarUrl(String createUserAvatarUrl) {
+		this.createUserAvatarUrl = createUserAvatarUrl;
 	}
 
 }
