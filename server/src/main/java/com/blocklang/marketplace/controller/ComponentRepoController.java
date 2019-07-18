@@ -35,7 +35,6 @@ import com.blocklang.core.util.GitUrlSegment;
 import com.blocklang.marketplace.constant.PublishType;
 import com.blocklang.marketplace.data.ComponentRepoInfo;
 import com.blocklang.marketplace.data.NewComponentRepoParam;
-import com.blocklang.marketplace.model.ComponentRepo;
 import com.blocklang.marketplace.model.ComponentRepoPublishTask;
 import com.blocklang.marketplace.service.ComponentRepoPublishTaskService;
 import com.blocklang.marketplace.service.ComponentRepoService;
@@ -56,7 +55,7 @@ public class ComponentRepoController {
 	private PublishService publishService;
 
 	@GetMapping("/component-repos")
-	public ResponseEntity<Page<ComponentRepo>> listComponentRepos(
+	public ResponseEntity<Page<ComponentRepoInfo>> listComponentRepos(
 			@RequestParam(value="q", required = false)String query, 
 			@RequestParam(required = false) String page) {
 		Integer iPage = null;
@@ -75,8 +74,8 @@ public class ComponentRepoController {
 		}
 		
 		// 默认一页显示 60 项组件仓库
-		Pageable pageable = PageRequest.of(iPage, 60, Sort.by(Direction.DESC, "lastPublishTime"));
-		Page<ComponentRepo> result = componentRepoService.findAllByNameOrLabel(query, pageable);
+		Pageable pageable = PageRequest.of(iPage, 60, Sort.by(Direction.ASC, "name"));
+		Page<ComponentRepoInfo> result = componentRepoService.findAllByNameOrLabel(query, pageable);
 		
 		if(iPage > result.getTotalPages()) {
 			throw new ResourceNotFoundException();

@@ -6,7 +6,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import com.blocklang.marketplace.data.ComponentRepoInfo;
-import com.blocklang.marketplace.model.ComponentRepo;
 
 public interface ComponentRepoService {
 
@@ -17,7 +16,7 @@ public interface ComponentRepoService {
 	 * @param page
 	 * @return
 	 */
-	Page<ComponentRepo> findAllByNameOrLabel(String query, Pageable page);
+	Page<ComponentRepoInfo> findAllByNameOrLabel(String query, Pageable page);
 
 	/**
 	 * 根据仓库的名称正序排列

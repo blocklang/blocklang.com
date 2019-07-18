@@ -30,7 +30,7 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void find_all_by_name_or_label_query_is_empty_no_data() {
-		Page<ComponentRepo> result = componentRepoService.findAllByNameOrLabel("", PageRequest.of(0, 10));
+		Page<ComponentRepoInfo> result = componentRepoService.findAllByNameOrLabel("", PageRequest.of(0, 10));
 		assertThat(result.getContent()).isEmpty();
 		assertThat(result.getTotalPages()).isEqualTo(0);
 		assertThat(result.getSize()).isEqualTo(10);
@@ -38,30 +38,32 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		assertThat(result.hasNext()).isFalse();
 	}
 	
+	// 如果没有设置 publishTime, 也要能查出来
 	@Test
 	public void find_all_by_name_or_label_query_is_empty_not_include_unpublished_repo() {
-		ComponentRepo registry = new ComponentRepo();
-		registry.setApiRepoId(1);
-		registry.setGitRepoUrl("url");
-		registry.setGitRepoWebsite("website");
-		registry.setGitRepoOwner("jack");
-		registry.setGitRepoName("repo");
-		registry.setName("name");
-		registry.setVersion("version");
-		registry.setCategory(RepoCategory.WIDGET);
-		registry.setCreateUserId(1);
-		registry.setCreateTime(LocalDateTime.now());
-		registry.setLanguage(Language.TYPESCRIPT);
-		componentRepoDao.save(registry);
+		ComponentRepo repo = new ComponentRepo();
+		repo.setApiRepoId(1);
+		repo.setGitRepoUrl("url");
+		repo.setGitRepoWebsite("website");
+		repo.setGitRepoOwner("jack");
+		repo.setGitRepoName("repo");
+		repo.setName("name");
+		repo.setVersion("version");
+		repo.setCategory(RepoCategory.WIDGET);
+		repo.setCreateUserId(1);
+		repo.setCreateTime(LocalDateTime.now());
+		repo.setLanguage(Language.TYPESCRIPT);
+		componentRepoDao.save(repo);
 		
-		Page<ComponentRepo> result = componentRepoService.findAllByNameOrLabel("", PageRequest.of(0, 10));
-		assertThat(result.getContent()).isEmpty();
-		assertThat(result.getTotalPages()).isEqualTo(0);
+		Page<ComponentRepoInfo> result = componentRepoService.findAllByNameOrLabel("", PageRequest.of(0, 10));
+		assertThat(result.getContent()).hasSize(1);
+		assertThat(result.getTotalPages()).isEqualTo(1);
 		assertThat(result.getSize()).isEqualTo(10);
 		assertThat(result.hasPrevious()).isFalse();
 		assertThat(result.hasNext()).isFalse();
 	}
 	
+	// 如果没有设置 publishTime, 也要能查出来
 	@Test
 	public void find_all_by_name_or_label_query_is_not_empty_not_include_unpublished_repo() {
 		ComponentRepo registry = new ComponentRepo();
@@ -78,14 +80,15 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		registry.setLanguage(Language.TYPESCRIPT);
 		componentRepoDao.save(registry);
 		
-		Page<ComponentRepo> result = componentRepoService.findAllByNameOrLabel("name", PageRequest.of(0, 10));
-		assertThat(result.getContent()).isEmpty();
-		assertThat(result.getTotalPages()).isEqualTo(0);
+		Page<ComponentRepoInfo> result = componentRepoService.findAllByNameOrLabel("name", PageRequest.of(0, 10));
+		assertThat(result.getContent()).hasSize(1);
+		assertThat(result.getTotalPages()).isEqualTo(1);
 		assertThat(result.getSize()).isEqualTo(10);
 		assertThat(result.hasPrevious()).isFalse();
 		assertThat(result.hasNext()).isFalse();
 	}
 	
+	// 如果没有设置 publishTime, 也要能查出来
 	@Test
 	public void find_all_by_name_or_label_label_is_not_empty_not_include_unpublished_repo() {
 		ComponentRepo registry = new ComponentRepo();
@@ -103,9 +106,9 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		registry.setLanguage(Language.TYPESCRIPT);
 		componentRepoDao.save(registry);
 		
-		Page<ComponentRepo> result = componentRepoService.findAllByNameOrLabel("label", PageRequest.of(0, 10));
-		assertThat(result.getContent()).isEmpty();
-		assertThat(result.getTotalPages()).isEqualTo(0);
+		Page<ComponentRepoInfo> result = componentRepoService.findAllByNameOrLabel("label", PageRequest.of(0, 10));
+		assertThat(result.getContent()).hasSize(1);
+		assertThat(result.getTotalPages()).isEqualTo(1);
 		assertThat(result.getSize()).isEqualTo(10);
 		assertThat(result.hasPrevious()).isFalse();
 		assertThat(result.hasNext()).isFalse();
@@ -128,7 +131,7 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		registry.setLanguage(Language.TYPESCRIPT);
 		componentRepoDao.save(registry);
 		
-		Page<ComponentRepo> result = componentRepoService.findAllByNameOrLabel("", PageRequest.of(0, 10));
+		Page<ComponentRepoInfo> result = componentRepoService.findAllByNameOrLabel("", PageRequest.of(0, 10));
 		assertThat(result.getContent()).hasSize(1);
 		assertThat(result.getTotalPages()).isEqualTo(1);
 		assertThat(result.getSize()).isEqualTo(10);
@@ -153,7 +156,7 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		registry.setLanguage(Language.TYPESCRIPT);
 		componentRepoDao.save(registry);
 		
-		Page<ComponentRepo> result = componentRepoService.findAllByNameOrLabel("name", PageRequest.of(0, 10));
+		Page<ComponentRepoInfo> result = componentRepoService.findAllByNameOrLabel("name", PageRequest.of(0, 10));
 		assertThat(result.getContent()).hasSize(1);
 		assertThat(result.getTotalPages()).isEqualTo(1);
 		assertThat(result.getSize()).isEqualTo(10);
@@ -178,7 +181,7 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		registry.setLanguage(Language.TYPESCRIPT);
 		componentRepoDao.save(registry);
 		
-		Page<ComponentRepo> result = componentRepoService.findAllByNameOrLabel("NAME", PageRequest.of(0, 10));
+		Page<ComponentRepoInfo> result = componentRepoService.findAllByNameOrLabel("NAME", PageRequest.of(0, 10));
 		assertThat(result.getContent()).hasSize(1);
 		assertThat(result.getTotalPages()).isEqualTo(1);
 		assertThat(result.getSize()).isEqualTo(10);
@@ -204,7 +207,7 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		registry.setLanguage(Language.TYPESCRIPT);
 		componentRepoDao.save(registry);
 		
-		Page<ComponentRepo> result = componentRepoService.findAllByNameOrLabel("label", PageRequest.of(0, 10));
+		Page<ComponentRepoInfo> result = componentRepoService.findAllByNameOrLabel("label", PageRequest.of(0, 10));
 		assertThat(result.getContent()).hasSize(1);
 		assertThat(result.getTotalPages()).isEqualTo(1);
 		assertThat(result.getSize()).isEqualTo(10);
@@ -230,7 +233,7 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		registry.setLanguage(Language.TYPESCRIPT);
 		componentRepoDao.save(registry);
 		
-		Page<ComponentRepo> result = componentRepoService.findAllByNameOrLabel("LABEL", PageRequest.of(0, 10));
+		Page<ComponentRepoInfo> result = componentRepoService.findAllByNameOrLabel("LABEL", PageRequest.of(0, 10));
 		assertThat(result.getContent()).hasSize(1);
 		assertThat(result.getTotalPages()).isEqualTo(1);
 		assertThat(result.getSize()).isEqualTo(10);
@@ -255,7 +258,7 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		registry.setLanguage(Language.TYPESCRIPT);
 		componentRepoDao.save(registry);
 		
-		Page<ComponentRepo> result = componentRepoService.findAllByNameOrLabel("am", PageRequest.of(0, 10));
+		Page<ComponentRepoInfo> result = componentRepoService.findAllByNameOrLabel("am", PageRequest.of(0, 10));
 		assertThat(result.getContent()).hasSize(1);
 		assertThat(result.getTotalPages()).isEqualTo(1);
 		assertThat(result.getSize()).isEqualTo(10);
@@ -271,7 +274,7 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		registry.setGitRepoWebsite("website");
 		registry.setGitRepoOwner("jack");
 		registry.setGitRepoName("repo");
-		registry.setName("name");
+		registry.setName("nameb");
 		registry.setVersion("version");
 		registry.setCategory(RepoCategory.WIDGET);
 		registry.setCreateUserId(1);
@@ -286,7 +289,7 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		registry.setGitRepoWebsite("website1");
 		registry.setGitRepoOwner("jack1");
 		registry.setGitRepoName("repo1");
-		registry.setName("name1");
+		registry.setName("namea");
 		registry.setVersion("version1");
 		registry.setCategory(RepoCategory.WIDGET);
 		registry.setCreateUserId(1);
@@ -295,14 +298,14 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		registry.setLanguage(Language.TYPESCRIPT);
 		componentRepoDao.save(registry);
 		
-		Page<ComponentRepo> result = componentRepoService.findAllByNameOrLabel("name", PageRequest.of(0, 10, Sort.by(Direction.DESC, "lastPublishTime")));
+		Page<ComponentRepoInfo> result = componentRepoService.findAllByNameOrLabel("name", PageRequest.of(0, 10, Sort.by(Direction.ASC, "name")));
 		assertThat(result.getContent()).hasSize(2);
 		assertThat(result.getTotalPages()).isEqualTo(1);
 		assertThat(result.getSize()).isEqualTo(10);
 		assertThat(result.hasPrevious()).isFalse();
 		assertThat(result.hasNext()).isFalse();
 		
-		assertThat(result.getContent().get(0).getName()).isEqualTo("name1");
+		assertThat(result.getContent().get(0).getComponentRepo().getName()).isEqualTo("namea");
 	}
 
 	@Test

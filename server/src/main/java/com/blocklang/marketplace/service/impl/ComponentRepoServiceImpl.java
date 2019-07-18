@@ -25,11 +25,17 @@ public class ComponentRepoServiceImpl implements ComponentRepoService {
 	private ApiRepoDao apiRepoDao;
 	
 	@Override
-	public Page<ComponentRepo> findAllByNameOrLabel(String query, Pageable page) {
+	public Page<ComponentRepoInfo> findAllByNameOrLabel(String query, Pageable page) {
+		Page<ComponentRepo> repos = null;
 		if(StringUtils.isBlank(query)) {
-			return componentRepoDao.findAllByLastPublishTimeNotNull(page);
+			repos = componentRepoDao.findAll(page);
 		}
-		return componentRepoDao.findAllByLastPublishTimeNotNullAndNameContainingIgnoreCaseOrLastPublishTimeNotNullAndLabelContainingIgnoreCase(query, query, page);
+		repos = componentRepoDao.findAllByNameContainingIgnoreCaseOrLabelContainingIgnoreCase(query, query, page);
+		
+		return repos.map(componentRepo -> {
+			ApiRepo apiRepo = apiRepoDao.findById(componentRepo.getApiRepoId()).orElse(null);
+			return new ComponentRepoInfo(componentRepo, apiRepo);
+		});
 	}
 
 	@Override
