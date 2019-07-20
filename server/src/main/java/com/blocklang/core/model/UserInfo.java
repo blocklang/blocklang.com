@@ -6,6 +6,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import com.nimbusds.oauth2.sdk.util.StringUtils;
+
 @Entity
 @Table(name="user_info")
 public class UserInfo extends PartialIdField{
@@ -95,6 +97,12 @@ public class UserInfo extends PartialIdField{
 	}
 
 	public String getEmail() {
+		if(StringUtils.isBlank(email)) {
+			// 注意，这个邮箱地址不会存到数据库中
+			// 当使用 qq 用户登录时，不会有用户邮箱
+			// 当使用 github 用户登录时，大部分会有用户邮箱，除了禁止用户访问邮箱信息的
+			return this.loginName + "@blocklang.com";
+		}
 		return email;
 	}
 
