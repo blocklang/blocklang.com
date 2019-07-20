@@ -21,4 +21,6 @@ public interface ComponentRepoDao extends JpaRepository<ComponentRepo, Integer>{
 
 	List<ComponentRepo> findAllByCreateUserIdOrderByName(Integer userId);
 
+	boolean existsByCreateUserIdAndGitRepoUrl(Integer userId, String gitRepoUrl);
+
 }

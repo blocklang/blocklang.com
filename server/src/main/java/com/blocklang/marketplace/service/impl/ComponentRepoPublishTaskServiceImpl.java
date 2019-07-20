@@ -31,11 +31,6 @@ public class ComponentRepoPublishTaskServiceImpl implements ComponentRepoPublish
 	}
 
 	@Override
-	public boolean existsByCreateUserIdAndGitUrl(Integer userId, String gitUrl) {
-		return componentRepoPublishTaskDao.existsByCreateUserIdAndGitUrl(userId, gitUrl);
-	}
-
-	@Override
 	public List<ComponentRepoPublishTask> findUserPublishingTasks(Integer userId) {
 		return componentRepoPublishTaskDao.findAllByCreateUserIdAndPublishResultOrderByCreateTimeDesc(userId, ReleaseResult.STARTED);
 	}

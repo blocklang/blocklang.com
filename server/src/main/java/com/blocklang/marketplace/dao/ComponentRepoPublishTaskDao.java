@@ -10,14 +10,6 @@ import com.blocklang.release.constant.ReleaseResult;
 
 public interface ComponentRepoPublishTaskDao extends JpaRepository<ComponentRepoPublishTask, Integer> {
 
-	/**
-	 * 
-	 * @param gitUrl
-	 * @param userId
-	 * @return
-	 */
-	boolean existsByCreateUserIdAndGitUrl(Integer userId, String gitUrl);
-
 	List<ComponentRepoPublishTask> findAllByCreateUserIdOrderByCreateTimeDesc(Integer createUserId);
 
 	List<ComponentRepoPublishTask> findAllByCreateUserIdAndPublishResultOrderByCreateTimeDesc(Integer userId,

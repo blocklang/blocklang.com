@@ -89,24 +89,6 @@ public class ComponentRepoPublishTaskServiceImplTest extends AbstractServiceTest
 	}
 	
 	@Test
-	public void exists_by_gitUrl_and_userId_no_data() {
-		assertThat(componentRepoPublishTaskService.existsByCreateUserIdAndGitUrl(1, "git-url")).isFalse();
-	}
-	
-	@Test
-	public void exists_by_gitUrl_and_userId_success() {
-		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
-		task.setGitUrl("https://a.com/jack/repo");
-		task.setStartTime(LocalDateTime.now());
-		task.setPublishResult(ReleaseResult.STARTED);
-		task.setCreateTime(LocalDateTime.now());
-		task.setCreateUserId(1);
-		componentRepoPublishTaskService.save(task);
-		
-		assertThat(componentRepoPublishTaskService.existsByCreateUserIdAndGitUrl(1, "https://a.com/jack/repo")).isTrue();
-	}
-	
-	@Test
 	public void find_user_publishing_no_data() {
 		List<ComponentRepoPublishTask> result = componentRepoPublishTaskService.findUserPublishingTasks(1);
 		assertThat(result).isEmpty();;

@@ -9,8 +9,6 @@ public interface ComponentRepoPublishTaskService {
 
 	public ComponentRepoPublishTask save(ComponentRepoPublishTask task);
 
-	public boolean existsByCreateUserIdAndGitUrl(Integer userId, String gitUrl);
-
 	public List<ComponentRepoPublishTask> findUserPublishingTasks(Integer userId);
 
 	/**

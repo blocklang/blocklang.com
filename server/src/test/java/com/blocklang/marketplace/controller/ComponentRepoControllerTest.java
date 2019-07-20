@@ -242,7 +242,7 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 		userInfo.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(userInfo));
 		
-		when(componentRepoPublishTaskService.existsByCreateUserIdAndGitUrl(anyInt(), any())).thenReturn(true);
+		when(componentRepoService.existsByCreateUserIdAndGitRepoUrl(anyInt(), any())).thenReturn(true);
 		
 		given()
 			.contentType(ContentType.JSON)

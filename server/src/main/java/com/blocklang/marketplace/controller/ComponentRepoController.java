@@ -97,7 +97,7 @@ public class ComponentRepoController {
 	}
 	
 	/**
-	 * 
+	 * 往组件市场中发布组件
 	 * 
 	 * <p>
 	 * controller 中只做两件事
@@ -157,7 +157,9 @@ public class ComponentRepoController {
 		Integer currentUserId = currentUser.getId();
 		
 		// 如果已经发布过，则不允许新增发布任务；而是在之前任务的基础上重新发布或升级
-		if(componentRepoPublishTaskService.existsByCreateUserIdAndGitUrl(currentUser.getId(), gitUrl)){
+		// 不要从任务表中判断是否存在发布任务，因为任务可能会失败
+		// 直接从组件库表中查找更准确
+		if(componentRepoService.existsByCreateUserIdAndGitRepoUrl(currentUser.getId(), gitUrl)){
 			bindingResult.rejectValue("gitUrl", "Duplicated.componentRepoGitUrl", new Object[] {principal.getName()}, null);
 			throw new InvalidRequestException(bindingResult);
 		};

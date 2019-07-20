@@ -25,4 +25,6 @@ public interface ComponentRepoService {
 	 */
 	List<ComponentRepoInfo> findUserComponentRepos(Integer userId);
 
+	boolean existsByCreateUserIdAndGitRepoUrl(Integer userId, String gitRepoUrl);
+
 }

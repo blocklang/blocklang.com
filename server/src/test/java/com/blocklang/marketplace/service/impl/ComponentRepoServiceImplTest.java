@@ -386,4 +386,30 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		assertThat(componentRepos).hasSize(2).isSortedAccordingTo(Comparator.comparing(item -> item.getComponentRepo().getName()));
 	}
 
+	
+	@Test
+	public void exists_by_userId_and_gitRepoUrl_no_data() {
+		assertThat(componentRepoService.existsByCreateUserIdAndGitRepoUrl(1, "git-url")).isFalse();
+	}
+	
+	@Test
+	public void exists_by_userId_and_gitRepoUrl_success() {
+		Integer createUserId = 1;
+		
+		ComponentRepo repo = new ComponentRepo();
+		repo.setApiRepoId(1);
+		repo.setGitRepoUrl("https://a.com/jack/repo");
+		repo.setGitRepoWebsite("website");
+		repo.setGitRepoOwner("jack");
+		repo.setGitRepoName("repo");
+		repo.setName("b");
+		repo.setVersion("version");
+		repo.setCategory(RepoCategory.WIDGET);
+		repo.setCreateUserId(createUserId);
+		repo.setCreateTime(LocalDateTime.now());
+		repo.setLanguage(Language.TYPESCRIPT);
+		componentRepoDao.save(repo);
+		
+		assertThat(componentRepoService.existsByCreateUserIdAndGitRepoUrl(1, "https://a.com/jack/repo")).isTrue();
+	}
 }

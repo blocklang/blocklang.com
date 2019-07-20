@@ -54,4 +54,9 @@ public class ComponentRepoServiceImpl implements ComponentRepoService {
 		}).collect(Collectors.toList());
 	}
 
+	@Override
+	public boolean existsByCreateUserIdAndGitRepoUrl(Integer userId, String gitRepoUrl) {
+		return componentRepoDao.existsByCreateUserIdAndGitRepoUrl(userId, gitRepoUrl);
+	}
+
 }
