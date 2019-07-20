@@ -262,23 +262,27 @@ export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBas
 	private _renderEmptyComponentRepo() {
 		const { messages } = this._localizedMessages;
 
-		return v('div', { classes: [c.jumbotron, c.mx_auto, c.text_center, c.mt_5], styles: { maxWidth: '544px' } }, [
-			w(FontAwesomeIcon, { icon: 'puzzle-piece', size: '2x', classes: [c.text_muted] }),
-			v('h3', { classes: [c.mt_3] }, [`${messages.noComponentTitle}`]),
-			v('p', [
-				v('ol', { classes: [c.text_left] }, [
-					v('li', [`${messages.noComponentTipLine1}`]),
-					v('li', [`${messages.noComponentTipLine2}`]),
-					v('li', [`${messages.noComponentTipLine3}`])
+		return v(
+			'div',
+			{ key: 'empty', classes: [c.jumbotron, c.mx_auto, c.text_center, c.mt_5], styles: { maxWidth: '544px' } },
+			[
+				w(FontAwesomeIcon, { icon: 'puzzle-piece', size: '2x', classes: [c.text_muted] }),
+				v('h3', { classes: [c.mt_3] }, [`${messages.noComponentTitle}`]),
+				v('p', [
+					v('ol', { classes: [c.text_left] }, [
+						v('li', [`${messages.noComponentTipLine1}`]),
+						v('li', [`${messages.noComponentTipLine2}`]),
+						v('li', [`${messages.noComponentTipLine3}`])
+					])
 				])
-			])
-		]);
+			]
+		);
 	}
 
 	private _renderComponentRepos() {
 		const { componentRepoInfos } = this.properties;
 
-		return v('div', [
+		return v('div', { key: 'repos' }, [
 			v('h6', { classes: [c.font_weight_normal] }, ['已发布']),
 			v(
 				'ul',
