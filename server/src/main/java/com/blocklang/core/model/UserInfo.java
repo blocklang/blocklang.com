@@ -97,7 +97,7 @@ public class UserInfo extends PartialIdField{
 	}
 
 	public String getEmail() {
-		if(StringUtils.isBlank(email)) {
+		if(StringUtils.isBlank(email) && StringUtils.isNotBlank(this.loginName)) {
 			// 注意，这个邮箱地址不会存到数据库中
 			// 当使用 qq 用户登录时，不会有用户邮箱
 			// 当使用 github 用户登录时，大部分会有用户邮箱，除了禁止用户访问邮箱信息的

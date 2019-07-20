@@ -2399,7 +2399,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> argumentMap = new HashMap<String, Object>();
 		argumentMap.put("name", "widget_event_argument_name");
 		argumentMap.put("label", "widget_event_argument_label");
-		argumentMap.put("defaultValue", "widget_event_argument_default_value");
+		argumentMap.put("defaultValue", "widget_event_arg_default_value");
 		argumentMap.put("valueType", "string");
 		argumentMap.put("description", "widget_event_argument_description");
 		arguments.add(argumentMap);
@@ -2454,7 +2454,7 @@ public class ApiChangeLogValidateTaskTest {
 		WidgetEventArgument eventArgument = event.getArguments().get(0);
 		assertThat(eventArgument.getName()).isEqualTo("widget_event_argument_name");
 		assertThat(eventArgument.getLabel()).isEqualTo("widget_event_argument_label");
-		assertThat(eventArgument.getDefaultValue()).isEqualTo("widget_event_argument_default_value");
+		assertThat(eventArgument.getDefaultValue()).isEqualTo("widget_event_arg_default_value");
 		assertThat(eventArgument.getValueType()).isEqualTo("string");
 		assertThat(eventArgument.getDescription()).isEqualTo("widget_event_argument_description");
 	}
