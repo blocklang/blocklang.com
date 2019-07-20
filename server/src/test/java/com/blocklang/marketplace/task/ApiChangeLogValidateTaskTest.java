@@ -3,6 +3,7 @@ package com.blocklang.marketplace.task;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -1611,6 +1612,744 @@ public class ApiChangeLogValidateTaskTest {
 		
 		ApiChangeLogValidateTask task = new ApiChangeLogValidateTask(context, changelogMap);
 		assertThat(task.run()).isEmpty();
+	}
+	
+	@Test
+	public void run_validate_max_length_for_id_at_root() throws IOException {
+		Map<String, Object> changelogMap = new HashMap<String, Object>();
+		changelogMap.put("id", "a".repeat(256)); // max length 255
+		changelogMap.put("author", "change_author");
+		List<Map<String, Object>> changes = new ArrayList<Map<String,Object>>();
+		changelogMap.put("changes", changes);
+		
+		ApiChangeLogValidateTask task = new ApiChangeLogValidateTask(context, changelogMap);
+		assertThat(task.run()).isEmpty();
+		assertThat(Files.readString(context.getRepoPublishLogFile())).contains("/id 不能超过 255 个字节(一个汉字占两个字节)，当前包含 256 个字节");
+	}
+	
+	@Test
+	public void run_validate_max_length_for_author_at_root() throws IOException {
+		Map<String, Object> changelogMap = new HashMap<String, Object>();
+		changelogMap.put("id", "change_id");
+		changelogMap.put("author", "a".repeat(256)); // max length 255
+		List<Map<String, Object>> changes = new ArrayList<Map<String,Object>>();
+		changelogMap.put("changes", changes);
+		
+		ApiChangeLogValidateTask task = new ApiChangeLogValidateTask(context, changelogMap);
+		assertThat(task.run()).isEmpty();
+		assertThat(Files.readString(context.getRepoPublishLogFile())).contains("/author 不能超过 255 个字节(一个汉字占两个字节)，当前包含 256 个字节");
+	}
+	
+	@Test
+	public void run_validate_max_length_for_new_widget_name() throws IOException {
+		Map<String, Object> changelogMap = new HashMap<String, Object>();
+		changelogMap.put("id", "change_id");
+		changelogMap.put("author", "changelog_author");
+		List<Map<String, Object>> changes = new ArrayList<Map<String,Object>>();
+		Map<String, Object> change1 = new HashMap<String, Object>();
+		
+		Map<String, Object> newWidget = new HashMap<String, Object>();
+		newWidget.put("name", "n".repeat(65)); // max length 64
+		
+		change1.put("newWidget", newWidget);
+		changes.add(change1);
+		changelogMap.put("changes", changes);
+		
+		ApiChangeLogValidateTask task = new ApiChangeLogValidateTask(context, changelogMap);
+		assertThat(task.run()).isEmpty();
+		assertThat(Files.readString(context.getRepoPublishLogFile())).contains("name 不能超过 64 个字节(一个汉字占两个字节)，当前包含 65 个字节");
+	}
+	
+	@Test
+	public void run_validate_max_length_for_new_widget_label() throws IOException {
+		Map<String, Object> changelogMap = new HashMap<String, Object>();
+		changelogMap.put("id", "change_id");
+		changelogMap.put("author", "changelog_author");
+		List<Map<String, Object>> changes = new ArrayList<Map<String,Object>>();
+		Map<String, Object> change1 = new HashMap<String, Object>();
+		
+		Map<String, Object> newWidget = new HashMap<String, Object>();
+		newWidget.put("name", "widget_name");
+		newWidget.put("label", "n".repeat(65)); // max length 64
+		
+		change1.put("newWidget", newWidget);
+		changes.add(change1);
+		changelogMap.put("changes", changes);
+		
+		ApiChangeLogValidateTask task = new ApiChangeLogValidateTask(context, changelogMap);
+		assertThat(task.run()).isEmpty();
+		assertThat(Files.readString(context.getRepoPublishLogFile())).contains("label 不能超过 64 个字节(一个汉字占两个字节)，当前包含 65 个字节");
+	}
+	
+	@Test
+	public void run_validate_max_length_for_new_widget_description() throws IOException {
+		Map<String, Object> changelogMap = new HashMap<String, Object>();
+		changelogMap.put("id", "change_id");
+		changelogMap.put("author", "changelog_author");
+		List<Map<String, Object>> changes = new ArrayList<Map<String,Object>>();
+		Map<String, Object> change1 = new HashMap<String, Object>();
+		
+		Map<String, Object> newWidget = new HashMap<String, Object>();
+		newWidget.put("name", "widget_name");
+		newWidget.put("label", "widget_label");
+		newWidget.put("description", "d".repeat(513)); // max length 512
+		
+		change1.put("newWidget", newWidget);
+		changes.add(change1);
+		changelogMap.put("changes", changes);
+		
+		ApiChangeLogValidateTask task = new ApiChangeLogValidateTask(context, changelogMap);
+		assertThat(task.run()).isEmpty();
+		assertThat(Files.readString(context.getRepoPublishLogFile())).contains("description 不能超过 512 个字节(一个汉字占两个字节)，当前包含 513 个字节");
+	}
+
+	@Test
+	public void run_validate_max_length_for_new_widget_property_name() throws IOException {
+		Map<String, Object> changelogMap = new HashMap<String, Object>();
+		changelogMap.put("id", "change_id");
+		changelogMap.put("author", "changelog_author");
+		List<Map<String, Object>> changes = new ArrayList<Map<String,Object>>();
+		Map<String, Object> change1 = new HashMap<String, Object>();
+		
+		Map<String, Object> newWidget = new HashMap<String, Object>();
+		newWidget.put("name", "widget_name");
+		newWidget.put("label", "widget_label");
+		newWidget.put("description", "widget_description");
+		newWidget.put("iconClass", "widget_iconClass");
+		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		
+		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
+		Map<String, Object> propertyMap = new HashMap<String, Object>();
+		propertyMap.put("name", "n".repeat(65)); // max length 64
+		
+		properties.add(propertyMap);
+		newWidget.put("properties", properties);
+		change1.put("newWidget", newWidget);
+		changes.add(change1);
+		changelogMap.put("changes", changes);
+		
+		ApiChangeLogValidateTask task = new ApiChangeLogValidateTask(context, changelogMap);
+		assertThat(task.run()).isEmpty();
+		assertThat(Files.readString(context.getRepoPublishLogFile())).contains("name 不能超过 64 个字节(一个汉字占两个字节)，当前包含 65 个字节");
+	}
+	
+	@Test
+	public void run_validate_max_length_for_new_widget_property_label() throws IOException {
+		Map<String, Object> changelogMap = new HashMap<String, Object>();
+		changelogMap.put("id", "change_id");
+		changelogMap.put("author", "changelog_author");
+		List<Map<String, Object>> changes = new ArrayList<Map<String,Object>>();
+		Map<String, Object> change1 = new HashMap<String, Object>();
+		
+		Map<String, Object> newWidget = new HashMap<String, Object>();
+		newWidget.put("name", "widget_name");
+		newWidget.put("label", "widget_label");
+		newWidget.put("description", "widget_description");
+		newWidget.put("iconClass", "widget_iconClass");
+		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		
+		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
+		Map<String, Object> propertyMap = new HashMap<String, Object>();
+		propertyMap.put("name", "widget_prop_name");
+		propertyMap.put("label", "l".repeat(65)); // max length 64
+		
+		properties.add(propertyMap);
+		newWidget.put("properties", properties);
+		change1.put("newWidget", newWidget);
+		changes.add(change1);
+		changelogMap.put("changes", changes);
+		
+		ApiChangeLogValidateTask task = new ApiChangeLogValidateTask(context, changelogMap);
+		assertThat(task.run()).isEmpty();
+		assertThat(Files.readString(context.getRepoPublishLogFile())).contains("label 不能超过 64 个字节(一个汉字占两个字节)，当前包含 65 个字节");
+	}
+	
+	@Test
+	public void run_validate_max_length_for_new_widget_property_description() throws IOException {
+		Map<String, Object> changelogMap = new HashMap<String, Object>();
+		changelogMap.put("id", "change_id");
+		changelogMap.put("author", "changelog_author");
+		List<Map<String, Object>> changes = new ArrayList<Map<String,Object>>();
+		Map<String, Object> change1 = new HashMap<String, Object>();
+		
+		Map<String, Object> newWidget = new HashMap<String, Object>();
+		newWidget.put("name", "widget_name");
+		newWidget.put("label", "widget_label");
+		newWidget.put("description", "widget_description");
+		newWidget.put("iconClass", "widget_iconClass");
+		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		
+		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
+		Map<String, Object> propertyMap = new HashMap<String, Object>();
+		propertyMap.put("name", "widget_prop_name");
+		propertyMap.put("label", "widget_prop_label");
+		propertyMap.put("defaultValue", "widget_prop_default_value");
+		propertyMap.put("valueType", "string");
+		propertyMap.put("description", "d".repeat(513)); // max length 512
+		
+		properties.add(propertyMap);
+		newWidget.put("properties", properties);
+		change1.put("newWidget", newWidget);
+		changes.add(change1);
+		changelogMap.put("changes", changes);
+		
+		ApiChangeLogValidateTask task = new ApiChangeLogValidateTask(context, changelogMap);
+		assertThat(task.run()).isEmpty();
+		assertThat(Files.readString(context.getRepoPublishLogFile())).contains("description 不能超过 512 个字节(一个汉字占两个字节)，当前包含 513 个字节");
+	}
+	
+	@Test
+	public void run_validate_max_length_for_new_widget_property_default_value() throws IOException {
+		Map<String, Object> changelogMap = new HashMap<String, Object>();
+		changelogMap.put("id", "change_id");
+		changelogMap.put("author", "changelog_author");
+		List<Map<String, Object>> changes = new ArrayList<Map<String,Object>>();
+		Map<String, Object> change1 = new HashMap<String, Object>();
+		
+		Map<String, Object> newWidget = new HashMap<String, Object>();
+		newWidget.put("name", "widget_name");
+		newWidget.put("label", "widget_label");
+		newWidget.put("description", "widget_description");
+		newWidget.put("iconClass", "widget_iconClass");
+		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		
+		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
+		Map<String, Object> propertyMap = new HashMap<String, Object>();
+		propertyMap.put("name", "widget_prop_name");
+		propertyMap.put("label", "widget_prop_label");
+		propertyMap.put("defaultValue", "d".repeat(33)); // max length 32
+		propertyMap.put("valueType", "string");
+		propertyMap.put("description", "widget_prop_description");
+		
+		properties.add(propertyMap);
+		newWidget.put("properties", properties);
+		change1.put("newWidget", newWidget);
+		changes.add(change1);
+		changelogMap.put("changes", changes);
+		
+		ApiChangeLogValidateTask task = new ApiChangeLogValidateTask(context, changelogMap);
+		assertThat(task.run()).isEmpty();
+		assertThat(Files.readString(context.getRepoPublishLogFile())).contains("defaultValue 不能超过 32 个字节(一个汉字占两个字节)，当前包含 33 个字节");
+	}
+	
+	
+	@Test
+	public void run_validate_max_length_for_new_widget_property_option_value() throws IOException {
+		Map<String, Object> changelogMap = new HashMap<String, Object>();
+		changelogMap.put("id", "change_id");
+		changelogMap.put("author", "changelog_author");
+		List<Map<String, Object>> changes = new ArrayList<Map<String,Object>>();
+		Map<String, Object> change1 = new HashMap<String, Object>();
+		
+		Map<String, Object> newWidget = new HashMap<String, Object>();
+		newWidget.put("name", "widget_name");
+		newWidget.put("label", "widget_label");
+		newWidget.put("description", "widget_description");
+		newWidget.put("iconClass", "widget_iconClass");
+		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		
+		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
+		Map<String, Object> propertyMap = new HashMap<String, Object>();
+		propertyMap.put("name", "widget_prop_name");
+		propertyMap.put("label", "widget_prop_label");
+		propertyMap.put("defaultValue", "widget_prop_default_value");
+		propertyMap.put("valueType", "string");
+		propertyMap.put("description", "widget_prop_description"); // max length 512
+		
+		List<Map<String, Object>> options = new ArrayList<Map<String,Object>>();
+		Map<String, Object> optionMap = new HashMap<String, Object>();
+		optionMap.put("value", "v".repeat(33));
+		optionMap.put("label", "widget_prop_option_label");
+		options.add(optionMap);
+		propertyMap.put("options", options);
+		
+		properties.add(propertyMap);
+		newWidget.put("properties", properties);
+		change1.put("newWidget", newWidget);
+		changes.add(change1);
+		changelogMap.put("changes", changes);
+		
+		ApiChangeLogValidateTask task = new ApiChangeLogValidateTask(context, changelogMap);
+		assertThat(task.run()).isEmpty();
+		assertThat(Files.readString(context.getRepoPublishLogFile())).contains("value 不能超过 32 个字节(一个汉字占两个字节)，当前包含 33 个字节");
+	}
+	
+	@Test
+	public void run_validate_max_length_for_new_widget_property_option_label() throws IOException {
+		Map<String, Object> changelogMap = new HashMap<String, Object>();
+		changelogMap.put("id", "change_id");
+		changelogMap.put("author", "changelog_author");
+		List<Map<String, Object>> changes = new ArrayList<Map<String,Object>>();
+		Map<String, Object> change1 = new HashMap<String, Object>();
+		
+		Map<String, Object> newWidget = new HashMap<String, Object>();
+		newWidget.put("name", "widget_name");
+		newWidget.put("label", "widget_label");
+		newWidget.put("description", "widget_description");
+		newWidget.put("iconClass", "widget_iconClass");
+		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		
+		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
+		Map<String, Object> propertyMap = new HashMap<String, Object>();
+		propertyMap.put("name", "widget_prop_name");
+		propertyMap.put("label", "widget_prop_label");
+		propertyMap.put("defaultValue", "widget_prop_default_value");
+		propertyMap.put("valueType", "string");
+		propertyMap.put("description", "widget_prop_description"); // max length 512
+		
+		List<Map<String, Object>> options = new ArrayList<Map<String,Object>>();
+		Map<String, Object> optionMap = new HashMap<String, Object>();
+		optionMap.put("value", "widget_prop_option_value");
+		optionMap.put("label", "l".repeat(33));
+		options.add(optionMap);
+		propertyMap.put("options", options);
+		
+		properties.add(propertyMap);
+		newWidget.put("properties", properties);
+		change1.put("newWidget", newWidget);
+		changes.add(change1);
+		changelogMap.put("changes", changes);
+		
+		ApiChangeLogValidateTask task = new ApiChangeLogValidateTask(context, changelogMap);
+		assertThat(task.run()).isEmpty();
+		assertThat(Files.readString(context.getRepoPublishLogFile())).contains("label 不能超过 32 个字节(一个汉字占两个字节)，当前包含 33 个字节");
+	}
+	
+	@Test
+	public void run_validate_max_length_for_new_widget_property_option_description() throws IOException {
+		Map<String, Object> changelogMap = new HashMap<String, Object>();
+		changelogMap.put("id", "change_id");
+		changelogMap.put("author", "changelog_author");
+		List<Map<String, Object>> changes = new ArrayList<Map<String,Object>>();
+		Map<String, Object> change1 = new HashMap<String, Object>();
+		
+		Map<String, Object> newWidget = new HashMap<String, Object>();
+		newWidget.put("name", "widget_name");
+		newWidget.put("label", "widget_label");
+		newWidget.put("description", "widget_description");
+		newWidget.put("iconClass", "widget_iconClass");
+		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		
+		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
+		Map<String, Object> propertyMap = new HashMap<String, Object>();
+		propertyMap.put("name", "widget_prop_name");
+		propertyMap.put("label", "widget_prop_label");
+		propertyMap.put("defaultValue", "widget_prop_default_value");
+		propertyMap.put("valueType", "string");
+		propertyMap.put("description", "widget_prop_description");
+		
+		List<Map<String, Object>> options = new ArrayList<Map<String,Object>>();
+		Map<String, Object> optionMap = new HashMap<String, Object>();
+		optionMap.put("value", "widget_prop_option_value");
+		optionMap.put("label", "widget_prop_option_label");
+		optionMap.put("description", "d".repeat(513));  // max length 512
+		options.add(optionMap);
+		propertyMap.put("options", options);
+		
+		properties.add(propertyMap);
+		newWidget.put("properties", properties);
+		change1.put("newWidget", newWidget);
+		changes.add(change1);
+		changelogMap.put("changes", changes);
+		
+		ApiChangeLogValidateTask task = new ApiChangeLogValidateTask(context, changelogMap);
+		assertThat(task.run()).isEmpty();
+		assertThat(Files.readString(context.getRepoPublishLogFile())).contains("description 不能超过 512 个字节(一个汉字占两个字节)，当前包含 513 个字节");
+	}
+	
+	// TODO: 目前 property - option - iconClass 未存入数据库，当做到界面设计部分时再确认是否需要此字段
+	
+	@Test
+	public void run_validate_max_length_for_new_widget_event_name() throws IOException {
+		Map<String, Object> changelogMap = new HashMap<String, Object>();
+		changelogMap.put("id", "change_id");
+		changelogMap.put("author", "changelog_author");
+		List<Map<String, Object>> changes = new ArrayList<Map<String,Object>>();
+		Map<String, Object> change1 = new HashMap<String, Object>();
+		
+		Map<String, Object> newWidget = new HashMap<String, Object>();
+		newWidget.put("name", "widget_name");
+		newWidget.put("label", "widget_label");
+		newWidget.put("description", "widget_description");
+		newWidget.put("iconClass", "widget_iconClass");
+		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		
+		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
+		Map<String, Object> propertyMap = new HashMap<String, Object>();
+		propertyMap.put("name", "widget_prop_name");
+		propertyMap.put("label", "widget_prop_label");
+		propertyMap.put("defaultValue", "widget_prop_default_value");
+		propertyMap.put("valueType", "string");
+		propertyMap.put("description", "widget_prop_description");
+		
+		List<Map<String, Object>> options = new ArrayList<Map<String,Object>>();
+		Map<String, Object> optionMap = new HashMap<String, Object>();
+		optionMap.put("value", "widget_prop_option_value");
+		optionMap.put("label", "widget_prop_option_label");
+		optionMap.put("description", "widget_prop_option_description");
+		optionMap.put("iconClass", "widget_prop_option_iconClass");
+		options.add(optionMap);
+		propertyMap.put("options", options);
+		properties.add(propertyMap);
+		newWidget.put("properties", properties);
+		
+		List<Map<String, Object>> events = new ArrayList<Map<String,Object>>();
+		Map<String, Object> eventMap = new HashMap<String, Object>();
+		eventMap.put("name", "n".repeat(33)); // max length 32
+		
+		events.add(eventMap);
+		newWidget.put("events", events);
+		
+		change1.put("newWidget", newWidget);
+		changes.add(change1);
+		changelogMap.put("changes", changes);
+		
+		ApiChangeLogValidateTask task = new ApiChangeLogValidateTask(context, changelogMap);
+		assertThat(task.run()).isEmpty();
+		assertThat(Files.readString(context.getRepoPublishLogFile())).contains("name 不能超过 32 个字节(一个汉字占两个字节)，当前包含 33 个字节");
+	}
+	
+	@Test
+	public void run_validate_max_length_for_new_widget_event_label() throws IOException {
+		Map<String, Object> changelogMap = new HashMap<String, Object>();
+		changelogMap.put("id", "change_id");
+		changelogMap.put("author", "changelog_author");
+		List<Map<String, Object>> changes = new ArrayList<Map<String,Object>>();
+		Map<String, Object> change1 = new HashMap<String, Object>();
+		
+		Map<String, Object> newWidget = new HashMap<String, Object>();
+		newWidget.put("name", "widget_name");
+		newWidget.put("label", "widget_label");
+		newWidget.put("description", "widget_description");
+		newWidget.put("iconClass", "widget_iconClass");
+		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		
+		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
+		Map<String, Object> propertyMap = new HashMap<String, Object>();
+		propertyMap.put("name", "widget_prop_name");
+		propertyMap.put("label", "widget_prop_label");
+		propertyMap.put("defaultValue", "widget_prop_default_value");
+		propertyMap.put("valueType", "string");
+		propertyMap.put("description", "widget_prop_description");
+		
+		List<Map<String, Object>> options = new ArrayList<Map<String,Object>>();
+		Map<String, Object> optionMap = new HashMap<String, Object>();
+		optionMap.put("value", "widget_prop_option_value");
+		optionMap.put("label", "widget_prop_option_label");
+		optionMap.put("description", "widget_prop_option_description");
+		optionMap.put("iconClass", "widget_prop_option_iconClass");
+		options.add(optionMap);
+		propertyMap.put("options", options);
+		properties.add(propertyMap);
+		newWidget.put("properties", properties);
+		
+		List<Map<String, Object>> events = new ArrayList<Map<String,Object>>();
+		Map<String, Object> eventMap = new HashMap<String, Object>();
+		eventMap.put("name", "widget_event_name");
+		eventMap.put("label", "l".repeat(33)); // max length 32
+		
+		events.add(eventMap);
+		newWidget.put("events", events);
+		
+		change1.put("newWidget", newWidget);
+		changes.add(change1);
+		changelogMap.put("changes", changes);
+		
+		ApiChangeLogValidateTask task = new ApiChangeLogValidateTask(context, changelogMap);
+		assertThat(task.run()).isEmpty();
+		assertThat(Files.readString(context.getRepoPublishLogFile())).contains("label 不能超过 32 个字节(一个汉字占两个字节)，当前包含 33 个字节");
+	}
+	
+	@Test
+	public void run_validate_max_length_for_new_widget_event_description() throws IOException {
+		Map<String, Object> changelogMap = new HashMap<String, Object>();
+		changelogMap.put("id", "change_id");
+		changelogMap.put("author", "changelog_author");
+		List<Map<String, Object>> changes = new ArrayList<Map<String,Object>>();
+		Map<String, Object> change1 = new HashMap<String, Object>();
+		
+		Map<String, Object> newWidget = new HashMap<String, Object>();
+		newWidget.put("name", "widget_name");
+		newWidget.put("label", "widget_label");
+		newWidget.put("description", "widget_description");
+		newWidget.put("iconClass", "widget_iconClass");
+		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		
+		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
+		Map<String, Object> propertyMap = new HashMap<String, Object>();
+		propertyMap.put("name", "widget_prop_name");
+		propertyMap.put("label", "widget_prop_label");
+		propertyMap.put("defaultValue", "widget_prop_default_value");
+		propertyMap.put("valueType", "string");
+		propertyMap.put("description", "widget_prop_description");
+		
+		List<Map<String, Object>> options = new ArrayList<Map<String,Object>>();
+		Map<String, Object> optionMap = new HashMap<String, Object>();
+		optionMap.put("value", "widget_prop_option_value");
+		optionMap.put("label", "widget_prop_option_label");
+		optionMap.put("description", "widget_prop_option_description");
+		optionMap.put("iconClass", "widget_prop_option_iconClass");
+		options.add(optionMap);
+		propertyMap.put("options", options);
+		properties.add(propertyMap);
+		newWidget.put("properties", properties);
+		
+		List<Map<String, Object>> events = new ArrayList<Map<String,Object>>();
+		Map<String, Object> eventMap = new HashMap<String, Object>();
+		eventMap.put("name", "widget_event_name");
+		eventMap.put("label", "widget_event_label");
+		eventMap.put("description", "d".repeat(513)); // max length 512
+		
+		events.add(eventMap);
+		newWidget.put("events", events);
+		
+		change1.put("newWidget", newWidget);
+		changes.add(change1);
+		changelogMap.put("changes", changes);
+		
+		ApiChangeLogValidateTask task = new ApiChangeLogValidateTask(context, changelogMap);
+		assertThat(task.run()).isEmpty();
+		assertThat(Files.readString(context.getRepoPublishLogFile())).contains("description 不能超过 512 个字节(一个汉字占两个字节)，当前包含 513 个字节");
+	}
+	
+	@Test
+	public void run_validate_max_length_for_new_widget_event_argument_name() throws IOException {
+		Map<String, Object> changelogMap = new HashMap<String, Object>();
+		changelogMap.put("id", "change_id");
+		changelogMap.put("author", "changelog_author");
+		List<Map<String, Object>> changes = new ArrayList<Map<String,Object>>();
+		Map<String, Object> change1 = new HashMap<String, Object>();
+		
+		Map<String, Object> newWidget = new HashMap<String, Object>();
+		newWidget.put("name", "widget_name");
+		newWidget.put("label", "widget_label");
+		newWidget.put("description", "widget_description");
+		newWidget.put("iconClass", "widget_iconClass");
+		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		
+		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
+		Map<String, Object> propertyMap = new HashMap<String, Object>();
+		propertyMap.put("name", "widget_prop_name");
+		propertyMap.put("label", "widget_prop_label");
+		propertyMap.put("defaultValue", "widget_prop_default_value");
+		propertyMap.put("valueType", "string");
+		propertyMap.put("description", "widget_prop_description");
+		
+		List<Map<String, Object>> options = new ArrayList<Map<String,Object>>();
+		Map<String, Object> optionMap = new HashMap<String, Object>();
+		optionMap.put("value", "widget_prop_option_value");
+		optionMap.put("label", "widget_prop_option_label");
+		optionMap.put("description", "widget_prop_option_description");
+		optionMap.put("iconClass", "widget_prop_option_iconClass");
+		options.add(optionMap);
+		propertyMap.put("options", options);
+		properties.add(propertyMap);
+		newWidget.put("properties", properties);
+		
+		List<Map<String, Object>> events = new ArrayList<Map<String,Object>>();
+		Map<String, Object> eventMap = new HashMap<String, Object>();
+		eventMap.put("name", "widget_event_name");
+		eventMap.put("label", "widget_event_label");
+		eventMap.put("description", "widget_event_description");
+		List<Map<String, Object>> arguments = new ArrayList<Map<String,Object>>();
+		Map<String, Object> argumentMap = new HashMap<String, Object>();
+		argumentMap.put("name", "n".repeat(33)); // max length 32
+		argumentMap.put("label", "widget_event_argument_label");
+		argumentMap.put("valueType", "string");
+		
+		arguments.add(argumentMap);
+		eventMap.put("arguments", arguments);
+		events.add(eventMap);
+		newWidget.put("events", events);
+		
+		change1.put("newWidget", newWidget);
+		changes.add(change1);
+		changelogMap.put("changes", changes);
+		
+		ApiChangeLogValidateTask task = new ApiChangeLogValidateTask(context, changelogMap);
+		assertThat(task.run()).isEmpty();
+		assertThat(Files.readString(context.getRepoPublishLogFile())).contains("name 不能超过 32 个字节(一个汉字占两个字节)，当前包含 33 个字节");
+	}
+	
+	@Test
+	public void run_validate_max_length_for_new_widget_event_argument_label() throws IOException {
+		Map<String, Object> changelogMap = new HashMap<String, Object>();
+		changelogMap.put("id", "change_id");
+		changelogMap.put("author", "changelog_author");
+		List<Map<String, Object>> changes = new ArrayList<Map<String,Object>>();
+		Map<String, Object> change1 = new HashMap<String, Object>();
+		
+		Map<String, Object> newWidget = new HashMap<String, Object>();
+		newWidget.put("name", "widget_name");
+		newWidget.put("label", "widget_label");
+		newWidget.put("description", "widget_description");
+		newWidget.put("iconClass", "widget_iconClass");
+		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		
+		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
+		Map<String, Object> propertyMap = new HashMap<String, Object>();
+		propertyMap.put("name", "widget_prop_name");
+		propertyMap.put("label", "widget_prop_label");
+		propertyMap.put("defaultValue", "widget_prop_default_value");
+		propertyMap.put("valueType", "string");
+		propertyMap.put("description", "widget_prop_description");
+		
+		List<Map<String, Object>> options = new ArrayList<Map<String,Object>>();
+		Map<String, Object> optionMap = new HashMap<String, Object>();
+		optionMap.put("value", "widget_prop_option_value");
+		optionMap.put("label", "widget_prop_option_label");
+		optionMap.put("description", "widget_prop_option_description");
+		optionMap.put("iconClass", "widget_prop_option_iconClass");
+		options.add(optionMap);
+		propertyMap.put("options", options);
+		properties.add(propertyMap);
+		newWidget.put("properties", properties);
+		
+		List<Map<String, Object>> events = new ArrayList<Map<String,Object>>();
+		Map<String, Object> eventMap = new HashMap<String, Object>();
+		eventMap.put("name", "widget_event_name");
+		eventMap.put("label", "widget_event_label");
+		eventMap.put("description", "widget_event_description");
+		List<Map<String, Object>> arguments = new ArrayList<Map<String,Object>>();
+		Map<String, Object> argumentMap = new HashMap<String, Object>();
+		argumentMap.put("name", "widget_event_argument_name");
+		argumentMap.put("label", "l".repeat(33)); // max length 32
+		argumentMap.put("valueType", "string");
+		
+		arguments.add(argumentMap);
+		eventMap.put("arguments", arguments);
+		events.add(eventMap);
+		newWidget.put("events", events);
+		
+		change1.put("newWidget", newWidget);
+		changes.add(change1);
+		changelogMap.put("changes", changes);
+		
+		ApiChangeLogValidateTask task = new ApiChangeLogValidateTask(context, changelogMap);
+		assertThat(task.run()).isEmpty();
+		assertThat(Files.readString(context.getRepoPublishLogFile())).contains("label 不能超过 32 个字节(一个汉字占两个字节)，当前包含 33 个字节");
+	}
+	
+	@Test
+	public void run_validate_max_length_for_new_widget_event_argument_description() throws IOException {
+		Map<String, Object> changelogMap = new HashMap<String, Object>();
+		changelogMap.put("id", "change_id");
+		changelogMap.put("author", "changelog_author");
+		List<Map<String, Object>> changes = new ArrayList<Map<String,Object>>();
+		Map<String, Object> change1 = new HashMap<String, Object>();
+		
+		Map<String, Object> newWidget = new HashMap<String, Object>();
+		newWidget.put("name", "widget_name");
+		newWidget.put("label", "widget_label");
+		newWidget.put("description", "widget_description");
+		newWidget.put("iconClass", "widget_iconClass");
+		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		
+		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
+		Map<String, Object> propertyMap = new HashMap<String, Object>();
+		propertyMap.put("name", "widget_prop_name");
+		propertyMap.put("label", "widget_prop_label");
+		propertyMap.put("defaultValue", "widget_prop_default_value");
+		propertyMap.put("valueType", "string");
+		propertyMap.put("description", "widget_prop_description");
+		
+		List<Map<String, Object>> options = new ArrayList<Map<String,Object>>();
+		Map<String, Object> optionMap = new HashMap<String, Object>();
+		optionMap.put("value", "widget_prop_option_value");
+		optionMap.put("label", "widget_prop_option_label");
+		optionMap.put("description", "widget_prop_option_description");
+		optionMap.put("iconClass", "widget_prop_option_iconClass");
+		options.add(optionMap);
+		propertyMap.put("options", options);
+		properties.add(propertyMap);
+		newWidget.put("properties", properties);
+		
+		List<Map<String, Object>> events = new ArrayList<Map<String,Object>>();
+		Map<String, Object> eventMap = new HashMap<String, Object>();
+		eventMap.put("name", "widget_event_name");
+		eventMap.put("label", "widget_event_label");
+		eventMap.put("description", "widget_event_description");
+		List<Map<String, Object>> arguments = new ArrayList<Map<String,Object>>();
+		Map<String, Object> argumentMap = new HashMap<String, Object>();
+		argumentMap.put("name", "widget_event_argument_name");
+		argumentMap.put("label", "widget_event_argument_label");
+		argumentMap.put("defaultValue", "widget_event_argument_default_value");
+		argumentMap.put("valueType", "string");
+		argumentMap.put("description", "d".repeat(513)); // max length 512
+		
+		arguments.add(argumentMap);
+		eventMap.put("arguments", arguments);
+		events.add(eventMap);
+		newWidget.put("events", events);
+		
+		change1.put("newWidget", newWidget);
+		changes.add(change1);
+		changelogMap.put("changes", changes);
+		
+		ApiChangeLogValidateTask task = new ApiChangeLogValidateTask(context, changelogMap);
+		assertThat(task.run()).isEmpty();
+		assertThat(Files.readString(context.getRepoPublishLogFile())).contains("description 不能超过 512 个字节(一个汉字占两个字节)，当前包含 513 个字节");
+	}
+	
+	@Test
+	public void run_validate_max_length_for_new_widget_event_argument_default_value() throws IOException {
+		Map<String, Object> changelogMap = new HashMap<String, Object>();
+		changelogMap.put("id", "change_id");
+		changelogMap.put("author", "changelog_author");
+		List<Map<String, Object>> changes = new ArrayList<Map<String,Object>>();
+		Map<String, Object> change1 = new HashMap<String, Object>();
+		
+		Map<String, Object> newWidget = new HashMap<String, Object>();
+		newWidget.put("name", "widget_name");
+		newWidget.put("label", "widget_label");
+		newWidget.put("description", "widget_description");
+		newWidget.put("iconClass", "widget_iconClass");
+		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		
+		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
+		Map<String, Object> propertyMap = new HashMap<String, Object>();
+		propertyMap.put("name", "widget_prop_name");
+		propertyMap.put("label", "widget_prop_label");
+		propertyMap.put("defaultValue", "widget_prop_default_value");
+		propertyMap.put("valueType", "string");
+		propertyMap.put("description", "widget_prop_description");
+		
+		List<Map<String, Object>> options = new ArrayList<Map<String,Object>>();
+		Map<String, Object> optionMap = new HashMap<String, Object>();
+		optionMap.put("value", "widget_prop_option_value");
+		optionMap.put("label", "widget_prop_option_label");
+		optionMap.put("description", "widget_prop_option_description");
+		optionMap.put("iconClass", "widget_prop_option_iconClass");
+		options.add(optionMap);
+		propertyMap.put("options", options);
+		properties.add(propertyMap);
+		newWidget.put("properties", properties);
+		
+		List<Map<String, Object>> events = new ArrayList<Map<String,Object>>();
+		Map<String, Object> eventMap = new HashMap<String, Object>();
+		eventMap.put("name", "widget_event_name");
+		eventMap.put("label", "widget_event_label");
+		eventMap.put("description", "widget_event_description");
+		List<Map<String, Object>> arguments = new ArrayList<Map<String,Object>>();
+		Map<String, Object> argumentMap = new HashMap<String, Object>();
+		argumentMap.put("name", "widget_event_argument_name");
+		argumentMap.put("label", "widget_event_argument_label");
+		argumentMap.put("defaultValue", "d".repeat(33)); // max length 32
+		argumentMap.put("valueType", "string");
+		argumentMap.put("description", "widget_event_argument_description"); 
+		
+		arguments.add(argumentMap);
+		eventMap.put("arguments", arguments);
+		events.add(eventMap);
+		newWidget.put("events", events);
+		
+		change1.put("newWidget", newWidget);
+		changes.add(change1);
+		changelogMap.put("changes", changes);
+		
+		ApiChangeLogValidateTask task = new ApiChangeLogValidateTask(context, changelogMap);
+		assertThat(task.run()).isEmpty();
+		assertThat(Files.readString(context.getRepoPublishLogFile())).contains("defaultValue 不能超过 32 个字节(一个汉字占两个字节)，当前包含 33 个字节");
 	}
 
 	// 上面的用例都是校验
