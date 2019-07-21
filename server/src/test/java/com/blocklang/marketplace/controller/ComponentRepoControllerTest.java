@@ -251,7 +251,7 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 			.post("/component-repos")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
-			.body("errors.gitUrl", hasItem("<strong>jack</strong>已发布过该仓库，无需重复发布"),
+			.body("errors.gitUrl", hasItem("你已成功发布过此组件仓库"),
 					"errors.gitUrl.size()", is(1));
 	}
 	
