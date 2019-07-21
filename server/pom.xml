@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.blocklang</groupId>
 	<artifactId>blocklang</artifactId>
-	<version>0.3.0-SNAPSHOT</version>
+	<version>0.3.0</version>
 	<name>blocklang</name>
 	<description>Block Lang Website</description>
 
