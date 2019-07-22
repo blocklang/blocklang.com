@@ -66,6 +66,9 @@ public class ComponentRepo extends PartialOperateFields {
 	
 	@Column(name = "last_publish_time" )
 	private LocalDateTime lastPublishTime;
+	
+	@Column(name = "is_ide_extension", nullable = false)
+	private Boolean isIdeExtension = false;
 
 	@Transient
 	private String createUserName;
@@ -190,6 +193,14 @@ public class ComponentRepo extends PartialOperateFields {
 
 	public void setCreateUserAvatarUrl(String createUserAvatarUrl) {
 		this.createUserAvatarUrl = createUserAvatarUrl;
+	}
+
+	public Boolean getIsIdeExtension() {
+		return isIdeExtension;
+	}
+
+	public void setIsIdeExtension(Boolean isIdeExtension) {
+		this.isIdeExtension = isIdeExtension;
 	}
 
 }

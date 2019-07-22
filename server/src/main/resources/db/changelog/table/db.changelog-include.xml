@@ -43,6 +43,6 @@
 
 	<include file="db/changelog/table/201907041147_create_api_component_attr_fun_arg.xml" />
 
-
+	<include file="db/changelog/table/201907221715_alter_component_repo_add_column_dev.xml" />
 
 </databaseChangeLog>
