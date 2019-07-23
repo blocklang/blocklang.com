@@ -10,5 +10,7 @@
 	<include file="db/changelog/data/201904110847_insert_cm_property_keywords.xml" />
 
 	<include file="db/changelog/data/201907221816_update_component_repo_column_dev.xml" />
-
+	
+	<include file="db/changelog/data/201907231536_insert_app_jdk_12_0_2.xml" />
+	
 </databaseChangeLog>
