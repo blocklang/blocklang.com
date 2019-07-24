@@ -7,3 +7,4 @@
 5. [页面路由](router.md)
 6. [用户管理](user.md)
 7. [组件](component.md)
+8. [项目的依赖](dependence.md)
