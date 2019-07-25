@@ -29,11 +29,10 @@ public class GitInit {
 	private String gitUserName;
 	private String gitUserMail;
 	
+	// name, content
 	private Map<String, String> files = new HashMap<String, String>();
 	
-	public GitInit() {
-		
-	}
+	public GitInit() {}
 	
 	public GitInit(Path gitRepoPath, String gitUserName, String gitUserMail) {
 		this.gitRepoPath = gitRepoPath;

@@ -70,4 +70,9 @@ public abstract class IconClass {
 	 */
 	public static final String SERVICE = "fas plug";
 
+	/**
+	 * 项目依赖文件图标
+	 */
+	public static final String DEPENDENCE = "fas cube";
+
 }

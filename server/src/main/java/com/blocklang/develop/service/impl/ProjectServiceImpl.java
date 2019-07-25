@@ -108,10 +108,12 @@ public class ProjectServiceImpl implements ProjectService {
 		appDao.save(app);
 		
 		// 生成入口模块：Main 页面
-		ProjectResource mainProgram = createMainProgram(project.getId(), createTime, createUserId);
+		ProjectResource mainPage = createMainPage(project.getId(), createTime, createUserId);
 		// 生成 README.md 文件
-		String readMeContent = "# "+ project.getName() + "\r\n" + "\r\n" + "**TODO: 在这里添加项目介绍，帮助感兴趣的人快速了解您的项目。**";
-		ProjectResource readme = createReadmeFile(project.getId(), readMeContent, createTime, createUserId);
+		String readmeContent = "# "+ project.getName() + "\r\n" + "\r\n" + "**TODO: 在这里添加项目介绍，帮助感兴趣的人快速了解您的项目。**";
+		ProjectResource readme = createReadmeFile(project.getId(), readmeContent, createTime, createUserId);
+		// 生成 DEPENDENCE.md 文件
+		ProjectResource dependence = createDependeceFile(project.getId(), createTime, createUserId);
 		
 		// 创建 git 仓库
 		propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).ifPresent(rootDir -> {
@@ -130,8 +132,9 @@ public class ProjectServiceImpl implements ProjectService {
 				String commitMessage = "First Commit";
 				String commitId = GitUtils
 					.beginInit(context.getGitRepositoryDirectory(), user.getLoginName(), user.getEmail())
-					.addFile(readme.getFileName(), readMeContent)
-					.addFile(mainProgram.getFileName(), mainPageJsonString)
+					.addFile(readme.getFileName(), readmeContent)
+					.addFile(mainPage.getFileName(), mainPageJsonString)
+					.addFile(dependence.getFileName(), "{}") // 默认为空的 json 对象
 					.commit(commitMessage);
 				
 				ProjectCommit commit = new ProjectCommit();
@@ -146,13 +149,13 @@ public class ProjectServiceImpl implements ProjectService {
 				
 				projectCommitDao.save(commit);
 			}catch (RuntimeException e) {
-				logger.error(String.format("为项目 {} 初始创建 git 仓库失败", appName), e);
+				logger.error(String.format("为项目 %s 初始创建 git 仓库失败", appName), e);
 			}
 		});
 		
 		return savedProject;
 	}
-	
+
 	/**
 	 * 生成默认模块: Main 页面
 	 * @param project
@@ -160,7 +163,7 @@ public class ProjectServiceImpl implements ProjectService {
 	 * @param createUserId
 	 * @return
 	 */
-	private ProjectResource createMainProgram(Integer projectId, LocalDateTime createTime, Integer createUserId) {
+	private ProjectResource createMainPage(Integer projectId, LocalDateTime createTime, Integer createUserId) {
 		ProjectResource resource = new ProjectResource();
 		resource.setProjectId(projectId);
 		resource.setKey(ProjectResource.MAIN_KEY);
@@ -206,6 +209,23 @@ public class ProjectServiceImpl implements ProjectService {
 		readme.setContent(readMeContent);
 		projectFileDao.save(readme);
 		
+		return savedProjectResource;
+	}
+	
+	
+	private ProjectResource createDependeceFile(Integer projectId, LocalDateTime createTime, Integer createUserId) {
+		ProjectResource resource = new ProjectResource();
+		resource.setProjectId(projectId);
+		resource.setKey(ProjectResource.DEPENDENCE_KEY);
+		resource.setName(ProjectResource.DEPENDENCE_NAME);
+		resource.setResourceType(ProjectResourceType.DEPENDENCE);
+		resource.setAppType(AppType.UNKNOWN);
+		resource.setParentId(Constant.TREE_ROOT_ID);
+		resource.setSeq(3); // 排在 README.md 页面之后
+		resource.setCreateUserId(createUserId);
+		resource.setCreateTime(createTime);
+		
+		ProjectResource savedProjectResource = projectResourceDao.save(resource);
 		return savedProjectResource;
 	}
 

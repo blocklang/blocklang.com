@@ -182,6 +182,24 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		// 已在项目文件表中保存 README.md 文件
 		assertThat(projectFileDao.findByProjectResourceId(readmeResource.getId()).get()).hasNoNullFieldsOrProperties();
 		
+		// 已在项目资源表中登记 DEPENDENCE.json 文件
+		ProjectResource dependenceResource = projectResourceDao.findByProjectIdAndParentIdAndResourceTypeAndAppTypeAndKeyIgnoreCase(
+				projectId, 
+				Constant.TREE_ROOT_ID, 
+				ProjectResourceType.DEPENDENCE, 
+				AppType.UNKNOWN, 
+				ProjectResource.DEPENDENCE_KEY).get();
+		assertThat(dependenceResource).hasNoNullFieldsOrPropertiesExcept(
+				"lastUpdateUserId", 
+				"lastUpdateTime", 
+				"description",
+				"latestCommitId",
+				"latestShortMessage",
+				"latestFullMessage",
+				"latestCommitTime",
+				"messageSource",
+				"gitStatus");
+		
 		// git 仓库已创建
 		// 测试时将 projectsRootPath 导向到 junit 的临时文件夹
 		ProjectContext context = new ProjectContext("user_name", "project_name", rootFolder.getPath());
@@ -204,6 +222,9 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		// 确认 git 仓库中有 README.md 文件，并比较其内容
 		String expectedReadmeContext = "# project_name\r\n\r\n**TODO: 在这里添加项目介绍，帮助感兴趣的人快速了解您的项目。**";
 		assertThat(Files.readString(context.getGitRepositoryDirectory().resolve("README.md"))).isEqualTo(expectedReadmeContext);
+		
+		// 确认 git 仓库中有 DEPENDENCE.json 文件，内容为空 json 对象
+		assertThat(Files.readString(context.getGitRepositoryDirectory().resolve("DEPENDENCE.json"))).isEqualTo("{}");
 	}
 	
 	@Test

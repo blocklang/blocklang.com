@@ -14,7 +14,8 @@ public enum ProjectResourceType {
 	PANE("03", "面板"),
 	PAGE_TEMPLET("04", "页面模板"),
 	FILE("05", "文件"),
-	SERVICE("06", "服务"); // REST API
+	SERVICE("06", "服务"), // REST API
+	DEPENDENCE("07", "依赖"); 
 
 	private final String key;
 	private final String value;

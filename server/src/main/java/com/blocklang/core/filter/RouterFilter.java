@@ -88,7 +88,7 @@ public class RouterFilter implements Filter{
 		// 以下情况，不作处理，直接访问
 		// 1. 访问首页
 		// 2. 访问帮助文档中的图片
-		if(servletPath.equals("/") || servletPath.startsWith("/raw/docs") ) {
+		if(servletPath.equals(WebSite.HOME_URL) || servletPath.startsWith("/raw/docs") ) {
 			chain.doFilter(request, response);
 			return;
 		}
