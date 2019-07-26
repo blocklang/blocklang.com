@@ -10,7 +10,8 @@ export enum ResourceType {
 	Pane = '03',
 	PageTemplet = '04',
 	File = '05',
-	Service = '06'
+	Service = '06',
+	Dependence = '07'
 }
 
 export enum GitFileStatus {

@@ -64,6 +64,11 @@ import { faSearch } from '@fortawesome/free-solid-svg-icons/faSearch';
 import { faLightbulb } from '@fortawesome/free-solid-svg-icons/faLightbulb';
 import { faPuzzlePiece } from '@fortawesome/free-solid-svg-icons/faPuzzlePiece';
 import { faCube } from '@fortawesome/free-solid-svg-icons/faCube';
+import ViewProjectReadmeContainer from './containers/project/ViewProjectReadmeContainer';
+import ViewProjectDependenceContainer from './containers/project/ViewProjectDependenceContainer';
+import ViewProjectPageContainer from './containers/project/ViewProjectPageContainer';
+import ViewProjectTempletContainer from './containers/project/ViewProjectTempletContainer';
+import ViewProjectServiceContainer from './containers/project/ViewProjectServiceContainer';
 
 library.add(
 	faGithub,
@@ -123,6 +128,31 @@ export default class App extends WidgetBase {
 					key: 'view-project-group',
 					id: 'view-project-group',
 					renderer: () => w(ViewProjectGroupContainer, {})
+				}),
+				w(Outlet, {
+					key: 'view-project-readme',
+					id: 'view-project-readme',
+					renderer: () => w(ViewProjectReadmeContainer, {})
+				}),
+				w(Outlet, {
+					key: 'view-project-dependence',
+					id: 'view-project-dependence',
+					renderer: () => w(ViewProjectDependenceContainer, {})
+				}),
+				w(Outlet, {
+					key: 'view-project-page',
+					id: 'view-project-page',
+					renderer: () => w(ViewProjectPageContainer, {})
+				}),
+				w(Outlet, {
+					key: 'view-project-templet',
+					id: 'view-project-templet',
+					renderer: () => w(ViewProjectTempletContainer, {})
+				}),
+				w(Outlet, {
+					key: 'view-project-service',
+					id: 'view-project-service',
+					renderer: () => w(ViewProjectServiceContainer, {})
 				}),
 				w(Outlet, { key: 'new-page-root', id: 'new-page-root', renderer: () => w(NewPageContainer, {}) }),
 				w(Outlet, { key: 'new-group-root', id: 'new-group-root', renderer: () => w(NewGroupContainer, {}) }),

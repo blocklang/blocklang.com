@@ -33,6 +33,26 @@ export default [
 		outlet: 'view-project'
 	},
 	{
+		path: '{owner}/{project}/readme',
+		outlet: 'view-project-readme'
+	},
+	{
+		path: '{owner}/{project}/dependence',
+		outlet: 'view-project-dependence'
+	},
+	{
+		path: '{owner}/{project}/pages/{path}',
+		outlet: 'view-project-page'
+	},
+	{
+		path: '{owner}/{project}/templets/{path}',
+		outlet: 'view-project-templet'
+	},
+	{
+		path: '{owner}/{project}/services/{path}',
+		outlet: 'view-project-service'
+	},
+	{
 		path: '{owner}/{project}/groups/{parentPath}',
 		outlet: 'view-project-group'
 	},

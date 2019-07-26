@@ -672,7 +672,7 @@ interface ProjectResourceRowProperties {
 @theme(css)
 class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResourceRowProperties> {
 	protected render() {
-		const { project, parentPath, projectResource } = this.properties;
+		const { projectResource } = this.properties;
 		const { gitStatus, resourceType } = projectResource;
 
 		let showCommitInfo = true;
@@ -680,18 +680,11 @@ class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResou
 			showCommitInfo = false;
 		}
 
-		let to = '';
-		let params: Params = {};
-
 		let statusLetter = '';
 		let statusColor = '';
 		let statusTooltip = '';
 
 		if (resourceType === ResourceType.Group) {
-			to = 'view-project-group';
-			const fullPath = parentPath === '' ? projectResource.key : parentPath + '/' + projectResource.key;
-			params = { owner: project.createUserName, project: project.name, parentPath: fullPath };
-
 			if (gitStatus === GitFileStatus.Untracked || gitStatus === GitFileStatus.Added) {
 				statusLetter = '●';
 				statusColor = c.text_success;
@@ -716,6 +709,9 @@ class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResou
 				statusTooltip = '已修改';
 			}
 		}
+
+		const to = this._getUrl();
+		const params: Params = this._getParams();
 
 		let title = projectResource.name;
 		if (statusTooltip !== '') {
@@ -757,6 +753,52 @@ class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResou
 					: undefined
 			])
 		]);
+	}
+
+	private _getUrl(): string {
+		const { projectResource } = this.properties;
+		const { resourceType, key } = projectResource;
+
+		if (resourceType === ResourceType.Group) {
+			return 'view-project-group';
+		}
+
+		if (resourceType === ResourceType.Page) {
+			return 'view-project-page';
+		}
+
+		if (resourceType === ResourceType.PageTemplet) {
+			return 'view-project-templet';
+		}
+
+		if (resourceType === ResourceType.Service) {
+			return 'view-project-service';
+		}
+
+		if (resourceType === ResourceType.Dependence) {
+			return 'view-project-dependence';
+		}
+
+		if (resourceType === ResourceType.File) {
+			if (key === 'README') {
+				return 'view-project-readme';
+			}
+		}
+
+		return '';
+	}
+
+	private _getParams(): Params {
+		const { project, parentPath, projectResource } = this.properties;
+		const { resourceType } = projectResource;
+
+		if (resourceType === ResourceType.Group) {
+			const fullPath = parentPath === '' ? projectResource.key : parentPath + '/' + projectResource.key;
+			return { owner: project.createUserName, project: project.name, parentPath: fullPath };
+		}
+
+		const fullPath = parentPath === '' ? projectResource.key : parentPath + '/' + projectResource.key;
+		return { owner: project.createUserName, project: project.name, path: fullPath };
 	}
 }
 
