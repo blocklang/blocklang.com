@@ -24,6 +24,8 @@ import { isEmpty } from '../../util';
 import Exception from '../error/Exception';
 import { ResourceType, GitFileStatus } from '../../constant';
 import { ProjectResourcePathPayload } from '../../processes/interfaces';
+import BreadcrumbItem from './widgets/BreadcrumbItem';
+import GoToParentGroupLink from './widgets/GoToParentGroupLink';
 
 export interface ViewProjectGroupProperties {
 	loggedUsername: string;
@@ -358,104 +360,6 @@ class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResou
 		const fullPath = parentPath === '' ? projectResource.key : parentPath + '/' + projectResource.key;
 		this.properties.onOpenGroup({ owner: project.createUserName, project: project.name, parentPath: fullPath });
 		global.window.history.pushState({}, '', `/${project.createUserName}/${project.name}/groups/${fullPath}`);
-		return false;
-	}
-}
-
-interface BreadcrumbItemProperties {
-	project: Project;
-	parentGroup: ProjectGroup;
-	onGoToGroup: (opt: ProjectResourcePathPayload) => void;
-}
-
-@theme(css)
-class BreadcrumbItem extends ThemedMixin(I18nMixin(WidgetBase))<BreadcrumbItemProperties> {
-	protected render() {
-		const { project, parentGroup } = this.properties;
-
-		return v('li', { classes: [c.breadcrumb_item] }, [
-			v(
-				'a',
-				{
-					href: `/${project.createUserName}/${project.name}/groups/${parentGroup.path.substring(1)}`,
-					// 因为 dojo 5.0 的 route 不支持通配符，这里尝试实现类似效果
-					onclick: this._onGoToGroup
-				},
-				[`${parentGroup.name}`]
-			)
-		]);
-	}
-
-	private _onGoToGroup(event: any) {
-		const { project, parentGroup } = this.properties;
-		event.stopPropagation();
-		event.preventDefault();
-		this.properties.onGoToGroup({
-			owner: project.createUserName,
-			project: project.name,
-			parentPath: parentGroup.path.substring(1)
-		});
-		global.window.history.pushState(
-			{},
-			'',
-			`/${project.createUserName}/${project.name}/groups/${parentGroup.path.substring(1)}`
-		);
-		return false;
-	}
-}
-
-interface GoToParentGroupLinkProperties {
-	project: Project;
-	parentGroups: ProjectGroup[];
-	onGoToGroup: (opt: ProjectResourcePathPayload) => void;
-}
-
-@theme(css)
-class GoToParentGroupLink extends ThemedMixin(I18nMixin(WidgetBase))<GoToParentGroupLinkProperties> {
-	protected render() {
-		const { project, parentGroups = [] } = this.properties;
-		if (parentGroups.length === 1) {
-			// 上一级是根目录
-			return w(
-				Link,
-				{
-					classes: [c.px_2],
-					title: '到上级目录',
-					to: 'view-project',
-					params: { owner: project.createUserName, project: project.name }
-				},
-				['..']
-			);
-		} else {
-			return v(
-				'a',
-				{
-					href: `/${project.createUserName}/${project.name}/groups/${this._getParentPath()}`,
-					// 因为 dojo 5.0 的 route 不支持通配符，这里尝试实现类似效果
-					onclick: this._onGoToGroup
-				},
-				['..']
-			);
-		}
-	}
-
-	private _getParentPath() {
-		const { parentGroups = [] } = this.properties;
-
-		if (parentGroups.length < 2) {
-			return '';
-		}
-
-		return parentGroups[parentGroups.length - 2].path.substring(1);
-	}
-
-	private _onGoToGroup(event: any) {
-		const { project } = this.properties;
-		event.stopPropagation();
-		event.preventDefault();
-		const parentPath = this._getParentPath();
-		this.properties.onGoToGroup({ owner: project.createUserName, project: project.name, parentPath });
-		global.window.history.pushState({}, '', `/${project.createUserName}/${project.name}/groups/${parentPath}`);
 		return false;
 	}
 }
