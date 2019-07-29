@@ -7,7 +7,7 @@ import {
 	groupNameInputProcess,
 	groupDescriptionInputProcess,
 	saveGroupProcess
-} from '../../processes/groupProcesses';
+} from '../../processes/projectGroupProcesses';
 
 function getProperties(store: Store<State>): NewGroupProperties {
 	const { get, path } = store;
