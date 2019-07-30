@@ -2,7 +2,6 @@ package com.blocklang.develop.controller;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,19 +42,13 @@ import com.blocklang.develop.data.NewGroupParam;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectAuthorization;
 import com.blocklang.develop.model.ProjectResource;
-import com.blocklang.develop.service.ProjectAuthorizationService;
 import com.blocklang.develop.service.ProjectResourceService;
-import com.blocklang.develop.service.ProjectService;
 
 @RestController
-public class GroupController {
+public class GroupController extends AbstractProjectController{
 
 	private static final Logger logger = LoggerFactory.getLogger(GroupController.class);
-	
-	@Autowired
-	private ProjectService projectService;
-	@Autowired
-	private ProjectAuthorizationService projectAuthorizationService;
+
 	@Autowired
 	private ProjectResourceService projectResourceService;
 	@Autowired
@@ -287,7 +280,7 @@ public class GroupController {
 	}
 	
 	@GetMapping("/projects/{owner}/{projectName}/groups/**")
-	public ResponseEntity<Map<String, Object>> getGroup(
+	public ResponseEntity<Map<String, Object>> getGroupTree(
 			Principal user,
 			@PathVariable String owner,
 			@PathVariable String projectName,
@@ -295,7 +288,7 @@ public class GroupController {
 		
 		String parentPath = SpringMvcUtil.getRestUrl(req, 4);
 
-		return projectService.find(owner, projectName).map((project) -> {
+		return projectService.find(owner, projectName).map(project -> {
 			if(!project.getIsPublic()) {
 				// 1. 用户未登录时不能访问私有项目
 				// 2. 用户虽然登录，但是不是项目的拥有者且没有访问权限，则不能访问
@@ -317,7 +310,7 @@ public class GroupController {
 					throw new ResourceNotFoundException();
 				}
 				
-				List<Map<String, String>> stripedParentGroups = stripParentGroups(parentGroups);
+				List<Map<String, String>> stripedParentGroups = stripResourcePathes(parentGroups);
 				result.put("parentGroups", stripedParentGroups);
 				parentResourceId = parentGroups.get(parentGroups.size() - 1).getId();
 			}
@@ -365,7 +358,7 @@ public class GroupController {
 					logger.error("根据传入的 parent path 没有找到对应的标识");
 					throw new ResourceNotFoundException();
 				}
-				List<Map<String, String>> stripedParentGroups = stripParentGroups(parentGroups);
+				List<Map<String, String>> stripedParentGroups = stripResourcePathes(parentGroups);
 				result.put("parentGroups", stripedParentGroups);
 				result.put("parentId", parentGroups.get(parentGroups.size() - 1).getId());
 				result.put("parentPath", parentPath);
@@ -373,24 +366,5 @@ public class GroupController {
 			return ResponseEntity.ok(result);
 		}).orElseThrow(ResourceNotFoundException::new);
 		
-	}
-
-	private List<Map<String, String>> stripParentGroups(List<ProjectResource> parentGroups) {
-		List<Map<String, String>> stripedParentGroups = new ArrayList<Map<String, String>>();
-		String relativePath = "";
-		for(ProjectResource each : parentGroups) {
-			relativePath = relativePath + "/" + each.getKey();
-			
-			Map<String, String> map = new HashMap<String, String>();
-			if(StringUtils.isBlank(each.getName())) {
-				map.put("name", each.getKey());
-			} else {
-				map.put("name", each.getName());
-			}
-			
-			map.put("path", relativePath);
-			stripedParentGroups.add(map);
-		}
-		return stripedParentGroups;
 	}
 }

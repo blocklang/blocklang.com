@@ -34,7 +34,7 @@ parentGroups 对象
 
 | 属性名 | 类型     | 描述       |
 | ------ | -------- | ---------- |
-| `key`  | `string` | 资源 key   |
+| `name` | `string` | 资源名     |
 | `path` | `string` | 资源的路径 |
 
 ProjectResource 对象

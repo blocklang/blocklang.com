@@ -325,6 +325,14 @@ interface ComponentRepoUrlInputValidation {
 	componentRepoUrlErrorMessage?: string;
 }
 
+interface ProjectDependence {}
+
+interface ProjectDependenceResource {
+	resourceId: number;
+	pathes: ProjectGroup[];
+	dependences: ProjectDependence[];
+}
+
 export interface State {
 	errors: Errors;
 	routing: Routing;
@@ -347,6 +355,9 @@ export interface State {
 	latestCommitInfo: CommitInfo;
 	readme: string;
 	userDeployInfo: DeployInfo;
+
+	// 项目依赖
+	projectDependenceResource: ProjectDependenceResource;
 
 	unstagedChanges: UncommittedFile[];
 	stagedChanges: UncommittedFile[];

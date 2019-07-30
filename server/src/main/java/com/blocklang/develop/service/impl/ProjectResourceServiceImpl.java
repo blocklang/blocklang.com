@@ -205,7 +205,12 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 		
 		while(resourceId != Constant.TREE_ROOT_ID) {
 			resourceId = projectResourceDao.findById(resourceId).map(resource -> {
-				pathes.add(0, resource.getKey());
+				if(resource.isDependence()) {
+					pathes.add(0, resource.getName());
+				} else {
+					pathes.add(0, resource.getKey());
+				}
+				
 				return resource.getParentId();
 			}).orElse(Constant.TREE_ROOT_ID);
 		}

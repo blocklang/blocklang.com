@@ -100,8 +100,7 @@ router.on('outlet', ({ outlet, action }) => {
 				}
 				initForViewProjectDependenceProcess(store)({
 					owner: outlet.params.owner,
-					project: outlet.params.project,
-					path: outlet.params.path
+					project: outlet.params.project
 				});
 				break;
 			case 'list-release':

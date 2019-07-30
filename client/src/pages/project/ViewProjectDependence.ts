@@ -4,22 +4,24 @@ import I18nMixin from '@dojo/framework/widget-core/mixins/I18n';
 import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
 import { v, w } from '@dojo/framework/widget-core/d';
 import * as c from '../../className';
-import { Project, ProjectGroup, CommitInfo } from '../../interfaces';
+import { Project, ProjectGroup, CommitInfo, ProjectDependence } from '../../interfaces';
 import Spinner from '../../widgets/spinner';
 import { isEmpty } from '../../util';
 import Exception from '../error/Exception';
 import ProjectHeader from '../widgets/ProjectHeader';
 import messageBundle from '../../nls/main';
+5;
 import Link from '@dojo/framework/routing/Link';
 import { ProjectResourcePathPayload } from '../../processes/interfaces';
 import BreadcrumbItem from './widgets/BreadcrumbItem';
+import Moment from '../../widgets/moment';
 
 export interface ViewProjectDependenceProperties {
 	loggedUsername: string;
 	project: Project;
-	parentPath: string;
-	parentId: number;
-	parentGroups: ProjectGroup[];
+	sourceId: number;
+	pathes: ProjectGroup[];
+	dependences: ProjectDependence[];
 	latestCommitInfo: CommitInfo;
 	onOpenGroup: (opt: ProjectResourcePathPayload) => void;
 }
@@ -38,7 +40,11 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 			return w(Exception, { type: '404' });
 		}
 
-		return v('div', { classes: [css.root, c.container] }, [this._renderHeader(), this._renderNavigation()]);
+		return v('div', { classes: [css.root, c.container] }, [
+			this._renderHeader(),
+			this._renderNavigation(),
+			this._renderDependenceBlock()
+		]);
 	}
 
 	private _isNotFound() {
@@ -62,7 +68,7 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 	}
 
 	private _renderBreadcrumb() {
-		const { project, parentGroups = [] } = this.properties;
+		const { project, pathes = [] } = this.properties;
 
 		return v('nav', { classes: [c.d_inline_block], 'aria-label': 'breadcrumb' }, [
 			v('ol', { classes: [c.breadcrumb, css.navOl] }, [
@@ -78,7 +84,7 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 						[`${project.name}`]
 					)
 				]),
-				...parentGroups.map((item, index, array) => {
+				...pathes.map((item, index, array) => {
 					if (index !== array.length - 1) {
 						return w(BreadcrumbItem, { project, parentGroup: item, onGoToGroup: this._onGoToGroup });
 					} else {
@@ -94,5 +100,44 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 
 	private _onGoToGroup(opt: ProjectResourcePathPayload) {
 		this.properties.onOpenGroup(opt);
+	}
+
+	private _renderDependenceBlock() {
+		const { latestCommitInfo } = this.properties;
+
+		return v('div', { classes: [c.card, !latestCommitInfo ? c.border_top_0 : undefined] }, [
+			this._renderLatestCommitInfo()
+		]);
+	}
+
+	/**
+	 *  最近提交信息区
+	 */
+	private _renderLatestCommitInfo() {
+		const { latestCommitInfo } = this.properties;
+		if (!latestCommitInfo) {
+			return;
+		}
+		const { messages } = this._localizedMessages;
+		return v('div', { classes: [c.card_header, c.text_muted, c.px_2, c.border_bottom_0, css.recentCommit] }, [
+			// 最近提交的用户信息
+			w(Link, { to: 'profile', params: { user: latestCommitInfo.userName }, classes: [c.mr_2] }, [
+				v('img', {
+					width: 20,
+					height: 20,
+					classes: [c.avatar, c.mr_1],
+					src: `${latestCommitInfo.avatarUrl}`
+				}),
+				`${latestCommitInfo.userName}`
+			]),
+			// 最近提交说明
+			v('span', [`${latestCommitInfo.shortMessage}`]),
+			' ',
+			// 最近提交时间
+			v('span', { classes: [c.float_right] }, [
+				`${messages.latestCommitLabel}`,
+				w(Moment, { datetime: latestCommitInfo.commitTime })
+			])
+		]);
 	}
 }

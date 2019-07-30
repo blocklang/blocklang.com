@@ -208,7 +208,7 @@ public class ProjectResource extends PartialOperateFields{
 		return ProjectResourceType.FILE.equals(this.resourceType);
 	}
 	
-	private boolean isDependence() {
+	public Boolean isDependence() {
 		return ProjectResourceType.DEPENDENCE.equals(this.resourceType);
 	}
 
