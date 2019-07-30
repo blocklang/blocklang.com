@@ -31,12 +31,13 @@ import {
 import { initForViewDocumentProcess } from './processes/documentProcess';
 import { setSessionProcess } from './processes/loginProcesses';
 import { initForNewPageProcess } from './processes/pageProcesses';
-import { initForNewGroupProcess } from './processes/groupProcesses';
+import { initForNewGroupProcess } from './processes/projectGroupProcesses';
 import {
 	initForListComponentReposProcess,
 	initForListMyComponentReposProcess,
 	initForComponentRepoPublishTask
 } from './processes/componentRepoProcess';
+import { initForViewProjectDependenceProcess } from './processes/projectDependenceProcesses';
 
 const store = new Store<State>();
 
@@ -85,6 +86,22 @@ router.on('outlet', ({ outlet, action }) => {
 					owner: outlet.params.owner,
 					project: outlet.params.project,
 					parentPath
+				});
+				break;
+			case 'view-project-dependence':
+				if (outlet.isExact()) {
+					parentPath = outlet.params.parentPath;
+				} else {
+					// 因为 dojo5 route 不支持通配符，所以此处自己实现
+					// 注意，pathname 是以 / 开头的
+					parentPath = global.window.location.pathname.substring(
+						`/${outlet.params.owner}/${outlet.params.project}/groups/`.length
+					);
+				}
+				initForViewProjectDependenceProcess(store)({
+					owner: outlet.params.owner,
+					project: outlet.params.project,
+					path: outlet.params.path
 				});
 				break;
 			case 'list-release':

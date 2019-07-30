@@ -10,16 +10,16 @@ function getProperties(store: Store<State>): ViewProjectGroupProperties {
 	return {
 		loggedUsername: get(path('user', 'loginName')),
 		project: get(path('project')),
-		parentId: get(path('parentResource', 'id')),
-		parentPath: get(path('parentResource', 'path')),
-		parentGroups: get(path('parentResource', 'parentGroups')),
-		projectResources: get(path('projectResources')),
+		groupId: get(path('projectResource', 'id')),
+		path: get(path('projectResource', 'path')),
+		groups: get(path('projectResource', 'parentGroups')),
+		childResources: get(path('childResources')),
 		latestCommitInfo: get(path('latestCommitInfo')),
 		onOpenGroup: initForViewProjectGroupProcess(store)
 	};
 }
 
 export default StoreContainer(ViewProjectGroup, 'state', {
-	paths: [['user'], ['project'], ['parentResource'], ['projectResources'], ['latestCommitInfo']],
+	paths: [['user'], ['project'], ['projectResource'], ['childResources'], ['latestCommitInfo']],
 	getProperties
 });

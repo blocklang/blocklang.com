@@ -102,8 +102,8 @@ const groupDescriptionInputCommand = commandFactory<DescriptionPayload>(({ path,
 
 const saveGroupCommand = commandFactory(async ({ path, get, payload: { owner, project, parentPath = '' } }) => {
 	const groupParam = get(path('groupParam'));
-	const parentResource = get(path('parentResource'));
-	groupParam.parentId = parentResource.id;
+	const projectResource = get(path('projectResource'));
+	groupParam.parentId = projectResource.id;
 
 	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/groups`, {
 		method: 'POST',

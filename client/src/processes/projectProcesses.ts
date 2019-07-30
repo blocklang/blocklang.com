@@ -116,31 +116,33 @@ export const getProjectCommand = commandFactory(async ({ path, payload: { owner,
 	return [replace(path('project'), json)];
 });
 
-const getProjectResourcesCommand = commandFactory(async ({ path, payload: { owner, project, parentPath = '' } }) => {
-	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/groups/${parentPath}`, {
-		headers: getHeaders()
-	});
-	const json = await response.json();
-	if (!response.ok) {
-		return [replace(path('parentResource'), undefined), replace(path('projectResources'), [])];
+export const getProjectResourcesCommand = commandFactory(
+	async ({ path, payload: { owner, project, parentPath = '' } }) => {
+		const response = await fetch(`${baseUrl}/projects/${owner}/${project}/groups/${parentPath}`, {
+			headers: getHeaders()
+		});
+		const json = await response.json();
+		if (!response.ok) {
+			return [replace(path('projectResource'), undefined), replace(path('childResources'), [])];
+		}
+
+		return [
+			replace(path('projectResource', 'path'), parentPath),
+			replace(path('projectResource', 'id'), json.parentId),
+			replace(path('projectResource', 'parentGroups'), json.parentGroups),
+			replace(path('childResources'), json.resources)
+		];
 	}
+);
 
-	return [
-		replace(path('parentResource', 'path'), parentPath),
-		replace(path('parentResource', 'id'), json.parentId),
-		replace(path('parentResource', 'parentGroups'), json.parentGroups),
-		replace(path('projectResources'), json.resources)
-	];
-});
-
-const getLatestCommitInfoCommand = commandFactory(async ({ get, path, payload: { owner, project } }) => {
+export const getLatestCommitInfoCommand = commandFactory(async ({ get, path, payload: { owner, project } }) => {
 	const projectInfo = get(path('project'));
 
 	if (isEmpty(projectInfo)) {
 		return [replace(path('latestCommitInfo'), undefined)];
 	}
 
-	const parentId = get(path('parentResource', 'id'));
+	const parentId = get(path('projectResource', 'id'));
 
 	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/latest-commit/${parentId}`, {
 		headers: getHeaders()

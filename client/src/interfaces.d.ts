@@ -235,7 +235,7 @@ interface PageParam extends GroupParam {
 
 interface PageInputValidation extends GroupInputValidation {}
 
-interface ParentResource {
+interface ProjectResource {
 	id: number;
 	path: string;
 	parentGroups: ProjectGroup[];
@@ -342,8 +342,8 @@ export interface State {
 	project: Project;
 	canAccessProjects: Project[];
 
-	parentResource: ParentResource;
-	projectResources: ProjectResource[];
+	projectResource: ProjectResource; // 当前项目资源，可以是分组
+	childResources: ProjectResource[]; // 如果当期项目资源属于分组，则就拥有子资源
 	latestCommitInfo: CommitInfo;
 	readme: string;
 	userDeployInfo: DeployInfo;

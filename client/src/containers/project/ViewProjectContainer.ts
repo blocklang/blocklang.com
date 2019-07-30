@@ -16,9 +16,10 @@ function getProperties(store: Store<State>): ViewProjectProperties {
 	return {
 		loggedUsername: get(path('user', 'loginName')),
 		project: get(path('project')),
-		parentId: get(path('parentResource', 'id')),
-		parentPath: get(path('parentResource', 'path')),
-		projectResources: get(path('projectResources')),
+		groupId: get(path('projectResource', 'id')),
+		path: get(path('projectResource', 'path')),
+		childResources: get(path('childResources')),
+
 		latestCommitInfo: get(path('latestCommitInfo')),
 		readme: get(path('readme')),
 		userDeployInfo: get(path('userDeployInfo')),
@@ -40,8 +41,8 @@ export default StoreContainer(ViewProject, 'state', {
 	paths: [
 		['user'],
 		['project'],
-		['parentResource'],
-		['projectResources'],
+		['projectResource'],
+		['childResources'],
 		['latestCommitInfo'],
 		['readme'],
 		['userDeployInfo'],

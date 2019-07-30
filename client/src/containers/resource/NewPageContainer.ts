@@ -17,8 +17,8 @@ function getProperties(store: Store<State>): NewPageProperties {
 		project: get(path('project')),
 		appTypes: get(path('appTypes')),
 		appType: get(path('pageParam', 'appType')),
-		parentId: get(path('parentResource', 'id')),
-		parentGroups: get(path('parentResource', 'parentGroups')),
+		parentId: get(path('projectResource', 'id')),
+		parentGroups: get(path('projectResource', 'parentGroups')),
 		keyValidateStatus: get(path('pageInputValidation', 'keyValidateStatus')),
 		keyErrorMessage: get(path('pageInputValidation', 'keyErrorMessage')),
 		nameValidateStatus: get(path('pageInputValidation', 'nameValidateStatus')),
@@ -31,6 +31,6 @@ function getProperties(store: Store<State>): NewPageProperties {
 }
 
 export default StoreContainer(NewPage, 'state', {
-	paths: [['user'], ['project'], ['appTypes'], ['pageParam'], ['parentResource'], ['pageInputValidation']],
+	paths: [['user'], ['project'], ['appTypes'], ['pageParam'], ['projectResource'], ['pageInputValidation']],
 	getProperties
 });

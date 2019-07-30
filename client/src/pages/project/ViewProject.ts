@@ -37,9 +37,9 @@ import { canCommit } from '../../permission';
 export interface ViewProjectProperties {
 	loggedUsername: string;
 	project: Project;
-	parentPath: string;
-	parentId: number;
-	projectResources: ProjectResource[];
+	groupId: number; // 根分组的 id，默认是 -1
+	path: string; // 根分组的 path，默认为空字符串
+	childResources: ProjectResource[];
 	latestCommitInfo: CommitInfo;
 	readme?: string;
 	userDeployInfo: DeployInfo;
@@ -628,11 +628,11 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 	}
 
 	private _renderResources() {
-		const { projectResources } = this.properties;
+		const { childResources } = this.properties;
 
-		return projectResources
+		return childResources
 			? v('table', { classes: [c.table, c.table_hover, c.mb_0] }, [
-					v('tbody', projectResources.map((resource) => this._renderTr(resource)))
+					v('tbody', childResources.map((resource) => this._renderTr(resource)))
 			  ])
 			: w(Spinner, {});
 	}
@@ -642,8 +642,8 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 		// 未变化
 		// 未跟踪
 		// 已修改
-		const { project, parentPath } = this.properties;
-		return w(ProjectResourceRow, { projectResource, project, parentPath });
+		const { project, path } = this.properties;
+		return w(ProjectResourceRow, { projectResource, project, parentPath: path });
 	}
 
 	private _renderReadme() {

@@ -30,11 +30,11 @@ import GoToParentGroupLink from './widgets/GoToParentGroupLink';
 export interface ViewProjectGroupProperties {
 	loggedUsername: string;
 	project: Project;
-	parentPath: string;
-	parentId: number;
-	parentGroups: ProjectGroup[];
-	projectResources: ProjectResource[];
-	latestCommitInfo: CommitInfo;
+	groupId: number; // 当前分组 id
+	path: string; // 路径，从根分组到当前分组，使用 / 分割
+	groups: ProjectGroup[]; // 分组列表，从根分组到当前分组
+	childResources: ProjectResource[]; // 当前分组下的所有子资源
+	latestCommitInfo: CommitInfo; // 当前分组的最近一次提交信息
 	onOpenGroup: (opt: ProjectResourcePathPayload) => void;
 }
 
@@ -87,7 +87,7 @@ export default class ViewProjectGroup extends ThemedMixin(I18nMixin(WidgetBase))
 	}
 
 	private _renderBreadcrumb() {
-		const { project, parentGroups = [] } = this.properties;
+		const { project, groups = [] } = this.properties;
 
 		return v('nav', { classes: [c.d_inline_block], 'aria-label': 'breadcrumb' }, [
 			v('ol', { classes: [c.breadcrumb, css.navOl] }, [
@@ -103,7 +103,7 @@ export default class ViewProjectGroup extends ThemedMixin(I18nMixin(WidgetBase))
 						[`${project.name}`]
 					)
 				]),
-				...parentGroups.map((item, index, array) => {
+				...groups.map((item, index, array) => {
 					if (index !== array.length - 1) {
 						return w(BreadcrumbItem, { project, parentGroup: item, onGoToGroup: this._onGoToGroup });
 					} else {
@@ -124,7 +124,7 @@ export default class ViewProjectGroup extends ThemedMixin(I18nMixin(WidgetBase))
 	private _renderNewResourceButtonGroup() {
 		const disabled = !this._isAuthenticated();
 		const { messages } = this._localizedMessages;
-		const { project, parentPath } = this.properties;
+		const { project, path } = this.properties;
 
 		return v('div', { classes: [c.btn_group, c.btn_group_sm, c.mr_2], role: 'group' }, [
 			w(
@@ -132,7 +132,7 @@ export default class ViewProjectGroup extends ThemedMixin(I18nMixin(WidgetBase))
 				{
 					classes: [c.btn, c.btn_outline_secondary],
 					to: 'new-page',
-					params: { owner: project.createUserName, project: project.name, parentPath },
+					params: { owner: project.createUserName, project: project.name, path },
 					onClick: (event: MouseEvent) => {
 						console.log(event);
 					},
@@ -145,7 +145,7 @@ export default class ViewProjectGroup extends ThemedMixin(I18nMixin(WidgetBase))
 				{
 					classes: [c.btn, c.btn_outline_secondary],
 					to: 'new-group',
-					params: { owner: project.createUserName, project: project.name, parentPath },
+					params: { owner: project.createUserName, project: project.name, path },
 					onClick: (event: MouseEvent) => {
 						console.log(event);
 					},
@@ -197,33 +197,33 @@ export default class ViewProjectGroup extends ThemedMixin(I18nMixin(WidgetBase))
 	}
 
 	private _renderResources() {
-		const { projectResources } = this.properties;
+		const { childResources } = this.properties;
 
-		return projectResources
+		return childResources
 			? v('table', { classes: [c.table, c.table_hover, c.mb_0] }, [
-					v('tbody', [this._renderBackTr(), ...projectResources.map((resource) => this._renderTr(resource))])
+					v('tbody', [this._renderBackTr(), ...childResources.map((resource) => this._renderTr(resource))])
 			  ])
 			: w(Spinner, {});
 	}
 
 	private _renderBackTr() {
-		const { project, parentGroups = [] } = this.properties;
+		const { project, groups = [] } = this.properties;
 
-		if (parentGroups.length === 0) {
+		if (groups.length === 0) {
 			return;
 		}
 
 		return v('tr', [
 			v('td', { classes: [css.icon] }, []),
 			v('td', { colspan: '4', classes: [c.pl_1] }, [
-				w(GoToParentGroupLink, { project, parentGroups, onGoToGroup: this._onGoToGroup })
+				w(GoToParentGroupLink, { project, parentGroups: groups, onGoToGroup: this._onGoToGroup })
 			])
 		]);
 	}
 
 	private _renderTr(projectResource: ProjectResource) {
-		const { project, parentPath } = this.properties;
-		return w(ProjectResourceRow, { projectResource, project, parentPath, onOpenGroup: this._onOpenGroup });
+		const { project, path } = this.properties;
+		return w(ProjectResourceRow, { projectResource, project, parentPath: path, onOpenGroup: this._onOpenGroup });
 	}
 
 	private _onOpenGroup(opt: ProjectResourcePathPayload) {
@@ -231,8 +231,8 @@ export default class ViewProjectGroup extends ThemedMixin(I18nMixin(WidgetBase))
 	}
 
 	private _renderNoResourceAlert() {
-		const { projectResources } = this.properties;
-		if (projectResources.length === 0) {
+		const { childResources } = this.properties;
+		if (childResources.length === 0) {
 			return v('div', { classes: [c.alert, c.alert_info, c.text_center, c.mt_3], role: 'alert' }, [
 				'此分组下无内容'
 			]);
@@ -242,8 +242,8 @@ export default class ViewProjectGroup extends ThemedMixin(I18nMixin(WidgetBase))
 
 interface ProjectResourceRowProperties {
 	project: Project;
+	parentPath: string; // 在这里取名为 parentPath 是合适的，因为这里是相对于页面等资源，就是获取父分组的路径信息
 	projectResource: ProjectResource;
-	parentPath: string;
 	onOpenGroup: (opt: ProjectResourcePathPayload) => void;
 }
 

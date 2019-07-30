@@ -22,13 +22,13 @@ export const getResourceParentPathCommand = commandFactory(
 		});
 		const json = await response.json();
 		if (!response.ok) {
-			return [replace(path('parentResource'), undefined)];
+			return [replace(path('projectResource'), undefined)];
 		}
 
 		return [
-			replace(path('parentResource', 'path'), parentPath),
-			replace(path('parentResource', 'id'), json.parentId),
-			replace(path('parentResource', 'parentGroups'), json.parentGroups)
+			replace(path('projectResource', 'path'), parentPath),
+			replace(path('projectResource', 'id'), json.parentId),
+			replace(path('projectResource', 'parentGroups'), json.parentGroups)
 		];
 	}
 );
@@ -136,8 +136,8 @@ const pageDescriptionInputCommand = commandFactory<DescriptionPayload>(({ path, 
 const savePageCommand = commandFactory(async ({ path, get, payload: { owner, project, parentPath = '' } }) => {
 	const pageParam = get(path('pageParam'));
 
-	const parentResource = get(path('parentResource'));
-	pageParam.parentId = parentResource.id;
+	const projectResource = get(path('projectResource'));
+	pageParam.parentId = projectResource.id;
 
 	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/pages`, {
 		method: 'POST',
