@@ -1,10 +1,6 @@
 .root {
 }
 
-.recentCommit {
-	font-size: 12px;
-}
-
 .truncate {
 	display: inline-block;
 	max-width: 100%;
