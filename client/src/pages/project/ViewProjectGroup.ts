@@ -24,9 +24,9 @@ import { isEmpty } from '../../util';
 import Exception from '../error/Exception';
 import { ResourceType, GitFileStatus } from '../../constant';
 import { ProjectResourcePathPayload } from '../../processes/interfaces';
-import BreadcrumbItem from './widgets/BreadcrumbItem';
 import GoToParentGroupLink from './widgets/GoToParentGroupLink';
 import LatestCommitInfo from './widgets/LatestCommitInfo';
+import ProjectResourceBreadcrumb from './widgets/ProjectResourceBreadcrumb';
 
 export interface ViewProjectGroupProperties {
 	loggedUsername: string;
@@ -81,45 +81,12 @@ export default class ViewProjectGroup extends ThemedMixin(I18nMixin(WidgetBase))
 	}
 
 	private _renderNavigation() {
+		const { project, groups, onOpenGroup } = this.properties;
+
 		return v('div', { classes: [c.d_flex, c.justify_content_between, c.mb_2] }, [
-			v('div', {}, [this._renderBreadcrumb()]),
+			v('div', {}, [w(ProjectResourceBreadcrumb, { project, pathes: groups, onOpenGroup })]),
 			v('div', { classes: [] }, [this._renderNewResourceButtonGroup()])
 		]);
-	}
-
-	private _renderBreadcrumb() {
-		const { project, groups = [] } = this.properties;
-
-		return v('nav', { classes: [c.d_inline_block], 'aria-label': 'breadcrumb' }, [
-			v('ol', { classes: [c.breadcrumb, css.navOl] }, [
-				// 项目名
-				v('li', { classes: [c.breadcrumb_item] }, [
-					w(
-						Link,
-						{
-							to: 'view-project',
-							params: { owner: project.createUserName, project: project.name },
-							classes: [c.font_weight_bold]
-						},
-						[`${project.name}`]
-					)
-				]),
-				...groups.map((item, index, array) => {
-					if (index !== array.length - 1) {
-						return w(BreadcrumbItem, { project, parentGroup: item, onGoToGroup: this._onGoToGroup });
-					} else {
-						// 如果是最后一个元素
-						return v('li', { classes: [c.breadcrumb_item, c.active] }, [
-							v('strong', { classes: [c.pr_2] }, [`${item.name}`])
-						]);
-					}
-				})
-			])
-		]);
-	}
-
-	private _onGoToGroup(opt: ProjectResourcePathPayload) {
-		this.properties.onOpenGroup(opt);
 	}
 
 	private _renderNewResourceButtonGroup() {
@@ -189,6 +156,10 @@ export default class ViewProjectGroup extends ThemedMixin(I18nMixin(WidgetBase))
 				w(GoToParentGroupLink, { project, parentGroups: groups, onGoToGroup: this._onGoToGroup })
 			])
 		]);
+	}
+
+	private _onGoToGroup(opt: ProjectResourcePathPayload) {
+		this.properties.onOpenGroup(opt);
 	}
 
 	private _renderTr(projectResource: ProjectResource) {

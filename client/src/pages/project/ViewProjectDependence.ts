@@ -11,10 +11,9 @@ import Exception from '../error/Exception';
 import ProjectHeader from '../widgets/ProjectHeader';
 import messageBundle from '../../nls/main';
 
-import Link from '@dojo/framework/routing/Link';
 import { ProjectResourcePathPayload } from '../../processes/interfaces';
-import BreadcrumbItem from './widgets/BreadcrumbItem';
 import LatestCommitInfo from './widgets/LatestCommitInfo';
+import ProjectResourceBreadcrumb from './widgets/ProjectResourceBreadcrumb';
 
 export interface ViewProjectDependenceProperties {
 	loggedUsername: string;
@@ -62,44 +61,11 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 	}
 
 	private _renderNavigation() {
+		const { project, pathes, onOpenGroup } = this.properties;
+
 		return v('div', { classes: [c.d_flex, c.justify_content_between, c.mb_2] }, [
-			v('div', {}, [this._renderBreadcrumb()])
+			v('div', {}, [w(ProjectResourceBreadcrumb, { project, pathes, onOpenGroup })])
 		]);
-	}
-
-	private _renderBreadcrumb() {
-		const { project, pathes = [] } = this.properties;
-
-		return v('nav', { classes: [c.d_inline_block], 'aria-label': 'breadcrumb' }, [
-			v('ol', { classes: [c.breadcrumb, css.navOl] }, [
-				// 项目名
-				v('li', { classes: [c.breadcrumb_item] }, [
-					w(
-						Link,
-						{
-							to: 'view-project',
-							params: { owner: project.createUserName, project: project.name },
-							classes: [c.font_weight_bold]
-						},
-						[`${project.name}`]
-					)
-				]),
-				...pathes.map((item, index, array) => {
-					if (index !== array.length - 1) {
-						return w(BreadcrumbItem, { project, parentGroup: item, onGoToGroup: this._onGoToGroup });
-					} else {
-						// 如果是最后一个元素
-						return v('li', { classes: [c.breadcrumb_item, c.active] }, [
-							v('strong', { classes: [c.pr_2] }, [`${item.name}`])
-						]);
-					}
-				})
-			])
-		]);
-	}
-
-	private _onGoToGroup(opt: ProjectResourcePathPayload) {
-		this.properties.onOpenGroup(opt);
 	}
 
 	private _renderDependenceBlock() {
