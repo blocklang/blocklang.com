@@ -4,6 +4,14 @@ import { commandFactory, getHeaders } from './utils';
 import { baseUrl } from '../config';
 import { replace } from '@dojo/framework/stores/state/operations';
 
+const startInitForViewProjectDependenceCommand = commandFactory(({ path }) => {
+	return [
+		replace(path('projectResource'), undefined),
+		replace(path('pagedComponentRepoInfos'), undefined),
+		replace(path('projectDependenceResource'), undefined)
+	];
+});
+
 export const getProjectDependenceCommand = commandFactory(
 	async ({ path, payload: { owner, project, parentPath = '' } }) => {
 		const response = await fetch(`${baseUrl}/projects/${owner}/${project}/dependence`, {
@@ -45,6 +53,7 @@ const getComponentReposCommand = commandFactory(async ({ path, payload: { query 
 });
 
 export const initForViewProjectDependenceProcess = createProcess('init-for-view-project-dependence', [
+	startInitForViewProjectDependenceCommand,
 	[getProjectCommand, getProjectDependenceCommand],
 	getLatestCommitInfoCommand
 ]);
