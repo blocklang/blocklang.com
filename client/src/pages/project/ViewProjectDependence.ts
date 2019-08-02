@@ -95,57 +95,71 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 	}
 
 	private _renderDependenceEditor() {
+		return v('div', { classes: [c.card_body] }, [
+			this._renderComponentRepoSearchPart(),
+			// 显示项目依赖
+			// 1. 如果没有依赖，则显示提示信息
+			// 2. 否则显示依赖
+			this._renderDependencePart()
+		]);
+	}
+
+	private _renderComponentRepoSearchPart() {
+		return v('div', { classes: [c.py_4, c.border_bottom] }, [
+			this._renderSearchForm(),
+			this._renderSearchTip(),
+			this._renderSearchedComponentRepos()
+		]);
+	}
+
+	private _renderSearchForm() {
 		const {
 			messages: { componentSearchForProjectPlaceholder }
 		} = this._localizedMessages;
+
+		return v('form', {}, [
+			v('div', { classes: [c.form_group] }, [
+				v('input', {
+					type: 'text',
+					classes: [c.form_control],
+					placeholder: `${componentSearchForProjectPlaceholder}`,
+					oninput: this._onSearchComponentRepo,
+					value: `${this._search}`
+				})
+			])
+		]);
+	}
+
+	private _renderSearchTip() {
+		if (this._search === '') {
+			return;
+		}
+
 		const { pagedComponentRepos } = this.properties;
 
 		let length = 0;
-		if (pagedComponentRepos && pagedComponentRepos.content.length > 0) {
+		if (pagedComponentRepos && pagedComponentRepos.content) {
 			length = pagedComponentRepos.content.length;
 		}
 
-		return v('div', { classes: [c.card_body] }, [
-			v('form', { classes: [c.mt_4] }, [
-				v('div', { classes: [c.form_group] }, [
-					v('input', {
-						type: 'text',
-						classes: [c.form_control],
-						placeholder: `${componentSearchForProjectPlaceholder}`,
-						oninput: this._onSearchComponentRepo,
-						value: `${this._search}`
-					})
-				])
+		return v('div', { classes: [c.d_flex, c.justify_content_between, c.align_items_center, c.border_bottom] }, [
+			v('div', [
+				'使用 ',
+				v('strong', [`${this._search}`]),
+				' 共查出 ',
+				v('strong', [`${length}`]),
+				' 个组件仓库'
 			]),
-			this._search != ''
-				? v('div', { classes: [c.d_flex, c.justify_content_between, c.align_items_center, c.border_bottom] }, [
-						v('div', [
-							'使用 ',
-							v('strong', [`${this._search}`]),
-							' 共查出 ',
-							v('strong', [`${length}`]),
-							' 个组件仓库'
-						]),
-						v('div', [
-							v(
-								'button',
-								{
-									classes: [c.btn, c.btn_link, c.btn_sm, css.btnLink],
-									onclick: this._onClearSearchText
-								},
-								[w(FontAwesomeIcon, { icon: 'times', classes: [c.mr_1] }), '清空搜索条件']
-							)
-						])
-				  ])
-				: undefined,
-			length > 0
-				? v('div', { classes: [c.border_bottom] }, [
-						// 组件库列表
-						this._renderCompomentReposBlock(),
-						// 分页
-						this._renderPagination()
-				  ])
-				: undefined
+			v('div', [
+				v(
+					'button',
+					{
+						classes: [c.btn, c.btn_link, c.btn_sm, css.btnLink],
+						onclick: this._onClearSearchText
+					},
+					[w(FontAwesomeIcon, { icon: 'times', classes: [c.mr_1] }), '清空搜索条件']
+				)
+			])
 		]);
 	}
 
@@ -159,7 +173,7 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 		this.properties.onQueryComponentRepos({ query });
 	}
 
-	private _renderCompomentReposBlock() {
+	private _renderSearchedComponentRepos() {
 		const { pagedComponentRepos } = this.properties;
 
 		if (!pagedComponentRepos) {
@@ -170,13 +184,23 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 			return this._renderEmptyComponentRepo();
 		}
 
-		return this._renderComponentRepos();
+		return v('div', { key: 'component-repos-part', classes: [] }, [
+			// 组件库列表
+			this._renderComponentRepos(),
+			// 分页
+			this._renderPagination()
+		]);
 	}
 
 	private _renderEmptyComponentRepo() {
-		return v('div', { classes: [c.alert, c.alert_secondary, c.mx_auto, c.text_center, c.mt_3, c.py_4] }, [
-			v('strong', {}, ['没有查到组件仓库'])
-		]);
+		return v(
+			'div',
+			{
+				key: 'no-component-repos',
+				classes: [c.alert, c.alert_secondary, c.mx_auto, c.text_center, c.mt_3, c.py_4]
+			},
+			[v('strong', {}, ['没有查到组件仓库'])]
+		);
 	}
 
 	private _renderComponentRepos() {
@@ -289,5 +313,25 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 			number,
 			size
 		});
+	}
+
+	private _renderDependencePart() {
+		const { dependences = [] } = this.properties;
+		if (dependences.length === 0) {
+			return this._renderNoDependenceMessage();
+		}
+		return this._renderDependenceItems();
+	}
+
+	private _renderDependenceItems() {
+		return v('div', { key: 'dependence-items', classes: [c.mt_4] }, []);
+	}
+
+	private _renderNoDependenceMessage() {
+		return v('div', { key: 'no-dependence', classes: [c.mt_4] }, [
+			v('div', { classes: [c.alert, c.alert_primary, c.mx_auto, c.text_center, c.py_4] }, [
+				v('strong', {}, ['此项目尚未配置依赖'])
+			])
+		]);
 	}
 }
