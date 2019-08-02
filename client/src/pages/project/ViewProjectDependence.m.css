@@ -1,2 +1,21 @@
 .root {
 }
+
+.btnLink {
+	color: #6c757d;
+}
+
+.btnLink:hover {
+	/* 按钮的样式，只变颜色，不添加下换线*/
+	text-decoration: none;
+	color: #0056b3;
+}
+
+.repoLanguageColor {
+	border-radius: 50%;
+	display: inline-block;
+	height: 12px;
+	position: relative;
+	top: 1px;
+	width: 12px;
+}

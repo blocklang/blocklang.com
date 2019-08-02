@@ -14,6 +14,7 @@ import Exception from '../error/Exception';
 import Moment from '../../widgets/moment';
 import { getRepoCategoryName, getProgramingLanguageName, getProgramingLanguageColor } from '../../util';
 import { QueryPayload } from '../../processes/interfaces';
+import Pagination from '../../widgets/pagination';
 
 export interface ListComponentRepoProperties {
 	loggedUsername: string;
@@ -45,25 +46,16 @@ export default class ListComponentRepo extends ThemedMixin(I18nMixin(WidgetBase)
 					  ])
 					: undefined
 			]),
-			// 部件列表
+			// 组件库列表
 			this._renderCompomentReposBlock(),
 			// 分页
 			this._renderPagination()
 		]);
 	}
 
-	private _renderCompomentReposBlock() {
-		const { pagedComponentRepos } = this.properties;
-
-		if (!pagedComponentRepos) {
-			return w(Spinner, {});
-		}
-
-		if (pagedComponentRepos.content.length === 0) {
-			return this._renderEmptyComponentRepo();
-		}
-
-		return this._renderComponentRepos();
+	private _isLogin() {
+		const { loggedUsername } = this.properties;
+		return !!loggedUsername;
 	}
 
 	private _renderSearchBox() {
@@ -94,6 +86,20 @@ export default class ListComponentRepo extends ThemedMixin(I18nMixin(WidgetBase)
 		this.properties.onQueryComponentRepos({ query });
 	}
 
+	private _renderCompomentReposBlock() {
+		const { pagedComponentRepos } = this.properties;
+
+		if (!pagedComponentRepos) {
+			return w(Spinner, {});
+		}
+
+		if (pagedComponentRepos.content.length === 0) {
+			return this._renderEmptyComponentRepo();
+		}
+
+		return this._renderComponentRepos();
+	}
+
 	private _renderEmptyComponentRepo() {
 		const { messages } = this._localizedMessages;
 
@@ -118,11 +124,6 @@ export default class ListComponentRepo extends ThemedMixin(I18nMixin(WidgetBase)
 				  )
 				: undefined
 		]);
-	}
-
-	private _isLogin() {
-		const { loggedUsername } = this.properties;
-		return !!loggedUsername;
 	}
 
 	private _renderComponentRepos() {
@@ -218,49 +219,14 @@ export default class ListComponentRepo extends ThemedMixin(I18nMixin(WidgetBase)
 			return;
 		}
 
-		// 只有当页数大于 1 时才显示分页栏
-		if (pagedComponentRepos.totalPages <= 1) {
-			return;
-		}
+		const { first, last, size, number, totalPages } = pagedComponentRepos;
 
-		let isFirst: boolean = pagedComponentRepos.first;
-		let isLast: boolean = pagedComponentRepos.last;
-
-		return v('nav', { 'aria-label': 'Page', classes: [c.my_4] }, [
-			v(
-				'ul',
-				{
-					classes: [c.pagination, c.justify_content_center]
-				},
-				[
-					v('li', { classes: [c.page_item, isFirst ? c.disabled : undefined] }, [
-						isFirst
-							? v('a', { classes: [c.page_link], tabIndex: -1, 'aria-disabled': 'true' }, ['上一页'])
-							: w(
-									Link,
-									{
-										classes: [c.page_link],
-										to: 'marketplace',
-										params: { page: `${pagedComponentRepos.number - 1}` }
-									},
-									['上一页']
-							  )
-					]),
-					v('li', { classes: [c.page_item, isLast ? c.disabled : undefined] }, [
-						isLast
-							? v('a', { classes: [c.page_link], tabIndex: -1, 'aria-disabled': 'true' }, ['下一页'])
-							: w(
-									Link,
-									{
-										classes: [c.page_link],
-										to: 'marketplace',
-										params: { page: `${pagedComponentRepos.number + 1}` }
-									},
-									['下一页']
-							  )
-					])
-				]
-			)
-		]);
+		return w(Pagination, {
+			totalPages,
+			first,
+			last,
+			number,
+			size
+		});
 	}
 }

@@ -358,6 +358,7 @@ export interface State {
 
 	// 项目依赖
 	projectDependenceResource: ProjectDependenceResource;
+	searchedComponentRepos: ComponentRepoInfo[];
 
 	unstagedChanges: UncommittedFile[];
 	stagedChanges: UncommittedFile[];

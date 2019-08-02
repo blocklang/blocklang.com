@@ -20,7 +20,35 @@ export const getProjectDependenceCommand = commandFactory(
 	}
 );
 
+const getComponentReposCommand = commandFactory(async ({ path, payload: { query = '', page = 0 } }) => {
+	// 注意，如果 query 的值为空，则返回空列表
+	if (query.trim() === '') {
+		return [
+			replace(path('pagedComponentRepoInfos'), undefined),
+			replace(path('marketplacePageStatusCode'), undefined)
+		];
+	}
+
+	// page 是从 0 开始的
+	const response = await fetch(`${baseUrl}/component-repos?q=${query}&page=${page}`, {
+		headers: getHeaders()
+	});
+	const json = await response.json();
+	if (!response.ok) {
+		return [
+			replace(path('pagedComponentRepoInfos'), undefined),
+			replace(path('marketplacePageStatusCode'), response.status)
+		];
+	}
+
+	return [replace(path('pagedComponentRepoInfos'), json)];
+});
+
 export const initForViewProjectDependenceProcess = createProcess('init-for-view-project-dependence', [
 	[getProjectCommand, getProjectDependenceCommand],
 	getLatestCommitInfoCommand
+]);
+
+export const queryComponentReposForProjectProcess = createProcess('query-component-repos-for-project', [
+	getComponentReposCommand
 ]);
