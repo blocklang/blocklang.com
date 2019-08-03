@@ -24,7 +24,8 @@
 7. [获取项目的 README 文件](./projects/project/get-the-readme.md)
 8. [查看一个项目](./projects/project/get-a-project.md)
 9. [获取最近提交信息](./projects/project/get-latest-commit.md)
-10. [获取部署配置信息](./projects/deploy/get-deploy-setting.md)
+10. [为项目添加一个依赖](./projects/project/add-a-dependence.md)
+11. [获取部署配置信息](./projects/deploy/get-deploy-setting.md)
 
 ## 资源
 
