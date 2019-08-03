@@ -2,11 +2,12 @@
 
 [![Build Status](https://travis-ci.org/blocklang/blocklang.com.svg?branch=master)](https://travis-ci.org/blocklang/blocklang.com)
 
-Block Lang 处在热火朝天、天马行空的开发中，不适合在生产环境使用。如果您有一睹 Block Lang 芳容的冲动，请移步[演示站点 https://blocklang.com](https://blocklang.com)。
+Block Lang 尚在热火朝天、天马行空的开发，不适合在生产环境使用。君欲一睹 Block Lang 芳容，请移步[演示站点 https://blocklang.com](https://blocklang.com)。
 
 ## 相信
 
-> **老少皆宜**：每个人都可按照自己的需求，拼装出称心的软件。
+1. **老少皆宜**：每个人都可按照自己的需求，拼装出称心的软件
+2. **人软合一**：每个人都需自定制生活、学习和工作用的软件套件
 
 ## 理念
 
