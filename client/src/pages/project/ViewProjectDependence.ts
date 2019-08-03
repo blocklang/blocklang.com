@@ -209,17 +209,68 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 		return v(
 			'ul',
 			{ classes: [c.list_group, c.mt_2] },
-			pagedComponentRepos.content.map((item) => this._renderComponentRepoItem(item))
+			pagedComponentRepos.content.map((item) => {
+				// TODO: 添加判断逻辑
+				const used = false;
+
+				return w(ComponentRepoItem, { componentRepoInfo: item, used });
+			})
 		);
 	}
 
-	private _renderComponentRepoItem(item: ComponentRepoInfo) {
-		const { componentRepo, apiRepo } = item;
+	private _renderPagination() {
+		const { pagedComponentRepos } = this.properties;
+
+		if (!pagedComponentRepos) {
+			return;
+		}
+
+		const { first, last, size, number, totalPages } = pagedComponentRepos;
+
+		return w(Pagination, {
+			totalPages,
+			first,
+			last,
+			number,
+			size
+		});
+	}
+
+	private _renderDependencePart() {
+		const { dependences = [] } = this.properties;
+		if (dependences.length === 0) {
+			return this._renderNoDependenceMessage();
+		}
+		return this._renderDependenceItems();
+	}
+
+	private _renderDependenceItems() {
+		return v('div', { key: 'dependence-items', classes: [c.mt_4] }, []);
+	}
+
+	private _renderNoDependenceMessage() {
+		return v('div', { key: 'no-dependence', classes: [c.mt_4] }, [
+			v('div', { classes: [c.alert, c.alert_primary, c.mx_auto, c.text_center, c.py_4] }, [
+				v('strong', {}, ['此项目尚未配置依赖'])
+			])
+		]);
+	}
+}
+
+interface ComponentRepoItemProperties {
+	componentRepoInfo: ComponentRepoInfo;
+	used: boolean;
+}
+
+class ComponentRepoItem extends ThemedMixin(I18nMixin(WidgetBase))<ComponentRepoItemProperties> {
+	protected render() {
+		const {
+			componentRepoInfo: { componentRepo, apiRepo },
+			used = false
+		} = this.properties;
 		const displayName = componentRepo.label ? componentRepo.label : componentRepo.name;
 
-		// TODO: 添加判断逻辑
-		const used = false;
-
+		// TODO: 提取为一个部件
 		return v('li', { classes: [c.list_group_item] }, [
 			// 如果组件库未安装，则显示“使用”按钮，否则显示“已用”文本
 			v('div', {}, [
@@ -235,7 +286,14 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 				v('span', { classes: [c.text_muted] }, [`${componentRepo.name}`]),
 				used
 					? v('span', { classes: [c.float_right, c.text_info] }, ['已用'])
-					: v('button', { classes: [c.btn, c.btn_secondary, c.btn_sm, c.float_right] }, ['使用'])
+					: v(
+							'button',
+							{
+								classes: [c.btn, c.btn_secondary, c.btn_sm, c.float_right],
+								onclick: this._onAddDependence
+							},
+							['使用']
+					  )
 			]),
 			v('p', { itemprop: 'description', classes: [c.text_muted, c.mb_0] }, [`${componentRepo.description}`]),
 			v('div', { classes: [c.my_2] }, [
@@ -297,41 +355,10 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 		]);
 	}
 
-	private _renderPagination() {
-		const { pagedComponentRepos } = this.properties;
-
-		if (!pagedComponentRepos) {
-			return;
-		}
-
-		const { first, last, size, number, totalPages } = pagedComponentRepos;
-
-		return w(Pagination, {
-			totalPages,
-			first,
-			last,
-			number,
-			size
-		});
-	}
-
-	private _renderDependencePart() {
-		const { dependences = [] } = this.properties;
-		if (dependences.length === 0) {
-			return this._renderNoDependenceMessage();
-		}
-		return this._renderDependenceItems();
-	}
-
-	private _renderDependenceItems() {
-		return v('div', { key: 'dependence-items', classes: [c.mt_4] }, []);
-	}
-
-	private _renderNoDependenceMessage() {
-		return v('div', { key: 'no-dependence', classes: [c.mt_4] }, [
-			v('div', { classes: [c.alert, c.alert_primary, c.mx_auto, c.text_center, c.py_4] }, [
-				v('strong', {}, ['此项目尚未配置依赖'])
-			])
-		]);
+	private _onAddDependence() {
+		const {
+			componentRepoInfo: { componentRepo, apiRepo }
+		} = this.properties;
+		console.log('add dependence', componentRepo, apiRepo);
 	}
 }
