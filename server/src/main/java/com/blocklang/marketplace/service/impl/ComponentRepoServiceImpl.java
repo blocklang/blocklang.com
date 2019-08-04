@@ -1,6 +1,7 @@
 package com.blocklang.marketplace.service.impl;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -57,6 +58,11 @@ public class ComponentRepoServiceImpl implements ComponentRepoService {
 	@Override
 	public boolean existsByCreateUserIdAndGitRepoUrl(Integer userId, String gitRepoUrl) {
 		return componentRepoDao.existsByCreateUserIdAndGitRepoUrl(userId, gitRepoUrl);
+	}
+
+	@Override
+	public Optional<ComponentRepo> findById(Integer componentRepoId) {
+		return componentRepoDao.findById(componentRepoId);
 	}
 
 }
