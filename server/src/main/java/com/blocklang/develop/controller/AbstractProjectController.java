@@ -51,7 +51,11 @@ public class AbstractProjectController {
 	}
 
 	protected void ensureCanWrite(UserInfo user, Project project) {
-		List<ProjectAuthorization> authes = projectAuthorizationService.findAllByUserIdAndProjectId(user.getId(), project.getId());
+		ensureCanWrite(user.getId(), project);
+	}
+	
+	protected void ensureCanWrite(Integer userId, Project project) {
+		List<ProjectAuthorization> authes = projectAuthorizationService.findAllByUserIdAndProjectId(userId, project.getId());
 		
 		// 从 authes 中获取最大的权限
 		AccessLevel accessLevel = authes.stream().map(item -> item.getAccessLevel())

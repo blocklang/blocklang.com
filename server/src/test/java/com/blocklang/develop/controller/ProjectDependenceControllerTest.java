@@ -2,25 +2,40 @@ package com.blocklang.develop.controller;
 
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.Optional;
 
 import org.apache.http.HttpStatus;
 import org.junit.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.test.context.support.WithMockUser;
 
+import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.test.AbstractControllerTest;
+import com.blocklang.develop.constant.AccessLevel;
+import com.blocklang.develop.data.AddDependenceParam;
 import com.blocklang.develop.model.Project;
+import com.blocklang.develop.model.ProjectAuthorization;
+import com.blocklang.develop.model.ProjectDependence;
 import com.blocklang.develop.model.ProjectResource;
 import com.blocklang.develop.service.ProjectAuthorizationService;
+import com.blocklang.develop.service.ProjectDependenceService;
 import com.blocklang.develop.service.ProjectResourceService;
 import com.blocklang.develop.service.ProjectService;
+import com.blocklang.marketplace.model.ApiRepo;
+import com.blocklang.marketplace.model.ComponentRepo;
+import com.blocklang.marketplace.service.ApiRepoService;
+import com.blocklang.marketplace.service.ComponentRepoService;
 
 import io.restassured.http.ContentType;
 
@@ -33,6 +48,12 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 	private ProjectAuthorizationService projectAuthorizationService;
 	@MockBean
 	private ProjectResourceService projectResourceService;
+	@MockBean
+	private ProjectDependenceService projectDependenceService;
+	@MockBean
+	private ComponentRepoService componentRepoService;
+	@MockBean
+	private ApiRepoService apiRepoService;
 
 	@Test
 	public void get_dependence_project_not_found() {
@@ -83,5 +104,178 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 			.body("resourceId", is(10),
 					"pathes.size()", is(1));
 	}
+
+	@Test
+	public void add_dependence_anonymous_user_forbidden() {
+		AddDependenceParam param = new AddDependenceParam();
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/{owner}/{projectName}/dependences", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_FORBIDDEN);
+	}
 	
+	@WithMockUser("jack")
+	@Test
+	public void add_dependence_project_not_exist() {
+		AddDependenceParam param = new AddDependenceParam();
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/{owner}/{projectName}/dependences", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	@WithMockUser("jack")
+	@Test
+	public void add_dependence_login_user_can_not_write() {
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(true);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		UserInfo user = new UserInfo();
+		user.setId(1);
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
+		
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
+		
+		AddDependenceParam param = new AddDependenceParam();
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/{owner}/{projectName}/dependences", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_FORBIDDEN);
+	}
+	
+	@WithMockUser("jack")
+	@Test
+	public void add_dependence_when_is_build_dependence_but_the_dependence_has_added() {
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(true);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		UserInfo user = new UserInfo();
+		user.setId(1);
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setUserId(1);
+		auth.setProjectId(1);
+		auth.setAccessLevel(AccessLevel.WRITE);
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		ComponentRepo repo = new ComponentRepo();
+		repo.setIsIdeExtension(false);
+		when(componentRepoService.findById(1)).thenReturn(Optional.of(repo));
+		
+		when(projectDependenceService.buildDependenceExists(anyInt(), anyInt(), anyString())).thenReturn(true);
+		
+		AddDependenceParam param = new AddDependenceParam();
+		param.setComponentRepoId(1);
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/{owner}/{projectName}/dependences", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
+			.body("errors.componentRepoId", hasItem("项目已依赖该组件仓库"),
+					"errors.componentRepoId.size()", is(1));
+	}
+	
+	@WithMockUser("jack")
+	@Test
+	public void add_dependence_when_is_api_dependence_but_the_dependence_has_added() {
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(true);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		UserInfo user = new UserInfo();
+		user.setId(1);
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setUserId(1);
+		auth.setProjectId(1);
+		auth.setAccessLevel(AccessLevel.WRITE);
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		ComponentRepo repo = new ComponentRepo();
+		repo.setIsIdeExtension(true);
+		when(componentRepoService.findById(1)).thenReturn(Optional.of(repo));
+		
+		when(projectDependenceService.devDependenceExists(anyInt(), anyInt())).thenReturn(true);
+		
+		AddDependenceParam param = new AddDependenceParam();
+		param.setComponentRepoId(1);
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/{owner}/{projectName}/dependences", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
+			.body("errors.componentRepoId", hasItem("项目已依赖该组件仓库"),
+					"errors.componentRepoId.size()", is(1));
+	}
+	
+	@WithMockUser("jack")
+	@Test
+	public void add_dependence_success() {
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(true);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		UserInfo user = new UserInfo();
+		user.setId(1);
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setUserId(1);
+		auth.setProjectId(1);
+		auth.setAccessLevel(AccessLevel.WRITE);
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		ComponentRepo componentRepo = new ComponentRepo();
+		componentRepo.setApiRepoId(1);
+		componentRepo.setIsIdeExtension(false);
+		when(componentRepoService.findById(1)).thenReturn(Optional.of(componentRepo));
+		
+		when(projectDependenceService.buildDependenceExists(anyInt(), anyInt(), anyString())).thenReturn(false);
+		
+		ProjectDependence dependence = new ProjectDependence();
+		dependence.setComponentRepoVersionId(2);
+		when(projectDependenceService.save(anyInt(), any(), any())).thenReturn(dependence);
+		
+		ApiRepo apiRepo = new ApiRepo();
+		when(apiRepoService.findById(anyInt())).thenReturn(Optional.of(apiRepo));
+		
+		AddDependenceParam param = new AddDependenceParam();
+		param.setComponentRepoId(1);
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/{owner}/{projectName}/dependences", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_CREATED)
+			.body("componentRepoVersionId", is(2),
+					"componentRepo", is(notNullValue()),
+					"apiRepo", is(notNullValue()));
+		
+		verify(projectDependenceService).save(anyInt(), any(), any());
+	}
 }

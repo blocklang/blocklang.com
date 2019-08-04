@@ -69,7 +69,7 @@ public class GroupController extends AbstractProjectController{
 		}
 		
 		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-		
+		// TODO: 使用同一的权限验证代码替换。
 		List<ProjectAuthorization> authes = projectAuthorizationService.findAllByUserIdAndProjectId(project.getCreateUserId(), project.getId());
 		boolean canWrite = authes.stream().anyMatch(item -> item.getAccessLevel() == AccessLevel.WRITE || item.getAccessLevel() == AccessLevel.ADMIN);
 		if(!canWrite) {

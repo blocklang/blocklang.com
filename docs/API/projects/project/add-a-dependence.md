@@ -16,7 +16,19 @@ POST /projects/{owner}/{projectName}/dependences
 
 ## Response
 
-校验未通过
+如果项目不存在，则返回
+
+```text
+Status: 404 Not Found
+```
+
+如果登录用户对项目没有写权限，则返回
+
+```text
+Status: 403 Forbidden
+```
+
+如果组件库已添加，则返回
 
 ```text
 Status: 422 Unprocessable Entity
@@ -27,15 +39,10 @@ Status: 422 Unprocessable Entity
 ```json
 {
     "errors": {
-        "value": ["${filedErrorMessage}"]
+        "componentRepoId": ["项目已依赖该组件仓库"]
     }
 }
 ```
-
-`filedErrorMessage` 的值为：
-
-1. 如果项目不存在，则返回 `项目不存在`
-2. 如果登录用户对项目没有写权限，则返回 `无权为项目添加依赖`
 
 校验通过，且保存成功后
 
@@ -48,7 +55,8 @@ Status: 201 CREATED
 ```json
 {
     "componentRepo": {},
-    "apiRepo": {}
+    "apiRepo": {},
+    "componentRepoVersionId": 1
 }
 ```
 
