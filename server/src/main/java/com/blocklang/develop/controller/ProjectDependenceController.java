@@ -149,7 +149,6 @@ public class ProjectDependenceController extends AbstractProjectController{
 		}
 		
 		UserInfo user = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
-		
 		ensureCanWrite(user, project);
 		
 		ProjectDependence savedProjectDependence = projectDependenceService.save(project.getId(), componentRepo, user);

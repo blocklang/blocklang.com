@@ -141,6 +141,10 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 		project.setIsPublic(true);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
+		ComponentRepo repo = new ComponentRepo();
+		repo.setIsIdeExtension(false);
+		when(componentRepoService.findById(anyInt())).thenReturn(Optional.of(repo));
+		
 		UserInfo user = new UserInfo();
 		user.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
@@ -148,6 +152,7 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
 		
 		AddDependenceParam param = new AddDependenceParam();
+		param.setComponentRepoId(1);
 		given()
 			.contentType(ContentType.JSON)
 			.body(param)
@@ -177,7 +182,7 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 		
 		ComponentRepo repo = new ComponentRepo();
 		repo.setIsIdeExtension(false);
-		when(componentRepoService.findById(1)).thenReturn(Optional.of(repo));
+		when(componentRepoService.findById(anyInt())).thenReturn(Optional.of(repo));
 		
 		when(projectDependenceService.buildDependenceExists(anyInt(), anyInt(), anyString())).thenReturn(true);
 		
@@ -214,7 +219,7 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 		
 		ComponentRepo repo = new ComponentRepo();
 		repo.setIsIdeExtension(true);
-		when(componentRepoService.findById(1)).thenReturn(Optional.of(repo));
+		when(componentRepoService.findById(anyInt())).thenReturn(Optional.of(repo));
 		
 		when(projectDependenceService.devDependenceExists(anyInt(), anyInt())).thenReturn(true);
 		
@@ -252,7 +257,7 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 		ComponentRepo componentRepo = new ComponentRepo();
 		componentRepo.setApiRepoId(1);
 		componentRepo.setIsIdeExtension(false);
-		when(componentRepoService.findById(1)).thenReturn(Optional.of(componentRepo));
+		when(componentRepoService.findById(anyInt())).thenReturn(Optional.of(componentRepo));
 		
 		when(projectDependenceService.buildDependenceExists(anyInt(), anyInt(), anyString())).thenReturn(false);
 		
