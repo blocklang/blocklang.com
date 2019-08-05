@@ -55,8 +55,9 @@ Status: 201 CREATED
 ```json
 {
     "componentRepo": {},
+    "componentRepoVersion": {},
     "apiRepo": {},
-    "componentRepoVersionId": 1
+    "apiRepoVersion": {}
 }
 ```
 
@@ -77,18 +78,35 @@ componentRepo 中的字段为：
 | `category`        | `string` | 组件库分类         |
 | `lastPublishTime` | `string` | 最近发布时间       |
 
+componentRepoVersion 中的字段为：
+
+| Name               | Type     | Description      |
+| ------------------ | -------- | ---------------- |
+| `id`               | `int`    | 发行版标识       |
+| `componentRepoId`  | `int`    | 组件仓库标识     |
+| `version`          | `string` | 组件库的版本号   |
+| `apiRepoVersionId` | `int`    | API 库的版本标识 |
+
 apiRepo 中的字段为：
 
-| Name              | Type     | Description        |
-| ----------------- | -------- | ------------------ |
-| `id`              | `int`    | 发行版标识         |
-| `gitRepoUrl`      | `string` | git 仓库地址       |
-| `gitRepoWebsite`  | `string` | git 仓库网站       |
-| `gitRepoOwner`    | `string` | git 仓库拥有者     |
-| `gitRepoName`     | `string` | git 仓库名称       |
-| `name`            | `string` | 组件库的名称       |
-| `version`         | `string` | 组件库的版本号     |
-| `label`           | `string` | 组件库的显示名     |
-| `description`     | `string` | 组件库的详细说明   |
-| `category`        | `string` | 组件库分类         |
-| `lastPublishTime` | `string` | 最近发布时间       |
+| Name              | Type     | Description      |
+| ----------------- | -------- | ---------------- |
+| `id`              | `int`    | 发行版标识       |
+| `gitRepoUrl`      | `string` | git 仓库地址     |
+| `gitRepoWebsite`  | `string` | git 仓库网站     |
+| `gitRepoOwner`    | `string` | git 仓库拥有者   |
+| `gitRepoName`     | `string` | git 仓库名称     |
+| `name`            | `string` | 组件库的名称     |
+| `version`         | `string` | 组件库的版本号   |
+| `label`           | `string` | 组件库的显示名   |
+| `description`     | `string` | 组件库的详细说明 |
+| `category`        | `string` | 组件库分类       |
+| `lastPublishTime` | `string` | 最近发布时间     |
+
+apiRepoVersion 中的字段为：
+
+| Name        | Type     | Description        |
+| ----------- | -------- | ------------------ |
+| `id`        | `int`    | 发行版标识         |
+| `apiRepoId` | `int`    | API 组件库标识     |
+| `version`   | `string` | API 组件库的版本号 |
