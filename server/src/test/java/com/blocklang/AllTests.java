@@ -38,8 +38,10 @@ import com.blocklang.develop.service.impl.ProjectServiceImplTest;
 import com.blocklang.marketplace.controller.ComponentRepoControllerTest;
 import com.blocklang.marketplace.controller.ComponentRepoPublishTaskControllerTest;
 import com.blocklang.marketplace.data.LocalRepoPathTest;
+import com.blocklang.marketplace.service.impl.ApiRepoVersionServiceImplTest;
 import com.blocklang.marketplace.service.impl.ComponentRepoPublishTaskServiceImplTest;
 import com.blocklang.marketplace.service.impl.ComponentRepoServiceImplTest;
+import com.blocklang.marketplace.service.impl.ComponentRepoVersionServiceImplTest;
 import com.blocklang.marketplace.service.impl.PublishServiceImplTest;
 import com.blocklang.marketplace.task.ApiChangeLogValidateTaskTest;
 import com.blocklang.marketplace.task.MarketplacePublishContextTest;
@@ -128,6 +130,8 @@ import com.blocklang.release.task.GitTagTaskTest;
 	ComponentRepoPublishTaskServiceImplTest.class,
 	ComponentRepoServiceImplTest.class,
 	PublishServiceImplTest.class,
+	ComponentRepoVersionServiceImplTest.class,
+	ApiRepoVersionServiceImplTest.class,
 	
 	// model
 	ProjectResourceTest.class,

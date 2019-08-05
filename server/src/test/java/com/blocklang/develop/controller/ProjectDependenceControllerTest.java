@@ -33,9 +33,13 @@ import com.blocklang.develop.service.ProjectDependenceService;
 import com.blocklang.develop.service.ProjectResourceService;
 import com.blocklang.develop.service.ProjectService;
 import com.blocklang.marketplace.model.ApiRepo;
+import com.blocklang.marketplace.model.ApiRepoVersion;
 import com.blocklang.marketplace.model.ComponentRepo;
+import com.blocklang.marketplace.model.ComponentRepoVersion;
 import com.blocklang.marketplace.service.ApiRepoService;
+import com.blocklang.marketplace.service.ApiRepoVersionService;
 import com.blocklang.marketplace.service.ComponentRepoService;
+import com.blocklang.marketplace.service.ComponentRepoVersionService;
 
 import io.restassured.http.ContentType;
 
@@ -53,7 +57,11 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 	@MockBean
 	private ComponentRepoService componentRepoService;
 	@MockBean
+	private ComponentRepoVersionService componentRepoVersionService;
+	@MockBean
 	private ApiRepoService apiRepoService;
+	@MockBean
+	private ApiRepoVersionService apiRepoVersionService;
 
 	@Test
 	public void get_dependence_project_not_found() {
@@ -268,6 +276,13 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 		ApiRepo apiRepo = new ApiRepo();
 		when(apiRepoService.findById(anyInt())).thenReturn(Optional.of(apiRepo));
 		
+		ComponentRepoVersion componentRepoVersion = new ComponentRepoVersion();
+		componentRepoVersion.setApiRepoVersionId(1);
+		when(componentRepoVersionService.findById(anyInt())).thenReturn(Optional.of(componentRepoVersion));
+		
+		ApiRepoVersion apiRepoVersion = new ApiRepoVersion();
+		when(apiRepoVersionService.findById(anyInt())).thenReturn(Optional.of(apiRepoVersion));
+		
 		AddDependenceParam param = new AddDependenceParam();
 		param.setComponentRepoId(1);
 		given()
@@ -277,9 +292,10 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 			.post("/projects/{owner}/{projectName}/dependences", "jack", "project")
 		.then()
 			.statusCode(HttpStatus.SC_CREATED)
-			.body("componentRepoVersionId", is(2),
-					"componentRepo", is(notNullValue()),
-					"apiRepo", is(notNullValue()));
+			.body("componentRepo", is(notNullValue()),
+					"componentRepoVersion", is(notNullValue()),
+					"apiRepo", is(notNullValue()),
+					"apiRepoVersion", is(notNullValue()));
 		
 		verify(projectDependenceService).save(anyInt(), any(), any());
 	}

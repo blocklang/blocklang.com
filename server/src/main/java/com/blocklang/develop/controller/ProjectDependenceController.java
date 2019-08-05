@@ -36,9 +36,13 @@ import com.blocklang.develop.model.ProjectResource;
 import com.blocklang.develop.service.ProjectDependenceService;
 import com.blocklang.develop.service.ProjectResourceService;
 import com.blocklang.marketplace.model.ApiRepo;
+import com.blocklang.marketplace.model.ApiRepoVersion;
 import com.blocklang.marketplace.model.ComponentRepo;
+import com.blocklang.marketplace.model.ComponentRepoVersion;
 import com.blocklang.marketplace.service.ApiRepoService;
+import com.blocklang.marketplace.service.ApiRepoVersionService;
 import com.blocklang.marketplace.service.ComponentRepoService;
+import com.blocklang.marketplace.service.ComponentRepoVersionService;
 
 /**
  * 项目依赖
@@ -60,7 +64,11 @@ public class ProjectDependenceController extends AbstractProjectController{
 	@Autowired
 	private ComponentRepoService componentRepoService;
 	@Autowired
+	private ComponentRepoVersionService componentRepoVersionService;
+	@Autowired
 	private ApiRepoService apiRepoService;
+	@Autowired
+	private ApiRepoVersionService apiRepoVersionService;
 
 	/**
 	 * 获取 dependence 资源信息
@@ -158,7 +166,18 @@ public class ProjectDependenceController extends AbstractProjectController{
 			return new ResourceNotFoundException();
 		});
 		
-		ProjectDependenceData result = new ProjectDependenceData(componentRepo, apiRepo, savedProjectDependence.getComponentRepoVersionId());
+		ComponentRepoVersion componentRepoVersion = componentRepoVersionService.findById(savedProjectDependence.getComponentRepoVersionId()).orElseThrow(() -> {
+			logger.error("组件仓库 {0} 没有找到 ID 为 {1} 版本号", componentRepo.getName(), savedProjectDependence.getComponentRepoVersionId());
+			return new ResourceNotFoundException();
+		});
+		
+		ApiRepoVersion apiRepoVersion = apiRepoVersionService.findById(componentRepoVersion.getApiRepoVersionId()).orElseThrow(() -> {
+			logger.error("API 仓库 {0} 没有找到 ID 为 {1} 版本号", apiRepo.getName(), componentRepoVersion.getApiRepoVersionId());
+			return new ResourceNotFoundException();
+		});
+		
+		
+		ProjectDependenceData result = new ProjectDependenceData(componentRepo, componentRepoVersion, apiRepo, apiRepoVersion);
 		return new ResponseEntity<ProjectDependenceData>(result, HttpStatus.CREATED);
 	}
 	
