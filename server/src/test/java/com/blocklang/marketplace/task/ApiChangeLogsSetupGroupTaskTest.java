@@ -163,8 +163,6 @@ public class ApiChangeLogsSetupGroupTaskTest extends AbstractServiceTest {
 		changeLog.setMd5Sum("md5Sum");
 		List<Change> changes = new ArrayList<Change>();
 		NewWidgetChange change1 = new NewWidgetChange();
-		// FIXME: appType 放在 api 中是否合适？是不是放在组件库中更合适？
-		change1.setAppType(Arrays.asList("web", "wechat"));
 		change1.setName("Widget1");
 		change1.setLabel("Widget 1");
 		

@@ -8,7 +8,6 @@ public class NewWidgetChange implements Change {
 	private String label;
 	private String description;
 	private String iconClass;
-	private List<String> appType;
 	private List<WidgetProperty> properties;
 	private List<WidgetEvent> events;
 
@@ -42,14 +41,6 @@ public class NewWidgetChange implements Change {
 
 	public void setIconClass(String iconClass) {
 		this.iconClass = iconClass;
-	}
-
-	public List<String> getAppType() {
-		return appType;
-	}
-
-	public void setAppType(List<String> appType) {
-		this.appType = appType;
 	}
 
 	public List<WidgetProperty> getProperties() {

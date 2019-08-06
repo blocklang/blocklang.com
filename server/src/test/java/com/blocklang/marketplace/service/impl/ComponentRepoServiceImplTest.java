@@ -14,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 
 import com.blocklang.core.test.AbstractServiceTest;
+import com.blocklang.develop.constant.AppType;
 import com.blocklang.marketplace.constant.Language;
 import com.blocklang.marketplace.constant.RepoCategory;
 import com.blocklang.marketplace.dao.ComponentRepoDao;
@@ -53,6 +54,7 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		repo.setCreateUserId(1);
 		repo.setCreateTime(LocalDateTime.now());
 		repo.setLanguage(Language.TYPESCRIPT);
+		repo.setAppType(AppType.WEB);
 		componentRepoDao.save(repo);
 		
 		Page<ComponentRepoInfo> result = componentRepoService.findAllByNameOrLabel("", PageRequest.of(0, 10));
@@ -66,19 +68,20 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 	// 如果没有设置 publishTime, 也要能查出来
 	@Test
 	public void find_all_by_name_or_label_query_is_not_empty_not_include_unpublished_repo() {
-		ComponentRepo registry = new ComponentRepo();
-		registry.setApiRepoId(1);
-		registry.setGitRepoUrl("url");
-		registry.setGitRepoWebsite("website");
-		registry.setGitRepoOwner("jack");
-		registry.setGitRepoName("repo");
-		registry.setName("name");
-		registry.setVersion("version");
-		registry.setCategory(RepoCategory.WIDGET);
-		registry.setCreateUserId(1);
-		registry.setCreateTime(LocalDateTime.now());
-		registry.setLanguage(Language.TYPESCRIPT);
-		componentRepoDao.save(registry);
+		ComponentRepo repo = new ComponentRepo();
+		repo.setApiRepoId(1);
+		repo.setGitRepoUrl("url");
+		repo.setGitRepoWebsite("website");
+		repo.setGitRepoOwner("jack");
+		repo.setGitRepoName("repo");
+		repo.setName("name");
+		repo.setVersion("version");
+		repo.setCategory(RepoCategory.WIDGET);
+		repo.setCreateUserId(1);
+		repo.setCreateTime(LocalDateTime.now());
+		repo.setLanguage(Language.TYPESCRIPT);
+		repo.setAppType(AppType.WEB);
+		componentRepoDao.save(repo);
 		
 		Page<ComponentRepoInfo> result = componentRepoService.findAllByNameOrLabel("name", PageRequest.of(0, 10));
 		assertThat(result.getContent()).hasSize(1);
@@ -91,20 +94,21 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 	// 如果没有设置 publishTime, 也要能查出来
 	@Test
 	public void find_all_by_name_or_label_label_is_not_empty_not_include_unpublished_repo() {
-		ComponentRepo registry = new ComponentRepo();
-		registry.setApiRepoId(1);
-		registry.setGitRepoUrl("url");
-		registry.setGitRepoWebsite("website");
-		registry.setGitRepoOwner("jack");
-		registry.setGitRepoName("repo");
-		registry.setName("name");
-		registry.setLabel("label");
-		registry.setVersion("version");
-		registry.setCategory(RepoCategory.WIDGET);
-		registry.setCreateUserId(1);
-		registry.setCreateTime(LocalDateTime.now());
-		registry.setLanguage(Language.TYPESCRIPT);
-		componentRepoDao.save(registry);
+		ComponentRepo repo = new ComponentRepo();
+		repo.setApiRepoId(1);
+		repo.setGitRepoUrl("url");
+		repo.setGitRepoWebsite("website");
+		repo.setGitRepoOwner("jack");
+		repo.setGitRepoName("repo");
+		repo.setName("name");
+		repo.setLabel("label");
+		repo.setVersion("version");
+		repo.setCategory(RepoCategory.WIDGET);
+		repo.setCreateUserId(1);
+		repo.setCreateTime(LocalDateTime.now());
+		repo.setLanguage(Language.TYPESCRIPT);
+		repo.setAppType(AppType.WEB);
+		componentRepoDao.save(repo);
 		
 		Page<ComponentRepoInfo> result = componentRepoService.findAllByNameOrLabel("label", PageRequest.of(0, 10));
 		assertThat(result.getContent()).hasSize(1);
@@ -116,20 +120,21 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void find_all_by_name_or_label_query_is_empty_include_published_repo() {
-		ComponentRepo registry = new ComponentRepo();
-		registry.setApiRepoId(1);
-		registry.setGitRepoUrl("url");
-		registry.setGitRepoWebsite("website");
-		registry.setGitRepoOwner("jack");
-		registry.setGitRepoName("repo");
-		registry.setName("name");
-		registry.setVersion("version");
-		registry.setCategory(RepoCategory.WIDGET);
-		registry.setCreateUserId(1);
-		registry.setCreateTime(LocalDateTime.now());
-		registry.setLastPublishTime(LocalDateTime.now());
-		registry.setLanguage(Language.TYPESCRIPT);
-		componentRepoDao.save(registry);
+		ComponentRepo repo = new ComponentRepo();
+		repo.setApiRepoId(1);
+		repo.setGitRepoUrl("url");
+		repo.setGitRepoWebsite("website");
+		repo.setGitRepoOwner("jack");
+		repo.setGitRepoName("repo");
+		repo.setName("name");
+		repo.setVersion("version");
+		repo.setCategory(RepoCategory.WIDGET);
+		repo.setCreateUserId(1);
+		repo.setCreateTime(LocalDateTime.now());
+		repo.setLastPublishTime(LocalDateTime.now());
+		repo.setLanguage(Language.TYPESCRIPT);
+		repo.setAppType(AppType.WEB);
+		componentRepoDao.save(repo);
 		
 		Page<ComponentRepoInfo> result = componentRepoService.findAllByNameOrLabel("", PageRequest.of(0, 10));
 		assertThat(result.getContent()).hasSize(1);
@@ -141,20 +146,21 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void find_all_by_name_or_label_match_name_include_published_repo() {
-		ComponentRepo registry = new ComponentRepo();
-		registry.setApiRepoId(1);
-		registry.setGitRepoUrl("url");
-		registry.setGitRepoWebsite("website");
-		registry.setGitRepoOwner("jack");
-		registry.setGitRepoName("repo");
-		registry.setName("name");
-		registry.setVersion("version");
-		registry.setCategory(RepoCategory.WIDGET);
-		registry.setCreateUserId(1);
-		registry.setCreateTime(LocalDateTime.now());
-		registry.setLastPublishTime(LocalDateTime.now());
-		registry.setLanguage(Language.TYPESCRIPT);
-		componentRepoDao.save(registry);
+		ComponentRepo repo = new ComponentRepo();
+		repo.setApiRepoId(1);
+		repo.setGitRepoUrl("url");
+		repo.setGitRepoWebsite("website");
+		repo.setGitRepoOwner("jack");
+		repo.setGitRepoName("repo");
+		repo.setName("name");
+		repo.setVersion("version");
+		repo.setCategory(RepoCategory.WIDGET);
+		repo.setCreateUserId(1);
+		repo.setCreateTime(LocalDateTime.now());
+		repo.setLastPublishTime(LocalDateTime.now());
+		repo.setLanguage(Language.TYPESCRIPT);
+		repo.setAppType(AppType.WEB);
+		componentRepoDao.save(repo);
 		
 		Page<ComponentRepoInfo> result = componentRepoService.findAllByNameOrLabel("name", PageRequest.of(0, 10));
 		assertThat(result.getContent()).hasSize(1);
@@ -166,20 +172,21 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void find_all_by_name_or_label_match_name_ignore_case_include_published_repo() {
-		ComponentRepo registry = new ComponentRepo();
-		registry.setApiRepoId(1);
-		registry.setGitRepoUrl("url");
-		registry.setGitRepoWebsite("website");
-		registry.setGitRepoOwner("jack");
-		registry.setGitRepoName("repo");
-		registry.setName("name");
-		registry.setVersion("version");
-		registry.setCategory(RepoCategory.WIDGET);
-		registry.setCreateUserId(1);
-		registry.setCreateTime(LocalDateTime.now());
-		registry.setLastPublishTime(LocalDateTime.now());
-		registry.setLanguage(Language.TYPESCRIPT);
-		componentRepoDao.save(registry);
+		ComponentRepo repo = new ComponentRepo();
+		repo.setApiRepoId(1);
+		repo.setGitRepoUrl("url");
+		repo.setGitRepoWebsite("website");
+		repo.setGitRepoOwner("jack");
+		repo.setGitRepoName("repo");
+		repo.setName("name");
+		repo.setVersion("version");
+		repo.setCategory(RepoCategory.WIDGET);
+		repo.setCreateUserId(1);
+		repo.setCreateTime(LocalDateTime.now());
+		repo.setLastPublishTime(LocalDateTime.now());
+		repo.setLanguage(Language.TYPESCRIPT);
+		repo.setAppType(AppType.WEB);
+		componentRepoDao.save(repo);
 		
 		Page<ComponentRepoInfo> result = componentRepoService.findAllByNameOrLabel("NAME", PageRequest.of(0, 10));
 		assertThat(result.getContent()).hasSize(1);
@@ -191,21 +198,22 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void find_all_by_name_or_label_match_label_include_published_repo() {
-		ComponentRepo registry = new ComponentRepo();
-		registry.setApiRepoId(1);
-		registry.setGitRepoUrl("url");
-		registry.setGitRepoWebsite("website");
-		registry.setGitRepoOwner("jack");
-		registry.setGitRepoName("repo");
-		registry.setName("name");
-		registry.setVersion("version");
-		registry.setLabel("label");
-		registry.setCategory(RepoCategory.WIDGET);
-		registry.setCreateUserId(1);
-		registry.setCreateTime(LocalDateTime.now());
-		registry.setLastPublishTime(LocalDateTime.now());
-		registry.setLanguage(Language.TYPESCRIPT);
-		componentRepoDao.save(registry);
+		ComponentRepo repo = new ComponentRepo();
+		repo.setApiRepoId(1);
+		repo.setGitRepoUrl("url");
+		repo.setGitRepoWebsite("website");
+		repo.setGitRepoOwner("jack");
+		repo.setGitRepoName("repo");
+		repo.setName("name");
+		repo.setVersion("version");
+		repo.setLabel("label");
+		repo.setCategory(RepoCategory.WIDGET);
+		repo.setCreateUserId(1);
+		repo.setCreateTime(LocalDateTime.now());
+		repo.setLastPublishTime(LocalDateTime.now());
+		repo.setLanguage(Language.TYPESCRIPT);
+		repo.setAppType(AppType.WEB);
+		componentRepoDao.save(repo);
 		
 		Page<ComponentRepoInfo> result = componentRepoService.findAllByNameOrLabel("label", PageRequest.of(0, 10));
 		assertThat(result.getContent()).hasSize(1);
@@ -217,21 +225,22 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void find_all_by_name_or_label_match_label_ignore_case_include_published_repo() {
-		ComponentRepo registry = new ComponentRepo();
-		registry.setApiRepoId(1);
-		registry.setGitRepoUrl("url");
-		registry.setGitRepoWebsite("website");
-		registry.setGitRepoOwner("jack");
-		registry.setGitRepoName("repo");
-		registry.setName("name");
-		registry.setLabel("label");
-		registry.setVersion("version");
-		registry.setCategory(RepoCategory.WIDGET);
-		registry.setCreateUserId(1);
-		registry.setCreateTime(LocalDateTime.now());
-		registry.setLastPublishTime(LocalDateTime.now());
-		registry.setLanguage(Language.TYPESCRIPT);
-		componentRepoDao.save(registry);
+		ComponentRepo repo = new ComponentRepo();
+		repo.setApiRepoId(1);
+		repo.setGitRepoUrl("url");
+		repo.setGitRepoWebsite("website");
+		repo.setGitRepoOwner("jack");
+		repo.setGitRepoName("repo");
+		repo.setName("name");
+		repo.setLabel("label");
+		repo.setVersion("version");
+		repo.setCategory(RepoCategory.WIDGET);
+		repo.setCreateUserId(1);
+		repo.setCreateTime(LocalDateTime.now());
+		repo.setLastPublishTime(LocalDateTime.now());
+		repo.setLanguage(Language.TYPESCRIPT);
+		repo.setAppType(AppType.WEB);
+		componentRepoDao.save(repo);
 		
 		Page<ComponentRepoInfo> result = componentRepoService.findAllByNameOrLabel("LABEL", PageRequest.of(0, 10));
 		assertThat(result.getContent()).hasSize(1);
@@ -243,20 +252,21 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void find_all_by_name_or_label_match_name_like() {
-		ComponentRepo registry = new ComponentRepo();
-		registry.setApiRepoId(1);
-		registry.setGitRepoUrl("url");
-		registry.setGitRepoWebsite("website");
-		registry.setGitRepoOwner("jack");
-		registry.setGitRepoName("repo");
-		registry.setName("name");
-		registry.setVersion("version");
-		registry.setCategory(RepoCategory.WIDGET);
-		registry.setCreateUserId(1);
-		registry.setCreateTime(LocalDateTime.now());
-		registry.setLastPublishTime(LocalDateTime.now());
-		registry.setLanguage(Language.TYPESCRIPT);
-		componentRepoDao.save(registry);
+		ComponentRepo repo = new ComponentRepo();
+		repo.setApiRepoId(1);
+		repo.setGitRepoUrl("url");
+		repo.setGitRepoWebsite("website");
+		repo.setGitRepoOwner("jack");
+		repo.setGitRepoName("repo");
+		repo.setName("name");
+		repo.setVersion("version");
+		repo.setCategory(RepoCategory.WIDGET);
+		repo.setCreateUserId(1);
+		repo.setCreateTime(LocalDateTime.now());
+		repo.setLastPublishTime(LocalDateTime.now());
+		repo.setLanguage(Language.TYPESCRIPT);
+		repo.setAppType(AppType.WEB);
+		componentRepoDao.save(repo);
 		
 		Page<ComponentRepoInfo> result = componentRepoService.findAllByNameOrLabel("am", PageRequest.of(0, 10));
 		assertThat(result.getContent()).hasSize(1);
@@ -268,35 +278,37 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void find_all_by_name_or_label_order_by_last_publish_time_desc() {
-		ComponentRepo registry = new ComponentRepo();
-		registry.setApiRepoId(1);
-		registry.setGitRepoUrl("url");
-		registry.setGitRepoWebsite("website");
-		registry.setGitRepoOwner("jack");
-		registry.setGitRepoName("repo");
-		registry.setName("nameb");
-		registry.setVersion("version");
-		registry.setCategory(RepoCategory.WIDGET);
-		registry.setCreateUserId(1);
-		registry.setCreateTime(LocalDateTime.now());
-		registry.setLastPublishTime(LocalDateTime.now().minusSeconds(2));
-		registry.setLanguage(Language.TYPESCRIPT);
-		componentRepoDao.save(registry);
+		ComponentRepo repo = new ComponentRepo();
+		repo.setApiRepoId(1);
+		repo.setGitRepoUrl("url");
+		repo.setGitRepoWebsite("website");
+		repo.setGitRepoOwner("jack");
+		repo.setGitRepoName("repo");
+		repo.setName("nameb");
+		repo.setVersion("version");
+		repo.setCategory(RepoCategory.WIDGET);
+		repo.setCreateUserId(1);
+		repo.setCreateTime(LocalDateTime.now());
+		repo.setLastPublishTime(LocalDateTime.now().minusSeconds(2));
+		repo.setLanguage(Language.TYPESCRIPT);
+		repo.setAppType(AppType.WEB);
+		componentRepoDao.save(repo);
 		
-		registry = new ComponentRepo();
-		registry.setApiRepoId(1);
-		registry.setGitRepoUrl("url1");
-		registry.setGitRepoWebsite("website1");
-		registry.setGitRepoOwner("jack1");
-		registry.setGitRepoName("repo1");
-		registry.setName("namea");
-		registry.setVersion("version1");
-		registry.setCategory(RepoCategory.WIDGET);
-		registry.setCreateUserId(1);
-		registry.setCreateTime(LocalDateTime.now());
-		registry.setLastPublishTime(LocalDateTime.now());
-		registry.setLanguage(Language.TYPESCRIPT);
-		componentRepoDao.save(registry);
+		repo = new ComponentRepo();
+		repo.setApiRepoId(1);
+		repo.setGitRepoUrl("url1");
+		repo.setGitRepoWebsite("website1");
+		repo.setGitRepoOwner("jack1");
+		repo.setGitRepoName("repo1");
+		repo.setName("namea");
+		repo.setVersion("version1");
+		repo.setCategory(RepoCategory.WIDGET);
+		repo.setCreateUserId(1);
+		repo.setCreateTime(LocalDateTime.now());
+		repo.setLastPublishTime(LocalDateTime.now());
+		repo.setLanguage(Language.TYPESCRIPT);
+		repo.setAppType(AppType.WEB);
+		componentRepoDao.save(repo);
 		
 		Page<ComponentRepoInfo> result = componentRepoService.findAllByNameOrLabel("name", PageRequest.of(0, 10, Sort.by(Direction.ASC, "name")));
 		assertThat(result.getContent()).hasSize(2);
@@ -330,6 +342,7 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		repo.setCreateUserId(createUserId);
 		repo.setCreateTime(LocalDateTime.now());
 		repo.setLanguage(Language.TYPESCRIPT);
+		repo.setAppType(AppType.WEB);
 		componentRepoDao.save(repo);
 		
 		repo = new ComponentRepo();
@@ -344,6 +357,7 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		repo.setCreateUserId(2);
 		repo.setCreateTime(LocalDateTime.now());
 		repo.setLanguage(Language.TYPESCRIPT);
+		repo.setAppType(AppType.WEB);
 		componentRepoDao.save(repo);
 		
 		List<ComponentRepoInfo> componentRepos = componentRepoService.findUserComponentRepos(1);
@@ -366,6 +380,7 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		repo.setCreateUserId(createUserId);
 		repo.setCreateTime(LocalDateTime.now());
 		repo.setLanguage(Language.TYPESCRIPT);
+		repo.setAppType(AppType.WEB);
 		componentRepoDao.save(repo);
 		
 		repo = new ComponentRepo();
@@ -380,6 +395,7 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		repo.setCreateUserId(createUserId);
 		repo.setCreateTime(LocalDateTime.now());
 		repo.setLanguage(Language.TYPESCRIPT);
+		repo.setAppType(AppType.WEB);
 		componentRepoDao.save(repo);
 		
 		List<ComponentRepoInfo> componentRepos = componentRepoService.findUserComponentRepos(createUserId);
@@ -407,6 +423,7 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		repo.setCreateUserId(createUserId);
 		repo.setCreateTime(LocalDateTime.now());
 		repo.setLanguage(Language.TYPESCRIPT);
+		repo.setAppType(AppType.WEB);
 		componentRepoDao.save(repo);
 		
 		assertThat(componentRepoService.existsByCreateUserIdAndGitRepoUrl(1, "https://a.com/jack/repo")).isTrue();
@@ -431,6 +448,7 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		repo.setCreateUserId(1);
 		repo.setCreateTime(LocalDateTime.now());
 		repo.setLanguage(Language.TYPESCRIPT);
+		repo.setAppType(AppType.WEB);
 		ComponentRepo savedRepo = componentRepoDao.save(repo);
 		
 		assertThat(componentRepoService.findById(savedRepo.getId())).isPresent();

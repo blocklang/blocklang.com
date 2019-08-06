@@ -8,7 +8,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 import com.blocklang.core.util.StringUtils;
-import com.blocklang.develop.constant.AppType;
 import com.blocklang.marketplace.constant.ComponentAttrValueType;
 import com.blocklang.marketplace.data.changelog.Change;
 import com.blocklang.marketplace.data.changelog.ChangeLog;
@@ -31,15 +30,12 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 	private List<String> childKeysForRoot = Arrays.asList("id", "author", "changes");
 	
 	private List<String> operators = Arrays.asList("newWidget");
-	private List<String> newWidgetKeys = Arrays.asList("name", "label", "description", "iconClass", "appType", "properties", "events");
+	private List<String> newWidgetKeys = Arrays.asList("name", "label", "description", "iconClass", "properties", "events");
 	private List<String> widgetPropertyKeys = Arrays.asList("name", "label", "defaultValue", "valueType", "description", "options");
 	private List<String> widgetEventKeys = Arrays.asList("name", "label", "valueType", "description", "arguments");
 	private List<String> widgetPropertyOptionKeys = Arrays.asList("value", "label", "description", "iconClass");
 	private List<String> widgetEventArgumentKeys = Arrays.asList("name", "label", "defaultValue", "valueType", "description");
-	/**
-	 * @see AppType
-	 */
-	private List<String> appTypes = Arrays.asList("web", "wechat");
+	
 	/**
 	 * @see ComponentAttrValueType
 	 * 
@@ -267,25 +263,7 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 			logger.error("iconClass 的值必须是字符串类型");
 			hasErrors = true;
 		}
-		
-		// appType
-		// TODO: 目前还未确定 appType 放在此处是否合适，先将此字段按非必填处理
-		Object appTypeObj = newWidgetMap.get("appType");
-		if(appTypeObj != null) {
-			if(!List.class.isAssignableFrom(appTypeObj.getClass())) {
-				logger.error("appType 的值必须是字符串类型的数组");
-				hasErrors = true;
-			} else {
-				List<Object> appTypeList = (List<Object>)appTypeObj;
-				for(Object appType : appTypeList) {
-					if(!this.appTypes.contains(appType)) {
-						logger.error("appType 的值只能是 {0}，不能是 {1}", String.join("、", this.appTypes), appType);
-						hasErrors = true;
-					}
-				}
-			}
-		}
-		
+
 		// properties
 		Object propertiesObj = newWidgetMap.get("properties");
 		if(propertiesObj != null) {
@@ -731,8 +709,6 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 		if(iconClassObj != null) {
 			newWidgetChange.setIconClass(iconClassObj.toString());
 		}
-		
-		newWidgetChange.setAppType((List<String>) newWidgetMap.get("appType"));
 		
 		List<WidgetProperty> properties = new ArrayList<WidgetProperty>();
 		Object propertyObj = newWidgetMap.get("properties");

@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.blocklang.develop.constant.AppType;
 import com.blocklang.marketplace.constant.ChangelogExecuteResult;
 import com.blocklang.marketplace.constant.ComponentAttrValueType;
 import com.blocklang.marketplace.constant.Language;
@@ -383,6 +384,7 @@ public class ApiChangeLogsSetupGroupTask extends AbstractRepoPublishTask {
 			repo.setLogoPath(componentJson.getIcon());
 		}
 		repo.setIsIdeExtension(componentJson.getDev());
+		repo.setAppType(AppType.fromValue(componentJson.getAppType()));
 		repo.setCreateUserId(publishTask.getCreateUserId());
 		repo.setCreateTime(LocalDateTime.now());
 		

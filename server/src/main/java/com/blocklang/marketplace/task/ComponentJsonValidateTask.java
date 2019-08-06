@@ -1,6 +1,7 @@
 package com.blocklang.marketplace.task;
 
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -10,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.transport.URIish;
 
 import com.blocklang.core.git.GitUtils;
+import com.blocklang.develop.constant.AppType;
 import com.blocklang.marketplace.dao.ComponentRepoDao;
 import com.blocklang.marketplace.data.ComponentJson;
 import com.blocklang.marketplace.model.ComponentRepo;
@@ -82,7 +84,7 @@ import de.skuzzle.semantic.Version;
  *
  */
 public class ComponentJsonValidateTask extends AbstractRepoPublishTask {
-
+	
 	private ComponentJson componentJson;
 	
 	private ComponentRepoDao componentRepoDao;
@@ -215,6 +217,20 @@ public class ComponentJsonValidateTask extends AbstractRepoPublishTask {
 			iconHasError = true;
 		}
 		
+		// app type
+		boolean appTypeError = false;
+		String appType = componentJson.getAppType();
+		if(StringUtils.isBlank(appType)) {
+			logger.error("appType - 值不能为空");
+			appTypeError = true;
+		}
+		if(!appTypeError) {
+			if(AppType.fromValue(appType) == AppType.UNKNOWN) {
+				logger.error("appType 的值只能是 {0}，不能是 {1}", String.join("、", Arrays.stream(AppType.values()).map(at -> at.getValue()).toArray(String[]::new)), appType);
+				appTypeError = true;
+			}
+		}
+
 		// api.git
 		boolean apiGitHasError = false;
 		String apiGit = componentJson.getApi().getGit();
@@ -275,7 +291,7 @@ public class ComponentJsonValidateTask extends AbstractRepoPublishTask {
 		}
 
 		boolean success = !(nameHasError || displayNameHasError || versionHasError || categoryHasError || languageHasError
-				|| descriptionHasError || iconHasError || apiGitHasError || apiVersionHasError || componentsHasError);
+				|| descriptionHasError || iconHasError || appTypeError || apiGitHasError || apiVersionHasError || componentsHasError);
 		
 		if(success) {
 			return Optional.of(true);

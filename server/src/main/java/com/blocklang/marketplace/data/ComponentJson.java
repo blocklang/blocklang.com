@@ -4,8 +4,9 @@ public class ComponentJson extends ApiJson{
 
 	private String language;
 	private String icon;
-	private String baseOn;
+	private String baseOn; // FIXME: 该字段尚未使用
 	private Api api;
+	private String appType;
 	private Boolean dev = false;
 
 	public String getLanguage() {
@@ -46,6 +47,14 @@ public class ComponentJson extends ApiJson{
 
 	public void setBaseOn(String baseOn) {
 		this.baseOn = baseOn;
+	}
+
+	public String getAppType() {
+		return appType;
+	}
+
+	public void setAppType(String appType) {
+		this.appType = appType;
 	}
 
 	public class Api {
