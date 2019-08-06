@@ -8,6 +8,7 @@
 | ------------ | ------------ | ------- | ---- | ------ | ---- | ---- |
 | dbid         | 主键         | int     |      |        | 是   | 否   |
 | project_id   | 项目标识     | int     |      |        |      | 否   |
+| app_type     | 程序类型     | char    | 2    |        |      | 否   |
 | profile_name | Profile 名称 | varchar | 64   |        |      | 否   |
 
 ## 约束
@@ -18,4 +19,5 @@
 
 ## 说明
 
-1. `profile_name` 默认会为每个项目生成一个名为 `Default` 的 profile，并且不能修改此此名
+1. 一个项目的每个 `app_type` 有多个 Profile
+2. `profile_name` 默认会为每个项目生成一个名为 `Default` 的 profile，并且不能修改此此名

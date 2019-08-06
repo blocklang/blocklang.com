@@ -14,6 +14,9 @@
 			<column name="project_id" remarks="项目标识" type="int">
 				<constraints nullable="false" />
 			</column>
+			<column name="app_type" remarks="程序类型" type="char(2)">
+				<constraints nullable="false" />
+			</column>
 			<column name="profile_name" remarks="Profile 名称" type="varchar(64)">
 				<constraints nullable="false" />
 			</column>
