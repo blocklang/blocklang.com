@@ -15,7 +15,7 @@
 
 * 主键：`PK_PROJECT_BUILD_PROFILE`
 * 外键：(*未设置*)`FK_PROJECT_BUILD_PROFILE_ON_PROJECT_ID`，`PROJECT_ID` 对应 `PROJECT` 表的 `dbid`
-* 索引：`IDX_PROJECT_BUILD_PROFILE_ON_PROJECT_ID`(普通索引)，对应字段 `project_id`
+* 索引：`UK_PROJECT_BUILD_PROFILE_ON_PROJECT_APP_NAME`(唯一索引)，对应字段 `project_id`、`app_type`、`profile_name`
 
 ## 说明
 
