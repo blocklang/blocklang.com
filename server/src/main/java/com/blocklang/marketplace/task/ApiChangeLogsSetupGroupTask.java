@@ -273,7 +273,7 @@ public class ApiChangeLogsSetupGroupTask extends AbstractRepoPublishTask {
 		apiComponent.setCode(componentCodeGenerator.next());
 		apiComponent.setName(newWidgetChange.getName());
 		apiComponent.setLabel(newWidgetChange.getLabel());
-		// TODO: appType 放在哪里？
+		// appType 不要放在 API 仓库上
 		apiComponent.setDescription(newWidgetChange.getDescription());
 		apiComponent.setCreateTime(LocalDateTime.now());
 		apiComponent.setCreateUserId(publishTask.getCreateUserId());

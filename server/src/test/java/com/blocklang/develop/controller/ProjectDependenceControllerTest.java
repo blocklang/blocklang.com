@@ -192,7 +192,7 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 		repo.setIsIdeExtension(false);
 		when(componentRepoService.findById(anyInt())).thenReturn(Optional.of(repo));
 		
-		when(projectDependenceService.buildDependenceExists(anyInt(), anyInt(), anyString())).thenReturn(true);
+		when(projectDependenceService.buildDependenceExists(anyInt(), anyInt(), any(), anyString())).thenReturn(true);
 		
 		AddDependenceParam param = new AddDependenceParam();
 		param.setComponentRepoId(1);
@@ -267,7 +267,7 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 		componentRepo.setIsIdeExtension(false);
 		when(componentRepoService.findById(anyInt())).thenReturn(Optional.of(componentRepo));
 		
-		when(projectDependenceService.buildDependenceExists(anyInt(), anyInt(), anyString())).thenReturn(false);
+		when(projectDependenceService.buildDependenceExists(anyInt(), anyInt(), any(), anyString())).thenReturn(false);
 		
 		ProjectDependence dependence = new ProjectDependence();
 		dependence.setComponentRepoVersionId(2);

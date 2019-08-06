@@ -13,8 +13,6 @@ public class ProjectDependence extends PartialOperateFields {
 
 	private static final long serialVersionUID = -8084080967211641885L;
 	
-	public static final String DEFAULT_PROFILE_NAME = "Default";
-
 	@Column(name = "project_id", nullable = false)
 	private Integer projectId;
 	
@@ -47,6 +45,5 @@ public class ProjectDependence extends PartialOperateFields {
 	public void setProfileId(Integer profileId) {
 		this.profileId = profileId;
 	}
-	
 	
 }

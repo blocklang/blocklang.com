@@ -1,31 +1,114 @@
 package com.blocklang.develop.service.impl;
 
+import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.blocklang.core.model.UserInfo;
+import com.blocklang.develop.constant.AppType;
+import com.blocklang.develop.dao.ProjectBuildProfileDao;
+import com.blocklang.develop.dao.ProjectDependenceDao;
+import com.blocklang.develop.model.ProjectBuildProfile;
 import com.blocklang.develop.model.ProjectDependence;
 import com.blocklang.develop.service.ProjectDependenceService;
+import com.blocklang.marketplace.dao.ComponentRepoVersionDao;
 import com.blocklang.marketplace.model.ComponentRepo;
+import com.blocklang.marketplace.model.ComponentRepoVersion;
+
+import de.skuzzle.semantic.Version;
 
 @Service
 public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 
-	@Override
-	public Boolean buildDependenceExists(Integer projectId, Integer componentRepoId, String profileName) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+	@Autowired
+	private ComponentRepoVersionDao componentRepoVersionDao;
+	@Autowired
+	private ProjectDependenceDao projectDependenceDao;
+	@Autowired
+	private ProjectBuildProfileDao projectBuildProfileDao;
+	
 	@Override
 	public Boolean devDependenceExists(Integer projectId, Integer componentRepoId) {
-		// TODO Auto-generated method stub
-		return null;
+		List<ComponentRepoVersion> componentRepoVersions = componentRepoVersionDao.findAllByComponentRepoId(componentRepoId);
+		if(componentRepoVersions.isEmpty()) {
+			return false;
+		}
+		List<ProjectDependence> devDependences = projectDependenceDao.findAllByProjectIdAndProfileId(projectId, null);
+		if(devDependences.isEmpty()) {
+			return false;
+		}
+		
+		return componentRepoVersions.stream().anyMatch(version -> {
+			return devDependences.stream().anyMatch(dependence -> {
+				return version.getId().equals(dependence.getComponentRepoVersionId());
+			});
+		});
+	}
+	
+	@Override
+	public Boolean buildDependenceExists(Integer projectId, Integer componentRepoId, AppType appType, String profileName) {
+		List<ComponentRepoVersion> componentRepoVersions = componentRepoVersionDao.findAllByComponentRepoId(componentRepoId);
+		if(componentRepoVersions.isEmpty()) {
+			return false;
+		}
+		// 获取 profile 信息
+		Optional<ProjectBuildProfile> buildProfileOption = projectBuildProfileDao.findByProjectIdAndAppTypeAndNameIgnoreCase(projectId, appType, profileName);
+		if(buildProfileOption.isEmpty()) {
+			return false;
+		}
+		List<ProjectDependence> devDependences = projectDependenceDao.findAllByProjectIdAndProfileId(projectId, buildProfileOption.get().getId());
+		if(devDependences.isEmpty()) {
+			return false;
+		}
+		
+		return componentRepoVersions.stream().anyMatch(version -> {
+			return devDependences.stream().anyMatch(dependence -> {
+				return version.getId().equals(dependence.getComponentRepoVersionId());
+			});
+		});
 	}
 
+	@Transactional
 	@Override
-	public ProjectDependence save(Integer projectId, ComponentRepo componentRepo, UserInfo user) {
-		// TODO Auto-generated method stub
-		return null;
+	public ProjectDependence save(Integer projectId, ComponentRepo componentRepo,  Integer createUserId) {
+		// 获取组件库的最新版本信息
+		List<ComponentRepoVersion> componentRepoVersions = componentRepoVersionDao.findAllByComponentRepoId(componentRepo.getId());
+		if(componentRepoVersions.isEmpty()) {
+			return null;
+		}
+		componentRepoVersions.sort(new Comparator<ComponentRepoVersion>() {
+			@Override
+			public int compare(ComponentRepoVersion version1, ComponentRepoVersion version2) {
+				return Version.compare(Version.parseVersion(version2.getVersion()), Version.parseVersion(version1.getVersion()));
+			}
+		});
+		Integer latestRepoVersionId = componentRepoVersions.get(0).getId();
+		// 为项目生成一个默认的 Profile（如果已存在，则不生成）
+		ProjectBuildProfile profile = projectBuildProfileDao
+			.findByProjectIdAndAppTypeAndNameIgnoreCase(projectId, componentRepo.getAppType(), ProjectBuildProfile.DEFAULT_PROFILE_NAME)
+			.orElseGet(() -> {
+				ProjectBuildProfile p = new ProjectBuildProfile();
+				p.setProjectId(projectId);
+				p.setAppType(componentRepo.getAppType());
+				p.setName(ProjectBuildProfile.DEFAULT_PROFILE_NAME);
+				p.setCreateUserId(createUserId);
+				p.setCreateTime(LocalDateTime.now());
+				return projectBuildProfileDao.save(p);
+			});
+
+		// 为项目添加一个依赖
+		ProjectDependence dependence = new ProjectDependence();
+		dependence.setProjectId(projectId);
+		dependence.setComponentRepoVersionId(latestRepoVersionId);
+		dependence.setProfileId(profile.getId());
+		dependence.setCreateUserId(createUserId);
+		dependence.setCreateTime(LocalDateTime.now());
+		return projectDependenceDao.save(dependence);
 	}
 
 }

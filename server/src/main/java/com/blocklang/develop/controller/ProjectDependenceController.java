@@ -31,6 +31,7 @@ import com.blocklang.develop.constant.ProjectResourceType;
 import com.blocklang.develop.data.AddDependenceParam;
 import com.blocklang.develop.data.ProjectDependenceData;
 import com.blocklang.develop.model.Project;
+import com.blocklang.develop.model.ProjectBuildProfile;
 import com.blocklang.develop.model.ProjectDependence;
 import com.blocklang.develop.model.ProjectResource;
 import com.blocklang.develop.service.ProjectDependenceService;
@@ -148,8 +149,10 @@ public class ProjectDependenceController extends AbstractProjectController{
 			// 后续版本会考虑是否需要支持多个 profile
 			if(projectDependenceService.buildDependenceExists(
 					project.getId(), 
-					param.getComponentRepoId(), 
-					ProjectDependence.DEFAULT_PROFILE_NAME)){
+					componentRepo.getId(),
+					componentRepo.getAppType(),
+					// 从客户端传过来的是 profileName
+					ProjectBuildProfile.DEFAULT_PROFILE_NAME)){
 				logger.error("项目已依赖该组件仓库");
 				bindingResult.rejectValue("componentRepoId", "Duplicated.dependence");
 				throw new InvalidRequestException(bindingResult);
@@ -159,7 +162,7 @@ public class ProjectDependenceController extends AbstractProjectController{
 		UserInfo user = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
 		ensureCanWrite(user, project);
 		
-		ProjectDependence savedProjectDependence = projectDependenceService.save(project.getId(), componentRepo, user);
+		ProjectDependence savedProjectDependence = projectDependenceService.save(project.getId(), componentRepo, user.getId());
 		
 		ApiRepo apiRepo = apiRepoService.findById(componentRepo.getApiRepoId()).orElseThrow(() -> {
 			logger.error("组件仓库 {0} 没有找到对应的 API 仓库", componentRepo.getName());
