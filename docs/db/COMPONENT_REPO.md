@@ -23,6 +23,7 @@
 | language          | 编程语言           | varchar  | 32   |        |      | 否   |
 | last_publish_time | 最近发布时间       | datetime |      |        |      | 是   |
 | is_ide_extension  | 是否 ide 扩展库    | boolean  |      | false  |      | 否   |
+| app_type          | 程序类型           | char     | 2    |        |      | 否   |
 
 ## 约束
 
@@ -42,3 +43,4 @@
 8. 为了避免有人在市场中抢注仓库名，使用 `@{publisher}/{repo}` 的形式唯一定位一个组件库
 9. 一个组件仓库中只能存一类组件
 10. `is_ide_extension` 在可视化的设计器中，需要为 API 仓库编写 IDE 专用的组件，如一个 `TextInput` 部件，在 IDE 中就需要提供展示 `TextInput` 部件的属性和事件的面板，在 IDE 扩展库中就是存储这些组件
+11. `app_type` 的值与页面的 `app_type` 的值相同

@@ -47,5 +47,7 @@
 	
 	<include file="db/changelog/table/201908030828_create_project_build_profile.xml" />
 	<include file="db/changelog/table/201908030838_create_project_dependence.xml" />
+	
+	<include file="db/changelog/table/201908061427_alter_component_repo_add_column_app_type.xml" />
 
 </databaseChangeLog>

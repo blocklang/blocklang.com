@@ -10,6 +10,8 @@ import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import com.blocklang.core.model.PartialOperateFields;
+import com.blocklang.develop.constant.AppType;
+import com.blocklang.develop.constant.converter.AppTypeConverter;
 import com.blocklang.marketplace.constant.Language;
 import com.blocklang.marketplace.constant.RepoCategory;
 import com.blocklang.marketplace.constant.converter.LanguageConverter;
@@ -69,6 +71,10 @@ public class ComponentRepo extends PartialOperateFields {
 	
 	@Column(name = "is_ide_extension", nullable = false)
 	private Boolean isIdeExtension = false;
+	
+	@Convert(converter = AppTypeConverter.class)
+	@Column(name = "app_type", nullable = false, length = 2)
+	private AppType appType;
 
 	@Transient
 	private String createUserName;
@@ -201,6 +207,14 @@ public class ComponentRepo extends PartialOperateFields {
 
 	public void setIsIdeExtension(Boolean isIdeExtension) {
 		this.isIdeExtension = isIdeExtension;
+	}
+
+	public AppType getAppType() {
+		return appType;
+	}
+
+	public void setAppType(AppType appType) {
+		this.appType = appType;
 	}
 
 }
