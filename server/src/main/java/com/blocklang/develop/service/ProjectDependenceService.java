@@ -1,6 +1,9 @@
 package com.blocklang.develop.service;
 
+import java.util.List;
+
 import com.blocklang.develop.constant.AppType;
+import com.blocklang.develop.data.ProjectDependenceData;
 import com.blocklang.develop.model.ProjectDependence;
 import com.blocklang.marketplace.model.ComponentRepo;
 
@@ -27,5 +30,7 @@ public interface ProjectDependenceService {
 	 * @return 如果保存失败则返回 <code>null</code>；否则返回保存后的项目依赖信息
 	 */
 	ProjectDependence save(Integer projectId, ComponentRepo componentRepo, Integer createUserId);
+
+	List<ProjectDependenceData> findByProjectId(Integer projectId);
 
 }

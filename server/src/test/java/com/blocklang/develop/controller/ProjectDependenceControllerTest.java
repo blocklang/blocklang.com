@@ -23,6 +23,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.test.AbstractControllerTest;
 import com.blocklang.develop.constant.AccessLevel;
+import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.data.AddDependenceParam;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectAuthorization;
@@ -190,6 +191,8 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 		
 		ComponentRepo repo = new ComponentRepo();
 		repo.setIsIdeExtension(false);
+		repo.setId(1);
+		repo.setAppType(AppType.WEB);
 		when(componentRepoService.findById(anyInt())).thenReturn(Optional.of(repo));
 		
 		when(projectDependenceService.buildDependenceExists(anyInt(), anyInt(), any(), anyString())).thenReturn(true);
@@ -298,5 +301,52 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 					"apiRepoVersion", is(notNullValue()));
 		
 		verify(projectDependenceService).save(anyInt(), any(), any());
+	}
+	
+	@Test
+	public void list_dependences_project_not_found() {
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/dependences", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND)
+			.body(equalTo(""));
+	}
+	
+	@Test
+	public void list_dependences_anonymous_user_forbidden_access_private_project() {
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(false);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/dependences", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_FORBIDDEN)
+			.body(equalTo(""));
+	}
+
+	@Test
+	public void list_dependences_anonymous_user_can_access_public_project_success() {
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(true);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		when(projectDependenceService.findByProjectId(anyInt())).thenReturn(Collections.emptyList());
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/dependences", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body("size()", is(0));
 	}
 }

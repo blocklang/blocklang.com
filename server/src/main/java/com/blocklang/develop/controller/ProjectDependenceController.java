@@ -3,6 +3,7 @@ package com.blocklang.develop.controller;
 import java.security.Principal;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.validation.Valid;
@@ -182,6 +183,33 @@ public class ProjectDependenceController extends AbstractProjectController{
 		
 		ProjectDependenceData result = new ProjectDependenceData(componentRepo, componentRepoVersion, apiRepo, apiRepoVersion);
 		return new ResponseEntity<ProjectDependenceData>(result, HttpStatus.CREATED);
+	}
+	
+	@GetMapping("/projects/{owner}/{projectName}/dependences")
+	public ResponseEntity<List<ProjectDependenceData>> listDependences(
+			Principal principal,
+			@PathVariable String owner,
+			@PathVariable String projectName) {
+		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
+		
+		if(project.getIsPublic()) {
+			if(principal == null) {
+				project.setAccessLevel(AccessLevel.READ);
+			} else {
+				UserInfo user = userService.findByLoginName(principal.getName()).get();
+				ensureCanRead(user, project);
+			}
+		} else {
+			if(principal == null) {
+				throw new NoAuthorizationException();
+			}
+			
+			UserInfo user = userService.findByLoginName(principal.getName()).get();
+			ensureCanRead(user, project);
+		}
+		
+		List<ProjectDependenceData> result = projectDependenceService.findByProjectId(project.getId());
+		return ResponseEntity.ok(result);
 	}
 	
 }

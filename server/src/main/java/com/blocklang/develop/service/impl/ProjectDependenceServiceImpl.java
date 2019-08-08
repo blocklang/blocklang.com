@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.dao.ProjectBuildProfileDao;
 import com.blocklang.develop.dao.ProjectDependenceDao;
+import com.blocklang.develop.data.ProjectDependenceData;
 import com.blocklang.develop.model.ProjectBuildProfile;
 import com.blocklang.develop.model.ProjectDependence;
 import com.blocklang.develop.service.ProjectDependenceService;
@@ -109,6 +110,12 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 		dependence.setCreateUserId(createUserId);
 		dependence.setCreateTime(LocalDateTime.now());
 		return projectDependenceDao.save(dependence);
+	}
+
+	@Override
+	public List<ProjectDependenceData> findByProjectId(Integer projectId) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
