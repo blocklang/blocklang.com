@@ -116,24 +116,28 @@ public class PublishServiceImpl implements PublishService {
 			logger.info("二、开始解析 API 库中的 {0}", MarketplaceConstant.FILE_NAME_API);
 			ApiJsonParseGroupTask apiJsonParseGroupTask = new ApiJsonParseGroupTask(context);
 			success = apiJsonParseGroupTask.run().isPresent();
+			
+			if(success) {
+				logger.info("解析完成");
+			} else {
+				logger.error("解析失败");
+			}
 		}
-		if(success) {
-			logger.info("解析完成");
-		} else {
-			logger.error("解析失败");
-		}
+		
 		
 		if(success) {
 			logger.info(StringUtils.repeat("-", 45));
 			logger.info("三、开始解析 API 库中的 change log 文件");
 			ApiChangeLogParseGroupTask apiChangeLogParseGroupTask = new ApiChangeLogParseGroupTask(context, apiRepoDao, apiChangeLogDao);
 			success = apiChangeLogParseGroupTask.run().isPresent();
+			
+			if(success) {
+				logger.info("解析完成");
+			} else {
+				logger.error("解析失败");
+			}
 		}
-		if(success) {
-			logger.info("解析完成");
-		} else {
-			logger.error("解析失败");
-		}
+		
 
 		// 开始逐个版本的安装 API
 		if(success) {
