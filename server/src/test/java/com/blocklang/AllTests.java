@@ -26,6 +26,7 @@ import com.blocklang.develop.controller.CommitControllerTest;
 import com.blocklang.develop.controller.GroupControllerTest;
 import com.blocklang.develop.controller.PageControllerTest;
 import com.blocklang.develop.controller.ProjectControllerTest;
+import com.blocklang.develop.controller.ProjectDependenceControllerTest;
 import com.blocklang.develop.controller.PropertyControllerTest;
 import com.blocklang.develop.model.AppGlobalContextTest;
 import com.blocklang.develop.model.ProjectContextTest;
@@ -108,6 +109,7 @@ import com.blocklang.release.task.GitTagTaskTest;
 	CommitControllerTest.class,
 	ComponentRepoControllerTest.class,
 	ComponentRepoPublishTaskControllerTest.class,
+	ProjectDependenceControllerTest.class,
 
 	// service tests
 	AppServiceImplTest.class,
