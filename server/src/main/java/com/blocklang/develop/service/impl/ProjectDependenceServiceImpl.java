@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
@@ -17,7 +18,12 @@ import com.blocklang.develop.data.ProjectDependenceData;
 import com.blocklang.develop.model.ProjectBuildProfile;
 import com.blocklang.develop.model.ProjectDependence;
 import com.blocklang.develop.service.ProjectDependenceService;
+import com.blocklang.marketplace.dao.ApiRepoDao;
+import com.blocklang.marketplace.dao.ApiRepoVersionDao;
+import com.blocklang.marketplace.dao.ComponentRepoDao;
 import com.blocklang.marketplace.dao.ComponentRepoVersionDao;
+import com.blocklang.marketplace.model.ApiRepo;
+import com.blocklang.marketplace.model.ApiRepoVersion;
 import com.blocklang.marketplace.model.ComponentRepo;
 import com.blocklang.marketplace.model.ComponentRepoVersion;
 
@@ -25,13 +31,19 @@ import de.skuzzle.semantic.Version;
 
 @Service
 public class ProjectDependenceServiceImpl implements ProjectDependenceService{
-
-	@Autowired
-	private ComponentRepoVersionDao componentRepoVersionDao;
+	
 	@Autowired
 	private ProjectDependenceDao projectDependenceDao;
 	@Autowired
 	private ProjectBuildProfileDao projectBuildProfileDao;
+	@Autowired
+	private ComponentRepoDao componentRepoDao;
+	@Autowired
+	private ComponentRepoVersionDao componentRepoVersionDao;
+	@Autowired
+	private ApiRepoDao apiRepoDao;
+	@Autowired
+	private ApiRepoVersionDao apiRepoVersionDao;
 	
 	@Override
 	public Boolean devDependenceExists(Integer projectId, Integer componentRepoId) {
@@ -113,9 +125,26 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 	}
 
 	@Override
-	public List<ProjectDependenceData> findByProjectId(Integer projectId) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<ProjectDependenceData> findProjectDependences(Integer projectId) {
+		List<ProjectDependence> dependences = projectDependenceDao.findAllByProjectId(projectId);
+		return dependences.stream().map(dependence -> {
+			ComponentRepoVersion componentRepoVersion = null;
+			ComponentRepo componentRepo = null;
+			ApiRepo apiRepo = null;
+			ApiRepoVersion apiRepoVersion = null;
+			
+			componentRepoVersion = componentRepoVersionDao.findById(dependence.getComponentRepoVersionId()).orElse(null);
+			if(componentRepoVersion != null) {
+				componentRepo = componentRepoDao.findById(componentRepoVersion.getComponentRepoId()).orElse(null);
+				apiRepoVersion = apiRepoVersionDao.findById(componentRepoVersion.getApiRepoVersionId()).orElse(null);
+			}
+			if(apiRepoVersion != null) {
+				apiRepo = apiRepoDao.findById(apiRepoVersion.getApiRepoId()).orElse(null);
+			}
+			
+			ProjectDependenceData data = new ProjectDependenceData(componentRepo, componentRepoVersion, apiRepo, apiRepoVersion);
+			return data;
+		}).collect(Collectors.toList());
 	}
 
 }

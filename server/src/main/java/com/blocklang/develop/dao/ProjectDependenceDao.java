@@ -10,4 +10,6 @@ public interface ProjectDependenceDao extends JpaRepository<ProjectDependence, I
 
 	List<ProjectDependence> findAllByProjectIdAndProfileId(Integer projectId, Integer buildProfileId);
 
+	List<ProjectDependence> findAllByProjectId(Integer projectId);
+
 }

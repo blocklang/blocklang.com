@@ -208,7 +208,7 @@ public class ProjectDependenceController extends AbstractProjectController{
 			ensureCanRead(user, project);
 		}
 		
-		List<ProjectDependenceData> result = projectDependenceService.findByProjectId(project.getId());
+		List<ProjectDependenceData> result = projectDependenceService.findProjectDependences(project.getId());
 		return ResponseEntity.ok(result);
 	}
 	

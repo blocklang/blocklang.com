@@ -23,7 +23,6 @@ public interface ProjectDependenceService {
 	/**
 	 * 本方法会将依赖添加到默认的 Profile 下
 	 * 
-	 * 
 	 * @param projectId
 	 * @param componentRepo
 	 * @param user
@@ -31,6 +30,6 @@ public interface ProjectDependenceService {
 	 */
 	ProjectDependence save(Integer projectId, ComponentRepo componentRepo, Integer createUserId);
 
-	List<ProjectDependenceData> findByProjectId(Integer projectId);
+	List<ProjectDependenceData> findProjectDependences(Integer projectId);
 
 }

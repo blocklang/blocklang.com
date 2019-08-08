@@ -339,7 +339,7 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 		project.setIsPublic(true);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		when(projectDependenceService.findByProjectId(anyInt())).thenReturn(Collections.emptyList());
+		when(projectDependenceService.findProjectDependences(anyInt())).thenReturn(Collections.emptyList());
 		
 		given()
 			.contentType(ContentType.JSON)
