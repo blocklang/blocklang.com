@@ -124,7 +124,6 @@ public class PublishServiceImpl implements PublishService {
 			}
 		}
 		
-		
 		if(success) {
 			logger.info(StringUtils.repeat("-", 45));
 			logger.info("三、开始解析 API 库中的 change log 文件");
@@ -138,7 +137,6 @@ public class PublishServiceImpl implements PublishService {
 			}
 		}
 		
-
 		// 开始逐个版本的安装 API
 		if(success) {
 			logger.info(StringUtils.repeat("-", 45));
@@ -258,8 +256,6 @@ public class PublishServiceImpl implements PublishService {
 		// 扫描 changelog 文件夹，检测配置的是否准确
 		// 当检测通过之后，才开始往数据库中存储 ui 部件的元数据
 		// 编译 ts 文件？
-		
-		
 		
 		// 更新发布任务的状态
 		ReleaseResult releaseResult = success ? ReleaseResult.PASSED : ReleaseResult.FAILED;

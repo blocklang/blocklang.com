@@ -18,6 +18,7 @@ import com.blocklang.marketplace.constant.MarketplaceConstant;
 import com.blocklang.marketplace.dao.ApiChangeLogDao;
 import com.blocklang.marketplace.dao.ApiRepoDao;
 import com.blocklang.marketplace.data.ApiJson;
+import com.blocklang.marketplace.data.LocalRepoPath;
 import com.blocklang.marketplace.data.changelog.ChangeLog;
 import com.blocklang.marketplace.data.changelog.ComponentChangeLogs;
 import com.blocklang.marketplace.model.ApiChangeLog;
@@ -26,12 +27,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class ApiChangeLogParseGroupTask extends AbstractRepoPublishTask {
 
 	private ApiJson apiJson;
+	private LocalRepoPath localApiRepoPath;
 	private ApiRepoDao apiRepoDao;
 	private ApiChangeLogDao apiChangelogDao;
 	
 	public ApiChangeLogParseGroupTask(MarketplacePublishContext context, ApiRepoDao apiRepoDao, ApiChangeLogDao apiChangelogDao) {
 		super(context);
 		this.apiJson = context.getApiJson();
+		this.localApiRepoPath = context.getLocalApiRepoPath();
 		this.apiRepoDao = apiRepoDao;
 		this.apiChangelogDao = apiChangelogDao;
 	}
@@ -39,6 +42,8 @@ public class ApiChangeLogParseGroupTask extends AbstractRepoPublishTask {
 	@Override
 	public Optional<Boolean> run() {
 		boolean success = true;
+		
+		logger.info("API 仓库名为 @{0}/{1}，版本号为 {2}", localApiRepoPath.getOwner(), localApiRepoPath.getRepoName(), apiJson.getVersion());
 		
 		List<String> apiComponents = Arrays.asList(apiJson.getComponents());
 		logger.info("{0} 文件中共存在 {1} 个组件", MarketplaceConstant.FILE_NAME_API, apiComponents.size());
@@ -101,11 +106,14 @@ public class ApiChangeLogParseGroupTask extends AbstractRepoPublishTask {
 		// 按照组件分组，约定日志变更文件是直接存在{componentName}/changelog/ 文件夹下的，所以按照路径截取
 		Map<String, List<ApiChangeLog>> groupedSetupChangeFiles = setupChangeFiles.stream().collect(Collectors.groupingBy(apiChangeLog -> {
 			String fileName = apiChangeLog.getChangelogFileName();
-			return fileName.substring(0, fileName.lastIndexOf("/"));
+			// 同时要删除 /changelog 路径
+			String[] pathes = fileName.split("/");
+			String[] trimedPathes = Arrays.copyOf(pathes, pathes.length - 2);
+			return String.join("/", trimedPathes);
 		}));
 		
 		if(success) {
-			logger.info("校验是否存在，API 变更文件已经安装过，但在 API 项目中却删了此文件");
+			logger.info("校验是否存在，API 变更文件已经安装过，但在 API 项目 {0} 版本中却未找到此文件", apiJson.getVersion());
 			i = 0;
 			for(Map.Entry<String, List<ApiChangeLog>> entry : groupedSetupChangeFiles.entrySet()) {
 				i++;
@@ -126,7 +134,7 @@ public class ApiChangeLogParseGroupTask extends AbstractRepoPublishTask {
 				}
 				for(ApiChangeLog setuped : entry.getValue()) {
 					if(!changeLogsInApiRepo.contains(setuped.getChangelogFileName())) {
-						logger.error("{0} 文件已被删除", setuped.getChangelogFileName());
+						logger.error("{0} 文件不存在", setuped.getChangelogFileName());
 						success = false;
 					}
 				}
@@ -152,7 +160,7 @@ public class ApiChangeLogParseGroupTask extends AbstractRepoPublishTask {
 						if(gitBlobInfo.getPath().equals(apiChangeLog.getChangelogFileName())) {
 							String md5Now = DigestUtils.md5Hex(gitBlobInfo.getContent());
 							if(!apiChangeLog.getMd5Sum().equals(md5Now)) {
-								logger.error("{0} 文件已被修改", apiChangeLog.getChangelogFileName());
+								logger.error("{0} 文件已被修改，请使用最新版本的 API 仓库", apiChangeLog.getChangelogFileName());
 								success = false;
 								break;
 							}
@@ -165,11 +173,11 @@ public class ApiChangeLogParseGroupTask extends AbstractRepoPublishTask {
 			logger.info("不存在");
 		}
 		
+		int unsetupCount = 0;
 		if(success) {
 			// 找到未安装的 API 变更文件
 			logger.info("获取未安装的 API 变更文件");
 			i = 0;
-			int unsetupCount = 0;
 			for(ComponentChangeLogs componentChangeLogs : allComponentChangeLogs) {
 				i++;
 				String componentName = componentChangeLogs.getComponentName();
@@ -193,6 +201,16 @@ public class ApiChangeLogParseGroupTask extends AbstractRepoPublishTask {
 					for(int index = 0; index < setupedChangeLogs.size(); index++) {
 						allChangeLogs.remove(0);
 					}
+					
+					// 获取最新版本号
+					// 如果此部件没有更新，则与 latestPublishVersion 的值相同；
+					// 如果此部件有的 changelog 文件，则获取最新的值
+					if(allChangeLogs.size() == 0) {
+						componentChangeLogs.setNewlyVersion(latestPublishVersion);
+					} else {
+						String fileName = allChangeLogs.get(allChangeLogs.size() - 1).getFileName();
+						componentChangeLogs.setNewlyVersion(parseVersion(fileName));
+					}
 				}
 				
 				unsetupCount += allChangeLogs.size();
@@ -201,11 +219,11 @@ public class ApiChangeLogParseGroupTask extends AbstractRepoPublishTask {
 			
 			if(unsetupCount == 0) {
 				logger.info("已是最新版本");
-				success = false;
 			}
 		}
 		
-		if(success) {
+		// 这里只需要解析未安装文件的内容
+		if(unsetupCount > 0 && success) {
 			// 然后解析 API 安装文件的内容
 			logger.info("开始解析 API 变更文件，将文件内容转换为 Java 对象");
 			ObjectMapper objectMapper = new ObjectMapper();
@@ -250,6 +268,7 @@ public class ApiChangeLogParseGroupTask extends AbstractRepoPublishTask {
 		}
 
 		if(success) {
+			// 只需要传入未安装文件
 			context.setChangeLogs(allComponentChangeLogs);
 			return Optional.of(true);
 		}

@@ -177,32 +177,32 @@ public class ApiChangeLogsSetupGroupTask extends AbstractRepoPublishTask {
 		// 先循环组件，再嵌套循环版本
 		List<ComponentChangeLogs> allChangeLogs = context.getChangeLogs();
 		for(ComponentChangeLogs component : allChangeLogs) {
-			String latestPublishVersion = component.getLatestPublishVersion();
 			String componentCodeSeed = null;
-			if(latestPublishVersion != null) {
+
+			if(component.isFirstSetup()) {
+				CodeGenerator componentCodeGenerator = new CodeGenerator(componentCodeSeed);
+				for(ChangeLog changeLog : component.getChangeLogs()) {
+					Optional<ApiRepoVersion> currentApiRepoVersionOption = apiRepoVersionDao.findByApiRepoIdAndVersion(savedApiRepo.getId(), changeLog.getVersion());
+					if(currentApiRepoVersionOption.isPresent()) {
+						Integer apiRepoVersionId = currentApiRepoVersionOption.get().getId();
+						for(Change change : changeLog.getChanges()) {
+							if(NewWidgetChange.class.isAssignableFrom(change.getClass())) {
+								NewWidgetChange newWidgetChange = (NewWidgetChange)change;
+								this.newWidget(apiRepoVersionId, newWidgetChange, componentCodeGenerator);
+							} else {
+								logger.error("不是有效的变更操作");
+							}
+						}
+					} else {
+						logger.error("在数据库中未能找到 apiRepoId = {0} 和 version = {1} 的记录", savedApiRepo.getId(), changeLog.getVersion());
+						success = false;
+					}
+				}
+			} else if(component.hasNewVersion()) {
 				// 如果之前发布过，需要在上一个版本的基础上增量发布
 				throw new UnsupportedOperationException();
-			}
-			
-			CodeGenerator componentCodeGenerator = new CodeGenerator(componentCodeSeed);
-			for(ChangeLog changeLog : component.getChangeLogs()) {
-				Optional<ApiRepoVersion> currentApiRepoVersionOption = apiRepoVersionDao.findByApiRepoIdAndVersion(savedApiRepo.getId(), changeLog.getVersion());
-				if(currentApiRepoVersionOption.isPresent()) {
-					Integer apiRepoVersionId = currentApiRepoVersionOption.get().getId();
-					for(Change change : changeLog.getChanges()) {
-						if(NewWidgetChange.class.isAssignableFrom(change.getClass())) {
-							NewWidgetChange newWidgetChange = (NewWidgetChange)change;
-							this.newWidget(apiRepoVersionId, newWidgetChange, componentCodeGenerator);
-						} else {
-							logger.error("不是有效的变更操作");
-						}
-					}
-				} else {
-					logger.error("在数据库中未能找到 apiRepoId = {0} 和 version = {1} 的记录", savedApiRepo.getId(), changeLog.getVersion());
-					success = false;
-				}
-				
-				latestPublishVersion = changeLog.getVersion();
+			} else {
+				// 此部件没有新版本，此处什么也不做
 			}
 		}
 		
