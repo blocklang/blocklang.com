@@ -2,6 +2,15 @@ import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
 import { v, w } from '@dojo/framework/widget-core/d';
 import Outlet from '@dojo/framework/routing/Outlet';
 
+import Footer from './pages/Footer';
+
+import About from './widgets/About';
+
+import 'bootstrap';
+
+import * as css from './App.m.css';
+import Exception from './pages/error/Exception';
+
 import HeaderContainer from './containers/HeaderContainer';
 import HomeContainer from './containers/HomeContainer';
 import NewProjectContainer from './containers/project/NewProjectContainer';
@@ -11,14 +20,6 @@ import NewReleaseContainer from './containers/release/NewReleaseContainer';
 import ViewDocumentContainer from './containers/help/ViewDocumentContainer';
 import ProfileContainer from './containers/user/settings/ProfileContainer';
 import CompleteUserInfoContainer from './containers/user/CompleteUserInfoContainer';
-import Footer from './pages/Footer';
-
-import About from './widgets/About';
-
-import 'bootstrap';
-
-import * as css from './App.m.css';
-import Exception from './pages/error/Exception';
 import ViewReleaseContainer from './containers/release/ViewReleaseContainer';
 import NewPageContainer from './containers/resource/NewPageContainer';
 import NewGroupContainer from './containers/resource/NewGroupContainer';
@@ -26,6 +27,11 @@ import ViewProjectGroupContainer from './containers/project/ViewProjectGroupCont
 import ListComponentRepoContainer from './containers/marketplace/ListComponentRepoContainer';
 import ListMyComponentRepoContainer from './containers/user/settings/ListMyComponentRepoContainer';
 import ViewComponentRepoPublishTaskContainer from './containers/user/settings/ViewComponentRepoPublishTaskContainer';
+import ViewProjectReadmeContainer from './containers/project/ViewProjectReadmeContainer';
+import ViewProjectDependenceContainer from './containers/project/ViewProjectDependenceContainer';
+import ViewProjectPageContainer from './containers/project/ViewProjectPageContainer';
+import ViewProjectTempletContainer from './containers/project/ViewProjectTempletContainer';
+import ViewProjectServiceContainer from './containers/project/ViewProjectServiceContainer';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 
@@ -37,6 +43,7 @@ import { faApple } from '@fortawesome/free-brands-svg-icons/faApple';
 import { faWeixin } from '@fortawesome/free-brands-svg-icons/faWeixin';
 import { faAlipay } from '@fortawesome/free-brands-svg-icons/faAlipay';
 import { faJava } from '@fortawesome/free-brands-svg-icons/faJava';
+import { faGitAlt } from '@fortawesome/free-brands-svg-icons/faGitAlt';
 
 import { faFolder } from '@fortawesome/free-solid-svg-icons/faFolder';
 import { faSquare } from '@fortawesome/free-solid-svg-icons/faSquare';
@@ -64,11 +71,6 @@ import { faSearch } from '@fortawesome/free-solid-svg-icons/faSearch';
 import { faLightbulb } from '@fortawesome/free-solid-svg-icons/faLightbulb';
 import { faPuzzlePiece } from '@fortawesome/free-solid-svg-icons/faPuzzlePiece';
 import { faCube } from '@fortawesome/free-solid-svg-icons/faCube';
-import ViewProjectReadmeContainer from './containers/project/ViewProjectReadmeContainer';
-import ViewProjectDependenceContainer from './containers/project/ViewProjectDependenceContainer';
-import ViewProjectPageContainer from './containers/project/ViewProjectPageContainer';
-import ViewProjectTempletContainer from './containers/project/ViewProjectTempletContainer';
-import ViewProjectServiceContainer from './containers/project/ViewProjectServiceContainer';
 
 library.add(
 	faGithub,
@@ -79,6 +81,8 @@ library.add(
 	faWeixin,
 	faAlipay,
 	faJava,
+	faGitAlt,
+
 	faPlus,
 	faBookOpen,
 	faEdit,

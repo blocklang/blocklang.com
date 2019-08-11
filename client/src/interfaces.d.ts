@@ -296,7 +296,7 @@ interface ApiRepo {
 	gitRepoOwner: string;
 	gitRepoName: string;
 	name: string;
-	version: string;
+	version: string; // 必须存在组件市场登记的最新版本号
 	label?: string;
 	description?: string;
 	category: RepoCategory;
@@ -309,6 +309,21 @@ interface ComponentRepo extends ApiRepo {
 	apiRepoId: number;
 	logoPath: string;
 	language: ProgrammingLanguage;
+	isIdeExtension: boolean;
+	appType: string;
+}
+
+interface ApiRepoVersion {
+	id: number;
+	apiRepoId: number;
+	version: string;
+}
+
+interface ComponentRepoVersion {
+	id: number;
+	componentRepoId: number;
+	version: string;
+	apiRepoVersionId: number;
 }
 
 interface ComponentRepoInfo {
@@ -325,7 +340,10 @@ interface ComponentRepoUrlInputValidation {
 	componentRepoUrlErrorMessage?: string;
 }
 
-interface ProjectDependence {}
+interface ProjectDependence extends ComponentRepoInfo {
+	componentRepoVersion: ComponentRepoVersion;
+	apiRepoVersion: ApiRepoVersion;
+}
 
 interface ProjectDependenceResource {
 	resourceId: number;
@@ -356,7 +374,7 @@ export interface State {
 	readme: string;
 	userDeployInfo: DeployInfo;
 
-	// 项目依赖
+	// project dependences
 	projectDependenceResource: ProjectDependenceResource;
 	searchedComponentRepos: ComponentRepoInfo[];
 

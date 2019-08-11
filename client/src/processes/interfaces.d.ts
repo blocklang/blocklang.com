@@ -105,3 +105,7 @@ export interface UrlPayload {
 export interface QueryPayload {
 	query: string;
 }
+
+export interface ProjectDependencePayload extends ProjectPathPayload {
+	componentRepoId: number;
+}

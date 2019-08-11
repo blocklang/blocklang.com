@@ -2,7 +2,8 @@ import { createProcess } from '@dojo/framework/stores/process';
 import { getProjectCommand, getLatestCommitInfoCommand } from './projectProcesses';
 import { commandFactory, getHeaders } from './utils';
 import { baseUrl } from '../config';
-import { replace } from '@dojo/framework/stores/state/operations';
+import { replace, add } from '@dojo/framework/stores/state/operations';
+import { ProjectDependencePayload } from './interfaces';
 
 const startInitForViewProjectDependenceCommand = commandFactory(({ path }) => {
 	return [
@@ -12,7 +13,7 @@ const startInitForViewProjectDependenceCommand = commandFactory(({ path }) => {
 	];
 });
 
-export const getProjectDependenceCommand = commandFactory(
+export const getProjectDependenceResourceCommand = commandFactory(
 	async ({ path, payload: { owner, project, parentPath = '' } }) => {
 		const response = await fetch(`${baseUrl}/projects/${owner}/${project}/dependence`, {
 			headers: getHeaders()
@@ -52,12 +53,46 @@ const getComponentReposCommand = commandFactory(async ({ path, payload: { query 
 	return [replace(path('pagedComponentRepoInfos'), json)];
 });
 
+const addDependenceCommand = commandFactory<ProjectDependencePayload>(
+	async ({ at, get, path, payload: { owner, project, componentRepoId } }) => {
+		const response = await fetch(`${baseUrl}/projects/${owner}/${project}/dependences`, {
+			method: 'POST',
+			headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
+			body: JSON.stringify({
+				componentRepoId
+			})
+		});
+
+		const json = await response.json();
+		if (!response.ok) {
+			return [replace(path('errors'), json.errors)];
+		}
+
+		// 将创建成功后返回的数据插入到数组中
+		return [add(at(path('projectDependenceResource', 'dependences'), 0), json)];
+	}
+);
+
+const getProjectDependencesCommand = commandFactory(async ({ path, payload: { owner, project } }) => {
+	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/dependences`, {
+		headers: getHeaders()
+	});
+	const json = await response.json();
+	if (!response.ok) {
+		return [replace(path('projectDependenceResource', 'dependences'), [])];
+	}
+
+	return [replace(path('projectDependenceResource', 'dependences'), json)];
+});
+
 export const initForViewProjectDependenceProcess = createProcess('init-for-view-project-dependence', [
 	startInitForViewProjectDependenceCommand,
-	[getProjectCommand, getProjectDependenceCommand],
+	[getProjectCommand, getProjectDependenceResourceCommand, getProjectDependencesCommand],
 	getLatestCommitInfoCommand
 ]);
 
 export const queryComponentReposForProjectProcess = createProcess('query-component-repos-for-project', [
 	getComponentReposCommand
 ]);
+
+export const addDependenceProcess = createProcess('add-dependence', [addDependenceCommand]);
