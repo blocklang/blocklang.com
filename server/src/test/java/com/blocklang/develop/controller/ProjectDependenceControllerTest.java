@@ -351,4 +351,69 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 			.statusCode(HttpStatus.SC_OK)
 			.body("size()", is(0));
 	}
+
+	@Test
+	public void delete_dependence_project_not_exist() {
+		AddDependenceParam param = new AddDependenceParam();
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.delete("/projects/{owner}/{projectName}/dependences/{dependenceId}", "jack", "project", 1)
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	@WithMockUser("jack")
+	@Test
+	public void delete_dependence_login_user_can_not_write() {
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(true);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		UserInfo user = new UserInfo();
+		user.setId(1);
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
+		
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
+
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.delete("/projects/{owner}/{projectName}/dependences/{dependenceId}", "jack", "project", 1)
+		.then()
+			.statusCode(HttpStatus.SC_FORBIDDEN);
+	}
+	
+	@WithMockUser("jack")
+	@Test
+	public void delete_dependence_success() {
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(true);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		UserInfo user = new UserInfo();
+		user.setId(1);
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setUserId(1);
+		auth.setProjectId(1);
+		auth.setAccessLevel(AccessLevel.WRITE);
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.delete("/projects/{owner}/{projectName}/dependences/{dependenceId}", "jack", "project", 1)
+		.then()
+			.statusCode(HttpStatus.SC_NO_CONTENT)
+			.body(equalTo(""));
+		
+		verify(projectDependenceService).delete(anyInt());
+	}
 }

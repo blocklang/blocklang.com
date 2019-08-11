@@ -147,4 +147,9 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 		}).collect(Collectors.toList());
 	}
 
+	@Override
+	public void delete(Integer dependenceId) {
+		projectDependenceDao.deleteById(dependenceId);
+	}
+
 }

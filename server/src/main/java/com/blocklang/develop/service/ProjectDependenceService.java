@@ -32,4 +32,6 @@ public interface ProjectDependenceService {
 
 	List<ProjectDependenceData> findProjectDependences(Integer projectId);
 
+	void delete(Integer dependenceId);
+
 }

@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -209,6 +210,19 @@ public class ProjectDependenceController extends AbstractProjectController{
 		
 		List<ProjectDependenceData> result = projectDependenceService.findProjectDependences(project.getId());
 		return ResponseEntity.ok(result);
+	}
+	
+	@DeleteMapping("/projects/{owner}/{projectName}/dependences/{dependenceId}")
+	public ResponseEntity<?> deleteDependence(
+			Principal principal,
+			@PathVariable String owner,
+			@PathVariable String projectName,
+			@PathVariable Integer dependenceId) {
+		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
+		UserInfo user = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
+		ensureCanWrite(user, project);
+		projectDependenceService.delete(dependenceId);
+		return ResponseEntity.noContent().build();
 	}
 	
 }

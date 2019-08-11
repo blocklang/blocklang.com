@@ -286,4 +286,17 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		);
 	}
 	
+	@Test
+	public void delete_success() {
+		// 为项目添加一个依赖
+		ProjectDependence dependence = new ProjectDependence();
+		dependence.setProjectId(1);
+		dependence.setComponentRepoVersionId(2);
+		dependence.setCreateUserId(11);
+		dependence.setCreateTime(LocalDateTime.now());
+		ProjectDependence savedDependence = projectDependenceDao.save(dependence);
+		assertThat(countRowsInTable("PROJECT_DEPENDENCE")).isEqualTo(1);
+		projectDependenceService.delete(savedDependence.getId());
+		assertThat(countRowsInTable("PROJECT_DEPENDENCE")).isEqualTo(0);
+	}
 }
