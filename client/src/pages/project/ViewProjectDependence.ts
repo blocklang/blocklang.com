@@ -21,7 +21,12 @@ import Exception from '../error/Exception';
 import ProjectHeader from '../widgets/ProjectHeader';
 import messageBundle from '../../nls/main';
 
-import { ProjectResourcePathPayload, QueryPayload, ProjectDependencePayload } from '../../processes/interfaces';
+import {
+	ProjectResourcePathPayload,
+	QueryPayload,
+	ProjectDependencePayload,
+	ProjectDependenceIdPayload
+} from '../../processes/interfaces';
 import LatestCommitInfo from './widgets/LatestCommitInfo';
 import ProjectResourceBreadcrumb from './widgets/ProjectResourceBreadcrumb';
 import watch from '@dojo/framework/widget-core/decorators/watch';
@@ -43,6 +48,7 @@ export interface ViewProjectDependenceProperties {
 	onOpenGroup: (opt: ProjectResourcePathPayload) => void;
 	onQueryComponentRepos: (opt: QueryPayload) => void;
 	onAddDependence: (opt: ProjectDependencePayload) => void;
+	onDeleteDependence: (opt: ProjectDependenceIdPayload) => void;
 }
 
 interface GroupedApiRepo {
@@ -353,6 +359,8 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 	}
 
 	private _renderComponentRepoDependences(dependences: ProjectDependence[]): DNode[] {
+		const { project, onDeleteDependence } = this.properties;
+
 		// 按照 appType 分组
 		const groupedDependences = lodash.groupBy(dependences, (dependence) => dependence.componentRepo.appType);
 		const vnodes: DNode[] = [];
@@ -364,30 +372,7 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 					v(
 						'div',
 						{ classes: [c.pl_4, c.border_left] },
-						values.map((item) =>
-							v('div', {}, [
-								// 当前只支持 git
-								w(FontAwesomeIcon, { icon: ['fab', 'git-alt'], classes: [c.text_muted] }),
-								v(
-									'a',
-									{
-										target: '_blank',
-										href: `${item.apiRepo.gitRepoUrl}`,
-										title: '跳转到组件仓库',
-										classes: [c.ml_1]
-									},
-									[`${item.componentRepo.gitRepoOwner}/${item.componentRepo.gitRepoName}`]
-								),
-								item.componentRepo.label
-									? v('span', { classes: [c.text_muted, c.ml_1] }, [`${item.componentRepo.label}`])
-									: undefined,
-								v('span', { classes: [c.ml_3] }, [
-									v('span', { classes: [c.badge, c.badge_secondary] }, [
-										`${item.componentRepoVersion.version}`
-									])
-								])
-							])
-						)
+						values.map((item) => w(DependenceRow, { project, dependence: item, onDeleteDependence }))
 					)
 				])
 			);
@@ -513,6 +498,51 @@ class ComponentRepoItem extends ThemedMixin(I18nMixin(WidgetBase))<ComponentRepo
 			owner: project.createUserName,
 			project: project.name,
 			componentRepoId: componentRepo.id!
+		});
+	}
+}
+
+interface DependenceRowProperties {
+	project: Project;
+	dependence: ProjectDependence;
+	onDeleteDependence: (opt: ProjectDependenceIdPayload) => void;
+}
+
+class DependenceRow extends ThemedMixin(I18nMixin(WidgetBase))<DependenceRowProperties> {
+	protected render() {
+		const { dependence } = this.properties;
+		return v('div', {}, [
+			// 当前只支持 git
+			w(FontAwesomeIcon, { icon: ['fab', 'git-alt'], classes: [c.text_muted] }),
+			v(
+				'a',
+				{
+					target: '_blank',
+					href: `${dependence.apiRepo.gitRepoUrl}`,
+					title: '跳转到组件仓库',
+					classes: [c.ml_1]
+				},
+				[`${dependence.componentRepo.gitRepoOwner}/${dependence.componentRepo.gitRepoName}`]
+			),
+			dependence.componentRepo.label
+				? v('span', { classes: [c.text_muted, c.ml_1] }, [`${dependence.componentRepo.label}`])
+				: undefined,
+			v('span', { classes: [c.ml_3] }, [
+				v('span', { classes: [c.badge, c.badge_secondary] }, [`${dependence.componentRepoVersion.version}`])
+			]),
+			v('button', { type: 'button', classes: [c.close, c.float_right], onclick: this._onDeleteDependence }, [
+				v('span', { 'aria-hidden': 'true', innerHTML: '&times;' })
+			])
+		]);
+	}
+
+	private _onDeleteDependence() {
+		const { project, dependence } = this.properties;
+
+		this.properties.onDeleteDependence({
+			owner: project.createUserName,
+			project: project.name,
+			id: dependence.id
 		});
 	}
 }

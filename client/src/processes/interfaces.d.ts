@@ -6,6 +6,10 @@ export interface ChangeRoutePayload {
 	context: OutletContext;
 }
 
+export interface IdPayload {
+	id: number;
+}
+
 export interface KeyPayload {
 	key: string;
 }
@@ -109,3 +113,5 @@ export interface QueryPayload {
 export interface ProjectDependencePayload extends ProjectPathPayload {
 	componentRepoId: number;
 }
+
+export interface ProjectDependenceIdPayload extends ProjectPathPayload, IdPayload {}

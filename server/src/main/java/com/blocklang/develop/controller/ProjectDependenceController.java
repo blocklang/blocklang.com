@@ -11,6 +11,7 @@ import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -221,7 +222,12 @@ public class ProjectDependenceController extends AbstractProjectController{
 		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
 		UserInfo user = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
 		ensureCanWrite(user, project);
-		projectDependenceService.delete(dependenceId);
+		try {
+			projectDependenceService.delete(dependenceId);
+		}catch (EmptyResultDataAccessException e) {
+			logger.warn("该依赖已不存在", e);
+		}
+		
 		return ResponseEntity.noContent().build();
 	}
 	

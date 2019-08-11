@@ -2,8 +2,9 @@ import { createProcess } from '@dojo/framework/stores/process';
 import { getProjectCommand, getLatestCommitInfoCommand } from './projectProcesses';
 import { commandFactory, getHeaders } from './utils';
 import { baseUrl } from '../config';
-import { replace, add } from '@dojo/framework/stores/state/operations';
-import { ProjectDependencePayload } from './interfaces';
+import { replace, add, remove } from '@dojo/framework/stores/state/operations';
+import { ProjectDependencePayload, ProjectDependenceIdPayload } from './interfaces';
+import { findIndex } from '@dojo/framework/shim/array';
 
 const startInitForViewProjectDependenceCommand = commandFactory(({ path }) => {
 	return [
@@ -73,6 +74,24 @@ const addDependenceCommand = commandFactory<ProjectDependencePayload>(
 	}
 );
 
+const deleteDependenceCommand = commandFactory<ProjectDependenceIdPayload>(
+	async ({ at, get, path, payload: { owner, project, id: dependenceId } }) => {
+		const response = await fetch(`${baseUrl}/projects/${owner}/${project}/dependences/${dependenceId}`, {
+			method: 'DELETE',
+			headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' }
+		});
+
+		if (response.ok) {
+			// 将创建成功后返回的数据插入到数组中
+			const dependences = get(path('projectDependenceResource', 'dependences'));
+			const index = findIndex(dependences, (item) => item.id === dependenceId);
+			return [remove(at(path('projectDependenceResource', 'dependences'), index))];
+		}
+
+		return [];
+	}
+);
+
 const getProjectDependencesCommand = commandFactory(async ({ path, payload: { owner, project } }) => {
 	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/dependences`, {
 		headers: getHeaders()
@@ -96,3 +115,4 @@ export const queryComponentReposForProjectProcess = createProcess('query-compone
 ]);
 
 export const addDependenceProcess = createProcess('add-dependence', [addDependenceCommand]);
+export const deleteDependenceProcess = createProcess('delete-dependence', [deleteDependenceCommand]);

@@ -3,7 +3,11 @@ import { State } from '../../interfaces';
 import { StoreContainer } from '@dojo/framework/stores/StoreInjector';
 import ViewProjectDependence, { ViewProjectDependenceProperties } from '../../pages/project/ViewProjectDependence';
 import { initForViewProjectGroupProcess } from '../../processes/projectProcesses';
-import { queryComponentReposForProjectProcess, addDependenceProcess } from '../../processes/projectDependenceProcesses';
+import {
+	queryComponentReposForProjectProcess,
+	addDependenceProcess,
+	deleteDependenceProcess
+} from '../../processes/projectDependenceProcesses';
 
 function getProperties(store: Store<State>): ViewProjectDependenceProperties {
 	const { get, path } = store;
@@ -18,7 +22,8 @@ function getProperties(store: Store<State>): ViewProjectDependenceProperties {
 		pagedComponentRepos: get(path('pagedComponentRepoInfos')),
 		onQueryComponentRepos: queryComponentReposForProjectProcess(store),
 		onOpenGroup: initForViewProjectGroupProcess(store),
-		onAddDependence: addDependenceProcess(store)
+		onAddDependence: addDependenceProcess(store),
+		onDeleteDependence: deleteDependenceProcess(store)
 	};
 }
 
