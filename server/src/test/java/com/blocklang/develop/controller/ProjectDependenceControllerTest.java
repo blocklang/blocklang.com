@@ -273,6 +273,7 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 		when(projectDependenceService.buildDependenceExists(anyInt(), anyInt(), any(), anyString())).thenReturn(false);
 		
 		ProjectDependence dependence = new ProjectDependence();
+		dependence.setId(10);
 		dependence.setComponentRepoVersionId(2);
 		when(projectDependenceService.save(anyInt(), any(), any())).thenReturn(dependence);
 		
@@ -295,7 +296,8 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 			.post("/projects/{owner}/{projectName}/dependences", "jack", "project")
 		.then()
 			.statusCode(HttpStatus.SC_CREATED)
-			.body("componentRepo", is(notNullValue()),
+			.body("id", is(10),
+					"componentRepo", is(notNullValue()),
 					"componentRepoVersion", is(notNullValue()),
 					"apiRepo", is(notNullValue()),
 					"apiRepoVersion", is(notNullValue()));

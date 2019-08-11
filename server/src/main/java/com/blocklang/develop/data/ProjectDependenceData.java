@@ -9,19 +9,25 @@ import com.blocklang.marketplace.model.ComponentRepoVersion;
 // 以后衍生数据类都以 Data 结尾，不再以 Info 结尾
 public class ProjectDependenceData extends ComponentRepoInfo{
 
+	private Integer id;
 	private ComponentRepoVersion componentRepoVersion;
 	private ApiRepoVersion apiRepoVersion;
 	
-	public ProjectDependenceData(
+	public ProjectDependenceData(Integer id,
 			ComponentRepo componentRepo, 
 			ComponentRepoVersion componentRepoVersion, 
 			ApiRepo apiRepo, 
 			ApiRepoVersion apiRepoVersion) {
 		super(componentRepo, apiRepo);
+		this.id = id;
 		this.componentRepoVersion = componentRepoVersion;
 		this.apiRepoVersion = apiRepoVersion;
 	}
 
+	public Integer getId() {
+		return id;
+	}
+	
 	public ComponentRepoVersion getComponentRepoVersion() {
 		return componentRepoVersion;
 	}

@@ -278,10 +278,11 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		
 		List<ProjectDependenceData> dependences = projectDependenceService.findProjectDependences(projectId);
 		assertThat(dependences).hasSize(2);
-		assertThat(dependences).allMatch(dependence -> dependence.getComponentRepo() != null &&
-					dependence.getComponentRepoVersion() != null &&
-					dependence.getApiRepo() != null &&
-					dependence.getApiRepoVersion() != null
+		assertThat(dependences).allMatch(dependence -> dependence.getId() != null && 
+				dependence.getComponentRepo() != null &&
+				dependence.getComponentRepoVersion() != null &&
+				dependence.getApiRepo() != null &&
+				dependence.getApiRepoVersion() != null
 		);
 	}
 	

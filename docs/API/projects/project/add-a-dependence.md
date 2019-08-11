@@ -54,6 +54,7 @@ Status: 201 CREATED
 
 ```json
 {
+    "id": 1,
     "componentRepo": {},
     "componentRepoVersion": {},
     "apiRepo": {},

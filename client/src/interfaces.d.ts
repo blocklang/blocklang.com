@@ -341,6 +341,7 @@ interface ComponentRepoUrlInputValidation {
 }
 
 interface ProjectDependence extends ComponentRepoInfo {
+	id: number;
 	componentRepoVersion: ComponentRepoVersion;
 	apiRepoVersion: ApiRepoVersion;
 }

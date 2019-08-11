@@ -142,7 +142,7 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 				apiRepo = apiRepoDao.findById(apiRepoVersion.getApiRepoId()).orElse(null);
 			}
 			
-			ProjectDependenceData data = new ProjectDependenceData(componentRepo, componentRepoVersion, apiRepo, apiRepoVersion);
+			ProjectDependenceData data = new ProjectDependenceData(dependence.getId(), componentRepo, componentRepoVersion, apiRepo, apiRepoVersion);
 			return data;
 		}).collect(Collectors.toList());
 	}

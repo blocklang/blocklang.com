@@ -35,6 +35,7 @@ Status: 200 OK
 
 ```json
 [{
+    "id": 1,
     "componentRepo": {},
     "componentRepoVersion": {},
     "apiRepo": {},
