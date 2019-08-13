@@ -25,6 +25,7 @@ import com.blocklang.core.test.AbstractControllerTest;
 import com.blocklang.develop.constant.AccessLevel;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.data.AddDependenceParam;
+import com.blocklang.develop.data.UpdateDependenceParam;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectAuthorization;
 import com.blocklang.develop.model.ProjectDependence;
@@ -415,5 +416,81 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 			.body(equalTo(""));
 		
 		verify(projectDependenceService).delete(anyInt());
+	}
+
+	@Test
+	public void update_dependence_project_not_found() {
+		UpdateDependenceParam param = new UpdateDependenceParam();
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.put("/projects/{owner}/{projectName}/dependences/{dependenceId}", "jack", "project", 1)
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	@WithMockUser("jack")
+	@Test
+	public void update_dependence_login_user_can_not_write() {
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(true);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		UserInfo user = new UserInfo();
+		user.setId(1);
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
+		
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
+
+		UpdateDependenceParam param = new UpdateDependenceParam();
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.put("/projects/{owner}/{projectName}/dependences/{dependenceId}", "jack", "project", 1)
+		.then()
+			.statusCode(HttpStatus.SC_FORBIDDEN);
+	}
+	
+	@WithMockUser("jack")
+	@Test
+	public void update_dependence_success() {
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(true);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		UserInfo user = new UserInfo();
+		user.setId(1);
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setUserId(1);
+		auth.setProjectId(1);
+		auth.setAccessLevel(AccessLevel.WRITE);
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		ProjectDependence dependence = new ProjectDependence();
+		dependence.setComponentRepoVersionId(1);
+		when(projectDependenceService.findById(anyInt())).thenReturn(Optional.of(dependence));
+		
+		when(projectDependenceService.update(any())).thenReturn(dependence);
+		
+		UpdateDependenceParam param = new UpdateDependenceParam();
+		param.setComponentRepoVersionId(1);
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.put("/projects/{owner}/{projectName}/dependences/{dependenceId}", "jack", "project", 1)
+		.then()
+			.statusCode(HttpStatus.SC_CREATED)
+			.body("componentRepoVersionId", is(1));
+		
+		verify(projectDependenceService).update(any());
 	}
 }

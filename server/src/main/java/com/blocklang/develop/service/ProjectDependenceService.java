@@ -1,6 +1,7 @@
 package com.blocklang.develop.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.data.ProjectDependenceData;
@@ -33,5 +34,9 @@ public interface ProjectDependenceService {
 	List<ProjectDependenceData> findProjectDependences(Integer projectId);
 
 	void delete(Integer dependenceId);
+
+	ProjectDependence update(ProjectDependence dependence);
+
+	Optional<ProjectDependence> findById(Integer dependenceId);
 
 }

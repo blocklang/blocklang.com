@@ -1,6 +1,7 @@
 package com.blocklang.develop.controller;
 
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -33,6 +35,7 @@ import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.constant.ProjectResourceType;
 import com.blocklang.develop.data.AddDependenceParam;
 import com.blocklang.develop.data.ProjectDependenceData;
+import com.blocklang.develop.data.UpdateDependenceParam;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectBuildProfile;
 import com.blocklang.develop.model.ProjectDependence;
@@ -231,4 +234,21 @@ public class ProjectDependenceController extends AbstractProjectController{
 		return ResponseEntity.noContent().build();
 	}
 	
+	@PutMapping("/projects/{owner}/{projectName}/dependences/{dependenceId}")
+	public ResponseEntity<ProjectDependence> updateDependence(Principal principal,
+			@PathVariable String owner,
+			@PathVariable String projectName,
+			@PathVariable Integer dependenceId,
+			@RequestBody UpdateDependenceParam param) {
+		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
+		UserInfo user = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
+		ensureCanWrite(user, project);
+		ProjectDependence dependence = projectDependenceService.findById(dependenceId).orElseThrow(ResourceNotFoundException::new);
+		dependence.setComponentRepoVersionId(param.getComponentRepoVersionId());
+		dependence.setLastUpdateTime(LocalDateTime.now());
+		dependence.setLastUpdateUserId(user.getId());
+		ProjectDependence updatedDependence = projectDependenceService.update(dependence);
+		
+		return new ResponseEntity<ProjectDependence>(updatedDependence, HttpStatus.CREATED);
+	}
 }
