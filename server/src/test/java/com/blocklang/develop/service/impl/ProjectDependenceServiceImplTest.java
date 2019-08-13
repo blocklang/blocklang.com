@@ -299,4 +299,35 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		projectDependenceService.delete(savedDependence.getId());
 		assertThat(countRowsInTable("PROJECT_DEPENDENCE")).isEqualTo(0);
 	}
+	
+	@Test
+	public void update_success() {
+		ProjectDependence dependence = new ProjectDependence();
+		dependence.setProjectId(1);
+		dependence.setComponentRepoVersionId(2);
+		dependence.setCreateUserId(11);
+		dependence.setCreateTime(LocalDateTime.now());
+		ProjectDependence savedDependence = projectDependenceDao.save(dependence);
+		
+		savedDependence.setComponentRepoVersionId(3);
+		
+		assertThat(projectDependenceService.update(savedDependence).getComponentRepoVersionId()).isEqualTo(3);
+	}
+	
+	@Test
+	public void find_by_id_no_data() {
+		assertThat(projectDependenceService.findById(1)).isEmpty();
+	}
+	
+	@Test
+	public void find_by_id_success() {
+		ProjectDependence dependence = new ProjectDependence();
+		dependence.setProjectId(1);
+		dependence.setComponentRepoVersionId(2);
+		dependence.setCreateUserId(11);
+		dependence.setCreateTime(LocalDateTime.now());
+		ProjectDependence savedDependence = projectDependenceDao.save(dependence);
+		
+		assertThat(projectDependenceService.findById(savedDependence.getId())).isPresent();
+	}
 }

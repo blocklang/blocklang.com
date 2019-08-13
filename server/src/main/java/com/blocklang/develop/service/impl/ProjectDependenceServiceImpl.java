@@ -152,4 +152,14 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 		projectDependenceDao.deleteById(dependenceId);
 	}
 
+	@Override
+	public ProjectDependence update(ProjectDependence dependence) {
+		return projectDependenceDao.save(dependence);
+	}
+
+	@Override
+	public Optional<ProjectDependence> findById(Integer dependenceId) {
+		return projectDependenceDao.findById(dependenceId);
+	}
+
 }

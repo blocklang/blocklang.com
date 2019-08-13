@@ -25,7 +25,7 @@ public class ComponentRepoVersionServiceImplTest extends AbstractServiceTest {
 	}
 	
 	@Test
-	public void find_by_id_no_success() {
+	public void find_by_id_success() {
 		ComponentRepoVersion version = new ComponentRepoVersion();
 		version.setComponentRepoId(1);
 		version.setVersion("0.1.0");
@@ -35,5 +35,24 @@ public class ComponentRepoVersionServiceImplTest extends AbstractServiceTest {
 		ComponentRepoVersion savedVersion = componentRepoVersionDao.save(version);
 		
 		assertThat(componentRepoVersionService.findById(savedVersion.getId())).isPresent();
+	}
+	
+	@Test
+	public void find_by_component_repo_id_no_data() {
+		assertThat(componentRepoVersionService.findByComponentRepoId(1)).isEmpty();
+	}
+	
+	@Test
+	public void find_by_component_repo_id_successno_data() {
+		Integer componentRepoId = 1;
+		ComponentRepoVersion version = new ComponentRepoVersion();
+		version.setComponentRepoId(componentRepoId);
+		version.setVersion("0.1.0");
+		version.setApiRepoVersionId(1);
+		version.setCreateUserId(1);
+		version.setCreateTime(LocalDateTime.now());
+		componentRepoVersionDao.save(version);
+		
+		assertThat(componentRepoVersionService.findByComponentRepoId(componentRepoId)).hasSize(1);
 	}
 }

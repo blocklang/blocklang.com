@@ -1,5 +1,6 @@
 package com.blocklang.marketplace.service.impl;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,11 @@ public class ComponentRepoVersionServiceImpl implements ComponentRepoVersionServ
 	@Override
 	public Optional<ComponentRepoVersion> findById(Integer componentRepoVersionId) {
 		return componentRepoVersionDao.findById(componentRepoVersionId);
+	}
+
+	@Override
+	public List<ComponentRepoVersion> findByComponentRepoId(Integer componentRepoId) {
+		return componentRepoVersionDao.findAllByComponentRepoId(componentRepoId);
 	}
 
 }
