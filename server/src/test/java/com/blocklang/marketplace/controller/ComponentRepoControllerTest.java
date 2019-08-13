@@ -26,9 +26,11 @@ import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.test.AbstractControllerTest;
 import com.blocklang.marketplace.data.ComponentRepoInfo;
 import com.blocklang.marketplace.data.NewComponentRepoParam;
+import com.blocklang.marketplace.model.ComponentRepo;
 import com.blocklang.marketplace.model.ComponentRepoPublishTask;
 import com.blocklang.marketplace.service.ComponentRepoPublishTaskService;
 import com.blocklang.marketplace.service.ComponentRepoService;
+import com.blocklang.marketplace.service.ComponentRepoVersionService;
 import com.blocklang.marketplace.service.PublishService;
 
 import io.restassured.http.ContentType;
@@ -38,6 +40,8 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 
 	@MockBean
 	private ComponentRepoService componentRepoService;
+	@MockBean
+	private ComponentRepoVersionService componentRepoVersionService;
 	@MockBean
 	private ComponentRepoPublishTaskService componentRepoPublishTaskService;
 	@MockBean
@@ -283,4 +287,30 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 		verify(publishService).asyncPublish(any());
 	}
 	
+	@Test
+	public void list_component_repo_versions_component_repo_not_found() {
+		when(componentRepoService.findById(anyInt())).thenReturn(Optional.empty());
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/component-repos/{componentRepoId}/versions", 1)
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	@Test
+	public void list_component_repo_versions_success() {
+		ComponentRepo repo = new ComponentRepo();
+		when(componentRepoService.findById(anyInt())).thenReturn(Optional.of(repo));
+		
+		when(componentRepoVersionService.findByComponentRepoId(anyInt())).thenReturn(Collections.emptyList());
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/component-repos/{componentRepoId}/versions", 1)
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body("size()", is(0));
+	}
 }

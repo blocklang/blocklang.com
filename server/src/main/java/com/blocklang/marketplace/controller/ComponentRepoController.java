@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,8 +37,10 @@ import com.blocklang.marketplace.constant.PublishType;
 import com.blocklang.marketplace.data.ComponentRepoInfo;
 import com.blocklang.marketplace.data.NewComponentRepoParam;
 import com.blocklang.marketplace.model.ComponentRepoPublishTask;
+import com.blocklang.marketplace.model.ComponentRepoVersion;
 import com.blocklang.marketplace.service.ComponentRepoPublishTaskService;
 import com.blocklang.marketplace.service.ComponentRepoService;
+import com.blocklang.marketplace.service.ComponentRepoVersionService;
 import com.blocklang.marketplace.service.PublishService;
 import com.blocklang.release.constant.ReleaseResult;
 
@@ -49,6 +52,8 @@ public class ComponentRepoController {
 	private UserService userService;
 	@Autowired
 	private ComponentRepoService componentRepoService;
+	@Autowired
+	private ComponentRepoVersionService componentRepoVersionService;
 	@Autowired
 	private ComponentRepoPublishTaskService componentRepoPublishTaskService;
 	@Autowired
@@ -185,4 +190,11 @@ public class ComponentRepoController {
 		return new ResponseEntity<ComponentRepoPublishTask>(savedTask, HttpStatus.CREATED);
 	}
 	
+	@GetMapping("/component-repos/{componentRepoId}/versions")
+	public ResponseEntity<List<ComponentRepoVersion>> listComponentRepoVersions(
+			@PathVariable Integer componentRepoId) {
+		componentRepoService.findById(componentRepoId).orElseThrow(ResourceNotFoundException::new);
+		List<ComponentRepoVersion> versions = componentRepoVersionService.findByComponentRepoId(componentRepoId);
+		return ResponseEntity.ok(versions);
+	}
 }
