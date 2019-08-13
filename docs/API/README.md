@@ -12,6 +12,7 @@
 2. [发布一个组件仓库](./marketplace/create-a-component-repo.md)
 3. [获取一个组件库发布任务](./marketplace/get-a-publish-task.md)
 4. [获取一个组件库发布任务的日志](./marketplace/get-a-publish-task-log.md)
+5. [获取一个组件仓库的版本列表](./marketplace/list-component-repo-versions.md)
 
 ## 项目
 
@@ -27,7 +28,8 @@
 10. [为项目添加一个依赖](./projects/project/add-a-dependence.md)
 11. [删除项目的一个依赖](./projects/project/delete-a-dependence.md)
 12. [获取项目的依赖列表](./projects/project/list-project-dependences.md)
-13. [获取部署配置信息](./projects/deploy/get-deploy-setting.md)
+13. [更新项目依赖的版本信息](./projects/project/update-dependence-version.md)
+14. [获取部署配置信息](./projects/deploy/get-deploy-setting.md)
 
 ## 资源
 
