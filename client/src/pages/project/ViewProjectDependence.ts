@@ -531,7 +531,7 @@ class DependenceRow extends ThemedMixin(I18nMixin(WidgetBase))<DependenceRowProp
 		const { project, dependence, versions, onUpdateDependenceVersion } = this.properties;
 		return v('div', {}, [
 			// 当前只支持 git
-			w(FontAwesomeIcon, { icon: ['fab', 'git-alt'], classes: [c.text_muted] }),
+			w(FontAwesomeIcon, { icon: ['fab', 'git-alt'], classes: [c.text_muted], title: 'git 仓库' }),
 			v(
 				'a',
 				{
