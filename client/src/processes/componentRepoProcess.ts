@@ -111,6 +111,7 @@ const publishComponentRepoCommand = commandFactory(async ({ path, get }) => {
 
 	// 校验通过
 	return [
+		replace(path('componentRepoPublishTask'), json),
 		replace(path('componentRepoUrlInputValidation', 'componentRepoUrlValidateStatus'), ValidateStatus.VALID),
 		replace(path('componentRepoUrlInputValidation', 'componentRepoUrlErrorMessage'), undefined),
 		// 跳转到发布详情页面
