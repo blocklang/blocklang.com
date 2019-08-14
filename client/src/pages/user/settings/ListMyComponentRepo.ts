@@ -289,13 +289,14 @@ export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBas
 				{ classes: [c.list_group, c.mt_2] },
 				componentRepoInfos.map((repo) => {
 					const { componentRepo, apiRepo } = repo;
-					const displayName = componentRepo.label ? componentRepo.label : componentRepo.name;
 
 					return v('li', { classes: [c.list_group_item] }, [
 						v('div', {}, [
 							v('div', {}, [
-								v('span', { classes: [c.font_weight_bold, c.mr_2] }, [`${displayName}`]),
-								v('span', { classes: [c.text_muted] }, [`${componentRepo.name}`])
+								v('span', { classes: [c.font_weight_bold, c.mr_2] }, [`${componentRepo.name}`]),
+								componentRepo.label
+									? v('span', { classes: [c.text_muted] }, [`${componentRepo.label}`])
+									: undefined
 							]),
 							v('p', { itemprop: 'description', classes: [c.text_muted, c.mb_0] }, [
 								`${componentRepo.description}`

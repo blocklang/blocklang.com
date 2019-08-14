@@ -138,7 +138,6 @@ export default class ListComponentRepo extends ThemedMixin(I18nMixin(WidgetBase)
 
 	private _renderComponentRepoItem(item: ComponentRepoInfo) {
 		const { componentRepo, apiRepo } = item;
-		const displayName = componentRepo.label ? componentRepo.label : componentRepo.name;
 		return v('li', { classes: [c.list_group_item] }, [
 			v('div', {}, [
 				v('span', { classes: [c.font_weight_bold, c.mr_2] }, [
@@ -148,9 +147,9 @@ export default class ListComponentRepo extends ThemedMixin(I18nMixin(WidgetBase)
 						classes: [c.avatar, c.mr_1],
 						src: `${componentRepo.createUserAvatarUrl}`
 					}),
-					`${componentRepo.createUserName} / ${displayName}`
+					`${componentRepo.createUserName} / ${componentRepo.name}`
 				]),
-				v('span', { classes: [c.text_muted] }, [`${componentRepo.name}`])
+				componentRepo.label ? v('span', { classes: [c.text_muted] }, [`${componentRepo.label}`]) : undefined
 			]),
 			v('p', { itemprop: 'description', classes: [c.text_muted, c.mb_0] }, [`${componentRepo.description}`]),
 			v('div', { classes: [c.my_2] }, [

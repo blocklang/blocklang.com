@@ -416,7 +416,6 @@ class ComponentRepoItem extends ThemedMixin(I18nMixin(WidgetBase))<ComponentRepo
 			componentRepoInfo: { componentRepo, apiRepo },
 			used = false
 		} = this.properties;
-		const displayName = componentRepo.label ? componentRepo.label : componentRepo.name;
 
 		return v('li', { classes: [c.list_group_item] }, [
 			// 如果组件库未安装，则显示“使用”按钮，否则显示“已用”文本
@@ -428,9 +427,9 @@ class ComponentRepoItem extends ThemedMixin(I18nMixin(WidgetBase))<ComponentRepo
 						classes: [c.avatar, c.mr_1],
 						src: `${componentRepo.createUserAvatarUrl}`
 					}),
-					`${componentRepo.createUserName} / ${displayName}`
+					`${componentRepo.createUserName} / ${componentRepo.name}`
 				]),
-				v('span', { classes: [c.text_muted] }, [`${componentRepo.name}`]),
+				componentRepo.label ? v('span', { classes: [c.text_muted] }, [`${componentRepo.label}`]) : undefined,
 				used
 					? v('span', { classes: [c.float_right, c.text_info] }, ['已用'])
 					: v(
