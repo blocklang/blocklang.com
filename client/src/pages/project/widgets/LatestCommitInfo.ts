@@ -11,6 +11,7 @@ import messageBundle from '../../../nls/main';
 
 export interface LatestCommitInfoProperties {
 	latestCommitInfo: CommitInfo;
+	showBottomBorder?: boolean;
 }
 
 @theme(css)
@@ -18,30 +19,42 @@ export default class LatestCommitInfo extends ThemedMixin(I18nMixin(WidgetBase))
 	private _localizedMessages = this.localizeBundle(messageBundle);
 
 	protected render() {
-		const { latestCommitInfo } = this.properties;
+		const { latestCommitInfo, showBottomBorder = false } = this.properties;
 		if (!latestCommitInfo) {
 			return;
 		}
 		const { messages } = this._localizedMessages;
-		return v('div', { classes: [c.card_header, c.text_muted, c.px_2, c.border_bottom_0, css.recentCommit] }, [
-			// 最近提交的用户信息
-			w(Link, { to: 'profile', params: { user: latestCommitInfo.userName }, classes: [c.mr_2] }, [
-				v('img', {
-					width: 20,
-					height: 20,
-					classes: [c.avatar, c.mr_1],
-					src: `${latestCommitInfo.avatarUrl}`
-				}),
-				`${latestCommitInfo.userName}`
-			]),
-			// 最近提交说明
-			v('span', [`${latestCommitInfo.shortMessage}`]),
-			' ',
-			// 最近提交时间
-			v('span', { classes: [c.float_right] }, [
-				`${messages.latestCommitLabel}`,
-				w(Moment, { datetime: latestCommitInfo.commitTime })
-			])
-		]);
+		return v(
+			'div',
+			{
+				classes: [
+					c.card_header,
+					c.text_muted,
+					c.px_2,
+					showBottomBorder ? undefined : c.border_bottom_0,
+					css.recentCommit
+				]
+			},
+			[
+				// 最近提交的用户信息
+				w(Link, { to: 'profile', params: { user: latestCommitInfo.userName }, classes: [c.mr_2] }, [
+					v('img', {
+						width: 20,
+						height: 20,
+						classes: [c.avatar, c.mr_1],
+						src: `${latestCommitInfo.avatarUrl}`
+					}),
+					`${latestCommitInfo.userName}`
+				]),
+				// 最近提交说明
+				v('span', [`${latestCommitInfo.shortMessage}`]),
+				' ',
+				// 最近提交时间
+				v('span', { classes: [c.float_right] }, [
+					`${messages.latestCommitLabel}`,
+					w(Moment, { datetime: latestCommitInfo.commitTime })
+				])
+			]
+		);
 	}
 }

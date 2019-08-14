@@ -111,7 +111,7 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 		const { latestCommitInfo } = this.properties;
 
 		return v('div', { classes: [c.card, !latestCommitInfo ? c.border_top_0 : undefined] }, [
-			w(LatestCommitInfo, { latestCommitInfo }), // 最近提交信息区
+			w(LatestCommitInfo, { latestCommitInfo, showBottomBorder: true }), // 最近提交信息区
 			this._renderDependenceEditor()
 		]);
 	}
