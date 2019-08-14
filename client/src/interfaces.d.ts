@@ -342,8 +342,13 @@ interface ComponentRepoUrlInputValidation {
 
 interface ProjectDependence extends ComponentRepoInfo {
 	id: number;
+	// 当前依赖的版本
 	componentRepoVersion: ComponentRepoVersion;
 	apiRepoVersion: ApiRepoVersion;
+	// 组件仓库的所有版本
+	componentRepoVersions?: ComponentRepoVersion[];
+	// 如果组件仓库的版本加载失败，则显示错误信息
+	loadVersionsErrorMessage?: string;
 }
 
 interface ProjectDependenceResource {
@@ -383,6 +388,8 @@ export interface State {
 	stagedChanges: UncommittedFile[];
 	commitMessageParam: CommitMessageParam;
 	commitMessageInputValidation: CommitMessageInputValidation;
+
+	selectedDependenceVersions: ComponentRepoVersion[];
 
 	// new page
 	appTypes: AppType[];

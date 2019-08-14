@@ -235,7 +235,7 @@ public class ProjectDependenceController extends AbstractProjectController{
 	}
 	
 	@PutMapping("/projects/{owner}/{projectName}/dependences/{dependenceId}")
-	public ResponseEntity<ProjectDependence> updateDependence(Principal principal,
+	public ResponseEntity<ComponentRepoVersion> updateDependence(Principal principal,
 			@PathVariable String owner,
 			@PathVariable String projectName,
 			@PathVariable Integer dependenceId,
@@ -247,8 +247,9 @@ public class ProjectDependenceController extends AbstractProjectController{
 		dependence.setComponentRepoVersionId(param.getComponentRepoVersionId());
 		dependence.setLastUpdateTime(LocalDateTime.now());
 		dependence.setLastUpdateUserId(user.getId());
-		ProjectDependence updatedDependence = projectDependenceService.update(dependence);
-		
-		return new ResponseEntity<ProjectDependence>(updatedDependence, HttpStatus.CREATED);
+		projectDependenceService.update(dependence);
+		ComponentRepoVersion result = componentRepoVersionService.findById(param.getComponentRepoVersionId()).orElseThrow(ResourceNotFoundException::new);
+		// 因为这里只是版本更新，所以只返回组件仓库的版本信息
+		return new ResponseEntity<ComponentRepoVersion>(result, HttpStatus.CREATED);
 	}
 }

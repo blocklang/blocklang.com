@@ -13,7 +13,8 @@ import {
 	PagedComponentRepos,
 	ComponentRepoInfo,
 	ApiRepo,
-	ApiRepoVersion
+	ApiRepoVersion,
+	ComponentRepoVersion
 } from '../../interfaces';
 import Spinner from '../../widgets/spinner';
 import { isEmpty, getProgramingLanguageName, getRepoCategoryName, getProgramingLanguageColor } from '../../util';
@@ -25,7 +26,9 @@ import {
 	ProjectResourcePathPayload,
 	QueryPayload,
 	ProjectDependencePayload,
-	ProjectDependenceIdPayload
+	ProjectDependenceIdPayload,
+	ProjectDependenceVersionPayload,
+	ProjectDependenceWithProjectPathPayload
 } from '../../processes/interfaces';
 import LatestCommitInfo from './widgets/LatestCommitInfo';
 import ProjectResourceBreadcrumb from './widgets/ProjectResourceBreadcrumb';
@@ -47,8 +50,10 @@ export interface ViewProjectDependenceProperties {
 	latestCommitInfo: CommitInfo;
 	onOpenGroup: (opt: ProjectResourcePathPayload) => void;
 	onQueryComponentRepos: (opt: QueryPayload) => void;
-	onAddDependence: (opt: ProjectDependencePayload) => void;
+	onAddDependence: (opt: ProjectDependenceWithProjectPathPayload) => void;
 	onDeleteDependence: (opt: ProjectDependenceIdPayload) => void;
+	onShowDependenceVersions: (opt: ProjectDependencePayload) => void;
+	onUpdateDependenceVersion: (opt: ProjectDependenceVersionPayload) => void;
 }
 
 interface GroupedApiRepo {
@@ -359,7 +364,7 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 	}
 
 	private _renderComponentRepoDependences(dependences: ProjectDependence[]): DNode[] {
-		const { project, onDeleteDependence } = this.properties;
+		const { project, onDeleteDependence, onShowDependenceVersions, onUpdateDependenceVersion } = this.properties;
 
 		// 按照 appType 分组
 		const groupedDependences = lodash.groupBy(dependences, (dependence) => dependence.componentRepo.appType);
@@ -372,7 +377,16 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 					v(
 						'div',
 						{ classes: [c.pl_4, c.border_left] },
-						values.map((item) => w(DependenceRow, { project, dependence: item, onDeleteDependence }))
+						values.map((item) =>
+							w(DependenceRow, {
+								project,
+								dependence: item,
+								versions: item.componentRepoVersions || [],
+								onDeleteDependence,
+								onShowDependenceVersions,
+								onUpdateDependenceVersion
+							})
+						)
 					)
 				])
 			);
@@ -393,7 +407,7 @@ interface ComponentRepoItemProperties {
 	project: Project;
 	componentRepoInfo: ComponentRepoInfo;
 	used: boolean;
-	onAddDependence: (opt: ProjectDependencePayload) => void;
+	onAddDependence: (opt: ProjectDependenceWithProjectPathPayload) => void;
 }
 
 class ComponentRepoItem extends ThemedMixin(I18nMixin(WidgetBase))<ComponentRepoItemProperties> {
@@ -505,12 +519,16 @@ class ComponentRepoItem extends ThemedMixin(I18nMixin(WidgetBase))<ComponentRepo
 interface DependenceRowProperties {
 	project: Project;
 	dependence: ProjectDependence;
+	// 当前选中依赖的版本列表
+	versions: ComponentRepoVersion[];
 	onDeleteDependence: (opt: ProjectDependenceIdPayload) => void;
+	onShowDependenceVersions: (opt: ProjectDependencePayload) => void;
+	onUpdateDependenceVersion: (opt: ProjectDependenceVersionPayload) => void;
 }
 
 class DependenceRow extends ThemedMixin(I18nMixin(WidgetBase))<DependenceRowProperties> {
 	protected render() {
-		const { dependence } = this.properties;
+		const { project, dependence, versions, onUpdateDependenceVersion } = this.properties;
 		return v('div', {}, [
 			// 当前只支持 git
 			w(FontAwesomeIcon, { icon: ['fab', 'git-alt'], classes: [c.text_muted] }),
@@ -528,12 +546,38 @@ class DependenceRow extends ThemedMixin(I18nMixin(WidgetBase))<DependenceRowProp
 				? v('span', { classes: [c.text_muted, c.ml_1] }, [`${dependence.componentRepo.label}`])
 				: undefined,
 			v('span', { classes: [c.ml_3] }, [
-				v('span', { classes: [c.badge, c.badge_secondary] }, [`${dependence.componentRepoVersion.version}`])
+				v('span', { classes: [c.dropdown] }, [
+					v(
+						'button',
+						{
+							classes: [c.btn, c.btn_secondary, c.btn_sm, c.dropdown_toggle, css.dropdownButton],
+							type: 'button',
+							'data-toggle': 'dropdown',
+							onclick: this._onShowVersions
+						},
+						[`${dependence.componentRepoVersion.version}`]
+					),
+					v(
+						'div',
+						{ classes: [c.dropdown_menu, css.dropdownMenu] },
+						versions.map((version) =>
+							w(DependenceVersionMenu, { project, dependence, version, onUpdateDependenceVersion })
+						)
+					)
+				])
 			]),
 			v('button', { type: 'button', classes: [c.close, c.float_right], onclick: this._onDeleteDependence }, [
 				v('span', { 'aria-hidden': 'true', innerHTML: '&times;' })
 			])
 		]);
+	}
+
+	private _onShowVersions() {
+		const { dependence } = this.properties;
+		this.properties.onShowDependenceVersions({
+			dependenceId: dependence.id,
+			componentRepoId: dependence.componentRepo.id!
+		});
 	}
 
 	private _onDeleteDependence() {
@@ -543,6 +587,45 @@ class DependenceRow extends ThemedMixin(I18nMixin(WidgetBase))<DependenceRowProp
 			owner: project.createUserName,
 			project: project.name,
 			id: dependence.id
+		});
+	}
+}
+
+interface DependenceVersionMenuProperties {
+	project: Project;
+	dependence: ProjectDependence;
+	version: ComponentRepoVersion;
+	onUpdateDependenceVersion: (opt: ProjectDependenceVersionPayload) => void;
+}
+
+class DependenceVersionMenu extends ThemedMixin(I18nMixin(WidgetBase))<DependenceVersionMenuProperties> {
+	protected render() {
+		const { dependence, version } = this.properties;
+		const isSelected = version.id === dependence.componentRepoVersion.id;
+
+		return v(
+			'a',
+			{
+				classes: [c.dropdown_item, isSelected ? c.active : undefined],
+				href: '#',
+				onclick: this._onUpdateVersion
+			},
+			[`${version.version}`]
+		);
+	}
+
+	private _onUpdateVersion(event: MouseEvent) {
+		event.stopPropagation();
+		const { project, dependence, version } = this.properties;
+		const isSelected = version.id === dependence.componentRepoVersion.id;
+		if (isSelected) {
+			return;
+		}
+		this.properties.onUpdateDependenceVersion({
+			owner: project.createUserName,
+			project: project.name,
+			dependenceId: dependence.id,
+			componentRepoVersionId: version.id
 		});
 	}
 }

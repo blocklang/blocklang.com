@@ -6,7 +6,9 @@ import { initForViewProjectGroupProcess } from '../../processes/projectProcesses
 import {
 	queryComponentReposForProjectProcess,
 	addDependenceProcess,
-	deleteDependenceProcess
+	deleteDependenceProcess,
+	showDependenceVersionsProcess,
+	updateDependenceVersionProcess
 } from '../../processes/projectDependenceProcesses';
 
 function getProperties(store: Store<State>): ViewProjectDependenceProperties {
@@ -23,11 +25,20 @@ function getProperties(store: Store<State>): ViewProjectDependenceProperties {
 		onQueryComponentRepos: queryComponentReposForProjectProcess(store),
 		onOpenGroup: initForViewProjectGroupProcess(store),
 		onAddDependence: addDependenceProcess(store),
-		onDeleteDependence: deleteDependenceProcess(store)
+		onDeleteDependence: deleteDependenceProcess(store),
+		onShowDependenceVersions: showDependenceVersionsProcess(store),
+		onUpdateDependenceVersion: updateDependenceVersionProcess(store)
 	};
 }
 
 export default StoreContainer(ViewProjectDependence, 'state', {
-	paths: [['user'], ['project'], ['projectDependenceResource'], ['latestCommitInfo'], ['pagedComponentRepoInfos']],
+	paths: [
+		['user'],
+		['project'],
+		['projectDependenceResource'],
+		['selectedDependenceVersions'],
+		['latestCommitInfo'],
+		['pagedComponentRepoInfos']
+	],
 	getProperties
 });

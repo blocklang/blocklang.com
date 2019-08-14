@@ -3,7 +3,7 @@ import { getProjectCommand, getLatestCommitInfoCommand } from './projectProcesse
 import { commandFactory, getHeaders } from './utils';
 import { baseUrl } from '../config';
 import { replace, add, remove } from '@dojo/framework/stores/state/operations';
-import { ProjectDependencePayload, ProjectDependenceIdPayload } from './interfaces';
+import { ProjectDependenceIdPayload, ProjectDependenceWithProjectPathPayload } from './interfaces';
 import { findIndex } from '@dojo/framework/shim/array';
 
 const startInitForViewProjectDependenceCommand = commandFactory(({ path }) => {
@@ -54,7 +54,7 @@ const getComponentReposCommand = commandFactory(async ({ path, payload: { query 
 	return [replace(path('pagedComponentRepoInfos'), json)];
 });
 
-const addDependenceCommand = commandFactory<ProjectDependencePayload>(
+const addDependenceCommand = commandFactory<ProjectDependenceWithProjectPathPayload>(
 	async ({ at, get, path, payload: { owner, project, componentRepoId } }) => {
 		const response = await fetch(`${baseUrl}/projects/${owner}/${project}/dependences`, {
 			method: 'POST',
@@ -104,15 +104,73 @@ const getProjectDependencesCommand = commandFactory(async ({ path, payload: { ow
 	return [replace(path('projectDependenceResource', 'dependences'), json)];
 });
 
+const getDependenceVersionsCommand = commandFactory(
+	async ({ at, get, path, payload: { dependenceId, componentRepoId } }) => {
+		const response = await fetch(`${baseUrl}/component-repos/${componentRepoId}/versions`, {
+			headers: getHeaders()
+		});
+		const json = await response.json();
+
+		const dependences = get(path('projectDependenceResource', 'dependences'));
+		const index = findIndex(dependences, (item) => item.id === dependenceId);
+		const dependencePath = at(path('projectDependenceResource', 'dependences'), index);
+
+		if (!response.ok) {
+			// 如果加载出错，则显示错误信息，"获取数据出错，请稍后再试"
+			return [
+				replace(dependencePath, {
+					...dependences[index],
+					componentRepoVersions: [],
+					loadVersionsErrorMessage: '获取数据出错，请稍后再试'
+				})
+			];
+		}
+
+		return [
+			replace(dependencePath, {
+				...dependences[index],
+				componentRepoVersions: json,
+				loadVersionsErrorMessage: undefined
+			})
+		];
+	}
+);
+
+const updateDependenceVersionCommand = commandFactory(
+	async ({ at, get, path, payload: { owner, project, dependenceId, componentRepoVersionId } }) => {
+		const response = await fetch(`${baseUrl}/projects/${owner}/${project}/dependences/${dependenceId}`, {
+			method: 'PUT',
+			headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
+			body: JSON.stringify({
+				componentRepoVersionId
+			})
+		});
+
+		const json = await response.json();
+		if (!response.ok) {
+			// 如果出错，则不更新
+			return [];
+		}
+
+		const dependences = get(path('projectDependenceResource', 'dependences'));
+		const index = findIndex(dependences, (item) => item.id === dependenceId);
+		const dependencePath = at(path('projectDependenceResource', 'dependences'), index);
+
+		return [replace(dependencePath, { ...dependences[index], componentRepoVersion: json })];
+	}
+);
+
 export const initForViewProjectDependenceProcess = createProcess('init-for-view-project-dependence', [
 	startInitForViewProjectDependenceCommand,
 	[getProjectCommand, getProjectDependenceResourceCommand, getProjectDependencesCommand],
 	getLatestCommitInfoCommand
 ]);
-
 export const queryComponentReposForProjectProcess = createProcess('query-component-repos-for-project', [
 	getComponentReposCommand
 ]);
-
 export const addDependenceProcess = createProcess('add-dependence', [addDependenceCommand]);
 export const deleteDependenceProcess = createProcess('delete-dependence', [deleteDependenceCommand]);
+export const showDependenceVersionsProcess = createProcess('show-dependence-versions', [getDependenceVersionsCommand]);
+export const updateDependenceVersionProcess = createProcess('updateDependenceVersion', [
+	updateDependenceVersionCommand
+]);

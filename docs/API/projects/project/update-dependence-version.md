@@ -27,7 +27,7 @@ Status: 404 Not Found
 Status: 403 Forbidden
 ```
 
-升级成功，则返回
+升级成功，则返回组件仓库的版本信息
 
 ```text
 Status: 201 CREATED
@@ -35,9 +35,9 @@ Status: 201 CREATED
 
 返回修改后的依赖，一个 JSON 对象，其字段为：
 
-| Name                     | Type  | Description             |
-| ------------------------ | ----- | ----------------------- |
-| `id`                     | `int` | 项目依赖标识            |
-| `projectId`              | `int` | 项目标识                |
-| `componentRepoVersionId` | `int` | 组件仓库的版本标识      |
-| `projectBuildProfileId`  | `int` | 项目构建的 Profile 标识 |
+| Name               | Type     | Description      |
+| ------------------ | -------- | ---------------- |
+| `id`               | `int`    | 发行版标识       |
+| `componentRepoId`  | `int`    | 组件仓库标识     |
+| `version`          | `string` | 组件库的版本号   |
+| `apiRepoVersionId` | `int`    | API 库的版本标识 |

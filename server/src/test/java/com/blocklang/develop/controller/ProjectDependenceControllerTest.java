@@ -478,7 +478,10 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 		dependence.setComponentRepoVersionId(1);
 		when(projectDependenceService.findById(anyInt())).thenReturn(Optional.of(dependence));
 		
-		when(projectDependenceService.update(any())).thenReturn(dependence);
+		ComponentRepoVersion version = new ComponentRepoVersion();
+		version.setId(1);
+		version.setVersion("0.2.0");
+		when(componentRepoVersionService.findById(anyInt())).thenReturn(Optional.of(version));
 		
 		UpdateDependenceParam param = new UpdateDependenceParam();
 		param.setComponentRepoVersionId(1);
@@ -489,7 +492,8 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 			.put("/projects/{owner}/{projectName}/dependences/{dependenceId}", "jack", "project", 1)
 		.then()
 			.statusCode(HttpStatus.SC_CREATED)
-			.body("componentRepoVersionId", is(1));
+			.body("id", is(1),
+					"version", is("0.2.0"));
 		
 		verify(projectDependenceService).update(any());
 	}
