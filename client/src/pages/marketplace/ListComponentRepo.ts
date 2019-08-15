@@ -15,6 +15,7 @@ import Moment from '../../widgets/moment';
 import { getRepoCategoryName, getProgramingLanguageName, getProgramingLanguageColor } from '../../util';
 import { QueryPayload } from '../../processes/interfaces';
 import Pagination from '../../widgets/pagination';
+import { IconPrefix, IconName } from '@fortawesome/fontawesome-svg-core';
 
 export interface ListComponentRepoProperties {
 	loggedUsername: string;
@@ -191,6 +192,13 @@ export default class ListComponentRepo extends ThemedMixin(I18nMixin(WidgetBase)
 				])
 			]),
 			v('small', { classes: [c.text_muted] }, [
+				v('span', { classes: [c.mr_3] }, [
+					w(FontAwesomeIcon, {
+						icon: componentRepo.icon.split(' ') as [IconPrefix, IconName],
+						classes: [c.mr_1]
+					}),
+					`${componentRepo.title}`
+				]),
 				v('span', { classes: [c.mr_3] }, [
 					v('span', {
 						classes: [css.repoLanguageColor, c.mr_1],

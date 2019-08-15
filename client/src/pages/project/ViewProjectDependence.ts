@@ -39,6 +39,7 @@ import Moment from '../../widgets/moment';
 import { findIndex, find } from '@dojo/framework/shim/array';
 import * as lodash from 'lodash';
 import { DNode } from '@dojo/framework/widget-core/interfaces';
+import { IconPrefix, IconName } from '@fortawesome/fontawesome-svg-core';
 
 export interface ViewProjectDependenceProperties {
 	loggedUsername: string;
@@ -481,6 +482,13 @@ class ComponentRepoItem extends ThemedMixin(I18nMixin(WidgetBase))<ComponentRepo
 				])
 			]),
 			v('small', { classes: [c.text_muted] }, [
+				v('span', { classes: [c.mr_3] }, [
+					w(FontAwesomeIcon, {
+						icon: componentRepo.icon.split(' ') as [IconPrefix, IconName],
+						classes: [c.mr_1]
+					}),
+					`${componentRepo.title}`
+				]),
 				v('span', { classes: [c.mr_3] }, [
 					v('span', {
 						classes: [css.repoLanguageColor, c.mr_1],

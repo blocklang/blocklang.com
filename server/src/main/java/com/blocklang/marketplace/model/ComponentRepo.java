@@ -216,5 +216,16 @@ public class ComponentRepo extends PartialOperateFields {
 	public void setAppType(AppType appType) {
 		this.appType = appType;
 	}
+	
+	// FIXME: 注意，此处没有包含 Service
+	// Service 算不算是一个 app?
+	// 或者是 appType 需要改名？
+	public String getIcon() {
+		return this.appType.getIcon();
+	}
+	// FIXME: 注意，此处没有包含 Service
+	public String getTitle() {
+		return this.appType.getLabel();
+	}
 
 }

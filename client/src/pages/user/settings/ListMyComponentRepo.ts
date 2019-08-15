@@ -16,6 +16,7 @@ import Exception from '../../error/Exception';
 import { Client, IFrame } from '@stomp/stompjs';
 import SockJS = require('sockjs-client');
 import { getRepoCategoryName, getProgramingLanguageName, getProgramingLanguageColor } from '../../../util';
+import { IconPrefix, IconName } from '@fortawesome/fontawesome-svg-core';
 
 export interface ListMyComponentRepoProperties {
 	loggedUsername: string;
@@ -345,6 +346,13 @@ export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBas
 								])
 							]),
 							v('small', { classes: [c.text_muted] }, [
+								v('span', { classes: [c.mr_3] }, [
+									w(FontAwesomeIcon, {
+										icon: componentRepo.icon.split(' ') as [IconPrefix, IconName],
+										classes: [c.mr_1]
+									}),
+									`${componentRepo.title}`
+								]),
 								v('span', { classes: [c.mr_3] }, [
 									v('span', {
 										classes: [css.repoLanguageColor, c.mr_1],

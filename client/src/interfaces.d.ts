@@ -311,6 +311,8 @@ interface ComponentRepo extends ApiRepo {
 	language: ProgrammingLanguage;
 	isIdeExtension: boolean;
 	appType: string;
+	icon: string;
+	title: string;
 }
 
 interface ApiRepoVersion {
