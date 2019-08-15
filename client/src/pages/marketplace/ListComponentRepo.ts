@@ -149,7 +149,12 @@ export default class ListComponentRepo extends ThemedMixin(I18nMixin(WidgetBase)
 					}),
 					`${componentRepo.createUserName} / ${componentRepo.name}`
 				]),
-				componentRepo.label ? v('span', { classes: [c.text_muted] }, [`${componentRepo.label}`]) : undefined
+				componentRepo.label ? v('span', { classes: [c.text_muted] }, [`${componentRepo.label}`]) : undefined,
+				componentRepo.isIdeExtension
+					? v('span', { classes: [c.badge, c.badge_info, c.ml_3], title: '与 BlockLang 设计器集成' }, [
+							'设计器扩展'
+					  ])
+					: undefined
 			]),
 			v('p', { itemprop: 'description', classes: [c.text_muted, c.mb_0] }, [`${componentRepo.description}`]),
 			v('div', { classes: [c.my_2] }, [

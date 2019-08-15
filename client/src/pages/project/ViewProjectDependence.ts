@@ -430,6 +430,11 @@ class ComponentRepoItem extends ThemedMixin(I18nMixin(WidgetBase))<ComponentRepo
 					`${componentRepo.createUserName} / ${componentRepo.name}`
 				]),
 				componentRepo.label ? v('span', { classes: [c.text_muted] }, [`${componentRepo.label}`]) : undefined,
+				componentRepo.isIdeExtension
+					? v('span', { classes: [c.badge, c.badge_info, c.ml_3], title: '与 BlockLang 设计器集成' }, [
+							'设计器扩展'
+					  ])
+					: undefined,
 				used
 					? v('span', { classes: [c.float_right, c.text_info] }, ['已用'])
 					: v(

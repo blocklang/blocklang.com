@@ -73,8 +73,14 @@ export const alert_dismissible: string = 'alert-dismissible';
 
 //      badge
 export const badge: string = 'badge';
-export const badge_light: string = 'badge-light';
+export const badge_primary: string = 'badge-primary';
 export const badge_secondary: string = 'badge-secondary';
+export const badge_success: string = 'badge-success';
+export const badge_danger: string = 'badge-danger';
+export const badge_warning: string = 'badge-warning';
+export const badge_info: string = 'badge-info';
+export const badge_light: string = 'badge-light';
+export const badge_dark: string = 'badge-dark';
 
 //      breadcrumb
 export const breadcrumb: string = 'breadcrumb';
