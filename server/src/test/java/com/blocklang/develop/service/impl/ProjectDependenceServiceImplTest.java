@@ -286,6 +286,8 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		);
 	}
 	
+	// 注意，因为这些都是在一个事务中完成的，所以不要直接通过获取数据库表的记录数来断言，
+	// 而是通过 jpa 的 findById 来断言，因为事务没有结束，数据库可能还没有执行真正做删除操作。
 	@Test
 	public void delete_success() {
 		// 为项目添加一个依赖
@@ -295,9 +297,9 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		dependence.setCreateUserId(11);
 		dependence.setCreateTime(LocalDateTime.now());
 		ProjectDependence savedDependence = projectDependenceDao.save(dependence);
-		assertThat(countRowsInTable("PROJECT_DEPENDENCE")).isEqualTo(1);
+		assertThat(projectDependenceDao.findById(savedDependence.getId())).isPresent();
 		projectDependenceService.delete(savedDependence.getId());
-		assertThat(countRowsInTable("PROJECT_DEPENDENCE")).isEqualTo(0);
+		assertThat(projectDependenceDao.findById(savedDependence.getId())).isEmpty();
 	}
 	
 	@Test
