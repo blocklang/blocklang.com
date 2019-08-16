@@ -25,6 +25,9 @@ public class ComponentRepoVersion extends PartialIdField {
 	@Column(name = "version", nullable = false, length = 32)
 	private String version;
 	
+	@Column(name = "git_tag_name", nullable = false, length = 32)
+	private String gitTagName;
+	
 	@Column(name = "api_repo_version_id", nullable = false)
 	private Integer apiRepoVersionId;
 
@@ -72,6 +75,14 @@ public class ComponentRepoVersion extends PartialIdField {
 
 	public void setCreateTime(LocalDateTime createTime) {
 		this.createTime = createTime;
+	}
+
+	public String getGitTagName() {
+		return gitTagName;
+	}
+
+	public void setGitTagName(String gitTagName) {
+		this.gitTagName = gitTagName;
 	}
 	
 }

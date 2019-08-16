@@ -89,26 +89,26 @@ BlokLang 的跨平台是通过提供不同的运行环境，通过指定页面�
 ```json
 {
     "dev": {
-        "browser":{
-            "@publisher1/repoName1": "0.1.0",
-            "@publisher2/repoName2": "0.2.0"
+        "web":{
+            "github/@publisher1/repoName1": {"git": "", "tag": "v0.1.0"},
+            "gitee/@publisher2/repoName2": {"git": "", "tag": "v0.1.0"}
         }
     },
     "build": {
-        "browser":{
+        "web":{
             "default": {
-                "@publisher1/repoName1": "0.1.0",
-                "@publisher2/repoName2": "0.2.0"
+                "github/@publisher1/repoName1": {"git": "", "tag": "v0.1.0"},
+                "github/@publisher2/repoName2": {"git": "", "tag": "v0.1.0"}
             },
             "profile2": {
-                "@publisher11/repoName11": "0.1.0",
-                "@publisher22/repoName22": "0.2.0"
+                "github/@publisher11/repoName11": {"git": "", "tag": "v0.1.0"},
+                "github/@publisher22/repoName22": {"git": "", "tag": "v0.1.0"}
             }
         },
-        "wechat": {
+        "wechatMiniApp": {
             "default": {
-                "@publisher3/repoName3": "0.1.0",
-                "@publisher4/repoName4": "0.2.0"
+                "github/@publisher3/repoName3": {"git": "", "tag": "v0.1.0"},
+                "github/@publisher4/repoName4": {"git": "", "tag": "v0.1.0"}
             }
         }
     }
@@ -118,6 +118,8 @@ BlokLang 的跨平台是通过提供不同的运行环境，通过指定页面�
 为每个运行环境，添加一个默认的 profile，名称为 `default`。
 
 将组件库归到哪个 profile 下，需要手工设置。
+
+当前仅支持 git 仓库，后续将支持 maven 中央仓库，npmjs 等。
 
 ## 界面设计
 

@@ -9,6 +9,7 @@
 | dbid                | 主键             | int      |      |        | 是   | 否   |
 | component_repo_id   | 组件仓库标识     | int      |      |        |      | 否   |
 | version             | 组件库的版本号   | varchar  | 32   |        |      | 否   |
+| git_tag_name        | git tag 名称     | varchar  | 32   |        |      | 否   |
 | api_repo_version_id | API 库的版本标识 | int      |      |        |      | 否   |
 | create_user_id      | 创建人标识       | int      |      |        |      | 否   |
 | create_time         | 创建时间         | datetime |      |        |      | 否   |
@@ -22,4 +23,5 @@
 ## 说明
 
 1. 不需要 `last_update_user_id` 和 `last_update_time` 字段
-2. 只存储在 blocklang 组件市场发布的版本，并不是仓库中的所有 tag 都要存
+2. 只存储在 blocklang 组件市场发布的版本，并不是仓库中的所有 version/tag 都要存
+3. `git_tag_name` 中不包含 `refs/tags/`
