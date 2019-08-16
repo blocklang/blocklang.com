@@ -24,4 +24,5 @@
 
 1. 不需要 `last_update_user_id` 和 `last_update_time` 字段
 2. 只存储在 blocklang 组件市场发布的版本，并不是仓库中的所有 version/tag 都要存
-3. `git_tag_name` 中不包含 `refs/tags/`
+3. `version` 记录的是 `api.json` 文件中对应的 version 属性值；`git_tag_name` 记录的是 git 仓库的 tag 名称
+4. `git_tag_name` 中不包含 `refs/tags/`
