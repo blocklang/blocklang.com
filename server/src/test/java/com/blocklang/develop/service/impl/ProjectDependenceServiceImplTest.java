@@ -57,6 +57,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		ComponentRepoVersion version = new ComponentRepoVersion();
 		version.setComponentRepoId(componentRepoId);
 		version.setVersion("0.1.0");
+		version.setGitTagName("v0.1.0");
 		version.setApiRepoVersionId(3);
 		version.setCreateUserId(11);
 		version.setCreateTime(LocalDateTime.now());
@@ -85,6 +86,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		ComponentRepoVersion version = new ComponentRepoVersion();
 		version.setComponentRepoId(componentRepoId);
 		version.setVersion("0.1.0");
+		version.setGitTagName("v0.1.0");
 		version.setApiRepoVersionId(3);
 		version.setCreateUserId(11);
 		version.setCreateTime(LocalDateTime.now());
@@ -145,6 +147,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		ComponentRepoVersion version = new ComponentRepoVersion();
 		version.setComponentRepoId(componentRepoId);
 		version.setVersion("0.1.0");
+		version.setGitTagName("v0.1.0");
 		version.setApiRepoVersionId(3);
 		version.setCreateUserId(11);
 		version.setCreateTime(LocalDateTime.now());
@@ -153,6 +156,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		version = new ComponentRepoVersion();
 		version.setComponentRepoId(componentRepoId);
 		version.setVersion("0.2.0");
+		version.setGitTagName("v0.2.0");
 		version.setApiRepoVersionId(3);
 		version.setCreateUserId(11);
 		version.setCreateTime(LocalDateTime.now());
@@ -197,6 +201,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		ApiRepoVersion version = new ApiRepoVersion();
 		version.setApiRepoId(savedApiRepo.getId());
 		version.setVersion("0.1.0");
+		version.setGitTagName("v0.1.0");
 		version.setCreateUserId(1);
 		version.setCreateTime(LocalDateTime.now());
 		ApiRepoVersion savedApiRepoVersion = apiRepoVersionDao.save(version);
@@ -238,6 +243,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		ComponentRepoVersion componentRepoVersion = new ComponentRepoVersion();
 		componentRepoVersion.setComponentRepoId(savedDevRepo.getId());
 		componentRepoVersion.setVersion("0.1.0");
+		componentRepoVersion.setGitTagName("v0.1.0");
 		componentRepoVersion.setApiRepoVersionId(savedApiRepoVersion.getId());
 		componentRepoVersion.setCreateUserId(1);
 		componentRepoVersion.setCreateTime(LocalDateTime.now());
@@ -246,6 +252,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		componentRepoVersion = new ComponentRepoVersion();
 		componentRepoVersion.setComponentRepoId(savedBuildRepo.getId());
 		componentRepoVersion.setVersion("0.1.0");
+		componentRepoVersion.setGitTagName("v0.1.0");
 		componentRepoVersion.setApiRepoVersionId(savedApiRepoVersion.getId());
 		componentRepoVersion.setCreateUserId(1);
 		componentRepoVersion.setCreateTime(LocalDateTime.now());

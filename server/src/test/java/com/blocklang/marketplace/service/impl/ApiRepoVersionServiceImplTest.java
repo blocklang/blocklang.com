@@ -29,6 +29,7 @@ public class ApiRepoVersionServiceImplTest extends AbstractServiceTest {
 		ApiRepoVersion version = new ApiRepoVersion();
 		version.setApiRepoId(1);
 		version.setVersion("0.1.0");
+		version.setGitTagName("v0.1.0");
 		version.setCreateUserId(1);
 		version.setCreateTime(LocalDateTime.now());
 		ApiRepoVersion savedVersion = apiRepoVersionDao.save(version);

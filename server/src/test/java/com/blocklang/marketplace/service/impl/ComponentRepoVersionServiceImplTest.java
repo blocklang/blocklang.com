@@ -29,6 +29,7 @@ public class ComponentRepoVersionServiceImplTest extends AbstractServiceTest {
 		ComponentRepoVersion version = new ComponentRepoVersion();
 		version.setComponentRepoId(1);
 		version.setVersion("0.1.0");
+		version.setGitTagName("v0.1.0");
 		version.setApiRepoVersionId(1);
 		version.setCreateUserId(1);
 		version.setCreateTime(LocalDateTime.now());
@@ -48,6 +49,7 @@ public class ComponentRepoVersionServiceImplTest extends AbstractServiceTest {
 		ComponentRepoVersion version = new ComponentRepoVersion();
 		version.setComponentRepoId(componentRepoId);
 		version.setVersion("0.1.0");
+		version.setGitTagName("v0.1.0");
 		version.setApiRepoVersionId(1);
 		version.setCreateUserId(1);
 		version.setCreateTime(LocalDateTime.now());
