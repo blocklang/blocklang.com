@@ -84,6 +84,7 @@ public class ApiChangeLogsSetupGroupTaskTest extends AbstractServiceTest {
 		componentJson.setCategory(RepoCategory.WIDGET.getValue());
 		componentJson.setLanguage(Language.TYPESCRIPT.getValue());
 		context.setComponentJson(componentJson);
+		context.setComponentRepoLatestTagName("v0.1.0");
 	}
 
 	private void prepareApiJson() {
@@ -95,6 +96,7 @@ public class ApiChangeLogsSetupGroupTaskTest extends AbstractServiceTest {
 		apiJson.setCategory(RepoCategory.WIDGET.getValue());
 		context.setApiJson(apiJson);
 		
+		context.setApiRepoRefName(Constants.R_TAGS + "v0.1.0");
 		context.setAllApiRepoTagNames(Collections.singletonList(Constants.R_TAGS + "v0.1.0"));
 		context.setApiRepoVersions(Arrays.asList(new String[] {"0.1.0"}));
 	}

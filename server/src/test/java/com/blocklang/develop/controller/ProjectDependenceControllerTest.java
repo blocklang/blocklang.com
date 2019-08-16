@@ -269,6 +269,7 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 		ComponentRepo componentRepo = new ComponentRepo();
 		componentRepo.setApiRepoId(1);
 		componentRepo.setIsIdeExtension(false);
+		componentRepo.setAppType(AppType.WEB);
 		when(componentRepoService.findById(anyInt())).thenReturn(Optional.of(componentRepo));
 		
 		when(projectDependenceService.buildDependenceExists(anyInt(), anyInt(), any(), anyString())).thenReturn(false);
