@@ -308,6 +308,23 @@ public class GitUtils {
 			return false;
 		}
 	}
+	
+	public static Optional<String> getTagName(String refName) {
+		if(StringUtils.isBlank(refName)) {
+			return Optional.empty();
+		}
+		
+		String stripedRefName = refName.strip();
+		if(stripedRefName.startsWith(Constants.R_TAGS)) {
+			stripedRefName = stripedRefName.substring(Constants.R_TAGS.length());
+		}
+		
+		if(StringUtils.isBlank(stripedRefName)) {
+			return Optional.empty();
+		}
+		
+		return Optional.of(stripedRefName);
+	}
 
 	public static Optional<String> getVersionFromRefName(String refName) {
 		if(StringUtils.isBlank(refName)) {

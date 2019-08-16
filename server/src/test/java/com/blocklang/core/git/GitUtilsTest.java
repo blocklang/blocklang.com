@@ -608,6 +608,13 @@ public class GitUtilsTest {
 		assertThat(GitUtils.getVersionFromRefName("refs/tags/0.1.0").get()).isEqualTo("0.1.0");
 		assertThat(GitUtils.getVersionFromRefName("refs/tags/v0.1.0").get()).isEqualTo("0.1.0");
 	}
+	
+	@Test
+	public void get_tag_name() {
+		assertThat(GitUtils.getTagName(null)).isEmpty();
+		assertThat(GitUtils.getTagName(" ")).isEmpty();
+		assertThat(GitUtils.getTagName("refs/tags/v0.1.0").get()).isEqualTo("v0.1.0");
+	}
 
 	private void assertContentEquals(Path filePath, String content) throws IOException{
 		assertThat(Files.readString(filePath)).isEqualTo(content);
