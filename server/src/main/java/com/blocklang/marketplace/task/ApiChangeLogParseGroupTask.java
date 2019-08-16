@@ -51,7 +51,7 @@ public class ApiChangeLogParseGroupTask extends AbstractRepoPublishTask {
 		List<GitFileInfo> allJsonFiles = GitUtils
 				.getAllFilesFromTag(
 					context.getLocalApiRepoPath().getRepoSourceDirectory(), 
-					context.getApiRepoTagName(),
+					context.getApiRepoRefName(),
 					".json")
 				.stream()
 				// 过滤掉不属于 changelog 的文件
@@ -147,7 +147,7 @@ public class ApiChangeLogParseGroupTask extends AbstractRepoPublishTask {
 		List<GitBlobInfo> blobs = new ArrayList<GitBlobInfo>();
 		if(success) {
 			// 获取未安装的 API 变更文件的内容
-			blobs = GitUtils.loadDataFromTag(context.getLocalApiRepoPath().getRepoSourceDirectory(), context.getApiRepoTagName(), allJsonFiles);
+			blobs = GitUtils.loadDataFromTag(context.getLocalApiRepoPath().getRepoSourceDirectory(), context.getApiRepoRefName(), allJsonFiles);
 			logger.info("校验是否存在，API 变更文件已经安装过，但在 API 项目中却修改了此文件");
 			i = 0;
 			for(Map.Entry<String, List<ApiChangeLog>> entry : groupedSetupChangeFiles.entrySet()) {

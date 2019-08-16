@@ -82,6 +82,10 @@ public class ComponentJsonParseGroupTask extends AbstractRepoPublishTask {
 					} else {
 						componentRepoLatestVersion = version;
 						context.setComponentRepoLatestVersion(version);
+						
+						// 再保存一份 tag
+						context.setComponentRepoLatestTagName(GitUtils.getTagName(componentRepoLatestRefName).orElse(null));
+						
 						logger.info("完成，组件仓库的最新版本为 {0}", version);
 					}
 				} else {

@@ -29,11 +29,12 @@ public class MarketplacePublishContext {
 	private LocalRepoPath localApiRepoPath;
 	private Path logFile;
 	
+	private String componentRepoLatestTagName;
 	private String componentRepoLatestVersion;
 	
 	// tag name 是包含 ref/tags/ 的完整名
-	private String apiRepoTagName;
-	private List<String> allApiRepoTagNames; // tag 的名称
+	private String apiRepoRefName;
+	private List<String> allApiRepoRefNames; // tag 的名称
 	private List<String> apiRepoVersions; // version 是从 tag 名称中解析出来的
 	
 	private TaskLogger logger;
@@ -130,12 +131,12 @@ public class MarketplacePublishContext {
 		this.isFirstPublish = isFirstPublish;
 	}
 
-	public String getApiRepoTagName() {
-		return apiRepoTagName;
+	public String getApiRepoRefName() {
+		return apiRepoRefName;
 	}
 
-	public void setApiRepoTagName(String apiRepoTagName) {
-		this.apiRepoTagName = apiRepoTagName;
+	public void setApiRepoRefName(String apiRepoRefName) {
+		this.apiRepoRefName = apiRepoRefName;
 	}
 
 	public List<String> getApiRepoVersions() {
@@ -146,12 +147,12 @@ public class MarketplacePublishContext {
 		this.apiRepoVersions = apiRepoVersions;
 	}
 
-	public List<String> getAllApiRepoTagNames() {
-		return allApiRepoTagNames;
+	public List<String> getAllApiRepoRefNames() {
+		return allApiRepoRefNames;
 	}
 
-	public void setAllApiRepoTagNames(List<String> allApiRepoTagNames) {
-		this.allApiRepoTagNames = allApiRepoTagNames;
+	public void setAllApiRepoTagNames(List<String> allApiRepoRefNames) {
+		this.allApiRepoRefNames = allApiRepoRefNames;
 	}
 	
 	public void setLogger(TaskLogger logger) {
@@ -160,6 +161,14 @@ public class MarketplacePublishContext {
 
 	public TaskLogger getLogger() {
 		return this.logger;
+	}
+
+	public String getComponentRepoLatestTagName() {
+		return componentRepoLatestTagName;
+	}
+
+	public void setComponentRepoLatestTagName(String componentRepoLatestTagName) {
+		this.componentRepoLatestTagName = componentRepoLatestTagName;
 	}
 
 }

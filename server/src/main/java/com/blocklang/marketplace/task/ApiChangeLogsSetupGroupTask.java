@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.blocklang.core.git.GitUtils;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.marketplace.constant.ChangelogExecuteResult;
 import com.blocklang.marketplace.constant.ComponentAttrValueType;
@@ -335,6 +336,7 @@ public class ApiChangeLogsSetupGroupTask extends AbstractRepoPublishTask {
 		ApiRepoVersion apiRepoVersion = new ApiRepoVersion();
 		apiRepoVersion.setApiRepoId(savedApiRepoId);
 		apiRepoVersion.setVersion(apiVersion);
+		apiRepoVersion.setGitTagName(GitUtils.getTagName(context.getApiRepoRefName()).orElse(null));
 		apiRepoVersion.setCreateUserId(publishTask.getCreateUserId());
 		apiRepoVersion.setCreateTime(LocalDateTime.now());
 		return apiRepoVersionDao.save(apiRepoVersion);
@@ -362,6 +364,7 @@ public class ApiChangeLogsSetupGroupTask extends AbstractRepoPublishTask {
 		compRepoVersion.setApiRepoVersionId(apiRepoVersionId);
 		// TODO: 确认 context.getComponentRepoLatestVersion() 的值与 componentJson.getVersion() 的值相同
 		compRepoVersion.setVersion(componentJson.getVersion().trim());
+		compRepoVersion.setGitTagName(context.getComponentRepoLatestTagName());
 		compRepoVersion.setCreateUserId(publishTask.getCreateUserId());
 		compRepoVersion.setCreateTime(LocalDateTime.now());
 		return componentRepoVersionDao.save(compRepoVersion);

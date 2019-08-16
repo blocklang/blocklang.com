@@ -63,13 +63,13 @@ public class ApiJsonParseGroupTask extends AbstractRepoPublishTask {
 			String apiRepoVersion = componentJson.getApi().getVersion().trim();
 			logger.info("检查 API 仓库中是否存在 {0} 发行版", apiRepoVersion);
 			
-			Optional<String> tagNameOption = context.getAllApiRepoTagNames()
+			Optional<String> tagNameOption = context.getAllApiRepoRefNames()
 					.stream().filter(tagName -> tagName.endsWith(apiRepoVersion))
 					.findFirst();
 			success = tagNameOption.isPresent();
 			if(success) {
 				apiRepoRefName = tagNameOption.get();
-				context.setApiRepoTagName(apiRepoRefName);
+				context.setApiRepoRefName(apiRepoRefName);
 				logger.info("存在");
 			} else {
 				logger.error("不存在");
