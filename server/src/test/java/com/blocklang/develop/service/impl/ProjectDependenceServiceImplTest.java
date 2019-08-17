@@ -207,7 +207,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
-	public void save_dependence_json_file() throws IOException {
+	public void save_then_update_dependence_json_file() throws IOException {
 		UserInfo userInfo = new UserInfo();
 		userInfo.setLoginName("user_name");
 		userInfo.setAvatarUrl("avatar_url");
@@ -432,6 +432,73 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		assertThat(projectDependenceDao.findById(savedDependence.getId())).isPresent();
 		projectDependenceService.delete(savedDependence.getId());
 		assertThat(projectDependenceDao.findById(savedDependence.getId())).isEmpty();
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Test
+	public void delete_then_update_dependence_json_file() throws IOException {
+		// 一、创建一个项目
+		UserInfo userInfo = new UserInfo();
+		userInfo.setLoginName("user_name");
+		userInfo.setAvatarUrl("avatar_url");
+		userInfo.setEmail("email");
+		userInfo.setMobile("mobile");
+		userInfo.setCreateTime(LocalDateTime.now());
+		Integer userId = userDao.save(userInfo).getId();
+		
+		Project project = new Project();
+		project.setName("project_name");
+		project.setIsPublic(true);
+		project.setDescription("description");
+		project.setLastActiveTime(LocalDateTime.now());
+		project.setCreateUserId(userId);
+		project.setCreateTime(LocalDateTime.now());
+		project.setCreateUserName("user_name");
+		
+		File rootFolder = tempFolder.newFolder();
+		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.getPath()));
+		ProjectContext context = new ProjectContext("user_name", "project_name", rootFolder.getPath());
+		
+		Project savedProject = projectService.create(userInfo, project);
+		
+		// 二、添加一个依赖
+		// 依赖一个 dev 仓库
+		ComponentRepo devRepo = new ComponentRepo();
+		devRepo.setApiRepoId(1);
+		devRepo.setGitRepoUrl("url1");
+		devRepo.setGitRepoWebsite("website1");
+		devRepo.setGitRepoOwner("jack1");
+		devRepo.setGitRepoName("repo1");
+		devRepo.setName("name1");
+		devRepo.setVersion("version1");
+		devRepo.setCategory(RepoCategory.WIDGET);
+		devRepo.setCreateUserId(1);
+		devRepo.setCreateTime(LocalDateTime.now());
+		devRepo.setLanguage(Language.TYPESCRIPT);
+		devRepo.setAppType(AppType.WEB);
+		devRepo.setIsIdeExtension(true);
+		ComponentRepo savedDevRepo = componentRepoDao.save(devRepo);
+
+		ComponentRepoVersion devRepoVersion = new ComponentRepoVersion();
+		devRepoVersion.setComponentRepoId(savedDevRepo.getId());
+		devRepoVersion.setVersion("0.1.0");
+		devRepoVersion.setGitTagName("v0.1.1");
+		devRepoVersion.setApiRepoVersionId(3);
+		devRepoVersion.setCreateUserId(11);
+		devRepoVersion.setCreateTime(LocalDateTime.now());
+		componentRepoVersionDao.save(devRepoVersion);
+		
+		ProjectDependence savedDependence = projectDependenceService.save(savedProject.getId(), devRepo, userId);
+		
+		// 三、删除添加的依赖
+		projectDependenceService.delete(savedDependence.getId());
+		
+		// 四、断言 DEPENDENCE.json 文件的内容为 “{}”
+		// 在 git 仓库中获取 DEPENDENCE.json 文件
+		String dependenceFileContent = Files.readString(context.getGitRepositoryDirectory().resolve(ProjectResource.DEPENDENCE_NAME));
+		ObjectMapper objectMapper = new ObjectMapper();
+		Map jsonObject = objectMapper.readValue(dependenceFileContent, Map.class);
+		assertThat(jsonObject).isEmpty();
 	}
 	
 	@Test

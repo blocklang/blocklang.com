@@ -178,7 +178,6 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 	//	    }
 	//	}
 	//	```
-	// TODO: 在 version 表中保存 tag 信息？
 	private void updateProjectDependenceFile(Integer projectId) {
 		Optional<Project> projectOption = projectDao.findById(projectId);
 		if(projectOption.isEmpty()) {
@@ -263,8 +262,12 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 			buildMap.put(appTypeValue, appTypeMap);
 		}
 		
-		result.put("dev", devMap);
-		result.put("build", buildMap);
+		if(!devMap.isEmpty()) {
+			result.put("dev", devMap);
+		}
+		if(!buildMap.isEmpty()) {
+			result.put("build", buildMap);
+		}
 		
 		propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).map(rootDir -> {
 			return new ProjectContext(project.getCreateUserName(), project.getName(), rootDir).getGitRepositoryDirectory();
@@ -306,7 +309,10 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 
 	@Override
 	public void delete(Integer dependenceId) {
-		projectDependenceDao.deleteById(dependenceId);
+		projectDependenceDao.findById(dependenceId).ifPresent(dependence -> {
+			projectDependenceDao.delete(dependence);
+			updateProjectDependenceFile(dependence.getProjectId());
+		});
 	}
 
 	@Override
