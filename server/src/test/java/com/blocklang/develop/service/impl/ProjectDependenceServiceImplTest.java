@@ -205,7 +205,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		assertThat(countRowsInTable("PROJECT_DEPENDENCE")).isEqualTo(1);
 	}
 	
-	@SuppressWarnings({ "rawtypes", "unused", "unchecked" })
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void save_dependence_json_file() throws IOException {
 		UserInfo userInfo = new UserInfo();
