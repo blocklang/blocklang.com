@@ -342,8 +342,15 @@ interface ComponentRepoUrlInputValidation {
 	componentRepoUrlErrorMessage?: string;
 }
 
-interface ProjectDependence extends ComponentRepoInfo {
+interface ProjectDependence {
 	id: number;
+	projectId: number;
+	componentRepoVersionId: number;
+	profileId: number;
+}
+
+interface ProjectDependenceData extends ComponentRepoInfo {
+	dependence: ProjectDependence;
 	// 当前依赖的版本
 	componentRepoVersion: ComponentRepoVersion;
 	apiRepoVersion: ApiRepoVersion;
@@ -356,7 +363,7 @@ interface ProjectDependence extends ComponentRepoInfo {
 interface ProjectDependenceResource {
 	resourceId: number;
 	pathes: ProjectGroup[];
-	dependences: ProjectDependence[];
+	dependences: ProjectDependenceData[];
 }
 
 export interface State {

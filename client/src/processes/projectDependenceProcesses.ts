@@ -84,7 +84,7 @@ const deleteDependenceCommand = commandFactory<ProjectDependenceIdPayload>(
 		if (response.ok) {
 			// 将创建成功后返回的数据插入到数组中
 			const dependences = get(path('projectDependenceResource', 'dependences'));
-			const index = findIndex(dependences, (item) => item.id === dependenceId);
+			const index = findIndex(dependences, (item) => item.dependence.id === dependenceId);
 			return [remove(at(path('projectDependenceResource', 'dependences'), index))];
 		}
 
@@ -112,7 +112,7 @@ const getDependenceVersionsCommand = commandFactory(
 		const json = await response.json();
 
 		const dependences = get(path('projectDependenceResource', 'dependences'));
-		const index = findIndex(dependences, (item) => item.id === dependenceId);
+		const index = findIndex(dependences, (item) => item.dependence.id === dependenceId);
 		const dependencePath = at(path('projectDependenceResource', 'dependences'), index);
 
 		if (!response.ok) {
@@ -153,7 +153,7 @@ const updateDependenceVersionCommand = commandFactory(
 		}
 
 		const dependences = get(path('projectDependenceResource', 'dependences'));
-		const index = findIndex(dependences, (item) => item.id === dependenceId);
+		const index = findIndex(dependences, (item) => item.dependence.id === dependenceId);
 		const dependencePath = at(path('projectDependenceResource', 'dependences'), index);
 
 		return [replace(dependencePath, { ...dependences[index], componentRepoVersion: json })];

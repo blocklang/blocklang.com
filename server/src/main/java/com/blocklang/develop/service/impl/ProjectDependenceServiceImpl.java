@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -208,7 +209,7 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 		}).ifPresent(rootPath -> {
 			Path path = rootPath.resolve(fileName);
 			try {
-				Files.writeString(path, content, StandardOpenOption.CREATE);
+				Files.writeString(path, content);
 			} catch (IOException e) {
 				logger.error("往 " + fileName + " 文件写入内容时出错", e);
 			}
@@ -216,6 +217,10 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 	}
 
 	private Map<String, Object> convertToDependenceJsonFile(List<ProjectDependenceData> dependences) {
+		if(dependences.isEmpty()) {
+			return Collections.emptyMap();
+		}
+		
 		Map<String, Object> result = new HashMap<String, Object>();
 		List<ProjectDependenceData> devDependences = dependences
 				.stream()

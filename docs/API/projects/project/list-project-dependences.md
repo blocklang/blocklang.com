@@ -6,10 +6,10 @@ GET /projects/{owner}/{projectName}/dependences
 
 ## Parameters
 
-| Name              | Type     | Description              |
-| ----------------- | -------- | ------------------------ |
-| `owner`           | `string` | **Required**. 用户登录名 |
-| `projectName`     | `string` | **Required**. 项目名称   |
+| Name          | Type     | Description              |
+| ------------- | -------- | ------------------------ |
+| `owner`       | `string` | **Required**. 用户登录名 |
+| `projectName` | `string` | **Required**. 项目名称   |
 
 ## Response
 
@@ -35,7 +35,7 @@ Status: 200 OK
 
 ```json
 [{
-    "id": 1,
+    "dependence": {},
     "componentRepo": {},
     "componentRepoVersion": {},
     "apiRepo": {},
@@ -43,7 +43,16 @@ Status: 200 OK
 }]
 ```
 
-componentRepo 中的字段为：
+`dependence` 中的字段为：
+
+| Name                     | Type     | Description             |
+| ------------------------ | -------- | ----------------------- |
+| `id`                     | `int`    | 发行版标识              |
+| `projectId`              | `string` | 项目标识                |
+| `componentRepoVersionId` | `string` | 组件仓库的版本标识      |
+| `profileId`              | `string` | 项目构建的 Profile 标识 |
+
+`componentRepo` 中的字段为：
 
 | Name              | Type     | Description        |
 | ----------------- | -------- | ------------------ |
@@ -60,7 +69,7 @@ componentRepo 中的字段为：
 | `category`        | `string` | 组件库分类         |
 | `lastPublishTime` | `string` | 最近发布时间       |
 
-componentRepoVersion 中的字段为：
+`componentRepoVersion` 中的字段为：
 
 | Name               | Type     | Description      |
 | ------------------ | -------- | ---------------- |
@@ -69,7 +78,7 @@ componentRepoVersion 中的字段为：
 | `version`          | `string` | 组件库的版本号   |
 | `apiRepoVersionId` | `int`    | API 库的版本标识 |
 
-apiRepo 中的字段为：
+`apiRepo` 中的字段为：
 
 | Name              | Type     | Description      |
 | ----------------- | -------- | ---------------- |
@@ -85,7 +94,7 @@ apiRepo 中的字段为：
 | `category`        | `string` | 组件库分类       |
 | `lastPublishTime` | `string` | 最近发布时间     |
 
-apiRepoVersion 中的字段为：
+`apiRepoVersion` 中的字段为：
 
 | Name        | Type     | Description        |
 | ----------- | -------- | ------------------ |

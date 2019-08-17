@@ -8,13 +8,13 @@ import {
 	Project,
 	ProjectGroup,
 	CommitInfo,
-	ProjectDependence,
 	WithTarget,
 	PagedComponentRepos,
 	ComponentRepoInfo,
 	ApiRepo,
 	ApiRepoVersion,
-	ComponentRepoVersion
+	ComponentRepoVersion,
+	ProjectDependenceData
 } from '../../interfaces';
 import Spinner from '../../widgets/spinner';
 import { isEmpty, getProgramingLanguageName, getRepoCategoryName, getProgramingLanguageColor } from '../../util';
@@ -47,7 +47,7 @@ export interface ViewProjectDependenceProperties {
 	sourceId: number;
 	pathes: ProjectGroup[];
 	pagedComponentRepos: PagedComponentRepos;
-	dependences: ProjectDependence[];
+	dependences: ProjectDependenceData[];
 	latestCommitInfo: CommitInfo;
 	onOpenGroup: (opt: ProjectResourcePathPayload) => void;
 	onQueryComponentRepos: (opt: QueryPayload) => void;
@@ -364,7 +364,7 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 		return [v('div', {}, [v('strong', ['发布'])]), ...this._renderComponentRepoDependences(buildDependences)];
 	}
 
-	private _renderComponentRepoDependences(dependences: ProjectDependence[]): DNode[] {
+	private _renderComponentRepoDependences(dependences: ProjectDependenceData[]): DNode[] {
 		const { project, onDeleteDependence, onShowDependenceVersions, onUpdateDependenceVersion } = this.properties;
 
 		// 按照 appType 分组
@@ -530,7 +530,7 @@ class ComponentRepoItem extends ThemedMixin(I18nMixin(WidgetBase))<ComponentRepo
 
 interface DependenceRowProperties {
 	project: Project;
-	dependence: ProjectDependence;
+	dependence: ProjectDependenceData;
 	// 当前选中依赖的版本列表
 	versions: ComponentRepoVersion[];
 	onDeleteDependence: (opt: ProjectDependenceIdPayload) => void;
@@ -587,7 +587,7 @@ class DependenceRow extends ThemedMixin(I18nMixin(WidgetBase))<DependenceRowProp
 	private _onShowVersions() {
 		const { dependence } = this.properties;
 		this.properties.onShowDependenceVersions({
-			dependenceId: dependence.id,
+			dependenceId: dependence.dependence.id,
 			componentRepoId: dependence.componentRepo.id!
 		});
 	}
@@ -598,14 +598,14 @@ class DependenceRow extends ThemedMixin(I18nMixin(WidgetBase))<DependenceRowProp
 		this.properties.onDeleteDependence({
 			owner: project.createUserName,
 			project: project.name,
-			id: dependence.id
+			id: dependence.dependence.id
 		});
 	}
 }
 
 interface DependenceVersionMenuProperties {
 	project: Project;
-	dependence: ProjectDependence;
+	dependence: ProjectDependenceData;
 	version: ComponentRepoVersion;
 	onUpdateDependenceVersion: (opt: ProjectDependenceVersionPayload) => void;
 }
@@ -636,7 +636,7 @@ class DependenceVersionMenu extends ThemedMixin(I18nMixin(WidgetBase))<Dependenc
 		this.properties.onUpdateDependenceVersion({
 			owner: project.createUserName,
 			project: project.name,
-			dependenceId: dependence.id,
+			dependenceId: dependence.dependence.id,
 			componentRepoVersionId: version.id
 		});
 	}
