@@ -298,7 +298,7 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 			.post("/projects/{owner}/{projectName}/dependences", "jack", "project")
 		.then()
 			.statusCode(HttpStatus.SC_CREATED)
-			.body("id", is(10),
+			.body("dependence.id", is(10),
 					"componentRepo", is(notNullValue()),
 					"componentRepoVersion", is(notNullValue()),
 					"apiRepo", is(notNullValue()),
