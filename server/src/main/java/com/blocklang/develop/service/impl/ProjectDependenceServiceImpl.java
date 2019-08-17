@@ -40,6 +40,7 @@ import com.blocklang.marketplace.model.ApiRepo;
 import com.blocklang.marketplace.model.ApiRepoVersion;
 import com.blocklang.marketplace.model.ComponentRepo;
 import com.blocklang.marketplace.model.ComponentRepoVersion;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.skuzzle.semantic.Version;
@@ -184,19 +185,38 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 			return;
 		}
 		Project project = projectOption.get();
-		Map<String, Object> result = new HashMap<String, Object>();
-		// 获取项目的所有依赖
-		List<ProjectDependenceData> dependences = findProjectDependences(projectId);
-		// 补充 profile 信息
-		for(ProjectDependenceData data : dependences) {
-			// 先获取依赖信息
-			ProjectDependence dependence = data.getDependence();
-			// 然后根据依赖信息获取 profile 信息
-			if(dependence.getProfileId() != null) {
-				projectBuildProfileDao.findById(dependence.getProfileId()).ifPresent(profile -> data.setProfile(profile));
-			}
-		}
 		
+		// 在依赖中补充 profile 详情
+		List<ProjectDependenceData> dependences = appendBuildProfile(projectId);
+		
+		// 转换为 DEPENDENCE.json 期望的个数
+		Map<String, Object> result = convertToDependenceJsonFile(dependences);
+		
+		String fileName = ProjectResource.DEPENDENCE_NAME;
+		ObjectMapper objectMapper = new ObjectMapper();
+		try {
+			String jsonContent = objectMapper.writeValueAsString(result);
+			updateGitFile(project, fileName, jsonContent);
+		} catch (JsonProcessingException e) {
+			logger.error("转换为 json 字符串时出错", e);
+		}
+	}
+
+	private void updateGitFile(Project project, String fileName, String content) {
+		propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).map(rootDir -> {
+			return new ProjectContext(project.getCreateUserName(), project.getName(), rootDir).getGitRepositoryDirectory();
+		}).ifPresent(rootPath -> {
+			Path path = rootPath.resolve(fileName);
+			try {
+				Files.writeString(path, content, StandardOpenOption.CREATE);
+			} catch (IOException e) {
+				logger.error("往 " + fileName + " 文件写入内容时出错", e);
+			}
+		});
+	}
+
+	private Map<String, Object> convertToDependenceJsonFile(List<ProjectDependenceData> dependences) {
+		Map<String, Object> result = new HashMap<String, Object>();
 		List<ProjectDependenceData> devDependences = dependences
 				.stream()
 				.filter(dependence -> dependence.getComponentRepo().getIsIdeExtension())
@@ -268,20 +288,22 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 		if(!buildMap.isEmpty()) {
 			result.put("build", buildMap);
 		}
-		
-		propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).map(rootDir -> {
-			return new ProjectContext(project.getCreateUserName(), project.getName(), rootDir).getGitRepositoryDirectory();
-		}).ifPresent(rootPath -> {
-			Path path = rootPath.resolve(ProjectResource.DEPENDENCE_NAME);
-			
-			try {
-				ObjectMapper objectMapper = new ObjectMapper();
-				String jsonContent = objectMapper.writeValueAsString(result);
-				Files.writeString(path, jsonContent, StandardOpenOption.CREATE);
-			} catch (IOException e) {
-				logger.error("往 " + ProjectResource.DEPENDENCE_NAME + " 文件写入内容时出错", e);
+		return result;
+	}
+
+	private List<ProjectDependenceData> appendBuildProfile(Integer projectId) {
+		// 获取项目的所有依赖
+		List<ProjectDependenceData> dependences = findProjectDependences(projectId);
+		// 补充 profile 信息
+		for(ProjectDependenceData data : dependences) {
+			// 先获取依赖信息
+			ProjectDependence dependence = data.getDependence();
+			// 然后根据依赖信息获取 profile 信息
+			if(dependence.getProfileId() != null) {
+				projectBuildProfileDao.findById(dependence.getProfileId()).ifPresent(profile -> data.setProfile(profile));
 			}
-		});
+		}
+		return dependences;
 	}
 
 	@Override
