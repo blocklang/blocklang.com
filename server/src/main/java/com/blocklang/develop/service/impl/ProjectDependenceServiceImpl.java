@@ -317,7 +317,9 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 
 	@Override
 	public ProjectDependence update(ProjectDependence dependence) {
-		return projectDependenceDao.save(dependence);
+		ProjectDependence savedDependence = projectDependenceDao.save(dependence);
+		updateProjectDependenceFile(dependence.getProjectId());
+		return savedDependence;
 	}
 
 	@Override
