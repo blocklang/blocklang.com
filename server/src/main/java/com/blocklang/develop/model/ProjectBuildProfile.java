@@ -27,7 +27,10 @@ public class ProjectBuildProfile extends PartialOperateFields{
 	@Column(name = "profile_name", length = 64, nullable = false)
 	private String name;
 
-	public static final String DEFAULT_PROFILE_NAME = "Default";
+	/**
+	 * 约定首字母小写
+	 */
+	public static final String DEFAULT_PROFILE_NAME = "default";
 
 	public Integer getProjectId() {
 		return projectId;

@@ -1,21 +1,38 @@
 package com.blocklang.develop.service.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
+import com.blocklang.core.constant.CmPropKey;
+import com.blocklang.core.dao.UserDao;
+import com.blocklang.core.model.UserInfo;
+import com.blocklang.core.service.PropertyService;
 import com.blocklang.core.test.AbstractServiceTest;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.dao.ProjectBuildProfileDao;
 import com.blocklang.develop.dao.ProjectDependenceDao;
 import com.blocklang.develop.data.ProjectDependenceData;
+import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectBuildProfile;
+import com.blocklang.develop.model.ProjectContext;
 import com.blocklang.develop.model.ProjectDependence;
+import com.blocklang.develop.model.ProjectResource;
 import com.blocklang.develop.service.ProjectDependenceService;
+import com.blocklang.develop.service.ProjectService;
 import com.blocklang.marketplace.constant.Language;
 import com.blocklang.marketplace.constant.RepoCategory;
 import com.blocklang.marketplace.dao.ApiRepoDao;
@@ -26,9 +43,14 @@ import com.blocklang.marketplace.model.ApiRepo;
 import com.blocklang.marketplace.model.ApiRepoVersion;
 import com.blocklang.marketplace.model.ComponentRepo;
 import com.blocklang.marketplace.model.ComponentRepoVersion;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
-
+	@Rule
+	public TemporaryFolder tempFolder = new TemporaryFolder();
+	@MockBean
+	private PropertyService propertyService;
+	
 	@Autowired
 	private ProjectDependenceDao projectDependenceDao;
 	@Autowired
@@ -43,6 +65,10 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 	private ApiRepoDao apiRepoDao;
 	@Autowired
 	private ApiRepoVersionDao apiRepoVersionDao;
+	@Autowired
+	private UserDao userDao;
+	@Autowired
+	private ProjectService projectService;
 
 	@Test
 	public void dev_dependence_exists_that_not_exists() {
@@ -134,7 +160,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 	}
 	
 	@Test
-	public void save_success() {
+	public void save_success() throws IOException {
 		Integer projectId = 1;
 		Integer componentRepoId = 2;
 		Integer userId = 3;
@@ -165,6 +191,9 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		assertThat(countRowsInTable("PROJECT_BUILD_PROFILE")).isEqualTo(0);
 		assertThat(countRowsInTable("PROJECT_DEPENDENCE")).isEqualTo(0);
 		
+		File rootFolder = tempFolder.newFolder();
+		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.getPath()));
+		
 		ProjectDependence savedDependence = projectDependenceService.save(projectId, componentRepo, userId);
 		
 		assertThat(savedDependence.getProjectId()).isEqualTo(projectId);
@@ -174,6 +203,102 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		
 		assertThat(countRowsInTable("PROJECT_BUILD_PROFILE")).isEqualTo(1);
 		assertThat(countRowsInTable("PROJECT_DEPENDENCE")).isEqualTo(1);
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unused", "unchecked" })
+	@Test
+	public void save_dependence_json_file() throws IOException {
+		UserInfo userInfo = new UserInfo();
+		userInfo.setLoginName("user_name");
+		userInfo.setAvatarUrl("avatar_url");
+		userInfo.setEmail("email");
+		userInfo.setMobile("mobile");
+		userInfo.setCreateTime(LocalDateTime.now());
+		Integer userId = userDao.save(userInfo).getId();
+		
+		Project project = new Project();
+		project.setName("project_name");
+		project.setIsPublic(true);
+		project.setDescription("description");
+		project.setLastActiveTime(LocalDateTime.now());
+		project.setCreateUserId(userId);
+		project.setCreateTime(LocalDateTime.now());
+		project.setCreateUserName("user_name");
+		
+		File rootFolder = tempFolder.newFolder();
+		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.getPath()));
+		ProjectContext context = new ProjectContext("user_name", "project_name", rootFolder.getPath());
+		
+		Project savedProject = projectService.create(userInfo, project);
+		
+		// 依赖一个 dev 仓库
+		ComponentRepo devRepo = new ComponentRepo();
+		devRepo.setApiRepoId(1);
+		devRepo.setGitRepoUrl("url1");
+		devRepo.setGitRepoWebsite("website1");
+		devRepo.setGitRepoOwner("jack1");
+		devRepo.setGitRepoName("repo1");
+		devRepo.setName("name1");
+		devRepo.setVersion("version1");
+		devRepo.setCategory(RepoCategory.WIDGET);
+		devRepo.setCreateUserId(1);
+		devRepo.setCreateTime(LocalDateTime.now());
+		devRepo.setLanguage(Language.TYPESCRIPT);
+		devRepo.setAppType(AppType.WEB);
+		devRepo.setIsIdeExtension(true);
+		ComponentRepo savedDevRepo = componentRepoDao.save(devRepo);
+
+		ComponentRepoVersion devRepoVersion = new ComponentRepoVersion();
+		devRepoVersion.setComponentRepoId(savedDevRepo.getId());
+		devRepoVersion.setVersion("0.1.0");
+		devRepoVersion.setGitTagName("v0.1.1");
+		devRepoVersion.setApiRepoVersionId(3);
+		devRepoVersion.setCreateUserId(11);
+		devRepoVersion.setCreateTime(LocalDateTime.now());
+		componentRepoVersionDao.save(devRepoVersion);
+		
+		projectDependenceService.save(savedProject.getId(), devRepo, userId);
+		
+		// 依赖一个 build 仓库
+		ComponentRepo buildRepo = new ComponentRepo();
+		buildRepo.setApiRepoId(1);
+		buildRepo.setGitRepoUrl("url");
+		buildRepo.setGitRepoWebsite("website");
+		buildRepo.setGitRepoOwner("jack");
+		buildRepo.setGitRepoName("repo");
+		buildRepo.setName("name");
+		buildRepo.setVersion("version");
+		buildRepo.setCategory(RepoCategory.WIDGET);
+		buildRepo.setCreateUserId(1);
+		buildRepo.setCreateTime(LocalDateTime.now());
+		buildRepo.setLanguage(Language.TYPESCRIPT);
+		buildRepo.setAppType(AppType.WEB);
+		ComponentRepo savedBuildRepo = componentRepoDao.save(buildRepo);
+		
+		ComponentRepoVersion buildRepoVersion = new ComponentRepoVersion();
+		buildRepoVersion.setComponentRepoId(savedBuildRepo.getId());
+		buildRepoVersion.setVersion("0.1.0");
+		buildRepoVersion.setGitTagName("v0.1.0");
+		buildRepoVersion.setApiRepoVersionId(3);
+		buildRepoVersion.setCreateUserId(11);
+		buildRepoVersion.setCreateTime(LocalDateTime.now());
+		componentRepoVersionDao.save(buildRepoVersion);
+		
+		projectDependenceService.save(savedProject.getId(), buildRepo, userId);
+		
+		// 在 git 仓库中获取 DEPENDENCE.json 文件
+		String dependenceFileContent = Files.readString(context.getGitRepositoryDirectory().resolve(ProjectResource.DEPENDENCE_NAME));
+		ObjectMapper objectMapper = new ObjectMapper();
+		Map jsonObject = objectMapper.readValue(dependenceFileContent, Map.class);
+		assertThat(jsonObject).isNotEmpty();
+		
+		Map dev = (Map)((Map)((Map)jsonObject.get("dev")).get("web")).get("website1/jack1/repo1");
+		assertThat(dev.get("git")).isEqualTo("url1");
+		assertThat(dev.get("tag")).isEqualTo("v0.1.1");
+		
+		Map build = (Map)((Map)((Map)((Map)jsonObject.get("build")).get("web")).get("default")).get("website/jack/repo");
+		assertThat(build.get("git")).isEqualTo("url");
+		assertThat(build.get("tag")).isEqualTo("v0.1.0");
 	}
 	
 	@Test
@@ -285,7 +410,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		
 		List<ProjectDependenceData> dependences = projectDependenceService.findProjectDependences(projectId);
 		assertThat(dependences).hasSize(2);
-		assertThat(dependences).allMatch(dependence -> dependence.getId() != null && 
+		assertThat(dependences).allMatch(dependence -> dependence != null && 
 				dependence.getComponentRepo() != null &&
 				dependence.getComponentRepoVersion() != null &&
 				dependence.getApiRepo() != null &&

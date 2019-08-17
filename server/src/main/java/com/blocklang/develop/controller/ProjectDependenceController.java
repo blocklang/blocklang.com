@@ -185,7 +185,7 @@ public class ProjectDependenceController extends AbstractProjectController{
 			return new ResourceNotFoundException();
 		});
 		
-		ProjectDependenceData result = new ProjectDependenceData(savedProjectDependence.getId(), componentRepo, componentRepoVersion, apiRepo, apiRepoVersion);
+		ProjectDependenceData result = new ProjectDependenceData(savedProjectDependence, componentRepo, componentRepoVersion, apiRepo, apiRepoVersion);
 		return new ResponseEntity<ProjectDependenceData>(result, HttpStatus.CREATED);
 	}
 	
