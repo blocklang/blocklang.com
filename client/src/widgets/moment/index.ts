@@ -2,6 +2,7 @@ import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
 import { v } from '@dojo/framework/widget-core/d';
 import { ThemedMixin, theme, ThemedProperties } from '@dojo/framework/widget-core/mixins/Themed';
 import { customElement } from '@dojo/framework/widget-core/decorators/customElement';
+import { startsWith, endsWith, includes } from '@dojo/framework/shim/string';
 
 import * as moment from 'moment';
 import 'moment/locale/zh-cn';
@@ -30,8 +31,12 @@ export class MomentBase<P extends MomentProperties = MomentProperties> extends T
 		const { datetime } = this.properties;
 		const momentInstance = moment(datetime);
 		const title = momentInstance.format();
-		const fromNow = momentInstance.fromNow();
-
+		let fromNow = momentInstance.fromNow();
+		// 以下修改只针对中文等，不适合英语
+		// 如果显示的文本中有空格，则在文本前加一个空格，如“3 秒前”改为“ 3 秒前”
+		if (!startsWith(fromNow, ' ') && !endsWith(fromNow, ' ') && includes(fromNow, ' ')) {
+			fromNow = ' ' + fromNow;
+		}
 		return v('time', { datetime, title }, [fromNow]);
 	}
 }
