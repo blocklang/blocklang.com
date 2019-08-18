@@ -332,12 +332,16 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 			// 排除分组
 			if(filePath.endsWith(".page.web.json")) {
 				return true;
-			}else if(filePath.equalsIgnoreCase(ProjectResource.README_NAME)) {
-				return true;
-			}else {
-				// 到此处，都当成是分组
-				return false;
 			}
+			if(filePath.equalsIgnoreCase(ProjectResource.README_NAME)) {
+				return true;
+			}
+			if(filePath.equalsIgnoreCase(ProjectResource.DEPENDENCE_NAME)) {
+				return true;
+			}
+			
+			// 到此处，都当成是分组
+			return false;
 		}).map(item -> {
 			// 根据文件名反推资源信息
 			String filePath = item.getKey();
@@ -363,6 +367,12 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 				resourceType = ProjectResourceType.FILE;
 				appType = AppType.UNKNOWN;
 				resourceKey = ProjectResource.README_KEY;
+				parentPath = "";
+			} else if(filePath.equalsIgnoreCase(ProjectResource.DEPENDENCE_NAME)) {
+				// DEPENDENCE.json 文件只存在于根目录
+				resourceType = ProjectResourceType.DEPENDENCE;
+				appType = AppType.UNKNOWN;
+				resourceKey = ProjectResource.DEPENDENCE_KEY;
 				parentPath = "";
 			}
 			
