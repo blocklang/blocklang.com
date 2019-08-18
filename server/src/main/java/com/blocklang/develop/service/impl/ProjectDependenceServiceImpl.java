@@ -3,7 +3,6 @@ package com.blocklang.develop.service.impl;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Comparator;
@@ -196,7 +195,7 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 		String fileName = ProjectResource.DEPENDENCE_NAME;
 		ObjectMapper objectMapper = new ObjectMapper();
 		try {
-			String jsonContent = objectMapper.writeValueAsString(result);
+			String jsonContent = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
 			updateGitFile(project, fileName, jsonContent);
 		} catch (JsonProcessingException e) {
 			logger.error("转换为 json 字符串时出错", e);
