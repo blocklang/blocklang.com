@@ -361,7 +361,7 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 			return [];
 		}
 
-		return [v('div', {}, [v('strong', ['发布'])]), ...this._renderComponentRepoDependences(buildDependences)];
+		return [v('div', {}, [v('strong', ['构建'])]), ...this._renderComponentRepoDependences(buildDependences)];
 	}
 
 	private _renderComponentRepoDependences(dependences: ProjectDependenceData[]): DNode[] {
