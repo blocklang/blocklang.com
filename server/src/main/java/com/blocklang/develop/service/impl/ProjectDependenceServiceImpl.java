@@ -151,34 +151,34 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 	}
 
 	
-	//	```json
-	//	{
-	//	    "dev": {
-	//	        "web":{
-	//	            "github/@publisher1/repoName1": {"git": "", "tag": "v0.1.0"},
-	//	            "gitee/@publisher2/repoName2": {"git": "", "tag": "v0.1.0"}
-	//	        }
-	//	    },
-	//	    "build": {
-	//	        "web":{
-	//	            "default": {
-	//	                "github/@publisher1/repoName1": {"git": "", "tag": "v0.1.0"},
-	//	                "github/@publisher2/repoName2": {"git": "", "tag": "v0.1.0"}
-	//	            },
-	//	            "profile2": {
-	//	                "github/@publisher11/repoName11": {"gait": "", "tag": "v0.1.0"},
-	//	                "github/@publisher22/repoName22": {"git": "", "tag": "v0.1.0"}
-	//	            }
-	//	        },
-	//	        "wechatMiniApp": {
-	//	            "default": {
-	//	                "github/@publisher3/repoName3": {"git": "", "tag": "v0.1.0"},
-	//	                "github/@publisher4/repoName4": {"git": "", "tag": "v0.1.0"}
-	//	            }
-	//	        }
-	//	    }
-	//	}
-	//	```
+	//```json
+	//{
+	//    "dev": {
+	//        "web":{
+	//            "github/@publisher1/repoName1": {"git": "", "tag": "v0.1.0"},
+	//            "gitee/@publisher2/repoName2": {"git": "", "tag": "v0.1.0"}
+	//        }
+	//    },
+	//    "build": {
+	//        "web":{
+	//            "default": {
+	//                "github/@publisher1/repoName1": {"git": "", "tag": "v0.1.0"},
+	//                "github/@publisher2/repoName2": {"git": "", "tag": "v0.1.0"}
+	//            },
+	//            "profile2": {
+	//                "github/@publisher11/repoName11": {"gait": "", "tag": "v0.1.0"},
+	//                "github/@publisher22/repoName22": {"git": "", "tag": "v0.1.0"}
+	//            }
+	//        },
+	//        "wechatMiniApp": {
+	//            "default": {
+	//                "github/@publisher3/repoName3": {"git": "", "tag": "v0.1.0"},
+	//                "github/@publisher4/repoName4": {"git": "", "tag": "v0.1.0"}
+	//            }
+	//        }
+	//    }
+	//}
+	//```
 	private void updateProjectDependenceFile(Integer projectId) {
 		Optional<Project> projectOption = projectDao.findById(projectId);
 		if(projectOption.isEmpty()) {
