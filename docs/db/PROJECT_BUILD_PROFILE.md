@@ -20,4 +20,4 @@
 ## 说明
 
 1. 一个项目的每个 `app_type` 有多个 Profile
-2. `profile_name` 默认会为每个项目生成一个名为 `Default` 的 profile，并且不能修改此此名
+2. `profile_name` 默认会为每个项目生成一个名为 `default` 的 profile，并且不能修改此此名
