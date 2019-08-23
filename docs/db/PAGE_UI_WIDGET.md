@@ -21,7 +21,8 @@
 
 ## 说明
 
-1. `seq` 不是页面级别排序，而是同一层级内排序，每层都是从 1 开始
-2. `widget_code` 对应 `API_COMPONENT` 表中的 `code` 字段，因为本表只会用到 Widget 类型的组件，所以此字段以 `widget_` 开头，而不是以 `component_` 开头
-3. 不能给 `project_resource_id`、`api_repo_id` 和 `widget_code` 三个字段上添加联合唯一约束，因为一个页面会多次使用同一个组件
-4. 定义页面与部件之间的关系时并没有使用 `API_COMPONENT` 表中的 `id`，而是使用 `API_REPO` 的 `id` 和 `API_COMPONENT` 的 `CODE` 两个字段，为的是当 API 仓库升级后，不同步修改本表的数据，也不影响之前配置好的关系
+1. 注意，本表中不包含 4 个辅助字段
+2. `seq` 不是页面级别排序，而是同一层级内排序，每层都是从 1 开始
+3. `widget_code` 对应 `API_COMPONENT` 表中的 `code` 字段，因为本表只会用到 Widget 类型的组件，所以此字段以 `widget_` 开头，而不是以 `component_` 开头
+4. 不能给 `project_resource_id`、`api_repo_id` 和 `widget_code` 三个字段上添加联合唯一约束，因为一个页面会多次使用同一个组件
+5. 定义页面与部件之间的关系时并没有使用 `API_COMPONENT` 表中的 `id`，而是使用 `API_REPO` 的 `id` 和 `API_COMPONENT` 的 `CODE` 两个字段，为的是当 API 仓库升级后，不同步修改本表的数据，也不影响之前配置好的关系

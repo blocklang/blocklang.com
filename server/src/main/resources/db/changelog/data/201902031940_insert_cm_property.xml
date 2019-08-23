@@ -8,10 +8,10 @@
 		<insert tableName="cm_property">
 			<column name="dbid" valueNumeric="1" />
 			<column name="prop_key" value="blocklang.root.path" />
-			
+			 
 			<column name="prop_value" value="E:/data/blocklang" />
 			
-			<!-- 
+			<!--
 			<column name="prop_value" value="/home/blocklang/data" />
 			 -->
 			<column name="prop_desc" value="BlockLang 站点资源根目录" />
