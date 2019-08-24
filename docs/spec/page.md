@@ -62,7 +62,9 @@
 2. 组件属性
 3. 组件属性值
 
-### 数据库表
+TODO: 添加模型的结构说明
+
+## 数据库表
 
 需设计出以下数据库表存储一个页面信息：
 
@@ -101,3 +103,63 @@
 | --- | ---- | ------------ | -------- | ----------------- |
 | 1   | P_A  | 1            | U_B_CODE | -1                |
 | 2   | P_A  | 1            | U_C_CODE | 1 (父部件实例 ID) |
+
+### 存储页面数据
+
+页面中的数据是独立和集中存储的。在 `page_data` 表中要存两类数据：数据结构和默认数据。而难点也就在于如何用一套表结构存储这两类数据。
+
+接下来，我们基于数据类型详细说明。
+
+#### 基本数据类型
+
+```text
+name: "name1", type:"string", defaultValue: "value1"
+```
+
+其中
+
+1. 通过 `name` 和 `type` 等属性定义数据类型
+2. 结合嵌套组合定义数据结构
+3. 使用 `defaultValue` 设置默认数据
+
+以上三条，我们称为页面数据定义三步骤（下面简称**三步法**）。
+
+#### Json Object
+
+```text
+name: "object1", type: "Object"
+  | name: "name", type: "string", defaultValue: "user1"
+  | name: "password", type: "string", defaultValue: "password1"
+```
+
+同样使用三步法
+
+1. 将 `type` 的值设置为 `Object`
+2. 然后定义 Json Object 的结构
+   1. 在其下嵌套基本数据类型
+   2. 逐个字段设置数据类型
+   3. 逐个字段设置 `defaultValue`，就相当于为 Json Object 设置了默认值
+
+#### Json Array
+
+要在一套表结构中定义出 Json Array 的结构并设置默认数据，有些困难。因为我们通常首先想到的是数组中各元素的类型相同，所以我们只需定义一套数据类型，而数组的默认数据可以是多条数据，两者维度不一样就不好一块定义。
+
+我们发现约定数组中各元素类型相同，可能是一个特殊场景，比如 JavaScript 数组中就能存储不同类型的数据；Java、Python 和 Rust 等语言中虽然约定数组元素的类型必须相同，但我们经常用于描述多条记录的 `List` 却可以存储不同类型的元素，所以我们将页面数据中的 Json Array 定义为能存储不同数据类型的元素。
+
+这样就完全可以使用上面说的三步法来定义一个 Json Array，即在 Json Array 下嵌套多个 Json Object 或基本数据类型，而每个 Json Object 或数据类型定义自己的数据结构和默认值。
+
+这样会出现另一个不足之处，如果数组的元素类型相同，就会出现数组的每个默认值都自带一套数据类型，且完全相同，出现冗余。但这是当前权衡后的最好方案，但也不能就此止步，需持续优化出更好的方案。同时，我们在界面设计上为用户提供便利工具，让用户感受不到重复定义的繁琐。
+
+结构如下：
+
+```text
+name: "array1", type: "Array"
+  | name: "user1", type: "Object"
+      | name: "name", type: "string", defaultValue: "user1"
+      | name: "password", type: "string", defaultValue: "password1"
+  | name: "user2", type: "Object"
+      | name: "name", type: "string", defaultValue: "user2"
+      | name: "password", type: "string", defaultValue: "password1"
+```
+
+当然 Array 中可以混着存放 Json Object 和基本类型。
