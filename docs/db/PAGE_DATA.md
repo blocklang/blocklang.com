@@ -25,6 +25,6 @@
 
 1. 注意，本表中不包含 4 个辅助字段
 2. `seq` 不是页面级别排序，而是同一层级内排序，每层都是从 1 开始
-3. `type`的值为：`Object` 表示对象，`Array` 表示数组，`Int` 表示整数，`Float` 表示小数，`String` 表示字符串，`Date` 表示日期，`Boolean` 表示布尔值
+3. `type` 的值为：`Object` 表示对象，`Array` 表示数组，`Int` 表示整数，`Float` 表示小数，`String` 表示字符串，`Date` 表示日期，`Boolean` 表示布尔值
 4. `parent_id` 对应本表中的 `id` 的值，而根节点的值为 `-1`
 5. 为 `project_resource_id`、`parent_id`、`name` 添加唯一索引，因为一个页面中，某一层内（如对象的字段）的 `name` 不能重名
