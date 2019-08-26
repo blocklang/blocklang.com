@@ -40,6 +40,11 @@
 5. [校验分组的显示名](./projects/resource/group/check-name.md)
 6. [创建分组](./projects/resource/group/create-a-group.md)
 
+### 页面设计器
+
+1. [获取页面模型](./projects/designer/page/get-a-page-model.md)
+2. [保存页面模型](./projects/designer/page/update-a-page-model.md)
+
 ## 提交
 
 1. [获取有变动的资源](./projects/commit/list-changes.md)

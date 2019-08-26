@@ -1,16 +1,26 @@
-# 获取一个页面的模型
+# 更新一个页面的模型
+
+如果页面模型不存在，则新建页面模型；如果已存在，则更新页面模型。
 
 注意：**返回的每个字段都必须严格把关，如果在页面中用不到则不能添加**。
 
 ```text
-GET /pages/{pageId}/model
+PUT /pages/{pageId}/model
 ```
 
 ## Parameters
 
-| Name     | Type     | Description |
-| -------- | -------- | ----------- |
-| `pageId` | `number` | 页面标识    |
+| Name        | Type          | Description    |
+| ----------- | ------------- | -------------- |
+| `pageInfo`  | `Json Object` | 页面基本信息   |
+| `widgets`   | `Json Array`  | 页面部件       |
+| `functions` | `Json Array`  | 页面行为       |
+| `data`      | `Json Array`  | 页面数据       |
+| `services`  | `Json Array`  | 页面引用的服务 |
+
+注意，传入数据和返回数据的格式是完全一样的，下面列出了各项返回数据的格式，所以此处不再罗列。
+
+之所以返回数据，是因为在原数据上补充了 id。
 
 ## Response
 
