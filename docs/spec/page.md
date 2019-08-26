@@ -225,9 +225,13 @@ RESTful API 与 API 组件和功能组件不同。
 
 通常调用一个功能组件时，只需要设置该功能组件的属性值；但是使用 `Fetch` 或 `xhr` 功能组件调用 RESTful API 时，既需要设置 `Fetch` 或 `xhr` 等功能组件的属性，同时也要设置被调用的 RESTful API 的输入参数等属性。
 
+TODO：`page_func_body_attr_value` 表结构待定
+
 这一块的表结构设计比较绕，要么增加一张 `page_func_body_service_attr_value` 表专门存储 RESTful API 相关的属性值，要么扩展 `page_func_body_attr_value` 表，增加 `parent_id`、`method_id` 和 `attr_type` 字段。
 
-TODO：`page_func_body_attr_value` 表结构待定
+或者一个页面包含四部分：外观、数据、行为和外部接口。其中外部接口是与行为关联的。
+
+这样的话就可以增加一张数据库表 `page_service`，其中存 `page_func_body_attr_value` 表的 `dbid`？这样也就可以直观统计一个页面中使用了哪些数据服务。
 
 #### `行为`数据库表
 
