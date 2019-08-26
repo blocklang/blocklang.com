@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+	<changeSet author="Zhengwei Jin" id="201908260830">
+		<createTable tableName="page_widget" remarks="页面部件">
+			<column name="dbid" type="int" autoIncrement="true">
+				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_PAGE_WIDGET" />
+			</column>
+			<column name="parent_id" remarks="父部件标识" type="int">
+				<constraints nullable="false" />
+			</column>
+			<column name="seq" remarks="序列" type="int">
+				<constraints nullable="false" />
+			</column>
+			<column name="project_resource_id" remarks="项目资源标识" type="int">
+				<constraints nullable="false" />
+			</column>			
+			<column name="api_repo_id" remarks="api 仓库标识" type="int">
+				<constraints nullable="false" />
+			</column>
+			<column name="widget_code" remarks="部件编码" type="char(4)">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+	</changeSet>
+
+</databaseChangeLog>

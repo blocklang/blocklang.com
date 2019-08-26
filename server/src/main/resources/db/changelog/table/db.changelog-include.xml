@@ -52,5 +52,7 @@
 	<include file="db/changelog/table/201908160811_alter_component_repo_version_add_column_git_tag_name.xml" />
 	<include file="db/changelog/table/201908160813_alter_api_repo_version_add_column_git_tag_name.xml" />
 	
+	<include file="db/changelog/table/201908260830_create_page_widget.xml" />
+	<include file="db/changelog/table/201908260841_create_page_widget_attr_value.xml" />
 
 </databaseChangeLog>
