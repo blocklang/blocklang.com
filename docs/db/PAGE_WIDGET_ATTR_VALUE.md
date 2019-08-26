@@ -7,7 +7,7 @@
 | dbid             | 主键         | int     |      |        | 是   | 否   |
 | page_widget_id   | 页面部件标识 | int     |      |        |      | 否   |
 | widget_attr_code | 部件属性编码 | char    | 4    |        |      | 否   |
-| attr_value       | 属性值       | varchar |      | text   |      | 否   |
+| attr_value       | 属性值       | text    |      |        |      | 否   |
 | is_expr          | 是否表达式   | boolean |      | false  |      | 否   |
 
 ## 约束
