@@ -81,6 +81,24 @@ TODO: 添加模型的结构说明
 
 因为 UI 和行为最终都归为组件，而组件都需要设置属性值，所以有 `{组件}_attr_value` 表。
 
+简化数据库表的命名：
+
+1. 名字的第二层，如 `ui` 和 `behavior` 表示分类，而第三层 `widget` 和 `func` 对应对应的实现，可以只出现一个；
+2. 如果不去掉一层，表名很容易超过 Oracle 限制的 30 个字符。
+
+因此调整为：
+
+* 外观
+  * `page_widget` - 页面部件
+  * `page_widget_attr_value` - 页面部件的属性值
+* 数据
+  * `page_data` - 页面数据
+* 行为
+  * `page_func` - 函数签名中的函数名和返回结果的数据类型
+  * `page_func_params` - 函数的输入参数
+  * `page_func_body` - 函数体
+  * `page_func_body_attr_value` - 函数调用的参数值
+
 同时，Block Lang 页面也要支持本地化和国际化。
 
 ### 升级组件
@@ -168,6 +186,8 @@ name: "array1", type: "Array"
 
 ### 定义并存储页面行为
 
+#### 如何定义页面行为
+
 页面上的一个行为对应一个函数，要解决好函数的定义和使用。
 
 在函数体中调用对象有两种：
@@ -192,16 +212,35 @@ name: "array1", type: "Array"
 
 如果不支持嵌套调用自定义函数，则第二种方式就完全可以满足；如果支持嵌套调用自定义函数，则就需要支持第一种方式。
 
+#### 调用 RESTful API
+
+RESTful API 与 API 组件和功能组件不同。
+
+有关调用 RESTful API（也适用于所有第三方 API），有两种处理方式：
+
+1. 使用 `Fetch` 等功能组件直接调用 RESTful API
+2. 将 RESTful API 封装称为功能组件，然后直接调用此封装好的功能组件
+
+第一种方式常用于本地 RESTful API；第二种方式常用于第三方 RESTful API。
+
+通常调用一个功能组件时，只需要设置该功能组件的属性值；但是使用 `Fetch` 或 `xhr` 功能组件调用 RESTful API 时，既需要设置 `Fetch` 或 `xhr` 等功能组件的属性，同时也要设置被调用的 RESTful API 的输入参数等属性。
+
+这一块的表结构设计比较绕，要么增加一张 `page_func_body_service_attr_value` 表专门存储 RESTful API 相关的属性值，要么扩展 `page_func_body_attr_value` 表，增加 `parent_id`、`method_id` 和 `attr_type` 字段。
+
+TODO：`page_func_body_attr_value` 表结构待定
+
+#### `行为`数据库表
+
 以下是支持形参和返回值的表结构设计：
 
-* `page_behavior_func` 中存函数签名中的函数名和返回结果
-* `page_behavior_func_params` - 中存储函数签名中的输入参数
-* `page_behavior_func_body` - 存储函数体中的调用语句，支持嵌套调用，调用的对象包括客户端组件和页面中的自定义函数
-* `page_behavior_func_body_attr_value` - 在调用组件或自定义函数时设置的参数信息
+* `page_func` 中存函数签名中的函数名和返回结果
+* `page_func_params` - 中存储函数签名中的输入参数
+* `page_func_body` - 存储函数体中的调用语句，支持嵌套调用，调用的对象包括客户端组件和页面中的自定义函数
+* `page_func_body_attr_value` - 在调用组件或自定义函数时设置的参数信息
 
 表的作用：
 
-* 通过 `page_behavior_func`、`page_behavior_func_params` 和 `page_behavior_func_body` 三张表实现了定义函数
-* 通过 `page_behavior_func`、`page_behavior_func_body` 和 `page_behavior_func_body_attr_value` 三张表实现了调用函数
+* 通过 `page_func`、`page_func_params` 和 `page_func_body` 三张表实现了定义函数
+* 通过 `page_func`、`page_func_body` 和 `page_func_body_attr_value` 三张表实现了调用函数
 
-客户端组件的函数调用面板布局等，需用户自定义；但是自定义函数的调用面板，用户无法自定义，需提供一致的布局。
+TODO: 客户端组件的函数调用面板布局等，需用户自定义；但是自定义函数的调用面板，用户无法自定义，需提供一致的布局。

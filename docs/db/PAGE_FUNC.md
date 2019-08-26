@@ -1,4 +1,4 @@
-# `PAGE_BEHAVIOR_FUNC` - 页面函数
+# `PAGE_FUNC` - 页面函数
 
 页面行为，在实现层面对应一个函数。本表用于定义一个函数，存储函数名和返回类型。
 
@@ -14,8 +14,8 @@
 
 ## 约束
 
-* 主键：`PK_PAGE_BEHAVIOR_FUNC`
-* 外键：(*未设置*)`FK_PAGE_BEHAVIOR_FUNC_ON_RESOURCE_ID`，`project_resource_id` 对应 `PROJECT_RESOURCE` 表的 `dbid`
+* 主键：`PK_PAGE_FUNC`
+* 外键：(*未设置*)`FK_PAGE_FUNC_ON_RESOURCE_ID`，`project_resource_id` 对应 `PROJECT_RESOURCE` 表的 `dbid`
 * 索引：`UK_PAGE_FUNC_ON_RESOURCE_ID_NAME`(唯一索引)，对应字段 `project_resource_id`、`name`
 
 ## 说明

@@ -1,4 +1,4 @@
-# `PAGE_UI_WIDGET` - 页面部件
+# `PAGE_WIDGET` - 页面部件
 
 页面的外观是由多个 Widget 逐层嵌套组成的，页面只能有一个根 Widget，且取名为 `Page`。
 
@@ -15,8 +15,8 @@
 
 ## 约束
 
-* 主键：`PK_PAGE_UI_WIDGET`
-* 外键：(*未设置*)`FK_PAGE_UI_WIDGET_ON_RESOURCE_ID`，`project_resource_id` 对应 `PROJECT_RESOURCE` 表的 `dbid`
+* 主键：`PK_PAGE_WIDGET`
+* 外键：(*未设置*)`FK_PAGE_WIDGET_ON_RESOURCE_ID`，`project_resource_id` 对应 `PROJECT_RESOURCE` 表的 `dbid`
 * 索引：无
 
 ## 说明
