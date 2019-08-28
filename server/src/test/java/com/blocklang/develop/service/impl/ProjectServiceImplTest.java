@@ -379,4 +379,25 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		
 		assertThat(projectService.findLatestCommitInfo(savedProject, "group1")).isEmpty();
 	}
+
+	@Test
+	public void find_by_id_no_data() {
+		Optional<Project> projectOption = projectService.findById(1);
+		assertThat(projectOption).isEmpty();
+	}
+	
+	@Test
+	public void find_by_id_success() {
+		Project project = new Project();
+		project.setName("project_name");
+		project.setIsPublic(true);
+		project.setLastActiveTime(LocalDateTime.now());
+		project.setCreateUserId(1);
+		project.setCreateTime(LocalDateTime.now());
+		
+		Project savedProject = projectDao.save(project);
+		
+		Optional<Project> projectOption = projectService.findById(savedProject.getId());
+		assertThat(projectOption).isPresent();
+	}
 }

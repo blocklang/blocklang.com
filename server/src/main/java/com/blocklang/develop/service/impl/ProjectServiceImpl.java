@@ -212,7 +212,6 @@ public class ProjectServiceImpl implements ProjectService {
 		return savedProjectResource;
 	}
 	
-	
 	private ProjectResource createDependeceFile(Integer projectId, LocalDateTime createTime, Integer createUserId) {
 		ProjectResource resource = new ProjectResource();
 		resource.setProjectId(projectId);
@@ -272,5 +271,11 @@ public class ProjectServiceImpl implements ProjectService {
 		});
 		
 		return commitOption;
+	}
+
+	
+	@Override
+	public Optional<Project> findById(Integer projectId) {
+		return projectDao.findById(projectId);
 	}
 }
