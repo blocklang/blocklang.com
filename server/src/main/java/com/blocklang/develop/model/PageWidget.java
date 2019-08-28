@@ -1,19 +1,24 @@
 package com.blocklang.develop.model;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.Table;
-
-import com.blocklang.core.model.PartialIdField;
 
 @Entity
 @Table(name="page_widget")
-public class PageWidget extends PartialIdField {
+public class PageWidget implements Serializable {
 
-	private static final long serialVersionUID = 3646189227595692037L;
+	private static final long serialVersionUID = 2066367990676054629L;
 
-	@Column(name = "parent_id", nullable = false)
-	private Integer parentId;
+	@Id
+	@Column(name = "dbid", length = 32, updatable = false)
+	private String id;
+	
+	@Column(name = "parent_id", length = 32, nullable = false)
+	private String parentId;
 	
 	@Column(name = "seq", nullable = false)
 	private Integer seq;
@@ -27,11 +32,19 @@ public class PageWidget extends PartialIdField {
 	@Column(name = "widget_core", length = 4, nullable = false)
 	private String widgetCode;
 
-	public Integer getParentId() {
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getParentId() {
 		return parentId;
 	}
 
-	public void setParentId(Integer parentId) {
+	public void setParentId(String parentId) {
 		this.parentId = parentId;
 	}
 

@@ -8,10 +8,10 @@
 
 	<changeSet author="Zhengwei Jin" id="201908260830">
 		<createTable tableName="page_widget" remarks="页面部件">
-			<column name="dbid" type="int" autoIncrement="true">
+			<column name="dbid" type="varchar(32)">
 				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_PAGE_WIDGET" />
 			</column>
-			<column name="parent_id" remarks="父部件标识" type="int">
+			<column name="parent_id" remarks="父部件标识" type="varchar(32)">
 				<constraints nullable="false" />
 			</column>
 			<column name="seq" remarks="序列" type="int">

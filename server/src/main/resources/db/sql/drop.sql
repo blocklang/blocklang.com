@@ -30,6 +30,8 @@ drop table api_component_attr_val_opt;
 drop table api_component_attr_fun_arg;
 drop table project_build_profile;
 drop table project_dependence;
+drop table page_widget;
+drop table page_widget_attr_value;
 
 drop table databasechangelog;
 drop table databasechangeloglock;

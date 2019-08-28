@@ -8,10 +8,10 @@
 
 	<changeSet author="Zhengwei Jin" id="201908260841">
 		<createTable tableName="page_widget_attr_value" remarks="页面部件的属性值">
-			<column name="dbid" type="int" autoIncrement="true">
+			<column name="dbid" type="varchar(32)">
 				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_PAGE_WIDGET_ATTR_VALUE" />
 			</column>
-			<column name="page_widget_id" remarks="页面部件标识" type="int">
+			<column name="page_widget_id" remarks="页面部件标识" type="varchar(32)">
 				<constraints nullable="false" />
 			</column>
 			<column name="widget_attr_code" remarks="部件属性编码" type="char(4)">
