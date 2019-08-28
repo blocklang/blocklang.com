@@ -1083,4 +1083,221 @@ public class PageControllerTest extends AbstractControllerTest{
 		
 		verify(projectResourceService).updatePageModel(any());
 	}
+
+	@Test
+	public void get_page_model_page_not_found() {
+		when(projectResourceService.findById(anyInt())).thenReturn(Optional.empty());
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/pages/{pageId}/model", "1")
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	// 匿名用户能访问公开项目
+	@Test
+	public void get_page_model_anonymous_user_can_access_public_project() {
+		UserInfo user = new UserInfo();
+		user.setId(1);
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
+		
+		ProjectResource page = new ProjectResource();
+		page.setProjectId(1);
+		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(page));
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(true);
+		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
+		
+		when(projectResourceService.getPageModel(anyInt())).thenReturn(Optional.of(Collections.emptyMap()));
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/pages/{pageId}/model", "1")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body(equalTo("{}"));
+	}
+	
+	// 匿名用户不能访问私有项目
+	@Test
+	public void get_page_model_anonymous_user_can_access_private_project() {
+		UserInfo user = new UserInfo();
+		user.setId(1);
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
+		
+		ProjectResource page = new ProjectResource();
+		page.setProjectId(1);
+		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(page));
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(false);
+		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/pages/{pageId}/model", "1")
+		.then()
+			.statusCode(HttpStatus.SC_FORBIDDEN);
+	}
+	
+	// 登录用户能访问公开项目
+	@Test
+	public void get_page_model_login_user_can_access_public_project() {
+		UserInfo user = new UserInfo();
+		user.setId(1);
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
+		
+		ProjectResource page = new ProjectResource();
+		page.setProjectId(1);
+		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(page));
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(true);
+		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
+		
+		when(projectResourceService.getPageModel(anyInt())).thenReturn(Optional.of(Collections.emptyMap()));
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/pages/{pageId}/model", "1")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body(equalTo("{}"));
+	}
+	
+	// 登录用户不能访问没有权限的私有项目
+	@WithMockUser("jack")
+	@Test
+	public void get_page_model_login_user_forbidden_no_permission_private_project() {
+		UserInfo user = new UserInfo();
+		user.setId(1);
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
+		
+		ProjectResource page = new ProjectResource();
+		page.setProjectId(1);
+		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(page));
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(false);
+		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/pages/{pageId}/model", "1")
+		.then()
+			.statusCode(HttpStatus.SC_FORBIDDEN);
+	}
+	
+	// 登录用户能访问有读权限的私有项目
+	@WithMockUser("jack")
+	@Test
+	public void get_page_model_login_user_can_access_has_read_permission_private_project() {
+		UserInfo user = new UserInfo();
+		user.setId(1);
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
+		
+		ProjectResource page = new ProjectResource();
+		page.setProjectId(1);
+		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(page));
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(false);
+		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setUserId(1);
+		auth.setProjectId(1);
+		auth.setAccessLevel(AccessLevel.READ);
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		when(projectResourceService.getPageModel(anyInt())).thenReturn(Optional.of(Collections.emptyMap()));
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/pages/{pageId}/model", "1")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body(equalTo("{}"));
+	}
+	
+	// 登录用户能访问有写权限的私有项目
+	@WithMockUser("jack")
+	@Test
+	public void get_page_model_login_user_can_access_has_write_permission_private_project() {
+		UserInfo user = new UserInfo();
+		user.setId(1);
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
+		
+		ProjectResource page = new ProjectResource();
+		page.setProjectId(1);
+		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(page));
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(false);
+		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setUserId(1);
+		auth.setProjectId(1);
+		auth.setAccessLevel(AccessLevel.WRITE);
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		when(projectResourceService.getPageModel(anyInt())).thenReturn(Optional.of(Collections.emptyMap()));
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/pages/{pageId}/model", "1")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body(equalTo("{}"));
+	}
+	
+	// 登录用户能访问有管理权限的私有项目
+	@WithMockUser("jack")
+	@Test
+	public void get_page_model_login_user_can_access_has_admin_permission_private_project() {
+		UserInfo user = new UserInfo();
+		user.setId(1);
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
+		
+		ProjectResource page = new ProjectResource();
+		page.setProjectId(1);
+		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(page));
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(false);
+		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setUserId(1);
+		auth.setProjectId(1);
+		auth.setAccessLevel(AccessLevel.ADMIN);
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		when(projectResourceService.getPageModel(anyInt())).thenReturn(Optional.of(Collections.emptyMap()));
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/pages/{pageId}/model", "1")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body(equalTo("{}"));
+	}
 }

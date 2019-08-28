@@ -88,6 +88,9 @@ public interface ProjectResourceService {
 	 */
 	String commit(UserInfo user, Project project, String commitMessage);
 
+	// TODO: 将 model 转换为 java 对象？
 	void updatePageModel(Map<String, Object> model);
+
+	Optional<Map<String, Object>> getPageModel(Integer pageId);
 
 }

@@ -2,6 +2,7 @@ package com.blocklang.develop.controller;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -289,8 +291,8 @@ public class PageController extends AbstractProjectController {
 			throw new NoAuthorizationException();
 		}
 		
-		UserInfo user = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
 		ProjectResource page = projectResourceService.findById(pageId).orElseThrow(ResourceNotFoundException::new);
+		UserInfo user = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
 		Project project = projectService.findById(page.getProjectId()).orElseThrow(ResourceNotFoundException::new);
 		
 		ensureCanWrite(user, project);
@@ -298,5 +300,23 @@ public class PageController extends AbstractProjectController {
 		projectResourceService.updatePageModel(model);
 		
 		return new ResponseEntity<Map<String, Object>>(HttpStatus.CREATED);
+	}
+	
+	@GetMapping("/pages/{pageId}/model")
+	public ResponseEntity<Map<String, Object>> getPageModel(
+			Principal principal, 
+			@PathVariable Integer pageId) {
+		ProjectResource page = projectResourceService.findById(pageId).orElseThrow(ResourceNotFoundException::new);
+		Project project = projectService.findById(page.getProjectId()).orElseThrow(ResourceNotFoundException::new);
+		if(!project.getIsPublic()) {
+			if(principal == null) {
+				throw new NoAuthorizationException();
+			}
+			UserInfo user = userService.findByLoginName(principal.getName()).get();
+			ensureCanRead(user, project);
+		}
+		
+		Map<String, Object> result = projectResourceService.getPageModel(pageId).orElse(Collections.emptyMap());
+		return ResponseEntity.ok(result);
 	}
 }
