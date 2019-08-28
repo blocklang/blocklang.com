@@ -1,6 +1,7 @@
 package com.blocklang.develop.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import com.blocklang.core.model.UserInfo;
@@ -86,5 +87,7 @@ public interface ProjectResourceService {
 	 * @return 返回 commitId
 	 */
 	String commit(UserInfo user, Project project, String commitMessage);
+
+	void updatePageModel(Map<String, Object> model);
 
 }

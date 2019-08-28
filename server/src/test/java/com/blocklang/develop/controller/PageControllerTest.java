@@ -10,8 +10,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import org.apache.http.HttpStatus;
@@ -958,5 +961,126 @@ public class PageControllerTest extends AbstractControllerTest{
 			.body("key", equalTo("key"),
 				  "name", equalTo("name"),
 				  "id", is(notNullValue()));
+	}
+
+	@Test
+	public void update_page_model_forbidden_anonymous_user() {
+		Map<String, Object> model = new HashMap<String, Object>();
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(model)
+		.when()
+			.put("/pages/{pageId}/model", "1")
+		.then()
+			.statusCode(HttpStatus.SC_FORBIDDEN);
+	}
+	
+	@WithMockUser(username = "jack")
+	@Test
+	public void update_page_model_page_not_found() {
+		Map<String, Object> model = new HashMap<String, Object>();
+		
+		when(projectResourceService.findById(anyInt())).thenReturn(Optional.empty());
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(model)
+		.when()
+			.put("/pages/{pageId}/model", "1")
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	@WithMockUser(username = "jack")
+	@Test
+	public void update_page_model_login_user_has_no_permission() {
+		Map<String, Object> model = new HashMap<String, Object>();
+		
+		UserInfo user = new UserInfo();
+		user.setId(1);
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
+		
+		ProjectResource page = new ProjectResource();
+		page.setProjectId(1);
+		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(page));
+		
+		Project project = new Project();
+		project.setId(1);
+		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(model)
+		.when()
+			.put("/pages/{pageId}/model", "1")
+		.then()
+			.statusCode(HttpStatus.SC_FORBIDDEN);
+	}
+	
+	@WithMockUser(username = "jack")
+	@Test
+	public void update_page_model_login_user_has_read_permission() {
+		Map<String, Object> model = new HashMap<String, Object>();
+		
+		UserInfo user = new UserInfo();
+		user.setId(1);
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
+		
+		ProjectResource page = new ProjectResource();
+		page.setProjectId(1);
+		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(page));
+		
+		Project project = new Project();
+		project.setId(1);
+		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setUserId(1);
+		auth.setProjectId(1);
+		auth.setAccessLevel(AccessLevel.READ);
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(model)
+		.when()
+			.put("/pages/{pageId}/model", "1")
+		.then()
+			.statusCode(HttpStatus.SC_FORBIDDEN);
+	}
+	
+	@WithMockUser(username = "jack")
+	@Test
+	public void update_page_model_success() {
+		Map<String, Object> model = new HashMap<String, Object>();
+		
+		UserInfo user = new UserInfo();
+		user.setId(1);
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
+		
+		ProjectResource page = new ProjectResource();
+		page.setProjectId(1);
+		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(page));
+		
+		Project project = new Project();
+		project.setId(1);
+		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setUserId(1);
+		auth.setProjectId(1);
+		auth.setAccessLevel(AccessLevel.WRITE);
+		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(model)
+		.when()
+			.put("/pages/{pageId}/model", "1")
+		.then()
+			.statusCode(HttpStatus.SC_CREATED);
+		
+		verify(projectResourceService).updatePageModel(any());
 	}
 }

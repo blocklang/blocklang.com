@@ -21,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -43,7 +44,7 @@ import com.blocklang.develop.service.ProjectResourceService;
 import com.blocklang.develop.service.ProjectService;
 
 @RestController
-public class PageController {
+public class PageController extends AbstractProjectController {
 	private static final Logger logger = LoggerFactory.getLogger(PageController.class);
 	
 	@Autowired
@@ -181,6 +182,7 @@ public class PageController {
 		
 		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
 		
+		// FIXME: 在此处是不是应该传登录用户的标识，而不是项目创建者的标识？
 		List<ProjectAuthorization> authes = projectAuthorizationService.findAllByUserIdAndProjectId(project.getCreateUserId(), project.getId());
 		boolean canWrite = authes.stream().anyMatch(item -> item.getAccessLevel() == AccessLevel.WRITE || item.getAccessLevel() == AccessLevel.ADMIN);
 		if(!canWrite) {
@@ -276,5 +278,25 @@ public class PageController {
 		ProjectResource savedProjectResource = projectResourceService.insert(project, resource);
 		savedProjectResource.setMessageSource(messageSource);
 		return new ResponseEntity<ProjectResource>(savedProjectResource, HttpStatus.CREATED);
+	}
+
+	@PutMapping("/pages/{pageId}/model")
+	public ResponseEntity<Map<String, Object>> updatePageModel(
+			Principal principal, 
+			@PathVariable Integer pageId, 
+			@RequestBody Map<String, Object> model ) {
+		if(principal == null) {
+			throw new NoAuthorizationException();
+		}
+		
+		UserInfo user = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
+		ProjectResource page = projectResourceService.findById(pageId).orElseThrow(ResourceNotFoundException::new);
+		Project project = projectService.findById(page.getProjectId()).orElseThrow(ResourceNotFoundException::new);
+		
+		ensureCanWrite(user, project);
+		
+		projectResourceService.updatePageModel(model);
+		
+		return new ResponseEntity<Map<String, Object>>(HttpStatus.CREATED);
 	}
 }

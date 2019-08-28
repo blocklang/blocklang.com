@@ -51,7 +51,8 @@ public abstract class Resources {
 		// 信息分类编码
 		"/properties/**",
 		// 组件库列表
-		"/component-repos"
+		"/component-repos",
+		"/pages" // 页面模型专用
 	};
 	
 	/**
@@ -68,7 +69,8 @@ public abstract class Resources {
 		"docs",                            // 帮助文档
 		"properties",                      // 信息分类编码
 		"component-repos",                 // 组件库
-		"marketplace"                      // 组件市场
+		"marketplace",                     // 组件市场
+		"pages"                            // 页面模型
 		
 //		"/session", // 用户登录
 //		"/mocksession", // 开发环境下，模拟用户登录

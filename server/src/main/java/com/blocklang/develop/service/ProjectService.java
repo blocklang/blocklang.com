@@ -55,4 +55,6 @@ public interface ProjectService {
 	List<Project> findCanAccessProjectsByUserId(Integer userId);
 
 	Optional<GitCommitInfo> findLatestCommitInfo(Project project, String relativeFilePath);
+
+	Optional<Project> findById(Integer projectId);
 }
