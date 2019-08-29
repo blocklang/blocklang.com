@@ -82,7 +82,8 @@ export default class FontAwesomeIcon extends WidgetBase<FontAwesomeIconPropertie
 	protected render() {
 		const {
 			border = false,
-			mask: maskArgs = null,
+			// Expression produces a union type that is too complex to represent.
+			// mask: maskArgs = null,
 			fixedWidth = false,
 			inverse = false,
 			flip = null,
@@ -124,9 +125,9 @@ export default class FontAwesomeIcon extends WidgetBase<FontAwesomeIconPropertie
 			typeof transformArgs === 'string' ? parse.transform(transformArgs) : transformArgs
 		);
 		let mask = null;
-		if (maskArgs !== null) {
-			mask = this.normalizeIconArgs(maskArgs);
-		}
+		// if (maskArgs !== null) {
+		// 	mask = this.normalizeIconArgs(maskArgs);
+		// }
 		let maskLookup = objectWithKey('mask', mask);
 
 		const renderedIcon = icon(iconLookup, {
