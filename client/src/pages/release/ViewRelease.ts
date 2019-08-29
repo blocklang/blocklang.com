@@ -1,13 +1,13 @@
-import ThemedMixin, { theme } from '@dojo/framework/widget-core/mixins/Themed';
-import I18nMixin from '@dojo/framework/widget-core/mixins/I18n';
-import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
-import watch from '@dojo/framework/widget-core/decorators/watch';
+import ThemedMixin, { theme } from '@dojo/framework/core/mixins/Themed';
+import I18nMixin from '@dojo/framework/core/mixins/I18n';
+import WidgetBase from '@dojo/framework/core/WidgetBase';
+import watch from '@dojo/framework/core/decorators/watch';
 
 import messageBundle from '../../nls/main';
 
 import * as SockJS from 'sockjs-client';
 import { Client, IFrame } from '@stomp/stompjs';
-import { v, w } from '@dojo/framework/widget-core/d';
+import { v, w } from '@dojo/framework/core/vdom';
 
 import * as c from '../../className';
 import * as css from './ViewRelease.m.css';

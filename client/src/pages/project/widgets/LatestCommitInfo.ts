@@ -1,9 +1,9 @@
-import ThemedMixin, { theme } from '@dojo/framework/widget-core/mixins/Themed';
-import I18nMixin from '@dojo/framework/widget-core/mixins/I18n';
-import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
+import ThemedMixin, { theme } from '@dojo/framework/core/mixins/Themed';
+import I18nMixin from '@dojo/framework/core/mixins/I18n';
+import WidgetBase from '@dojo/framework/core/WidgetBase';
 import { CommitInfo } from '../../../interfaces';
 import * as css from './LatestCommitInfo.m.css';
-import { v, w } from '@dojo/framework/widget-core/d';
+import { v, w } from '@dojo/framework/core/vdom';
 import Link from '@dojo/framework/routing/Link';
 import Moment from '../../../widgets/moment';
 import * as c from '../../../className';

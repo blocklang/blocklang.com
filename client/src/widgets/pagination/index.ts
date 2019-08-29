@@ -1,11 +1,11 @@
-import ThemedMixin, { theme } from '@dojo/framework/widget-core/mixins/Themed';
+import ThemedMixin, { theme } from '@dojo/framework/core/mixins/Themed';
 
 import * as css from './styles/pagination.m.css';
-import I18nMixin from '@dojo/framework/widget-core/mixins/I18n';
-import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
+import I18nMixin from '@dojo/framework/core/mixins/I18n';
+import WidgetBase from '@dojo/framework/core/WidgetBase';
 
 import * as c from '../../className';
-import { v, w } from '@dojo/framework/widget-core/d';
+import { v, w } from '@dojo/framework/core/vdom';
 import Link from '@dojo/framework/routing/Link';
 
 export interface PaginationProperties {

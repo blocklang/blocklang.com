@@ -1,6 +1,6 @@
-import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
-import { v, w } from '@dojo/framework/widget-core/d';
-import { ThemedMixin, theme, ThemedProperties } from '@dojo/framework/widget-core/mixins/Themed';
+import WidgetBase from '@dojo/framework/core/WidgetBase';
+import { v, w } from '@dojo/framework/core/vdom';
+import { ThemedMixin, theme, ThemedProperties } from '@dojo/framework/core/mixins/Themed';
 
 import * as c from '../../className';
 import * as css from './ProjectHeader.m.css';

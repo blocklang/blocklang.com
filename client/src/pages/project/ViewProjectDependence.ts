@@ -1,8 +1,8 @@
 import * as css from './ViewProjectDependence.m.css';
-import ThemedMixin, { theme } from '@dojo/framework/widget-core/mixins/Themed';
-import I18nMixin from '@dojo/framework/widget-core/mixins/I18n';
-import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
-import { v, w } from '@dojo/framework/widget-core/d';
+import ThemedMixin, { theme } from '@dojo/framework/core/mixins/Themed';
+import I18nMixin from '@dojo/framework/core/mixins/I18n';
+import WidgetBase from '@dojo/framework/core/WidgetBase';
+import { v, w } from '@dojo/framework/core/vdom';
 import * as c from '../../className';
 import {
 	Project,
@@ -32,13 +32,13 @@ import {
 } from '../../processes/interfaces';
 import LatestCommitInfo from './widgets/LatestCommitInfo';
 import ProjectResourceBreadcrumb from './widgets/ProjectResourceBreadcrumb';
-import watch from '@dojo/framework/widget-core/decorators/watch';
+import watch from '@dojo/framework/core/decorators/watch';
 import FontAwesomeIcon from '../../widgets/fontawesome-icon';
 import Pagination from '../../widgets/pagination';
 import Moment from '../../widgets/moment';
 import { findIndex, find } from '@dojo/framework/shim/array';
 import * as lodash from 'lodash';
-import { DNode } from '@dojo/framework/widget-core/interfaces';
+import { DNode } from '@dojo/framework/core/interfaces';
 import { IconPrefix, IconName } from '@fortawesome/fontawesome-svg-core';
 
 export interface ViewProjectDependenceProperties {

@@ -1,8 +1,8 @@
 // 代码来自
 // https://github.com/dojo/site/blob/master/src/widgets/icon/FontAwesomeIcon.tsx
-import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
-import { VNode } from '@dojo/framework/widget-core/interfaces';
-import { v } from '@dojo/framework/widget-core/d';
+import WidgetBase from '@dojo/framework/core/WidgetBase';
+import { VNode } from '@dojo/framework/core/interfaces';
+import { v } from '@dojo/framework/core/vdom';
 
 import {
 	icon,

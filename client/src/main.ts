@@ -1,9 +1,9 @@
-import renderer from '@dojo/framework/widget-core/vdom';
-import { w } from '@dojo/framework/widget-core/d';
+import renderer from '@dojo/framework/core/vdom';
+import { w } from '@dojo/framework/core/vdom';
 import { Store } from '@dojo/framework/stores/Store';
 import { StateHistory } from '@dojo/framework/routing/history/StateHistory';
 import { registerRouterInjector } from '@dojo/framework/routing/RouterInjector';
-import { registerThemeInjector } from '@dojo/framework/widget-core/mixins/Themed';
+import { registerThemeInjector } from '@dojo/framework/core/mixins/Themed';
 import { registerStoreInjector } from '@dojo/framework/stores/StoreInjector';
 
 import global from '@dojo/framework/shim/global';

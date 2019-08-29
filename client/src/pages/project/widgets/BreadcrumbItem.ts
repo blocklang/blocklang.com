@@ -1,10 +1,10 @@
 import { Project, ProjectGroup } from '../../../interfaces';
 import { ProjectResourcePathPayload } from '../../../processes/interfaces';
-import ThemedMixin, { theme } from '@dojo/framework/widget-core/mixins/Themed';
-import I18nMixin from '@dojo/framework/widget-core/mixins/I18n';
-import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
+import ThemedMixin, { theme } from '@dojo/framework/core/mixins/Themed';
+import I18nMixin from '@dojo/framework/core/mixins/I18n';
+import WidgetBase from '@dojo/framework/core/WidgetBase';
 import global from '@dojo/framework/shim/global';
-import { v } from '@dojo/framework/widget-core/d';
+import { v } from '@dojo/framework/core/vdom';
 import * as c from '../../../className';
 import * as css from './BreadcrumbItem.m.css';
 

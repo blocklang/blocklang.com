@@ -1,10 +1,10 @@
 import messageBundle from '../../../nls/main';
 import * as c from '../../../className';
 import * as css from './ListMyComponentRepo.m.css';
-import ThemedMixin, { theme } from '@dojo/framework/widget-core/mixins/Themed';
-import I18nMixin from '@dojo/framework/widget-core/mixins/I18n';
-import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
-import { v, w } from '@dojo/framework/widget-core/d';
+import ThemedMixin, { theme } from '@dojo/framework/core/mixins/Themed';
+import I18nMixin from '@dojo/framework/core/mixins/I18n';
+import WidgetBase from '@dojo/framework/core/WidgetBase';
+import { v, w } from '@dojo/framework/core/vdom';
 import Link from '@dojo/framework/routing/Link';
 import Spinner from '../../../widgets/spinner';
 import FontAwesomeIcon from '../../../widgets/fontawesome-icon';

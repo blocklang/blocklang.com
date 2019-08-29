@@ -1,7 +1,7 @@
-import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
-import { v } from '@dojo/framework/widget-core/d';
-import { ThemedMixin, theme, ThemedProperties } from '@dojo/framework/widget-core/mixins/Themed';
-import { customElement } from '@dojo/framework/widget-core/decorators/customElement';
+import WidgetBase from '@dojo/framework/core/WidgetBase';
+import { v } from '@dojo/framework/core/vdom';
+import { ThemedMixin, theme, ThemedProperties } from '@dojo/framework/core/mixins/Themed';
+import { customElement } from '@dojo/framework/core/decorators/customElement';
 
 import * as marked from 'marked';
 import * as hljs from 'highlight.js';

@@ -1,8 +1,8 @@
-import ThemedMixin, { theme } from '@dojo/framework/widget-core/mixins/Themed';
-import I18nMixin from '@dojo/framework/widget-core/mixins/I18n';
-import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
+import ThemedMixin, { theme } from '@dojo/framework/core/mixins/Themed';
+import I18nMixin from '@dojo/framework/core/mixins/I18n';
+import WidgetBase from '@dojo/framework/core/WidgetBase';
 
-import { v, w, dom } from '@dojo/framework/widget-core/d';
+import { v, w, dom } from '@dojo/framework/core/vdom';
 
 import messageBundle from '../../nls/main';
 import Link from '@dojo/framework/routing/Link';
@@ -31,7 +31,7 @@ import { isEmpty } from '../../util';
 import Exception from '../error/Exception';
 import { ResourceType, GitFileStatus, ValidateStatus } from '../../constant';
 import { Params } from '@dojo/framework/routing/interfaces';
-import watch from '@dojo/framework/widget-core/decorators/watch';
+import watch from '@dojo/framework/core/decorators/watch';
 import { canCommit } from '../../permission';
 import LatestCommitInfo from './widgets/LatestCommitInfo';
 

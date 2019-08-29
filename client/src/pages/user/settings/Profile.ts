@@ -1,11 +1,11 @@
-import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
-import { v, w } from '@dojo/framework/widget-core/d';
+import WidgetBase from '@dojo/framework/core/WidgetBase';
+import { v, w } from '@dojo/framework/core/vdom';
 
 import messageBundle from '../../../nls/main';
 import * as c from '../../../className';
 import * as css from './Profile.m.css';
-import ThemedMixin, { theme } from '@dojo/framework/widget-core/mixins/Themed';
-import I18nMixin from '@dojo/framework/widget-core/mixins/I18n';
+import ThemedMixin, { theme } from '@dojo/framework/core/mixins/Themed';
+import I18nMixin from '@dojo/framework/core/mixins/I18n';
 import { WithTarget, ProfileInfo } from '../../../interfaces';
 import {
 	NicknamePayload,

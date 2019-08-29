@@ -1,9 +1,9 @@
 import { Project, ProjectGroup } from '../../../interfaces';
 import { ProjectResourcePathPayload } from '../../../processes/interfaces';
-import ThemedMixin, { theme } from '@dojo/framework/widget-core/mixins/Themed';
-import I18nMixin from '@dojo/framework/widget-core/mixins/I18n';
-import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
-import { w, v } from '@dojo/framework/widget-core/d';
+import ThemedMixin, { theme } from '@dojo/framework/core/mixins/Themed';
+import I18nMixin from '@dojo/framework/core/mixins/I18n';
+import WidgetBase from '@dojo/framework/core/WidgetBase';
+import { w, v } from '@dojo/framework/core/vdom';
 import Link from '@dojo/framework/routing/Link';
 import global from '@dojo/framework/shim/global';
 

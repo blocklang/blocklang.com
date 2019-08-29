@@ -1,7 +1,7 @@
-import { v, w } from '@dojo/framework/widget-core/d';
-import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
-import I18nMixin from '@dojo/framework/widget-core/mixins/I18n';
-import { theme, ThemedMixin } from '@dojo/framework/widget-core/mixins/Themed';
+import { v, w } from '@dojo/framework/core/vdom';
+import WidgetBase from '@dojo/framework/core/WidgetBase';
+import I18nMixin from '@dojo/framework/core/mixins/I18n';
+import { theme, ThemedMixin } from '@dojo/framework/core/mixins/Themed';
 
 import messageBundle from '../../nls/main';
 import Link from '@dojo/framework/routing/Link';
