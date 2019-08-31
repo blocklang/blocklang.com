@@ -9,7 +9,7 @@ import messageBundle from '../../nls/main';
 import Link from '@dojo/framework/routing/Link';
 import { Project, ProjectResource, CommitInfo, ProjectGroup } from '../../interfaces';
 import Moment from '../../widgets/moment';
-import FontAwesomeIcon from '../../widgets/fontawesome-icon';
+import FontAwesomeIcon from 'dojo-fontawesome/FontAwesomeIcon';
 import { IconName, IconPrefix } from '@fortawesome/fontawesome-svg-core';
 
 import 'github-markdown-css/github-markdown.css';

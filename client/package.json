@@ -15,9 +15,6 @@
   "dependencies": {
     "@dojo/framework": "^6.0.0",
     "@dojo/themes": "^6.0.0",
-    "@fortawesome/fontawesome-svg-core": "^1.2.22",
-    "@fortawesome/free-brands-svg-icons": "^5.10.2",
-    "@fortawesome/free-solid-svg-icons": "^5.10.2",
     "@stomp/stompjs": "^5.4.2",
     "@types/dompurify": "^0.0.33",
     "@types/highlight.js": "^9.12.3",
@@ -38,7 +35,8 @@
     "popper.js": "^1.15.0",
     "semver": "^6.3.0",
     "sockjs-client": "^1.4.0",
-    "tslib": "~1.9.1"
+    "tslib": "~1.9.1",
+    "dojo-fontawesome": "~0.0.1"
   },
   "devDependencies": {
     "@dojo/cli": "^6.0.0",

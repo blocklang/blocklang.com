@@ -15,7 +15,7 @@ import { ProjectRelease, Project, WsMessage } from '../../interfaces';
 import { baseUrl } from '../../config';
 import { getHeaders } from '../../processes/utils';
 import { IconName } from '@fortawesome/fontawesome-svg-core';
-import FontAwesomeIcon from '../../widgets/fontawesome-icon';
+import FontAwesomeIcon from 'dojo-fontawesome/FontAwesomeIcon';
 import Link from '@dojo/framework/routing/Link';
 import Moment from '../../widgets/moment';
 import MarkdownPreview from '../../widgets/markdown-preview';

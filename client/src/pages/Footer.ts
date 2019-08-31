@@ -5,7 +5,7 @@ import { theme, ThemedMixin } from '@dojo/framework/core/mixins/Themed';
 
 import * as c from '../className';
 import * as css from './Footer.m.css';
-import FontAwesomeIcon from '../widgets/fontawesome-icon';
+import FontAwesomeIcon from 'dojo-fontawesome/FontAwesomeIcon';
 
 export interface FooterProperties {}
 

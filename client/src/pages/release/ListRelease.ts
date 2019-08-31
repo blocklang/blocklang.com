@@ -5,7 +5,7 @@ import { theme, ThemedMixin } from '@dojo/framework/core/mixins/Themed';
 import messageBundle from '../../nls/main';
 import ProjectHeader from '../widgets/ProjectHeader';
 import { Project, ProjectRelease, WsMessage } from '../../interfaces';
-import FontAwesomeIcon from '../../widgets/fontawesome-icon';
+import FontAwesomeIcon from 'dojo-fontawesome/FontAwesomeIcon';
 import Link from '@dojo/framework/routing/Link';
 import Spinner from '../../widgets/spinner';
 import { IconName } from '@fortawesome/fontawesome-svg-core';

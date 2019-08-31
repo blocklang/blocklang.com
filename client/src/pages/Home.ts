@@ -10,7 +10,7 @@ import PrivateHome from './user/Home';
 import messageBundle from '../nls/main';
 import { Project } from '../interfaces';
 import { baseUrl } from '../config';
-import FontAwesomeIcon from '../widgets/fontawesome-icon';
+import FontAwesomeIcon from 'dojo-fontawesome/FontAwesomeIcon';
 
 export interface HomeProperties {
 	isAuthenticated: boolean;

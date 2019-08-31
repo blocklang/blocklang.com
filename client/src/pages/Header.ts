@@ -17,7 +17,7 @@ export interface HeaderProperties {
 
 import messageBundle from '../nls/main';
 import { baseUrl } from '../config';
-import FontAwesomeIcon from '../widgets/fontawesome-icon';
+import FontAwesomeIcon from 'dojo-fontawesome/FontAwesomeIcon';
 
 @theme(css)
 export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderProperties> {

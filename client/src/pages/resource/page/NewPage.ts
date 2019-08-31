@@ -10,7 +10,7 @@ import { v, w } from '@dojo/framework/core/vdom';
 import Exception from '../../error/Exception';
 import ProjectHeader from '../../widgets/ProjectHeader';
 import { Project, AppType, WithTarget, ProjectGroup } from '../../../interfaces';
-import FontAwesomeIcon from '../../../widgets/fontawesome-icon';
+import FontAwesomeIcon from 'dojo-fontawesome/FontAwesomeIcon';
 import { IconPrefix, IconName } from '@fortawesome/fontawesome-svg-core';
 import Link from '@dojo/framework/routing/Link';
 import { DescriptionPayload, PageKeyPayload, PageNamePayload } from '../../../processes/interfaces';
