@@ -1,6 +1,7 @@
 package com.blocklang.develop.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import com.blocklang.develop.constant.AppType;
@@ -38,5 +39,7 @@ public interface ProjectDependenceService {
 	ProjectDependence update(ProjectDependence dependence);
 
 	Optional<ProjectDependence> findById(Integer dependenceId);
+
+	List<Map<String, Object>> findAllWidgets(Integer projectId);
 
 }

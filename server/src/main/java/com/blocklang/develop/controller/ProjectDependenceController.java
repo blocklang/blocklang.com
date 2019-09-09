@@ -29,7 +29,6 @@ import com.blocklang.core.exception.InvalidRequestException;
 import com.blocklang.core.exception.NoAuthorizationException;
 import com.blocklang.core.exception.ResourceNotFoundException;
 import com.blocklang.core.model.UserInfo;
-import com.blocklang.core.service.UserService;
 import com.blocklang.develop.constant.AccessLevel;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.constant.ProjectResourceType;
@@ -63,8 +62,6 @@ public class ProjectDependenceController extends AbstractProjectController{
 	private static final Logger logger = LoggerFactory.getLogger(ProjectDependenceController.class);
 	
 	@Autowired
-	private UserService userService;
-	@Autowired
 	private ProjectResourceService projectResourceService;
 	@Autowired
 	private ProjectDependenceService projectDependenceService;
@@ -94,21 +91,7 @@ public class ProjectDependenceController extends AbstractProjectController{
 			@PathVariable String projectName) {
 		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
 		
-		if(project.getIsPublic()) {
-			if(principal == null) {
-				project.setAccessLevel(AccessLevel.READ);
-			} else {
-				UserInfo user = userService.findByLoginName(principal.getName()).get();
-				ensureCanRead(user, project);
-			}
-		} else {
-			if(principal == null) {
-				throw new NoAuthorizationException();
-			}
-			
-			UserInfo user = userService.findByLoginName(principal.getName()).get();
-			ensureCanRead(user, project);
-		}
+		ensureCanRead(principal, project);
 		
 		ProjectResource resource = projectResourceService.findByKey(
 				project.getId(), 
@@ -123,7 +106,7 @@ public class ProjectDependenceController extends AbstractProjectController{
 		result.put("dependences", null);
 		return ResponseEntity.ok(result);
 	}
-	
+
 	@PostMapping("/projects/{owner}/{projectName}/dependences")
 	public ResponseEntity<ProjectDependenceData> addDependence(
 			Principal principal,
@@ -251,5 +234,25 @@ public class ProjectDependenceController extends AbstractProjectController{
 		ComponentRepoVersion result = componentRepoVersionService.findById(param.getComponentRepoVersionId()).orElseThrow(ResourceNotFoundException::new);
 		// 因为这里只是版本更新，所以只返回组件仓库的版本信息
 		return new ResponseEntity<ComponentRepoVersion>(result, HttpStatus.CREATED);
+	}
+
+	/**
+	 * 获取项目依赖的 API 组件库中类型为 Widget 的组件库中的所有部件。
+	 * 并按照组件库和部件种类分组。
+	 * 
+	 * @return
+	 */
+	@GetMapping("/projects/{owner}/{projectName}/dependences/widgets")
+	public ResponseEntity<List<Map<String, Object>>> getAllDependenceWidgets(
+			Principal principal,
+			@PathVariable String owner,
+			@PathVariable String projectName) {
+		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
+
+		ensureCanRead(principal, project);
+		
+		List<Map<String, Object>> result = projectDependenceService.findAllWidgets(project.getId());
+		return ResponseEntity.ok(result);
+		
 	}
 }

@@ -1,5 +1,6 @@
 package com.blocklang.develop.controller;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.blocklang.core.exception.NoAuthorizationException;
 import com.blocklang.core.model.UserInfo;
+import com.blocklang.core.service.UserService;
 import com.blocklang.develop.constant.AccessLevel;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectAuthorization;
@@ -19,6 +21,8 @@ import com.blocklang.develop.service.ProjectService;
 
 public class AbstractProjectController {
 
+	@Autowired 
+	protected UserService userService;
 	@Autowired
 	protected ProjectService projectService;
 	@Autowired
@@ -93,5 +97,17 @@ public class AbstractProjectController {
 			stripedParentGroups.add(map);
 		}
 		return stripedParentGroups;
+	}
+
+	protected void ensureCanRead(Principal principal, Project project) {
+		// 只要是公开项目，则不管用户是否登录，都可以访问
+		if(!project.getIsPublic()) {
+			if(principal == null) {
+				throw new NoAuthorizationException();
+			}
+			
+			UserInfo user = userService.findByLoginName(principal.getName()).get();
+			ensureCanRead(user, project);
+		}
 	}
 }
