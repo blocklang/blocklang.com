@@ -1,11 +1,11 @@
 package com.blocklang.develop.service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.data.ProjectDependenceData;
+import com.blocklang.develop.designer.data.WidgetRepo;
 import com.blocklang.develop.model.ProjectDependence;
 import com.blocklang.marketplace.model.ComponentRepo;
 
@@ -40,6 +40,6 @@ public interface ProjectDependenceService {
 
 	Optional<ProjectDependence> findById(Integer dependenceId);
 
-	List<Map<String, Object>> findAllWidgets(Integer projectId);
+	List<WidgetRepo> findAllWidgets(Integer projectId);
 
 }

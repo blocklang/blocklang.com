@@ -26,16 +26,22 @@ import com.blocklang.develop.dao.ProjectBuildProfileDao;
 import com.blocklang.develop.dao.ProjectDao;
 import com.blocklang.develop.dao.ProjectDependenceDao;
 import com.blocklang.develop.data.ProjectDependenceData;
+import com.blocklang.develop.designer.data.ApiRepoVersionInfo;
+import com.blocklang.develop.designer.data.WidgetCategory;
+import com.blocklang.develop.designer.data.WidgetRepo;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectBuildProfile;
 import com.blocklang.develop.model.ProjectContext;
 import com.blocklang.develop.model.ProjectDependence;
 import com.blocklang.develop.model.ProjectResource;
 import com.blocklang.develop.service.ProjectDependenceService;
+import com.blocklang.marketplace.constant.RepoCategory;
+import com.blocklang.marketplace.dao.ApiComponentDao;
 import com.blocklang.marketplace.dao.ApiRepoDao;
 import com.blocklang.marketplace.dao.ApiRepoVersionDao;
 import com.blocklang.marketplace.dao.ComponentRepoDao;
 import com.blocklang.marketplace.dao.ComponentRepoVersionDao;
+import com.blocklang.marketplace.model.ApiComponent;
 import com.blocklang.marketplace.model.ApiRepo;
 import com.blocklang.marketplace.model.ApiRepoVersion;
 import com.blocklang.marketplace.model.ComponentRepo;
@@ -64,6 +70,8 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 	private ApiRepoDao apiRepoDao;
 	@Autowired
 	private ApiRepoVersionDao apiRepoVersionDao;
+	@Autowired
+	private ApiComponentDao apiComponentDao;
 	@Autowired
 	private PropertyService propertyService;
 	
@@ -351,6 +359,48 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 	@Override
 	public Optional<ProjectDependence> findById(Integer dependenceId) {
 		return projectDependenceDao.findById(dependenceId);
+	}
+	
+	@Override
+	public List<WidgetRepo> findAllWidgets(Integer projectId) {
+		// 获取项目的所有依赖，包含组件仓库的版本信息
+		List<ProjectDependence> allDependences = projectDependenceDao.findAllByProjectId(projectId);
+		// 转换为对应的 API 仓库的版本信息
+		return allDependences
+			.stream()
+			.flatMap(item -> componentRepoVersionDao.findById(item.getComponentRepoVersionId()).stream())
+			.map(item -> item.getApiRepoVersionId())
+			// 如果多个组件实现的是同一个 api repo version，则先去重
+			.distinct()
+			.map(apiVersionId -> {
+				Optional<ApiRepo> apiRepoOption = apiRepoVersionDao
+						.findById(apiVersionId)
+						.flatMap(apiRepoVersion -> apiRepoDao.findById(apiRepoVersion.getApiRepoId()));
+				ApiRepoVersionInfo result = new ApiRepoVersionInfo();
+				result.setApiRepoId(apiVersionId);
+				apiRepoOption.ifPresent(apiRepo -> {
+					result.setApiRepoName(apiRepo.getName());
+					result.setApiRepoId(apiRepo.getId());
+					result.setCategory(apiRepo.getCategory());
+				});
+				return result;
+			})
+			.filter(apiVersionInfo -> apiVersionInfo.getCategory() == RepoCategory.WIDGET)
+			.map(apiVersionInfo -> {
+				// 查出依赖中的所有部件
+				List<ApiComponent> components = apiComponentDao.findAllByApiRepoVersionId(apiVersionInfo.getApiRepoVersionId());
+				// 对部件进行分组
+				// 当前都归到未分类下
+				WidgetCategory category = new WidgetCategory();
+				category.setName("_");
+				category.setWidgets(components);
+				
+				WidgetRepo widgetRepo = new WidgetRepo();
+				widgetRepo.setApiRepoId(apiVersionInfo.getApiRepoId());
+				widgetRepo.setApiRepoName(apiVersionInfo.getApiRepoName());
+				widgetRepo.setWidgetCategories(Collections.singletonList(category));
+				return widgetRepo;
+			}).collect(Collectors.toList());
 	}
 
 }

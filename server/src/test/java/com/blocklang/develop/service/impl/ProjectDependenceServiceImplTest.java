@@ -16,6 +16,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.util.StopWatch;
 
 import com.blocklang.core.constant.CmPropKey;
 import com.blocklang.core.dao.UserDao;
@@ -26,6 +27,7 @@ import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.dao.ProjectBuildProfileDao;
 import com.blocklang.develop.dao.ProjectDependenceDao;
 import com.blocklang.develop.data.ProjectDependenceData;
+import com.blocklang.develop.designer.data.WidgetRepo;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectBuildProfile;
 import com.blocklang.develop.model.ProjectContext;
@@ -35,10 +37,12 @@ import com.blocklang.develop.service.ProjectDependenceService;
 import com.blocklang.develop.service.ProjectService;
 import com.blocklang.marketplace.constant.Language;
 import com.blocklang.marketplace.constant.RepoCategory;
+import com.blocklang.marketplace.dao.ApiComponentDao;
 import com.blocklang.marketplace.dao.ApiRepoDao;
 import com.blocklang.marketplace.dao.ApiRepoVersionDao;
 import com.blocklang.marketplace.dao.ComponentRepoDao;
 import com.blocklang.marketplace.dao.ComponentRepoVersionDao;
+import com.blocklang.marketplace.model.ApiComponent;
 import com.blocklang.marketplace.model.ApiRepo;
 import com.blocklang.marketplace.model.ApiRepoVersion;
 import com.blocklang.marketplace.model.ComponentRepo;
@@ -69,6 +73,8 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 	private UserDao userDao;
 	@Autowired
 	private ProjectService projectService;
+	@Autowired
+	private ApiComponentDao apiComponentDao;
 
 	@Test
 	public void dev_dependence_exists_that_not_exists() {
@@ -612,5 +618,213 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		ProjectDependence savedDependence = projectDependenceDao.save(dependence);
 		
 		assertThat(projectDependenceService.findById(savedDependence.getId())).isPresent();
+	}
+	
+	@Test
+	public void find_all_widgets_no_data() {
+		StopWatch watch = new StopWatch();
+		watch.start();
+		List<WidgetRepo> result = projectDependenceService.findAllWidgets(1);
+		watch.stop();
+		System.out.println("毫秒：" + watch.getTotalTimeMillis());
+		
+		assertThat(result).isEmpty();
+	}
+	
+	@Test
+	public void find_all_widgets_success() {
+		Integer projectId = 1;
+		
+		// 创建一个 API 仓库，类型是 Widget
+		ApiRepo apiRepo = new ApiRepo();
+		apiRepo.setGitRepoUrl("a");
+		apiRepo.setGitRepoWebsite("b");
+		apiRepo.setGitRepoOwner("c");
+		apiRepo.setGitRepoName("d");
+		apiRepo.setName("e");
+		apiRepo.setVersion("f");
+		apiRepo.setCategory(RepoCategory.WIDGET);
+		apiRepo.setCreateUserId(1);
+		apiRepo.setCreateTime(LocalDateTime.now());
+		ApiRepo savedApiRepo = apiRepoDao.save(apiRepo);
+		
+		// 创建对应的 API 仓库版本信息
+		ApiRepoVersion apiVersion = new ApiRepoVersion();
+		apiVersion.setApiRepoId(savedApiRepo.getId());
+		apiVersion.setVersion("0.1.0");
+		apiVersion.setGitTagName("v0.1.0");
+		apiVersion.setCreateUserId(1);
+		apiVersion.setCreateTime(LocalDateTime.now());
+		ApiRepoVersion savedApiRepoVersion = apiRepoVersionDao.save(apiVersion);
+
+		// 在版本下创建一个部件，没有分类
+		ApiComponent widget = new ApiComponent();
+		widget.setApiRepoVersionId(savedApiRepoVersion.getId());
+		widget.setCode("0001");
+		widget.setName("Widget1");
+		widget.setLabel("Wiget 1");
+		widget.setDescription("Description");
+		widget.setCanHasChildren(false);
+		widget.setCreateUserId(1);
+		widget.setCreateTime(LocalDateTime.now());
+		apiComponentDao.save(widget);
+		
+		// 在组件仓库版本信息中创建一条记录，引用 api 版本信息
+		ComponentRepoVersion componentRepoVersion = new ComponentRepoVersion();
+		componentRepoVersion.setComponentRepoId(1);
+		componentRepoVersion.setVersion("0.1.0");
+		componentRepoVersion.setGitTagName("v0.1.0");
+		componentRepoVersion.setApiRepoVersionId(savedApiRepoVersion.getId());
+		componentRepoVersion.setCreateUserId(1);
+		componentRepoVersion.setCreateTime(LocalDateTime.now());
+		ComponentRepoVersion savedComponentRepoVersion = componentRepoVersionDao.save(componentRepoVersion);
+		
+		// 将组件仓库添加为项目依赖
+		ProjectDependence dependence = new ProjectDependence();
+		dependence.setProjectId(projectId);
+		dependence.setComponentRepoVersionId(savedComponentRepoVersion.getId());
+		dependence.setCreateUserId(1);
+		dependence.setCreateTime(LocalDateTime.now());
+		projectDependenceDao.save(dependence);
+		
+		List<WidgetRepo> result = projectDependenceService.findAllWidgets(projectId);
+		assertThat(result).hasSize(1);
+		
+		// 测试未分组的情况
+		assertThat(result.get(0).getWidgetCategories().get(0).getName()).isEqualTo("_");
+	}
+	
+	// 项目依赖两个组件库，但两个组件库实现同一个 api
+	@Test
+	public void find_all_widgets_two_component_repo_impl_one_api_repo() {
+		Integer projectId = 1;
+		
+		// 创建一个 API 仓库，类型是 Widget
+		ApiRepo apiRepo = new ApiRepo();
+		apiRepo.setGitRepoUrl("a");
+		apiRepo.setGitRepoWebsite("b");
+		apiRepo.setGitRepoOwner("c");
+		apiRepo.setGitRepoName("d");
+		apiRepo.setName("e");
+		apiRepo.setVersion("f");
+		apiRepo.setCategory(RepoCategory.WIDGET);
+		apiRepo.setCreateUserId(1);
+		apiRepo.setCreateTime(LocalDateTime.now());
+		ApiRepo savedApiRepo = apiRepoDao.save(apiRepo);
+		
+		// 创建对应的 API 仓库版本信息
+		ApiRepoVersion apiVersion = new ApiRepoVersion();
+		apiVersion.setApiRepoId(savedApiRepo.getId());
+		apiVersion.setVersion("0.1.0");
+		apiVersion.setGitTagName("v0.1.0");
+		apiVersion.setCreateUserId(1);
+		apiVersion.setCreateTime(LocalDateTime.now());
+		ApiRepoVersion savedApiRepoVersion = apiRepoVersionDao.save(apiVersion);
+
+		// 在版本下创建一个部件，没有分类
+		ApiComponent widget = new ApiComponent();
+		widget.setApiRepoVersionId(savedApiRepoVersion.getId());
+		widget.setCode("0001");
+		widget.setName("Widget1");
+		widget.setLabel("Wiget 1");
+		widget.setDescription("Description");
+		widget.setCanHasChildren(false);
+		widget.setCreateUserId(1);
+		widget.setCreateTime(LocalDateTime.now());
+		apiComponentDao.save(widget);
+		
+		// 第一个依赖
+		// 1. 在组件仓库版本信息中创建一条记录，引用 api 版本信息
+		ComponentRepoVersion componentRepoVersion = new ComponentRepoVersion();
+		componentRepoVersion.setComponentRepoId(1); // 组件仓库 id 为 1
+		componentRepoVersion.setVersion("0.1.0");
+		componentRepoVersion.setGitTagName("v0.1.0");
+		componentRepoVersion.setApiRepoVersionId(savedApiRepoVersion.getId());
+		componentRepoVersion.setCreateUserId(1);
+		componentRepoVersion.setCreateTime(LocalDateTime.now());
+		ComponentRepoVersion savedComponentRepoVersion = componentRepoVersionDao.save(componentRepoVersion);
+		
+		// 2. 将组件仓库添加为项目依赖
+		ProjectDependence dependence = new ProjectDependence();
+		dependence.setProjectId(projectId);
+		dependence.setComponentRepoVersionId(savedComponentRepoVersion.getId());
+		dependence.setCreateUserId(1);
+		dependence.setCreateTime(LocalDateTime.now());
+		projectDependenceDao.save(dependence);
+		
+		// 第二个依赖
+		// 1. 在组件仓库版本信息中创建一条记录，引用 api 版本信息
+		componentRepoVersion = new ComponentRepoVersion();
+		componentRepoVersion.setComponentRepoId(2); // 组件仓库 id 为 2
+		componentRepoVersion.setVersion("0.1.0");
+		componentRepoVersion.setGitTagName("v0.1.0");
+		componentRepoVersion.setApiRepoVersionId(savedApiRepoVersion.getId()); // 实现的是同一个 api repo version
+		componentRepoVersion.setCreateUserId(1);
+		componentRepoVersion.setCreateTime(LocalDateTime.now());
+		savedComponentRepoVersion = componentRepoVersionDao.save(componentRepoVersion);
+		
+		// 2. 将组件仓库添加为项目依赖
+		dependence = new ProjectDependence();
+		dependence.setProjectId(projectId);
+		dependence.setComponentRepoVersionId(savedComponentRepoVersion.getId());
+		dependence.setCreateUserId(1);
+		dependence.setCreateTime(LocalDateTime.now());
+		projectDependenceDao.save(dependence);
+		
+		StopWatch watch = new StopWatch();
+		watch.start();
+		List<WidgetRepo> result = projectDependenceService.findAllWidgets(projectId);
+		watch.stop();
+		System.out.println("毫秒：" + watch.getTotalTimeMillis());
+		assertThat(result).hasSize(1);
+	}
+	
+	// 只过滤出 Widget 类型的 API REPO
+	@Test
+	public void find_all_widgets_only_filter_widget_api_repo() {
+		Integer projectId = 1;
+		
+		// 创建一个 API 仓库，类型是 Widget
+		ApiRepo apiRepo = new ApiRepo();
+		apiRepo.setGitRepoUrl("a");
+		apiRepo.setGitRepoWebsite("b");
+		apiRepo.setGitRepoOwner("c");
+		apiRepo.setGitRepoName("d");
+		apiRepo.setName("e");
+		apiRepo.setVersion("f");
+		apiRepo.setCategory(RepoCategory.CLIENT_API); // 不是 Widget 仓库
+		apiRepo.setCreateUserId(1);
+		apiRepo.setCreateTime(LocalDateTime.now());
+		ApiRepo savedApiRepo = apiRepoDao.save(apiRepo);
+		
+		// 创建对应的 API 仓库版本信息
+		ApiRepoVersion apiVersion = new ApiRepoVersion();
+		apiVersion.setApiRepoId(savedApiRepo.getId());
+		apiVersion.setVersion("0.1.0");
+		apiVersion.setGitTagName("v0.1.0");
+		apiVersion.setCreateUserId(1);
+		apiVersion.setCreateTime(LocalDateTime.now());
+		ApiRepoVersion savedApiRepoVersion = apiRepoVersionDao.save(apiVersion);
+
+		// 在组件仓库版本信息中创建一条记录，引用 api 版本信息
+		ComponentRepoVersion componentRepoVersion = new ComponentRepoVersion();
+		componentRepoVersion.setComponentRepoId(1);
+		componentRepoVersion.setVersion("0.1.0");
+		componentRepoVersion.setGitTagName("v0.1.0");
+		componentRepoVersion.setApiRepoVersionId(savedApiRepoVersion.getId());
+		componentRepoVersion.setCreateUserId(1);
+		componentRepoVersion.setCreateTime(LocalDateTime.now());
+		ComponentRepoVersion savedComponentRepoVersion = componentRepoVersionDao.save(componentRepoVersion);
+		
+		// 将组件仓库添加为项目依赖
+		ProjectDependence dependence = new ProjectDependence();
+		dependence.setProjectId(projectId);
+		dependence.setComponentRepoVersionId(savedComponentRepoVersion.getId());
+		dependence.setCreateUserId(1);
+		dependence.setCreateTime(LocalDateTime.now());
+		projectDependenceDao.save(dependence);
+		
+		List<WidgetRepo> result = projectDependenceService.findAllWidgets(projectId);
+		assertThat(result).hasSize(0);
 	}
 }
