@@ -320,6 +320,61 @@ UI 部件项目命名
 
 ### 功能组件
 
+## 编译组件库
+
+组件库中存的是源代码，在往组件市场发布组件时，要对组件库进行编译。
+
+并且不同的项目会依赖组件库的不同版本，所以要按版本编译。
+
+### JavaScript 组件库
+
+JavaScript 组件库的扩展机制，是将组件库编译为 dojo app，然后通过 `script.js` 将组件库延迟注入为 html 页面的 `script` 节点。
+
+在每个组件库（源码）的入口文件 `main.ts` 中以 `{"widgetName1": "widgetObject1", "widgetNameX": "widgetObjectX"}` 的格式存储部件。
+
+因为 `main.ts` 文件的唯一功能就是向 `global` 中缓存部件，所以根据根据 `component.json` 中的配置自动生成代码。
+
+`global._block_lang_widgets` 的数据格式：
+
+```json
+{
+    "github.com/owner/repo": {
+        "widgetName1": "WidgetObject1"
+    }
+}
+```
+
+编译后的文件是按版本存在 `package` 文件夹中的。主文件名为 `main_{version}.js` 和 `main_{version}.css`。通过约定，不用在数据库中存储入口文件的名称。但是发布后的文件名是 `main_xxxxx_bundle.js` 这种格式，因此需要将两者关联起来，有两种处理方式：
+
+1. 在 build dojo app 时，规范文件名，但涉及到 `dojo build` 的内部实现，所以暂不考虑；
+2. 在 spring mvc 的拦截器中转换文件名，直接找以 main 开头的 js 的 css 文件。
+
+按照约定大于配置的原则，约定 url 中的入口文件名是 `main`，而编译后的入口文件名为 `bootstrap`。
+
+资源请求的路径为：
+
+1. js 文件为 `/packages/{website}/{owner}/{projectName}/{version}/main.js`；
+2. css 文件为 `/packages/{website}/{owner}/{projectName}/{version}/main.css`；
+
+Js module 在浏览器中的存储格式
+
+Widget 组件存在 `global._block_lang_widgets_` 对象中，**注意只存当前项目的依赖的 widget**。如果存储用户访问过的项目依赖的 widgets，则就需要考虑如何清除，复杂度会增加。
+
+```json
+{
+    "widget_key": "Widget_Function"
+}
+```
+
+其中：
+
+* `widget_key` - `{widget_name}`
+* `Widget_Function` - 一个基于函数的部件
+
+其他 JavaScript 组件存在 `global._block_lang_widgets_` 对象中。
+
+### Java 组件库
+
 ## 管理方式
 
 API 和组件源码可托管在基于 git 的源代码托管网站，如 github 或码云等。但在 BlockLang 平台中使用组件时，必须先将这些组件发布到 BlockLang 的组件市场，然后项目直接引用组件市场中的组件。关系如下图：

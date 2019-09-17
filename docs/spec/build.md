@@ -50,6 +50,8 @@ BlockLang
                              |--- {project_name}
                                        |--- source
                                        |--- publishLogs
+                                       |--- package
+                                              |--- {version}
 ```
 
 文件夹结构说明
@@ -78,6 +80,9 @@ BlockLang
             1. source - 存放项目源代码
             2. publishLogs - 存放组件发布日志，一次发布一个日志文件
                1. yyyy_MM_dd_HH_mm_ss.log - 日志文件命名规范，注意文件名中不包含版本信息，因为在开始记录日志时，无法获得版本信息
+            3. package - 存储编译和压缩后的 js（注意 jar 文件存在本地的 maven 仓库中。不要忘记备份）
+               1. {version} - 版本号
+                  1. build 完之后，将 `source/output/dist` 文件夹中的内容复制到此处
 
 ### App
 
