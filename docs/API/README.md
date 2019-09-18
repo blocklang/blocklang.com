@@ -45,6 +45,7 @@
 1. [获取页面模型](./projects/designer/page/get-a-page-model.md)
 2. [保存页面模型](./projects/designer/page/update-a-page-model.md)
 3. [获取项目可用的 Widget 列表](./projects/designer/page/list-project-widgets.md)
+4. [获取项目的 dev 依赖列表](./projects/designer/page/list-project-dev-dependences.md)
 
 ### 数据服务设计器
 
