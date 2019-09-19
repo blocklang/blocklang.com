@@ -310,6 +310,7 @@ interface ComponentRepo extends ApiRepo {
 	logoPath: string;
 	language: ProgrammingLanguage;
 	isIdeExtension: boolean;
+	std: boolean;
 	appType: string;
 	icon: string;
 	title: string;

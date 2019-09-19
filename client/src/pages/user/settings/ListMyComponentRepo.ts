@@ -298,11 +298,21 @@ export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBas
 								componentRepo.label
 									? v('span', { classes: [c.text_muted] }, [`${componentRepo.label}`])
 									: undefined,
-								componentRepo.isIdeExtension
+								componentRepo.std
 									? v(
 											'span',
 											{
 												classes: [c.badge, c.badge_info, c.ml_3],
+												title: '可成为项目的默认依赖'
+											},
+											['标准库']
+									  )
+									: undefined,
+								componentRepo.isIdeExtension
+									? v(
+											'span',
+											{
+												classes: [c.badge, c.badge_info, c.ml_1],
 												title: '与 BlockLang 设计器集成'
 											},
 											['设计器扩展']
