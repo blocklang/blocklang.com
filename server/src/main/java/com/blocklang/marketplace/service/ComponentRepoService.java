@@ -14,6 +14,10 @@ public interface ComponentRepoService {
 	/**
 	 * 只查找已发布的组件库，如果组件库已登记，但是没有发布，则不返回。
 	 * 
+	 * <p>
+	 * 注意：此方法不返回标准库，即不返回 <code>std</code> 的值为 <code>true</code> 的组件库。
+	 * </p>
+	 * 
 	 * @param query
 	 * @param page
 	 * @return
@@ -21,9 +25,15 @@ public interface ComponentRepoService {
 	Page<ComponentRepoInfo> findAllByNameOrLabel(String query, Pageable page);
 
 	/**
-	 * 根据仓库的名称正序排列
+	 * 返回用户发布的组件库
+	 * 
+	 * <p>
+	 * 注意：此方法要返回标准库，即返回 <code>std</code> 的值为 <code>true</code> 的组件库。
+	 * </p>
+	 * 
+	 * 
 	 * @param userId
-	 * @return
+	 * @return 用户发布的组件库，根据仓库的名称正序排列。
 	 */
 	List<ComponentRepoInfo> findUserComponentRepos(Integer userId);
 

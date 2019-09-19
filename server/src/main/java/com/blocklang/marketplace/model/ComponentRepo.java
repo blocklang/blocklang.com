@@ -75,6 +75,9 @@ public class ComponentRepo extends PartialOperateFields {
 	@Convert(converter = AppTypeConverter.class)
 	@Column(name = "app_type", nullable = false, length = 2)
 	private AppType appType;
+	
+	@Column(name = "is_std", nullable = false)
+	private Boolean std = false;
 
 	@Transient
 	private String createUserName;
@@ -217,6 +220,14 @@ public class ComponentRepo extends PartialOperateFields {
 		this.appType = appType;
 	}
 	
+	public Boolean isStd() {
+		return std;
+	}
+
+	public void setStd(Boolean std) {
+		this.std = std;
+	}
+
 	// FIXME: 注意，此处没有包含 Service
 	// Service 算不算是一个 app?
 	// 或者是 appType 需要改名？

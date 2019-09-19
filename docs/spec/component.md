@@ -97,6 +97,8 @@ root
 6. `components` - 数组，存储组件的相对路径
    1. 当 category 为 `Widget` 时，如 Button 部件的 API 存在 `components/button` 文件夹中
 
+注意，不需要在 API 仓库上增加 `std` 属性，因为 API 库只是一个接口描述，而标准库是相对于实现来讲的。
+
 #### changelog
 
 一个发行版，记录一次 api 变更。
@@ -243,6 +245,7 @@ root
     "description": "",
     "category": "Widget",
     "language": "Typescript",
+    "std": false,
     "baseOn": "dojo",
     "components": [
         "src/widgets/button"
@@ -265,19 +268,21 @@ root
 5. `icon` - 组件库 logo 的存放路径(可选)
 6. `category` - 组件库种类，当前仅支持 `Widget`(必填)
 7. `language` - 开发语言，当前支持 `Typescript`(必填)
-8. `baseOn` - 这个参数主要用于 Widget，常用的值有 `dojo`、`react`、`vue`、`angular` 等
-9. `components` - 数组，存储 widget 的相对路径，如果 `Button` 部件类在 `src/widgets/button/index.ts` 文件中，则相对路径为 `src/widgets/button`
-10. `api` - 表示此仓库实现的是哪个 api 项目
+8. `std` - 是否为标准库，默认为 `false`，标准库是 blocklang 管理员注册到组件市场中的，但不会在组件市场中显示
+9. `baseOn` - 这个参数主要用于 Widget，常用的值有 `dojo`、`react`、`vue`、`angular` 等
+10. `components` - 数组，存储 widget 的相对路径，如果 `Button` 部件类在 `src/widgets/button/index.ts` 文件中，则相对路径为 `src/widgets/button`
+11. `api` - 表示此仓库实现的是哪个 api 项目
     1. `git` - git 仓库地址
     2. `version` - 版本号
-11. `dev` 是否能用户开发模式，如果项目仅用于开发模式下，则将 `dev` 的值设置为 `true`，默认为 `false`
-12. `appType` 与页面的 `appType` 的值相同，**一个组件库只能存放一种 AppType 的组件**
+12. `dev` 是否能用户开发模式，如果项目仅用于开发模式下，则将 `dev` 的值设置为 `true`，默认为 `false`
+13. `appType` 与页面的 `appType` 的值相同，**一个组件库只能存放一种 AppType 的组件**
 
 注意：
 
 1. 部件的存储路径是有约定的，本可以根据约定自动查找，但这里增加 `components` 参数，让组件库开发人员显式指定。这样就增加一个人为干预的手段。
 2. 当 UI 部件的 `dev` 为 `true` 时，表示存储的是设计器版部件类，在对应的部件上增加设计器特性。
 3. API 仓库的目标是支持通用的设计，因此 API 仓库不能有 `appType` 属性，只有组件仓库才需要 `appType` 属性。
+4. 只需要在组件库中增加 `std` 属性，不用在 API 库中增加，因为 API 库只是一个接口描述，而标准库是相对于实现来讲的。
 
 数据项校验规则
 

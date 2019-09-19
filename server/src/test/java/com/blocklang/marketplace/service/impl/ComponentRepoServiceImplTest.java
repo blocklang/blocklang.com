@@ -277,6 +277,34 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 	}
 	
 	@Test
+	public void find_all_by_name_or_label_exclude_std_repo() {
+		ComponentRepo repo = new ComponentRepo();
+		repo.setApiRepoId(1);
+		repo.setGitRepoUrl("url");
+		repo.setGitRepoWebsite("website");
+		repo.setGitRepoOwner("jack");
+		repo.setGitRepoName("repo");
+		repo.setName("name");
+		repo.setLabel("label");
+		repo.setVersion("version");
+		repo.setCategory(RepoCategory.WIDGET);
+		repo.setCreateUserId(1);
+		repo.setCreateTime(LocalDateTime.now());
+		repo.setLastPublishTime(LocalDateTime.now());
+		repo.setLanguage(Language.TYPESCRIPT);
+		repo.setAppType(AppType.WEB);
+		repo.setStd(true); // 排除标准库
+		componentRepoDao.save(repo);
+		
+		Page<ComponentRepoInfo> result = componentRepoService.findAllByNameOrLabel("name", PageRequest.of(0, 10));
+		assertThat(result.getContent()).hasSize(0);
+		assertThat(result.getTotalPages()).isEqualTo(0);
+		assertThat(result.getSize()).isEqualTo(10);
+		assertThat(result.hasPrevious()).isFalse();
+		assertThat(result.hasNext()).isFalse();
+	}
+	
+	@Test
 	public void find_all_by_name_or_label_order_by_last_publish_time_desc() {
 		ComponentRepo repo = new ComponentRepo();
 		repo.setApiRepoId(1);
@@ -400,6 +428,30 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		
 		List<ComponentRepoInfo> componentRepos = componentRepoService.findUserComponentRepos(createUserId);
 		assertThat(componentRepos).hasSize(2).isSortedAccordingTo(Comparator.comparing(item -> item.getComponentRepo().getName()));
+	}
+	
+	@Test
+	public void find_user_component_repos_include_std() {
+		Integer createUserId = 1;
+		
+		ComponentRepo repo = new ComponentRepo();
+		repo.setApiRepoId(1);
+		repo.setGitRepoUrl("url");
+		repo.setGitRepoWebsite("website");
+		repo.setGitRepoOwner("jack");
+		repo.setGitRepoName("repo");
+		repo.setName("b");
+		repo.setVersion("version");
+		repo.setCategory(RepoCategory.WIDGET);
+		repo.setCreateUserId(createUserId);
+		repo.setCreateTime(LocalDateTime.now());
+		repo.setLanguage(Language.TYPESCRIPT);
+		repo.setAppType(AppType.WEB);
+		repo.setStd(true); // 包含标准库
+		componentRepoDao.save(repo);
+		
+		List<ComponentRepoInfo> componentRepos = componentRepoService.findUserComponentRepos(createUserId);
+		assertThat(componentRepos).hasSize(1);
 	}
 
 	@Test

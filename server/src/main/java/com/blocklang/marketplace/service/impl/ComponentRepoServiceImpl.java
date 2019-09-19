@@ -34,7 +34,7 @@ public class ComponentRepoServiceImpl implements ComponentRepoService {
 		if(StringUtils.isBlank(query)) {
 			repos = componentRepoDao.findAll(page);
 		}
-		repos = componentRepoDao.findAllByNameContainingIgnoreCaseOrLabelContainingIgnoreCase(query, query, page);
+		repos = componentRepoDao.findAllByStdAndNameContainingIgnoreCaseOrLabelContainingIgnoreCase(false, query, query, page);
 		
 		return repos.map(componentRepo -> {
 			userService.findById(componentRepo.getCreateUserId()).ifPresent(user -> {
