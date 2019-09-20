@@ -7,7 +7,8 @@ public class ComponentJson extends ApiJson{
 	private String baseOn; // FIXME: 该字段尚未使用
 	private Api api;
 	private String appType;
-	private Boolean dev = false;
+	private Boolean dev = false; // 对应实体对象中的 isIdeExtension
+	private Boolean std = false; // 是否属于标准库
 
 	public String getLanguage() {
 		return language;
@@ -55,6 +56,14 @@ public class ComponentJson extends ApiJson{
 
 	public void setAppType(String appType) {
 		this.appType = appType;
+	}
+
+	public Boolean isStd() {
+		return std;
+	}
+
+	public void setStd(Boolean std) {
+		this.std = std;
 	}
 
 	public class Api {

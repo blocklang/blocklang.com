@@ -282,6 +282,8 @@ public class ComponentJsonValidateTask extends AbstractRepoPublishTask {
 		// 注意：api 是通过组件引用的，所以 api 的版本号不一定是最新版的
 		// 后续要校验指定的 api 版本是否存在于 api 项目中
 		
+		// 不需要校验 dev 和 std 的值，因为已经限定它们属于 boolean 类型，如果不是，则在类型转换的环节就会失败。
+		
 		// components
 		boolean componentsHasError = false;
 		String[] components = componentJson.getComponents();

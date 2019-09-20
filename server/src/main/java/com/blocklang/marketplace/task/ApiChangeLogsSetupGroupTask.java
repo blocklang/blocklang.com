@@ -387,6 +387,7 @@ public class ApiChangeLogsSetupGroupTask extends AbstractRepoPublishTask {
 			repo.setLogoPath(componentJson.getIcon());
 		}
 		repo.setIsIdeExtension(componentJson.getDev());
+		repo.setStd(componentJson.isStd());
 		repo.setAppType(AppType.fromValue(componentJson.getAppType()));
 		repo.setCreateUserId(publishTask.getCreateUserId());
 		repo.setCreateTime(LocalDateTime.now());
