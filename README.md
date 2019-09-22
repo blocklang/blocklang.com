@@ -39,6 +39,30 @@ BlockLang 将软件开发拆分为两部分：
 
 ![Block Lang Architecture](docs/spec/images/blocklang-architecture.png)
 
+## 项目
+
+BlockLang 平台由以下项目组成：
+
+* [blocklang/blocklang.com](https://github.com/blocklang/blocklang.com) - BlockLang 平台
+* [blocklang/installer](https://github.com/blocklang/blocklang-installer) - 一款自动化部署工具，专用于部署 BlockLang 平台中发布的 Spring Boot 项目
+* [blocklang/blocklang-template](https://github.com/blocklang/blocklang-template) - BlockLang 平台默认的项目模板
+* [blocklang/page-designer](https://github.com/blocklang/page-designer) - 可视化的页面设计器
+* [blocklang/designer-core](https://github.com/blocklang/designer-core) - 存放设计器的通用功能
+
+需要往 BlockLang 组件市场注册的项目：
+
+* [blocklang/std-api-widget](https://github.com/blocklang/std-api-widget) - 标准库，存放 UI 组件的 API
+* [blocklang/std-widget-web](https://github.com/blocklang/std-widget-web) - 标准库，存放 UI 组件
+* [blocklang/std-ide-widget](https://github.com/blocklang/std-ide-widget) - 标准库，存放 UI 组件的 IDE 版
+* [blocklang/api-widgets-bootstrap](https://github.com/blocklang/api-widgets-bootstrap) - 扩展库，存放 UI 组件的 API
+* [blocklang/widgets-bootstrap](https://github.com/blocklang/widgets-bootstrap) - 扩展库，存放 UI 组件
+* [blocklang/ide-widgets-bootstrap](https://github.com/blocklang/ide-widgets-bootstrap) - 扩展库，存放 UI 组件的 IDE 版
+
+依赖的通用组件：
+
+* [blocklang/dojo-fontawesome](https://github.com/blocklang/dojo-fontawesome) - 在 dojo 中使用 [fontawesome 5](https://fontawesome.com/) 字体图标
+* [blocklang/bootstrap-classes](https://github.com/blocklang/bootstrap-classes) - 存放 [bootstrap 4](https://getbootstrap.com/) 的 css class 常量
+
 ## 贡献
 
 在提交代码前，请先了解[为什么要开发 Block Lang](./docs/help/why.md) 以及[设计细节](./docs/spec/program.md)。
