@@ -9,3 +9,4 @@
 7. [组件](component.md)
 8. [项目的依赖](dependence.md)
 9. [页面](page.md)
+10. [设计器](designer.md)
