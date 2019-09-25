@@ -4,13 +4,11 @@
 
 界面模型由三部分组成：
 
-1. 程序模块基本信息 `resource`
-2. 页面展示
-   1. 页面模型 `uiModel`
-   2. 页面实例 `view`
-3. 页面逻辑
-   1. 数据结构 `data`
-   2. 处理逻辑 `methods`
+1. 程序模块基本信息 `pageInfo`
+2. 页面外观 `widgets`
+3. 本地数据结构 `data`
+4. 页面行为 `functions`
+5. 远程服务 `services`
 
 **程序模块结构和关系图**
 ![程序模块结构和关系图](../images/block_lang_program_structure.png)

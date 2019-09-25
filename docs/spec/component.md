@@ -337,7 +337,7 @@ JavaScript 组件库的扩展机制，是将组件库编译为 dojo app，然后
 
 在每个组件库（源码）的入口文件 `main.ts` 中以 `{"widgetName1": "widgetObject1", "widgetNameX": "widgetObjectX"}` 的格式存储部件。
 
-因为 `main.ts` 文件的唯一功能就是向 `global` 中缓存部件，所以根据根据 `component.json` 中的配置自动生成代码。
+因为 `main.ts` 文件的唯一功能就是向 `global` 中缓存部件，所以可以根据 `component.json` 中的配置自动生成代码。
 
 `global._block_lang_widgets` 的数据格式：
 
