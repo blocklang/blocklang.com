@@ -228,12 +228,12 @@ root
 目录结构介绍
 
 1. `component.json` - 存储组件基本信息
-2. `src/widgets/` - 存 ui 部件，一个部件对应一个文件夹，文件夹名小写
-3. `src/widgets/{button}/`
+2. `src/{button}/` - 存 ui 部件，一个部件对应一个文件夹，文件夹名小写
    1. `index.ts` - 部件类
-   2. `demo.ts` - 部件使用效果示例，集成到设计器中、
-   3. `test/` - 存放单元测试和功能测试、
-4. `src/themes/` - 存放样式主题，一个文件夹对应一个主题
+   2. `propertiesLayout.ts` - 部件属性面板的布局，**专用于设计器版组件**
+   3. `demo.ts` - 部件使用效果示例，集成到设计器中、
+   4. `test/` - 存放单元测试和功能测试、
+3. `src/themes/` - 存放样式主题，一个文件夹对应一个主题
 
 `component.json`
 
@@ -248,7 +248,7 @@ root
     "std": false,
     "baseOn": "dojo",
     "components": [
-        "src/widgets/button"
+        "src/button"
     ],
     "api": {
         "git": "",
@@ -323,6 +323,10 @@ UI 部件项目命名
 4. widgets-google-material - 基于 google material (dojo 官方提供)
 5. widgets-wechat - 微信小程序版
 
+`propertiesLayout.ts`
+
+在设计器中，模板文件描述部件的属性面板布局结构。统一约定将模板文件命名为 `propertiesLayout.ts`。所以一个设计器版 Widget 的目录中必须包含 `index.ts` 和 `propertiesLayout.ts` 两个文件。`propertiesLayout.ts` 的结构详见 [模板文件介绍](./properties-layout.md)。
+
 ### 功能组件
 
 ## 编译组件库
@@ -365,18 +369,24 @@ Js module 在浏览器中的存储格式
 
 Widget 组件存在 `global._block_lang_widgets_` 对象中，**注意只存当前项目的依赖的 widget**。如果存储用户访问过的项目依赖的 widgets，则就需要考虑如何清除，复杂度会增加。
 
-```json
+```ts
 {
-    "widget_key": "Widget_Function"
+    "widget_key": {
+        widget: Widget_Class,
+        propertiesLayout: Layout_module
+    }
 }
 ```
 
 其中：
 
 * `widget_key` - `{widget_name}`
-* `Widget_Function` - 一个基于函数的部件
+* `widget` - 是一个基于类的 Widget
+* `propertiesLayout` - 是部件的属性面板结构
 
 其他 JavaScript 组件存在 `global._block_lang_widgets_` 对象中。
+
+在 designer-core 项目中定义一个函数来封装实现细节。
 
 ### Java 组件库
 
