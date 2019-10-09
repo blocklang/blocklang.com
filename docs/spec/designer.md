@@ -7,6 +7,9 @@
 即在常规的 Widget 上增加以下属性或事件：
 
 1. `widget`: 一个 json 对象，存储部件信息
+   1. `id`: 部件添加到页面后生成的标识
+   2. `canHasChildren`: 是否可以包含子部件
+   3. `properties`: 部件的常规属性值，是一个 json 对象，至少要包含 `id` 和 `value` 属性
 2. `focus`: 当前部件是否获取焦点
 3. `onFocus`: 部件在获取焦点时触发的事件
 4. `onMouseUp`: 鼠标点击部件并松开后触发的事件
