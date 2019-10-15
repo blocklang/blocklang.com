@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/blocklang/blocklang.com.svg?branch=master)](https://travis-ci.org/blocklang/blocklang.com)
 
+技术可积累，经验可沉淀，BlockLang 平台引入**可持续发展**的软件开发模式。
+
 Block Lang 尚在热火朝天、天马行空的开发，不适合在生产环境使用。君欲一睹 Block Lang 芳容，请移步[演示站点 https://blocklang.com](https://blocklang.com)。
 
 ## 相信
