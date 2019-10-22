@@ -1,6 +1,5 @@
 package com.blocklang.core.oauth2.qq;
 
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,10 +28,9 @@ public class QqAccessTokenResponseHttpMessageConverter extends OAuth2AccessToken
 
 	@Override
 	protected OAuth2AccessTokenResponse readInternal(Class<? extends OAuth2AccessTokenResponse> clazz, HttpInputMessage inputMessage)
-			throws IOException, HttpMessageNotReadableException {
-		String body = StreamUtils.copyToString(inputMessage.getBody(), Charset.defaultCharset());
-
+			throws HttpMessageNotReadableException {
 		try {
+			String body = StreamUtils.copyToString(inputMessage.getBody(), Charset.defaultCharset());
 			Map<String, String> tokenResponseParameters = new HashMap<String, String>();
 			Pattern pattern = Pattern.compile("(?<key>\\w+)=(?<value>\\w+)");
 			Matcher matcher = pattern.matcher(body);
