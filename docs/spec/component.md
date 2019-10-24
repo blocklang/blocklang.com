@@ -209,31 +209,35 @@ UI 部件又包含两种：
 ```text
 root
   |--- src
-        |--- widgets
-                |--- button
-                       |--- index.ts
-                       |--- demo.ts
-                       |--- tests
-                              |--- functional
-                                      |--- Button.ts
-                              |--- unit
-                                      |--- Button.ts
+        |--- button
+                |--- index.tsx
+                |--- propertiesLayout.ts
+                |--- demo.ts
+                |--- tests
+
         |--- themes
                 |--- bootstrap
                        |--- button.m.css
                        |--- button.m.css.d.ts
+  |--- tests
+        |--- functional
+                |--- Button.ts
+        |--- unit
+                |--- Button.ts
   |--- component.json
+  |--- icons.svg
 ```
 
 目录结构介绍
 
 1. `component.json` - 存储组件基本信息
-2. `src/{button}/` - 存 ui 部件，一个部件对应一个文件夹，文件夹名小写
-   1. `index.ts` - 部件类
+2. `icons.svg` - 部件在设计器中显示的图标，统一存在一个文件中，**专用于设计器版组件**
+3. `src/{button}/` - 存 ui 部件，一个部件对应一个文件夹，文件夹名小写
+   1. `index.tsx` - 部件类
    2. `propertiesLayout.ts` - 部件属性面板的布局，**专用于设计器版组件**
-   3. `demo.ts` - 部件使用效果示例，集成到设计器中、
-   4. `test/` - 存放单元测试和功能测试、
-3. `src/themes/` - 存放样式主题，一个文件夹对应一个主题
+   3. `demo.ts` - 部件使用效果示例，集成到设计器中
+4. `src/themes/` - 存放样式主题，一个文件夹对应一个主题
+5. `test/` - 存放单元测试和功能测试
 
 注意：**部件名和部件的属性名必须使用在 API 库中定义的名称**，这也是“组件库实现 API 库”这句话在实现层面的体现。
 
@@ -328,6 +332,42 @@ UI 部件项目命名
 `propertiesLayout.ts`
 
 在设计器中，模板文件描述部件的属性面板布局结构。统一约定将模板文件命名为 `propertiesLayout.ts`。所以一个设计器版 Widget 的目录中必须包含 `index.ts` 和 `propertiesLayout.ts` 两个文件。`propertiesLayout.ts` 的结构详见 [模板文件介绍](./properties-layout.md)。
+
+`icons.svg`
+
+设计器版的部件库中，在一个 svg 文件中统一存储所有部件的图标。
+
+1. 文件名必须是 `icons.svg`
+2. 该文件要放在 `src` 文件夹下，此处需要加一个复制文件操作，以便将此文件复制到 `output/dist/` 文件夹中
+3. 图标库使用的是 svg sprites，因此必须包括上 `symbol` 节点；
+4. 一个部件对应一个 `symbol` 节点，且 `symbol` 节点的 `id` 必须与部件名保持一致，如 `TextInput`；
+5. 所有的 `symbol` 节点必须放在 `svg` 节点中，并且添加 `display:none` 样式。
+
+示例
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+    <symbol id="TextInput" viewBox="0 0 1024 1024">
+        <title>TextInput</title>
+        <g style="pointer-events:all">
+            <g stroke-opacity="1">
+                <rect stroke="#808080" height="468.80658" width="1156.54317" y="358.18931" x="-69.53086707336425" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="32" fill="#ffffff" fill-opacity="1" stroke-opacity="1"></rect>
+                <text stroke="#808080" transform="matrix(18.141660690307617,0,0,5.216737270355225,-2768.37820148468,-2311.7603219524026) " xml:space="preserve" text-anchor="middle" font-family="serif" font-size="24" y="568.88889" x="167.50617" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" fill="#000000"></text>
+                <line y2="723.9999977666023" x2="57.925922926635735" y1="453.1851758326515" x1="59.70370292663574" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="32" fill="none" fill-opacity="1" stroke-opacity="1" stroke="#808080"></line>
+                <line y2="464.44444650772095" x2="138.51851331466673" y1="462.66666650772095" x1="-12.592596685333248" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="32" stroke="#808080" fill="none" fill-opacity="1" stroke-opacity="1"></line>
+                <line y2="732.1481403744507" x2="139.55556165451048" y1="730.3703603744507" x1="-11.555548345489456" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="32" stroke="#808080" fill="none" fill-opacity="1" stroke-opacity="1"></line>
+            </g>
+        </g>
+    </symbol>
+</svg>
+```
+
+上例中的 `symbol` 中包含 `g`、`line` 等各种元素；而Bootstrap 的 svg 文件中都是用 `path` 绘制的，较简洁，如何做到的呢？
+
+按上述约定，保存好 `icons.svg` 文件后，在发布时，会将此文件复制到 `output/dist` 文件夹下，然后 page designer 直接根据文件夹获取此文件。
+
+注意，为了避免在页面中同时加载多个 `icons.svg` 时 `symbol` 的 `id` 冲突时，在页面上加载完 `icons.svg` 文件后会在 `id` 上加上简短的前缀，以确保 `symbol` 的 `id` 在 html 页面中唯一。调整后的 `id` 如 `A-TextInput`。
 
 ### 功能组件
 
