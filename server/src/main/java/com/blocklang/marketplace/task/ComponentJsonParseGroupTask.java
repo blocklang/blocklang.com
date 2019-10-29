@@ -142,6 +142,26 @@ public class ComponentJsonParseGroupTask extends AbstractRepoPublishTask {
 			}
 		}
 		
+		// 准备好 componentJson 后，再先构建源代码，如果构建失败，则结束注册流程
+		// 如果是 ide 版、非标准库的组件库，则要构建项目
+		// 该操作只有在完成上述校验之后才有意义
+		// 要先切换到对应的 tag，构建完后，再切换回 master 分支
+		// 构建完后，要移动到指定的文件夹下，然后删除构建生成的所有文件
+		if(success) {
+			if(!componentJson.isStd() && componentJson.isDev()) {
+				// TODO: 当加入 java 等组件库后，需要再加一层判断，确保是 dojo app
+				logger.info("该组件库属于 ide 版本，并且不属于标准库，需要构建为 dojo library");
+				
+				DojoBuildAppGroupTask dojoBuildAppGroupTask = new DojoBuildAppGroupTask(context);
+				success = dojoBuildAppGroupTask.run().isPresent();
+				if(success) {
+					logger.info("构建完成");
+				}else {
+					logger.error("构建失败");
+				}
+			}
+		}
+		
 		if(success) {
 			return Optional.of(true);
 		}

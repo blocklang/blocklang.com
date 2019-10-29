@@ -32,9 +32,9 @@ public class NpmInstallTask extends AbstractCommandTask {
 	public Optional<Boolean> run() {
 		List<String> commands = new ArrayList<>();
 		if(SystemUtils.IS_OS_WINDOWS) {
-			commands.add("cnpm.cmd");
+			commands.add("npm.cmd");
 		}else {
-			commands.add("cnpm");
+			commands.add("npm");
 		}
 		commands.add("install");
 		

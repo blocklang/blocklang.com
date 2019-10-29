@@ -14,7 +14,7 @@ import org.springframework.messaging.support.MessageBuilder;
 
 import com.blocklang.release.constant.ReleaseResult;
 
-public class TaskLogger {
+public class TaskLogger implements CliLogger{
 	
 	private static final Logger logger = LoggerFactory.getLogger(TaskLogger.class);
 	
@@ -46,8 +46,9 @@ public class TaskLogger {
 		
 	}
 
+	@Override
 	public void error(Throwable e) {
-		this.writeLine(e.getMessage());
+		this.writeLine(e.toString());
 	}
 	
 	public void error(String pattern, Object... arguments) {
@@ -71,6 +72,11 @@ public class TaskLogger {
 	 */
 	public void log(String pattern, Object... arguments) {
 		this.writeLine(getContent(pattern, arguments));
+	}
+
+	@Override
+	public void log(String content) {
+		this.writeLine(content);
 	}
 
 	private String getContent(String pattern, Object... arguments) {
@@ -132,4 +138,5 @@ public class TaskLogger {
 	private void sendWsMessage(Message<String> message) {
 		simpMessagingTemplate.convertAndSend("/topic/publish/" + taskId, message);
 	}
+
 }
