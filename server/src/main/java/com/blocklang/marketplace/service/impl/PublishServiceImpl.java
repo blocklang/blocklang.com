@@ -87,7 +87,7 @@ public class PublishServiceImpl implements PublishService {
 		logger.setSendMessage(true);
 		logger.setMessagingTemplate(messagingTemplate);
 		logger.setTaskId(publishTask.getId());
-		// 所有的任务公用同一个日志
+		// 所有的任务公用同一个日志对象
 		context.setLogger(logger);
 		
 		logger.info(StringUtils.repeat("=", 60));
@@ -99,10 +99,10 @@ public class PublishServiceImpl implements PublishService {
 
 		logger.info(StringUtils.repeat("-", 45));
 		logger.info("一、开始解析组件仓库中的 {0}", MarketplaceConstant.FILE_NAME_COMPONENT);
-		ComponentJsonParseGroupTask componentJsonParseTask = new ComponentJsonParseGroupTask(
+		ComponentJsonParseGroupTask componentJsonParseGroupTask = new ComponentJsonParseGroupTask(
 				context,
 				componentRepoDao);
-		success = componentJsonParseTask.run().isPresent();
+		success = componentJsonParseGroupTask.run().isPresent();
 		if(success) {
 			logger.info("解析完成");
 		} else {

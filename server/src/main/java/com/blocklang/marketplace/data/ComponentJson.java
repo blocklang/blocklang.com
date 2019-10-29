@@ -34,7 +34,7 @@ public class ComponentJson extends ApiJson{
 		this.api = api;
 	}
 
-	public Boolean getDev() {
+	public Boolean isDev() {
 		return dev;
 	}
 

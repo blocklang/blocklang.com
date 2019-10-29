@@ -17,6 +17,7 @@ public abstract class AbstractCommandTask extends AbstractTask{
 		super(appBuildContext);
 	}
 
+	// TODO: 重构。runCommand 只需要依赖日志接口，不需要依赖 AppBuildContext
 	protected boolean runCommand(Path workingDirectory, List<String> commands) {
 		ProcessBuilder processBuilder = new ProcessBuilder(commands).directory(workingDirectory.toFile());
 		

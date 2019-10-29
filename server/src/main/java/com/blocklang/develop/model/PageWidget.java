@@ -29,7 +29,7 @@ public class PageWidget implements Serializable {
 	@Column(name = "api_repo_id", nullable = false)
 	private Integer apiRepoId;
 	
-	@Column(name = "widget_core", length = 4, nullable = false)
+	@Column(name = "widget_code", length = 4, nullable = false)
 	private String widgetCode;
 
 	public String getId() {

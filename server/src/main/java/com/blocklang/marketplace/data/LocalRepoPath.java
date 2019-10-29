@@ -27,6 +27,14 @@ public class LocalRepoPath {
 		return this.getRepoRootDirectory().resolve("source");
 	}
 	
+	public Path getRepoBuildDirectory() {
+		return this.getRepoRootDirectory().resolve("build");
+	}
+	
+	public Path getRepoPackageDirectory() {
+		return this.getRepoRootDirectory().resolve("package");
+	}
+	
 	public Path getRepoRootDirectory() {
 		return Path.of(this.dataRootPath, 
 				"marketplace", 
