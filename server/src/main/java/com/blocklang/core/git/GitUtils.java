@@ -345,5 +345,10 @@ public class GitUtils {
 		
 		return Optional.of(stripedRefName);
 	}
+
+	public static void checkout(Path gitRepoPath, String branchOrTagName) {
+		GitCheckout checkout = new GitCheckout();
+		checkout.execute(gitRepoPath, branchOrTagName);
+	}
 	
 }

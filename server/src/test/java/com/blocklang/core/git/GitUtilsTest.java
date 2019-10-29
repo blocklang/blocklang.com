@@ -595,7 +595,6 @@ public class GitUtilsTest {
 		assertThat(files.get(0).getContent()).isEqualTo("hello");
 	}
 	
-	
 	@Test
 	public void get_version_from_ref_name_when_tag_name_is_null() {
 		assertThat(GitUtils.getVersionFromRefName(null)).isEmpty();
@@ -616,6 +615,27 @@ public class GitUtilsTest {
 		assertThat(GitUtils.getTagName("refs/tags/v0.1.0").get()).isEqualTo("v0.1.0");
 	}
 
+	@Test
+	public void checkout_tag_success() throws IOException {
+		File folder = tempFolder.newFolder(gitRepoDirectory);
+		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+		GitUtils.commit(folder.toPath(), "", "a.txt", "hello", "usera", "usera@email.com", "firstCommit");
+		GitUtils.tag(folder.toPath(), "v0.1.0", "message1");
+		GitUtils.commit(folder.toPath(), "", "a.txt", "hello world", "usera", "usera@email.com", "firstCommit");
+		
+		// 直接从文件系统中获取
+		// 先断言 a.txt 中的内容是 hello world
+		assertContentEquals(folder.toPath().resolve("a.txt"), "hello world");
+		// 然后切换到 v0.1.0 分支
+		GitUtils.checkout(folder.toPath(), "v0.1.0");
+		// 再断言 a.txt 中的内容是 hello
+		assertContentEquals(folder.toPath().resolve("a.txt"), "hello");
+		
+		// 最后再切换回 master 分支
+		GitUtils.checkout(folder.toPath(), "master");
+		assertContentEquals(folder.toPath().resolve("a.txt"), "hello world");
+	}
+	
 	private void assertContentEquals(Path filePath, String content) throws IOException{
 		assertThat(Files.readString(filePath)).isEqualTo(content);
 	}
