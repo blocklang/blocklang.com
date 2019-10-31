@@ -30,7 +30,7 @@ import {
 } from './processes/releaseProcesses';
 import { initForViewDocumentProcess } from './processes/documentProcess';
 import { setSessionProcess } from './processes/loginProcesses';
-import { initForNewPageProcess } from './processes/pageProcesses';
+import { initForNewPageProcess, initForViewProjectPageProcess } from './processes/projectPageProcesses';
 import { initForNewGroupProcess } from './processes/projectGroupProcesses';
 import {
 	initForListComponentReposProcess,
@@ -51,7 +51,7 @@ if (userSession) {
 }
 
 const registry = registerStoreInjector(store);
-const router = registerRouterInjector(routes, registry, { HistoryManager: StateHistory });
+const router = registerRouterInjector(routes, registry, { HistoryManager: StateHistory, autostart: false });
 registerThemeInjector(dojo, registry);
 
 // 当在 outlet 之间切换时，触发该事件
@@ -86,6 +86,23 @@ router.on('outlet', ({ outlet, action }) => {
 					owner: outlet.params.owner,
 					project: outlet.params.project,
 					parentPath
+				});
+				break;
+			case 'view-project-page':
+				let pagePath;
+				if (outlet.isExact()) {
+					pagePath = outlet.params.path;
+				} else {
+					// 因为 dojo5 route 不支持通配符，所以此处自己实现
+					// 注意，pathname 是以 / 开头的
+					pagePath = global.window.location.pathname.substring(
+						`/${outlet.params.owner}/${outlet.params.project}/pages/`.length
+					);
+				}
+				initForViewProjectPageProcess(store)({
+					owner: outlet.params.owner,
+					project: outlet.params.project,
+					pagePath
 				});
 				break;
 			case 'view-project-dependence':
@@ -211,6 +228,8 @@ function onRouteChange() {
 		}
 	}
 }
+
+router.start();
 
 // 这样监听，会触发两次，是否可避免重复？
 store.onChange(store.path('routing', 'outlet'), onRouteChange);
