@@ -961,8 +961,8 @@ public class GroupControllerTest extends AbstractControllerTest{
 			.get("/projects/{owner}/{projectName}/groups", owner, projectName)
 		.then()
 			.statusCode(HttpStatus.SC_OK)
-			.body("parentId", equalTo(-1),
-					"resources.size()", equalTo(0));
+			.body("id", equalTo(-1),
+					"childResources.size()", equalTo(0));
 	}
 	
 	@Test
@@ -1024,8 +1024,8 @@ public class GroupControllerTest extends AbstractControllerTest{
 			.get("/projects/{owner}/{projectName}/groups", owner, projectName)
 		.then()
 			.statusCode(HttpStatus.SC_OK)
-			.body("parentId", equalTo(-1),
-					"resources.size()", equalTo(0));
+			.body("id", equalTo(-1),
+					"childResources.size()", equalTo(0));
 	}
 	
 	@WithMockUser("owner")
@@ -1047,8 +1047,8 @@ public class GroupControllerTest extends AbstractControllerTest{
 			.get("/projects/{owner}/{projectName}/groups", owner, projectName)
 		.then()
 			.statusCode(HttpStatus.SC_OK)
-			.body("parentId", equalTo(-1),
-					"resources.size()", equalTo(0));
+			.body("id", equalTo(-1),
+					"childResources.size()", equalTo(0));
 	}
 	
 	@WithMockUser("other")
@@ -1091,8 +1091,8 @@ public class GroupControllerTest extends AbstractControllerTest{
 			.get("/projects/{owner}/{projectName}/groups", owner, projectName)
 		.then()
 			.statusCode(HttpStatus.SC_OK)
-			.body("parentId", equalTo(-1),
-					"resources.size()", equalTo(0));
+			.body("id", equalTo(-1),
+					"childResources.size()", equalTo(0));
 	}
 	
 	@Test
@@ -1113,8 +1113,7 @@ public class GroupControllerTest extends AbstractControllerTest{
 			.get("/projects/{owner}/{projectName}/group-path", owner, projectName)
 		.then()
 			.statusCode(HttpStatus.SC_OK)
-			.body("parentId", equalTo(-1),
-					"parentPath", equalTo(""),
+			.body("id", equalTo(-1),
 					"parentGroups.size()", equalTo(0));
 	}
 	
@@ -1173,8 +1172,7 @@ public class GroupControllerTest extends AbstractControllerTest{
 			.get("/projects/{owner}/{projectName}/group-path", owner, projectName)
 		.then()
 			.statusCode(HttpStatus.SC_OK)
-			.body("parentId", equalTo(-1),
-					"parentPath", equalTo(""),
+			.body("id", equalTo(-1),
 					"parentGroups.size()", equalTo(0));
 	}
 	
@@ -1195,8 +1193,7 @@ public class GroupControllerTest extends AbstractControllerTest{
 			.get("/projects/{owner}/{projectName}/group-path", owner, projectName)
 		.then()
 			.statusCode(HttpStatus.SC_OK)
-			.body("parentId", equalTo(-1),
-					"parentPath", equalTo(""),
+			.body("id", equalTo(-1),
 					"parentGroups.size()", equalTo(0));
 	}
 	
@@ -1236,8 +1233,7 @@ public class GroupControllerTest extends AbstractControllerTest{
 			.get("/projects/{owner}/{projectName}/group-path", owner, projectName)
 		.then()
 			.statusCode(HttpStatus.SC_OK)
-			.body("parentId", equalTo(-1),
-					"parentPath", equalTo(""),
+			.body("id", equalTo(-1),
 					"parentGroups.size()", equalTo(0));
 	}
 	
@@ -1264,8 +1260,7 @@ public class GroupControllerTest extends AbstractControllerTest{
 			.get("/projects/{owner}/{projectName}/group-path/a", owner, projectName)
 		.then()
 			.statusCode(HttpStatus.SC_OK)
-			.body("parentId", equalTo(1),
-					"parentPath", equalTo("a"),
+			.body("id", equalTo(1),
 					"parentGroups.size()", equalTo(1));
 	}
 	

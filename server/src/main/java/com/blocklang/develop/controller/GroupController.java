@@ -286,7 +286,7 @@ public class GroupController extends AbstractProjectController{
 			@PathVariable String projectName,
 			HttpServletRequest req) {
 		
-		String parentPath = SpringMvcUtil.getRestUrl(req, 4);
+		String groupPath = SpringMvcUtil.getRestUrl(req, 4);
 
 		return projectService.find(owner, projectName).map(project -> {
 			if(!project.getIsPublic()) {
@@ -298,12 +298,13 @@ public class GroupController extends AbstractProjectController{
 			}
 			
 			Map<String, Object> result = new HashMap<String, Object>();
-			Integer parentResourceId = null;
-			if(StringUtils.isBlank(parentPath)) {
-				parentResourceId = Constant.TREE_ROOT_ID;
+			// 当前分组的标识，如果是项目的根节点，则值为 -1
+			Integer groupId = null;
+			if(StringUtils.isBlank(groupPath)) {
+				groupId = Constant.TREE_ROOT_ID;
 			} else {
 				// 要校验根据 parentPath 中的所有节点都能准确匹配
-				List<ProjectResource> parentGroups = projectResourceService.findParentGroupsByParentPath(project.getId(), parentPath);
+				List<ProjectResource> parentGroups = projectResourceService.findParentGroupsByParentPath(project.getId(), groupPath);
 				// 因为 parentPath 有值，所以理应能查到记录
 				if(parentGroups.isEmpty()) {
 					logger.error("根据传入的 parent path 没有找到对应的标识");
@@ -312,15 +313,15 @@ public class GroupController extends AbstractProjectController{
 				
 				List<Map<String, String>> stripedParentGroups = stripResourcePathes(parentGroups);
 				result.put("parentGroups", stripedParentGroups);
-				parentResourceId = parentGroups.get(parentGroups.size() - 1).getId();
+				groupId = parentGroups.get(parentGroups.size() - 1).getId();
 			}
-			List<ProjectResource> tree = projectResourceService.findChildren(project, parentResourceId);
+			List<ProjectResource> tree = projectResourceService.findChildren(project, groupId);
 			tree.forEach(projectResource -> {
 				projectResource.setMessageSource(messageSource);
 			});
 			
-			result.put("parentId", parentResourceId);
-			result.put("resources", tree);
+			result.put("id", groupId);
+			result.put("childResources", tree);
 			return ResponseEntity.ok(result);
 		}).orElseThrow(ResourceNotFoundException::new);
 	}
@@ -332,7 +333,7 @@ public class GroupController extends AbstractProjectController{
 			@PathVariable String projectName,
 			HttpServletRequest req) {
 		
-		String parentPath = SpringMvcUtil.getRestUrl(req, 4);
+		String groupPath = SpringMvcUtil.getRestUrl(req, 4);
 		
 		return projectService.find(owner, projectName).map((project) -> {
 			
@@ -346,13 +347,12 @@ public class GroupController extends AbstractProjectController{
 			
 			Map<String, Object> result = new HashMap<String, Object>();
 			
-			if(StringUtils.isBlank(parentPath)) {
-				result.put("parentId", Constant.TREE_ROOT_ID);
-				result.put("parentPath", "");
+			if(StringUtils.isBlank(groupPath)) {
+				result.put("id", Constant.TREE_ROOT_ID);
 				result.put("parentGroups", new String[] {});
 			} else {
 				// 要校验根据 parentPath 中的所有节点都能准确匹配
-				List<ProjectResource> parentGroups = projectResourceService.findParentGroupsByParentPath(project.getId(), parentPath);
+				List<ProjectResource> parentGroups = projectResourceService.findParentGroupsByParentPath(project.getId(), groupPath);
 				// 因为 parentPath 有值，所以理应能查到记录
 				if(parentGroups.isEmpty()) {
 					logger.error("根据传入的 parent path 没有找到对应的标识");
@@ -360,8 +360,7 @@ public class GroupController extends AbstractProjectController{
 				}
 				List<Map<String, String>> stripedParentGroups = stripResourcePathes(parentGroups);
 				result.put("parentGroups", stripedParentGroups);
-				result.put("parentId", parentGroups.get(parentGroups.size() - 1).getId());
-				result.put("parentPath", parentPath);
+				result.put("id", parentGroups.get(parentGroups.size() - 1).getId());
 			}
 			return ResponseEntity.ok(result);
 		}).orElseThrow(ResourceNotFoundException::new);
