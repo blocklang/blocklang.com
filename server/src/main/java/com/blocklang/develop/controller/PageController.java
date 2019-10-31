@@ -2,7 +2,6 @@ package com.blocklang.develop.controller;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +9,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.apache.commons.lang3.StringUtils;
@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.blocklang.core.constant.Constant;
+import com.blocklang.core.controller.SpringMvcUtil;
 import com.blocklang.core.exception.InvalidRequestException;
 import com.blocklang.core.exception.NoAuthorizationException;
 import com.blocklang.core.exception.ResourceNotFoundException;
@@ -38,6 +39,7 @@ import com.blocklang.develop.constant.ProjectResourceType;
 import com.blocklang.develop.data.CheckPageKeyParam;
 import com.blocklang.develop.data.CheckPageNameParam;
 import com.blocklang.develop.data.NewPageParam;
+import com.blocklang.develop.designer.data.Page;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectAuthorization;
 import com.blocklang.develop.model.ProjectResource;
@@ -281,12 +283,42 @@ public class PageController extends AbstractProjectController {
 		savedProjectResource.setMessageSource(messageSource);
 		return new ResponseEntity<ProjectResource>(savedProjectResource, HttpStatus.CREATED);
 	}
+	
+	@GetMapping("/projects/{owner}/{projectName}/pages/{pagePath}")
+	public ResponseEntity<Map<String, Object>> getPage(Principal user,
+			@PathVariable String owner,
+			@PathVariable String projectName,
+			HttpServletRequest req) {
+		// 先校验用户对项目是否有读取权限
+		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
+		ensureCanRead(user, project);
+		
+		String pagePath = SpringMvcUtil.getRestUrl(req, 4);
+		// 要校验根据 parentPath 中的所有节点都能准确匹配
+		List<ProjectResource> parentGroups = projectResourceService.findParentGroupsByParentPath(project.getId(), pagePath);
+		// 因为 parentPath 有值，所以理应能查到记录
+		if(parentGroups.isEmpty()) {
+			logger.error("根据传入的 parent path 没有找到对应的标识");
+			throw new ResourceNotFoundException();
+		}
+		
+		ProjectResource projectResource  = parentGroups.get(parentGroups.size() - 1);
+		projectResource.setMessageSource(messageSource); // 不加这行代码，在生成 json 时会出错
+		
+		List<Map<String, String>> stripedParentGroups = stripResourcePathes(parentGroups);
+		
+		Map<String, Object> result = new HashMap<>();
+		result.put("projectResource", projectResource);
+		result.put("parentGroups", stripedParentGroups);
+		
+		return ResponseEntity.ok(result);
+	}
 
 	@PutMapping("/pages/{pageId}/model")
 	public ResponseEntity<Map<String, Object>> updatePageModel(
 			Principal principal, 
 			@PathVariable Integer pageId, 
-			@RequestBody Map<String, Object> model ) {
+			@RequestBody Page model ) {
 		if(principal == null) {
 			throw new NoAuthorizationException();
 		}
@@ -303,7 +335,7 @@ public class PageController extends AbstractProjectController {
 	}
 	
 	@GetMapping("/pages/{pageId}/model")
-	public ResponseEntity<Map<String, Object>> getPageModel(
+	public ResponseEntity<Page> getPageModel(
 			Principal principal, 
 			@PathVariable Integer pageId) {
 		ProjectResource page = projectResourceService.findById(pageId).orElseThrow(ResourceNotFoundException::new);
@@ -316,7 +348,7 @@ public class PageController extends AbstractProjectController {
 			ensureCanRead(user, project);
 		}
 		
-		Map<String, Object> result = projectResourceService.getPageModel(pageId).orElse(Collections.emptyMap());
+		Page result = projectResourceService.getPageModel(pageId).orElse(null);
 		return ResponseEntity.ok(result);
 	}
 }

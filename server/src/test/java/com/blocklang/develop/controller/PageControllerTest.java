@@ -9,8 +9,8 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,6 +32,7 @@ import com.blocklang.develop.constant.ProjectResourceType;
 import com.blocklang.develop.data.CheckPageKeyParam;
 import com.blocklang.develop.data.CheckPageNameParam;
 import com.blocklang.develop.data.NewPageParam;
+import com.blocklang.develop.designer.data.Page;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectAuthorization;
 import com.blocklang.develop.model.ProjectResource;
@@ -51,6 +52,7 @@ public class PageControllerTest extends AbstractControllerTest{
 	@MockBean
 	private ProjectResourceService projectResourceService;
 
+	
 	@Test
 	public void check_key_user_not_login() {
 		CheckPageKeyParam param = new CheckPageKeyParam();
@@ -964,6 +966,87 @@ public class PageControllerTest extends AbstractControllerTest{
 	}
 
 	@Test
+	public void get_page_project_not_found() {
+		String owner = "owner";
+		String projectName = "not-exist-project";
+		
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
+
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/pages/{pagePath}", owner, projectName, "a")
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	@Test
+	public void get_page_anonymous_user_can_not_access_private_project() {
+		String owner = "owner";
+		String projectName = "private-project";
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(false);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/pages/{pagePath}", owner, projectName, "a")
+		.then()
+			.statusCode(HttpStatus.SC_FORBIDDEN);
+	}
+	
+	@Test
+	public void get_page_page_not_exist() {
+		String owner = "owner";
+		String projectName = "project";
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(true);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		when(projectResourceService.findParentGroupsByParentPath(anyInt(), anyString())).thenReturn(Collections.emptyList());
+
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/pages/{pagePath}", owner, projectName, "a")
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	@Test
+	public void get_page_success() {
+		String owner = "owner";
+		String projectName = "project";
+		
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(true);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		ProjectResource resource = new ProjectResource();
+		resource.setId(1);
+		resource.setKey("a");
+		resource.setName("A");
+		when(projectResourceService.findParentGroupsByParentPath(anyInt(), anyString())).thenReturn(Collections.singletonList(resource));
+
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/pages/{pagePath}", owner, projectName, "a")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body("projectResource.id", equalTo(1),
+					  "parentGroups.size", equalTo(1),
+					  "parentGroups[0].name", equalTo("A"),
+					  "parentGroups[0].path", equalTo("/a"));
+	}
+	
+	@Test
 	public void update_page_model_forbidden_anonymous_user() {
 		Map<String, Object> model = new HashMap<String, Object>();
 		
@@ -1112,7 +1195,8 @@ public class PageControllerTest extends AbstractControllerTest{
 		project.setIsPublic(true);
 		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
 		
-		when(projectResourceService.getPageModel(anyInt())).thenReturn(Optional.of(Collections.emptyMap()));
+		Page pageModel = new Page();
+		when(projectResourceService.getPageModel(anyInt())).thenReturn(Optional.of(pageModel));
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -1163,7 +1247,8 @@ public class PageControllerTest extends AbstractControllerTest{
 		project.setIsPublic(true);
 		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
 		
-		when(projectResourceService.getPageModel(anyInt())).thenReturn(Optional.of(Collections.emptyMap()));
+		Page pageModel = new Page();
+		when(projectResourceService.getPageModel(anyInt())).thenReturn(Optional.of(pageModel));
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -1222,7 +1307,8 @@ public class PageControllerTest extends AbstractControllerTest{
 		auth.setAccessLevel(AccessLevel.READ);
 		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
-		when(projectResourceService.getPageModel(anyInt())).thenReturn(Optional.of(Collections.emptyMap()));
+		Page pageModel = new Page();
+		when(projectResourceService.getPageModel(anyInt())).thenReturn(Optional.of(pageModel));
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -1256,7 +1342,8 @@ public class PageControllerTest extends AbstractControllerTest{
 		auth.setAccessLevel(AccessLevel.WRITE);
 		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
-		when(projectResourceService.getPageModel(anyInt())).thenReturn(Optional.of(Collections.emptyMap()));
+		Page pageModel = new Page();
+		when(projectResourceService.getPageModel(anyInt())).thenReturn(Optional.of(pageModel));
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -1290,7 +1377,8 @@ public class PageControllerTest extends AbstractControllerTest{
 		auth.setAccessLevel(AccessLevel.ADMIN);
 		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
-		when(projectResourceService.getPageModel(anyInt())).thenReturn(Optional.of(Collections.emptyMap()));
+		Page pageModel = new Page();
+		when(projectResourceService.getPageModel(anyInt())).thenReturn(Optional.of(pageModel));
 		
 		given()
 			.contentType(ContentType.JSON)
