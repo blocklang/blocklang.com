@@ -24,13 +24,12 @@ Status: 200 OK
 
 ```json
 {
-    "parentId": -1,
-    "parentPath": "",
+    "id": -1,
     "parentGroups": []
 }
 ```
 
-parentGroups 对象
+parentGroups 对象（最后一个元素是当前分组）
 
 | 属性名 | 类型     | 描述       |
 | ------ | -------- | ---------- |

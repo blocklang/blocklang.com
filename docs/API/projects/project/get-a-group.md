@@ -1,9 +1,13 @@
 # 查看项目的目录结构
 
-逐层获取项目的结构。当前层级是分组，用于获取分组下的直属内容列表。
+逐层获取项目的结构。当前层级是分组时：
+
+1. 获取当前分组的 id
+2. 获取当前分组下的直属内容列表；
+3. 获取当前分组的父分组信息（叶节点是当前分组）
 
 ```text
-GET /projects/{owner}/{projectName}/groups/{path}
+GET /projects/{owner}/{projectName}/groups/{groupPath}
 ```
 
 ## Parameters
@@ -12,7 +16,7 @@ GET /projects/{owner}/{projectName}/groups/{path}
 | ------------- | -------- | ------------------------ |
 | `owner`       | `string` | **Required**. 用户登录名 |
 | `projectName` | `string` | **Required**. 项目名称   |
-| `path`        | `string` | 分组的路径               |
+| `groupPath`   | `string` | 分组的路径               |
 
 ## Response
 
@@ -24,20 +28,20 @@ Status: 200 OK
 
 ```json
 {
-    "parentId": -1,
+    "id": -1,
     "parentGroups": [],
-    "resources": []
+    "childResources": []
 }
 ```
 
-parentGroups 对象
+parentGroups 对象（最后一个元素是当前分组）
 
 | 属性名 | 类型     | 描述       |
 | ------ | -------- | ---------- |
 | `name` | `string` | 资源名     |
 | `path` | `string` | 资源的路径 |
 
-ProjectResource 对象
+childResources 是数组，数据项为 ProjectResource 对象
 
 | 属性名             | 类型       | 描述           |
 | ------------------ | ---------- | -------------- |
