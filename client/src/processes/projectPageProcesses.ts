@@ -22,13 +22,13 @@ export const getResourceParentPathCommand = commandFactory(
 		});
 		const json = await response.json();
 		if (!response.ok) {
-			return [replace(path('projectResource'), undefined)];
+			return [replace(path('projectResource'), undefined), replace(path('parentGroups'), [])];
 		}
 
 		return [
-			replace(path('projectResource', 'path'), parentPath),
-			replace(path('projectResource', 'id'), json.parentId),
-			replace(path('projectResource', 'parentGroups'), json.parentGroups)
+			replace(path('projectResource', 'id'), json.id),
+			replace(path('projectResource', 'fullPath'), parentPath),
+			replace(path('parentGroups'), json.parentGroups)
 		];
 	}
 );
@@ -160,6 +160,21 @@ const savePageCommand = commandFactory(async ({ path, get, payload: { owner, pro
 	];
 });
 
+const getPageBaseInfoCommand = commandFactory(async ({ path, get, payload: { owner, project, pagePath = '' } }) => {
+	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/pages/${pagePath}`, {
+		headers: getHeaders()
+	});
+	const json = await response.json();
+	if (!response.ok) {
+		return [replace(path('projectResource'), undefined), replace(path('parentGroups'), [])];
+	}
+
+	const projectResource = json.projectResource;
+	projectResource['fullPath'] = pagePath;
+
+	return [replace(path('projectResource'), projectResource), replace(path('parentGroups'), json.parentGroups)];
+});
+
 export const initForNewPageProcess = createProcess('init-for-new-page', [
 	startInitForNewPageCommand,
 	[getProjectCommand, getResourceParentPathCommand, getAppTypesCommand]
@@ -168,3 +183,7 @@ export const pageKeyInputProcess = createProcess('page-key-input', [pageKeyInput
 export const pageNameInputProcess = createProcess('page-name-input', [pageNameInputCommand]);
 export const pageDescriptionInputProcess = createProcess('page-description-input', [pageDescriptionInputCommand]);
 export const savePageProcess = createProcess('save-page', [savePageCommand]);
+export const initForViewProjectPageProcess = createProcess('init-for-view-project-page', [
+	getProjectCommand,
+	getPageBaseInfoCommand
+]);

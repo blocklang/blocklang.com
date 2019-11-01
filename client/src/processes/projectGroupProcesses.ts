@@ -5,7 +5,7 @@ import { ValidateStatus } from '../constant';
 import { GroupKeyPayload, GroupNamePayload, DescriptionPayload } from './interfaces';
 import { baseUrl } from '../config';
 import { getProjectCommand } from './projectProcesses';
-import { getResourceParentPathCommand } from './pageProcesses';
+import { getResourceParentPathCommand } from './projectPageProcesses';
 
 const startInitForNewGroupCommand = commandFactory(({ path }) => {
 	return [

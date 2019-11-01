@@ -51,7 +51,7 @@ export class SpinnerBase<P extends SpinnerProperties = SpinnerProperties> extend
 			classes.push(textColorMap[color.toString()]);
 		}
 
-		return v('div', { classes: [c.d_flex, c.justify_content_center] }, [
+		return v('div', { classes: [c.d_flex, c.justify_content_center, c.my_3] }, [
 			v('div', { classes, role: 'status' }, [v('span', { classes: [c.sr_only] }, ['Loading...'])])
 		]);
 	}

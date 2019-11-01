@@ -12,6 +12,14 @@ export function canNewPage(accessLevel: AccessLevel) {
 	return _canWrite(accessLevel);
 }
 
+export function canReadPage(accessLevel: AccessLevel) {
+	return _canRead(accessLevel);
+}
+
+export function canEditPage(accessLevel: AccessLevel) {
+	return _canWrite(accessLevel);
+}
+
 export function canNewGroup(accessLevel: AccessLevel) {
 	return _canWrite(accessLevel);
 }

@@ -9,7 +9,7 @@ import * as css from './NewPage.m.css';
 import { v, w } from '@dojo/framework/core/vdom';
 import Exception from '../../error/Exception';
 import ProjectHeader from '../../widgets/ProjectHeader';
-import { Project, AppType, WithTarget, ProjectGroup } from '../../../interfaces';
+import { Project, AppType, WithTarget, ProjectResourceGroup } from '../../../interfaces';
 import FontAwesomeIcon from 'dojo-fontawesome/FontAwesomeIcon';
 import { IconPrefix, IconName } from '@fortawesome/fontawesome-svg-core';
 import Link from '@dojo/framework/routing/Link';
@@ -24,7 +24,7 @@ export interface NewPageProperties {
 	appTypes: AppType[];
 	// attr
 	parentId: number; // 所属分组标识
-	parentGroups: ProjectGroup[];
+	parentGroups: ProjectResourceGroup[];
 	appType: string;
 	// validation
 	keyValidateStatus?: ValidateStatus;

@@ -4,12 +4,17 @@ import { StoreContainer } from '@dojo/framework/stores/StoreInjector';
 import ViewProjectPage, { ViewProjectPageProperties } from '../../pages/project/ViewProjectPage';
 
 function getProperties(store: Store<State>): ViewProjectPageProperties {
-	// const { get, path } = store;
+	const { get, path } = store;
 
-	return {};
+	return {
+		loginUser: get(path('user')),
+		project: get(path('project')),
+		resource: get(path('projectResource')),
+		groups: get(path('parentGroups'))
+	};
 }
 
 export default StoreContainer(ViewProjectPage, 'state', {
-	paths: [],
+	paths: [['project'], ['projectResource'], ['parentGroups'], ['user']],
 	getProperties
 });

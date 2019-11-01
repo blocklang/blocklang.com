@@ -1,4 +1,4 @@
-import { Project, ProjectGroup } from '../../../interfaces';
+import { Project, ProjectResourceGroup } from '../../../interfaces';
 import { ProjectResourcePathPayload } from '../../../processes/interfaces';
 import ThemedMixin, { theme } from '@dojo/framework/core/mixins/Themed';
 import I18nMixin from '@dojo/framework/core/mixins/I18n';
@@ -10,7 +10,7 @@ import * as css from './BreadcrumbItem.m.css';
 
 interface BreadcrumbItemProperties {
 	project: Project;
-	parentGroup: ProjectGroup;
+	parentGroup: ProjectResourceGroup;
 	onGoToGroup: (opt: ProjectResourcePathPayload) => void;
 }
 

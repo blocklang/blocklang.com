@@ -6,7 +6,7 @@ import { v, w } from '@dojo/framework/core/vdom';
 import * as c from '../../className';
 import {
 	Project,
-	ProjectGroup,
+	ProjectResourceGroup,
 	CommitInfo,
 	WithTarget,
 	PagedComponentRepos,
@@ -45,7 +45,7 @@ export interface ViewProjectDependenceProperties {
 	loggedUsername: string;
 	project: Project;
 	sourceId: number;
-	pathes: ProjectGroup[];
+	pathes: ProjectResourceGroup[];
 	pagedComponentRepos: PagedComponentRepos;
 	dependences: ProjectDependenceData[];
 	latestCommitInfo: CommitInfo;

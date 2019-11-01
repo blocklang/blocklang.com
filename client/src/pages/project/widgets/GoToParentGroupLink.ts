@@ -1,4 +1,4 @@
-import { Project, ProjectGroup } from '../../../interfaces';
+import { Project, ProjectResourceGroup } from '../../../interfaces';
 import { ProjectResourcePathPayload } from '../../../processes/interfaces';
 import ThemedMixin, { theme } from '@dojo/framework/core/mixins/Themed';
 import I18nMixin from '@dojo/framework/core/mixins/I18n';
@@ -12,7 +12,7 @@ import * as css from './GoToParentGroupLink.m.css';
 
 interface GoToParentGroupLinkProperties {
 	project: Project;
-	parentGroups: ProjectGroup[];
+	parentGroups: ProjectResourceGroup[];
 	onGoToGroup: (opt: ProjectResourcePathPayload) => void;
 }
 

@@ -8,7 +8,7 @@ import * as c from '../../../className';
 import * as css from './NewGroup.m.css';
 import { v, w } from '@dojo/framework/core/vdom';
 import Exception from '../../error/Exception';
-import { Project, WithTarget, ProjectGroup } from '../../../interfaces';
+import { Project, WithTarget, ProjectResourceGroup } from '../../../interfaces';
 import ProjectHeader from '../../widgets/ProjectHeader';
 import Link from '@dojo/framework/routing/Link';
 import { ValidateStatus } from '../../../constant';
@@ -21,7 +21,7 @@ export interface NewGroupProperties {
 	project: Project;
 	// attr
 	parentId: number; // 所属分组标识
-	parentGroups: ProjectGroup[];
+	parentGroups: ProjectResourceGroup[];
 	// validation
 	keyValidateStatus?: ValidateStatus;
 	keyErrorMessage?: string;

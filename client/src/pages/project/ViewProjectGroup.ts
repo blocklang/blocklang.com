@@ -7,7 +7,7 @@ import global from '@dojo/framework/shim/global';
 
 import messageBundle from '../../nls/main';
 import Link from '@dojo/framework/routing/Link';
-import { Project, ProjectResource, CommitInfo, ProjectGroup } from '../../interfaces';
+import { Project, ProjectResource, CommitInfo, ProjectResourceGroup } from '../../interfaces';
 import Moment from '../../widgets/moment';
 import FontAwesomeIcon from 'dojo-fontawesome/FontAwesomeIcon';
 import { IconName, IconPrefix } from '@fortawesome/fontawesome-svg-core';
@@ -33,7 +33,7 @@ export interface ViewProjectGroupProperties {
 	project: Project;
 	groupId: number; // 当前分组 id
 	path: string; // 路径，从根分组到当前分组，使用 / 分割
-	groups: ProjectGroup[]; // 分组列表，从根分组到当前分组
+	groups: ProjectResourceGroup[]; // 分组列表，从根分组到当前分组
 	childResources: ProjectResource[]; // 当前分组下的所有子资源
 	latestCommitInfo: CommitInfo; // 当前分组的最近一次提交信息
 	onOpenGroup: (opt: ProjectResourcePathPayload) => void;

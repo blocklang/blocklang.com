@@ -110,7 +110,7 @@ export const getProjectCommand = commandFactory(async ({ path, payload: { owner,
 	});
 	const json = await response.json();
 	if (!response.ok) {
-		return [replace(path('project'), {})];
+		return [replace(path('project'), undefined)];
 	}
 
 	return [replace(path('project'), json)];
@@ -123,14 +123,18 @@ export const getProjectResourcesCommand = commandFactory(
 		});
 		const json = await response.json();
 		if (!response.ok) {
-			return [replace(path('projectResource'), undefined), replace(path('childResources'), [])];
+			return [
+				replace(path('projectResource'), undefined),
+				replace(path('parentGroups'), []),
+				replace(path('childResources'), [])
+			];
 		}
 
 		return [
-			replace(path('projectResource', 'path'), parentPath),
-			replace(path('projectResource', 'id'), json.parentId),
-			replace(path('projectResource', 'parentGroups'), json.parentGroups),
-			replace(path('childResources'), json.resources)
+			replace(path('projectResource', 'id'), json.id),
+			replace(path('projectResource', 'fullPath'), parentPath),
+			replace(path('parentGroups'), json.parentGroups),
+			replace(path('childResources'), json.childResources)
 		];
 	}
 );

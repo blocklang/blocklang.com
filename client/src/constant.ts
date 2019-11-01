@@ -14,6 +14,18 @@ export enum ResourceType {
 	Dependence = '07'
 }
 
+// 因为 AppType 主要用于 Page，所以在名称前加上 Page
+// 避免与 interfaces.d.ts 中的 AppType 重名
+export enum PageAppType {
+	Web = '01',
+	Android = '02',
+	iOS = '03',
+	WechatMiniApp = '04',
+	AlipayMiniApp = '05',
+	QuickApp = '06',
+	Unknown = '99'
+}
+
 export enum GitFileStatus {
 	Untracked = '01',
 	Added = '02',

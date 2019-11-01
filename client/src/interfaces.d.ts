@@ -6,7 +6,8 @@ import {
 	AccessLevel,
 	PublishType,
 	ProgrammingLanguage,
-	RepoCategory
+	RepoCategory,
+	PageAppType
 } from './constant';
 import { IconName } from '@fortawesome/fontawesome-svg-core';
 
@@ -110,6 +111,7 @@ export interface ProjectResource {
 	name: string;
 	description: string;
 	resourceType: ResourceType;
+	appType: PageAppType;
 	parentId: number;
 	seq: number;
 	createTime: string;
@@ -123,9 +125,18 @@ export interface ProjectResource {
 	latestFullMessage: string;
 	latestCommitTime: string;
 	gitStatus: GitFileStatus;
+	fullPath: string; // 从根节点到当前资源的路径，使用 / 分割
 }
 
-export interface ProjectGroup {
+/**
+ * @interface ProjectResourceGroup
+ *
+ * 项目资源分组
+ *
+ * @property name      分组名称
+ * @property path      从根分组开始的完整路径名，使用 / 分割
+ */
+export interface ProjectResourceGroup {
 	name: string;
 	path: string;
 }
@@ -234,12 +245,6 @@ interface PageParam extends GroupParam {
 }
 
 interface PageInputValidation extends GroupInputValidation {}
-
-interface ProjectResource {
-	id: number;
-	path: string;
-	parentGroups: ProjectGroup[];
-}
 
 interface UncommittedFile {
 	fullKeyPath: string;
@@ -363,7 +368,7 @@ interface ProjectDependenceData extends ComponentRepoInfo {
 
 interface ProjectDependenceResource {
 	resourceId: number;
-	pathes: ProjectGroup[];
+	pathes: ProjectResourceGroup[];
 	dependences: ProjectDependenceData[];
 }
 
@@ -384,8 +389,11 @@ export interface State {
 	project: Project;
 	canAccessProjects: Project[];
 
-	projectResource: ProjectResource; // 当前项目资源，可以是分组
+	// resource
+	projectResource: ProjectResource; // 当前选中的项目资源，可以是分组
+	parentGroups: ProjectResourceGroup[]; // 分组中不包含当前选中的资源
 	childResources: ProjectResource[]; // 如果当期项目资源属于分组，则就拥有子资源
+
 	latestCommitInfo: CommitInfo;
 	readme: string;
 	userDeployInfo: DeployInfo;

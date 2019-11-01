@@ -17,7 +17,7 @@ function getProperties(store: Store<State>): ViewProjectProperties {
 		loggedUsername: get(path('user', 'loginName')),
 		project: get(path('project')),
 		groupId: get(path('projectResource', 'id')),
-		path: get(path('projectResource', 'path')),
+		path: get(path('projectResource', 'fullPath')),
 		childResources: get(path('childResources')),
 
 		latestCommitInfo: get(path('latestCommitInfo')),

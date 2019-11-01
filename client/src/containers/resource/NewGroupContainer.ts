@@ -16,7 +16,7 @@ function getProperties(store: Store<State>): NewGroupProperties {
 		loggedUsername: get(path('user', 'loginName')),
 		project: get(path('project')),
 		parentId: get(path('projectResource', 'id')),
-		parentGroups: get(path('projectResource', 'parentGroups')),
+		parentGroups: get(path('parentGroups')),
 		keyValidateStatus: get(path('groupInputValidation', 'keyValidateStatus')),
 		keyErrorMessage: get(path('groupInputValidation', 'keyErrorMessage')),
 		nameValidateStatus: get(path('groupInputValidation', 'nameValidateStatus')),
@@ -29,6 +29,6 @@ function getProperties(store: Store<State>): NewGroupProperties {
 }
 
 export default StoreContainer(NewGroup, 'state', {
-	paths: [['user'], ['project'], ['projectResource'], ['groupInputValidation']],
+	paths: [['user'], ['project'], ['projectResource'], ['parentGroups'], ['groupInputValidation']],
 	getProperties
 });

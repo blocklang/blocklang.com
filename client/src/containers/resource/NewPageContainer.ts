@@ -7,7 +7,7 @@ import {
 	pageDescriptionInputProcess,
 	savePageProcess,
 	pageNameInputProcess
-} from '../../processes/pageProcesses';
+} from '../../processes/projectPageProcesses';
 
 function getProperties(store: Store<State>): NewPageProperties {
 	const { get, path } = store;
@@ -18,7 +18,7 @@ function getProperties(store: Store<State>): NewPageProperties {
 		appTypes: get(path('appTypes')),
 		appType: get(path('pageParam', 'appType')),
 		parentId: get(path('projectResource', 'id')),
-		parentGroups: get(path('projectResource', 'parentGroups')),
+		parentGroups: get(path('parentGroups')),
 		keyValidateStatus: get(path('pageInputValidation', 'keyValidateStatus')),
 		keyErrorMessage: get(path('pageInputValidation', 'keyErrorMessage')),
 		nameValidateStatus: get(path('pageInputValidation', 'nameValidateStatus')),
@@ -31,6 +31,14 @@ function getProperties(store: Store<State>): NewPageProperties {
 }
 
 export default StoreContainer(NewPage, 'state', {
-	paths: [['user'], ['project'], ['appTypes'], ['pageParam'], ['projectResource'], ['pageInputValidation']],
+	paths: [
+		['user'],
+		['project'],
+		['appTypes'],
+		['pageParam'],
+		['projectResource'],
+		['parentGroups'],
+		['pageInputValidation']
+	],
 	getProperties
 });

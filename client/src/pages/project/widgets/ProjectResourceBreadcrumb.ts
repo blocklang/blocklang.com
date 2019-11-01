@@ -1,7 +1,7 @@
 import ThemedMixin, { theme } from '@dojo/framework/core/mixins/Themed';
 import I18nMixin from '@dojo/framework/core/mixins/I18n';
 import WidgetBase from '@dojo/framework/core/WidgetBase';
-import { Project, ProjectGroup } from '../../../interfaces';
+import { Project, ProjectResourceGroup } from '../../../interfaces';
 import * as css from './ProjectResourceBreadcrumb.m.css';
 import { v, w } from '@dojo/framework/core/vdom';
 import Link from '@dojo/framework/routing/Link';
@@ -11,7 +11,7 @@ import { ProjectResourcePathPayload } from '../../../processes/interfaces';
 
 export interface ProjectResourceBreadcrumbProperties {
 	project: Project;
-	pathes: ProjectGroup[];
+	pathes: ProjectResourceGroup[];
 	onOpenGroup: (opt: ProjectResourcePathPayload) => void;
 }
 
