@@ -2,8 +2,6 @@ import WidgetBase from '@dojo/framework/core/WidgetBase';
 import { v, w } from '@dojo/framework/core/vdom';
 import Outlet from '@dojo/framework/routing/Outlet';
 
-import Footer from './pages/Footer';
-
 import About from './widgets/About';
 
 import 'bootstrap';
@@ -71,6 +69,7 @@ import { faSearch } from '@fortawesome/free-solid-svg-icons/faSearch';
 import { faLightbulb } from '@fortawesome/free-solid-svg-icons/faLightbulb';
 import { faPuzzlePiece } from '@fortawesome/free-solid-svg-icons/faPuzzlePiece';
 import { faCube } from '@fortawesome/free-solid-svg-icons/faCube';
+import FooterContainer from './containers/FooterContainer';
 
 library.add(
 	faGithub,
@@ -200,7 +199,7 @@ export default class App extends WidgetBase {
 					}
 				})
 			]),
-			w(Footer, {})
+			w(FooterContainer, {})
 		]);
 	}
 }

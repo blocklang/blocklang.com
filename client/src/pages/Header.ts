@@ -97,6 +97,12 @@ export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderPro
 
 	protected render() {
 		const { isAuthenticated, routing } = this.properties;
+
+		// 如果是 view-project-page 则不显示此部件
+		if (routing === 'view-project-page') {
+			return;
+		}
+
 		const { messages } = this._localizedMessages;
 
 		const rootClasses = [css.root, c.navbar, c.navbar_expand_lg];

@@ -7,11 +7,20 @@ import * as c from '../className';
 import * as css from './Footer.m.css';
 import FontAwesomeIcon from 'dojo-fontawesome/FontAwesomeIcon';
 
-export interface FooterProperties {}
+export interface FooterProperties {
+	routing: string;
+}
 
 @theme(css)
 export default class Footer extends ThemedMixin(I18nMixin(WidgetBase))<FooterProperties> {
 	protected render() {
+		const { routing } = this.properties;
+
+		// 如果是 view-project-page 则不显示此部件
+		if (routing === 'view-project-page') {
+			return;
+		}
+
 		return v(
 			'div',
 			{
