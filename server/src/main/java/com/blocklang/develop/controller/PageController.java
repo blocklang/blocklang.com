@@ -35,6 +35,7 @@ import com.blocklang.core.exception.ResourceNotFoundException;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.UserService;
 import com.blocklang.develop.constant.AccessLevel;
+import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.constant.ProjectResourceType;
 import com.blocklang.develop.data.CheckPageKeyParam;
 import com.blocklang.develop.data.CheckPageNameParam;
@@ -284,7 +285,7 @@ public class PageController extends AbstractProjectController {
 		return new ResponseEntity<ProjectResource>(savedProjectResource, HttpStatus.CREATED);
 	}
 	
-	@GetMapping("/projects/{owner}/{projectName}/pages/{pagePath}")
+	@GetMapping("/projects/{owner}/{projectName}/pages/**")
 	public ResponseEntity<Map<String, Object>> getPage(Principal user,
 			@PathVariable String owner,
 			@PathVariable String projectName,
@@ -294,17 +295,22 @@ public class PageController extends AbstractProjectController {
 		ensureCanRead(user, project);
 		
 		String pagePath = SpringMvcUtil.getRestUrl(req, 4);
+		// 获取表示页面的 key
+		String[] pathes = pagePath.split("/");
+		String groupPath = StringUtils.join(pathes, "/", 0, pathes.length - 1);
 		// 要校验根据 parentPath 中的所有节点都能准确匹配
-		List<ProjectResource> parentGroups = projectResourceService.findParentGroupsByParentPath(project.getId(), pagePath);
-		// 因为 parentPath 有值，所以理应能查到记录
-		if(parentGroups.isEmpty()) {
-			logger.error("根据传入的 parent path 没有找到对应的标识");
-			throw new ResourceNotFoundException();
-		}
+		// 这个列表中不包含页面信息
+		List<ProjectResource> parentGroups = projectResourceService.findParentGroupsByParentPath(project.getId(), groupPath);
 		
-		ProjectResource projectResource  = parentGroups.get(parentGroups.size() - 1);
+		String pageKey = pathes[pathes.length - 1];
+		Integer parentGroupId = Constant.TREE_ROOT_ID;
+		if(!parentGroups.isEmpty()) {
+			parentGroupId = parentGroups.get(parentGroups.size() - 1).getId();
+		}
+		ProjectResource projectResource = projectResourceService.findByKey(project.getId(), parentGroupId, ProjectResourceType.PAGE, AppType.WEB, pageKey).orElseThrow(ResourceNotFoundException::new);
 		projectResource.setMessageSource(messageSource); // 不加这行代码，在生成 json 时会出错
 		
+		parentGroups.add(projectResource);
 		List<Map<String, String>> stripedParentGroups = stripResourcePathes(parentGroups);
 		
 		Map<String, Object> result = new HashMap<>();

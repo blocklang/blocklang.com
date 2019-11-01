@@ -290,6 +290,7 @@ public class GroupController extends AbstractProjectController{
 
 		return projectService.find(owner, projectName).map(project -> {
 			if(!project.getIsPublic()) {
+				// FIXME: 完善权限校验
 				// 1. 用户未登录时不能访问私有项目
 				// 2. 用户虽然登录，但是不是项目的拥有者且没有访问权限，则不能访问
 				if((user == null) || (user!= null && !owner.equals(user.getName()))) {
