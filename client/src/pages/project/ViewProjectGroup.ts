@@ -27,6 +27,7 @@ import { ProjectResourcePathPayload } from '../../processes/interfaces';
 import GoToParentGroupLink from './widgets/GoToParentGroupLink';
 import LatestCommitInfo from './widgets/LatestCommitInfo';
 import ProjectResourceBreadcrumb from './widgets/ProjectResourceBreadcrumb';
+import { Params } from '@dojo/framework/routing/interfaces';
 
 export interface ViewProjectGroupProperties {
 	loggedUsername: string;
@@ -240,6 +241,9 @@ class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResou
 			isGroup = false;
 		}
 
+		const to = this._getUrl();
+		const params: Params = this._getParams();
+
 		let title = projectResource.name;
 		if (statusTooltip !== '') {
 			title = title + ' • ' + statusTooltip;
@@ -268,7 +272,7 @@ class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResou
 								},
 								[`${projectResource.name}`]
 						  )
-						: w(Link, { to: '', title, classes: [statusColor] }, [`${projectResource.name}`])
+						: w(Link, { to, params, title, classes: [statusColor] }, [`${projectResource.name}`])
 				])
 			]),
 			v('td', { classes: [css.status, statusColor], title: `${statusTooltip}` }, [`${statusLetter}`]),
@@ -292,6 +296,54 @@ class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResou
 					: undefined
 			])
 		]);
+	}
+
+	// FIXME: ViewProject.ts 中有同名方法，待提取
+	private _getUrl(): string {
+		const { projectResource } = this.properties;
+		const { resourceType, key } = projectResource;
+
+		if (resourceType === ResourceType.Group) {
+			return 'view-project-group';
+		}
+
+		if (resourceType === ResourceType.Page) {
+			return 'view-project-page';
+		}
+
+		if (resourceType === ResourceType.PageTemplet) {
+			return 'view-project-templet';
+		}
+
+		if (resourceType === ResourceType.Service) {
+			return 'view-project-service';
+		}
+
+		if (resourceType === ResourceType.Dependence) {
+			return 'view-project-dependence';
+		}
+
+		if (resourceType === ResourceType.File) {
+			if (key === 'README') {
+				return 'view-project-readme';
+			}
+		}
+
+		return '';
+	}
+
+	// FIXME: ViewProject.ts 中有同名方法，待提取
+	private _getParams(): Params {
+		const { project, parentPath, projectResource } = this.properties;
+		const { resourceType } = projectResource;
+
+		if (resourceType === ResourceType.Group) {
+			const fullPath = parentPath === '' ? projectResource.key : parentPath + '/' + projectResource.key;
+			return { owner: project.createUserName, project: project.name, parentPath: fullPath };
+		}
+
+		const fullPath = parentPath === '' ? projectResource.key : parentPath + '/' + projectResource.key;
+		return { owner: project.createUserName, project: project.name, path: fullPath };
 	}
 
 	private _onOpenGroup(event: any) {
