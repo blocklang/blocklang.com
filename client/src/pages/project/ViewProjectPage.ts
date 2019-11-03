@@ -24,6 +24,10 @@ export default class ViewProjectPage extends ThemedMixin(I18nMixin(WidgetBase))<
 		if (!resource) {
 			return w(Spinner, {});
 		}
+
+		const projectId = project.id;
+		const pageId = resource.id;
+
 		return w(PageDesigner, {
 			project,
 			user: { name: loginUser.loginName, avatar: loginUser.avatarUrl },
@@ -31,9 +35,9 @@ export default class ViewProjectPage extends ThemedMixin(I18nMixin(WidgetBase))<
 			permission: { canRead: canReadPage(project.accessLevel), canWrite: canEditPage(project.accessLevel) },
 			pathes: groups,
 			urls: {
-				fetchApiRepoWidgets: '/designer/{owner}/{projectName}/dependences/widgets',
-				fetchPageModel: '/designer/pages/{pageId}/model',
-				fetchIdeDependenceInfos: '/designer/projects/{projectId}/dependences?category=ide',
+				fetchApiRepoWidgets: `/designer/prjects/${projectId}/dependences/widgets`,
+				fetchPageModel: `/designer/pages/${pageId}/model`,
+				fetchIdeDependenceInfos: `/designer/projects/${projectId}/dependences?category=ide`,
 				externalScriptAndCssWebsite: '/'
 			}
 		});
