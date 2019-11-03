@@ -36,20 +36,26 @@ Status: 200 OK
 
 ```json
 [{
+    "id": 1,
     "gitRepoWebsite": "",
     "gitRepoOwner": "",
     "gitRepoName": "",
+    "apiRepoId": 2,
     "name": "",
     "category": "",
-    "version": ""
+    "version": "",
+    "std": false
 }]
 ```
 
-| Name             | Type     | Description      |
-| ---------------- | -------- | ---------------- |
-| `gitRepoWebsite` | `string` | git 仓库网站     |
-| `gitRepoOwner`   | `string` | git 仓库拥有者   |
-| `gitRepoName`    | `string` | git 仓库名称     |
-| `name`           | `string` | 组件库的名称     |
-| `category`       | `string` | 组件库分类       |
-| `version`        | `string` | 项目依赖的版本号 |
+| Name             | Type      | Description                   |
+| ---------------- | --------- | ----------------------------- |
+| `id`             | `number`  | git 仓库标识                  |
+| `gitRepoWebsite` | `string`  | git 仓库网站                  |
+| `gitRepoOwner`   | `string`  | git 仓库拥有者                |
+| `gitRepoName`    | `string`  | git 仓库名称                  |
+| `apiRepoId`      | `number`  | 该组件仓库实现的 API 仓库标识 |
+| `name`           | `string`  | 组件库的名称                  |
+| `category`       | `string`  | 组件库分类                    |
+| `version`        | `string`  | 项目依赖的版本号              |
+| `std`            | `boolean` | 是否标准库                    |

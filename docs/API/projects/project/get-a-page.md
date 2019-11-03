@@ -28,11 +28,17 @@ GET /projects/{owner}/{projectName}/pages/{pagePath}
 
 ## Response
 
+如果用户没有访问权限，则返回
+
+```text
+Status: 403 Forbidden
+```
+
 如果
 
-1. 用户没有访问权限
+1. 项目不存在
 2. 没有找到此文件
-3. 找到了此文件，但是该文件不属于页面
+3. 找到的文件不属于页面
 
 则返回
 

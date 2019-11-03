@@ -3,15 +3,14 @@
 查找出项目依赖的 Widget 组件仓库中的 Widget 列表。
 
 ```text
-GET /projects/{owner}/{projectName}/dependences/widgets
+GET /designer/projects/{projectId}/dependences/widgets
 ```
 
 ## Parameters
 
-| Name          | Type     | Description              |
-| ------------- | -------- | ------------------------ |
-| `owner`       | `string` | **Required**. 用户登录名 |
-| `projectName` | `string` | **Required**. 项目名称   |
+| Name        | Type  | Description            |
+| ----------- | ----- | ---------------------- |
+| `projectId` | `int` | **Required**. 项目标识 |
 
 ## Response
 
@@ -62,9 +61,11 @@ Status: 200 OK
 
 `widgets` 是部件列表，是一个 Json Array，其中的字段为
 
-| 属性名       | 类型     | 描述           |
-| ------------ | -------- | -------------- |
-| `widgetId`   | `int`    | 部件标识       |
-| `widgetCode` | `string` | 部件编码       |
-| `widgetName` | `string` | 部件名称       |
-| `iconClass`  | `string` | 部件图标样式类 |
+| 属性名           | 类型      | 描述                  |
+| ---------------- | --------- | --------------------- |
+| `widgetId`       | `int`     | 部件标识              |
+| `widgetCode`     | `string`  | 部件编码              |
+| `widgetName`     | `string`  | 部件名称              |
+| `iconClass`      | `string`  | 部件图标样式类        |
+| `canHasChildren` | `boolean` | 是否可以包含子部件    |
+| `apiRepoId`      | `number`  | 部件所属的 API 库标识 |
