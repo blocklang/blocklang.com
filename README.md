@@ -1,10 +1,17 @@
-﻿# Block Lang
+﻿<p align="center" style="font-size: 3em; font-weight: bold">软件拼装工厂</p>
+
+# Block Lang
 
 [![Build Status](https://travis-ci.org/blocklang/blocklang.com.svg?branch=master)](https://travis-ci.org/blocklang/blocklang.com)
 
-技术可积累，经验可沉淀，平台能力递增，研发成本递减。BlockLang 平台开启**可持续发展**的软件开发新模式。
+Block Lang 是一个：
 
-Block Lang 尚在热火朝天、天马行空的开发，不适合在生产环境使用。君欲一睹 Block Lang 芳容，请移步[演示站点 https://blocklang.com](https://blocklang.com)。
+1. 业务人员友好的软件拼装工厂；
+2. 开发人员友好的组件、API 和软件等共建、共享社区。
+
+Block Lang 专注于业务层面，仅在现有软件开发模式之上增加一层薄薄的、可视化的拼装层。Block Lang 将开启**可持续发展**的软件开发新模式，实现“技术可积累，经验可沉淀，平台能力递增，研发成本递减”。
+
+_Block Lang 尚在热火朝天、天马行空的开发，不适合在生产环境使用。君欲一睹 Block Lang 芳容，请移步[演示站点 https://blocklang.com](https://blocklang.com)。_
 
 ## 相信
 
@@ -16,13 +23,6 @@ Block Lang 尚在热火朝天、天马行空的开发，不适合在生产环境
 BlockLang 致力于打造一朵“百花齐放、百鸟争鸣”的软件云，实现软件定义软件。
 
 ![Block Lang Idea](docs/spec/images/blocklang-idea.png)
-
-## 定位
-
-Block Lang 是一个：
-
-1. 可视化的软件拼装工厂，致力于提高软件研发、运维的效率和质量；
-2. 组件商店，提供功能全面、质量上乘、持续优化的组件和软件。
 
 ## 原理
 
@@ -69,4 +69,4 @@ BlockLang 平台由以下项目组成：
 
 在提交代码前，请先了解[为什么要开发 Block Lang](./docs/help/why.md) 以及[设计细节](./docs/spec/program.md)。
 
-诚邀志同道合的编程**手艺人**加入（QQ群 `619312757`）。
+Block Lang 完全开源，诚邀志同道合的编程**手艺人**共筑社区（QQ群 `619312757`）。
