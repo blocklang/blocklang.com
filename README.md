@@ -2,19 +2,21 @@
 
 [![Build Status](https://travis-ci.org/blocklang/blocklang.com.svg?branch=master)](https://travis-ci.org/blocklang/blocklang.com)
 
+> 信息化工作者对美好生活的向往，在工作中收获成就感和幸福感，就是 Block Lang 的奋斗目标。
+
 Block Lang 是一个：
 
 1. 业务人员友好的软件拼装工厂；
 2. 开发人员友好的组件、API 和软件等共建、共享社区。
 
-Block Lang 专注于业务层面，仅在现有软件开发模式之上增加一层薄薄的、可视化的拼装层。Block Lang 将开启**可持续发展**的软件开发新模式，实现“技术可积累，经验可沉淀，平台能力递增，研发成本递减”。
+Block Lang 专注于业务层面，仅在现有软件开发模式之上增加一个可视化的拼装层。Block Lang 将开启**可持续发展**的软件开发新模式，实现“技术可积累，经验可沉淀，平台能力递增，研发成本递减”。
 
 Block Lang 尚在热火朝天、天马行空的开发，不适合在生产环境使用。君欲一睹 Block Lang 芳容，请移步[演示站点 https://blocklang.com](https://blocklang.com)。
 
 ## 相信
 
 1. **老少皆宜**：每个人都可按照自己的需求，拼装出称心的软件
-2. **人软合一**：每个人都需自定制生活、学习和工作用的软件套件
+2. **软件赋能**：每个人在生活、学习和工作中都需自定制的软件套件
 
 ## 理念
 
