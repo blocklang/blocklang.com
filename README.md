@@ -1,6 +1,4 @@
-﻿<p align="center" style="font-size: 3em; font-weight: bold">软件拼装工厂</p>
-
-# Block Lang
+﻿# Block Lang
 
 [![Build Status](https://travis-ci.org/blocklang/blocklang.com.svg?branch=master)](https://travis-ci.org/blocklang/blocklang.com)
 
@@ -11,7 +9,7 @@ Block Lang 是一个：
 
 Block Lang 专注于业务层面，仅在现有软件开发模式之上增加一层薄薄的、可视化的拼装层。Block Lang 将开启**可持续发展**的软件开发新模式，实现“技术可积累，经验可沉淀，平台能力递增，研发成本递减”。
 
-_Block Lang 尚在热火朝天、天马行空的开发，不适合在生产环境使用。君欲一睹 Block Lang 芳容，请移步[演示站点 https://blocklang.com](https://blocklang.com)。_
+Block Lang 尚在热火朝天、天马行空的开发，不适合在生产环境使用。君欲一睹 Block Lang 芳容，请移步[演示站点 https://blocklang.com](https://blocklang.com)。
 
 ## 相信
 
