@@ -29,6 +29,9 @@ public abstract class Resources {
 		"/marketplace"
 	};
 
+	/**
+	 * @deprecated 该字段目前没有使用。到 1.0 版本后，如果还没有用处，则删除。
+	 */
 	public static final String[] PUBLIC_URL = {
 		"/", // 首页
 		"/login**", // 用户登录
@@ -51,8 +54,9 @@ public abstract class Resources {
 		// 信息分类编码
 		"/properties/**",
 		// 组件库列表
-		"/component-repos",
-		"/pages" // 页面模型专用
+		"/component-repos/**",
+		// 设计器专用
+		"/designer/**"
 	};
 	
 	/**
@@ -70,7 +74,8 @@ public abstract class Resources {
 		"properties",                      // 信息分类编码
 		"component-repos",                 // 组件库
 		"marketplace",                     // 组件市场
-		"pages"                            // 页面模型
+		"designer"                         // 设计器专用
+		
 		
 //		"/session", // 用户登录
 //		"/mocksession", // 开发环境下，模拟用户登录

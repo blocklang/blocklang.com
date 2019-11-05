@@ -35,7 +35,6 @@ import com.blocklang.develop.constant.ProjectResourceType;
 import com.blocklang.develop.data.AddDependenceParam;
 import com.blocklang.develop.data.ProjectDependenceData;
 import com.blocklang.develop.data.UpdateDependenceParam;
-import com.blocklang.develop.designer.data.WidgetRepo;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectBuildProfile;
 import com.blocklang.develop.model.ProjectDependence;
@@ -237,22 +236,4 @@ public class ProjectDependenceController extends AbstractProjectController{
 		return new ResponseEntity<ComponentRepoVersion>(result, HttpStatus.CREATED);
 	}
 
-	/**
-	 * 获取项目依赖的 API 组件库中类型为 Widget 的组件库中的所有部件。
-	 * 并按照组件库和部件种类分组。
-	 * 
-	 * @return
-	 */
-	@GetMapping("/projects/{owner}/{projectName}/dependences/widgets")
-	public ResponseEntity<List<WidgetRepo>> getAllDependenceWidgets(
-			Principal principal,
-			@PathVariable String owner,
-			@PathVariable String projectName) {
-		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-
-		ensureCanRead(principal, project);
-		
-		List<WidgetRepo> result = projectDependenceService.findAllWidgets(project.getId());
-		return ResponseEntity.ok(result);
-	}
 }
