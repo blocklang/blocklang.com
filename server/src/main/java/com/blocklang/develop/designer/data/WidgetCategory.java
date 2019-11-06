@@ -2,12 +2,10 @@ package com.blocklang.develop.designer.data;
 
 import java.util.List;
 
-import com.blocklang.marketplace.model.ApiComponent;
-
 public class WidgetCategory {
 	
 	private String name;
-	private List<ApiComponent> widgets;
+	private List<Widget> widgets;
 
 	public String getName() {
 		return name;
@@ -17,11 +15,11 @@ public class WidgetCategory {
 		this.name = name;
 	}
 
-	public List<ApiComponent> getWidgets() {
+	public List<Widget> getWidgets() {
 		return widgets;
 	}
 
-	public void setWidgets(List<ApiComponent> widgets) {
+	public void setWidgets(List<Widget> widgets) {
 		this.widgets = widgets;
 	}
 
