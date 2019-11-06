@@ -149,13 +149,13 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 	}
 	
 	@Test
-	public void get_project_dependeces_widgets_project_not_found() {
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
+	public void get_project_dependeces_widgets_project_not_exist() {
+		when(projectService.findById(anyInt())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/projects/{owner}/{projectName}/dependences/widgets", "jack", "project")
+			.get("/designer/projects/{projectId}/dependences/widgets", 1)
 		.then()
 			.statusCode(HttpStatus.SC_NOT_FOUND)
 			.body(equalTo(""));
@@ -167,12 +167,12 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		Project project = new Project();
 		project.setId(1);
 		project.setIsPublic(false);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
 		
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/projects/{owner}/{projectName}/dependences/widgets", "jack", "project")
+			.get("/designer/projects/{projectId}/dependences/widgets", 1)
 		.then()
 			.statusCode(HttpStatus.SC_FORBIDDEN)
 			.body(equalTo(""));
@@ -184,14 +184,14 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		Project project = new Project();
 		project.setId(1);
 		project.setIsPublic(true);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
 		
 		when(projectDependenceService.findAllWidgets(anyInt())).thenReturn(Collections.emptyList());
 		
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/projects/{owner}/{projectName}/dependences/widgets", "jack", "project")
+			.get("/designer/projects/{projectId}/dependences/widgets", 1)
 		.then()
 			.statusCode(HttpStatus.SC_OK)
 			.body(equalTo("[]"));
@@ -204,14 +204,14 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		Project project = new Project();
 		project.setId(1);
 		project.setIsPublic(true);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
 		
 		when(projectDependenceService.findAllWidgets(anyInt())).thenReturn(Collections.emptyList());
 		
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/projects/{owner}/{projectName}/dependences/widgets", "jack", "project")
+			.get("/designer/projects/{projectId}/dependences/widgets", 1)
 		.then()
 			.statusCode(HttpStatus.SC_OK)
 			.body(equalTo("[]"));
@@ -224,7 +224,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		Project project = new Project();
 		project.setId(1);
 		project.setIsPublic(false);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
 		
 		UserInfo user = new UserInfo();
 		user.setId(1);
@@ -233,7 +233,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/projects/{owner}/{projectName}/dependences/widgets", "jack", "project")
+			.get("/designer/projects/{projectId}/dependences/widgets", 1)
 		.then()
 			.statusCode(HttpStatus.SC_FORBIDDEN)
 			.body(equalTo(""));
@@ -246,7 +246,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		Project project = new Project();
 		project.setId(1);
 		project.setIsPublic(false);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
 		
 		UserInfo user = new UserInfo();
 		user.setId(1);
@@ -261,7 +261,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/projects/{owner}/{projectName}/dependences/widgets", "jack", "project")
+			.get("/designer/projects/{projectId}/dependences/widgets", 1)
 		.then()
 			.statusCode(HttpStatus.SC_OK)
 			.body(equalTo("[]"));

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.blocklang.core.exception.ResourceNotFoundException;
 import com.blocklang.develop.designer.data.Dependence;
+import com.blocklang.develop.designer.data.WidgetRepo;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.service.ProjectDependenceService;
 import com.blocklang.marketplace.model.ComponentRepo;
@@ -44,6 +45,7 @@ public class PageDesignerController extends AbstractProjectController {
 			Principal principal,
 			@PathVariable Integer projectId,
 			@RequestParam String category) {
+		
 		if(!category.equalsIgnoreCase("dev")) {
 			throw new NotImplementedException("当前仅支持获取 dev 依赖。");
 		}
@@ -77,16 +79,15 @@ public class PageDesignerController extends AbstractProjectController {
 	 * 
 	 * @return
 	 */
-//	@GetMapping("/projects/{owner}/{projectName}/dependences/widgets")
-//	public ResponseEntity<List<WidgetRepo>> getAllDependenceWidgets(
-//			Principal principal,
-//			@PathVariable String owner,
-//			@PathVariable String projectName) {
-//		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-//
-//		ensureCanRead(principal, project);
-//		
-//		List<WidgetRepo> result = projectDependenceService.findAllWidgets(project.getId());
-//		return ResponseEntity.ok(result);
-//	}
+	@GetMapping("/designer/projects/{projectId}/dependences/widgets")
+	public ResponseEntity<List<WidgetRepo>> getProjectDependenceWidgets(
+			Principal principal,
+			@PathVariable Integer projectId) {
+		Project project = projectService.findById(projectId).orElseThrow(ResourceNotFoundException::new);
+
+		ensureCanRead(principal, project);
+		
+		List<WidgetRepo> result = projectDependenceService.findAllWidgets(project.getId());
+		return ResponseEntity.ok(result);
+	}
 }
