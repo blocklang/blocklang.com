@@ -40,6 +40,12 @@ public interface ProjectDependenceService {
 
 	Optional<ProjectDependence> findById(Integer dependenceId);
 
+	/**
+	 * 从 API 项目中找出 Widget 类型的项目，然后分组罗列其中的部件
+	 * 
+	 * @param projectId 项目标识
+	 * @return 先按仓库分组，在根据 category 分组的部件列表
+	 */
 	List<WidgetRepo> findAllWidgets(Integer projectId);
 
 }

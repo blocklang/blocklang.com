@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -27,6 +28,8 @@ import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.dao.ProjectBuildProfileDao;
 import com.blocklang.develop.dao.ProjectDependenceDao;
 import com.blocklang.develop.data.ProjectDependenceData;
+import com.blocklang.develop.designer.data.Widget;
+import com.blocklang.develop.designer.data.WidgetCategory;
 import com.blocklang.develop.designer.data.WidgetRepo;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectBuildProfile;
@@ -622,26 +625,22 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void find_all_widgets_no_data() {
-		StopWatch watch = new StopWatch();
-		watch.start();
 		List<WidgetRepo> result = projectDependenceService.findAllWidgets(1);
-		watch.stop();
-		System.out.println("毫秒：" + watch.getTotalTimeMillis());
-		
 		assertThat(result).isEmpty();
 	}
 	
 	@Test
-	public void find_all_widgets_success() {
+	public void find_all_widgets_uncategory() {
 		Integer projectId = 1;
 		
-		// 创建一个 API 仓库，类型是 Widget
+		// 创建一个 API 仓库，类型是  Widget
+		String apiRepoName = "api_repo_name";
 		ApiRepo apiRepo = new ApiRepo();
 		apiRepo.setGitRepoUrl("a");
 		apiRepo.setGitRepoWebsite("b");
 		apiRepo.setGitRepoOwner("c");
 		apiRepo.setGitRepoName("d");
-		apiRepo.setName("e");
+		apiRepo.setName(apiRepoName);
 		apiRepo.setVersion("f");
 		apiRepo.setCategory(RepoCategory.WIDGET);
 		apiRepo.setCreateUserId(1);
@@ -659,15 +658,17 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 
 		// 在版本下创建一个部件，没有分类
 		ApiComponent widget = new ApiComponent();
+		String widgetCode = "0001";
+		String widgetName = "Widget1";
 		widget.setApiRepoVersionId(savedApiRepoVersion.getId());
-		widget.setCode("0001");
-		widget.setName("Widget1");
+		widget.setCode(widgetCode);
+		widget.setName(widgetName);
 		widget.setLabel("Wiget 1");
 		widget.setDescription("Description");
 		widget.setCanHasChildren(false);
 		widget.setCreateUserId(1);
 		widget.setCreateTime(LocalDateTime.now());
-		apiComponentDao.save(widget);
+		ApiComponent savedWidget = apiComponentDao.save(widget);
 		
 		// 在组件仓库版本信息中创建一条记录，引用 api 版本信息
 		ComponentRepoVersion componentRepoVersion = new ComponentRepoVersion();
@@ -687,11 +688,30 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		dependence.setCreateTime(LocalDateTime.now());
 		projectDependenceDao.save(dependence);
 		
+		StopWatch watch = new StopWatch();
+		watch.start();
 		List<WidgetRepo> result = projectDependenceService.findAllWidgets(projectId);
-		assertThat(result).hasSize(1);
+		watch.stop();
+		System.out.println("毫秒：" + watch.getTotalTimeMillis());
 		
+		assertThat(result).hasSize(1);
 		// 测试未分组的情况
-		assertThat(result.get(0).getWidgetCategories().get(0).getName()).isEqualTo("_");
+		WidgetRepo repo = result.get(0);
+		assertThat(repo.getApiRepoId()).isEqualTo(savedApiRepo.getId());
+		assertThat(repo.getApiRepoName()).isEqualTo(apiRepoName);
+		assertThat(repo.getWidgetCategories()).hasSize(1);
+		
+		WidgetCategory category1 = repo.getWidgetCategories().get(0);
+		assertThat(category1.getName()).isEqualTo("_");
+		assertThat(category1.getWidgets()).hasSize(1);
+		
+		Widget widget1 = category1.getWidgets().get(0);
+		// Widget 中的 apiRepoId 是一个冗余字段
+		assertThat(widget1.getApiRepoId()).isEqualTo(savedApiRepo.getId());
+		assertThat(widget1.getWidgetId()).isEqualTo(savedWidget.getId());
+		assertThat(widget1.getWidgetCode()).isEqualTo(widgetCode);
+		assertThat(widget1.getWidgetName()).isEqualTo(widgetName);
+		assertThat(widget1.getCanHasChildren()).isFalse();
 	}
 	
 	// 项目依赖两个组件库，但两个组件库实现同一个 api
@@ -826,5 +846,95 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		
 		List<WidgetRepo> result = projectDependenceService.findAllWidgets(projectId);
 		assertThat(result).hasSize(0);
+	}
+
+	// 测试一个 API 仓库中有两个分组的情况
+	// 尚不支持 category 字段
+	@Ignore
+	@Test
+	public void find_all_widgets_two_category() {
+		Integer projectId = 1;
+		
+		// 创建一个 API 仓库，类型是  Widget
+		String apiRepoName = "api_repo_name";
+		ApiRepo apiRepo = new ApiRepo();
+		apiRepo.setGitRepoUrl("a");
+		apiRepo.setGitRepoWebsite("b");
+		apiRepo.setGitRepoOwner("c");
+		apiRepo.setGitRepoName("d");
+		apiRepo.setName(apiRepoName);
+		apiRepo.setVersion("f");
+		apiRepo.setCategory(RepoCategory.WIDGET);
+		apiRepo.setCreateUserId(1);
+		apiRepo.setCreateTime(LocalDateTime.now());
+		ApiRepo savedApiRepo = apiRepoDao.save(apiRepo);
+		
+		// 创建对应的 API 仓库版本信息
+		ApiRepoVersion apiVersion = new ApiRepoVersion();
+		apiVersion.setApiRepoId(savedApiRepo.getId());
+		apiVersion.setVersion("0.1.0");
+		apiVersion.setGitTagName("v0.1.0");
+		apiVersion.setCreateUserId(1);
+		apiVersion.setCreateTime(LocalDateTime.now());
+		ApiRepoVersion savedApiRepoVersion = apiRepoVersionDao.save(apiVersion);
+
+		// 在版本下创建一个部件，没有分类
+		ApiComponent widget = new ApiComponent();
+		String widgetCode = "0001";
+		String widgetName = "Widget1";
+		widget.setApiRepoVersionId(savedApiRepoVersion.getId());
+		widget.setCode(widgetCode);
+		widget.setName(widgetName);
+		widget.setLabel("Wiget 1");
+		widget.setDescription("Description");
+		widget.setCanHasChildren(false);
+		widget.setCreateUserId(1);
+		widget.setCreateTime(LocalDateTime.now());
+		ApiComponent savedWidget = apiComponentDao.save(widget);
+		
+		// TODO: 添加两个部件，分别属于不同种类。
+		
+		// 在组件仓库版本信息中创建一条记录，引用 api 版本信息
+		ComponentRepoVersion componentRepoVersion = new ComponentRepoVersion();
+		componentRepoVersion.setComponentRepoId(1);
+		componentRepoVersion.setVersion("0.1.0");
+		componentRepoVersion.setGitTagName("v0.1.0");
+		componentRepoVersion.setApiRepoVersionId(savedApiRepoVersion.getId());
+		componentRepoVersion.setCreateUserId(1);
+		componentRepoVersion.setCreateTime(LocalDateTime.now());
+		ComponentRepoVersion savedComponentRepoVersion = componentRepoVersionDao.save(componentRepoVersion);
+		
+		// 将组件仓库添加为项目依赖
+		ProjectDependence dependence = new ProjectDependence();
+		dependence.setProjectId(projectId);
+		dependence.setComponentRepoVersionId(savedComponentRepoVersion.getId());
+		dependence.setCreateUserId(1);
+		dependence.setCreateTime(LocalDateTime.now());
+		projectDependenceDao.save(dependence);
+		
+		StopWatch watch = new StopWatch();
+		watch.start();
+		List<WidgetRepo> result = projectDependenceService.findAllWidgets(projectId);
+		watch.stop();
+		System.out.println("毫秒：" + watch.getTotalTimeMillis());
+		
+		assertThat(result).hasSize(1);
+		// 测试未分组的情况
+		WidgetRepo repo = result.get(0);
+		assertThat(repo.getApiRepoId()).isEqualTo(savedApiRepo.getId());
+		assertThat(repo.getApiRepoName()).isEqualTo(apiRepoName);
+		assertThat(repo.getWidgetCategories()).hasSize(1);
+		
+		WidgetCategory category1 = repo.getWidgetCategories().get(0);
+		assertThat(category1.getName()).isEqualTo("_");
+		assertThat(category1.getWidgets()).hasSize(1);
+		
+		Widget widget1 = category1.getWidgets().get(0);
+		// Widget 中的 apiRepoId 是一个冗余字段
+		assertThat(widget1.getApiRepoId()).isEqualTo(savedApiRepo.getId());
+		assertThat(widget1.getWidgetId()).isEqualTo(savedWidget.getId());
+		assertThat(widget1.getWidgetCode()).isEqualTo(widgetCode);
+		assertThat(widget1.getWidgetName()).isEqualTo(widgetName);
+		assertThat(widget1.getCanHasChildren()).isFalse();
 	}
 }
