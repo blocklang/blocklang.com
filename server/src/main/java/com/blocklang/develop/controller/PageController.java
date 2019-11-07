@@ -23,7 +23,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -40,7 +39,6 @@ import com.blocklang.develop.constant.ProjectResourceType;
 import com.blocklang.develop.data.CheckPageKeyParam;
 import com.blocklang.develop.data.CheckPageNameParam;
 import com.blocklang.develop.data.NewPageParam;
-import com.blocklang.develop.designer.data.Page;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectAuthorization;
 import com.blocklang.develop.model.ProjectResource;
@@ -320,41 +318,4 @@ public class PageController extends AbstractProjectController {
 		return ResponseEntity.ok(result);
 	}
 
-	@PutMapping("/pages/{pageId}/model")
-	public ResponseEntity<Map<String, Object>> updatePageModel(
-			Principal principal, 
-			@PathVariable Integer pageId, 
-			@RequestBody Page model ) {
-		if(principal == null) {
-			throw new NoAuthorizationException();
-		}
-		
-		ProjectResource page = projectResourceService.findById(pageId).orElseThrow(ResourceNotFoundException::new);
-		UserInfo user = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
-		Project project = projectService.findById(page.getProjectId()).orElseThrow(ResourceNotFoundException::new);
-		
-		ensureCanWrite(user, project);
-		
-		projectResourceService.updatePageModel(model);
-		
-		return new ResponseEntity<Map<String, Object>>(HttpStatus.CREATED);
-	}
-	
-	@GetMapping("/pages/{pageId}/model")
-	public ResponseEntity<Page> getPageModel(
-			Principal principal, 
-			@PathVariable Integer pageId) {
-		ProjectResource page = projectResourceService.findById(pageId).orElseThrow(ResourceNotFoundException::new);
-		Project project = projectService.findById(page.getProjectId()).orElseThrow(ResourceNotFoundException::new);
-		if(!project.getIsPublic()) {
-			if(principal == null) {
-				throw new NoAuthorizationException();
-			}
-			UserInfo user = userService.findByLoginName(principal.getName()).get();
-			ensureCanRead(user, project);
-		}
-		
-		Page result = projectResourceService.getPageModel(pageId).orElse(null);
-		return ResponseEntity.ok(result);
-	}
 }

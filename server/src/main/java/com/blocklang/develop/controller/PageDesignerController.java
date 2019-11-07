@@ -2,21 +2,30 @@ package com.blocklang.develop.controller;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.blocklang.core.exception.NoAuthorizationException;
 import com.blocklang.core.exception.ResourceNotFoundException;
+import com.blocklang.core.model.UserInfo;
 import com.blocklang.develop.designer.data.Dependence;
+import com.blocklang.develop.designer.data.PageModel;
 import com.blocklang.develop.designer.data.WidgetRepo;
 import com.blocklang.develop.model.Project;
+import com.blocklang.develop.model.ProjectResource;
 import com.blocklang.develop.service.ProjectDependenceService;
+import com.blocklang.develop.service.ProjectResourceService;
 import com.blocklang.marketplace.model.ComponentRepo;
 
 /**
@@ -30,6 +39,8 @@ public class PageDesignerController extends AbstractProjectController {
 	
 	@Autowired
 	private ProjectDependenceService projectDependenceService;
+	@Autowired
+	private ProjectResourceService projectResourceService;
 
 	/**
 	 * 与 {@link ProjectDependenceController#getDependence(Principal, String, String)}} 功能类似，
@@ -90,4 +101,38 @@ public class PageDesignerController extends AbstractProjectController {
 		List<WidgetRepo> result = projectDependenceService.findAllWidgets(project.getId());
 		return ResponseEntity.ok(result);
 	}
+	
+	@GetMapping("/designer/pages/{pageId}/model")
+	public ResponseEntity<PageModel> getPageModel(
+			Principal principal, 
+			@PathVariable Integer pageId) {
+		ProjectResource page = projectResourceService.findById(pageId).orElseThrow(ResourceNotFoundException::new);
+		Project project = projectService.findById(page.getProjectId()).orElseThrow(ResourceNotFoundException::new);
+		
+		ensureCanRead(principal, project);
+		
+		PageModel result = projectResourceService.getPageModel(pageId);
+		return ResponseEntity.ok(result);
+	}
+	
+	@PutMapping("/designer/pages/{pageId}/model")
+	public ResponseEntity<Map<String, Object>> updatePageModel(
+			Principal principal, 
+			@PathVariable Integer pageId, 
+			@RequestBody PageModel model ) {
+		if(principal == null) {
+			throw new NoAuthorizationException();
+		}
+		
+		ProjectResource page = projectResourceService.findById(pageId).orElseThrow(ResourceNotFoundException::new);
+		UserInfo user = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
+		Project project = projectService.findById(page.getProjectId()).orElseThrow(ResourceNotFoundException::new);
+		
+		ensureCanWrite(user, project);
+		
+		projectResourceService.updatePageModel(model);
+		
+		return new ResponseEntity<Map<String, Object>>(HttpStatus.CREATED);
+	}
+	
 }
