@@ -22,6 +22,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.test.AbstractControllerTest;
 import com.blocklang.develop.constant.AccessLevel;
+import com.blocklang.develop.constant.ProjectResourceType;
 import com.blocklang.develop.data.ProjectDependenceData;
 import com.blocklang.develop.designer.data.PageModel;
 import com.blocklang.develop.model.Project;
@@ -289,6 +290,22 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 	}
 	
 	@Test
+	public void get_page_model_page_invalid_page() {
+		ProjectResource page = new ProjectResource();
+		page.setId(1);
+		page.setResourceType(ProjectResourceType.GROUP/*not PAGE*/);
+		
+		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(page));
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/designer/pages/{pageId}/model", "1")
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	@Test
 	public void get_page_model_project_not_exist() {
 		ProjectResource page = new ProjectResource();
 		page.setId(1);
@@ -312,7 +329,9 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
 		ProjectResource page = new ProjectResource();
+		page.setId(1);
 		page.setProjectId(1);
+		page.setResourceType(ProjectResourceType.PAGE);
 		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(page));
 		
 		Project project = new Project();
@@ -320,7 +339,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		project.setIsPublic(true);
 		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
 		
-		when(projectResourceService.getPageModel(anyInt())).thenReturn(new PageModel());
+		when(projectResourceService.getPageModel(anyInt(), anyInt())).thenReturn(new PageModel());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -340,6 +359,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		
 		ProjectResource page = new ProjectResource();
 		page.setProjectId(1);
+		page.setResourceType(ProjectResourceType.PAGE);
 		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(page));
 		
 		Project project = new Project();
@@ -363,7 +383,9 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
 		ProjectResource page = new ProjectResource();
+		page.setId(1);
 		page.setProjectId(1);
+		page.setResourceType(ProjectResourceType.PAGE);
 		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(page));
 		
 		Project project = new Project();
@@ -371,7 +393,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		project.setIsPublic(true);
 		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
 		
-		when(projectResourceService.getPageModel(anyInt())).thenReturn(new PageModel());
+		when(projectResourceService.getPageModel(anyInt(), anyInt())).thenReturn(new PageModel());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -392,6 +414,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		
 		ProjectResource page = new ProjectResource();
 		page.setProjectId(1);
+		page.setResourceType(ProjectResourceType.PAGE);
 		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(page));
 		
 		Project project = new Project();
@@ -418,7 +441,9 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
 		ProjectResource page = new ProjectResource();
+		page.setId(1);
 		page.setProjectId(1);
+		page.setResourceType(ProjectResourceType.PAGE);
 		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(page));
 		
 		Project project = new Project();
@@ -432,7 +457,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		auth.setAccessLevel(AccessLevel.READ);
 		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
-		when(projectResourceService.getPageModel(anyInt())).thenReturn(new PageModel());
+		when(projectResourceService.getPageModel(anyInt(), anyInt())).thenReturn(new PageModel());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -452,7 +477,9 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
 		ProjectResource page = new ProjectResource();
+		page.setId(1);
 		page.setProjectId(1);
+		page.setResourceType(ProjectResourceType.PAGE);
 		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(page));
 		
 		Project project = new Project();
@@ -466,7 +493,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		auth.setAccessLevel(AccessLevel.WRITE);
 		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
-		when(projectResourceService.getPageModel(anyInt())).thenReturn(new PageModel());
+		when(projectResourceService.getPageModel(anyInt(), anyInt())).thenReturn(new PageModel());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -486,7 +513,9 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
 		ProjectResource page = new ProjectResource();
+		page.setId(1);
 		page.setProjectId(1);
+		page.setResourceType(ProjectResourceType.PAGE);
 		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(page));
 		
 		Project project = new Project();
@@ -500,7 +529,8 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		auth.setAccessLevel(AccessLevel.ADMIN);
 		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
-		when(projectResourceService.getPageModel(anyInt())).thenReturn(new PageModel());
+		PageModel model = new PageModel();
+		when(projectResourceService.getPageModel(anyInt(), anyInt())).thenReturn(model);
 		
 		given()
 			.contentType(ContentType.JSON)

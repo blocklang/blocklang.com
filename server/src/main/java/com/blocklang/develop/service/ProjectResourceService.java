@@ -1,13 +1,13 @@
 package com.blocklang.develop.service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.constant.ProjectResourceType;
 import com.blocklang.develop.data.UncommittedFile;
+import com.blocklang.develop.designer.data.PageModel;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectResource;
 
@@ -88,9 +88,14 @@ public interface ProjectResourceService {
 	 */
 	String commit(UserInfo user, Project project, String commitMessage);
 
-	// TODO: 将 model 转换为 java 对象？
-	void updatePageModel(Map<String, Object> model);
+	void updatePageModel(PageModel pageModel);
 
-	Optional<Map<String, Object>> getPageModel(Integer pageId);
-
+	/**
+	 * 获取页面模型
+	 * 
+	 * @param projectId 项目标识
+	 * @param pageId 页面标识
+	 * @return 返回页面模型，不能返回 null，如果页面模型中没有内容，则返回空的 PageModel 对象
+	 */
+	PageModel getPageModel(Integer projectId, Integer pageId);
 }

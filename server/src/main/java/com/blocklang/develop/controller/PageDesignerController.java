@@ -107,11 +107,14 @@ public class PageDesignerController extends AbstractProjectController {
 			Principal principal, 
 			@PathVariable Integer pageId) {
 		ProjectResource page = projectResourceService.findById(pageId).orElseThrow(ResourceNotFoundException::new);
+		if(!page.isPage()) {
+			throw new ResourceNotFoundException();
+		}
 		Project project = projectService.findById(page.getProjectId()).orElseThrow(ResourceNotFoundException::new);
 		
 		ensureCanRead(principal, project);
 		
-		PageModel result = projectResourceService.getPageModel(pageId);
+		PageModel result = projectResourceService.getPageModel(project.getId(), page.getId());
 		return ResponseEntity.ok(result);
 	}
 	
