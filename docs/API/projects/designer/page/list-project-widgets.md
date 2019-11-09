@@ -69,3 +69,13 @@ Status: 200 OK
 | `iconClass`      | `string`  | 部件图标样式类        |
 | `canHasChildren` | `boolean` | 是否可以包含子部件    |
 | `apiRepoId`      | `number`  | 部件所属的 API 库标识 |
+| `properties`     | `Array`   | 部件的属性列表        |
+
+`properties` 是部件的属性列表，是一个 Json Array，其中的字段为
+
+| 属性名         | 类型     | 描述           |
+| -------------- | -------- | -------------- |
+| `code`         | `int`    | 属性编码       |
+| `name`         | `string` | 属性名         |
+| `defaultValue` | `string` | 属性默认值     |
+| `valueType`    | `string` | 属性值数据类型 |

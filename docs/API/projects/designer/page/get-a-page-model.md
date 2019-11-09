@@ -55,11 +55,18 @@ Status: 200 OK
 | `widgetName`     | `string`  | 部件名称                     |
 | `canHasChildren` | `boolean` | 是否可以包含子部件           |
 | `apiRepoId`      | `int`     | API 仓库标识                 |
-| **properties**   |           |                              |
-| `id`             | `int`     | 属性标识                     |
-| `name`           | `string`  | 属性名                       |
-| `value`          | `string`  | 属性值                       |
-| `valueType`      | `string`  | 属性值数据类型               |
+| `properties`     | `Array`   | 部件的属性列表               |
+
+`properties` 是部件的属性列表，是一个 Json Array，其中的字段为
+
+| 属性名      | 类型      | 描述                           |
+| ----------- | --------- | ------------------------------ |
+| `code`      | `int`     | 属性编码                       |
+| `name`      | `string`  | 属性名                         |
+| `valueType` | `string`  | 属性值数据类型                 |
+| `id`        | `int`     | 属性添加到页面后，新生成的标识 |
+| `value`     | `string`  | 属性值                         |
+| `expr`      | `boolean` | 是否包含表达式                 |
 
 注意:
 
