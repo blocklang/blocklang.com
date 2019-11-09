@@ -1,6 +1,5 @@
 package com.blocklang.develop.designer.data;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -9,10 +8,8 @@ import java.util.List;
  * @author jinzw
  *
  */
-public class PageModel implements Serializable {
+public class PageModel {
 
-	private static final long serialVersionUID = -73389864859988073L;
-	
 	private Integer pageId;
 	private List<AttachedWidget> widgets;
 

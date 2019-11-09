@@ -1,5 +1,6 @@
 package com.blocklang.develop.designer.data;
 
+import java.util.Collections;
 import java.util.List;
 
 public class AttachedWidget {
@@ -70,7 +71,7 @@ public class AttachedWidget {
 	}
 
 	public List<AttachedWidgetProperty> getProperties() {
-		return properties;
+		return properties == null? Collections.emptyList():properties;
 	}
 
 	public void setProperties(List<AttachedWidgetProperty> properties) {

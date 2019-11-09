@@ -31,7 +31,7 @@ import com.blocklang.develop.dao.ProjectDao;
 import com.blocklang.develop.dao.ProjectFileDao;
 import com.blocklang.develop.dao.ProjectResourceDao;
 import com.blocklang.develop.data.GitCommitInfo;
-import com.blocklang.develop.data.ProgramModel;
+import com.blocklang.develop.designer.data.PageModel;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectAuthorization;
 import com.blocklang.develop.model.ProjectCommit;
@@ -120,7 +120,7 @@ public class ProjectServiceImpl implements ProjectService {
 			ProjectContext context = new ProjectContext(user.getLoginName(), project.getName(), rootDir);
 			try {
 				ObjectMapper mapper = new ObjectMapper();
-				ProgramModel programModel = new ProgramModel();
+				PageModel programModel = new PageModel();
 				
 				String mainPageJsonString = "{}";
 				try {

@@ -7,11 +7,14 @@ import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import javax.transaction.Transactional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.lib.Constants;
@@ -27,16 +30,36 @@ import com.blocklang.core.git.GitFileInfo;
 import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.PropertyService;
+import com.blocklang.core.util.IdGenerator;
+import com.blocklang.core.util.StreamUtil;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.constant.ProjectResourceType;
+import com.blocklang.develop.dao.PageWidgetAttrValueDao;
+import com.blocklang.develop.dao.PageWidgetDao;
+import com.blocklang.develop.dao.PageWidgetJdbcDao;
 import com.blocklang.develop.dao.ProjectCommitDao;
+import com.blocklang.develop.dao.ProjectDependenceDao;
 import com.blocklang.develop.dao.ProjectResourceDao;
 import com.blocklang.develop.data.UncommittedFile;
+import com.blocklang.develop.designer.data.ApiRepoVersionInfo;
+import com.blocklang.develop.designer.data.AttachedWidget;
+import com.blocklang.develop.designer.data.AttachedWidgetProperty;
+import com.blocklang.develop.designer.data.PageModel;
+import com.blocklang.develop.model.PageWidget;
+import com.blocklang.develop.model.PageWidgetAttrValue;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectCommit;
 import com.blocklang.develop.model.ProjectContext;
 import com.blocklang.develop.model.ProjectResource;
 import com.blocklang.develop.service.ProjectResourceService;
+import com.blocklang.marketplace.constant.RepoCategory;
+import com.blocklang.marketplace.dao.ApiComponentAttrDao;
+import com.blocklang.marketplace.dao.ApiComponentDao;
+import com.blocklang.marketplace.dao.ApiRepoDao;
+import com.blocklang.marketplace.dao.ApiRepoVersionDao;
+import com.blocklang.marketplace.dao.ComponentRepoVersionDao;
+import com.blocklang.marketplace.model.ApiComponent;
+import com.blocklang.marketplace.model.ApiRepo;
 
 @Service
 public class ProjectResourceServiceImpl implements ProjectResourceService {
@@ -49,6 +72,24 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 	private ProjectCommitDao projectCommitDao;
 	@Autowired
 	private PropertyService propertyService;
+	@Autowired
+	private PageWidgetDao pageWidgetDao;
+	@Autowired
+	private PageWidgetJdbcDao pageWidgetJdbcDao;
+	@Autowired
+	private PageWidgetAttrValueDao pageWidgetAttrValueDao;
+	@Autowired
+	private ProjectDependenceDao projectDependenceDao;
+	@Autowired
+	private ComponentRepoVersionDao componentRepoVersionDao;
+	@Autowired
+	private ApiComponentDao apiComponentDao;
+	@Autowired
+	private ApiRepoVersionDao apiRepoVersionDao;
+	@Autowired
+	private ApiRepoDao apiRepoDao;
+	@Autowired
+	private ApiComponentAttrDao apiComponentAttrDao;
 	
 	//@Transactional
 	@Override
@@ -136,8 +177,6 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 				}
 				fileInfo = fileMap.get(resource.getKey());
 				status = fileStatusMap.get(path);
-				
-				
 				
 				// 查找子节点的状态
 				// 如果目录中同时有新增和修改，则显示修改颜色
@@ -255,14 +294,14 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 
 	@Override
 	public List<ProjectResource> findParentGroupsByParentPath(Integer projectId, String parentPath) {
+		List<ProjectResource> result = new ArrayList<ProjectResource>();
+		
 		if(projectId == null) {
-			return Collections.emptyList();
+			return result;
 		}
 		if(StringUtils.isBlank(parentPath)) {
-			return Collections.emptyList();
+			return result;
 		}
-		
-		List<ProjectResource> result = new ArrayList<ProjectResource>();
 		
 		String[] keys = parentPath.trim().split("/");
 		Integer parentId = Constant.TREE_ROOT_ID;
@@ -278,7 +317,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 		}
 		
 		if(!allMatched) {
-			return Collections.emptyList();
+			return new ArrayList<ProjectResource>();
 		}
 		
 		return result;
@@ -461,6 +500,155 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 		}
 		
 		return commitId;
+	}
+
+	@Transactional
+	@Override
+	public void updatePageModel(PageModel pageModel) {
+		Integer pageId = pageModel.getPageId();
+		
+		List<AttachedWidget> widgets = pageModel.getWidgets();
+		// 1. 先全部删除
+		// 注意：删除代码不要放在 !widgets.isEmpty 判断内
+		pageWidgetJdbcDao.deleteWidgetProperties(pageId);
+		pageWidgetJdbcDao.deleteWidgets(pageId);
+		
+		if(!widgets.isEmpty()) {
+			List<PageWidgetAttrValue> properties = new ArrayList<>();
+			widgets.forEach(widget -> {
+				widget.getProperties().forEach(prop -> {
+					PageWidgetAttrValue p = new PageWidgetAttrValue();
+					p.setPageWidgetId(widget.getId());
+					p.setId(prop.getId());
+					p.setWidgetAttrCode(prop.getCode());
+					p.setAttrValue(prop.getValue());
+					p.setExpr(prop.isExpr());
+					properties.add(p);
+				});
+			});
+			// 2. 然后再新增
+			pageWidgetJdbcDao.batchSaveWidgets(pageId, widgets);
+			pageWidgetJdbcDao.batchSaveWidgetProperties(properties);
+		}
+		
+	}
+
+	// TODO: 此处需要性能优化
+	@Override
+	public PageModel getPageModel(Integer projectId, Integer pageId) {
+		PageModel model = new PageModel();
+		
+		model.setPageId(pageId);
+		
+		List<PageWidget> pageWidgets = pageWidgetDao.findAllByPageIdOrderBySeq(pageId);
+		
+		if(pageWidgets.isEmpty()) {
+			return model;
+		}
+		
+		Map<Integer, List<ApiComponent>> cachedAndGroupedWidgets = new HashMap<>();
+		// 如果页面模型中存在部件，则获取项目依赖的所有部件列表
+		// 然后根据这个列表来匹配
+		projectDependenceDao
+			// 1. 获取项目的所有依赖
+			.findAllByProjectId(projectId)
+			.stream()
+			// 2. 找出对应的组件仓库的版本信息，就可获取到 API 仓库的版本信息
+			.flatMap(item -> {
+				return componentRepoVersionDao.findById(item.getComponentRepoVersionId()).stream();
+			})
+			// 3. 针对 api repo version 去重，而不是针对 api repo 去重
+			.filter(StreamUtil.distinctByKey(item -> item.getApiRepoVersionId()))
+			// 4. 找到对应 api repo，然后过滤出其中的 widget 仓库
+			.map(item -> {
+				Optional<ApiRepo> apiRepoOption = apiRepoVersionDao.findById(item.getApiRepoVersionId())
+						.flatMap(apiRepoVersion -> apiRepoDao.findById(apiRepoVersion.getApiRepoId()));
+				ApiRepoVersionInfo result = new ApiRepoVersionInfo();
+				result.setApiRepoVersionId(item.getApiRepoVersionId());
+				apiRepoOption.ifPresent(apiRepo -> {
+					result.setApiRepoName(apiRepo.getName());
+					result.setApiRepoId(apiRepo.getId());
+					result.setCategory(apiRepo.getCategory());
+				});
+				return result;
+			})
+			.filter(apiVersionInfo -> apiVersionInfo.getCategory() == RepoCategory.WIDGET)
+			.forEach(apiVersionInfo -> {
+				// 4. 获取到该版本下的所有部件
+				List<ApiComponent> widgets = apiComponentDao.findAllByApiRepoVersionId(apiVersionInfo.getApiRepoVersionId());
+				cachedAndGroupedWidgets.put(apiVersionInfo.getApiRepoId(), widgets);
+			});
+		
+		List<AttachedWidget> convertedWidgets = pageWidgets.stream().map(item -> {
+			AttachedWidget result = new AttachedWidget();
+			result.setId(item.getId());
+			result.setParentId(item.getParentId());
+			result.setWidgetCode(item.getWidgetCode());
+			result.setApiRepoId(item.getApiRepoId());
+			
+			// 5. 部件的属性，延迟加载，只有页面中使用到了部件，才加载其属性
+			// 注意，如果一个部件在页面中使用了多次，最好只加载一次属性，可使用缓存优化
+			cachedAndGroupedWidgets.get(item.getApiRepoId())
+				.stream()
+				.filter(component -> component.getCode().equals(item.getWidgetCode()))
+				.findFirst()
+				.ifPresent(component -> {
+					String widgetName = component.getLabel();
+					if(StringUtils.isBlank(widgetName)) {
+						widgetName = component.getName();
+					}
+					result.setWidgetName(widgetName);
+					result.setWidgetId(component.getId());
+					result.setCanHasChildren(component.getCanHasChildren());
+
+					List<PageWidgetAttrValue> attachedProperties = pageWidgetAttrValueDao.findAllByPageWidgetId(item.getId());
+					
+					List<AttachedWidgetProperty> properties = apiComponentAttrDao
+							.findAllByApiComponentIdOrderByCode(component.getId())
+							.stream()
+							.map(componentAttr -> {
+								// 注意，属性列表要先获取部件的属性列表，然后再赋值，确保新增的属性（页面模型中未添加）也能包括进来
+								// 部件属性基本信息
+								AttachedWidgetProperty property = new AttachedWidgetProperty();
+								property.setCode(componentAttr.getCode());
+								
+								// 如果 label 有值，则优先取 label 值，否则取 name 的值
+								String attrName = componentAttr.getLabel();
+								if(StringUtils.isBlank(attrName)) {
+									attrName = componentAttr.getName();
+								}
+								property.setName(attrName);
+								property.setValueType(componentAttr.getValueType().getKey());
+								// 部件属性的实例信息
+								attachedProperties
+									.stream()
+									.filter(pageWidgetAttrValue -> pageWidgetAttrValue.getWidgetAttrCode().equals(componentAttr.getCode()))
+									.findFirst().ifPresentOrElse(matchedAttr -> {
+										property.setId(matchedAttr.getId());
+										// 如果实例中没有设置值，则取默认值，如果没有默认值，则保持为 null
+										String value = matchedAttr.getAttrValue();
+										if(StringUtils.isBlank(value)) {
+											value = componentAttr.getDefaultValue();
+										}
+										property.setValue(value);
+									}, () -> {
+										// id 的值，如果是新增属性，则在此处自动生成一个 id
+										property.setId(IdGenerator.uuid());
+										// 如果实例中没有设置值，则取默认值，否则保持为 null
+										property.setValue(componentAttr.getDefaultValue());
+									});
+								return property;
+							})
+							.collect(Collectors.toList());
+					result.setProperties(properties); 
+				});
+			
+			return result;
+		}).collect(Collectors.toList());
+		
+		model.setPageId(pageId);
+		model.setWidgets(convertedWidgets);
+		return model;
 	}
 
 }
