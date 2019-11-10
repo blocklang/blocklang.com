@@ -11,7 +11,6 @@ import org.springframework.stereotype.Repository;
 
 import com.blocklang.develop.dao.PageWidgetJdbcDao;
 import com.blocklang.develop.designer.data.AttachedWidget;
-import com.blocklang.develop.designer.data.AttachedWidgetProperty;
 import com.blocklang.develop.model.PageWidgetAttrValue;
 
 @Repository
@@ -19,17 +18,27 @@ public class PageWidgetJdbcDaoImpl implements PageWidgetJdbcDao {
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
-	
-	private static final String SQL_INSERT_PAGE_WIDGET = """
-			INSERT INTO
-			page_widget
-			(dbid,
-			project_resource_id,
-			api_repo_id,
-			widget_code,
-			parent_id,
-			seq)
-			VALUES (?,?,?,?,?,?)""";
+
+	// 当 Text Block 发布后再支持
+//	private static final String SQL_INSERT_PAGE_WIDGET = """
+//			INSERT INTO
+//			page_widget
+//			(dbid,
+//			project_resource_id,
+//			api_repo_id,
+//			widget_code,
+//			parent_id,
+//			seq)
+//			VALUES (?,?,?,?,?,?)""";
+	private static final String SQL_INSERT_PAGE_WIDGET = "INSERT INTO "+
+			"page_widget "+
+			"(dbid, "+
+			"project_resource_id, "+
+			"api_repo_id, "+
+			"widget_code, "+
+			"parent_id, "+
+			"seq) "+
+			"VALUES (?,?,?,?,?,?)";
 
 	@Override
 	public void batchSaveWidgets(Integer pageId, List<AttachedWidget> widgets) {
@@ -56,15 +65,23 @@ public class PageWidgetJdbcDaoImpl implements PageWidgetJdbcDao {
 		});
 	}
 
-	private static final String SQL_INSERT_PAGE_WIDGET_ATTR_VALUE = """
-			INSERT INTO
-			page_widget_attr_value
-			(dbid,
-			page_widget_id,
-			widget_attr_code,
-			attr_value,
-			is_expr)
-			VALUES (?,?,?,?,?)""";
+//	private static final String SQL_INSERT_PAGE_WIDGET_ATTR_VALUE = """
+//			INSERT INTO
+//			page_widget_attr_value
+//			(dbid,
+//			page_widget_id,
+//			widget_attr_code,
+//			attr_value,
+//			is_expr)
+//			VALUES (?,?,?,?,?)""";
+	private static final String SQL_INSERT_PAGE_WIDGET_ATTR_VALUE = "INSERT INTO "+
+			"page_widget_attr_value "+
+			"(dbid, "+
+			"page_widget_id, "+
+			"widget_attr_code, "+
+			"attr_value, "+
+			"is_expr) "+
+			"VALUES (?,?,?,?,?)";
 
 	@Override
 	public void batchSaveWidgetProperties(List<PageWidgetAttrValue> properties) {
@@ -89,24 +106,36 @@ public class PageWidgetJdbcDaoImpl implements PageWidgetJdbcDao {
 		});
 	}
 
-	private static final String SQL_DELETE_PAGE_WIDGET_ATTR_VALUE = """
-			DELETE FROM
-			page_widget_attr_value
-			WHERE
-			page_widget_id
-			IN
-			(SELECT dbid FROM PAGE_WIDGET WHERE project_resource_id=?)""";
+//	private static final String SQL_DELETE_PAGE_WIDGET_ATTR_VALUE = """
+//			DELETE FROM
+//			page_widget_attr_value
+//			WHERE
+//			page_widget_id
+//			IN
+//			(SELECT dbid FROM PAGE_WIDGET WHERE project_resource_id=?)""";
+	
+	private static final String SQL_DELETE_PAGE_WIDGET_ATTR_VALUE = "DELETE FROM "+
+			"page_widget_attr_value "+
+			"WHERE "+
+			"page_widget_id "+
+			"IN "+
+			"(SELECT dbid FROM PAGE_WIDGET WHERE project_resource_id=?)";
 	
 	@Override
 	public void deleteWidgetProperties(Integer pageId) {
 		jdbcTemplate.update(SQL_DELETE_PAGE_WIDGET_ATTR_VALUE, pageId);
 	}
 
-	private static final String SQL_DELETE_PAGE_WIDGET = """
-			DELETE FROM
-			page_widget
-			WHERE
-			project_resource_id=?""";
+//	private static final String SQL_DELETE_PAGE_WIDGET = """
+//			DELETE FROM
+//			page_widget
+//			WHERE
+//			project_resource_id=?""";
+	
+	private static final String SQL_DELETE_PAGE_WIDGET = "DELETE FROM "+
+			"page_widget "+
+			"WHERE "+
+			"project_resource_id=?";
 	@Override
 	public void deleteWidgets(Integer pageId) {
 		jdbcTemplate.update(SQL_DELETE_PAGE_WIDGET, pageId);
