@@ -123,12 +123,13 @@ public class PageDesignerController extends AbstractProjectController {
 			Principal principal, 
 			@PathVariable Integer pageId, 
 			@RequestBody PageModel model ) {
+		// ensure user login
 		if(principal == null) {
 			throw new NoAuthorizationException();
 		}
+		UserInfo user = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
 		
 		ProjectResource page = projectResourceService.findById(pageId).orElseThrow(ResourceNotFoundException::new);
-		UserInfo user = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
 		Project project = projectService.findById(page.getProjectId()).orElseThrow(ResourceNotFoundException::new);
 		
 		ensureCanWrite(user, project);

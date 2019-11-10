@@ -543,13 +543,13 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 
 	@Test
 	public void update_page_model_forbidden_anonymous_user() {
-		Map<String, Object> model = new HashMap<String, Object>();
+		PageModel model = new PageModel();
 		
 		given()
 			.contentType(ContentType.JSON)
 			.body(model)
 		.when()
-			.put("/pages/{pageId}/model", "1")
+			.put("/designer/pages/{pageId}/model", "1")
 		.then()
 			.statusCode(HttpStatus.SC_FORBIDDEN);
 	}
@@ -557,7 +557,11 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 	@WithMockUser(username = "jack")
 	@Test
 	public void update_page_model_page_not_found() {
-		Map<String, Object> model = new HashMap<String, Object>();
+		PageModel model = new PageModel();
+		
+		UserInfo user = new UserInfo();
+		user.setId(1);
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
 		when(projectResourceService.findById(anyInt())).thenReturn(Optional.empty());
 		
@@ -565,7 +569,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 			.contentType(ContentType.JSON)
 			.body(model)
 		.when()
-			.put("/pages/{pageId}/model", "1")
+			.put("/designer/pages/{pageId}/model", "1")
 		.then()
 			.statusCode(HttpStatus.SC_NOT_FOUND);
 	}
@@ -591,7 +595,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 			.contentType(ContentType.JSON)
 			.body(model)
 		.when()
-			.put("/pages/{pageId}/model", "1")
+			.put("/designer/pages/{pageId}/model", "1")
 		.then()
 			.statusCode(HttpStatus.SC_FORBIDDEN);
 	}
@@ -623,14 +627,14 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 			.contentType(ContentType.JSON)
 			.body(model)
 		.when()
-			.put("/pages/{pageId}/model", "1")
+			.put("/designer/pages/{pageId}/model", "1")
 		.then()
 			.statusCode(HttpStatus.SC_FORBIDDEN);
 	}
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void update_page_model_success() {
+	public void update_page_model_has_write_permission_success() {
 		Map<String, Object> model = new HashMap<String, Object>();
 		
 		UserInfo user = new UserInfo();
@@ -655,9 +659,10 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 			.contentType(ContentType.JSON)
 			.body(model)
 		.when()
-			.put("/pages/{pageId}/model", "1")
+			.put("/designer/pages/{pageId}/model", "1")
 		.then()
-			.statusCode(HttpStatus.SC_CREATED);
+			.statusCode(HttpStatus.SC_CREATED)
+			.body(equalTo(""));
 		
 		verify(projectResourceService).updatePageModel(any());
 	}
