@@ -29,6 +29,7 @@ import com.blocklang.develop.data.ProjectDependenceData;
 import com.blocklang.develop.designer.data.ApiRepoVersionInfo;
 import com.blocklang.develop.designer.data.Widget;
 import com.blocklang.develop.designer.data.WidgetCategory;
+import com.blocklang.develop.designer.data.WidgetProperty;
 import com.blocklang.develop.designer.data.WidgetRepo;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectBuildProfile;
@@ -37,6 +38,7 @@ import com.blocklang.develop.model.ProjectDependence;
 import com.blocklang.develop.model.ProjectResource;
 import com.blocklang.develop.service.ProjectDependenceService;
 import com.blocklang.marketplace.constant.RepoCategory;
+import com.blocklang.marketplace.dao.ApiComponentAttrDao;
 import com.blocklang.marketplace.dao.ApiComponentDao;
 import com.blocklang.marketplace.dao.ApiRepoDao;
 import com.blocklang.marketplace.dao.ApiRepoVersionDao;
@@ -48,6 +50,7 @@ import com.blocklang.marketplace.model.ComponentRepo;
 import com.blocklang.marketplace.model.ComponentRepoVersion;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.oauth2.sdk.util.StringUtils;
 
 import de.skuzzle.semantic.Version;
 
@@ -72,6 +75,8 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 	private ApiRepoVersionDao apiRepoVersionDao;
 	@Autowired
 	private ApiComponentDao apiComponentDao;
+	@Autowired
+	private ApiComponentAttrDao apiComponentAttrDao;
 	@Autowired
 	private PropertyService propertyService;
 	
@@ -400,6 +405,20 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 							result.setCanHasChildren(apiComponent.getCanHasChildren());
 							
 							result.setApiRepoId(apiVersionInfo.getApiRepoId());
+							// 添加属性列表
+							List<WidgetProperty> properties = apiComponentAttrDao.findAllByApiComponentIdOrderByCode(apiComponent.getId()).stream().map(property -> {
+								WidgetProperty each = new WidgetProperty();
+								each.setCode(property.getCode());
+								String name = property.getLabel();
+								if(StringUtils.isBlank(name)) {
+									name = property.getName();
+								}
+								each.setName(name);
+								each.setValueType(property.getValueType().getKey());
+								each.setDefaultValue(property.getDefaultValue());
+								return each;
+							}).collect(Collectors.toList());
+							result.setProperties(properties);
 							return result;
 						}).collect(Collectors.toList());
 				// 对部件进行分组

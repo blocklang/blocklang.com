@@ -30,6 +30,7 @@ import com.blocklang.develop.dao.ProjectDependenceDao;
 import com.blocklang.develop.data.ProjectDependenceData;
 import com.blocklang.develop.designer.data.Widget;
 import com.blocklang.develop.designer.data.WidgetCategory;
+import com.blocklang.develop.designer.data.WidgetProperty;
 import com.blocklang.develop.designer.data.WidgetRepo;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectBuildProfile;
@@ -38,14 +39,17 @@ import com.blocklang.develop.model.ProjectDependence;
 import com.blocklang.develop.model.ProjectResource;
 import com.blocklang.develop.service.ProjectDependenceService;
 import com.blocklang.develop.service.ProjectService;
+import com.blocklang.marketplace.constant.ComponentAttrValueType;
 import com.blocklang.marketplace.constant.Language;
 import com.blocklang.marketplace.constant.RepoCategory;
+import com.blocklang.marketplace.dao.ApiComponentAttrDao;
 import com.blocklang.marketplace.dao.ApiComponentDao;
 import com.blocklang.marketplace.dao.ApiRepoDao;
 import com.blocklang.marketplace.dao.ApiRepoVersionDao;
 import com.blocklang.marketplace.dao.ComponentRepoDao;
 import com.blocklang.marketplace.dao.ComponentRepoVersionDao;
 import com.blocklang.marketplace.model.ApiComponent;
+import com.blocklang.marketplace.model.ApiComponentAttr;
 import com.blocklang.marketplace.model.ApiRepo;
 import com.blocklang.marketplace.model.ApiRepoVersion;
 import com.blocklang.marketplace.model.ComponentRepo;
@@ -78,7 +82,9 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 	private ProjectService projectService;
 	@Autowired
 	private ApiComponentDao apiComponentDao;
-
+	@Autowired
+	private ApiComponentAttrDao apiComponentAttrDao;
+	
 	@Test
 	public void dev_dependence_exists_that_not_exists() {
 		assertThat(projectDependenceService.devDependenceExists(1, 1)).isFalse();
@@ -670,6 +676,14 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		widget.setCreateTime(LocalDateTime.now());
 		ApiComponent savedWidget = apiComponentDao.save(widget);
 		
+		// 为部件设置一个属性
+		ApiComponentAttr widgetProperty = new ApiComponentAttr();
+		widgetProperty.setApiComponentId(savedWidget.getId());
+		widgetProperty.setCode("0011");
+		widgetProperty.setName("prop_name");
+		widgetProperty.setValueType(ComponentAttrValueType.STRING);
+		apiComponentAttrDao.save(widgetProperty);
+		
 		// 在组件仓库版本信息中创建一条记录，引用 api 版本信息
 		ComponentRepoVersion componentRepoVersion = new ComponentRepoVersion();
 		componentRepoVersion.setComponentRepoId(1);
@@ -712,6 +726,12 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		assertThat(widget1.getWidgetCode()).isEqualTo(widgetCode);
 		assertThat(widget1.getWidgetName()).isEqualTo(widgetName);
 		assertThat(widget1.getCanHasChildren()).isFalse();
+		
+		WidgetProperty property = widget1.getProperties().get(0);
+		assertThat(property.getCode()).isEqualTo("0011");
+		assertThat(property.getName()).isEqualTo("prop_name");
+		assertThat(property.getValueType()).isEqualTo("string");
+		assertThat(property.getDefaultValue()).isNull();
 	}
 	
 	// 项目依赖两个组件库，但两个组件库实现同一个 api
