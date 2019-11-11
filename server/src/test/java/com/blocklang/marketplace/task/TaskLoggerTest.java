@@ -53,10 +53,10 @@ public class TaskLoggerTest {
 		File logFile = tempFolder.newFile();
 		TaskLogger logger = new TaskLogger(logFile.toPath());
 		
-		Throwable throwable = new Exception("throw a exceptio");
+		Throwable throwable = new Exception("throw a exception");
 		logger.error(throwable);
 		String content = Files.readString(logFile.toPath());
-		assertThat(content).isEqualTo(throwable.getMessage() + System.lineSeparator());
+		assertThat(content).isEqualTo(throwable.toString() + System.lineSeparator());
 	}
 	
 	@Test
