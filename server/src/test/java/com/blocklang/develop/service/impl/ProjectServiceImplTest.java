@@ -182,9 +182,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		// 项目应直接依赖于 ide 版本的仓库
 		// FIXME: 虽然在项目依赖中不配置标准库，但是在读取项目依赖的信息时，也要包括标准库
 		
-		// 默认引用最新版本
-		// 所以只需指定 ApiRepo 的 id，然后
-		
+		// 默认引用最新版本，所以只需指定 ApiRepo 的 id
 		
 		Project project = new Project();
 		project.setName("project_name");
