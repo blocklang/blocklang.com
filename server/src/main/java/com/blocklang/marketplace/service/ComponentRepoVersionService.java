@@ -10,5 +10,7 @@ public interface ComponentRepoVersionService {
 	Optional<ComponentRepoVersion> findById(Integer componentRepoVersionId);
 
 	List<ComponentRepoVersion> findByComponentRepoId(Integer componentRepoId);
+	
+	Optional<ComponentRepoVersion> findLatestVersion(Integer componentRepoId);
 
 }

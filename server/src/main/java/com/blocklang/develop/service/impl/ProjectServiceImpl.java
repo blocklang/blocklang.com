@@ -1,7 +1,6 @@
 package com.blocklang.develop.service.impl;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -22,7 +21,6 @@ import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.PropertyService;
 import com.blocklang.core.service.UserService;
 import com.blocklang.core.util.DateUtil;
-import com.blocklang.core.util.IdGenerator;
 import com.blocklang.develop.constant.AccessLevel;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.constant.FileType;
@@ -33,8 +31,6 @@ import com.blocklang.develop.dao.ProjectDao;
 import com.blocklang.develop.dao.ProjectFileDao;
 import com.blocklang.develop.dao.ProjectResourceDao;
 import com.blocklang.develop.data.GitCommitInfo;
-import com.blocklang.develop.designer.data.AttachedWidget;
-import com.blocklang.develop.designer.data.AttachedWidgetProperty;
 import com.blocklang.develop.designer.data.PageModel;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectAuthorization;
@@ -44,10 +40,6 @@ import com.blocklang.develop.model.ProjectFile;
 import com.blocklang.develop.model.ProjectResource;
 import com.blocklang.develop.service.ProjectResourceService;
 import com.blocklang.develop.service.ProjectService;
-import com.blocklang.marketplace.dao.ApiComponentAttrDao;
-import com.blocklang.marketplace.dao.ApiComponentDao;
-import com.blocklang.marketplace.dao.ApiRepoDao;
-import com.blocklang.marketplace.service.ApiRepoVersionService;
 import com.blocklang.release.dao.AppDao;
 import com.blocklang.release.model.App;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -74,15 +66,6 @@ public class ProjectServiceImpl implements ProjectService {
 	private ProjectResourceService projectResourceService;
 	@Autowired
 	private ProjectResourceDao projectResourceDao;
-	@Autowired
-	private ApiRepoDao apiRepoDao;
-	@Autowired
-	private ApiRepoVersionService apiRepoVersionService;
-	@Autowired
-	private ApiComponentDao apiComponentDao;
-	@Autowired
-	private ApiComponentAttrDao apiComponentAttrDao;
-	
 	
 	// 如果需要缓存时，使用 service，不要使用 dao
 	// 因为只会为 service 添加缓存
@@ -130,53 +113,7 @@ public class ProjectServiceImpl implements ProjectService {
 		// 生成入口模块：Main 页面
 		ProjectResource mainPage = createMainPage(project.getId(), createTime, createUserId);
 		// 创建空页面，默认为空页面添加根节点，包括 Page 部件及其属性。
-		PageModel pageModel = new PageModel();
-		pageModel.setPageId(mainPage.getId());
-		
-		// 标准库所实现的 API 仓库的地址
-		// TODO: 把这些信息配置到系统参数表中，用于表示将哪个用户创建的哪个 api 仓库作为标准的 api 仓库。
-		String stdApiRepoName = "std-api-widget";
-		Integer stdApiRepoPublishUserId = createUserId;
-		String rootWidgetName = "Page";
-		apiRepoDao.findByNameAndCreateUserId(stdApiRepoName, stdApiRepoPublishUserId).map(apiRepo -> {
-			AttachedWidget rootWidget = new AttachedWidget();
-			rootWidget.setApiRepoId(apiRepo.getId());
-			return rootWidget;
-		}).map(rootWidget -> {
-			apiRepoVersionService.findLatestVersion(rootWidget.getApiRepoId()).ifPresent(apiVersion -> {
-				apiComponentDao.findByApiRepoVersionIdAndNameIgnoreCase(apiVersion.getId(), rootWidgetName).ifPresent(apiComponent -> {
-					rootWidget.setWidgetCode(apiComponent.getCode());
-					rootWidget.setWidgetId(apiComponent.getId());
-					rootWidget.setWidgetName(apiComponent.getName());
-					rootWidget.setCanHasChildren(apiComponent.getCanHasChildren());
-				});
-			});
-			return rootWidget;
-		}).ifPresent(rootWidget -> {
-			rootWidget.setId(IdGenerator.uuid());
-			rootWidget.setParentId(Constant.TREE_ROOT_ID.toString());
-			
-			List<AttachedWidgetProperty> rootWidgetProperties = apiComponentAttrDao
-					.findAllByApiComponentIdOrderByCode(rootWidget.getWidgetId())
-					.stream()
-					.map(apiComponentAttr -> {
-						AttachedWidgetProperty p = new AttachedWidgetProperty();
-						p.setId(IdGenerator.uuid());
-						p.setValue(apiComponentAttr.getDefaultValue());
-						
-						p.setCode(apiComponentAttr.getCode());
-						p.setName(apiComponentAttr.getName());
-						p.setValueType(apiComponentAttr.getValueType().getKey());
-						p.setExpr(false);
-						return p;
-					})
-					.collect(Collectors.toList());
-			rootWidget.setProperties(rootWidgetProperties);
-			
-			pageModel.setWidgets(Collections.singletonList(rootWidget));
-			
-			projectResourceService.updatePageModel(pageModel);
-		});
+		PageModel pageModel = projectResourceService.createPageModelWithStdPage(mainPage.getId());
 						
 		// 生成 README.md 文件
 		String readmeContent = "# "+ project.getName() + "\r\n" + "\r\n" + "**TODO: 在这里添加项目介绍，帮助感兴趣的人快速了解您的项目。**";

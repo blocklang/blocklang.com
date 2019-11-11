@@ -38,7 +38,6 @@ import com.blocklang.develop.dao.PageWidgetAttrValueDao;
 import com.blocklang.develop.dao.PageWidgetDao;
 import com.blocklang.develop.dao.PageWidgetJdbcDao;
 import com.blocklang.develop.dao.ProjectCommitDao;
-import com.blocklang.develop.dao.ProjectDependenceDao;
 import com.blocklang.develop.dao.ProjectResourceDao;
 import com.blocklang.develop.data.UncommittedFile;
 import com.blocklang.develop.designer.data.ApiRepoVersionInfo;
@@ -51,6 +50,7 @@ import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectCommit;
 import com.blocklang.develop.model.ProjectContext;
 import com.blocklang.develop.model.ProjectResource;
+import com.blocklang.develop.service.ProjectDependenceService;
 import com.blocklang.develop.service.ProjectResourceService;
 import com.blocklang.marketplace.constant.RepoCategory;
 import com.blocklang.marketplace.dao.ApiComponentAttrDao;
@@ -60,6 +60,8 @@ import com.blocklang.marketplace.dao.ApiRepoVersionDao;
 import com.blocklang.marketplace.dao.ComponentRepoVersionDao;
 import com.blocklang.marketplace.model.ApiComponent;
 import com.blocklang.marketplace.model.ApiRepo;
+import com.blocklang.marketplace.service.ApiRepoVersionService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class ProjectResourceServiceImpl implements ProjectResourceService {
@@ -79,11 +81,13 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 	@Autowired
 	private PageWidgetAttrValueDao pageWidgetAttrValueDao;
 	@Autowired
-	private ProjectDependenceDao projectDependenceDao;
+	private ProjectDependenceService projectDependenceService;
 	@Autowired
 	private ComponentRepoVersionDao componentRepoVersionDao;
 	@Autowired
 	private ApiComponentDao apiComponentDao;
+	@Autowired
+	private ApiRepoVersionService apiRepoVersionService;
 	@Autowired
 	private ApiRepoVersionDao apiRepoVersionDao;
 	@Autowired
@@ -99,6 +103,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 			resource.setSeq(nextSeq);
 		}
 		ProjectResource result = projectResourceDao.save(resource);
+		PageModel pageModel = this.createPageModelWithStdPage(result.getId());
 		
 		// 在 git 仓库中添加文件
 		Integer parentResourceId = resource.getParentId();
@@ -121,7 +126,9 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 			} else {
 				path = path.resolve(result.getFileName());
 				try {
-					Files.writeString(path, "{}", StandardOpenOption.CREATE);
+					ObjectMapper mapper = new ObjectMapper();
+					String json = mapper.writeValueAsString(pageModel);
+					Files.writeString(path, json, StandardOpenOption.CREATE);
 				} catch (IOException e) {
 					logger.error("为页面生成 json文件时出错！", e);
 				}
@@ -549,7 +556,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 		Map<Integer, List<ApiComponent>> cachedAndGroupedWidgets = new HashMap<>();
 		// 如果页面模型中存在部件，则获取项目依赖的所有部件列表
 		// 然后根据这个列表来匹配
-		projectDependenceDao
+		projectDependenceService
 			// 1. 获取项目的所有依赖
 			.findAllByProjectId(projectId)
 			.stream()
@@ -649,6 +656,59 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 		model.setPageId(pageId);
 		model.setWidgets(convertedWidgets);
 		return model;
+	}
+
+	
+	@Override
+	public PageModel createPageModelWithStdPage(Integer pageId) {
+		PageModel pageModel = new PageModel();
+		pageModel.setPageId(pageId);
+		
+		// 标准库所实现的 API 仓库的地址
+		// TODO: 把这些信息配置到系统参数表中，用于表示将哪个用户创建的哪个 api 仓库作为标准的 api 仓库。
+		String stdApiRepoName = "std-api-widget";
+		Integer stdApiRepoPublishUserId = 1;
+		String rootWidgetName = "Page";
+		apiRepoDao.findByNameAndCreateUserId(stdApiRepoName, stdApiRepoPublishUserId).map(apiRepo -> {
+			AttachedWidget rootWidget = new AttachedWidget();
+			rootWidget.setApiRepoId(apiRepo.getId());
+			return rootWidget;
+		}).map(rootWidget -> {
+			apiRepoVersionService.findLatestVersion(rootWidget.getApiRepoId()).ifPresent(apiVersion -> {
+				apiComponentDao.findByApiRepoVersionIdAndNameIgnoreCase(apiVersion.getId(), rootWidgetName).ifPresent(apiComponent -> {
+					rootWidget.setWidgetCode(apiComponent.getCode());
+					rootWidget.setWidgetId(apiComponent.getId());
+					rootWidget.setWidgetName(apiComponent.getName());
+					rootWidget.setCanHasChildren(apiComponent.getCanHasChildren());
+				});
+			});
+			return rootWidget;
+		}).ifPresent(rootWidget -> {
+			rootWidget.setId(IdGenerator.uuid());
+			rootWidget.setParentId(Constant.TREE_ROOT_ID.toString());
+			
+			List<AttachedWidgetProperty> rootWidgetProperties = apiComponentAttrDao
+					.findAllByApiComponentIdOrderByCode(rootWidget.getWidgetId())
+					.stream()
+					.map(apiComponentAttr -> {
+						AttachedWidgetProperty p = new AttachedWidgetProperty();
+						p.setId(IdGenerator.uuid());
+						p.setValue(apiComponentAttr.getDefaultValue());
+						
+						p.setCode(apiComponentAttr.getCode());
+						p.setName(apiComponentAttr.getName());
+						p.setValueType(apiComponentAttr.getValueType().getKey());
+						p.setExpr(false);
+						return p;
+					})
+					.collect(Collectors.toList());
+			rootWidget.setProperties(rootWidgetProperties);
+			
+			pageModel.setWidgets(Collections.singletonList(rootWidget));
+			
+			this.updatePageModel(pageModel);
+		});
+		return pageModel;
 	}
 
 }

@@ -32,6 +32,13 @@ public interface ProjectDependenceService {
 	 */
 	ProjectDependence save(Integer projectId, ComponentRepo componentRepo, Integer createUserId);
 
+	/**
+	 * 补充上系统使用的标准库的依赖
+	 * @param projectId
+	 * @return
+	 */
+	List<ProjectDependence> findAllByProjectId(Integer projectId);
+	
 	List<ProjectDependenceData> findProjectDependences(Integer projectId);
 
 	void delete(Integer dependenceId);

@@ -48,6 +48,7 @@ import com.blocklang.marketplace.model.ApiRepo;
 import com.blocklang.marketplace.model.ApiRepoVersion;
 import com.blocklang.marketplace.model.ComponentRepo;
 import com.blocklang.marketplace.model.ComponentRepoVersion;
+import com.blocklang.marketplace.service.ComponentRepoVersionService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
@@ -67,6 +68,8 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 	private ProjectBuildProfileDao projectBuildProfileDao;
 	@Autowired
 	private ComponentRepoDao componentRepoDao;
+	@Autowired
+	private ComponentRepoVersionService componentRepoVersionService;
 	@Autowired
 	private ComponentRepoVersionDao componentRepoVersionDao;
 	@Autowired
@@ -435,4 +438,26 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 			}).collect(Collectors.toList());
 	}
 
+	@Override
+	public List<ProjectDependence> findAllByProjectId(Integer projectId) {
+		List<ProjectDependence> result = projectDependenceDao.findAllByProjectId(projectId);
+		
+		// 将系统使用的标准库依赖添加到最前面
+		// 获取最新的依赖版本号
+		// TODO: 将以下两个值添加到系统参数中
+		String stdIdeRepoName = "std-ide-widget";
+		Integer createUserId = 1;
+		
+		componentRepoDao.findByNameAndCreateUserId(stdIdeRepoName, createUserId).flatMap(componentRepo -> {
+			return componentRepoVersionService.findLatestVersion(componentRepo.getId());
+		}).ifPresent(componentRepoVersion -> {
+			ProjectDependence stdIdeWidgetRepo = new ProjectDependence();
+			stdIdeWidgetRepo.setComponentRepoVersionId(componentRepoVersion.getId());
+			stdIdeWidgetRepo.setProjectId(projectId);
+			result.add(0, stdIdeWidgetRepo);
+		});
+		
+		return result;
+	}
+	
 }

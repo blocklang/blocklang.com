@@ -57,4 +57,34 @@ public class ComponentRepoVersionServiceImplTest extends AbstractServiceTest {
 		
 		assertThat(componentRepoVersionService.findByComponentRepoId(componentRepoId)).hasSize(1);
 	}
+	
+	@Test
+	public void find_latest_version_empty_versions() {
+		assertThat(componentRepoVersionService.findLatestVersion(Integer.MAX_VALUE)).isEmpty();
+	}
+	
+	@Test
+	public void find_latest_version_two_versions() {
+		Integer componentRepoId = Integer.MAX_VALUE;
+		
+		ComponentRepoVersion version1 = new ComponentRepoVersion();
+		version1.setComponentRepoId(componentRepoId);
+		version1.setVersion("0.1.0");
+		version1.setGitTagName("v0.1.0");
+		version1.setApiRepoVersionId(1);
+		version1.setCreateUserId(1);
+		version1.setCreateTime(LocalDateTime.now());
+		componentRepoVersionDao.save(version1);
+		
+		ComponentRepoVersion version2 = new ComponentRepoVersion();
+		version2.setComponentRepoId(componentRepoId);
+		version2.setVersion("0.2.0");
+		version2.setGitTagName("v0.2.0");
+		version2.setApiRepoVersionId(1);
+		version2.setCreateUserId(1);
+		version2.setCreateTime(LocalDateTime.now());
+		componentRepoVersionDao.save(version2);
+		
+		assertThat(componentRepoVersionService.findLatestVersion(componentRepoId).get().getVersion()).isEqualTo("0.2.0");
+	}
 }

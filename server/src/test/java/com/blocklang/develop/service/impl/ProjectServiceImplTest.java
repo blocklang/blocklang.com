@@ -146,7 +146,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		stdApiRepo.setGitRepoName("repo_name");
 		stdApiRepo.setName("std-api-widget");
 		stdApiRepo.setVersion("0.0.1");
-		stdApiRepo.setCreateUserId(userId);
+		stdApiRepo.setCreateUserId(1);
 		stdApiRepo.setCreateTime(LocalDateTime.now());
 		Integer stdApiRepoId = apiRepoDao.save(stdApiRepo).getId();
 		// 为标准库设置一个版本号
@@ -155,7 +155,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		apiVersion.setApiRepoId(stdApiRepoId);
 		apiVersion.setVersion("0.0.1");
 		apiVersion.setGitTagName("v0.0.1");
-		apiVersion.setCreateUserId(userId);
+		apiVersion.setCreateUserId(1);
 		apiVersion.setCreateTime(LocalDateTime.now());
 		ApiRepoVersion savedApiRepoVersion = apiRepoVersionDao.save(apiVersion);
 
@@ -167,7 +167,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		widget.setCode(widgetCode);
 		widget.setName(widgetName);
 		widget.setCanHasChildren(true);
-		widget.setCreateUserId(userId);
+		widget.setCreateUserId(1);
 		widget.setCreateTime(LocalDateTime.now());
 		ApiComponent savedWidget = apiComponentDao.save(widget);
 		// 为 Page 部件添加一个属性

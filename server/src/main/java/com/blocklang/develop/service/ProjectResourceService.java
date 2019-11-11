@@ -98,4 +98,12 @@ public interface ProjectResourceService {
 	 * @return 返回页面模型，不能返回 null，如果页面模型中没有内容，则返回空的 PageModel 对象
 	 */
 	PageModel getPageModel(Integer projectId, Integer pageId);
+
+	/**
+	 * 默认创建的空页面中包含一个 Page 部件
+	 * 
+	 * @param pageId
+	 * @return
+	 */
+	PageModel createPageModelWithStdPage(Integer pageId);
 }

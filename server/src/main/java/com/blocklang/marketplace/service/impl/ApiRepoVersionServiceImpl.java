@@ -39,7 +39,5 @@ public class ApiRepoVersionServiceImpl implements ApiRepoVersionService {
 		});
 		return Optional.of(allVersions.get(0));
 	}
-	
-	
 
 }

@@ -5,6 +5,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,27 +34,32 @@ import com.blocklang.develop.dao.ProjectCommitDao;
 import com.blocklang.develop.dao.ProjectDependenceDao;
 import com.blocklang.develop.dao.ProjectResourceDao;
 import com.blocklang.develop.data.UncommittedFile;
-import com.blocklang.develop.designer.data.PageModel;
 import com.blocklang.develop.designer.data.AttachedWidget;
 import com.blocklang.develop.designer.data.AttachedWidgetProperty;
+import com.blocklang.develop.designer.data.PageModel;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectCommit;
+import com.blocklang.develop.model.ProjectContext;
 import com.blocklang.develop.model.ProjectDependence;
 import com.blocklang.develop.model.ProjectResource;
 import com.blocklang.develop.service.ProjectResourceService;
 import com.blocklang.develop.service.ProjectService;
 import com.blocklang.marketplace.constant.ComponentAttrValueType;
+import com.blocklang.marketplace.constant.Language;
 import com.blocklang.marketplace.constant.RepoCategory;
 import com.blocklang.marketplace.dao.ApiComponentAttrDao;
 import com.blocklang.marketplace.dao.ApiComponentDao;
 import com.blocklang.marketplace.dao.ApiRepoDao;
 import com.blocklang.marketplace.dao.ApiRepoVersionDao;
+import com.blocklang.marketplace.dao.ComponentRepoDao;
 import com.blocklang.marketplace.dao.ComponentRepoVersionDao;
 import com.blocklang.marketplace.model.ApiComponent;
 import com.blocklang.marketplace.model.ApiComponentAttr;
 import com.blocklang.marketplace.model.ApiRepo;
 import com.blocklang.marketplace.model.ApiRepoVersion;
+import com.blocklang.marketplace.model.ComponentRepo;
 import com.blocklang.marketplace.model.ComponentRepoVersion;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 
@@ -82,6 +88,8 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	@Autowired
 	private ApiComponentAttrDao apiComponentAttrDao;
 	@Autowired
+	private ComponentRepoDao componentRepoDao;
+	@Autowired
 	private ComponentRepoVersionDao componentRepoVersionDao;
 	@Autowired
 	private ProjectDependenceDao projectDependenceDao;
@@ -109,6 +117,131 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		Optional<ProjectResource> resourceOption = projectResourceDao.findById(id);
 		assertThat(resourceOption).isPresent();
 		assertThat(resourceOption.get().getSeq()).isEqualTo(1);
+	}
+	
+	@Test
+	public void insert_empty_page_with_a_root_widget() throws IOException {
+		Integer userId = 1;
+		// 创建一个标准库
+		ApiRepo stdApiRepo = new ApiRepo();
+		stdApiRepo.setCategory(RepoCategory.WIDGET);
+		stdApiRepo.setGitRepoUrl("url");
+		stdApiRepo.setGitRepoWebsite("website");
+		stdApiRepo.setGitRepoOwner("owner");
+		stdApiRepo.setGitRepoName("repo_name");
+		stdApiRepo.setName("std-api-widget"); // 默认的标准库
+		stdApiRepo.setVersion("0.0.1");
+		stdApiRepo.setCreateUserId(userId);
+		stdApiRepo.setCreateTime(LocalDateTime.now());
+		Integer stdApiRepoId = apiRepoDao.save(stdApiRepo).getId();
+		// 为标准库设置一个版本号
+		// 创建对应的 API 仓库版本信息
+		ApiRepoVersion apiVersion = new ApiRepoVersion();
+		apiVersion.setApiRepoId(stdApiRepoId);
+		apiVersion.setVersion("0.0.1");
+		apiVersion.setGitTagName("v0.0.1");
+		apiVersion.setCreateUserId(userId);
+		apiVersion.setCreateTime(LocalDateTime.now());
+		ApiRepoVersion savedApiRepoVersion = apiRepoVersionDao.save(apiVersion);
+
+		// 在标准库中创建一个 Page 部件
+		ApiComponent widget = new ApiComponent();
+		String widgetCode = "0001";
+		String widgetName = "Page";
+		widget.setApiRepoVersionId(savedApiRepoVersion.getId());
+		widget.setCode(widgetCode);
+		widget.setName(widgetName);
+		widget.setCanHasChildren(true);
+		widget.setCreateUserId(userId);
+		widget.setCreateTime(LocalDateTime.now());
+		ApiComponent savedWidget = apiComponentDao.save(widget);
+		// 为 Page 部件添加一个属性
+		ApiComponentAttr widgetProperty = new ApiComponentAttr();
+		widgetProperty.setApiComponentId(savedWidget.getId());
+		widgetProperty.setCode("0011");
+		widgetProperty.setName("prop_name");
+		widgetProperty.setDefaultValue("default_value");
+		widgetProperty.setValueType(ComponentAttrValueType.STRING);
+		apiComponentAttrDao.save(widgetProperty);
+		
+		// 创建一个 ide 版的组件库
+		ComponentRepo repo = new ComponentRepo();
+		repo.setApiRepoId(stdApiRepoId);
+		repo.setGitRepoUrl("url");
+		repo.setGitRepoWebsite("website");
+		repo.setGitRepoOwner("jack");
+		repo.setGitRepoName("repo");
+		repo.setName("std-ide-widget");
+		repo.setLabel("label");
+		repo.setVersion("version");
+		repo.setCategory(RepoCategory.WIDGET);
+		repo.setCreateUserId(1);
+		repo.setCreateTime(LocalDateTime.now());
+		repo.setLanguage(Language.TYPESCRIPT);
+		repo.setAppType(AppType.WEB);
+		repo.setStd(true);
+		repo.setIsIdeExtension(true);
+		ComponentRepo savedComponentRepo = componentRepoDao.save(repo);
+		// 创建一个 ide 版的组件库版本
+		ComponentRepoVersion version = new ComponentRepoVersion();
+		version.setComponentRepoId(savedComponentRepo.getId());
+		version.setVersion("0.1.0");
+		version.setGitTagName("v0.1.0");
+		version.setApiRepoVersionId(savedApiRepoVersion.getId());
+		version.setCreateUserId(1);
+		version.setCreateTime(LocalDateTime.now());
+		componentRepoVersionDao.save(version);
+				
+		Integer projectId = Integer.MAX_VALUE;
+		
+		Project project = new Project();
+		project.setName("project");
+		project.setCreateUserName("jack");
+		
+		ProjectResource resource = new ProjectResource();
+		String pageKey = "key1";
+		resource.setProjectId(projectId);
+		resource.setParentId(Constant.TREE_ROOT_ID);
+		resource.setAppType(AppType.WEB);
+		resource.setKey(pageKey);
+		resource.setName("name");
+		resource.setResourceType(ProjectResourceType.PAGE);
+		resource.setCreateUserId(1);
+		resource.setCreateTime(LocalDateTime.now());
+		
+		File rootFolder = tempFolder.newFolder();
+		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.getPath()));
+		ProjectContext context = new ProjectContext("jack", "project", rootFolder.getPath());
+		Files.createDirectories(context.getGitRepositoryDirectory());
+		
+		Integer pageId = projectResourceService.insert(project, resource).getId();
+		
+		PageModel actualPageModel = projectResourceService.getPageModel(projectId, pageId);
+		
+		assertThat(actualPageModel.getPageId()).isEqualTo(pageId);
+		assertThat(actualPageModel.getWidgets()).hasSize(1);
+		AttachedWidget actualRootWidget = actualPageModel.getWidgets().get(0);
+		assertThat(actualRootWidget.getId()).hasSize(32);
+		assertThat(actualRootWidget.getApiRepoId()).isEqualTo(stdApiRepoId);
+		assertThat(actualRootWidget.getParentId()).isEqualTo(Constant.TREE_ROOT_ID.toString());
+		// Page 部件的基本信息
+		assertThat(actualRootWidget.getWidgetId()).isEqualTo(widget.getId());
+		assertThat(actualRootWidget.getWidgetCode()).isEqualTo(widgetCode);
+		assertThat(actualRootWidget.getWidgetName()).isEqualTo(widgetName);
+		assertThat(actualRootWidget.getCanHasChildren()).isTrue();
+		// Page 部件的属性信息
+		assertThat(actualRootWidget.getProperties()).hasSize(1);
+		AttachedWidgetProperty actualRootWidgetProperty1 = actualRootWidget.getProperties().get(0);
+		assertThat(actualRootWidgetProperty1.getId()).hasSize(32);
+		assertThat(actualRootWidgetProperty1.getCode()).isEqualTo("0011");
+		assertThat(actualRootWidgetProperty1.getValueType()).isEqualTo(ComponentAttrValueType.STRING.getKey());
+		assertThat(actualRootWidgetProperty1.getValue()).isEqualTo("default_value");
+		assertThat(actualRootWidgetProperty1.getName()).isEqualTo("prop_name");
+		
+		// 校验 git 中的文件内容
+		ObjectMapper mapper = new ObjectMapper();
+		String mainPageJsonString = Files.readString(context.getGitRepositoryDirectory().resolve(pageKey + ".page.web.json"));
+		assertThat(mapper.readValue(mainPageJsonString, PageModel.class)).usingRecursiveComparison().isEqualTo(actualPageModel);
 	}
 	
 	@Test
