@@ -665,7 +665,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 			.statusCode(HttpStatus.SC_CREATED)
 			.body(equalTo(""));
 		
-		verify(projectResourceService).updatePageModel(any());
+		verify(projectResourceService).updatePageModel(any(), any(), any());
 	}
 
 }

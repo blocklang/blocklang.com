@@ -509,9 +509,16 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 		return commitId;
 	}
 
-	@Transactional
 	@Override
-	public void updatePageModel(PageModel pageModel) {
+	public void updatePageModel(Project project, ProjectResource projectResource, PageModel pageModel) {
+		this.updatePageModel(pageModel);
+		if(project != null && projectResource != null) {
+			this.updatePageFileInGit(project, projectResource, pageModel);
+		}
+	}
+	
+	@Transactional
+	private void updatePageModel(PageModel pageModel) {
 		Integer pageId = pageModel.getPageId();
 		
 		List<AttachedWidget> widgets = pageModel.getWidgets();
@@ -537,9 +544,38 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 			pageWidgetJdbcDao.batchSaveWidgets(pageId, widgets);
 			pageWidgetJdbcDao.batchSaveWidgetProperties(properties);
 		}
-		
 	}
 
+	private void updatePageFileInGit(Project project, ProjectResource projectResource, PageModel pageModel) {
+		// 确保这是一个页面
+		if(!projectResource.isPage()) {
+			logger.warn("不是一个有效的页面");
+			return;
+		}
+		
+		Integer parentResourceId = projectResource.getParentId();
+		String relativeDir = parentResourceId == Constant.TREE_ROOT_ID ? null: this.findParentPath(parentResourceId);
+		
+		propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).map(rootDir -> {
+			return new ProjectContext(project.getCreateUserName(), project.getName(), rootDir).getGitRepositoryDirectory();
+		}).ifPresent(rootPath -> {
+			Path path = rootPath;
+			if(StringUtils.isNotBlank(relativeDir)) {
+				path = path.resolve(relativeDir);
+			}
+			
+			path = path.resolve(projectResource.getFileName());
+			try {
+				ObjectMapper mapper = new ObjectMapper();
+				String json = mapper.writeValueAsString(pageModel);
+				Files.writeString(path, json);
+			} catch (IOException e) {
+				logger.error("为页面生成 json文件时出错！", e);
+			}
+			
+		});
+	}
+	
 	// TODO: 此处需要性能优化
 	@Override
 	public PageModel getPageModel(Integer projectId, Integer pageId) {

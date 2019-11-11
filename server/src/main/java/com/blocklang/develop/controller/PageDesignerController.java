@@ -134,7 +134,7 @@ public class PageDesignerController extends AbstractProjectController {
 		
 		ensureCanWrite(user, project);
 		
-		projectResourceService.updatePageModel(model);
+		projectResourceService.updatePageModel(project, page, model);
 		
 		return new ResponseEntity<Map<String, Object>>(HttpStatus.CREATED);
 	}

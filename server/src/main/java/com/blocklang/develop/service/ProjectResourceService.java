@@ -88,7 +88,7 @@ public interface ProjectResourceService {
 	 */
 	String commit(UserInfo user, Project project, String commitMessage);
 
-	void updatePageModel(PageModel pageModel);
+	void updatePageModel(Project project, ProjectResource projectResource, PageModel pageModel);
 
 	/**
 	 * 获取页面模型
