@@ -11,6 +11,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -1024,19 +1025,21 @@ public class PageControllerTest extends AbstractControllerTest{
 		project.setIsPublic(true);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectResource resource = new ProjectResource();
-		resource.setId(1);
-		resource.setKey("a");
-		resource.setName("A");
-		when(projectResourceService.findParentGroupsByParentPath(anyInt(), anyString())).thenReturn(Collections.singletonList(resource));
+		when(projectResourceService.findParentGroupsByParentPath(anyInt(), anyString())).thenReturn(new ArrayList<>());
 
+		ProjectResource projectResource = new ProjectResource();
+		projectResource.setId(11);
+		projectResource.setKey("a");
+		projectResource.setName("A");
+		when(projectResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(projectResource));
+		
 		given()
 			.contentType(ContentType.JSON)
 		.when()
 			.get("/projects/{owner}/{projectName}/pages/{pagePath}", owner, projectName, "a")
 		.then()
 			.statusCode(HttpStatus.SC_OK)
-			.body("projectResource.id", equalTo(1),
+			.body("projectResource.id", equalTo(11),
 					  "parentGroups.size", equalTo(1),
 					  "parentGroups[0].name", equalTo("A"),
 					  "parentGroups[0].path", equalTo("/a"));
