@@ -8,4 +8,5 @@ public interface ApiRepoVersionService {
 
 	Optional<ApiRepoVersion> findById(Integer apiRepoVersionId);
 
+	Optional<ApiRepoVersion> findLatestVersion(Integer apiRepoId);
 }

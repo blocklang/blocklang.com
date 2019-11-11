@@ -37,4 +37,31 @@ public class ApiRepoVersionServiceImplTest extends AbstractServiceTest {
 		assertThat(apiRepoVersionService.findById(savedVersion.getId())).isPresent();
 	}
 	
+	@Test
+	public void find_latest_version_empty_versions() {
+		assertThat(apiRepoVersionService.findLatestVersion(Integer.MAX_VALUE)).isEmpty();
+	}
+	
+	@Test
+	public void find_latest_version_two_versions() {
+		Integer apiRepoId = Integer.MAX_VALUE;
+		
+		ApiRepoVersion version1 = new ApiRepoVersion();
+		version1.setApiRepoId(apiRepoId);
+		version1.setVersion("0.1.0");
+		version1.setGitTagName("v0.1.0");
+		version1.setCreateUserId(1);
+		version1.setCreateTime(LocalDateTime.now());
+		apiRepoVersionDao.save(version1);
+		
+		ApiRepoVersion version2 = new ApiRepoVersion();
+		version2.setApiRepoId(apiRepoId);
+		version2.setVersion("0.2.0");
+		version2.setGitTagName("v0.2.0");
+		version2.setCreateUserId(1);
+		version2.setCreateTime(LocalDateTime.now());
+		apiRepoVersionDao.save(version2);
+		
+		assertThat(apiRepoVersionService.findLatestVersion(apiRepoId).get().getVersion()).isEqualTo("0.2.0");
+	}
 }
