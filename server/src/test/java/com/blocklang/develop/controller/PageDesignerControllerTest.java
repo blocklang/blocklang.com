@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -104,7 +105,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		apiRepo.setId(2);
 		ApiRepoVersion apiRepoVersion = new ApiRepoVersion();
 		ProjectDependenceData data = new ProjectDependenceData(dependence, componentRepo, componentRepoVersion, apiRepo, apiRepoVersion);
-		when(projectDependenceService.findProjectDependences(anyInt())).thenReturn(Collections.singletonList(data));
+		when(projectDependenceService.findProjectDependences(anyInt(), anyBoolean())).thenReturn(Collections.singletonList(data));
 
 		given()
 			.contentType(ContentType.JSON)
@@ -138,7 +139,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		apiRepo.setId(2);
 		ApiRepoVersion apiRepoVersion = new ApiRepoVersion();
 		ProjectDependenceData data = new ProjectDependenceData(dependence, componentRepo, componentRepoVersion, apiRepo, apiRepoVersion);
-		when(projectDependenceService.findProjectDependences(anyInt())).thenReturn(Collections.singletonList(data));
+		when(projectDependenceService.findProjectDependences(anyInt(), anyBoolean())).thenReturn(Collections.singletonList(data));
 
 		given()
 			.contentType(ContentType.JSON)

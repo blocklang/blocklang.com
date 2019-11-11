@@ -326,9 +326,16 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 		return dependences;
 	}
 
+
 	@Override
-	public List<ProjectDependenceData> findProjectDependences(Integer projectId) {
-		List<ProjectDependence> dependences = projectDependenceDao.findAllByProjectId(projectId);
+	public List<ProjectDependenceData> findProjectDependences(Integer projectId, boolean includeStd) {
+		List<ProjectDependence> dependences;
+		if(includeStd) {
+			dependences = this.findAllByProjectId(projectId);
+		} else {
+			dependences = projectDependenceDao.findAllByProjectId(projectId);
+		}
+		
 		return dependences.stream().map(dependence -> {
 			ComponentRepoVersion componentRepoVersion = null;
 			ComponentRepo componentRepo = null;
@@ -347,6 +354,11 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 			ProjectDependenceData data = new ProjectDependenceData(dependence, componentRepo, componentRepoVersion, apiRepo, apiRepoVersion);
 			return data;
 		}).collect(Collectors.toList());
+	}
+	
+	@Override
+	public List<ProjectDependenceData> findProjectDependences(Integer projectId) {
+		return this.findProjectDependences(projectId, false);
 	}
 
 	@Override
@@ -459,5 +471,4 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 		
 		return result;
 	}
-	
 }

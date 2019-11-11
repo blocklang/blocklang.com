@@ -422,8 +422,9 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		buildDependence.setCreateUserId(11);
 		buildDependence.setCreateTime(LocalDateTime.now());
 		projectDependenceDao.save(buildDependence);
-		
+
 		List<ProjectDependenceData> dependences = projectDependenceService.findProjectDependences(projectId);
+		
 		assertThat(dependences).hasSize(2);
 		assertThat(dependences).allMatch(dependence -> dependence != null && 
 				dependence.getComponentRepo() != null &&
@@ -431,6 +432,85 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 				dependence.getApiRepo() != null &&
 				dependence.getApiRepoVersion() != null
 		);
+	}
+	
+	@Test
+	public void find_project_dependence_include_std_dependences() {
+		Integer userId = 1;
+		// 创建一个标准库
+		ApiRepo stdApiRepo = new ApiRepo();
+		stdApiRepo.setCategory(RepoCategory.WIDGET);
+		stdApiRepo.setGitRepoUrl("url");
+		stdApiRepo.setGitRepoWebsite("website");
+		stdApiRepo.setGitRepoOwner("owner");
+		stdApiRepo.setGitRepoName("repo_name");
+		stdApiRepo.setName("std-api-widget"); // 默认的标准库
+		stdApiRepo.setVersion("0.0.1");
+		stdApiRepo.setCreateUserId(userId);
+		stdApiRepo.setCreateTime(LocalDateTime.now());
+		Integer stdApiRepoId = apiRepoDao.save(stdApiRepo).getId();
+		// 为标准库设置一个版本号
+		// 创建对应的 API 仓库版本信息
+		ApiRepoVersion apiVersion = new ApiRepoVersion();
+		apiVersion.setApiRepoId(stdApiRepoId);
+		apiVersion.setVersion("0.0.1");
+		apiVersion.setGitTagName("v0.0.1");
+		apiVersion.setCreateUserId(userId);
+		apiVersion.setCreateTime(LocalDateTime.now());
+		ApiRepoVersion savedApiRepoVersion = apiRepoVersionDao.save(apiVersion);
+
+		// 在标准库中创建一个 Page 部件
+		ApiComponent widget = new ApiComponent();
+		String widgetCode = "0001";
+		String widgetName = "Page";
+		widget.setApiRepoVersionId(savedApiRepoVersion.getId());
+		widget.setCode(widgetCode);
+		widget.setName(widgetName);
+		widget.setCanHasChildren(true);
+		widget.setCreateUserId(userId);
+		widget.setCreateTime(LocalDateTime.now());
+		ApiComponent savedWidget = apiComponentDao.save(widget);
+		// 为 Page 部件添加一个属性
+		ApiComponentAttr widgetProperty = new ApiComponentAttr();
+		widgetProperty.setApiComponentId(savedWidget.getId());
+		widgetProperty.setCode("0011");
+		widgetProperty.setName("prop_name");
+		widgetProperty.setDefaultValue("default_value");
+		widgetProperty.setValueType(ComponentAttrValueType.STRING);
+		apiComponentAttrDao.save(widgetProperty);
+		
+		// 创建一个 ide 版的组件库
+		ComponentRepo repo = new ComponentRepo();
+		repo.setApiRepoId(stdApiRepoId);
+		repo.setGitRepoUrl("url");
+		repo.setGitRepoWebsite("website");
+		repo.setGitRepoOwner("jack");
+		repo.setGitRepoName("repo");
+		repo.setName("std-ide-widget");
+		repo.setLabel("label");
+		repo.setVersion("version");
+		repo.setCategory(RepoCategory.WIDGET);
+		repo.setCreateUserId(1);
+		repo.setCreateTime(LocalDateTime.now());
+		repo.setLanguage(Language.TYPESCRIPT);
+		repo.setAppType(AppType.WEB);
+		repo.setStd(true);
+		repo.setIsIdeExtension(true);
+		ComponentRepo savedComponentRepo = componentRepoDao.save(repo);
+		// 创建一个 ide 版的组件库版本
+		ComponentRepoVersion version = new ComponentRepoVersion();
+		version.setComponentRepoId(savedComponentRepo.getId());
+		version.setVersion("0.1.0");
+		version.setGitTagName("v0.1.0");
+		version.setApiRepoVersionId(savedApiRepoVersion.getId());
+		version.setCreateUserId(1);
+		version.setCreateTime(LocalDateTime.now());
+		componentRepoVersionDao.save(version);
+		
+		// 注意，所有项目都会默认包含标准库
+		List<ProjectDependenceData> dependences = projectDependenceService.findProjectDependences(Integer.MAX_VALUE, true);
+		
+		assertThat(dependences).hasSize(1);
 	}
 	
 	// 注意，因为这些都是在一个事务中完成的，所以不要直接通过获取数据库表的记录数来断言，

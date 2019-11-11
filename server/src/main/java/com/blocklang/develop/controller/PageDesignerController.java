@@ -64,7 +64,7 @@ public class PageDesignerController extends AbstractProjectController {
 		Project project = projectService.findById(projectId).orElseThrow(ResourceNotFoundException::new);
 		ensureCanRead(principal, project);
 		
-		List<Dependence> result = projectDependenceService.findProjectDependences(project.getId()).stream().filter(item -> item.getComponentRepo().getIsIdeExtension()).map(item -> {
+		List<Dependence> result = projectDependenceService.findProjectDependences(project.getId(), true).stream().filter(item -> item.getComponentRepo().getIsIdeExtension()).map(item -> {
 			Dependence dependence = new Dependence();
 			
 			ComponentRepo componentRepo = item.getComponentRepo();

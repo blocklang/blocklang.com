@@ -39,7 +39,21 @@ public interface ProjectDependenceService {
 	 */
 	List<ProjectDependence> findAllByProjectId(Integer projectId);
 	
+	/**
+	 * 注意：返回的依赖中不包含标准库，相当于 {@code this.findProjectDependences(projectId, false)}
+	 * 
+	 * @param projectId
+	 * @return
+	 */
 	List<ProjectDependenceData> findProjectDependences(Integer projectId);
+
+	/**
+	 * 
+	 * @param projectId
+	 * @param includeStd 如果值为 <code>true</code>，则返回标准库
+	 * @return
+	 */
+	List<ProjectDependenceData> findProjectDependences(Integer projectId, boolean includeStd);
 
 	void delete(Integer dependenceId);
 
