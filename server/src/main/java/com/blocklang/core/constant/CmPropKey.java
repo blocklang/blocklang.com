@@ -17,6 +17,14 @@ public abstract class CmPropKey {
 	public final static String TEMPLATE_PROJECT_GIT_URL = "template.project.git.url";
 
 	public static final String INSTALL_API_ROOT_URL = "install.api.root.url";
+	
+	// 标准库
+	public static final String STD_WIDGET_API_NAME = "std.widget.api.name";
+	public static final String STD_WIDGET_IDE_NAME = "std.widget.ide.name";
+	public static final String STD_WIDGET_REGISTER_USERID = "std.widget.register.userid";
+	public static final String STD_WIDGET_ROOT_NAME = "std.widget.root.name";
 
+	// 平台预留的关键字
 	public static final String PLATFORM_KEYWORDS = "platform.keywords";
+	public static final String PLATFORM_RESERVED_USERNAME = "platform.reserved.username";
 }

@@ -88,6 +88,8 @@ public class UserValidator implements Validator{
 		
 		// 4. 不能使用平台中的关键字（或叫保留字）做用户名
 		List<CmProperty> keywords = this.propertyService.findAllByParentKey(CmPropKey.PLATFORM_KEYWORDS);
+		List<CmProperty> reservedUsernames = this.propertyService.findAllByParentKey(CmPropKey.PLATFORM_RESERVED_USERNAME);
+		keywords.addAll(reservedUsernames);
 		if(keywords.stream().anyMatch(cmProperty -> {return cmProperty.getValue().equalsIgnoreCase(loginName);})) {
 			errors.rejectValue("loginName", "NotValid.loginNameIsUsed");
 			return;

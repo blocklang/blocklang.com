@@ -456,9 +456,8 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 		
 		// 将系统使用的标准库依赖添加到最前面
 		// 获取最新的依赖版本号
-		// TODO: 将以下两个值添加到系统参数中
-		String stdIdeRepoName = "std-ide-widget";
-		Integer createUserId = 1;
+		String stdIdeRepoName = propertyService.findStringValue(CmPropKey.STD_WIDGET_IDE_NAME, "std-ide-widget");
+		Integer createUserId = propertyService.findIntegerValue(CmPropKey.STD_WIDGET_REGISTER_USERID, 1);
 		
 		componentRepoDao.findByNameAndCreateUserId(stdIdeRepoName, createUserId).flatMap(componentRepo -> {
 			return componentRepoVersionService.findLatestVersion(componentRepo.getId());

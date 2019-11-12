@@ -517,6 +517,8 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 		}
 	}
 	
+	// FIXME: @Transactional 加在此处不会生效
+	// TODO: 将一些公共方法单独存在一个 service 类中
 	@Transactional
 	private void updatePageModel(PageModel pageModel) {
 		Integer pageId = pageModel.getPageId();
@@ -693,7 +695,6 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 		model.setWidgets(convertedWidgets);
 		return model;
 	}
-
 	
 	@Override
 	public PageModel createPageModelWithStdPage(Integer pageId) {
@@ -701,10 +702,10 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 		pageModel.setPageId(pageId);
 		
 		// 标准库所实现的 API 仓库的地址
-		// TODO: 把这些信息配置到系统参数表中，用于表示将哪个用户创建的哪个 api 仓库作为标准的 api 仓库。
-		String stdApiRepoName = "std-api-widget";
-		Integer stdApiRepoPublishUserId = 1;
-		String rootWidgetName = "Page";
+		String stdApiRepoName = propertyService.findStringValue(CmPropKey.STD_WIDGET_API_NAME, "std-api-widget");
+		Integer stdApiRepoPublishUserId = propertyService.findIntegerValue(CmPropKey.STD_WIDGET_REGISTER_USERID, 1);
+		String rootWidgetName = propertyService.findStringValue(CmPropKey.STD_WIDGET_ROOT_NAME, "Page");
+		
 		apiRepoDao.findByNameAndCreateUserId(stdApiRepoName, stdApiRepoPublishUserId).map(apiRepo -> {
 			AttachedWidget rootWidget = new AttachedWidget();
 			rootWidget.setApiRepoId(apiRepo.getId());
