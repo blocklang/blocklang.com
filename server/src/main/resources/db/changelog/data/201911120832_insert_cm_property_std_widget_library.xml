@@ -1,0 +1,47 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+	
+	<changeSet author="Zhengwei Jin" id="201911120832">
+		<insert tableName="cm_property">
+			<column name="dbid" valueNumeric="5" />
+			<column name="prop_key" value="std.widget.api.name" />
+			<column name="prop_value" value="std-api-widget" />
+			<column name="prop_desc" value="部件标准库的 api 项目名" />
+			<column name="parent_id" valueNumeric="-1" />
+			<column name="data_type" value="01" />
+			<column name="is_valid" valueBoolean="true" />
+		</insert>
+		<insert tableName="cm_property">
+			<column name="dbid" valueNumeric="6" />
+			<column name="prop_key" value="std.widget.ide.name" />
+			<column name="prop_value" value="std-ide-widget" />
+			<column name="prop_desc" value="部件标准库的 ide 项目名" />
+			<column name="parent_id" valueNumeric="-1" />
+			<column name="data_type" value="01" />
+			<column name="is_valid" valueBoolean="true" />
+		</insert>
+		<insert tableName="cm_property">
+			<column name="dbid" valueNumeric="7" />
+			<column name="prop_key" value="std.widget.register.userid" />
+			<!-- 默认为系统的第一个用户 -->
+			<column name="prop_value" value="1" />
+			<column name="prop_desc" value="注册标准库的用户标识" />
+			<column name="parent_id" valueNumeric="-1" />
+			<column name="data_type" value="02" />
+			<column name="is_valid" valueBoolean="true" />
+		</insert>
+		<insert tableName="cm_property">
+			<column name="dbid" valueNumeric="8" />
+			<column name="prop_key" value="std.widget.root.name" />
+			<column name="prop_value" value="Page" />
+			<column name="prop_desc" value="标准库中根部件的名称" />
+			<column name="parent_id" valueNumeric="-1" />
+			<column name="data_type" value="01" />
+			<column name="is_valid" valueBoolean="true" />
+		</insert>
+	</changeSet>
+</databaseChangeLog>
