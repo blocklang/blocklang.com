@@ -2,6 +2,8 @@
 
 在设计器中使用开发专用的 dev 依赖，这里的依赖不能是 API 仓库，必须是组件仓库（实现）。
 
+注意：要包含标准库。
+
 ```text
 GET /designer/projects/{projectId}/dependences?category=dev
 ```
