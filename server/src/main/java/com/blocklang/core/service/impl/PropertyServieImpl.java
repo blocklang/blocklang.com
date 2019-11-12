@@ -27,10 +27,9 @@ public class PropertyServieImpl implements PropertyService {
 	}
 
 	@Override
+	@Cacheable(value = "cm_properties", key = "#key")
 	public String findStringValue(String key, String defaultValue) {
-		return propertyDao.findByKeyAndParentIdAndValid(key, Constant.TREE_ROOT_ID, true)
-				.map(CmProperty::getValue)
-				.orElse(defaultValue);
+		return this.findStringValue(key).orElse(defaultValue);
 	}
 
 	@Override
@@ -41,6 +40,12 @@ public class PropertyServieImpl implements PropertyService {
 			return propertyDao.findAllByParentId(parentPropOption.get().getId());
 		}
 		return Collections.emptyList();
+	}
+
+	@Override
+	@Cacheable(value = "cm_properties", key = "#key")
+	public Integer findIntegerValue(String key, Integer defaultValue) {
+		return this.findStringValue(key).map(str -> Integer.valueOf(str)).orElse(defaultValue);
 	}
 
 }

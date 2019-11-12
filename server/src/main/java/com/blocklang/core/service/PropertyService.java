@@ -15,7 +15,16 @@ public interface PropertyService {
 	 */
 	Optional<String> findStringValue(String key);
 	
+	/**
+	 * 注意：不会缓存默认值。
+	 * 
+	 * @param key
+	 * @param defaultValue
+	 * @return
+	 */
 	String findStringValue(String key, String defaultValue);
+	
+	Integer findIntegerValue(String key, Integer defaultValue);
 
 	List<CmProperty> findAllByParentKey(String parentKey);
 

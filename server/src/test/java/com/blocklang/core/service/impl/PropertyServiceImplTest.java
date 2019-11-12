@@ -129,6 +129,20 @@ public class PropertyServiceImplTest extends AbstractServiceTest{
 	}
 	
 	@Test
+	public void find_string_value_default_value_from_cache() {
+		CmProperty property = new CmProperty();
+		property.setId(MAX_ID);
+		property.setKey("key1");
+		property.setValue("value1");
+		property.setDataType(DataType.STRING);
+		propertyDao.save(property);
+		
+		Cache cachedProperties = this.cacheManager.getCache("cm_properties");
+		String value = propertyService.findStringValue("key1", "a");
+		assertThat(cachedProperties.get("key1").get()).isEqualTo(value).isEqualTo("value1");
+	}
+	
+	@Test
 	public void find_all_by_parent_key_not_exist() {
 		List<CmProperty> result = propertyService.findAllByParentKey("not-exist-key");
 		assertThat(result).isEmpty();
@@ -158,5 +172,59 @@ public class PropertyServiceImplTest extends AbstractServiceTest{
 		List<CmProperty> result = propertyService.findAllByParentKey("key1");
 		assertThat(result).hasSize(1);
 		assertThat(result.get(0).getValue()).isEqualTo("childvalue1");
+	}
+	
+	@Test
+	public void find_all_by_parent_from_cache() {
+		String parentKey = "key1";
+		String parentValue = "value1";
+		CmProperty parentProp = new CmProperty();
+		parentProp.setId(MAX_ID - 1);
+		parentProp.setDataType(DataType.STRING);
+		parentProp.setKey(parentKey);
+		parentProp.setValue(parentValue);
+		Integer parentId = propertyDao.save(parentProp).getId();
+		
+		String childKey = "childkey1";
+		String childValue = "childvalue1";
+		CmProperty childProp = new CmProperty();
+		childProp.setId(MAX_ID);
+		childProp.setDataType(DataType.STRING);
+		childProp.setKey(childKey);
+		childProp.setValue(childValue);
+		childProp.setParentId(parentId);
+		propertyDao.save(childProp);
+		
+		Cache cachedProperties = this.cacheManager.getCache("cm_properties");
+		List<CmProperty> result = propertyService.findAllByParentKey("key1");
+		
+		assertThat(cachedProperties.get("key1").get()).isEqualTo(result);
+	}
+	
+	@Test
+	public void find_integer_value_success() {
+		CmProperty property = new CmProperty();
+		property.setId(MAX_ID);
+		property.setKey("key");
+		property.setValue("1");
+		property.setDataType(DataType.NUMBER);
+		propertyDao.save(property);
+		
+		Integer value = propertyService.findIntegerValue("key", 2);
+		assertThat(value).isEqualTo(1);
+	}
+	
+	@Test
+	public void find_integer_value_from_cache() {
+		CmProperty property = new CmProperty();
+		property.setId(MAX_ID);
+		property.setKey("key1");
+		property.setValue("1");
+		property.setDataType(DataType.NUMBER);
+		propertyDao.save(property);
+		
+		Cache cachedProperties = this.cacheManager.getCache("cm_properties");
+		Integer value = propertyService.findIntegerValue("key1", 2);
+		assertThat(cachedProperties.get("key1").get()).isEqualTo(value).isEqualTo(1);
 	}
 }
