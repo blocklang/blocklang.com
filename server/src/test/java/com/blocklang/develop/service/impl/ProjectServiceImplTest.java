@@ -196,6 +196,10 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		File rootFolder = tempFolder.newFolder();
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.getPath()));
 		
+		when(propertyService.findStringValue(CmPropKey.STD_WIDGET_API_NAME, "std-api-widget")).thenReturn("std-api-widget");
+		when(propertyService.findIntegerValue(CmPropKey.STD_WIDGET_REGISTER_USERID, 1)).thenReturn(1);
+		when(propertyService.findStringValue(CmPropKey.STD_WIDGET_ROOT_NAME, "Page")).thenReturn("Page");
+		
 		Integer projectId = projectService.create(userInfo, project).getId();
 		
 		// 断言

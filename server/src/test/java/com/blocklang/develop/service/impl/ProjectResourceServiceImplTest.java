@@ -214,6 +214,11 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		ProjectContext context = new ProjectContext("jack", "project", rootFolder.getPath());
 		Files.createDirectories(context.getGitRepositoryDirectory());
 		
+		when(propertyService.findStringValue(CmPropKey.STD_WIDGET_API_NAME, "std-api-widget")).thenReturn("std-api-widget");
+		when(propertyService.findStringValue(CmPropKey.STD_WIDGET_IDE_NAME, "std-ide-widget")).thenReturn("std-ide-widget");
+		when(propertyService.findIntegerValue(CmPropKey.STD_WIDGET_REGISTER_USERID, 1)).thenReturn(1);
+		when(propertyService.findStringValue(CmPropKey.STD_WIDGET_ROOT_NAME, "Page")).thenReturn("Page");
+		
 		Integer pageId = projectResourceService.insert(project, resource).getId();
 		
 		PageModel actualPageModel = projectResourceService.getPageModel(projectId, pageId);
