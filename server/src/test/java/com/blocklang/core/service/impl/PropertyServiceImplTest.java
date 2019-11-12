@@ -215,6 +215,12 @@ public class PropertyServiceImplTest extends AbstractServiceTest{
 	}
 	
 	@Test
+	public void find_integer_value_return_default_value() {
+		Integer value = propertyService.findIntegerValue("not-exist-key", 2);
+		assertThat(value).isEqualTo(2);
+	}
+	
+	@Test
 	public void find_integer_value_from_cache() {
 		CmProperty property = new CmProperty();
 		property.setId(MAX_ID);
