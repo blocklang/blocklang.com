@@ -4,8 +4,9 @@
 	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
-	<!-- 平台关键字的主键占用 200-300 段 -->
+	
 	<changeSet author="Zhengwei Jin" id="201904110847">
+		<!-- 平台关键字的主键占用 200-299 段 -->
 		<insert tableName="cm_property">
 			<column name="dbid" valueNumeric="200" />
 			<column name="prop_key" value="platform.keywords" />
@@ -96,49 +97,58 @@
 			<column name="data_type" value="01" />
 			<column name="is_valid" valueBoolean="true" />
 		</insert>
-		<!-- 以下是系统预留的用户名，从 261 开始 -->
+		<!-- 以下是系统预留的用户名，从 300 开始 -->
 		<insert tableName="cm_property">
-			<column name="dbid" valueNumeric="261" />
-			<column name="prop_key" value="61" />
+			<column name="dbid" valueNumeric="300" />
+			<column name="prop_key" value="platform.reserved.username" />
+			<column name="prop_value" value="platform.reserved.username" />
+			<column name="prop_desc" value="系统预留的用户名" />
+			<column name="parent_id" valueNumeric="-1" />
+			<column name="data_type" value="01" />
+			<column name="is_valid" valueBoolean="true" />
+		</insert>
+		<insert tableName="cm_property">
+			<column name="dbid" valueNumeric="301" />
+			<column name="prop_key" value="01" />
 			<column name="prop_value" value="blocklang" />
 			<column name="prop_desc" value="user:blocklang" />
-			<column name="parent_id" valueNumeric="200" />
+			<column name="parent_id" valueNumeric="300" />
 			<column name="data_type" value="01" />
 			<column name="is_valid" valueBoolean="true" />
 		</insert>
 		<insert tableName="cm_property">
-			<column name="dbid" valueNumeric="262" />
-			<column name="prop_key" value="62" />
+			<column name="dbid" valueNumeric="302" />
+			<column name="prop_key" value="02" />
 			<column name="prop_value" value="block-lang" />
 			<column name="prop_desc" value="user:block-lang" />
-			<column name="parent_id" valueNumeric="200" />
+			<column name="parent_id" valueNumeric="300" />
 			<column name="data_type" value="01" />
 			<column name="is_valid" valueBoolean="true" />
 		</insert>
 		<insert tableName="cm_property">
-			<column name="dbid" valueNumeric="263" />
-			<column name="prop_key" value="63" />
+			<column name="dbid" valueNumeric="303" />
+			<column name="prop_key" value="03" />
 			<column name="prop_value" value="admin" />
 			<column name="prop_desc" value="user:admin" />
-			<column name="parent_id" valueNumeric="200" />
+			<column name="parent_id" valueNumeric="300" />
 			<column name="data_type" value="01" />
 			<column name="is_valid" valueBoolean="true" />
 		</insert>
 		<insert tableName="cm_property">
-			<column name="dbid" valueNumeric="264" />
-			<column name="prop_key" value="64" />
+			<column name="dbid" valueNumeric="304" />
+			<column name="prop_key" value="04" />
 			<column name="prop_value" value="administrator" />
 			<column name="prop_desc" value="user:administrator" />
-			<column name="parent_id" valueNumeric="200" />
+			<column name="parent_id" valueNumeric="300" />
 			<column name="data_type" value="01" />
 			<column name="is_valid" valueBoolean="true" />
 		</insert>
 		<insert tableName="cm_property">
-			<column name="dbid" valueNumeric="265" />
-			<column name="prop_key" value="65" />
+			<column name="dbid" valueNumeric="305" />
+			<column name="prop_key" value="05" />
 			<column name="prop_value" value="main" />
 			<column name="prop_desc" value="user:main" />
-			<column name="parent_id" valueNumeric="200" />
+			<column name="parent_id" valueNumeric="300" />
 			<column name="data_type" value="01" />
 			<column name="is_valid" valueBoolean="true" />
 		</insert>
