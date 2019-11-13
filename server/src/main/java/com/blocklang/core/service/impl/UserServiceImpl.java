@@ -8,6 +8,7 @@ import java.util.Optional;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.blocklang.core.constant.OauthSite;
@@ -102,6 +103,7 @@ public class UserServiceImpl implements UserService {
 		}).orElse(null);
 	}
 
+	@Cacheable(value="users")
 	@Override
 	public Optional<UserInfo> findByLoginName(String owner) {
 		return userDao.findByLoginName(owner);

@@ -8,8 +8,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.junit.After;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 
 import com.blocklang.core.constant.AvatarSizeType;
 import com.blocklang.core.constant.OauthSite;
@@ -41,6 +44,15 @@ public class UserServiceImplTest extends AbstractServiceTest{
 	
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private CacheManager cacheManager;
+	
+	@After
+	public void tearDown() {
+		// 为了避免缓存干扰其他测试用例，每次执行后都清空缓存
+		this.cacheManager.getCache("users").clear();
+	}
 	
 	@Test
 	public void create_success() {
@@ -247,5 +259,24 @@ public class UserServiceImplTest extends AbstractServiceTest{
 		Optional<PersisentLogins> plOPtion = persisentLoginsDao.findByToken(loginToken.getToken());
 		assertThat(plOPtion).isPresent();
 		assertThat(plOPtion.get()).hasNoNullFieldsOrProperties();
+	}
+	
+	@Test
+	public void find_by_login_name_cacheable() {
+		UserInfo userInfo = new UserInfo();
+		userInfo.setLoginName("login");
+		userInfo.setNickname("name");
+		userInfo.setCompany("company");
+		userInfo.setWebsiteUrl("blog");
+		userInfo.setLocation("location");
+		userInfo.setEmail("email");
+		userInfo.setBio("bio");
+		userInfo.setAvatarUrl("https://avatars2.githubusercontent.com/u/1?v=4&s=40");
+		userInfo.setCreateTime(LocalDateTime.now());
+		userDao.save(userInfo);
+		
+		Cache cachedUsers = this.cacheManager.getCache("users");
+		Optional<UserInfo> savedUserOption = userService.findByLoginName("login");
+		assertThat(cachedUsers.get("login").get()).isEqualTo(savedUserOption.get());
 	}
 }
