@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
 
 import com.blocklang.core.service.UserService;
 import com.blocklang.develop.constant.AccessLevel;
+import com.blocklang.develop.dao.ProjectAuthorizationDao;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectAuthorization;
-import com.blocklang.develop.service.ProjectAuthorizationService;
 import com.blocklang.develop.service.ProjectPermissionService;
 
 //read < write < admin
@@ -18,7 +18,7 @@ import com.blocklang.develop.service.ProjectPermissionService;
 public class ProjectPermissionServiceImpl implements ProjectPermissionService {
 
 	@Autowired
-	private ProjectAuthorizationService projectAuthorizationService;
+	private ProjectAuthorizationDao projectAuthorizationDao;
 	@Autowired
 	private UserService userService;
 	
@@ -55,7 +55,7 @@ public class ProjectPermissionServiceImpl implements ProjectPermissionService {
 	
 	private Optional<AccessLevel> hasPermission(String loginName, Project project, AccessLevel expectedPermission) {
 		return userService.findByLoginName(loginName)
-				.flatMap(user -> projectAuthorizationService.findAllByUserIdAndProjectId(user.getId(), project.getId())
+				.flatMap(user -> projectAuthorizationDao.findAllByUserIdAndProjectId(user.getId(), project.getId())
 						.stream().map(ProjectAuthorization::getAccessLevel)
 						.filter(accessLevel -> accessLevel.getScore() >= expectedPermission.getScore()).findAny());
 	}

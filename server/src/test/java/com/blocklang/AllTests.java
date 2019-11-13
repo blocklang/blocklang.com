@@ -32,7 +32,6 @@ import com.blocklang.develop.controller.PropertyControllerTest;
 import com.blocklang.develop.model.AppGlobalContextTest;
 import com.blocklang.develop.model.ProjectContextTest;
 import com.blocklang.develop.model.ProjectResourceTest;
-import com.blocklang.develop.service.impl.ProjectAuthorizationServiceImplTest;
 import com.blocklang.develop.service.impl.ProjectDependenceServiceImplTest;
 import com.blocklang.develop.service.impl.ProjectDeployServiceImplTest;
 import com.blocklang.develop.service.impl.ProjectFileServiceImplTest;
@@ -49,9 +48,9 @@ import com.blocklang.marketplace.service.impl.ComponentRepoServiceImplTest;
 import com.blocklang.marketplace.service.impl.ComponentRepoVersionServiceImplTest;
 import com.blocklang.marketplace.service.impl.PublishServiceImplTest;
 import com.blocklang.marketplace.task.ApiChangeLogValidateTaskTest;
-import com.blocklang.marketplace.task.MarketplacePublishContextTest;
 import com.blocklang.marketplace.task.ApiChangeLogsSetupGroupTaskTest;
 import com.blocklang.marketplace.task.CodeGeneratorTest;
+import com.blocklang.marketplace.task.MarketplacePublishContextTest;
 import com.blocklang.marketplace.task.TaskLoggerTest;
 import com.blocklang.release.api.AppApiTest;
 import com.blocklang.release.api.InstallerApiTest;
@@ -126,7 +125,6 @@ import com.blocklang.release.task.GitTagTaskTest;
 	ProjectFileServiceImplTest.class,
 	ProjectTagServiceImplTest.class,
 	ProjectReleaseTaskServiceImplTest.class,
-	ProjectAuthorizationServiceImplTest.class,
 	PropertyServiceImplTest.class,
 	GithubLoginServiceImplTest.class,
 	QqLoginServiceImplTest.class,
