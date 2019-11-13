@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.apache.http.HttpStatus;
@@ -31,9 +32,8 @@ import com.blocklang.develop.data.CheckPageKeyParam;
 import com.blocklang.develop.data.CheckPageNameParam;
 import com.blocklang.develop.data.NewPageParam;
 import com.blocklang.develop.model.Project;
-import com.blocklang.develop.model.ProjectAuthorization;
 import com.blocklang.develop.model.ProjectResource;
-import com.blocklang.develop.service.ProjectAuthorizationService;
+import com.blocklang.develop.service.ProjectPermissionService;
 import com.blocklang.develop.service.ProjectResourceService;
 import com.blocklang.develop.service.ProjectService;
 
@@ -45,13 +45,12 @@ public class PageControllerTest extends AbstractControllerTest{
 	@MockBean
 	private ProjectService projectService;
 	@MockBean
-	private ProjectAuthorizationService projectAuthorizationService;
-	@MockBean
 	private ProjectResourceService projectResourceService;
+	@MockBean
+	private ProjectPermissionService projectPermissionService;
 
-	
 	@Test
-	public void check_key_user_not_login() {
+	public void check_key_anonymous_can_not_check() {
 		CheckPageKeyParam param = new CheckPageKeyParam();
 		param.setKey("key");
 		
@@ -83,53 +82,17 @@ public class PageControllerTest extends AbstractControllerTest{
 			.body(equalTo(""));
 	}
 	
-	// 用户无权访问的公开项目
-	// 没有为用户配置该项目的任何权限
 	@WithMockUser(username = "jack")
 	@Test
-	public void check_key_user_can_not_read_public_project() {
+	public void check_key_user_can_not_write_project() {
 		CheckPageKeyParam param = new CheckPageKeyParam();
 		param.setKey("key");
 		
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
-		
-		given()
-			.contentType(ContentType.JSON)
-			.body(param)
-		.when()
-			.post("/projects/{owner}/{projectName}/pages/check-key", "jack", "project")
-		.then()
-			.statusCode(HttpStatus.SC_FORBIDDEN)
-			.body(equalTo(""));
-	}
-	
-	// 用户对公开项目只有 read 权限
-	@WithMockUser(username = "jack")
-	@Test
-	public void check_key_login_user_can_not_write_public_project() {
-		CheckPageKeyParam param = new CheckPageKeyParam();
-		param.setKey("key");
-		
-		Project project = new Project();
-		project.setId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
-		project.setCreateUserId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
-		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.READ);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -146,17 +109,9 @@ public class PageControllerTest extends AbstractControllerTest{
 	public void check_key_is_blank() {
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
-		project.setCreateUserId(1);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		CheckPageKeyParam param = new CheckPageKeyParam();
 		param.setKey(" ");
@@ -177,17 +132,9 @@ public class PageControllerTest extends AbstractControllerTest{
 	public void check_key_is_invalid() {
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
-		project.setCreateUserId(1);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		CheckPageKeyParam param = new CheckPageKeyParam();
 		param.setKey("中文");
@@ -208,17 +155,9 @@ public class PageControllerTest extends AbstractControllerTest{
 	public void check_key_is_used_at_root() {
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
-		project.setCreateUserId(1);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		ProjectResource resource = new ProjectResource();
 		when(projectResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource));
@@ -242,20 +181,12 @@ public class PageControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void check_key_is_used_at_sub() {
+	public void check_key_is_used_at_sub_and_name_is_not_blank() {
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
-		project.setCreateUserId(1);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		Integer parentId = 1;
 		ProjectResource resource = new ProjectResource();
@@ -285,20 +216,47 @@ public class PageControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void check_key_is_passed() {
+	public void check_key_is_used_at_sub_and_name_is_blank() {
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
-		project.setCreateUserId(1);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
+		
+		Integer parentId = 1;
+		ProjectResource resource = new ProjectResource();
+		resource.setParentId(parentId);
+		when(projectResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource));
+		
+		ProjectResource parentResource = new ProjectResource();
+		parentResource.setId(parentId);
+		parentResource.setKey("two level");
+		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(parentResource));
+		
+		CheckPageKeyParam param = new CheckPageKeyParam();
+		param.setKey("a-used-key");
+		param.setParentId(parentId);
+		param.setAppType(AppType.WEB.getKey());
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/{owner}/{projectName}/pages/check-key", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
+			.body("errors.key", hasItem("two level下已存在名称<strong>a-used-key</strong>"),
+					"errors.key.size()", is(1));
+	}
+	
+	@WithMockUser(username = "jack")
+	@Test
+	public void check_key_from_root_is_passed() {
+		Project project = new Project();
+		project.setId(1);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		when(projectResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
 		
@@ -316,7 +274,7 @@ public class PageControllerTest extends AbstractControllerTest{
 	}
 	
 	@Test
-	public void check_name_user_not_login() {
+	public void check_name_anonymous_can_not_check() {
 		CheckPageNameParam param = new CheckPageNameParam();
 		param.setName("name");
 		
@@ -350,23 +308,15 @@ public class PageControllerTest extends AbstractControllerTest{
 
 	@WithMockUser(username = "jack")
 	@Test
-	public void check_name_login_user_can_not_write_public_project() {
+	public void check_name_can_not_write_project() {
 		CheckPageNameParam param = new CheckPageNameParam();
 		param.setName("name");
 		
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
-		project.setCreateUserId(1);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.READ);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -383,17 +333,9 @@ public class PageControllerTest extends AbstractControllerTest{
 	public void check_name_can_be_null() {
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
-		project.setCreateUserId(1);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		ProjectResource resource = new ProjectResource();
 		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource));
@@ -419,17 +361,9 @@ public class PageControllerTest extends AbstractControllerTest{
 	public void check_name_is_used_at_root() {
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
-		project.setCreateUserId(1);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		ProjectResource resource = new ProjectResource();
 		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource));
@@ -454,20 +388,12 @@ public class PageControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void check_name_is_used_at_sub() {
+	public void check_name_is_used_at_sub_and_name_is_not_blank() {
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
-		project.setCreateUserId(1);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		Integer groupId = 1;
 		ProjectResource resource = new ProjectResource();
@@ -497,21 +423,48 @@ public class PageControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser(username = "jack")
 	@Test
+	public void check_name_is_used_at_sub_and_name_is_blank() {
+		Project project = new Project();
+		project.setId(1);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
+		
+		Integer groupId = 1;
+		ProjectResource resource = new ProjectResource();
+		resource.setParentId(groupId);
+		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource));
+		
+		ProjectResource parentResource = new ProjectResource();
+		parentResource.setId(groupId);
+		parentResource.setKey("Two Level");
+		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(parentResource));
+		
+		CheckPageNameParam param = new CheckPageNameParam();
+		param.setName("a-used-name");
+		param.setParentId(groupId);
+		param.setAppType(AppType.WEB.getKey());
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(param)
+		.when()
+			.post("/projects/{owner}/{projectName}/pages/check-name", "jack", "project")
+		.then()
+			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
+			.body("errors.name", hasItem("Two Level下已存在备注<strong>a-used-name</strong>"),
+					"errors.name.size()", is(1));
+	}
+	
+	@WithMockUser(username = "jack")
+	@Test
 	public void check_name_is_passed() {
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
-		project.setCreateUserId(1);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
-
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
+		
 		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
 		
 		CheckPageNameParam param = new CheckPageNameParam();
@@ -530,7 +483,7 @@ public class PageControllerTest extends AbstractControllerTest{
 	}
 	
 	@Test
-	public void new_page_user_not_login() {
+	public void new_page_anonymous_can_not_new() {
 		NewPageParam param = new NewPageParam();
 		param.setParentId(Constant.TREE_ROOT_ID);
 		param.setAppType(AppType.WEB.getKey());
@@ -570,7 +523,7 @@ public class PageControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void new_page_user_can_not_read_public_project() {
+	public void new_page_user_can_not_write_project() {
 		NewPageParam param = new NewPageParam();
 		param.setParentId(Constant.TREE_ROOT_ID);
 		param.setAppType(AppType.WEB.getKey());
@@ -579,44 +532,9 @@ public class PageControllerTest extends AbstractControllerTest{
 		
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
-		
-		given()
-			.contentType(ContentType.JSON)
-			.body(param)
-		.when()
-			.post("/projects/{owner}/{projectName}/pages", "jack", "project")
-		.then()
-			.statusCode(HttpStatus.SC_FORBIDDEN)
-			.body(equalTo(""));
-	}
-	
-	@WithMockUser(username = "jack")
-	@Test
-	public void new_page_login_user_can_not_write_public_project() {
-		NewPageParam param = new NewPageParam();
-		param.setParentId(Constant.TREE_ROOT_ID);
-		param.setAppType(AppType.WEB.getKey());
-		param.setKey("key");
-		param.setName("name");
-		
-		Project project = new Project();
-		project.setId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
-		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.READ);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -639,17 +557,9 @@ public class PageControllerTest extends AbstractControllerTest{
 		
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
 		
@@ -676,17 +586,9 @@ public class PageControllerTest extends AbstractControllerTest{
 		
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
 		
@@ -713,17 +615,9 @@ public class PageControllerTest extends AbstractControllerTest{
 		
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		ProjectResource resource = new ProjectResource();
 		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource));
@@ -754,17 +648,9 @@ public class PageControllerTest extends AbstractControllerTest{
 		
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
 		
@@ -791,17 +677,9 @@ public class PageControllerTest extends AbstractControllerTest{
 		
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		ProjectResource resource = new ProjectResource();
 		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource));
@@ -832,17 +710,9 @@ public class PageControllerTest extends AbstractControllerTest{
 		
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		ProjectResource resource1 = new ProjectResource();
 		when(projectResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource1));
@@ -876,17 +746,9 @@ public class PageControllerTest extends AbstractControllerTest{
 		
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		ProjectResource resource1 = new ProjectResource();
 		when(projectResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource1));
@@ -919,17 +781,9 @@ public class PageControllerTest extends AbstractControllerTest{
 		
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		when(projectResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
 		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
@@ -978,14 +832,15 @@ public class PageControllerTest extends AbstractControllerTest{
 	}
 	
 	@Test
-	public void get_page_anonymous_user_can_not_access_private_project() {
+	public void get_page_can_not_read_project() {
 		String owner = "owner";
 		String projectName = "private-project";
 		
 		Project project = new Project();
 		project.setId(1);
-		project.setIsPublic(false);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.empty());
 
 		given()
 			.contentType(ContentType.JSON)
@@ -1002,8 +857,9 @@ public class PageControllerTest extends AbstractControllerTest{
 		
 		Project project = new Project();
 		project.setId(1);
-		project.setIsPublic(true);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
 		
 		when(projectResourceService.findParentGroupsByParentPath(anyInt(), anyString())).thenReturn(Collections.emptyList());
 
@@ -1016,14 +872,15 @@ public class PageControllerTest extends AbstractControllerTest{
 	}
 	
 	@Test
-	public void get_page_success() {
+	public void get_page_at_root_success() {
 		String owner = "owner";
 		String projectName = "project";
 		
 		Project project = new Project();
 		project.setId(1);
-		project.setIsPublic(true);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
 		
 		when(projectResourceService.findParentGroupsByParentPath(anyInt(), anyString())).thenReturn(new ArrayList<>());
 
@@ -1043,5 +900,43 @@ public class PageControllerTest extends AbstractControllerTest{
 					  "parentGroups.size", equalTo(1),
 					  "parentGroups[0].name", equalTo("A"),
 					  "parentGroups[0].path", equalTo("/a"));
+	}
+	
+	@Test
+	public void get_page_at_sub_group_success() {
+		String owner = "owner";
+		String projectName = "project";
+		
+		Project project = new Project();
+		project.setId(1);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
+		
+		ProjectResource groupA = new ProjectResource();
+		groupA.setId(1);
+		groupA.setKey("groupA");
+		List<ProjectResource> parents = new ArrayList<>();
+		parents.add(groupA);
+		when(projectResourceService.findParentGroupsByParentPath(anyInt(), anyString())).thenReturn(parents);
+
+		ProjectResource projectResource = new ProjectResource();
+		projectResource.setId(11);
+		projectResource.setKey("page_b");
+		projectResource.setName("PAGE_B");
+		when(projectResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(projectResource));
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/pages/{pagePath}", owner, projectName, "groupA/PAGE_B")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body("projectResource.id", equalTo(11),
+					  "parentGroups.size", equalTo(2),
+					  "parentGroups[0].name", equalTo("groupA"),
+					  "parentGroups[0].path", equalTo("/groupA"),
+					  "parentGroups[1].name", equalTo("PAGE_B"),
+					  "parentGroups[1].path", equalTo("/groupA/page_b"));
 	}
 }

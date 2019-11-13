@@ -33,16 +33,13 @@ import com.blocklang.core.exception.NoAuthorizationException;
 import com.blocklang.core.exception.ResourceNotFoundException;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.UserService;
-import com.blocklang.develop.constant.AccessLevel;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.constant.ProjectResourceType;
 import com.blocklang.develop.data.CheckPageKeyParam;
 import com.blocklang.develop.data.CheckPageNameParam;
 import com.blocklang.develop.data.NewPageParam;
 import com.blocklang.develop.model.Project;
-import com.blocklang.develop.model.ProjectAuthorization;
 import com.blocklang.develop.model.ProjectResource;
-import com.blocklang.develop.service.ProjectAuthorizationService;
 import com.blocklang.develop.service.ProjectResourceService;
 import com.blocklang.develop.service.ProjectService;
 
@@ -52,8 +49,6 @@ public class PageController extends AbstractProjectController {
 	
 	@Autowired
 	private ProjectService projectService;
-	@Autowired
-	private ProjectAuthorizationService projectAuthorizationService;
 	@Autowired
 	private ProjectResourceService projectResourceService;
 	@Autowired
@@ -72,14 +67,8 @@ public class PageController extends AbstractProjectController {
 		if(principal == null) {
 			throw new NoAuthorizationException();
 		}
-		
 		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-		
-		List<ProjectAuthorization> authes = projectAuthorizationService.findAllByUserIdAndProjectId(project.getCreateUserId(), project.getId());
-		boolean canWrite = authes.stream().anyMatch(item -> item.getAccessLevel() == AccessLevel.WRITE || item.getAccessLevel() == AccessLevel.ADMIN);
-		if(!canWrite) {
-			throw new NoAuthorizationException();
-		}
+		projectPermissionService.canWrite(principal, project).orElseThrow(NoAuthorizationException::new);
 		
 		//校验 key: 是否为空
 		if(bindingResult.hasErrors()) {
@@ -134,14 +123,8 @@ public class PageController extends AbstractProjectController {
 		if(principal == null) {
 			throw new NoAuthorizationException();
 		}
-		
 		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-		
-		List<ProjectAuthorization> authes = projectAuthorizationService.findAllByUserIdAndProjectId(project.getCreateUserId(), project.getId());
-		boolean canWrite = authes.stream().anyMatch(item -> item.getAccessLevel() == AccessLevel.WRITE || item.getAccessLevel() == AccessLevel.ADMIN);
-		if(!canWrite) {
-			throw new NoAuthorizationException();
-		}
+		projectPermissionService.canWrite(principal, project).orElseThrow(NoAuthorizationException::new);
 		
 		// name 的值可以为空
 		if(StringUtils.isNotBlank(param.getName())) {
@@ -182,15 +165,8 @@ public class PageController extends AbstractProjectController {
 		if(principal == null) {
 			throw new NoAuthorizationException();
 		}
-		
 		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-		
-		// FIXME: 在此处是不是应该传登录用户的标识，而不是项目创建者的标识？
-		List<ProjectAuthorization> authes = projectAuthorizationService.findAllByUserIdAndProjectId(project.getCreateUserId(), project.getId());
-		boolean canWrite = authes.stream().anyMatch(item -> item.getAccessLevel() == AccessLevel.WRITE || item.getAccessLevel() == AccessLevel.ADMIN);
-		if(!canWrite) {
-			throw new NoAuthorizationException();
-		}
+		projectPermissionService.canWrite(principal, project).orElseThrow(NoAuthorizationException::new);
 		
 		//校验 key: 
 		boolean keyIsValid = true;
@@ -290,7 +266,7 @@ public class PageController extends AbstractProjectController {
 			HttpServletRequest req) {
 		// 先校验用户对项目是否有读取权限
 		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-		ensureCanRead(user, project);
+		projectPermissionService.canRead(user, project).orElseThrow(NoAuthorizationException::new);
 		
 		String pagePath = SpringMvcUtil.getRestUrl(req, 4);
 		// 获取表示页面的 key
