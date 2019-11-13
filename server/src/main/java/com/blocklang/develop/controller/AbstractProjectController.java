@@ -17,6 +17,7 @@ import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectAuthorization;
 import com.blocklang.develop.model.ProjectResource;
 import com.blocklang.develop.service.ProjectAuthorizationService;
+import com.blocklang.develop.service.ProjectPermissionService;
 import com.blocklang.develop.service.ProjectService;
 
 public class AbstractProjectController {
@@ -25,8 +26,12 @@ public class AbstractProjectController {
 	protected UserService userService;
 	@Autowired
 	protected ProjectService projectService;
+	@Deprecated
 	@Autowired
 	protected ProjectAuthorizationService projectAuthorizationService;
+	
+	@Autowired
+	protected ProjectPermissionService projectPermissionService;
 
 	// read < write < admin
 	protected void ensureCanRead(UserInfo user, Project project) {
@@ -100,14 +105,6 @@ public class AbstractProjectController {
 	}
 
 	protected void ensureCanRead(Principal principal, Project project) {
-		// 只要是公开项目，则不管用户是否登录，都可以访问
-		if(!project.getIsPublic()) {
-			if(principal == null) {
-				throw new NoAuthorizationException();
-			}
-			
-			UserInfo user = userService.findByLoginName(principal.getName()).get();
-			ensureCanRead(user, project);
-		}
+		projectPermissionService.canRead(principal, project).orElseThrow(NoAuthorizationException::new);
 	}
 }
