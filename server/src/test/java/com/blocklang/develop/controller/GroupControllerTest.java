@@ -33,7 +33,6 @@ import com.blocklang.develop.data.CheckGroupNameParam;
 import com.blocklang.develop.data.NewGroupParam;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectResource;
-import com.blocklang.develop.service.ProjectAuthorizationService;
 import com.blocklang.develop.service.ProjectPermissionService;
 import com.blocklang.develop.service.ProjectResourceService;
 import com.blocklang.develop.service.ProjectService;
@@ -45,8 +44,6 @@ public class GroupControllerTest extends AbstractControllerTest{
 
 	@MockBean
 	private ProjectService projectService;
-	@MockBean
-	private ProjectAuthorizationService projectAuthorizationService;
 	@MockBean
 	private ProjectResourceService projectResourceService;
 	@MockBean
