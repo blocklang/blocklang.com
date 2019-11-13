@@ -32,9 +32,9 @@ import com.blocklang.develop.data.CheckGroupKeyParam;
 import com.blocklang.develop.data.CheckGroupNameParam;
 import com.blocklang.develop.data.NewGroupParam;
 import com.blocklang.develop.model.Project;
-import com.blocklang.develop.model.ProjectAuthorization;
 import com.blocklang.develop.model.ProjectResource;
 import com.blocklang.develop.service.ProjectAuthorizationService;
+import com.blocklang.develop.service.ProjectPermissionService;
 import com.blocklang.develop.service.ProjectResourceService;
 import com.blocklang.develop.service.ProjectService;
 
@@ -49,9 +49,11 @@ public class GroupControllerTest extends AbstractControllerTest{
 	private ProjectAuthorizationService projectAuthorizationService;
 	@MockBean
 	private ProjectResourceService projectResourceService;
-
+	@MockBean
+	private ProjectPermissionService projectPermissionService;
+	
 	@Test
-	public void check_key_user_not_login() {
+	public void check_key_anonymous_can_not_check() {
 		CheckGroupKeyParam param = new CheckGroupKeyParam();
 		param.setKey("key");
 		
@@ -85,48 +87,15 @@ public class GroupControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void check_key_user_can_not_read_public_project() {
+	public void check_key_login_user_can_not_write_project() {
 		CheckGroupKeyParam param = new CheckGroupKeyParam();
 		param.setKey("key");
 		
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
-		
-		given()
-			.contentType(ContentType.JSON)
-			.body(param)
-		.when()
-			.post("/projects/{owner}/{projectName}/groups/check-key", "jack", "project")
-		.then()
-			.statusCode(HttpStatus.SC_FORBIDDEN)
-			.body(equalTo(""));
-	}
-	
-	@WithMockUser(username = "jack")
-	@Test
-	public void check_key_login_user_can_not_write_public_project() {
-		CheckGroupKeyParam param = new CheckGroupKeyParam();
-		param.setKey("key");
-		
-		Project project = new Project();
-		project.setId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
-		project.setCreateUserId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
-		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.READ);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -143,17 +112,9 @@ public class GroupControllerTest extends AbstractControllerTest{
 	public void check_key_is_blank() {
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
-		project.setCreateUserId(1);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		CheckGroupKeyParam param = new CheckGroupKeyParam();
 		param.setKey(" ");
@@ -174,17 +135,9 @@ public class GroupControllerTest extends AbstractControllerTest{
 	public void check_key_is_invalid() {
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
-		project.setCreateUserId(1);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		CheckGroupKeyParam param = new CheckGroupKeyParam();
 		param.setKey("中文");
@@ -205,17 +158,9 @@ public class GroupControllerTest extends AbstractControllerTest{
 	public void check_key_is_used_at_root() {
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
-		project.setCreateUserId(1);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		ProjectResource resource = new ProjectResource();
 		when(projectResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource));
@@ -242,17 +187,9 @@ public class GroupControllerTest extends AbstractControllerTest{
 	public void check_key_is_used_at_sub() {
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
-		project.setCreateUserId(1);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		Integer groupId = 1;
 		ProjectResource resource = new ProjectResource();
@@ -284,17 +221,9 @@ public class GroupControllerTest extends AbstractControllerTest{
 	public void check_key_is_passed() {
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
-		project.setCreateUserId(1);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		when(projectResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
 		
@@ -312,7 +241,7 @@ public class GroupControllerTest extends AbstractControllerTest{
 	}
 	
 	@Test
-	public void check_name_user_not_login() {
+	public void check_name_anonymous_can_not_check() {
 		CheckGroupNameParam param = new CheckGroupNameParam();
 		param.setName("name");
 		
@@ -346,23 +275,15 @@ public class GroupControllerTest extends AbstractControllerTest{
 
 	@WithMockUser(username = "jack")
 	@Test
-	public void check_name_login_user_can_not_write_public_project() {
+	public void check_name_login_user_can_not_write_project() {
 		CheckGroupNameParam param = new CheckGroupNameParam();
 		param.setName("name");
 		
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
-		project.setCreateUserId(1);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.READ);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -379,17 +300,9 @@ public class GroupControllerTest extends AbstractControllerTest{
 	public void check_name_can_be_null() {
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
-		project.setCreateUserId(1);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		ProjectResource resource = new ProjectResource();
 		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource));
@@ -414,17 +327,9 @@ public class GroupControllerTest extends AbstractControllerTest{
 	public void check_name_is_used_at_root() {
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
-		project.setCreateUserId(1);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		ProjectResource resource = new ProjectResource();
 		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource));
@@ -451,17 +356,9 @@ public class GroupControllerTest extends AbstractControllerTest{
 	public void check_name_is_used_at_sub() {
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
-		project.setCreateUserId(1);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		Integer groupId = 1;
 		ProjectResource resource = new ProjectResource();
@@ -493,18 +390,10 @@ public class GroupControllerTest extends AbstractControllerTest{
 	public void check_name_is_passed() {
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
-		project.setCreateUserId(1);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
-
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
+		
 		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
 		
 		CheckGroupNameParam param = new CheckGroupNameParam();
@@ -522,7 +411,7 @@ public class GroupControllerTest extends AbstractControllerTest{
 	}
 	
 	@Test
-	public void new_group_user_not_login() {
+	public void new_group_anonymous_can_not_new() {
 		NewGroupParam param = new NewGroupParam();
 		param.setParentId(Constant.TREE_ROOT_ID);
 		param.setKey("key");
@@ -560,7 +449,7 @@ public class GroupControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void new_group_user_can_not_read_public_project() {
+	public void new_group_login_user_can_not_write_project() {
 		NewGroupParam param = new NewGroupParam();
 		param.setParentId(Constant.TREE_ROOT_ID);
 		param.setKey("key");
@@ -568,43 +457,9 @@ public class GroupControllerTest extends AbstractControllerTest{
 		
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
-		
-		given()
-			.contentType(ContentType.JSON)
-			.body(param)
-		.when()
-			.post("/projects/{owner}/{projectName}/groups", "jack", "project")
-		.then()
-			.statusCode(HttpStatus.SC_FORBIDDEN)
-			.body(equalTo(""));
-	}
-	
-	@WithMockUser(username = "jack")
-	@Test
-	public void new_group_login_user_can_not_write_public_project() {
-		NewGroupParam param = new NewGroupParam();
-		param.setParentId(Constant.TREE_ROOT_ID);
-		param.setKey("key");
-		param.setName("name");
-		
-		Project project = new Project();
-		project.setId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
-		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.READ);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -626,17 +481,9 @@ public class GroupControllerTest extends AbstractControllerTest{
 		
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
 		
@@ -662,17 +509,9 @@ public class GroupControllerTest extends AbstractControllerTest{
 		
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
 		
@@ -698,17 +537,9 @@ public class GroupControllerTest extends AbstractControllerTest{
 		
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		ProjectResource resource = new ProjectResource();
 		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource));
@@ -738,17 +569,9 @@ public class GroupControllerTest extends AbstractControllerTest{
 		
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
 		
@@ -774,17 +597,9 @@ public class GroupControllerTest extends AbstractControllerTest{
 		
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		ProjectResource resource = new ProjectResource();
 		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource));
@@ -814,17 +629,9 @@ public class GroupControllerTest extends AbstractControllerTest{
 		
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		ProjectResource resource1 = new ProjectResource();
 		when(projectResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource1));
@@ -857,17 +664,9 @@ public class GroupControllerTest extends AbstractControllerTest{
 		
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		ProjectResource resource1 = new ProjectResource();
 		when(projectResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource1));
@@ -899,17 +698,9 @@ public class GroupControllerTest extends AbstractControllerTest{
 		
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserId(1);
-		project.setCreateUserName("jack");
-		project.setName("project");
-		project.setIsPublic(true); // 公开项目
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		when(projectResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
 		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
@@ -942,16 +733,52 @@ public class GroupControllerTest extends AbstractControllerTest{
 				  "id", is(notNullValue()));
 	}
 
-	// 如果是公开项目，则匿名用户也能访问
 	@Test
-	public void get_group_anonymous_user_public_project_success() {
+	public void get_group_tree_project_not_exist() {
 		String owner = "owner";
 		String projectName = "public-project";
-		
+
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
+
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/groups", owner, projectName)
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	@Test
+	public void get_group_tree_can_not_read_project() {
+		String owner = "owner";
+		String projectName = "public-project";
+
 		Project project = new Project();
 		project.setId(1);
-		project.setIsPublic(true);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.empty());
+
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/groups/a", owner, projectName)
+		.then()
+			.statusCode(HttpStatus.SC_FORBIDDEN);
+	}
+	
+	// 从根节点开始查找
+	@Test
+	public void get_group_tree_from_root() {
+		String owner = "owner";
+		String projectName = "public-project";
+
+		Project project = new Project();
+		project.setId(1);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
+
 		List<ProjectResource> resources = new ArrayList<ProjectResource>();
 		when(projectResourceService.findChildren(any(), anyInt())).thenReturn(resources);
 
@@ -962,18 +789,21 @@ public class GroupControllerTest extends AbstractControllerTest{
 		.then()
 			.statusCode(HttpStatus.SC_OK)
 			.body("id", equalTo(-1),
+					"parentGroups.size()", equalTo(0),
 					"childResources.size()", equalTo(0));
 	}
 	
 	@Test
-	public void get_group_public_project_invalid_path_fail() {
+	public void get_group_tree_from_sub_group_parent_group_can_not_be_empty() {
 		String owner = "owner";
 		String projectName = "public-project";
 
 		Project project = new Project();
 		project.setId(1);
-		project.setIsPublic(true);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
+		
 		when(projectResourceService.findParentGroupsByParentPath(1, "a")).thenReturn(Collections.emptyList());
 
 		given()
@@ -984,129 +814,86 @@ public class GroupControllerTest extends AbstractControllerTest{
 			.statusCode(HttpStatus.SC_NOT_FOUND);
 	}
 	
-	// 如果是私有项目，则匿名用户不能访问
 	@Test
-	public void get_group_anonymous_user_private_project_fail() {
+	public void get_group_tree_from_sub_group_success() {
 		String owner = "owner";
-		String projectName = "private-project";
-		
+		String projectName = "public-project";
+
 		Project project = new Project();
 		project.setId(1);
-		project.setIsPublic(false);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
-		List<ProjectResource> resources = new ArrayList<ProjectResource>();
-		when(projectResourceService.findChildren(any(), anyInt())).thenReturn(resources);
+		
+		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
+		
+		Integer groupAId = 2;
+		ProjectResource groupA = new ProjectResource();
+		groupA.setId(groupAId);
+		groupA.setKey("a");
+		when(projectResourceService.findParentGroupsByParentPath(1, "a")).thenReturn(Collections.singletonList(groupA));
+
+		ProjectResource child1 = new ProjectResource();
+		child1.setId(11);
+		child1.setKey("child_1");
+		when(projectResourceService.findChildren(any(), anyInt())).thenReturn(Collections.singletonList(child1));
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/groups/a", owner, projectName)
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body("id", equalTo(groupAId),
+					"parentGroups.size()", equalTo(1),
+					"parentGroups[0].name", equalTo("a"),
+					"parentGroups[0].path", equalTo("/a"),
+					"childResources.size()", equalTo(1));
+	}
+	
+	@Test
+	public void get_group_path_project_not_exist() {
+		String owner = "owner";
+		String projectName = "public-project";
+		
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
 
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/projects/{owner}/{projectName}/groups", owner, projectName)
+			.get("/projects/{owner}/{projectName}/group-path", owner, projectName)
 		.then()
 			.statusCode(HttpStatus.SC_NOT_FOUND);
 	}
 	
-	@WithMockUser("other")
 	@Test
-	public void get_group_logged_user_not_owned_public_project_success() {
+	public void get_group_path_can_not_read_project() {
 		String owner = "owner";
 		String projectName = "public-project";
 		
 		Project project = new Project();
 		project.setId(1);
-		project.setIsPublic(true);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
-		List<ProjectResource> resources = new ArrayList<ProjectResource>();
-		when(projectResourceService.findChildren(any(), anyInt())).thenReturn(resources);
+		
+		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.empty());
 
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/projects/{owner}/{projectName}/groups", owner, projectName)
+			.get("/projects/{owner}/{projectName}/group-path", owner, projectName)
 		.then()
-			.statusCode(HttpStatus.SC_OK)
-			.body("id", equalTo(-1),
-					"childResources.size()", equalTo(0));
+			.statusCode(HttpStatus.SC_FORBIDDEN);
 	}
 	
-	@WithMockUser("owner")
 	@Test
-	public void get_group_logged_user_self_public_project_success() {
+	public void get_group_path_from_root() {
 		String owner = "owner";
 		String projectName = "public-project";
 		
 		Project project = new Project();
 		project.setId(1);
-		project.setIsPublic(true);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
-		List<ProjectResource> resources = new ArrayList<ProjectResource>();
-		when(projectResourceService.findChildren(any(), anyInt())).thenReturn(resources);
-
-		given()
-			.contentType(ContentType.JSON)
-		.when()
-			.get("/projects/{owner}/{projectName}/groups", owner, projectName)
-		.then()
-			.statusCode(HttpStatus.SC_OK)
-			.body("id", equalTo(-1),
-					"childResources.size()", equalTo(0));
-	}
-	
-	@WithMockUser("other")
-	@Test
-	public void get_group_logged_user_not_owned_private_project_fail() {
-		String owner = "owner";
-		String projectName = "private-project";
 		
-		Project project = new Project();
-		project.setId(1);
-		project.setIsPublic(false);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
-		List<ProjectResource> resources = new ArrayList<ProjectResource>();
-		when(projectResourceService.findChildren(any(), anyInt())).thenReturn(resources);
-
-		given()
-			.contentType(ContentType.JSON)
-		.when()
-			.get("/projects/{owner}/{projectName}/groups", owner, projectName)
-		.then()
-			.statusCode(HttpStatus.SC_NOT_FOUND);
-	}
-	
-	@WithMockUser("owner")
-	@Test
-	public void get_group_logged_user_self_private_project_success() {
-		String owner = "owner";
-		String projectName = "private-project";
+		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
 		
-		Project project = new Project();
-		project.setId(1);
-		project.setIsPublic(false);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
-		List<ProjectResource> resources = new ArrayList<ProjectResource>();
-		when(projectResourceService.findChildren(any(), anyInt())).thenReturn(resources);
-
-		given()
-			.contentType(ContentType.JSON)
-		.when()
-			.get("/projects/{owner}/{projectName}/groups", owner, projectName)
-		.then()
-			.statusCode(HttpStatus.SC_OK)
-			.body("id", equalTo(-1),
-					"childResources.size()", equalTo(0));
-	}
-	
-	@Test
-	public void get_group_path_anonymous_user_access_public_project_success() {
-		String owner = "owner";
-		String projectName = "public-project";
-		
-		Project project = new Project();
-		project.setId(1);
-		project.setIsPublic(true);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
-		List<ProjectResource> resources = new ArrayList<ProjectResource>();
-		when(projectResourceService.findChildren(any(), anyInt())).thenReturn(resources);
-
 		given()
 			.contentType(ContentType.JSON)
 		.when()
@@ -1118,14 +905,16 @@ public class GroupControllerTest extends AbstractControllerTest{
 	}
 	
 	@Test
-	public void get_group_path_public_project_invalid_path_fail() {
+	public void get_group_path_from_sub_group_parent_group_can_not_be_empty() {
 		String owner = "owner";
 		String projectName = "public-project";
 
 		Project project = new Project();
 		project.setId(1);
-		project.setIsPublic(true);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
+		
 		when(projectResourceService.findParentGroupsByParentPath(1, "a")).thenReturn(Collections.emptyList());
 
 		given()
@@ -1135,124 +924,23 @@ public class GroupControllerTest extends AbstractControllerTest{
 		.then()
 			.statusCode(HttpStatus.SC_NOT_FOUND);
 	}
-	
-	// 如果是私有项目，则匿名用户不能访问
-	@Test
-	public void get_group_path_anonymous_user_private_project_fail() {
-		String owner = "owner";
-		String projectName = "private-project";
-		
-		Project project = new Project();
-		project.setId(1);
-		project.setIsPublic(false);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 
-		given()
-			.contentType(ContentType.JSON)
-		.when()
-			.get("/projects/{owner}/{projectName}/group-path", owner, projectName)
-		.then()
-			.statusCode(HttpStatus.SC_NOT_FOUND);
-	}
-	
-	@WithMockUser("other")
 	@Test
-	public void get_group_path_logged_user_not_owned_public_project_success() {
+	public void get_group_path_from_sub_group() {
 		String owner = "owner";
 		String projectName = "public-project";
 		
 		Project project = new Project();
 		project.setId(1);
-		project.setIsPublic(true);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
-
-		given()
-			.contentType(ContentType.JSON)
-		.when()
-			.get("/projects/{owner}/{projectName}/group-path", owner, projectName)
-		.then()
-			.statusCode(HttpStatus.SC_OK)
-			.body("id", equalTo(-1),
-					"parentGroups.size()", equalTo(0));
-	}
-	
-	@WithMockUser("owner")
-	@Test
-	public void get_group_path_logged_user_self_public_project_success() {
-		String owner = "owner";
-		String projectName = "public-project";
-		
-		Project project = new Project();
-		project.setId(1);
-		project.setIsPublic(true);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
-
-		given()
-			.contentType(ContentType.JSON)
-		.when()
-			.get("/projects/{owner}/{projectName}/group-path", owner, projectName)
-		.then()
-			.statusCode(HttpStatus.SC_OK)
-			.body("id", equalTo(-1),
-					"parentGroups.size()", equalTo(0));
-	}
-	
-	@WithMockUser("other")
-	@Test
-	public void get_group_path_logged_user_not_owned_private_project_fail() {
-		String owner = "owner";
-		String projectName = "private-project";
-		
-		Project project = new Project();
-		project.setId(1);
-		project.setIsPublic(false);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
-
-		given()
-			.contentType(ContentType.JSON)
-		.when()
-			.get("/projects/{owner}/{projectName}/group-path", owner, projectName)
-		.then()
-			.statusCode(HttpStatus.SC_NOT_FOUND);
-	}
-	
-	@WithMockUser("owner")
-	@Test
-	public void get_group_path_logged_user_self_private_project_success() {
-		String owner = "owner";
-		String projectName = "private-project";
-		
-		Project project = new Project();
-		project.setId(1);
-		project.setIsPublic(false);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
-
-		given()
-			.contentType(ContentType.JSON)
-		.when()
-			.get("/projects/{owner}/{projectName}/group-path", owner, projectName)
-		.then()
-			.statusCode(HttpStatus.SC_OK)
-			.body("id", equalTo(-1),
-					"parentGroups.size()", equalTo(0));
-	}
-	
-	@WithMockUser("owner")
-	@Test
-	public void get_group_path_logged_sub_group() {
-		String owner = "owner";
-		String projectName = "public-project";
-		
-		Project project = new Project();
-		project.setId(1);
-		project.setIsPublic(true);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		List<ProjectResource> parentGroups = new ArrayList<ProjectResource>();
-		ProjectResource resource = new ProjectResource();
-		resource.setId(1);
-		parentGroups.add(resource);
-		when(projectResourceService.findParentGroupsByParentPath(1, "a")).thenReturn(parentGroups);
+		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
+		
+		Integer groupAId = 2;
+		ProjectResource groupA = new ProjectResource();
+		groupA.setId(groupAId);
+		groupA.setKey("a");
+		when(projectResourceService.findParentGroupsByParentPath(anyInt(), any())).thenReturn(Collections.singletonList(groupA));
 
 		given()
 			.contentType(ContentType.JSON)
@@ -1260,8 +948,9 @@ public class GroupControllerTest extends AbstractControllerTest{
 			.get("/projects/{owner}/{projectName}/group-path/a", owner, projectName)
 		.then()
 			.statusCode(HttpStatus.SC_OK)
-			.body("id", equalTo(1),
-					"parentGroups.size()", equalTo(1));
+			.body("id", equalTo(groupAId),
+					"parentGroups.size()", equalTo(1),
+					"parentGroups[0].name", equalTo("a"),
+					"parentGroups[0].path", equalTo("/a"));
 	}
-	
 }

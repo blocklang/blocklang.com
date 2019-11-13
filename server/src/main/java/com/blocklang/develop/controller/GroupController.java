@@ -2,6 +2,7 @@ package com.blocklang.develop.controller;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,14 +34,12 @@ import com.blocklang.core.exception.NoAuthorizationException;
 import com.blocklang.core.exception.ResourceNotFoundException;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.UserService;
-import com.blocklang.develop.constant.AccessLevel;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.constant.ProjectResourceType;
 import com.blocklang.develop.data.CheckGroupKeyParam;
 import com.blocklang.develop.data.CheckGroupNameParam;
 import com.blocklang.develop.data.NewGroupParam;
 import com.blocklang.develop.model.Project;
-import com.blocklang.develop.model.ProjectAuthorization;
 import com.blocklang.develop.model.ProjectResource;
 import com.blocklang.develop.service.ProjectResourceService;
 
@@ -67,14 +66,8 @@ public class GroupController extends AbstractProjectController{
 		if(principal == null) {
 			throw new NoAuthorizationException();
 		}
-		
 		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-		// TODO: 使用同一的权限验证代码替换。
-		List<ProjectAuthorization> authes = projectAuthorizationService.findAllByUserIdAndProjectId(project.getCreateUserId(), project.getId());
-		boolean canWrite = authes.stream().anyMatch(item -> item.getAccessLevel() == AccessLevel.WRITE || item.getAccessLevel() == AccessLevel.ADMIN);
-		if(!canWrite) {
-			throw new NoAuthorizationException();
-		}
+		projectPermissionService.canWrite(principal, project).orElseThrow(NoAuthorizationException::new);
 		
 		//校验 key: 是否为空
 		if(bindingResult.hasErrors()) {
@@ -93,6 +86,7 @@ public class GroupController extends AbstractProjectController{
 			throw new InvalidRequestException(bindingResult);
 		}
 		
+		// FIXME: 进一步梳理
 		Integer parentId = param.getParentId();
 		projectResourceService.findByKey(
 				project.getId(), 
@@ -129,15 +123,10 @@ public class GroupController extends AbstractProjectController{
 		if(principal == null) {
 			throw new NoAuthorizationException();
 		}
-		
 		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
+		projectPermissionService.canWrite(principal, project).orElseThrow(NoAuthorizationException::new);
 		
-		List<ProjectAuthorization> authes = projectAuthorizationService.findAllByUserIdAndProjectId(project.getCreateUserId(), project.getId());
-		boolean canWrite = authes.stream().anyMatch(item -> item.getAccessLevel() == AccessLevel.WRITE || item.getAccessLevel() == AccessLevel.ADMIN);
-		if(!canWrite) {
-			throw new NoAuthorizationException();
-		}
-		
+		// FIXME: 进一步梳理以下代码
 		// name 的值可以为空
 		if(StringUtils.isNotBlank(param.getName())) {
 			String name = param.getName().trim();
@@ -179,14 +168,8 @@ public class GroupController extends AbstractProjectController{
 		if(principal == null) {
 			throw new NoAuthorizationException();
 		}
-		
 		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-		
-		List<ProjectAuthorization> authes = projectAuthorizationService.findAllByUserIdAndProjectId(project.getCreateUserId(), project.getId());
-		boolean canWrite = authes.stream().anyMatch(item -> item.getAccessLevel() == AccessLevel.WRITE || item.getAccessLevel() == AccessLevel.ADMIN);
-		if(!canWrite) {
-			throw new NoAuthorizationException();
-		}
+		projectPermissionService.canWrite(principal, project).orElseThrow(NoAuthorizationException::new);
 		
 		//校验 key: 
 		boolean keyIsValid = true;
@@ -286,45 +269,20 @@ public class GroupController extends AbstractProjectController{
 			@PathVariable String projectName,
 			HttpServletRequest req) {
 		
+		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
+		projectPermissionService.canRead(user, project).orElseThrow(NoAuthorizationException::new);
+		
 		String groupPath = SpringMvcUtil.getRestUrl(req, 4);
-
-		return projectService.find(owner, projectName).map(project -> {
-			if(!project.getIsPublic()) {
-				// FIXME: 完善权限校验
-				// 1. 用户未登录时不能访问私有项目
-				// 2. 用户虽然登录，但是不是项目的拥有者且没有访问权限，则不能访问
-				if((user == null) || (user!= null && !owner.equals(user.getName()))) {
-					throw new ResourceNotFoundException();
-				}
-			}
-			
-			Map<String, Object> result = new HashMap<String, Object>();
-			// 当前分组的标识，如果是项目的根节点，则值为 -1
-			Integer groupId = null;
-			if(StringUtils.isBlank(groupPath)) {
-				groupId = Constant.TREE_ROOT_ID;
-			} else {
-				// 要校验根据 parentPath 中的所有节点都能准确匹配
-				List<ProjectResource> parentGroups = projectResourceService.findParentGroupsByParentPath(project.getId(), groupPath);
-				// 因为 parentPath 有值，所以理应能查到记录
-				if(parentGroups.isEmpty()) {
-					logger.error("根据传入的 parent path 没有找到对应的标识");
-					throw new ResourceNotFoundException();
-				}
-				
-				List<Map<String, String>> stripedParentGroups = stripResourcePathes(parentGroups);
-				result.put("parentGroups", stripedParentGroups);
-				groupId = parentGroups.get(parentGroups.size() - 1).getId();
-			}
-			List<ProjectResource> tree = projectResourceService.findChildren(project, groupId);
-			tree.forEach(projectResource -> {
-				projectResource.setMessageSource(messageSource);
-			});
-			
-			result.put("id", groupId);
-			result.put("childResources", tree);
-			return ResponseEntity.ok(result);
-		}).orElseThrow(ResourceNotFoundException::new);
+		Map<String, Object> result = getGroupIdAndParentPath(project.getId(), groupPath);
+		Integer groupId = (Integer) result.get("id");
+		
+		List<ProjectResource> children = projectResourceService.findChildren(project, groupId);
+		children.forEach(projectResource -> {
+			projectResource.setMessageSource(messageSource);
+		});
+		
+		result.put("childResources", children);
+		return ResponseEntity.ok(result);
 	}
 
 	@GetMapping("/projects/{owner}/{projectName}/group-path/**")
@@ -334,37 +292,38 @@ public class GroupController extends AbstractProjectController{
 			@PathVariable String projectName,
 			HttpServletRequest req) {
 		
+		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
+		projectPermissionService.canRead(user, project).orElseThrow(NoAuthorizationException::new);
+		
 		String groupPath = SpringMvcUtil.getRestUrl(req, 4);
 		
-		return projectService.find(owner, projectName).map((project) -> {
-			
-			if(!project.getIsPublic()) {
-				// 1. 用户未登录时不能访问私有项目
-				// 2. 用户虽然登录，但是不是项目的拥有者且没有访问权限，则不能访问
-				if((user == null) || (user!= null && !owner.equals(user.getName()))) {
-					throw new ResourceNotFoundException();
-				}
-			}
-			
-			Map<String, Object> result = new HashMap<String, Object>();
-			
-			if(StringUtils.isBlank(groupPath)) {
-				result.put("id", Constant.TREE_ROOT_ID);
-				result.put("parentGroups", new String[] {});
-			} else {
-				// 要校验根据 parentPath 中的所有节点都能准确匹配
-				List<ProjectResource> parentGroups = projectResourceService.findParentGroupsByParentPath(project.getId(), groupPath);
-				// 因为 parentPath 有值，所以理应能查到记录
-				if(parentGroups.isEmpty()) {
-					logger.error("根据传入的 parent path 没有找到对应的标识");
-					throw new ResourceNotFoundException();
-				}
-				List<Map<String, String>> stripedParentGroups = stripResourcePathes(parentGroups);
-				result.put("parentGroups", stripedParentGroups);
-				result.put("id", parentGroups.get(parentGroups.size() - 1).getId());
-			}
-			return ResponseEntity.ok(result);
-		}).orElseThrow(ResourceNotFoundException::new);
+		Map<String, Object> result = getGroupIdAndParentPath(project.getId(), groupPath);
+		return ResponseEntity.ok(result);
+	}
+
+	private Map<String, Object> getGroupIdAndParentPath(Integer projectId, String groupPath) {
+		Integer id = null;
+		List<Map<String, String>> stripedParentGroups;
 		
+		if(StringUtils.isBlank(groupPath)) {
+			// 当前分组的标识，如果是项目的根节点，则值为 -1
+			id = Constant.TREE_ROOT_ID;
+			stripedParentGroups = Collections.emptyList();
+		} else {
+			// 要校验根据 parentPath 中的所有节点都能准确匹配
+			List<ProjectResource> parentGroups = projectResourceService.findParentGroupsByParentPath(projectId, groupPath);
+			// 因为 parentPath 有值，所以理应能查到记录
+			if(parentGroups.isEmpty()) {
+				logger.error("根据传入的 parent path 没有找到对应的标识");
+				throw new ResourceNotFoundException();
+			}
+			stripedParentGroups = stripResourcePathes(parentGroups);
+			id = parentGroups.get(parentGroups.size() - 1).getId();
+		}
+		
+		Map<String, Object> result = new HashMap<String, Object>();
+		result.put("id", id);
+		result.put("parentGroups", stripedParentGroups);
+		return result;
 	}
 }
