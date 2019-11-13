@@ -3,9 +3,9 @@ package com.blocklang.develop.controller;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -15,7 +15,9 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.apache.http.HttpStatus;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -27,11 +29,10 @@ import com.blocklang.develop.constant.ProjectResourceType;
 import com.blocklang.develop.data.ProjectDependenceData;
 import com.blocklang.develop.designer.data.PageModel;
 import com.blocklang.develop.model.Project;
-import com.blocklang.develop.model.ProjectAuthorization;
 import com.blocklang.develop.model.ProjectDependence;
 import com.blocklang.develop.model.ProjectResource;
-import com.blocklang.develop.service.ProjectAuthorizationService;
 import com.blocklang.develop.service.ProjectDependenceService;
+import com.blocklang.develop.service.ProjectPermissionService;
 import com.blocklang.develop.service.ProjectResourceService;
 import com.blocklang.develop.service.ProjectService;
 import com.blocklang.marketplace.constant.RepoCategory;
@@ -48,11 +49,22 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 	@MockBean
 	private ProjectService projectService;
 	@MockBean
-	private ProjectAuthorizationService projectAuthorizationService;
-	@MockBean
 	private ProjectDependenceService projectDependenceService;
 	@MockBean
 	private ProjectResourceService projectResourceService;
+	@MockBean
+	private ProjectPermissionService projectPermissionService;
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
+	
+	@Test
+	public void list_project_dependences_only_support_category_is_dev() {
+		thrown.expectMessage("当前仅支持获取 dev 依赖。");
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/designer/projects/{projectId}/dependences?category=api", 1);
+	}
 	
 	@Test
 	public void list_project_dependences_project_not_exist() {
@@ -66,13 +78,13 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 			.statusCode(HttpStatus.SC_NOT_FOUND);
 	}
 	
-	// 用户未登录，所以无权访问私有项目
 	@Test
 	public void list_project_dependences_project_exist_but_can_not_read() {
 		Project project = new Project();
 		project.setId(1);
-		project.setIsPublic(false);
 		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
+		
+		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.empty());
 
 		given()
 			.contentType(ContentType.JSON)
@@ -86,8 +98,9 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 	public void list_project_dependences_only_filter_dev_repo() {
 		Project project = new Project();
 		project.setId(1);
-		project.setIsPublic(true);
 		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
+		
+		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
 		
 		ProjectDependence dependence = new ProjectDependence();
 		ComponentRepo componentRepo = new ComponentRepo();
@@ -120,8 +133,8 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 	public void list_project_dependences_success() {
 		Project project = new Project();
 		project.setId(1);
-		project.setIsPublic(true);
 		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
+		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
 		
 		ProjectDependence dependence = new ProjectDependence();
 		ComponentRepo componentRepo = new ComponentRepo();
@@ -172,13 +185,13 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 			.body(equalTo(""));
 	}
 	
-	// 匿名用户不能访问私有项目
 	@Test
-	public void get_project_dependeces_widgets_anonymous_user_forbidden_access_private_project() {
+	public void get_project_dependeces_widgets_can_not_read_project() {
 		Project project = new Project();
 		project.setId(1);
-		project.setIsPublic(false);
 		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
+		
+		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -189,85 +202,14 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 			.body(equalTo(""));
 	}
 	
-	// 匿名用户能访问公开项目
 	@Test
-	public void get_project_dependeces_widgets_anonymous_user_can_access_public_project() {
+	public void get_project_dependeces_widgets_success() {
 		Project project = new Project();
 		project.setId(1);
-		project.setIsPublic(true);
 		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
 		
+		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
 		when(projectDependenceService.findAllWidgets(anyInt())).thenReturn(Collections.emptyList());
-		
-		given()
-			.contentType(ContentType.JSON)
-		.when()
-			.get("/designer/projects/{projectId}/dependences/widgets", 1)
-		.then()
-			.statusCode(HttpStatus.SC_OK)
-			.body(equalTo("[]"));
-	}
-
-	// 登录用户能访问公开项目
-	@WithMockUser("jack")
-	@Test
-	public void get_project_dependeces_widgets_login_user_can_access_public_project() {
-		Project project = new Project();
-		project.setId(1);
-		project.setIsPublic(true);
-		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
-		
-		when(projectDependenceService.findAllWidgets(anyInt())).thenReturn(Collections.emptyList());
-		
-		given()
-			.contentType(ContentType.JSON)
-		.when()
-			.get("/designer/projects/{projectId}/dependences/widgets", 1)
-		.then()
-			.statusCode(HttpStatus.SC_OK)
-			.body(equalTo("[]"));
-	}
-
-	// 登录用户不能访问没有 read | write | admin 权限的私有项目
-	@WithMockUser("jack")
-	@Test
-	public void get_project_dependeces_widgets_login_user_can_not_access_private_project_that_has_no_permission() {
-		Project project = new Project();
-		project.setId(1);
-		project.setIsPublic(false);
-		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
-		
-		UserInfo user = new UserInfo();
-		user.setId(1);
-		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
-		
-		given()
-			.contentType(ContentType.JSON)
-		.when()
-			.get("/designer/projects/{projectId}/dependences/widgets", 1)
-		.then()
-			.statusCode(HttpStatus.SC_FORBIDDEN)
-			.body(equalTo(""));
-	}
-	
-	// 登录用户能访问有 read | write | admin 权限的私有项目
-	@WithMockUser("jack")
-	@Test
-	public void get_project_dependeces_widgets_login_user_can_not_access_private_project_that_has_read_permission() {
-		Project project = new Project();
-		project.setId(1);
-		project.setIsPublic(false);
-		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
-		
-		UserInfo user = new UserInfo();
-		user.setId(1);
-		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
-		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.READ);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -322,9 +264,8 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 			.statusCode(HttpStatus.SC_NOT_FOUND);
 	}
 	
-	// 匿名用户能访问公开项目
 	@Test
-	public void get_page_model_anonymous_user_can_access_public_project() {
+	public void get_page_model_can_not_read_project() {
 		UserInfo user = new UserInfo();
 		user.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
@@ -337,37 +278,10 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		
 		Project project = new Project();
 		project.setId(1);
-		project.setIsPublic(true);
 		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
 		
-		when(projectResourceService.getPageModel(anyInt(), anyInt())).thenReturn(new PageModel());
+		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.empty());
 		
-		given()
-			.contentType(ContentType.JSON)
-		.when()
-			.get("/designer/pages/{pageId}/model", "1")
-		.then()
-			.statusCode(HttpStatus.SC_OK)
-			.body(equalTo("{}"));
-	}
-	
-	// 匿名用户不能访问私有项目
-	@Test
-	public void get_page_model_anonymous_user_can_access_private_project() {
-		UserInfo user = new UserInfo();
-		user.setId(1);
-		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
-		
-		ProjectResource page = new ProjectResource();
-		page.setProjectId(1);
-		page.setResourceType(ProjectResourceType.PAGE);
-		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(page));
-		
-		Project project = new Project();
-		project.setId(1);
-		project.setIsPublic(false);
-		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
-
 		given()
 			.contentType(ContentType.JSON)
 		.when()
@@ -375,8 +289,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		.then()
 			.statusCode(HttpStatus.SC_FORBIDDEN);
 	}
-	
-	// 登录用户能访问公开项目
+
 	@Test
 	public void get_page_model_login_user_can_access_public_project() {
 		UserInfo user = new UserInfo();
@@ -394,144 +307,9 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		project.setIsPublic(true);
 		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
 		
-		when(projectResourceService.getPageModel(anyInt(), anyInt())).thenReturn(new PageModel());
-		
-		given()
-			.contentType(ContentType.JSON)
-		.when()
-			.get("/designer/pages/{pageId}/model", "1")
-		.then()
-			.statusCode(HttpStatus.SC_OK)
-			.body(equalTo("{}"));
-	}
-	
-	// 登录用户不能访问没有权限的私有项目
-	@WithMockUser("jack")
-	@Test
-	public void get_page_model_login_user_forbidden_no_permission_private_project() {
-		UserInfo user = new UserInfo();
-		user.setId(1);
-		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
-		
-		ProjectResource page = new ProjectResource();
-		page.setProjectId(1);
-		page.setResourceType(ProjectResourceType.PAGE);
-		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(page));
-		
-		Project project = new Project();
-		project.setId(1);
-		project.setIsPublic(false);
-		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
-		
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
-		
-		given()
-			.contentType(ContentType.JSON)
-		.when()
-			.get("/designer/pages/{pageId}/model", "1")
-		.then()
-			.statusCode(HttpStatus.SC_FORBIDDEN);
-	}
-	
-	// 登录用户能访问有读权限的私有项目
-	@WithMockUser("jack")
-	@Test
-	public void get_page_model_login_user_can_access_has_read_permission_private_project() {
-		UserInfo user = new UserInfo();
-		user.setId(1);
-		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
-		
-		ProjectResource page = new ProjectResource();
-		page.setId(1);
-		page.setProjectId(1);
-		page.setResourceType(ProjectResourceType.PAGE);
-		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(page));
-		
-		Project project = new Project();
-		project.setId(1);
-		project.setIsPublic(false);
-		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
-		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.READ);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
 		
 		when(projectResourceService.getPageModel(anyInt(), anyInt())).thenReturn(new PageModel());
-		
-		given()
-			.contentType(ContentType.JSON)
-		.when()
-			.get("/designer/pages/{pageId}/model", "1")
-		.then()
-			.statusCode(HttpStatus.SC_OK)
-			.body(equalTo("{}"));
-	}
-	
-	// 登录用户能访问有写权限的私有项目
-	@WithMockUser("jack")
-	@Test
-	public void get_page_model_login_user_can_access_has_write_permission_private_project() {
-		UserInfo user = new UserInfo();
-		user.setId(1);
-		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
-		
-		ProjectResource page = new ProjectResource();
-		page.setId(1);
-		page.setProjectId(1);
-		page.setResourceType(ProjectResourceType.PAGE);
-		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(page));
-		
-		Project project = new Project();
-		project.setId(1);
-		project.setIsPublic(false);
-		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
-		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
-		
-		when(projectResourceService.getPageModel(anyInt(), anyInt())).thenReturn(new PageModel());
-		
-		given()
-			.contentType(ContentType.JSON)
-		.when()
-			.get("/designer/pages/{pageId}/model", "1")
-		.then()
-			.statusCode(HttpStatus.SC_OK)
-			.body(equalTo("{}"));
-	}
-	
-	// 登录用户能访问有管理权限的私有项目
-	@WithMockUser("jack")
-	@Test
-	public void get_page_model_login_user_can_access_has_admin_permission_private_project() {
-		UserInfo user = new UserInfo();
-		user.setId(1);
-		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
-		
-		ProjectResource page = new ProjectResource();
-		page.setId(1);
-		page.setProjectId(1);
-		page.setResourceType(ProjectResourceType.PAGE);
-		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(page));
-		
-		Project project = new Project();
-		project.setId(1);
-		project.setIsPublic(false);
-		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
-		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.ADMIN);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
-		
-		PageModel model = new PageModel();
-		when(projectResourceService.getPageModel(anyInt(), anyInt())).thenReturn(model);
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -543,7 +321,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 	}
 
 	@Test
-	public void update_page_model_forbidden_anonymous_user() {
+	public void update_page_model_anonymous_can_not_update() {
 		PageModel model = new PageModel();
 		
 		given()
@@ -557,12 +335,8 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void update_page_model_page_not_found() {
+	public void update_page_model_page_not_exist() {
 		PageModel model = new PageModel();
-		
-		UserInfo user = new UserInfo();
-		user.setId(1);
-		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
 		when(projectResourceService.findById(anyInt())).thenReturn(Optional.empty());
 		
@@ -577,20 +351,14 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void update_page_model_login_user_has_no_permission() {
-		Map<String, Object> model = new HashMap<String, Object>();
-		
-		UserInfo user = new UserInfo();
-		user.setId(1);
-		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
+	public void update_page_model_invalid_page() {
+		PageModel model = new PageModel();
 		
 		ProjectResource page = new ProjectResource();
+		page.setId(1);
 		page.setProjectId(1);
+		page.setResourceType(ProjectResourceType.GROUP);
 		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(page));
-		
-		Project project = new Project();
-		project.setId(1);
-		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -598,31 +366,21 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		.when()
 			.put("/designer/pages/{pageId}/model", "1")
 		.then()
-			.statusCode(HttpStatus.SC_FORBIDDEN);
+			.statusCode(HttpStatus.SC_NOT_FOUND);
 	}
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void update_page_model_login_user_has_read_permission() {
-		Map<String, Object> model = new HashMap<String, Object>();
-		
-		UserInfo user = new UserInfo();
-		user.setId(1);
-		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
+	public void update_page_model_project_not_exist() {
+		PageModel model = new PageModel();
 		
 		ProjectResource page = new ProjectResource();
+		page.setId(1);
 		page.setProjectId(1);
+		page.setResourceType(ProjectResourceType.PAGE);
 		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(page));
 		
-		Project project = new Project();
-		project.setId(1);
-		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
-		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.READ);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectService.findById(anyInt())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -630,7 +388,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		.when()
 			.put("/designer/pages/{pageId}/model", "1")
 		.then()
-			.statusCode(HttpStatus.SC_FORBIDDEN);
+			.statusCode(HttpStatus.SC_NOT_FOUND);
 	}
 	
 	@WithMockUser(username = "jack")
@@ -644,17 +402,14 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		
 		ProjectResource page = new ProjectResource();
 		page.setProjectId(1);
+		page.setResourceType(ProjectResourceType.PAGE);
 		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(page));
 		
 		Project project = new Project();
 		project.setId(1);
 		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		given()
 			.contentType(ContentType.JSON)

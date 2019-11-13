@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.blocklang.core.exception.NoAuthorizationException;
 import com.blocklang.core.exception.ResourceNotFoundException;
-import com.blocklang.core.model.UserInfo;
 import com.blocklang.develop.designer.data.Dependence;
 import com.blocklang.develop.designer.data.PageModel;
 import com.blocklang.develop.designer.data.WidgetRepo;
@@ -58,29 +56,29 @@ public class PageDesignerController extends AbstractProjectController {
 			@RequestParam String category) {
 		
 		if(!category.equalsIgnoreCase("dev")) {
-			throw new NotImplementedException("当前仅支持获取 dev 依赖。");
+			throw new UnsupportedOperationException("当前仅支持获取 dev 依赖。");
 		}
-		
 		Project project = projectService.findById(projectId).orElseThrow(ResourceNotFoundException::new);
-		ensureCanRead(principal, project);
+		projectPermissionService.canRead(principal, project).orElseThrow(NoAuthorizationException::new);
 		
-		List<Dependence> result = projectDependenceService.findProjectDependences(project.getId(), true).stream().filter(item -> item.getComponentRepo().getIsIdeExtension()).map(item -> {
-			Dependence dependence = new Dependence();
-			
-			ComponentRepo componentRepo = item.getComponentRepo();
-			dependence.setId(componentRepo.getId());
-			dependence.setGitRepoWebsite(componentRepo.getGitRepoWebsite());
-			dependence.setGitRepoOwner(componentRepo.getGitRepoOwner());
-			dependence.setGitRepoName(componentRepo.getGitRepoName());
-			dependence.setName(componentRepo.getName());
-			dependence.setCategory(componentRepo.getCategory().getValue());
-			dependence.setStd(componentRepo.isStd());
-			
-			dependence.setVersion(item.getComponentRepoVersion().getVersion());
-			
-			dependence.setApiRepoId(item.getApiRepo().getId());
-			return dependence;
-		}).collect(Collectors.toList());
+		List<Dependence> result = projectDependenceService.findProjectDependences(project.getId(), true).stream()
+				.filter(item -> item.getComponentRepo().getIsIdeExtension()).map(item -> {
+					Dependence dependence = new Dependence();
+
+					ComponentRepo componentRepo = item.getComponentRepo();
+					dependence.setId(componentRepo.getId());
+					dependence.setGitRepoWebsite(componentRepo.getGitRepoWebsite());
+					dependence.setGitRepoOwner(componentRepo.getGitRepoOwner());
+					dependence.setGitRepoName(componentRepo.getGitRepoName());
+					dependence.setName(componentRepo.getName());
+					dependence.setCategory(componentRepo.getCategory().getValue());
+					dependence.setStd(componentRepo.isStd());
+
+					dependence.setVersion(item.getComponentRepoVersion().getVersion());
+
+					dependence.setApiRepoId(item.getApiRepo().getId());
+					return dependence;
+				}).collect(Collectors.toList());
 		return ResponseEntity.ok(result);
 	}
 	
@@ -95,8 +93,7 @@ public class PageDesignerController extends AbstractProjectController {
 			Principal principal,
 			@PathVariable Integer projectId) {
 		Project project = projectService.findById(projectId).orElseThrow(ResourceNotFoundException::new);
-
-		ensureCanRead(principal, project);
+		projectPermissionService.canRead(principal, project).orElseThrow(NoAuthorizationException::new);
 		
 		List<WidgetRepo> result = projectDependenceService.findAllWidgets(project.getId());
 		return ResponseEntity.ok(result);
@@ -111,8 +108,7 @@ public class PageDesignerController extends AbstractProjectController {
 			throw new ResourceNotFoundException();
 		}
 		Project project = projectService.findById(page.getProjectId()).orElseThrow(ResourceNotFoundException::new);
-		
-		ensureCanRead(principal, project);
+		projectPermissionService.canRead(principal, project).orElseThrow(NoAuthorizationException::new);
 		
 		PageModel result = projectResourceService.getPageModel(project.getId(), page.getId());
 		return ResponseEntity.ok(result);
@@ -127,12 +123,13 @@ public class PageDesignerController extends AbstractProjectController {
 		if(principal == null) {
 			throw new NoAuthorizationException();
 		}
-		UserInfo user = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
-		
+
 		ProjectResource page = projectResourceService.findById(pageId).orElseThrow(ResourceNotFoundException::new);
+		if(!page.isPage()) {
+			throw new ResourceNotFoundException();
+		}
 		Project project = projectService.findById(page.getProjectId()).orElseThrow(ResourceNotFoundException::new);
-		
-		ensureCanWrite(user, project);
+		projectPermissionService.canWrite(principal, project).orElseThrow(NoAuthorizationException::new);
 		
 		projectResourceService.updatePageModel(project, page, model);
 		
