@@ -21,7 +21,6 @@ import com.blocklang.core.exception.NoAuthorizationException;
 import com.blocklang.core.exception.ResourceNotFoundException;
 import com.blocklang.core.git.exception.GitEmptyCommitException;
 import com.blocklang.core.model.UserInfo;
-import com.blocklang.core.service.UserService;
 import com.blocklang.develop.data.CommitMessage;
 import com.blocklang.develop.data.UncommittedFile;
 import com.blocklang.develop.model.Project;
@@ -30,8 +29,6 @@ import com.blocklang.develop.service.ProjectResourceService;
 @RestController
 public class CommitController extends AbstractProjectController{
 
-	@Autowired
-	private UserService userService;
 	@Autowired
 	private ProjectResourceService projectResourceService;
 	
@@ -42,19 +39,8 @@ public class CommitController extends AbstractProjectController{
 			Principal principal,
 			@PathVariable("owner") String owner,
 			@PathVariable("projectName") String projectName) {
-
 		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-		
-		if(!project.getIsPublic()) {
-			
-			if(principal == null) {
-				throw new NoAuthorizationException();
-			}
-			
-			UserInfo user = userService.findByLoginName(principal.getName()).get();
-			ensureCanRead(user, project);
-		}
-		
+		projectPermissionService.canRead(principal, project).orElseThrow(NoAuthorizationException::new);
 		return ResponseEntity.ok(projectResourceService.findChanges(project));
 	}
 	
@@ -64,13 +50,12 @@ public class CommitController extends AbstractProjectController{
 			@PathVariable("owner") String owner,
 			@PathVariable("projectName") String projectName,
 			@RequestBody String[] param) {
+		// 必须要先登录
 		if(principal == null) {
 			throw new NoAuthorizationException();
 		}
 		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-		
-		UserInfo user = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
-		ensureCanWrite(user, project);
+		projectPermissionService.canWrite(principal, project).orElseThrow(NoAuthorizationException::new);
 		
 		projectResourceService.stageChanges(project, param);
 		
@@ -87,9 +72,7 @@ public class CommitController extends AbstractProjectController{
 			throw new NoAuthorizationException();
 		}
 		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-		
-		UserInfo user = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
-		ensureCanWrite(user, project);
+		projectPermissionService.canWrite(principal, project).orElseThrow(NoAuthorizationException::new);
 		
 		projectResourceService.unstageChanges(project, param);
 		
@@ -112,9 +95,9 @@ public class CommitController extends AbstractProjectController{
 		}
 		
 		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-		UserInfo user = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
-		ensureCanWrite(user, project);
+		projectPermissionService.canWrite(principal, project).orElseThrow(NoAuthorizationException::new);
 		
+		UserInfo user = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
 		try {
 			projectResourceService.commit(user, project, param.getValue());
 		} catch(GitEmptyCommitException e) {
