@@ -36,6 +36,7 @@ import com.blocklang.develop.service.impl.ProjectAuthorizationServiceImplTest;
 import com.blocklang.develop.service.impl.ProjectDependenceServiceImplTest;
 import com.blocklang.develop.service.impl.ProjectDeployServiceImplTest;
 import com.blocklang.develop.service.impl.ProjectFileServiceImplTest;
+import com.blocklang.develop.service.impl.ProjectPermissionServiceImplTest;
 import com.blocklang.develop.service.impl.ProjectResourceServiceImplTest;
 import com.blocklang.develop.service.impl.ProjectServiceImplTest;
 import com.blocklang.marketplace.controller.ComponentRepoControllerTest;
@@ -140,6 +141,7 @@ import com.blocklang.release.task.GitTagTaskTest;
 	ApiRepoVersionServiceImplTest.class,
 	ProjectDependenceServiceImplTest.class,
 	ApiRepoServiceImplTest.class,
+	ProjectPermissionServiceImplTest.class,
 	
 	// model
 	ProjectResourceTest.class,
