@@ -24,6 +24,12 @@ public interface ProjectResourceService {
 	 */
 	List<ProjectResource> findChildren(Project project, Integer parentResourceId);
 	
+	/**
+	 * 获取资源的父路径，包含当前资源，如果是根目录，则返回空字符串。
+	 * 
+	 * @param resourceId
+	 * @return
+	 */
 	String findParentPath(Integer resourceId);
 
 	/**

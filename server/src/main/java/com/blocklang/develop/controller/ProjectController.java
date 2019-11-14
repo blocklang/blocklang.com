@@ -28,6 +28,7 @@ import com.blocklang.core.exception.ResourceNotFoundException;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.PropertyService;
 import com.blocklang.core.service.UserService;
+import com.blocklang.core.util.NumberUtil;
 import com.blocklang.develop.constant.AccessLevel;
 import com.blocklang.develop.constant.AppNames;
 import com.blocklang.develop.data.CheckProjectNameParam;
@@ -35,6 +36,7 @@ import com.blocklang.develop.data.DeploySetting;
 import com.blocklang.develop.data.GitCommitInfo;
 import com.blocklang.develop.data.NewProjectParam;
 import com.blocklang.develop.model.Project;
+import com.blocklang.develop.model.ProjectFile;
 import com.blocklang.develop.service.ProjectDeployService;
 import com.blocklang.develop.service.ProjectFileService;
 import com.blocklang.develop.service.ProjectResourceService;
@@ -126,20 +128,11 @@ public class ProjectController extends AbstractProjectController{
 			@PathVariable String owner,
 			@PathVariable String projectName) {
 		
-		return projectService.find(owner, projectName).flatMap(project -> {
-			
-			if(!project.getIsPublic()) {
-				// 1. 用户未登录时不能访问私有项目
-				// 2. 用户虽然登录，但是不是项目的拥有者且没有访问权限，则不能访问
-				if((user == null) || (user!= null && !owner.equals(user.getName()))) {
-					throw new ResourceNotFoundException();
-				}
-			}
-			
-			return projectFileService.findReadme(project.getId());
-		}).map(projectFile -> {
-			return ResponseEntity.ok(projectFile.getContent());
-		}).orElseThrow(ResourceNotFoundException::new);
+		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
+		projectPermissionService.canRead(user, project).orElseThrow(NoAuthorizationException::new);
+		
+		String readme = projectFileService.findReadme(project.getId()).map(ProjectFile::getContent).orElse("");
+		return ResponseEntity.ok(readme);
 	}
 	
 	@GetMapping("/user/projects")
@@ -148,9 +141,8 @@ public class ProjectController extends AbstractProjectController{
 			throw new NoAuthorizationException();
 		}
 		
-		return userService.findByLoginName(principal.getName()).map(user -> {
-			return ResponseEntity.ok(projectService.findCanAccessProjectsByUserId(user.getId()));
-		}).orElseThrow(NoAuthorizationException::new);
+		UserInfo user = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
+		return ResponseEntity.ok(projectService.findCanAccessProjectsByUserId(user.getId()));
 	}
 
 	@GetMapping("/projects/{owner}/{projectName}")
@@ -160,48 +152,28 @@ public class ProjectController extends AbstractProjectController{
 			@PathVariable String projectName) {
 		
 		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-		
-		if(project.getIsPublic()) {
-			if(principal == null) {
-				project.setAccessLevel(AccessLevel.READ);
-			} else {
-				UserInfo user = userService.findByLoginName(principal.getName()).get();
-				ensureCanRead(user, project);
-			}
-			
-		} else {
-			if(principal == null) {
-				throw new NoAuthorizationException();
-			}
-			
-			UserInfo user = userService.findByLoginName(principal.getName()).get();
-			ensureCanRead(user, project);
-		}
-		
+		projectPermissionService.canRead(principal, project).orElseThrow(NoAuthorizationException::new);
+		AccessLevel accessLevel = projectPermissionService.findTopestPermission(principal, project);
+		project.setAccessLevel(accessLevel);
 		return ResponseEntity.ok(project);
 	}
 	
 	@GetMapping("/projects/{owner}/{projectName}/latest-commit/{parentId}")
 	public ResponseEntity<GitCommitInfo> getLatestCommit(
+			Principal principal,
 			@PathVariable String owner,
 			@PathVariable String projectName,
 			@PathVariable String parentId) {
 		
-		Integer resourceId;
-		try {
-			resourceId = Integer.valueOf(parentId);
-		} catch (NumberFormatException e) {
-			logger.error("无法将 ‘" + parentId + "’ 转换为数字", e);
-			throw new ResourceNotFoundException();
-		}
+		Integer resourceId = NumberUtil.toInt(parentId).orElseThrow(ResourceNotFoundException::new);
+		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
+		projectPermissionService.canRead(principal, project).orElseThrow(NoAuthorizationException::new);
 		
-		return projectService.find(owner, projectName).flatMap(project -> {
-			String filePath = projectResourceService.findParentPath(resourceId);
-			project.setCreateUserName(owner);
-			return projectService.findLatestCommitInfo(project, filePath);
-		}).map(commitInfo -> {
-			return ResponseEntity.ok(commitInfo);
-		}).orElseThrow(ResourceNotFoundException::new);
+		String filePath = projectResourceService.findParentPath(resourceId);
+		project.setCreateUserName(owner);
+		GitCommitInfo commitInfo = projectService.findLatestCommitInfo(project, filePath).orElse(null);
+		
+		return ResponseEntity.ok(commitInfo);
 	}
 	
 	@GetMapping("/projects/{owner}/{projectName}/deploy_setting")
@@ -212,15 +184,15 @@ public class ProjectController extends AbstractProjectController{
 		if(principal == null) {
 			throw new NoAuthorizationException();
 		}
+		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
+		projectPermissionService.canRead(principal, project).orElseThrow(NoAuthorizationException::new);
 		
 		UserInfo user = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
 		String url = propertyService.findStringValue(CmPropKey.INSTALL_API_ROOT_URL, "https://blocklang.com");
 		// blocklang-installer 软件的下载链接，目前只支持64位：
 		String downloadInstallerUrlPattern = "/apps?appName={0}&version={1}&targetOs={2}&arch={3}";
 		
-		return projectService.find(owner, projectName).flatMap(project -> {
-			return projectDeployService.findOrCreate(project.getId(), user.getId());
-		}).map(deploy -> {
+		DeploySetting result = projectDeployService.findOrCreate(project.getId(), user.getId()).map(deploy -> {
 			
 			String installerLinuxUrl = null;
 			String installerWindowsUrl = null;
@@ -252,7 +224,9 @@ public class ProjectController extends AbstractProjectController{
 			deploySetting.setInstallerLinuxUrl(installerLinuxUrl);
 			deploySetting.setInstallerWindowsUrl(installerWindowsUrl);
 			
-			return ResponseEntity.ok(deploySetting);
-		}).orElse(ResponseEntity.ok(new DeploySetting()));
+			return deploySetting;
+		}).orElse(new DeploySetting());
+		
+		return ResponseEntity.ok(result);
 	}
 }

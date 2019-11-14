@@ -11,9 +11,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 import org.apache.http.HttpStatus;
@@ -31,12 +29,11 @@ import com.blocklang.develop.data.CheckProjectNameParam;
 import com.blocklang.develop.data.GitCommitInfo;
 import com.blocklang.develop.data.NewProjectParam;
 import com.blocklang.develop.model.Project;
-import com.blocklang.develop.model.ProjectAuthorization;
 import com.blocklang.develop.model.ProjectDeploy;
 import com.blocklang.develop.model.ProjectFile;
-import com.blocklang.develop.service.ProjectAuthorizationService;
 import com.blocklang.develop.service.ProjectDeployService;
 import com.blocklang.develop.service.ProjectFileService;
+import com.blocklang.develop.service.ProjectPermissionService;
 import com.blocklang.develop.service.ProjectResourceService;
 import com.blocklang.develop.service.ProjectService;
 import com.blocklang.release.model.AppRelease;
@@ -58,10 +55,10 @@ public class ProjectControllerTest extends AbstractControllerTest{
 	@MockBean
 	private AppReleaseService appReleaseService;
 	@MockBean
-	private ProjectAuthorizationService projectAuthorizationService;
+	private ProjectPermissionService projectPermissionService;
 
 	@Test
-	public void check_name_user_is_unauthorization_not_login() {
+	public void check_name_anonymous_can_not_check() {
 		CheckProjectNameParam param = new CheckProjectNameParam();
 		param.setOwner("owner");
 		param.setName("good-name");
@@ -231,43 +228,12 @@ public class ProjectControllerTest extends AbstractControllerTest{
 					"id", is(notNullValue()));
 	}
 
-	// 获取 readme，也需要权限校验
 	@Test
-	public void get_readme_anonymous_user_from_public_project_success() {
+	public void get_readme_project_not_exist() {
 		String owner = "owner";
 		String projectName = "public-project";
 		
-		Project project = new Project();
-		project.setId(1);
-		project.setIsPublic(true);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
-		
-		ProjectFile projectFile = new ProjectFile();
-		projectFile.setContent("# public-project");
-		when(projectFileService.findReadme(anyInt())).thenReturn(Optional.of(projectFile));
-		
-		given()
-			.contentType(ContentType.TEXT)
-		.when()
-			.get("/projects/{owner}/{projectName}/readme", owner, projectName)
-		.then()
-			.statusCode(HttpStatus.SC_OK)
-			.body(equalTo("# public-project"));
-	}
-	
-	@Test
-	public void get_readme_anonymous_user_from_private_project_fail() {
-		String owner = "owner";
-		String projectName = "private-project";
-		
-		Project project = new Project();
-		project.setId(1);
-		project.setIsPublic(false);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
-		
-		ProjectFile projectFile = new ProjectFile();
-		projectFile.setContent("# private-project");
-		when(projectFileService.findReadme(anyInt())).thenReturn(Optional.of(projectFile));
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.TEXT)
@@ -277,16 +243,57 @@ public class ProjectControllerTest extends AbstractControllerTest{
 			.statusCode(HttpStatus.SC_NOT_FOUND);
 	}
 	
-	@WithMockUser("other")
 	@Test
-	public void get_readme_logged_user_from_other_public_project_success() {
+	public void get_readme_can_not_read_project() {
 		String owner = "owner";
 		String projectName = "public-project";
 		
 		Project project = new Project();
 		project.setId(1);
-		project.setIsPublic(true);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.empty());
+		
+		given()
+			.contentType(ContentType.TEXT)
+		.when()
+			.get("/projects/{owner}/{projectName}/readme", owner, projectName)
+		.then()
+			.statusCode(HttpStatus.SC_FORBIDDEN);
+	}
+	
+	@Test
+	public void get_readme_success_no_readme() {
+		String owner = "owner";
+		String projectName = "public-project";
+		
+		Project project = new Project();
+		project.setId(1);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
+		
+		when(projectFileService.findReadme(anyInt())).thenReturn(Optional.empty());
+		
+		given()
+			.contentType(ContentType.TEXT)
+		.when()
+			.get("/projects/{owner}/{projectName}/readme", owner, projectName)
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body(equalTo(""));
+	}
+	
+	@Test
+	public void get_readme_success_has_readme() {
+		String owner = "owner";
+		String projectName = "public-project";
+		
+		Project project = new Project();
+		project.setId(1);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
 		
 		ProjectFile projectFile = new ProjectFile();
 		projectFile.setContent("# public-project");
@@ -299,81 +306,10 @@ public class ProjectControllerTest extends AbstractControllerTest{
 		.then()
 			.statusCode(HttpStatus.SC_OK)
 			.body(equalTo("# public-project"));
-	}
-	
-	@WithMockUser("owner")
-	@Test
-	public void get_readme_logged_user_from_self_public_project_success() {
-		String owner = "owner";
-		String projectName = "public-project";
-		
-		Project project = new Project();
-		project.setId(1);
-		project.setIsPublic(true);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
-		
-		ProjectFile projectFile = new ProjectFile();
-		projectFile.setContent("# public-project");
-		when(projectFileService.findReadme(anyInt())).thenReturn(Optional.of(projectFile));
-		
-		given()
-			.contentType(ContentType.TEXT)
-		.when()
-			.get("/projects/{owner}/{projectName}/readme", owner, projectName)
-		.then()
-			.statusCode(HttpStatus.SC_OK)
-			.body(equalTo("# public-project"));
-	}
-	
-	@WithMockUser("other")
-	@Test
-	public void get_readme_logged_user_from_other_private_project_fail() {
-		String owner = "owner";
-		String projectName = "private-project";
-		
-		Project project = new Project();
-		project.setId(1);
-		project.setIsPublic(false);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
-		
-		ProjectFile projectFile = new ProjectFile();
-		projectFile.setContent("# private-project");
-		when(projectFileService.findReadme(anyInt())).thenReturn(Optional.of(projectFile));
-		
-		given()
-			.contentType(ContentType.TEXT)
-		.when()
-			.get("/projects/{owner}/{projectName}/readme", owner, projectName)
-		.then()
-			.statusCode(HttpStatus.SC_NOT_FOUND);
-	}
-	
-	@WithMockUser("owner")
-	@Test
-	public void get_readme_logged_user_from_self_private_project_fail() {
-		String owner = "owner";
-		String projectName = "private-project";
-		
-		Project project = new Project();
-		project.setId(1);
-		project.setIsPublic(false);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
-		
-		ProjectFile projectFile = new ProjectFile();
-		projectFile.setContent("# private-project");
-		when(projectFileService.findReadme(anyInt())).thenReturn(Optional.of(projectFile));
-		
-		given()
-			.contentType(ContentType.TEXT)
-		.when()
-			.get("/projects/{owner}/{projectName}/readme", owner, projectName)
-		.then()
-			.statusCode(HttpStatus.SC_OK)
-			.body(equalTo("# private-project"));
 	}
 
 	@Test
-	public void get_logged_user_projects_not_login() {
+	public void get_your_projects_anonymous_can_not_get() {
 		given()
 			.contentType(ContentType.JSON)
 		.when()
@@ -384,12 +320,26 @@ public class ProjectControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser("owner")
 	@Test
-	public void get_logged_user_projects_success() {
+	public void get_your_projects_user_not_exist() {
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.empty());
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/user/projects")
+		.then()
+			.statusCode(HttpStatus.SC_FORBIDDEN);
+	}
+	
+	@WithMockUser("owner")
+	@Test
+	public void get_your_projects_success() {
 		UserInfo user = new UserInfo();
+		user.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
-		List<Project> projects = new ArrayList<Project>();
-		when(projectService.findCanAccessProjectsByUserId(anyInt())).thenReturn(projects);
+		when(projectService.findCanAccessProjectsByUserId(anyInt())).thenReturn(Collections.emptyList());
+		
 		given()
 			.contentType(ContentType.JSON)
 		.when()
@@ -412,94 +362,12 @@ public class ProjectControllerTest extends AbstractControllerTest{
 	}
 	
 	@Test
-	public void get_project_anonymous_can_access_public_project() {
-		Project project = new Project();
-		project.setCreateUserName("jack");
-		project.setName("my-project");
-		project.setIsPublic(true);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
-		
-		given()
-			.contentType(ContentType.JSON)
-		.when()
-			.get("/projects/{owner}/{project}", "jack", "my-project")
-		.then()
-			.statusCode(HttpStatus.SC_OK)
-			.body("name", equalTo("my-project"),
-					"accessLevel", equalTo(AccessLevel.READ.getKey()));
-	}
-	
-	@WithMockUser(username = "other")
-	@Test
-	public void get_project_login_user_can_access_public_project() {
+	public void get_project_can_not_read_project() {
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserName("jack");
-		project.setName("my-project");
-		project.setIsPublic(true);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		UserInfo loginUser = new UserInfo();
-		loginUser.setId(1);
-		loginUser.setLoginName("other");
-		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(loginUser));
-		
-		given()
-			.contentType(ContentType.JSON)
-		.when()
-			.get("/projects/{owner}/{project}", "jack", "my-project")
-		.then()
-			.statusCode(HttpStatus.SC_OK)
-			.body("name", equalTo("my-project"),
-					"accessLevel", equalTo(AccessLevel.READ.getKey()));
-	}
-	
-	@WithMockUser(username = "jack")
-	@Test
-	public void get_project_login_user_create_public_project() {
-		Project project = new Project();
-		project.setId(1);
-		project.setCreateUserName("jack");
-		project.setName("my-project");
-		project.setIsPublic(true);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
-		
-		UserInfo loginUser = new UserInfo();
-		loginUser.setId(1);
-		loginUser.setLoginName("other");
-		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(loginUser));
-		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.ADMIN);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
-		
-		given()
-			.contentType(ContentType.JSON)
-		.when()
-			.get("/projects/{owner}/{project}", "jack", "my-project")
-		.then()
-			.statusCode(HttpStatus.SC_OK)
-			.body("name", equalTo("my-project"),
-					"accessLevel", equalTo(AccessLevel.ADMIN.getKey()));
-	}
-	
-	@WithMockUser(username = "other")
-	@Test
-	public void get_project_login_user_can_not_read_then_can_not_access_private_project() {
-		Project project = new Project();
-		project.setCreateUserName("jack");
-		project.setName("my-project");
-		project.setIsPublic(false);
-		
-		UserInfo loginUser = new UserInfo();
-		loginUser.setId(1);
-		loginUser.setLoginName("other");
-		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(loginUser));
-		
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
+		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -511,55 +379,15 @@ public class ProjectControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser(username = "other")
 	@Test
-	public void get_project_login_user_can_read_then_can_access_private_project() {
+	public void get_project_success() {
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserName("jack");
 		project.setName("my-project");
-		project.setIsPublic(false);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		UserInfo loginUser = new UserInfo();
-		loginUser.setId(1);
-		loginUser.setLoginName("other");
-		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(loginUser));
+		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.READ);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
-		
-		given()
-			.contentType(ContentType.JSON)
-		.when()
-			.get("/projects/{owner}/{project}", "jack", "my-project")
-		.then()
-			.statusCode(HttpStatus.SC_OK)
-			.body("name", equalTo("my-project"),
-					"accessLevel", equalTo(AccessLevel.READ.getKey()));
-	}
-	
-	@WithMockUser(username = "other")
-	@Test
-	public void get_project_login_user_can_write_then_can_access_private_project() {
-		Project project = new Project();
-		project.setId(1);
-		project.setCreateUserName("jack");
-		project.setName("my-project");
-		project.setIsPublic(false);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
-		
-		UserInfo loginUser = new UserInfo();
-		loginUser.setId(1);
-		loginUser.setLoginName("other");
-		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(loginUser));
-		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.findTopestPermission(any(), any())).thenReturn(AccessLevel.WRITE);
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -571,42 +399,50 @@ public class ProjectControllerTest extends AbstractControllerTest{
 					"accessLevel", equalTo(AccessLevel.WRITE.getKey()));
 	}
 	
-	@WithMockUser(username = "other")
 	@Test
-	public void get_project_login_user_can_admin_then_can_access_private_project() {
+	public void get_latest_commit_invalid_parentId() {
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{project}/latest-commit/{pathId}", "zhangsan", "my-project", "a-invalid-parent-id")
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	@Test
+	public void get_latest_commit_project_not_exist() {
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{project}/latest-commit/{pathId}", "zhangsan", "my-project", "-1")
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	@Test
+	public void get_latest_commit_can_not_read_project() {
 		Project project = new Project();
 		project.setId(1);
-		project.setCreateUserName("jack");
-		project.setName("my-project");
-		project.setIsPublic(false);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		UserInfo loginUser = new UserInfo();
-		loginUser.setId(1);
-		loginUser.setLoginName("other");
-		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(loginUser));
-		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setUserId(1);
-		auth.setProjectId(1);
-		auth.setAccessLevel(AccessLevel.ADMIN);
-		when(projectAuthorizationService.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/projects/{owner}/{project}", "jack", "my-project")
+			.get("/projects/{owner}/{project}/latest-commit/{pathId}", "zhangsan", "my-project", "-1")
 		.then()
-			.statusCode(HttpStatus.SC_OK)
-			.body("name", equalTo("my-project"),
-					"accessLevel", equalTo(AccessLevel.ADMIN.getKey()));
+			.statusCode(HttpStatus.SC_FORBIDDEN);
 	}
-
+	
 	@Test
-	public void get_latest_commit_info_at_root() {
+	public void get_latest_commit_at_root() {
 		Project project = new Project();
 		project.setName("my-project");
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
 		
 		when(projectResourceService.findParentPath(anyInt())).thenReturn("");
 		
@@ -629,6 +465,8 @@ public class ProjectControllerTest extends AbstractControllerTest{
 		project.setName("my-project");
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
+		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
+		
 		when(projectResourceService.findParentPath(anyInt())).thenReturn("a");
 		
 		GitCommitInfo commitInfo = new GitCommitInfo();
@@ -645,22 +483,52 @@ public class ProjectControllerTest extends AbstractControllerTest{
 	}
 
 	@Test
-	public void get_deploy_setting_user_not_login() {
+	public void get_deploy_setting_anonymous_can_not_get() {
 		given()
-		.contentType(ContentType.JSON)
-	.when()
-		.get("/projects/{owner}/{project}/deploy_setting", "zhangsan", "my-project")
-	.then()
-		.statusCode(HttpStatus.SC_FORBIDDEN);
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{project}/deploy_setting", "zhangsan", "my-project")
+		.then()
+			.statusCode(HttpStatus.SC_FORBIDDEN);
 	}
 	
 	@WithMockUser("logged_user")
 	@Test
-	public void get_deploy_setting_user_login() {
+	public void get_deploy_setting_project_not_exist() {
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{project}/deploy_setting", "zhangsan", "my-project")
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	@WithMockUser("logged_user")
+	@Test
+	public void get_deploy_setting_can_not_read_project() {
 		Project project = new Project();
-		project.setName("my-project");
 		project.setId(1);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.empty());
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{project}/deploy_setting", "zhangsan", "my-project")
+		.then()
+			.statusCode(HttpStatus.SC_FORBIDDEN);
+	}
+	
+	@WithMockUser("logged_user")
+	@Test
+	public void get_deploy_setting_success() {
+		Project project = new Project();
+		project.setId(1);
+		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		
+		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
 		
 		// 登录用户信息
 		UserInfo user = new UserInfo();
