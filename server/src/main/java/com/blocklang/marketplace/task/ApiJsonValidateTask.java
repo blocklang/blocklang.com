@@ -50,7 +50,7 @@ public class ApiJsonValidateTask extends AbstractRepoPublishTask {
 		String trimedName = Objects.toString(name, "").trim();
 		if(!nameHasError) {
 			// 之所以取 60 而并不是 64，因为对于用户来说， 60 好记
-			if(com.blocklang.core.util.StringUtils.byteLength(trimedName) > 60) {
+			if(com.blocklang.core.util.StringUtil.byteLength(trimedName) > 60) {
 				logger.error("name - 值的长度不能超过60个字节(一个汉字占两个字节)");
 				nameHasError = true;
 			}
@@ -69,7 +69,7 @@ public class ApiJsonValidateTask extends AbstractRepoPublishTask {
 		// displayName
 		boolean displayNameHasError = false;
 		String displayName = apiJson.getDisplayName();
-		if(StringUtils.isNotBlank(displayName) && com.blocklang.core.util.StringUtils.byteLength(displayName) > 60) {
+		if(StringUtils.isNotBlank(displayName) && com.blocklang.core.util.StringUtil.byteLength(displayName) > 60) {
 			logger.error("displayName - 值的长度不能超过60个字节(一个汉字占两个字节)");
 			displayNameHasError = false;
 		}
@@ -106,7 +106,7 @@ public class ApiJsonValidateTask extends AbstractRepoPublishTask {
 		// description
 		boolean descriptionHasError = false;
 		String description = apiJson.getDescription();
-		if(com.blocklang.core.util.StringUtils.byteLength(description) > 500) {
+		if(com.blocklang.core.util.StringUtil.byteLength(description) > 500) {
 			logger.error("description - 值的长度不能超过500个字节(一个汉字占两个字节)");
 			descriptionHasError = true;
 		}

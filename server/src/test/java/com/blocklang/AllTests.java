@@ -19,7 +19,7 @@ import com.blocklang.core.util.IdGeneratorTest;
 import com.blocklang.core.util.LogFileReaderTest;
 import com.blocklang.core.util.LoginTokenTest;
 import com.blocklang.core.util.RangeHeaderTest;
-import com.blocklang.core.util.StringUtilsTest;
+import com.blocklang.core.util.StringUtilTest;
 import com.blocklang.core.util.UrlUtilTest;
 import com.blocklang.develop.constant.AppTypeTest;
 import com.blocklang.develop.controller.CommitControllerTest;
@@ -85,7 +85,7 @@ import com.blocklang.release.task.GitTagTaskTest;
 	MarketplacePublishContextTest.class,
 	TaskLoggerTest.class,
 	LocalRepoPathTest.class,
-	StringUtilsTest.class,
+	StringUtilTest.class,
 	ApiChangeLogValidateTaskTest.class,
 	ApiChangeLogsSetupGroupTaskTest.class,
 	CodeGeneratorTest.class,

@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import com.blocklang.core.util.StringUtils;
+import com.blocklang.core.util.StringUtil;
 import com.blocklang.marketplace.constant.ComponentAttrValueType;
 import com.blocklang.marketplace.data.changelog.Change;
 import com.blocklang.marketplace.data.changelog.ChangeLog;
@@ -661,7 +661,7 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 	 * @return 如果未通过校验，即包含错误，则返回 <code>true</code>，否则返回 <code>falsetrue</code>
 	 */
 	private boolean hasMaxLengthError(String fieldKey, String value, int maxLength) {
-		int valueLength = StringUtils.byteLength(value.toString().trim());
+		int valueLength = StringUtil.byteLength(value.toString().trim());
 		
 		if(valueLength > maxLength) {
 			logger.error("{0} 不能超过 {1} 个字节(一个汉字占两个字节)，当前包含 {2} 个字节", fieldKey, maxLength, valueLength);

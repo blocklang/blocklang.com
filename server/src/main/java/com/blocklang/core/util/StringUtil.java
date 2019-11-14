@@ -2,7 +2,7 @@ package com.blocklang.core.util;
 
 import java.io.UnsupportedEncodingException;
 
-public class StringUtils {
+public class StringUtil {
 
 	/**
 	 * 判断字符串的字节长度，一个英文字母占一个字节，一个汉字占两个字节。
