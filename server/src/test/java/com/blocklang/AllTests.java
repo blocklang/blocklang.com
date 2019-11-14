@@ -18,6 +18,7 @@ import com.blocklang.core.util.GitUrlParserTest;
 import com.blocklang.core.util.IdGeneratorTest;
 import com.blocklang.core.util.LogFileReaderTest;
 import com.blocklang.core.util.LoginTokenTest;
+import com.blocklang.core.util.NumberUtilTest;
 import com.blocklang.core.util.RangeHeaderTest;
 import com.blocklang.core.util.StringUtilTest;
 import com.blocklang.core.util.UrlUtilTest;
@@ -86,6 +87,7 @@ import com.blocklang.release.task.GitTagTaskTest;
 	TaskLoggerTest.class,
 	LocalRepoPathTest.class,
 	StringUtilTest.class,
+	NumberUtilTest.class,
 	ApiChangeLogValidateTaskTest.class,
 	ApiChangeLogsSetupGroupTaskTest.class,
 	CodeGeneratorTest.class,
