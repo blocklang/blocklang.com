@@ -1,11 +1,14 @@
 package com.blocklang.develop.service.impl;
 
 import java.security.Principal;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.blocklang.core.exception.NoAuthorizationException;
+import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.UserService;
 import com.blocklang.develop.constant.AccessLevel;
 import com.blocklang.develop.dao.ProjectAuthorizationDao;
@@ -58,5 +61,28 @@ public class ProjectPermissionServiceImpl implements ProjectPermissionService {
 				.flatMap(user -> projectAuthorizationDao.findAllByUserIdAndProjectId(user.getId(), project.getId())
 						.stream().map(ProjectAuthorization::getAccessLevel)
 						.filter(accessLevel -> accessLevel.getScore() >= expectedPermission.getScore()).findAny());
+	}
+
+	@Override
+	public AccessLevel findTopestPermission(Principal loginUser, Project project) {
+		if(loginUser == null) {
+			if(project.getIsPublic()) {
+				return AccessLevel.READ;
+			}
+			return AccessLevel.FORBIDDEN;
+		}
+		
+		// 如果用户登录名不存在
+		UserInfo user = userService.findByLoginName(loginUser.getName()).orElseThrow(NoAuthorizationException::new);
+		List<ProjectAuthorization> authes = projectAuthorizationDao.findAllByUserIdAndProjectId(user.getId(), project.getId());
+		if(authes.isEmpty()) {
+			if(project.getIsPublic()) {
+				return AccessLevel.READ;
+			}
+			return AccessLevel.FORBIDDEN;
+		}
+		
+		return authes.stream().map(ProjectAuthorization::getAccessLevel)
+						.max((o1, o2) -> o1.getScore() - o2.getScore()).get();
 	}
 }

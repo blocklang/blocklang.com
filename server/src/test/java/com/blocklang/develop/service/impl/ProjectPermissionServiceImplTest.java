@@ -576,5 +576,118 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 		
 		assertThat(projectPermissionService.canAdmin(loginUser, project)).isPresent();
 	}
+	
+	@Test
+	public void find_topest_permission_anonymous_can_read_public_project() {
+		Project project = new Project();
+		project.setIsPublic(true);
+		assertThat(projectPermissionService.findTopestPermission(null, project)).isEqualTo(AccessLevel.READ);
+	}
+	
+	@Test
+	public void find_topest_permission_anonymous_can_not_read_private_project() {
+		Project project = new Project();
+		project.setIsPublic(false);
+		assertThat(projectPermissionService.findTopestPermission(null, project)).isEqualTo(AccessLevel.FORBIDDEN);
+	}
 
+	@Test
+	public void find_topest_permission_login_can_read_public_project_that_config_no_permission() {
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(true);
+		
+		UserInfo user = new UserInfo();
+		user.setId(2);
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
+		
+		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
+		
+		assertThat(projectPermissionService.findTopestPermission(loginUser, project)).isEqualTo(AccessLevel.READ);
+	}
+	
+	@Test
+	public void find_topest_permission_login_can_read_public_project_that_has_read_permission() {
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(true);
+		
+		UserInfo user = new UserInfo();
+		user.setId(2);
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setAccessLevel(AccessLevel.READ);
+		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		assertThat(projectPermissionService.findTopestPermission(loginUser, project)).isEqualTo(AccessLevel.READ);
+	}
+	
+	@Test
+	public void find_topest_permission_login_can_read_public_project_that_has_write_permission() {
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(true);
+		
+		UserInfo user = new UserInfo();
+		user.setId(2);
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setAccessLevel(AccessLevel.WRITE);
+		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		assertThat(projectPermissionService.findTopestPermission(loginUser, project)).isEqualTo(AccessLevel.WRITE);
+	}
+	
+	@Test
+	public void find_topest_permission_login_can_read_public_project_that_has_admin_permission() {
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(true);
+		
+		UserInfo user = new UserInfo();
+		user.setId(2);
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
+		
+		ProjectAuthorization auth = new ProjectAuthorization();
+		auth.setAccessLevel(AccessLevel.ADMIN);
+		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		
+		assertThat(projectPermissionService.findTopestPermission(loginUser, project)).isEqualTo(AccessLevel.ADMIN);
+	}
+	
+	@Test
+	public void find_topest_permission_login_can_read_public_project_that_has_two_permissions() {
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(true);
+		
+		UserInfo user = new UserInfo();
+		user.setId(2);
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
+		
+		ProjectAuthorization auth1 = new ProjectAuthorization();
+		auth1.setAccessLevel(AccessLevel.READ);
+		ProjectAuthorization auth2 = new ProjectAuthorization();
+		auth2.setAccessLevel(AccessLevel.ADMIN);
+		
+		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Arrays.asList(auth1, auth2));
+		assertThat(projectPermissionService.findTopestPermission(loginUser, project)).isEqualTo(AccessLevel.ADMIN);
+	}
+	
+	@Test
+	public void find_topest_permission_login_can_not_read_private_project_that_config_no_permission() {
+		Project project = new Project();
+		project.setId(1);
+		project.setIsPublic(false);
+		
+		UserInfo user = new UserInfo();
+		user.setId(2);
+		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
+		
+		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
+		
+		assertThat(projectPermissionService.findTopestPermission(loginUser, project)).isEqualTo(AccessLevel.FORBIDDEN);
+	}
 }

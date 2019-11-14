@@ -1,10 +1,10 @@
 package com.blocklang.develop.service;
 
-import com.blocklang.core.model.UserInfo;
-import com.blocklang.develop.constant.AccessLevel;
-import com.blocklang.develop.model.Project;
 import java.security.Principal;
 import java.util.Optional;
+
+import com.blocklang.develop.constant.AccessLevel;
+import com.blocklang.develop.model.Project;
 
 /**
  * 项目类型：公开和私有；权限类型：只读（READ）、可写（WRITE）和管理（ADMIN）。
@@ -60,7 +60,10 @@ public interface ProjectPermissionService {
 	 * 
 	 * @param loginUser 登录用户信息
 	 * @param project 项目基本信息
-	 * @return 如果登录用户可以访问项目，则返回权限信息，否则返回  <code>Optional.empty()</code>
+	 * @return 如果登录用户可以访问项目，则返回权限信息，否则返回  <code>Optional.empty()</code>。
+	 * <p>注意，不要使用返回的权限信息，此处本应返回 <code>Boolean</code> 类型，
+	 * 之所以返回 <code>Optional&lt;AccessLevel&gt;</code>，
+	 * 是为了使用 {@link Optional#orElseThrow(java.util.function.Supplier)} </p>
 	 */
 	Optional<AccessLevel> canRead(Principal loginUser, Project project);
 	
@@ -70,15 +73,31 @@ public interface ProjectPermissionService {
 	 * @param loginUser 登录用户信息
 	 * @param project 项目基本信息
 	 * @return 如果登录用户可以写入项目，则返回权限信息，否则返回  <code>Optional.empty()</code>
+	 * <p>注意，不要使用返回的权限信息，此处本应返回 <code>Boolean</code> 类型，
+	 * 之所以返回 <code>Optional&lt;AccessLevel&gt;</code>，
+	 * 是为了使用 {@link Optional#orElseThrow(java.util.function.Supplier)} </p>
 	 */
 	Optional<AccessLevel> canWrite(Principal loginUser, Project project);
 
 	/**
 	 * 校验登录用户对项目是否有管理权限。
 	 * 
-	 * @param userName 登录用户的登录名，对应 {@link UserInfo#getLoginName()}}
 	 * @param loginUser 登录用户信息
+	 * @param project 项目基本信息
 	 * @return 如果登录用户可以管理项目，则返回权限信息，否则返回  <code>Optional.empty()</code>
+	 * <p>注意，不要使用返回的权限信息，此处本应返回 <code>Boolean</code> 类型，
+	 * 之所以返回 <code>Optional&lt;AccessLevel&gt;</code>，
+	 * 是为了使用 {@link Optional#orElseThrow(java.util.function.Supplier)} </p>
 	 */
 	Optional<AccessLevel> canAdmin(Principal loginUser, Project project);
+	
+	/**
+	 * 如果要获取用户对项目拥有的最高权限，则应使用此方法，
+	 * 因为权限是分等级的，canRead 等方法是用于校验用户对项目是否拥有某项权限，返回的权限信息不一定是实际拥有的最高权限。
+	 * 
+	 * @param loginUser 登录用户信息
+	 * @param project 项目基本信息
+	 * @return 权限信息
+	 */
+	AccessLevel findTopestPermission(Principal loginUser, Project project);
 }
