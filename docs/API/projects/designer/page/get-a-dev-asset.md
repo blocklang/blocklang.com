@@ -3,7 +3,7 @@
 在页面设计器中设计页面时，需要通过 `<script />` 方式加载 dev 版的资源，目前确定的资源包含：
 
 1. `main.bundle.js` 和 `main.bundle.js.map`
-2. `main.css` 和 `main.css.map`
+2. `main.bundle.css` 和 `main.bundle.css.map`
 3. `icons.svg`
 
 本 API 就是用于加载这些文件。
