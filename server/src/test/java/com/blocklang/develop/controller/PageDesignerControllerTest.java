@@ -9,6 +9,10 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,6 +22,7 @@ import org.apache.http.HttpStatus;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -56,6 +61,8 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 	private ProjectPermissionService projectPermissionService;
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
+	@Rule
+	public TemporaryFolder tempFolder = new TemporaryFolder();
 	
 	@Test
 	public void list_project_dependences_only_support_category_is_dev() {
@@ -423,4 +430,106 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		verify(projectResourceService).updatePageModel(any(), any(), any());
 	}
 
+	@Test
+	public void get_asset_file_is_forbidden() throws IOException {
+		given()
+			.contentType(ContentType.JSON)
+			.header("referer", "not_null")
+		.when()
+			.get("/designer/assets/{gitRepoWebsite}/{gitRepoOwner}/{gitRepoName}/{version}/{fileName}", "a", "b", "c", "d", "a.js")
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	@Test
+	public void get_asset_file_not_exist() throws IOException {
+		File dataRootDirectory = tempFolder.newFolder();
+		when(propertyService.findStringValue(anyString(), anyString())).thenReturn(dataRootDirectory.getPath());
+		
+		given()
+			.contentType(ContentType.JSON)
+			.header("referer", "not_null")
+		.when()
+			.get("/designer/assets/{gitRepoWebsite}/{gitRepoOwner}/{gitRepoName}/{version}/{fileName}", "a", "b", "c", "d", "e.js")
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+	
+	@Test
+	public void get_asset_js_file_success() throws IOException {
+		File dataRootDirectory = tempFolder.newFolder();
+		when(propertyService.findStringValue(anyString(), anyString())).thenReturn(dataRootDirectory.getPath());
+		
+		Path dir = dataRootDirectory.toPath().resolve("marketplace").resolve("a").resolve("b").resolve("c").resolve("package").resolve("d");
+		Path createdDir = Files.createDirectories(dir);
+		Files.writeString(createdDir.resolve("main.bundle.js"), "a js file");
+		
+		given()
+			.contentType(ContentType.JSON)
+			.header("referer", "not_null")
+		.when()
+			.get("/designer/assets/{gitRepoWebsite}/{gitRepoOwner}/{gitRepoName}/{version}/{fileName}", "a", "b", "c", "d", "main.bundle.js")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.contentType("application/javascript")
+			.body(equalTo("a js file"));
+	}
+	
+	@Test
+	public void get_asset_css_file_success() throws IOException {
+		File dataRootDirectory = tempFolder.newFolder();
+		when(propertyService.findStringValue(anyString(), anyString())).thenReturn(dataRootDirectory.getPath());
+		
+		Path dir = dataRootDirectory.toPath().resolve("marketplace").resolve("a").resolve("b").resolve("c").resolve("package").resolve("d");
+		Path createdDir = Files.createDirectories(dir);
+		Files.writeString(createdDir.resolve("main.bundle.css"), "a css file");
+		
+		given()
+			.contentType(ContentType.JSON)
+			.header("referer", "not_null")
+		.when()
+			.get("/designer/assets/{gitRepoWebsite}/{gitRepoOwner}/{gitRepoName}/{version}/{fileName}", "a", "b", "c", "d", "main.bundle.css")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.contentType("text/css")
+			.body(equalTo("a css file"));
+	}
+	
+	@Test
+	public void get_asset_map_file_success() throws IOException {
+		File dataRootDirectory = tempFolder.newFolder();
+		when(propertyService.findStringValue(anyString(), anyString())).thenReturn(dataRootDirectory.getPath());
+		
+		Path dir = dataRootDirectory.toPath().resolve("marketplace").resolve("a").resolve("b").resolve("c").resolve("package").resolve("d");
+		Path createdDir = Files.createDirectories(dir);
+		Files.writeString(createdDir.resolve("main.bundle.js.map"), "a js source map file");
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/designer/assets/{gitRepoWebsite}/{gitRepoOwner}/{gitRepoName}/{version}/{fileName}", "a", "b", "c", "d", "main.bundle.js.map")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.contentType("application/octet-stream")
+			.body(equalTo("a js source map file"));
+	}
+	
+	@Test
+	public void get_asset_svg_file_success() throws IOException {
+		File dataRootDirectory = tempFolder.newFolder();
+		when(propertyService.findStringValue(anyString(), anyString())).thenReturn(dataRootDirectory.getPath());
+		
+		Path dir = dataRootDirectory.toPath().resolve("marketplace").resolve("a").resolve("b").resolve("c").resolve("package").resolve("d");
+		Path createdDir = Files.createDirectories(dir);
+		Files.writeString(createdDir.resolve("icons.svg"), "a js source map file");
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/designer/assets/{gitRepoWebsite}/{gitRepoOwner}/{gitRepoName}/{version}/{fileName}", "a", "b", "c", "d", "icons.svg")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.contentType("image/svg+xml")
+			.body(equalTo("a js source map file"));
+	}
 }

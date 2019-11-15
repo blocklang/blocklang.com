@@ -22,6 +22,11 @@ public class LocalRepoPath {
 		this.gitUrl = gitUrl;
 		this.gitUrlSegment = GitUrlParser.parse(gitUrl).orElse(null);
 	}
+	
+	public LocalRepoPath(String dataRootPath, String repoWebsite, String repoOwner, String repoName) {
+		this.dataRootPath = dataRootPath;
+		this.gitUrlSegment = new GitUrlSegment(repoWebsite, repoOwner, repoName);
+	}
 
 	public Path getRepoSourceDirectory() {
 		return this.getRepoRootDirectory().resolve("source");

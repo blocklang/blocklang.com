@@ -1,13 +1,23 @@
 package com.blocklang.develop.controller;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.Principal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.InputStreamSource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.MediaTypeFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -15,8 +25,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.blocklang.core.constant.CmPropKey;
 import com.blocklang.core.exception.NoAuthorizationException;
 import com.blocklang.core.exception.ResourceNotFoundException;
+import com.blocklang.core.service.PropertyService;
 import com.blocklang.develop.designer.data.Dependence;
 import com.blocklang.develop.designer.data.PageModel;
 import com.blocklang.develop.designer.data.WidgetRepo;
@@ -24,6 +36,7 @@ import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectResource;
 import com.blocklang.develop.service.ProjectDependenceService;
 import com.blocklang.develop.service.ProjectResourceService;
+import com.blocklang.marketplace.data.LocalRepoPath;
 import com.blocklang.marketplace.model.ComponentRepo;
 
 /**
@@ -39,7 +52,9 @@ public class PageDesignerController extends AbstractProjectController {
 	private ProjectDependenceService projectDependenceService;
 	@Autowired
 	private ProjectResourceService projectResourceService;
-
+	@Autowired
+	private PropertyService propertyService;
+	
 	/**
 	 * 与 {@link ProjectDependenceController#getDependence(Principal, String, String)}} 功能类似，
 	 * 但是一个是在项目依赖的维护页面中使用的，一个是在页面设计器中使用的。
@@ -136,4 +151,33 @@ public class PageDesignerController extends AbstractProjectController {
 		return new ResponseEntity<Map<String, Object>>(HttpStatus.CREATED);
 	}
 	
+	private static final String[] VALID_ASSET_NAMES = {"main.bundle.js", "main.bundle.js.map", "main.bundle.css", "main.bundle.css.map", "icons.svg"};
+	@GetMapping("/designer/assets/{gitRepoWebsite}/{gitRepoOwner}/{gitRepoName}/{version}/{fileName}")
+	public ResponseEntity<InputStreamSource> getAsset(
+			@PathVariable String gitRepoWebsite,
+			@PathVariable String gitRepoOwner,
+			@PathVariable String gitRepoName,
+			@PathVariable String version,
+			@PathVariable String fileName) {
+		
+		Arrays.stream(VALID_ASSET_NAMES).filter(item -> item.equals(fileName)).findAny().orElseThrow(ResourceNotFoundException::new);
+		
+		String dataRootPath = propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH, "");
+		LocalRepoPath localRepoPath = new LocalRepoPath(dataRootPath, gitRepoWebsite, gitRepoOwner, gitRepoName);
+		Path filePath = localRepoPath.getRepoPackageDirectory().resolve(version).resolve(fileName);
+		
+		if(Files.notExists(filePath)) {
+			throw new ResourceNotFoundException();
+		}
+		
+		try {
+			InputStream io = ResourceUtils.getURL(ResourceUtils.FILE_URL_PREFIX + filePath.toString()).openStream();
+			InputStreamResource resource = new InputStreamResource(io);
+			
+			MediaType contentType = MediaTypeFactory.getMediaType(fileName).orElse(MediaType.APPLICATION_OCTET_STREAM);
+			return ResponseEntity.ok().contentType(contentType).body(resource);
+		} catch (IOException e) {
+			throw new ResourceNotFoundException();
+		}
+	}
 }

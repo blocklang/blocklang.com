@@ -109,6 +109,12 @@ public class RouterFilter implements Filter{
 		
 		// 以下代码为转换资源文件的路径
 		if(isStaticResource) {
+			// 因为 /designer/assets 也需要返回静态资源，需要特殊处理
+			if(servletPath.startsWith("/designer/assets")) {
+				chain.doFilter(request, response);
+				return;
+			}
+			
 			if(referer == null) {
 				// 因为访问 js.map 和 css.map 时，referer 的值为 null，但依然需要解析
 				if(filenameExtension.equals("map")) {

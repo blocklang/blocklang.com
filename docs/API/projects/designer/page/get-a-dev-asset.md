@@ -9,7 +9,7 @@
 本 API 就是用于加载这些文件。
 
 ```text
-GET /packages/{gitRepoWebsite}/{gitRepoOwner}/{gitRepoName}/{version}/{fileName}
+GET /designer/assets/{gitRepoWebsite}/{gitRepoOwner}/{gitRepoName}/{version}/{fileName}
 ```
 
 ## Parameters
