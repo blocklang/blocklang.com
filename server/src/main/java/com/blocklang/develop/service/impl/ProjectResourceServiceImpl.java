@@ -746,7 +746,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 			pageModel.setWidgets(Collections.singletonList(rootWidget));
 			this.updatePageModel(pageModel);
 		}, () -> {
-			logger.error("从标准库中没有找到 Page 部件。");
+			logger.error("从标准库中没有找到 Page 部件。请 BlockLang 管理员确认是否有往组件市场中注册标准库！");
 			pageModel.setWidgets(Collections.emptyList());
 		});
 		return pageModel;
