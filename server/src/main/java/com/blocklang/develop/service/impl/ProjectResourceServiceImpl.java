@@ -588,6 +588,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 		List<PageWidget> pageWidgets = pageWidgetDao.findAllByPageIdOrderBySeq(pageId);
 		
 		if(pageWidgets.isEmpty()) {
+			model.setWidgets(Collections.emptyList());
 			return model;
 		}
 		
@@ -720,7 +721,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 				});
 			});
 			return rootWidget;
-		}).ifPresent(rootWidget -> {
+		}).map(rootWidget -> {
 			rootWidget.setId(IdGenerator.uuid());
 			rootWidget.setParentId(Constant.TREE_ROOT_ID.toString());
 			
@@ -740,10 +741,13 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 					})
 					.collect(Collectors.toList());
 			rootWidget.setProperties(rootWidgetProperties);
-			
+			return rootWidget;
+		}).ifPresentOrElse(rootWidget -> {
 			pageModel.setWidgets(Collections.singletonList(rootWidget));
-			
 			this.updatePageModel(pageModel);
+		}, () -> {
+			logger.error("从标准库中没有找到 Page 部件。");
+			pageModel.setWidgets(Collections.emptyList());
 		});
 		return pageModel;
 	}
