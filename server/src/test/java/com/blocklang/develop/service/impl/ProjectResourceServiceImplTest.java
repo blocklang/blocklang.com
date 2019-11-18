@@ -1112,7 +1112,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		attachedWidget1.setParentId(Constant.TREE_ROOT_ID.toString());
 		attachedWidget1.setApiRepoId(savedApiRepo.getId());
 		attachedWidget1.setWidgetCode("0001");
-		attachedWidget1.setWidgetName("Widget 1"); // 如果 label 有值，则用 label 的值
+		attachedWidget1.setWidgetName("Widget1"); // 只能取 widgetName 的值
 		attachedWidget1.setWidgetId(savedWidget1.getId());
 		attachedWidget1.setCanHasChildren(true);
 		AttachedWidgetProperty attachedWidgetProperty11 = new AttachedWidgetProperty();
@@ -1128,7 +1128,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		attachedWidget2.setParentId("1"); // 父部件是 widget1
 		attachedWidget2.setApiRepoId(savedApiRepo.getId());
 		attachedWidget2.setWidgetCode("0002");
-		attachedWidget2.setWidgetName("Widget2"); // 如果 label 有值，则用 label 的值
+		attachedWidget2.setWidgetName("Widget2"); // 只能取 widgetName 的值
 		attachedWidget2.setWidgetId(savedWidget2.getId());
 		attachedWidget2.setCanHasChildren(false);
 		AttachedWidgetProperty attachedWidgetProperty21 = new AttachedWidgetProperty();
@@ -1230,7 +1230,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		attachedWidget1.setParentId(Constant.TREE_ROOT_ID.toString());
 		attachedWidget1.setApiRepoId(savedApiRepo.getId());
 		attachedWidget1.setWidgetCode("0001");
-		attachedWidget1.setWidgetName("Widget 1"); // 如果 label 有值，则用 label 的值
+		attachedWidget1.setWidgetName("Widget1"); // 只能取 widgetName 的值
 		attachedWidget1.setWidgetId(savedWidget1.getId());
 		attachedWidget1.setCanHasChildren(true);
 		AttachedWidgetProperty attachedWidgetProperty11 = new AttachedWidgetProperty();

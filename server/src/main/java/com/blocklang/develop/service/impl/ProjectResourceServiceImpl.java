@@ -644,11 +644,8 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 				.filter(component -> component.getCode().equals(item.getWidgetCode()))
 				.findFirst()
 				.ifPresent(component -> {
-					String widgetName = component.getLabel();
-					if(StringUtils.isBlank(widgetName)) {
-						widgetName = component.getName();
-					}
-					result.setWidgetName(widgetName);
+					// 因为页面设计器中需要根据 widgetName 来定位部件实例，所以不能使用 label
+					result.setWidgetName(component.getName());
 					result.setWidgetId(component.getId());
 					result.setCanHasChildren(component.getCanHasChildren());
 
