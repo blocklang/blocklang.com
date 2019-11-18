@@ -9,6 +9,7 @@ import { canReadPage, canEditPage } from '../../permission';
 import Spinner from '../../widgets/spinner';
 import global from '@dojo/framework/shim/global';
 import { ProjectResourcePathPayload } from '../../processes/interfaces';
+import { getHeaders } from '../../processes/utils';
 
 export interface ViewProjectPageProperties {
 	loginUser: User;
@@ -24,7 +25,7 @@ export default class ViewProjectPage extends ThemedMixin(I18nMixin(WidgetBase))<
 
 	protected render() {
 		const { project, loginUser, resource, groups, onGotoGroup } = this.properties;
-		if (!resource) {
+		if (!project || !resource) {
 			return w(Spinner, {});
 		}
 
@@ -38,10 +39,13 @@ export default class ViewProjectPage extends ThemedMixin(I18nMixin(WidgetBase))<
 			permission: { canRead: canReadPage(project.accessLevel), canWrite: canEditPage(project.accessLevel) },
 			pathes: groups,
 			urls: {
-				fetchApiRepoWidgets: `/designer/prjects/${projectId}/dependences/widgets`,
+				fetchApiRepoWidgets: `/designer/projects/${projectId}/dependences/widgets`,
 				fetchPageModel: `/designer/pages/${pageId}/model`,
-				fetchIdeDependenceInfos: `/designer/projects/${projectId}/dependences?category=ide`,
-				externalScriptAndCssWebsite: '/'
+				fetchIdeDependenceInfos: `/designer/projects/${projectId}/dependences?category=dev`,
+				externalScriptAndCssWebsite: '/',
+				customFetchHeaders: () => {
+					return getHeaders();
+				}
 			},
 			routes: {
 				profile: 'profile',
