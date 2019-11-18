@@ -4,6 +4,8 @@
 
 如果仓库注册了，但是没有发布，则不返回此仓库。
 
+注意：要排除标准库。
+
 ```text
 GET /component-repos?q={query}&page={page}
 ```
