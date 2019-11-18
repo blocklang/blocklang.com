@@ -532,15 +532,20 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 		if(!widgets.isEmpty()) {
 			List<PageWidgetAttrValue> properties = new ArrayList<>();
 			widgets.forEach(widget -> {
-				widget.getProperties().forEach(prop -> {
-					PageWidgetAttrValue p = new PageWidgetAttrValue();
-					p.setPageWidgetId(widget.getId());
-					p.setId(prop.getId());
-					p.setWidgetAttrCode(prop.getCode());
-					p.setAttrValue(prop.getValue());
-					p.setExpr(prop.isExpr());
-					properties.add(p);
-				});
+				widget.getProperties()
+					.stream()
+					// 如果属性值为空，则不需要存储
+					// 但是在查询时，也要返回值为空的属性信息
+					.filter(prop -> prop.getValue() != null)
+					.forEach(prop -> {
+						PageWidgetAttrValue p = new PageWidgetAttrValue();
+						p.setPageWidgetId(widget.getId());
+						p.setId(prop.getId());
+						p.setWidgetAttrCode(prop.getCode());
+						p.setAttrValue(prop.getValue());
+						p.setExpr(prop.isExpr());
+						properties.add(p);
+					});
 			});
 			// 2. 然后再新增
 			pageWidgetJdbcDao.batchSaveWidgets(pageId, widgets);
