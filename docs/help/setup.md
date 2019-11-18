@@ -93,3 +93,13 @@ setsid java -jar blocklang-0.0.1-SNAPSHOT.jar >> blocklang.log
 ## 或者，使用 nohup 命令
 nohup java -jar blocklang-0.0.1-SNAPSHOT.jar &
 ```
+
+### 注册标准库
+
+1. 在组件市场中注册标准库 `https://github.com/blocklang/std-ide-widget.git`
+2. 选择一个 github 帐号或者 qq 帐号 `blocklang.com`，则第一个登录用户会被看作管理员
+3. 在系统参数中配置当前使用的标准库，包括：
+   1. `std.widget.api.name` - 标准库 API 版的名称
+   2. `std.widget.ide.name` - 标准库 IDE 版的名称
+   3. `std.widget.register.userid` - 管理员用户标识
+   4. `std.widget.root.name` - 标准库中的页面根部件
