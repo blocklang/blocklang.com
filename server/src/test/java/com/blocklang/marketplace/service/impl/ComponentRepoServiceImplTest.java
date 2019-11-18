@@ -302,6 +302,20 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		assertThat(result.getSize()).isEqualTo(10);
 		assertThat(result.hasPrevious()).isFalse();
 		assertThat(result.hasNext()).isFalse();
+		
+		result = componentRepoService.findAllByNameOrLabel("label", PageRequest.of(0, 10));
+		assertThat(result.getContent()).hasSize(0);
+		assertThat(result.getTotalPages()).isEqualTo(0);
+		assertThat(result.getSize()).isEqualTo(10);
+		assertThat(result.hasPrevious()).isFalse();
+		assertThat(result.hasNext()).isFalse();
+		
+		result = componentRepoService.findAllByNameOrLabel("", PageRequest.of(0, 10));
+		assertThat(result.getContent()).hasSize(0);
+		assertThat(result.getTotalPages()).isEqualTo(0);
+		assertThat(result.getSize()).isEqualTo(10);
+		assertThat(result.hasPrevious()).isFalse();
+		assertThat(result.hasNext()).isFalse();
 	}
 	
 	@Test

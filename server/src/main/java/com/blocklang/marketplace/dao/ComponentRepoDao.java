@@ -11,9 +11,9 @@ import com.blocklang.marketplace.model.ComponentRepo;
 
 public interface ComponentRepoDao extends JpaRepository<ComponentRepo, Integer>{
 
-	Page<ComponentRepo> findAllByStdAndNameContainingIgnoreCaseOrLabelContainingIgnoreCase(boolean isStd, String queryForName, String queryForLabel, Pageable page);
-
-	Page<ComponentRepo> findAll(Pageable page);
+	Page<ComponentRepo> findAllByStd(Boolean isStd, Pageable page);
+	
+	Page<ComponentRepo> findAllByStdAndNameContainingIgnoreCaseOrStdAndLabelContainingIgnoreCase(Boolean isStd1, String queryForName, Boolean isStd2, String queryForLabel, Pageable page);
 
 	Optional<ComponentRepo> findByNameAndCreateUserId(String name, Integer userId);
 
