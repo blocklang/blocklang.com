@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.InputStreamSource;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.MediaTypeFactory;
 import org.springframework.http.ResponseEntity;
@@ -148,7 +147,7 @@ public class PageDesignerController extends AbstractProjectController {
 		
 		projectResourceService.updatePageModel(project, page, model);
 		
-		return new ResponseEntity<Map<String, Object>>(HttpStatus.CREATED);
+		return ResponseEntity.noContent().build();
 	}
 	
 	private static final String[] VALID_ASSET_NAMES = {"main.bundle.js", "main.bundle.js.map", "main.bundle.css", "main.bundle.css.map", "icons.svg"};

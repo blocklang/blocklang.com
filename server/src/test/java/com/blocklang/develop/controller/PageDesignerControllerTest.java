@@ -424,7 +424,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		.when()
 			.put("/designer/pages/{pageId}/model", "1")
 		.then()
-			.statusCode(HttpStatus.SC_CREATED)
+			.statusCode(HttpStatus.SC_NO_CONTENT)
 			.body(equalTo(""));
 		
 		verify(projectResourceService).updatePageModel(any(), any(), any());

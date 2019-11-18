@@ -62,7 +62,7 @@ Status: 403 Forbidden
 否则返回
 
 ```text
-Status: 201 CREATED
+Status: 204 No Content
 ```
 
 不返回任何数据。
