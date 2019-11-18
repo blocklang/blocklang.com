@@ -138,7 +138,7 @@ public class ProjectServiceImpl implements ProjectService {
 					.beginInit(context.getGitRepositoryDirectory(), user.getLoginName(), user.getEmail())
 					.addFile(readme.getFileName(), readmeContent)
 					.addFile(mainPage.getFileName(), mainPageJsonString)
-					.addFile(dependence.getFileName(), "{}") // 默认为空的 json 对象
+					.addFile(dependence.getFileName(), "{ }") // 默认为空的 json 对象，做美化排版
 					.commit(commitMessage);
 				
 				ProjectCommit commit = new ProjectCommit();

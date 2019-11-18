@@ -330,7 +330,8 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		assertThat(Files.readString(context.getGitRepositoryDirectory().resolve("README.md"))).isEqualTo(expectedReadmeContext);
 		
 		// 确认 git 仓库中有 DEPENDENCE.json 文件，内容为空 json 对象
-		assertThat(Files.readString(context.getGitRepositoryDirectory().resolve("DEPENDENCE.json"))).isEqualTo("{}");
+		// 为了便于用户阅读，json 做了美化排版
+		assertThat(Files.readString(context.getGitRepositoryDirectory().resolve("DEPENDENCE.json"))).isEqualTo("{ }");
 	}
 	
 	@Test

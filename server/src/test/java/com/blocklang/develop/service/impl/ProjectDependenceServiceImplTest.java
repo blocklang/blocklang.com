@@ -530,8 +530,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		projectDependenceService.delete(savedDependence.getId());
 		assertThat(projectDependenceDao.findById(savedDependence.getId())).isEmpty();
 	}
-	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+
 	@Test
 	public void delete_then_update_dependence_json_file() throws IOException {
 		// 一、创建一个项目
@@ -590,12 +589,11 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		// 三、删除添加的依赖
 		projectDependenceService.delete(savedDependence.getId());
 		
-		// 四、断言 DEPENDENCE.json 文件的内容为 “{}”
+		// 四、断言 DEPENDENCE.json 文件的内容为 “{ }”
+		// 不直接转换为 java 对象判断，而是判断文本，这样可以断言美化后的 json
 		// 在 git 仓库中获取 DEPENDENCE.json 文件
 		String dependenceFileContent = Files.readString(context.getGitRepositoryDirectory().resolve(ProjectResource.DEPENDENCE_NAME));
-		ObjectMapper objectMapper = new ObjectMapper();
-		Map jsonObject = objectMapper.readValue(dependenceFileContent, Map.class);
-		assertThat(jsonObject).isEmpty();
+		assertThat(dependenceFileContent).isEqualTo("{ }");
 	}
 	
 	@Test
@@ -682,7 +680,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		
 		projectDependenceService.update(savedDependence);
 		
-		// 四、断言 DEPENDENCE.json 文件的内容为 “{}”
+		// 四、断言 DEPENDENCE.json 文件的内容
 		// 在 git 仓库中获取 DEPENDENCE.json 文件
 		String dependenceFileContent = Files.readString(context.getGitRepositoryDirectory().resolve(ProjectResource.DEPENDENCE_NAME));
 		ObjectMapper objectMapper = new ObjectMapper();
