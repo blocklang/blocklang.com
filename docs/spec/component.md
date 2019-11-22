@@ -72,6 +72,85 @@ root
       2. `changelog/` - 按版本，存储组件 API 变更记录
          1. `0_1_0.json` - 一个版本对应一个变更文件
 
+约定
+
+1. 一个 git tag 中只能集中维护一个 changelog 文件
+2. changelog 文件的名称必须与对应的 git tag 的版本号一致(用`_`线替代`.`)
+
+所以，一个 git 版本最多对应 0 或 1 个变更文件，如 v0.1.0 tag 下可能会有一个 0_1_0.json 文件，而 v0.1.1 tag 下可能没有添加变更文件，但在 v0.1.2 tag 下又添加了一个 0_1_2.json 文件。变更文件名使用 git tag 的版本号命名。
+
+| git tag | version in api.json | changlog file |
+| ------- | ------------------- | ------------- |
+| v0.1.0  | 0.1.0               | 0_1_0.json    |
+| v0.1.1  | 0.1.0               |               |
+| v0.1.2  | 0.1.2               | 0_1_2.json    |
+| v0.1.3  | 0.1.2               |               |
+
+而 `dev` 或 `build` 版组件库引用的是 `api` 库中 `api.json` 文件中的 `version`（注意，不是 git tag 对应的版本号）值。
+
+git tag 与 api.json 中的 `version` 各自的作用分别是：
+
+1. 只有打了 git tag 标记后，才会认为已发布，`dev` 或 `build` 版组件库才能引用；
+2. 只有当 changelog 有新增后，才升级 api.json 中的 `version`，并同步打一个 git tag；
+3. 如果 changelog 没有新增（changelog 只能新增），但其他文件修改了，如 `api.json` 文件改动了，则不能升级 api.json 中的 `version`，但也可以打一个 git tag 来发布；
+4. 所以 api.json 中的 `version` **必须**与最新的 changelog 文件的版本保持一致；
+5. 在安装 `api` 版组件库时，如果 git tag 有升级，但是 changelog 文件没有新增，则只更新最新代码，但是不在 `API_REPO_VERSION` 中保存记录
+
+模拟发布流程，验证是否会出现 `dev` 版与 `api` 版对应不上的问题：
+
+1. 发布 `dev` 版的组件库
+   1. 下载最新源码
+   2. 找出最新的 git tag
+   3. 找出最新 git tag 下的 `component.json` 文件，并找出其中的 `version` 属性
+   4. 在 `component_repo_version` 表中存储 `git_tag_name` 和 `version`
+2. 发布 `api` 版组件库（注意，`api` 组件库必须是增量更新的，所以不能只发当前版本，还需要发布当前版本之前的所有未安装版本）
+   1. 根据 `component.json` 中的 `api` 属性，定位到对应的 `api` 版仓库
+   2. 获取 `api` 版仓库下的最新的 git tag（注意，并不是截止到 `component.json` 中 `api.version` 指定的版本，而是所有已发布但未安装的版本）
+   3. 从 `api_repo_version` 中查找出，当前已安装到哪一个版本（`version`）
+   4. 从最新的 git tag 下找出所有的 changelog 文件，并对比出未安装的 changelog 文件
+   5. 循环未安装的 changelog 文件，在上一版的基础上逐个安装 changelog
+   6. ~~通过对比最新的 git tag 和 当前安装的 git tag，来计算出所有未安装的 git tag（因为有的 git tag 下没有 changelog 文件，所以可能会出现重复尝试安装没有 changelog 文件的 git tag）~~
+
+根据上述用例，`api_repo_version` 表中数据的存储情况为：
+
+以下是每个版本都安装的情况
+
+| use case                | dbid | api_repo_id | version | git_tag_name |
+| ----------------------- | ---- | ----------- | ------- | ------------ |
+| (1) git tag 为 0.1.0 时安装 | 1    | 1           | 0.1.0   | v0.1.0       |
+| (2) git tag 为 0.1.1 时安装 | 1    | 1           | 0.1.0   | v0.1.0       |
+| (3) git tag 为 0.1.2 时安装 | 2    | 1           | 0.1.2   | v0.1.2       |
+| (4) git tag 为 0.1.3 时安装 | 2    | 1           | 0.1.2   | v0.1.2       |
+
+因为 `api_repo_id` 与 `version` 是联合唯一，所以如果以上用例同时存在，则要忽略安装。比如，如果执行了用例 (3)，则执行用例 (4) 时就会发现 0.1.2 版本已安装，所以无需安装。所以用例 (1) 和用例 (2) 是同一条记录，用例 (3) 和用例 (4) 是同一条记录
+
+以下跳跃式安装的情况
+
+分别是在 0.1.0 和 0.1.2 时安装的
+
+| use case                | dbid | api_repo_id | version | git_tag_name |
+| ----------------------- | ---- | ----------- | ------- | ------------ |
+| (1) git tag 为 0.1.0 时安装 | 1    | 1           | 0.1.0   | v0.1.0       |
+| (2) git tag 为 0.1.2 时安装 | 2    | 1           | 0.1.2   | v0.1.2       |
+
+如果随后在 git tag 为 0.1.3 时安装，则除了更新 git 仓库代码外，不会更新 `api_repo_version` 表中任何信息。
+
+分别是在 0.1.1 和 0.1.3 时安装的
+
+| use case                | dbid | api_repo_id | version | git_tag_name |
+| ----------------------- | ---- | ----------- | ------- | ------------ |
+| (1) git tag 为 0.1.1 时安装 | 1    | 1           | 0.1.0   | v0.1.1       |
+| (2) git tag 为 0.1.3 时安装 | 2    | 1           | 0.1.2   | v0.1.3       |
+
+> 只从最新的 git tag 中查找 changelog 文件，还是逐个 git tag 查找 changelog 文件？
+
+因为 changelog 是增量维护的，当前的实现是从最新的 git tag 中查找所有 changelog 文件。
+
+> “发布”与“安装”的区别：
+
+1. 发布是指通过 git tag 来发布 git 仓库源码
+2. 安装是指在 blocklang 相关表中登记已发布的组件库信息
+
 #### `api.json`
 
 ```json

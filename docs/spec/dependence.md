@@ -84,6 +84,10 @@ BlokLang 的跨平台是通过提供不同的运行环境，通过指定页面�
 
 通过这三个层级，就可以定义出一个发布任务，如发布一个依赖 XX 编程语言的 XX 开发框架的 web 客户端。这样就可以在一个项目的额 Build 中配置多套发布 profile。
 
+### 依赖图谱
+
+![依赖图谱](./images/project-dependence-1.png)
+
 ## `dependence.json`
 
 虽然有三个层级，但可将编程语言和开发框架统称为 profile，实际包含两个层级。
