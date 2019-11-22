@@ -103,7 +103,11 @@ public class UserServiceImpl implements UserService {
 		}).orElse(null);
 	}
 
-	@Cacheable(value="users")
+	// 如果值为空，则不缓存
+	// 如果不增加 unless，则在用户第一次登录成功前（用户信息未保存到数据库中），
+	// 调用该方法判断用户是否已存在，则就会将 null 缓存给给用户
+	// 则即使用户登录成功，也每次都返回空值
+	@Cacheable(value = "users", unless = "#result==null")
 	@Override
 	public Optional<UserInfo> findByLoginName(String owner) {
 		return userDao.findByLoginName(owner);
