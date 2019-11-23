@@ -30,6 +30,7 @@ import com.blocklang.core.git.GitFileInfo;
 import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.PropertyService;
+import com.blocklang.core.service.UserService;
 import com.blocklang.core.util.IdGenerator;
 import com.blocklang.core.util.StreamUtil;
 import com.blocklang.develop.constant.AppType;
@@ -72,6 +73,8 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 	private ProjectResourceDao projectResourceDao;
 	@Autowired
 	private ProjectCommitDao projectCommitDao;
+	@Autowired
+	private UserService userService;
 	@Autowired
 	private PropertyService propertyService;
 	@Autowired
@@ -556,7 +559,13 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 	private void updatePageFileInGit(Project project, ProjectResource projectResource, PageModel pageModel) {
 		// 确保这是一个页面
 		if(!projectResource.isPage()) {
-			logger.warn("不是一个有效的页面");
+			logger.warn("往 git 仓库中更新页面模型失败：不是一个有效的页面");
+			return;
+		}
+		
+		UserInfo user = userService.findById(project.getCreateUserId()).orElse(null);
+		if(user == null) {
+			logger.warn("往 git 仓库中更新页面模型失败：未找到项目创建者的用户信息");
 			return;
 		}
 		
@@ -564,7 +573,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 		String relativeDir = parentResourceId == Constant.TREE_ROOT_ID ? null: this.findParentPath(parentResourceId);
 		
 		propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).map(rootDir -> {
-			return new ProjectContext(project.getCreateUserName(), project.getName(), rootDir).getGitRepositoryDirectory();
+			return new ProjectContext(user.getLoginName(), project.getName(), rootDir).getGitRepositoryDirectory();
 		}).ifPresent(rootPath -> {
 			Path path = rootPath;
 			if(StringUtils.isNotBlank(relativeDir)) {
@@ -639,6 +648,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 			
 			// 5. 部件的属性，延迟加载，只有页面中使用到了部件，才加载其属性
 			// 注意，如果一个部件在页面中使用了多次，最好只加载一次属性，可使用缓存优化
+			// FIXME: 当没有为项目添加依赖时，会报 null 异常
 			cachedAndGroupedWidgets.get(item.getApiRepoId())
 				.stream()
 				.filter(component -> component.getCode().equals(item.getWidgetCode()))
@@ -660,12 +670,8 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 								AttachedWidgetProperty property = new AttachedWidgetProperty();
 								property.setCode(componentAttr.getCode());
 								
-								// 如果 label 有值，则优先取 label 值，否则取 name 的值
-								String attrName = componentAttr.getLabel();
-								if(StringUtils.isBlank(attrName)) {
-									attrName = componentAttr.getName();
-								}
-								property.setName(attrName);
+								// name 只能取 name，不能取 label
+								property.setName(componentAttr.getName());
 								property.setValueType(componentAttr.getValueType().getKey());
 								// 部件属性的实例信息
 								attachedProperties
