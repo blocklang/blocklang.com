@@ -41,8 +41,9 @@ export default class ViewProjectPage extends ThemedMixin(I18nMixin(WidgetBase))<
 			urls: {
 				fetchApiRepoWidgets: `/designer/projects/${projectId}/dependences/widgets`,
 				fetchPageModel: `/designer/pages/${pageId}/model`,
+				savePageModel: `/designer/pages/${pageId}/model`,
 				fetchIdeDependenceInfos: `/designer/projects/${projectId}/dependences?category=dev`,
-				externalScriptAndCssWebsite: '/',
+				externalScriptAndCssWebsite: '', // 不能为 "/"
 				customFetchHeaders: () => {
 					return getHeaders();
 				}
