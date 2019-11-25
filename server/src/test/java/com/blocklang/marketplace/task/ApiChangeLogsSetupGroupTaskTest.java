@@ -85,6 +85,7 @@ public class ApiChangeLogsSetupGroupTaskTest extends AbstractServiceTest {
 		componentJson.setLanguage(Language.TYPESCRIPT.getValue());
 		context.setComponentJson(componentJson);
 		context.setComponentRepoLatestTagName("v0.1.0");
+		context.setComponentRepoLatestVersion("0.1.0");
 	}
 
 	private void prepareApiJson() {

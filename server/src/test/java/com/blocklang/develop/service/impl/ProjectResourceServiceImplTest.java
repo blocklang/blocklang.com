@@ -2,6 +2,7 @@ package com.blocklang.develop.service.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.anyInt;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,6 +28,7 @@ import com.blocklang.core.dao.UserDao;
 import com.blocklang.core.git.exception.GitEmptyCommitException;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.PropertyService;
+import com.blocklang.core.service.UserService;
 import com.blocklang.core.test.AbstractServiceTest;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.constant.ProjectResourceType;
@@ -75,6 +77,8 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	private ProjectService projectService;
 	@Autowired
 	private UserDao userDao;
+	@MockBean
+	private UserService userService;
 	@Autowired
 	private ProjectCommitDao projectCommitDao;
 	@MockBean
@@ -1118,7 +1122,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		AttachedWidgetProperty attachedWidgetProperty11 = new AttachedWidgetProperty();
 		attachedWidgetProperty11.setId("11");
 		attachedWidgetProperty11.setCode("0011");
-		attachedWidgetProperty11.setName("prop_name_11"); // 注意，不会直接在页面模型中存储该值，如果 label 有值，则优先取 label 值
+		attachedWidgetProperty11.setName("prop_name_11"); // 注意，不会直接在页面模型中存储该值，只取 name 值，不取 label 值
 		attachedWidgetProperty11.setValue("value11");
 		attachedWidgetProperty11.setValueType(ComponentAttrValueType.STRING.getKey());
 		attachedWidget1.setProperties(Collections.singletonList(attachedWidgetProperty11));
@@ -1134,7 +1138,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		AttachedWidgetProperty attachedWidgetProperty21 = new AttachedWidgetProperty();
 		attachedWidgetProperty21.setId("21"); // id 是在前台生成的
 		attachedWidgetProperty21.setCode("0021");
-		attachedWidgetProperty21.setName("prop_label_21");
+		attachedWidgetProperty21.setName("prop_name_21"); // 注意，不会直接在页面模型中存储该值，只取 name 值，不取 label 值
 		attachedWidgetProperty21.setValue("value21");
 		attachedWidgetProperty21.setValueType(ComponentAttrValueType.STRING.getKey());
 		attachedWidget2.setProperties(Collections.singletonList(attachedWidgetProperty21));
@@ -1485,9 +1489,15 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		
 		model.setWidgets(Arrays.asList(attachedWidget1, attachedWidget2));
 
+		Integer userId = 1;
+		UserInfo user = new UserInfo();
+		user.setId(userId);
+		user.setLoginName("jack");
+		when(userService.findById(anyInt())).thenReturn(Optional.of(user));
+		
 		Project project = new Project();
 		project.setName("project");
-		project.setCreateUserName("jack");
+		project.setCreateUserId(userId);
 		
 		ProjectResource resource = new ProjectResource();
 		String pageKey = "key1";
