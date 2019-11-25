@@ -27,10 +27,11 @@ public class DojoBuildAppGroupTask extends AbstractRepoPublishTask{
 		
 		Path sourceDirectoryPath = context.getLocalComponentRepoPath().getRepoSourceDirectory();
 		// 将 source 中的源码切换（git checkout）到指定的 tag 下
-		
+		boolean checkoutSuccess = false;
 		try {
 			logger.info("开始切换到 tag {0}", context.getComponentRepoLatestTagName());
 			GitUtils.checkout(sourceDirectoryPath, context.getComponentRepoLatestTagName());
+			checkoutSuccess = true;
 		}catch(RuntimeException e) {
 			success = false;
 		}
@@ -58,6 +59,7 @@ public class DojoBuildAppGroupTask extends AbstractRepoPublishTask{
 				
 				FileSystemUtils.deleteRecursively(buildSrcDirectoryPath);
 				Files.deleteIfExists(buildPackageJsonPath);
+				Files.deleteIfExists(buildTsconfigJsonPath);
 				
 				FileSystemUtils.copyRecursively(sourceDirectoryPath.resolve("src"), buildSrcDirectoryPath);
 				Files.copy(sourceDirectoryPath.resolve("package.json"), buildPackageJsonPath);
@@ -73,7 +75,8 @@ public class DojoBuildAppGroupTask extends AbstractRepoPublishTask{
 			}
 		}
 		
-		if(success) {
+		// 不要判断 success，只要上面 git checkout 成功了，这里就要 checkout to master，即使其他构件环节出错。
+		if(checkoutSuccess) {
 			// 将 source 中的源码切换到 master 分支下
 			try {
 				logger.info("开始切换回 master 分支");

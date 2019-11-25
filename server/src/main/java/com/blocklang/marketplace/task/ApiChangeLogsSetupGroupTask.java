@@ -170,6 +170,10 @@ public class ApiChangeLogsSetupGroupTask extends AbstractRepoPublishTask {
 		ComponentRepo savedCompRepo = saveComponentRepo(savedApiRepo.getId());
 		logger.info("保存成功");
 		
+		// 在发布 api repo 时，不能漏发（api.json 文件的 version 对应的某一个版本没有安装）
+		// 如果漏发，而某一个 dev 库恰好引用了，则就会出现对应关系中断的问题
+		// 在每个 tag 内都要从头到尾将其中的 changelog 执行一遍
+		
 		logger.info("开始保存组件库的 {0} 版本信息", context.getComponentRepoLatestVersion());
 		saveComponentRepoVersion(savedCompRepo.getId(), currentApiRepoVersionId);
 		logger.info("保存成功");
@@ -183,9 +187,14 @@ public class ApiChangeLogsSetupGroupTask extends AbstractRepoPublishTask {
 			if(component.isFirstSetup()) {
 				CodeGenerator componentCodeGenerator = new CodeGenerator(componentCodeSeed);
 				for(ChangeLog changeLog : component.getChangeLogs()) {
-					Optional<ApiRepoVersion> currentApiRepoVersionOption = apiRepoVersionDao.findByApiRepoIdAndVersion(savedApiRepo.getId(), changeLog.getVersion());
-					if(currentApiRepoVersionOption.isPresent()) {
-						Integer apiRepoVersionId = currentApiRepoVersionOption.get().getId();
+					// FIXME:这里的对应关系有问题
+					// changeLog.getVersion() 获取的是某一个部件的变更日志的版本号
+					// 而这里应该传入 api.json 文件中的 version 值
+					//String apiJsonVersion = changeLog.getVersion();
+					//Optional<ApiRepoVersion> currentApiRepoVersionOption = apiRepoVersionDao.findByApiRepoIdAndVersion(savedApiRepo.getId(), apiJsonVersion);
+					
+					if(currentApiRepoVersionId != null) {
+						Integer apiRepoVersionId = currentApiRepoVersionId;
 						for(Change change : changeLog.getChanges()) {
 							if(NewWidgetChange.class.isAssignableFrom(change.getClass())) {
 								NewWidgetChange newWidgetChange = (NewWidgetChange)change;
@@ -195,7 +204,7 @@ public class ApiChangeLogsSetupGroupTask extends AbstractRepoPublishTask {
 							}
 						}
 					} else {
-						logger.error("在数据库中未能找到 apiRepoId = {0} 和 version = {1} 的记录", savedApiRepo.getId(), changeLog.getVersion());
+						// logger.error("在数据库中未能找到 apiRepoId = {0} 和 version = {1} 的记录", savedApiRepo.getId(), changeLog.getVersion());
 						success = false;
 					}
 				}
@@ -231,7 +240,6 @@ public class ApiChangeLogsSetupGroupTask extends AbstractRepoPublishTask {
 				executeOrder++;
 			}
 		}
-		
 		
 		if(success) {
 			return Optional.of(true);
@@ -363,7 +371,7 @@ public class ApiChangeLogsSetupGroupTask extends AbstractRepoPublishTask {
 		compRepoVersion.setComponentRepoId(compRepoId);
 		compRepoVersion.setApiRepoVersionId(apiRepoVersionId);
 		// TODO: 确认 context.getComponentRepoLatestVersion() 的值与 componentJson.getVersion() 的值相同
-		compRepoVersion.setVersion(componentJson.getVersion().trim());
+		compRepoVersion.setVersion(context.getComponentRepoLatestVersion().trim());
 		compRepoVersion.setGitTagName(context.getComponentRepoLatestTagName());
 		compRepoVersion.setCreateUserId(publishTask.getCreateUserId());
 		compRepoVersion.setCreateTime(LocalDateTime.now());

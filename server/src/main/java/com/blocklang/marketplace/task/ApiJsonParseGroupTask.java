@@ -51,6 +51,7 @@ public class ApiJsonParseGroupTask extends AbstractRepoPublishTask {
 		
 		// 因为在后续保存 API 变更文件时，需要按照版本增量安装，所以这里获取 API 仓库的所有版本
 		if(success) {
+			// FIXME: 貌似不再需要获取所有 tag 信息，因为现在只需要从最新的 tag 中提取所有变更文件
 			logger.info("获取 API 仓库的所有版本号");
 			ApiRepoVersionsFindTask apiRepoVersionsFindTask = new ApiRepoVersionsFindTask(context);
 			success = apiRepoVersionsFindTask.run().isPresent();

@@ -5,7 +5,7 @@ import java.util.List;
 import de.skuzzle.semantic.Version;
 
 /**
- * 一个组件的所有变更
+ * 一个组件库的所有变更
  * 
  * <ol>
  * <li>按组件分组
