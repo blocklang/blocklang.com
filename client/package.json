@@ -32,7 +32,7 @@
     "lodash": "^4.17.15",
     "marked": "^0.7.0",
     "moment": "^2.24.0",
-    "page-designer": "0.0.3-alpha.10",
+    "page-designer": "~0.0.3-alpha.14",
     "popper.js": "^1.16.0",
     "semver": "^6.3.0",
     "sockjs-client": "^1.4.0",
