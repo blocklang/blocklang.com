@@ -116,7 +116,7 @@ export const getProjectCommand = commandFactory(async ({ path, payload: { owner,
 	return [replace(path('project'), json)];
 });
 
-export const getProjectResourcesCommand = commandFactory(
+export const getProjectGroupInfoCommand = commandFactory(
 	async ({ path, payload: { owner, project, parentPath = '' } }) => {
 		const response = await fetch(`${baseUrl}/projects/${owner}/${project}/groups/${parentPath}`, {
 			headers: getHeaders()
@@ -125,14 +125,13 @@ export const getProjectResourcesCommand = commandFactory(
 		if (!response.ok) {
 			return [
 				replace(path('projectResource'), undefined),
-				replace(path('parentGroups'), []),
-				replace(path('childResources'), [])
+				replace(path('parentGroups'), undefined),
+				replace(path('childResources'), undefined)
 			];
 		}
 
 		return [
-			replace(path('projectResource', 'id'), json.id),
-			replace(path('projectResource', 'fullPath'), parentPath),
+			replace(path('projectResource'), { id: json.id, fullPath: parentPath }),
 			replace(path('parentGroups'), json.parentGroups),
 			replace(path('childResources'), json.childResources)
 		];
@@ -322,13 +321,13 @@ export const isPublicInputProcess = createProcess('is-public-input', [isPublicIn
 export const saveProjectProcess = createProcess('save-project', [saveProjectCommand]);
 
 export const initForViewProjectProcess = createProcess('init-for-view-project', [
-	[getProjectCommand, getProjectResourcesCommand],
+	[getProjectCommand, getProjectGroupInfoCommand],
 	[getLatestCommitInfoCommand, getProjectReadmeCommand, getReleaseCountCommand, getUncommittedFilesCommand]
 ]);
 export const getUserDeployInfoProcess = createProcess('get-user-deploy-info', [getDeployInfoCommand]);
 
 export const initForViewProjectGroupProcess = createProcess('init-for-view-project-group', [
-	[getProjectCommand, getProjectResourcesCommand],
+	[getProjectCommand, getProjectGroupInfoCommand],
 	getLatestCommitInfoCommand
 ]);
 
@@ -344,7 +343,7 @@ export const unstageChangesProcess = createProcess('unstage-changes', [
 export const commitMessageInputProcess = createProcess('commit-message-input', [commitMessageInputCommand]);
 
 const reloadProjectResourcesAndLatestCommitProcess = createProcess('reload-project-resources-and-latest-commit', [
-	getProjectResourcesCommand,
+	getProjectGroupInfoCommand,
 	getLatestCommitInfoCommand
 ]);
 

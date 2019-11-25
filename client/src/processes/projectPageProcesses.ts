@@ -15,6 +15,10 @@ const startInitForNewPageCommand = commandFactory(({ path }) => {
 	];
 });
 
+const startInitForViewPageCommand = commandFactory(({ path }) => {
+	return [replace(path('projectResource'), undefined), replace(path('parentGroups'), undefined)];
+});
+
 export const getResourceParentPathCommand = commandFactory(
 	async ({ path, payload: { owner, project, parentPath = '' } }) => {
 		const response = await fetch(`${baseUrl}/projects/${owner}/${project}/group-path/${parentPath}`, {
@@ -184,6 +188,7 @@ export const pageNameInputProcess = createProcess('page-name-input', [pageNameIn
 export const pageDescriptionInputProcess = createProcess('page-description-input', [pageDescriptionInputCommand]);
 export const savePageProcess = createProcess('save-page', [savePageCommand]);
 export const initForViewProjectPageProcess = createProcess('init-for-view-project-page', [
+	startInitForViewPageCommand,
 	getProjectCommand,
 	getPageBaseInfoCommand
 ]);
