@@ -34,6 +34,7 @@ codemods --library dojo
 ```text
 root/
  |--- .blocklang_models/
+          |--- project.json
           |--- dependences.json
           |--- widgets.json
           |--- pages/
@@ -44,22 +45,24 @@ root/
 其中：
 
 1. `.blocklang-models/` - 下存储项目的模型信息，每次编译前都要清空并重新生成此文件夹内的所有内容；
-2. `dependences.json` - 项目级信息，只存储 build 版本的依赖信息；
-3. `widgets.json` - 项目级信息，存储项目使用的 UI 部件信息（API 版）；
-4. `pages/` - 存储页面的模型数据
-5. `{pageKey}/` - 每个页面的 key 值
-6. `page.json` - 页面级信息，页面模型，其中包括页面基本信息、页面 ui 结构、页面数据结构和页面行为等
-7. ……
+2. `project.json` - 项目基本信息
+3. `dependences.json` - 项目级信息，只存储 build 版本的依赖信息；
+4. `widgets.json` - 项目级信息，存储项目使用的 UI 部件信息（API 版）；
+5. `pages/` - 存储页面的模型数据
+6. `{pageKey}/` - 每个页面的 key 值
+7. `page.json` - 页面级信息，页面模型，其中包括页面基本信息、页面 ui 结构、页面数据结构和页面行为等
+8. ……
 
 ### 生成 Dojo APP
 
 生成一个 Dojo App 时，需处理以下文件：
 
 1. `package.json` - 修改 `name`、`version` 和 `dependences` 属性；
-2. `src/interfaces.d.ts` - 增加 type 和 interface；
-3. `src/App.ts` - 添加页面 `Outlet`；
-4. `src/routes.ts` - 为页面配置路由
-5. `src/pages/{pageKey}.tsx` - 页面;
-6. `src/processes/{pageKey}Processes.ts` - 页面的数据操作
+2. `index.html` - 修改 `title` 属性；
+3. `src/interfaces.d.ts` - 增加 type 和 interface；
+4. `src/App.ts` - 添加页面 `Outlet`；
+5. `src/routes.ts` - 为页面配置路由
+6. `src/pages/{pageKey}.tsx` - 页面;
+7. `src/processes/{pageKey}Processes.ts` - 页面的数据操作
 
 注意：一个 page 对应零到一个 process；
