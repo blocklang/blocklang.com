@@ -1,0 +1,14 @@
+designer-core
+page-designer
+std-api-widget
+std-ide-widget
+std-widget-web
+api-widgets-bootstrap
+ide-widgets-bootstrap
+widgets-bootstrap
+dojo-fontawesome
+bootstrap-classes
+blocklang-template
+blocklang.com
+codemods
+blocklang-installer
