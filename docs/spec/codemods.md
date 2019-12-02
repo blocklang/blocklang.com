@@ -22,7 +22,7 @@
 在模板项目的根目录下运行以下命令即可生成 dojo app 代码：
 
 ```sh
-codemods --library dojo
+codemods --library dojo --modelDir ../.blocklang-modes
 ```
 
 其中 `library` 的值可以是 `dojo`、`react` 和 `vue` 等。
@@ -38,8 +38,7 @@ root/
           |--- dependences.json
           |--- widgets.json
           |--- pages/
-                |--- {pageKey}/
-                        |--- page.json
+                |--- {pageKey}.json
 ```
 
 其中：
@@ -49,9 +48,8 @@ root/
 3. `dependences.json` - 项目级信息，只存储 build 版本的依赖信息；
 4. `widgets.json` - 项目级信息，存储项目使用的 UI 部件信息（API 版）；
 5. `pages/` - 存储页面的模型数据
-6. `{pageKey}/` - 每个页面的 key 值
-7. `page.json` - 页面级信息，页面模型，其中包括页面基本信息、页面 ui 结构、页面数据结构和页面行为等
-8. ……
+6. `{pageKey}.json` - 页面级信息，页面模型，其中包括页面基本信息、页面 ui 结构、页面数据结构和页面行为等
+7. ……
 
 ### 生成 Dojo APP
 
@@ -62,7 +60,9 @@ root/
 3. `src/interfaces.d.ts` - 增加 type 和 interface；
 4. `src/App.ts` - 添加页面 `Outlet`；
 5. `src/routes.ts` - 为页面配置路由
-6. `src/pages/{pageKey}.tsx` - 页面;
-7. `src/processes/{pageKey}Processes.ts` - 页面的数据操作
+6. `src/pages/{pageKey}/index.ts` - 页面，这里使用 dojo 的 `v` 和 `w` 生成虚拟节点;
+8. `src/pages/{pageKey}/index.m.css` - 页面样式文件;
+9. `src/pages/{pageKey}/index.m.css.d.ts` - 页面样式声明文件;
+10. `src/processes/{pageKey}Processes.ts` - 页面的数据操作
 
 注意：一个 page 对应零到一个 process；
