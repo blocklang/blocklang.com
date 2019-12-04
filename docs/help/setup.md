@@ -68,6 +68,15 @@ npm i @dojo/cli -g
 dojo --version
 ```
 
+### 安装 codemods
+
+```sh
+# 全局安装
+npm i codemods -g
+# 检测 codemods 版本
+codemods --version
+```
+
 ### 安装 maven
 
 不用手动安装 maven，因为使用了 spring boot 的 `mvnw` 脚本。
