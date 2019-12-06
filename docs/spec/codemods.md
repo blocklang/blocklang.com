@@ -36,33 +36,33 @@ root/
  |--- .blocklang_models/
           |--- project.json
           |--- dependences.json
-          |--- widgets.json
           |--- pages/
-                |--- {pageKey}.json
+                |--- {groupPath}/
+                         |--- {pageKey}.json
 ```
 
 其中：
 
-1. `.blocklang-models/` - 下存储项目的模型信息，每次编译前都要清空并重新生成此文件夹内的所有内容；
-2. `project.json` - 项目基本信息
-3. `dependences.json` - 项目级信息，只存储 build 版本的依赖信息；
-4. `widgets.json` - 项目级信息，存储项目使用的 UI 部件信息（API 版）；
-5. `pages/` - 存储页面的模型数据
-6. `{pageKey}.json` - 页面级信息，页面模型，其中包括页面基本信息、页面 ui 结构、页面数据结构和页面行为等
-7. ……
+1. `.blocklang-models/` - 下存储项目的模型信息，每次编译前都要清空并重新生成此文件夹内的所有内容
+1. `project.json` - 项目基本信息
+1. `dependences.json` - 项目级信息，只存储 build 版本的依赖信息
+1. `pages/` - 存储页面的模型数据
+1. `{groupPath}/` - 页面的分组路径，如果页面在根目录，则值为空字符串
+1. `{pageKey}.json` - 页面级信息，页面模型，其中包括页面基本信息、页面 ui 结构、页面数据结构和页面行为等
+1. ……
 
 ### 生成 Dojo APP
 
 生成一个 Dojo App 时，需处理以下文件：
 
 1. `package.json` - 修改 `name`、`version` 和 `dependences` 属性；
-2. `index.html` - 修改 `title` 属性；
-3. `src/interfaces.d.ts` - 增加 type 和 interface；
-4. `src/App.ts` - 添加页面 `Outlet`；
-5. `src/routes.ts` - 为页面配置路由
-6. `src/pages/{pageKey}/index.ts` - 页面，这里使用 dojo 的 `v` 和 `w` 生成虚拟节点;
-8. `src/pages/{pageKey}/index.m.css` - 页面样式文件;
-9. `src/pages/{pageKey}/index.m.css.d.ts` - 页面样式声明文件;
-10. `src/processes/{pageKey}Processes.ts` - 页面的数据操作
+1. `index.html` - 修改 `title` 属性；
+1. `src/interfaces.d.ts` - 增加 type 和 interface；
+1. `src/App.ts` - 添加页面 `Outlet`；
+1. `src/routes.ts` - 为页面配置路由
+1. `src/pages/{groupPath}/{pageKey}/index.ts` - 页面，这里使用 dojo 的 `v` 和 `w` 生成虚拟节点;
+1. `src/pages/{groupPath}/{pageKey}/index.m.css` - 页面样式文件;
+1. `src/pages/{groupPath}/{pageKey}/index.m.css.d.ts` - 页面样式声明文件;
+1. `src/processes/{pageKey}Processes.ts` - 页面的数据操作
 
 注意：一个 page 对应零到一个 process；
