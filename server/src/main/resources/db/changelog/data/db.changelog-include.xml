@@ -15,5 +15,6 @@
 	<include file="db/changelog/data/201910291955_insert_app_jdk_13_0_1.xml" />
 	
 	<include file="db/changelog/data/201911120832_insert_cm_property_std_widget_library.xml" />
+	<include file="db/changelog/data/201912061032_insert_cm_property_std_widget_build_dojo_library.xml" />
 	
 </databaseChangeLog>
