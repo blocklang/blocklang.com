@@ -66,6 +66,7 @@ BlockLang 平台由以下项目组成：
 * [blocklang/blocklang-template](https://github.com/blocklang/blocklang-template) - BlockLang 平台默认的项目模板
 * [blocklang/page-designer](https://github.com/blocklang/page-designer) - 可视化的页面设计器
 * [blocklang/designer-core](https://github.com/blocklang/designer-core) - 存放设计器的通用功能
+* [blocklang/codemods](https://github.com/blocklang/codemods) - 生成客户端代码工具
 
 需要往 BlockLang 组件市场注册的项目：
 
