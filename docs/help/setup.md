@@ -81,6 +81,12 @@ codemods --version
 
 不用手动安装 maven，因为使用了 spring boot 的 `mvnw` 脚本。
 
+### 安装 Python
+
+Dojo framework 的依赖项中包含 node-gyp，需要安装 Python 3。
+
+有的 Linux 中默认安装了 Python。
+
 ### 配置
 
 1. 构建 windows 版和 linux 版的 blocklang-installer
@@ -115,3 +121,11 @@ nohup java -jar blocklang-0.0.1-SNAPSHOT.jar &
    1. `std.widget.build.dojo.name`- 标准库 Build 版的名称，基于 Dojo 实现
    1. `std.widget.register.userid` - 管理员用户标识
    1. `std.widget.root.name` - 标准库中的页面根部件
+
+## Windows 上安装
+
+### 安装 Python
+
+Dojo framework 的依赖项中包含 node-gyp，需要安装 Python 3。
+
+注意：在 Windows 上可以安装 3.8 版本，但安装目录中不要出现中文字符。
