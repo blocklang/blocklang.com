@@ -65,4 +65,7 @@ root/
 1. `src/pages/{groupPath}/{pageKey}/index.m.css.d.ts` - 页面样式声明文件;
 1. `src/processes/{pageKey}Processes.ts` - 页面的数据操作
 
-注意：一个 page 对应零到一个 process；
+注意：
+
+1. 一个 page 对应零到一个 process；
+2. `{pageKey}` 的值转换为 kebabCase 格式。
