@@ -32,6 +32,6 @@ public class PublishServiceImplTest extends AbstractServiceTest{
 		task.setStartTime(LocalDateTime.now());
 		
 		ComponentRepoPublishTask savedTask = componentRepoPublishTaskService.save(task);
-		publishService.publish(savedTask);
+		publishService.publish(savedTask, "a");
 	}
 }

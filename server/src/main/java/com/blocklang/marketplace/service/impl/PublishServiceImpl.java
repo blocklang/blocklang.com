@@ -11,8 +11,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import com.blocklang.core.constant.CmPropKey;
-import com.blocklang.core.service.PropertyService;
 import com.blocklang.marketplace.constant.MarketplaceConstant;
 import com.blocklang.marketplace.dao.ApiChangeLogDao;
 import com.blocklang.marketplace.dao.ApiComponentAttrDao;
@@ -38,8 +36,6 @@ import com.blocklang.release.constant.ReleaseResult;
 public class PublishServiceImpl implements PublishService {
 
 	@Autowired
-	private PropertyService propertyService;
-	@Autowired
 	private ComponentRepoPublishTaskDao componentRepoPublishTaskDao;
 	@Autowired
 	private ComponentRepoDao componentRepoDao;
@@ -64,17 +60,17 @@ public class PublishServiceImpl implements PublishService {
 	
 	@Async
 	@Override
-	public void asyncPublish(ComponentRepoPublishTask publishTask) {
-		this.publish(publishTask);
+	public void asyncPublish(ComponentRepoPublishTask publishTask, String dataRootPath) {
+		this.publish(publishTask, dataRootPath);
 	}
 
 	// TODO: 先实现功能，再重构。
 	@Override
-	public void publish(ComponentRepoPublishTask publishTask) {
+	public void publish(ComponentRepoPublishTask publishTask, String dataRootPath) {
 		StopWatch stopWatch = StopWatch.createStarted();
 
-		String dataRootPath = propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).get();
 		MarketplacePublishContext context = new MarketplacePublishContext(dataRootPath, publishTask);
+		
 		// 确保全程使用同一个 logger
 		Path logFile = context.getRepoPublishLogFile();
 		publishTask.setLogFileName(logFile.getFileName().toString());

@@ -10,7 +10,7 @@ import com.blocklang.marketplace.model.ComponentRepoPublishTask;
  */
 public interface PublishService {
 
-	void publish(ComponentRepoPublishTask publishTask);
+	void publish(ComponentRepoPublishTask publishTask, String dataRootPath);
 	
-	void asyncPublish(ComponentRepoPublishTask publishTask);
+	void asyncPublish(ComponentRepoPublishTask publishTask, String dataRootPath);
 }

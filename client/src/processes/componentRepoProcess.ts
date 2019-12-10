@@ -103,9 +103,11 @@ const publishComponentRepoCommand = commandFactory(async ({ path, get }) => {
 	});
 	const json = await response.json();
 	if (!response.ok) {
+		// 目前的处理方式是在界面上显示后台的配置错误
+		const errorMessage: string = json.errors.gitUrl || json.errors.propertyConfig;
 		return [
 			replace(path('componentRepoUrlInputValidation', 'componentRepoUrlValidateStatus'), ValidateStatus.INVALID),
-			replace(path('componentRepoUrlInputValidation', 'componentRepoUrlErrorMessage'), json.errors.gitUrl)
+			replace(path('componentRepoUrlInputValidation', 'componentRepoUrlErrorMessage'), errorMessage)
 		];
 	}
 
