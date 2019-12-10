@@ -284,7 +284,7 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 			.body("id", is(1),
 					"gitUrl", equalTo("https://github.com/blocklang/blocklang.com.git"));
 		
-		verify(publishService).asyncPublish(any(), anyString());
+		verify(publishService).asyncPublish(any());
 	}
 	
 	@Test

@@ -54,19 +54,14 @@ public class ReleaseController {
 	
 	@Autowired
 	private ProjectService projectService;
-	
 	@Autowired
 	private ProjectTagService projectTagService;
-	
 	@Autowired
 	private ProjectReleaseTaskService projectReleaseTaskService;
-	
 	@Autowired
 	private UserService userService;
-	
 	@Autowired
 	private BuildService buildService;
-	
 	@Autowired
 	private PropertyService propertyService;
 	
@@ -77,6 +72,7 @@ public class ReleaseController {
 			@PathVariable("projectName") String projectName,
 			@Valid @RequestBody NewReleaseTaskParam releaseTask,
 			BindingResult bindingResult) {
+		
 		String version = releaseTask.getVersion();
 		
 		Validator validator = new Validator();

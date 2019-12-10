@@ -1,8 +1,6 @@
 package com.blocklang.marketplace.controller;
 
 import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -11,8 +9,6 @@ import javax.validation.Valid;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.transport.URIish;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,12 +26,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.blocklang.core.constant.CmPropKey;
 import com.blocklang.core.exception.InvalidRequestException;
 import com.blocklang.core.exception.NoAuthorizationException;
 import com.blocklang.core.exception.ResourceNotFoundException;
 import com.blocklang.core.model.UserInfo;
-import com.blocklang.core.service.PropertyService;
 import com.blocklang.core.service.UserService;
 import com.blocklang.core.util.GitUrlParser;
 import com.blocklang.core.util.GitUrlSegment;
@@ -53,10 +47,7 @@ import com.blocklang.release.constant.ReleaseResult;
 @EnableAsync
 @RestController
 public class ComponentRepoController {
-	private static final Logger logger = LoggerFactory.getLogger(ComponentRepoController.class);
-	
-	@Autowired
-	private PropertyService propertyService;
+
 	@Autowired
 	private UserService userService;
 	@Autowired
@@ -134,24 +125,7 @@ public class ComponentRepoController {
 			Principal principal,
 			@Valid @RequestBody NewComponentRepoParam param, 
 			BindingResult bindingResult) {
-		
-		// TODO:将这段校验，移到 app 启动之后，如果校验不通过，则无法使用该平台。
-		// 在此处对系统参数进行有效性校验。
-		// 准备阶段的校验，校验配置的路径在文件系统中是否存在，不要抛出以下异常
-		// java.nio.file.FileSystemException: Unable to determine if root directory exists
-		// 临时将错误信息放在 NewComponentRepoParam 中
-		String dataRootPath = propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH, "");
-		if(dataRootPath.isBlank()) {
-			logger.error("未配置参数 {}", CmPropKey.BLOCKLANG_ROOT_PATH);
-			bindingResult.rejectValue("propertyConfig", "NotBlank.propertyValue", new Object[] {CmPropKey.BLOCKLANG_ROOT_PATH}, null);
-			throw new InvalidRequestException(bindingResult);
-		}
-		if(Files.notExists(Path.of(dataRootPath))) {
-			logger.error("参数 {} 配置的路径 {} 在文件系统中无效", CmPropKey.BLOCKLANG_ROOT_PATH, dataRootPath);
-			bindingResult.rejectValue("propertyConfig", "NotValid.propertyValue.filePath", new Object[] {CmPropKey.BLOCKLANG_ROOT_PATH}, null);
-			throw new InvalidRequestException(bindingResult);
-		}
-		
+
 		if(principal == null) {
 			throw new NoAuthorizationException();
 		}
@@ -210,7 +184,7 @@ public class ComponentRepoController {
 		savedTask.setOwner(gitUrlSegment.getOwner());
 		savedTask.setRepoName(gitUrlSegment.getRepoName());
 		// 异步任务
-		publishService.asyncPublish(savedTask, dataRootPath);
+		publishService.asyncPublish(savedTask);
 		
 		// 这里的 CREATED 只表示 task 创建成功，并不表示发布成功
 		return new ResponseEntity<ComponentRepoPublishTask>(savedTask, HttpStatus.CREATED);
