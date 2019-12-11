@@ -13,7 +13,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,9 +23,8 @@ import java.util.Collections;
 import java.util.Optional;
 
 import org.apache.http.HttpStatus;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -49,9 +47,6 @@ import io.restassured.http.ContentType;
 
 @WebMvcTest(ReleaseController.class)
 public class ReleaseControllerTest extends AbstractControllerTest{
-
-	@Rule
-	public TemporaryFolder tempFolder = new TemporaryFolder();
 	
 	@MockBean
 	private ProjectService projectService;
@@ -592,7 +587,7 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 	}
 	
 	@Test
-	public void get_a_release_log_then_log_file_not_found() throws IOException {
+	public void get_a_release_log_then_log_file_not_found(@TempDir Path dataRootDirectory) throws IOException {
 		Project project = new Project();
 		project.setId(1);
 		project.setCreateUserName("jack");
@@ -606,8 +601,7 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 		task.setLogFileName("get_a_release_log_then_log_file_not_found.log");
 		when(projectReleaseTaskService.findByProjectIdAndVersion(anyInt(), anyString())).thenReturn(Optional.of(task));
 		
-		File dataRootDirectory = tempFolder.newFolder();
-		when(propertyService.findStringValue(anyString())).thenReturn(Optional.of(dataRootDirectory.getPath()));
+		when(propertyService.findStringValue(anyString())).thenReturn(Optional.of(dataRootDirectory.toString()));
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -619,7 +613,7 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 	}
 	
 	@Test
-	public void get_a_release_log_success() throws IOException {
+	public void get_a_release_log_success(@TempDir Path dataRootDirectory) throws IOException {
 		Project project = new Project();
 		project.setId(1);
 		project.setCreateUserName("jack");
@@ -633,12 +627,11 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 		task.setLogFileName("get_a_release_log_success.log");
 		when(projectReleaseTaskService.findByProjectIdAndVersion(anyInt(), anyString())).thenReturn(Optional.of(task));
 
-		File dataRootDirectory = tempFolder.newFolder();
-		when(propertyService.findStringValue(anyString())).thenReturn(Optional.of(dataRootDirectory.getPath()));
+		when(propertyService.findStringValue(anyString())).thenReturn(Optional.of(dataRootDirectory.toString()));
 		// 测试完后，要删除生成的日志文件
 		// TODO: 重构 AppBuildContext 抽出 TaskLogger
 		Path logFilePath = new AppBuildContext.LogPathBuilder()
-				.setDataRootPath(dataRootDirectory.getPath())
+				.setDataRootPath(dataRootDirectory.toString())
 				.setOwner("jack")
 				.setProjectName("demo_project")
 				.setLogFileName("get_a_release_log_success.log")

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,11 +13,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.assertj.core.util.Arrays;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import com.blocklang.marketplace.data.changelog.ChangeLog;
 import com.blocklang.marketplace.data.changelog.NewWidgetChange;
@@ -31,17 +30,13 @@ public class ApiChangeLogValidateTaskTest {
 	
 	private MarketplacePublishContext context;
 
-	@Rule
-	public TemporaryFolder temp = new TemporaryFolder();
-
-	@Before
-	public void setup() throws IOException {
-		String folder = temp.newFolder().getPath();
+	@BeforeEach
+	public void setup(@TempDir Path folder) throws IOException {
 		ComponentRepoPublishTask publishTask = new ComponentRepoPublishTask();
 		publishTask.setGitUrl("https://github.com/blocklang/blocklang.com.git");
 		publishTask.setStartTime(LocalDateTime.now());
 		publishTask.setPublishResult(ReleaseResult.INITED);
-		context = new MarketplacePublishContext(folder, publishTask);
+		context = new MarketplacePublishContext(folder.toString(), publishTask);
 		
 		TaskLogger logger = new TaskLogger(context.getRepoPublishLogFile());
 		context.setLogger(logger);
@@ -199,8 +194,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", 1);
 		newWidget.put("label", "a");
-		newWidget.put("iconClass", "b");
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("canHasChildren", true);
 		newWidget.put("properties", Collections.emptyList());
 		newWidget.put("events", Collections.emptyList());
 		change1.put("newWidget", newWidget);
@@ -223,8 +217,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", 1);
-		newWidget.put("iconClass", "b");
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("canHasChildren", true);
 		newWidget.put("properties", Collections.emptyList());
 		newWidget.put("events", Collections.emptyList());
 		change1.put("newWidget", newWidget);
@@ -247,9 +240,8 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
+		newWidget.put("canHasChildren", true);
 		newWidget.put("description", 1);
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
 		newWidget.put("properties", Collections.emptyList());
 		newWidget.put("events", Collections.emptyList());
 		change1.put("newWidget", newWidget);
@@ -261,7 +253,7 @@ public class ApiChangeLogValidateTaskTest {
 	}
 	
 	@Test
-	public void run_changes_new_widget_iconClass_should_be_string() {
+	public void run_changes_new_widget_canHasChildren_should_be_boolean() {
 		Map<String, Object> changelogMap = new HashMap<String, Object>();
 		changelogMap.put("id", "1");
 		changelogMap.put("author", "2");
@@ -272,56 +264,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", 1);
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
-		newWidget.put("properties", Collections.emptyList());
-		newWidget.put("events", Collections.emptyList());
-		change1.put("newWidget", newWidget);
-		changes.add(change1);
-		changelogMap.put("changes", changes);
-		
-		ApiChangeLogValidateTask task = new ApiChangeLogValidateTask(context, changelogMap);
-		assertThat(task.run()).isEmpty();
-	}
-	
-	@Test
-	public void run_changes_new_widget_app_type_should_be_string_array() {
-		Map<String, Object> changelogMap = new HashMap<String, Object>();
-		changelogMap.put("id", "1");
-		changelogMap.put("author", "2");
-		
-		List<Map<String, Object>> changes = new ArrayList<Map<String,Object>>();
-		Map<String, Object> change1 = new HashMap<String, Object>();
-		
-		Map<String, Object> newWidget = new HashMap<String, Object>();
-		newWidget.put("name", "a");
-		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
-		newWidget.put("appType", "web");
-		newWidget.put("properties", Collections.emptyList());
-		newWidget.put("events", Collections.emptyList());
-		change1.put("newWidget", newWidget);
-		changes.add(change1);
-		changelogMap.put("changes", changes);
-		
-		ApiChangeLogValidateTask task = new ApiChangeLogValidateTask(context, changelogMap);
-		assertThat(task.run()).isEmpty();
-	}
-	
-	@Test
-	public void run_changes_new_widget_app_type_value_should_be_web() {
-		Map<String, Object> changelogMap = new HashMap<String, Object>();
-		changelogMap.put("id", "1");
-		changelogMap.put("author", "2");
-		
-		List<Map<String, Object>> changes = new ArrayList<Map<String,Object>>();
-		Map<String, Object> change1 = new HashMap<String, Object>();
-		
-		Map<String, Object> newWidget = new HashMap<String, Object>();
-		newWidget.put("name", "a");
-		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
-		newWidget.put("appType", Arrays.asList(new String[] {"not-web"}));
+		newWidget.put("canHasChildren", "a");
 		newWidget.put("properties", Collections.emptyList());
 		newWidget.put("events", Collections.emptyList());
 		change1.put("newWidget", newWidget);
@@ -344,7 +287,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
+		newWidget.put("canHasChildren", true);
 		newWidget.put("events", Collections.emptyList());
 		change1.put("newWidget", newWidget);
 		changes.add(change1);
@@ -366,8 +309,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("canHasChildren", true);
 		newWidget.put("properties", "a");
 		newWidget.put("events", Collections.emptyList());
 		change1.put("newWidget", newWidget);
@@ -390,7 +332,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
+		newWidget.put("canHasChildren", true);
 		newWidget.put("properties", Collections.emptyList());
 		change1.put("newWidget", newWidget);
 		changes.add(change1);
@@ -412,8 +354,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("canHasChildren", true);
 		newWidget.put("properties", Collections.emptyList());
 		newWidget.put("events", "a");
 		change1.put("newWidget", newWidget);
@@ -436,8 +377,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("canHasChildren", true);
 		
 		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
 		Map<String, Object> propertyMap = new HashMap<String, Object>();
@@ -465,8 +405,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("canHasChildren", true);
 		
 		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
 		Map<String, Object> propertyMap = new HashMap<String, Object>();
@@ -498,8 +437,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("canHasChildren", true);
 		
 		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
 		Map<String, Object> propertyMap = new HashMap<String, Object>();
@@ -531,8 +469,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("canHasChildren", true);
 		
 		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
 		Map<String, Object> propertyMap = new HashMap<String, Object>();
@@ -564,8 +501,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("canHasChildren", true);
 		
 		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
 		Map<String, Object> propertyMap = new HashMap<String, Object>();
@@ -597,8 +533,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("canHasChildren", true);
 		
 		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
 		Map<String, Object> propertyMap = new HashMap<String, Object>();
@@ -630,8 +565,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("canHasChildren", true);
 		
 		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
 		Map<String, Object> propertyMap = new HashMap<String, Object>();
@@ -663,8 +597,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("canHasChildren", true);
 		
 		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
 		Map<String, Object> propertyMap = new HashMap<String, Object>();
@@ -696,8 +629,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("canHasChildren", true);
 		
 		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
 		Map<String, Object> propertyMap = new HashMap<String, Object>();
@@ -730,7 +662,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
+		newWidget.put("canHasChildren", true);
 		
 		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
 		Map<String, Object> propertyMap = new HashMap<String, Object>();
@@ -761,8 +693,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("canHasChildren", true);
 		
 		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
 		Map<String, Object> propertyMap = new HashMap<String, Object>();
@@ -794,8 +725,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("canHasChildren", true);
 		
 		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
 		Map<String, Object> propertyMap = new HashMap<String, Object>();
@@ -833,8 +763,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("canHasChildren", true);
 		
 		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
 		Map<String, Object> propertyMap = new HashMap<String, Object>();
@@ -872,8 +801,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("canHasChildren", true);
 		
 		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
 		Map<String, Object> propertyMap = new HashMap<String, Object>();
@@ -911,8 +839,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("canHasChildren", true);
 		
 		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
 		Map<String, Object> propertyMap = new HashMap<String, Object>();
@@ -951,8 +878,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("canHasChildren", true);
 		
 		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
 		Map<String, Object> propertyMap = new HashMap<String, Object>();
@@ -991,8 +917,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("canHasChildren", true);
 		newWidget.put("properties", Collections.emptyList());
 		
 		List<Map<String, Object>> events = new ArrayList<Map<String,Object>>();
@@ -1021,8 +946,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("canHasChildren", true);
 		newWidget.put("properties", Collections.emptyList());
 		
 		List<Map<String, Object>> events = new ArrayList<Map<String,Object>>();
@@ -1051,8 +975,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("canHasChildren", true);
 		newWidget.put("properties", Collections.emptyList());
 		
 		List<Map<String, Object>> events = new ArrayList<Map<String,Object>>();
@@ -1081,8 +1004,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("canHasChildren", true);
 		newWidget.put("properties", Collections.emptyList());
 		
 		List<Map<String, Object>> events = new ArrayList<Map<String,Object>>();
@@ -1112,7 +1034,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
+		newWidget.put("canHasChildren", true);
 		newWidget.put("properties", Collections.emptyList());
 		
 		List<Map<String, Object>> events = new ArrayList<Map<String,Object>>();
@@ -1143,8 +1065,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("canHasChildren", true);
 		newWidget.put("properties", Collections.emptyList());
 		
 		List<Map<String, Object>> events = new ArrayList<Map<String,Object>>();
@@ -1174,8 +1095,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("canHasChildren", true);
 		newWidget.put("properties", Collections.emptyList());
 		
 		List<Map<String, Object>> events = new ArrayList<Map<String,Object>>();
@@ -1206,8 +1126,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("canHasChildren", true);
 		newWidget.put("properties", Collections.emptyList());
 		
 		List<Map<String, Object>> events = new ArrayList<Map<String,Object>>();
@@ -1238,7 +1157,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
+		newWidget.put("canHasChildren", true);
 		newWidget.put("properties", Collections.emptyList());
 		
 		List<Map<String, Object>> events = new ArrayList<Map<String,Object>>();
@@ -1268,8 +1187,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("canHasChildren", true);
 		newWidget.put("properties", Collections.emptyList());
 		
 		List<Map<String, Object>> events = new ArrayList<Map<String,Object>>();
@@ -1305,8 +1223,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("canHasChildren", true);
 		newWidget.put("properties", Collections.emptyList());
 		
 		List<Map<String, Object>> events = new ArrayList<Map<String,Object>>();
@@ -1342,8 +1259,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("canHasChildren", true);
 		newWidget.put("properties", Collections.emptyList());
 		
 		List<Map<String, Object>> events = new ArrayList<Map<String,Object>>();
@@ -1380,8 +1296,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("canHasChildren", true);
 		newWidget.put("properties", Collections.emptyList());
 		
 		List<Map<String, Object>> events = new ArrayList<Map<String,Object>>();
@@ -1420,8 +1335,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("canHasChildren", true);
 		newWidget.put("properties", Collections.emptyList());
 		
 		List<Map<String, Object>> events = new ArrayList<Map<String,Object>>();
@@ -1460,8 +1374,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("canHasChildren", true);
 		newWidget.put("properties", Collections.emptyList());
 		
 		List<Map<String, Object>> events = new ArrayList<Map<String,Object>>();
@@ -1500,8 +1413,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("canHasChildren", true);
 		newWidget.put("properties", Collections.emptyList());
 		
 		List<Map<String, Object>> events = new ArrayList<Map<String,Object>>();
@@ -1540,8 +1452,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("canHasChildren", true);
 		newWidget.put("properties", Collections.emptyList());
 		
 		List<Map<String, Object>> events = new ArrayList<Map<String,Object>>();
@@ -1580,8 +1491,7 @@ public class ApiChangeLogValidateTaskTest {
 		Map<String, Object> newWidget = new HashMap<String, Object>();
 		newWidget.put("name", "a");
 		newWidget.put("label", "b");
-		newWidget.put("iconClass", "c");
-		newWidget.put("appType", Arrays.asList(new String[] {"web"}));
+		newWidget.put("canHasChildren", true);
 		newWidget.put("properties", Collections.emptyList());
 		
 		List<Map<String, Object>> events = new ArrayList<Map<String,Object>>();
@@ -1710,7 +1620,7 @@ public class ApiChangeLogValidateTaskTest {
 		newWidget.put("name", "widget_name");
 		newWidget.put("label", "widget_label");
 		newWidget.put("description", "widget_description");
-		newWidget.put("iconClass", "widget_iconClass");
+		newWidget.put("canHasChildren", true);
 		
 		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
 		Map<String, Object> propertyMap = new HashMap<String, Object>();
@@ -1739,7 +1649,7 @@ public class ApiChangeLogValidateTaskTest {
 		newWidget.put("name", "widget_name");
 		newWidget.put("label", "widget_label");
 		newWidget.put("description", "widget_description");
-		newWidget.put("iconClass", "widget_iconClass");
+		newWidget.put("canHasChildren", true);
 		
 		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
 		Map<String, Object> propertyMap = new HashMap<String, Object>();
@@ -1769,7 +1679,7 @@ public class ApiChangeLogValidateTaskTest {
 		newWidget.put("name", "widget_name");
 		newWidget.put("label", "widget_label");
 		newWidget.put("description", "widget_description");
-		newWidget.put("iconClass", "widget_iconClass");
+		newWidget.put("canHasChildren", true);
 		
 		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
 		Map<String, Object> propertyMap = new HashMap<String, Object>();
@@ -1802,7 +1712,7 @@ public class ApiChangeLogValidateTaskTest {
 		newWidget.put("name", "widget_name");
 		newWidget.put("label", "widget_label");
 		newWidget.put("description", "widget_description");
-		newWidget.put("iconClass", "widget_iconClass");
+		newWidget.put("canHasChildren", true);
 		
 		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
 		Map<String, Object> propertyMap = new HashMap<String, Object>();
@@ -1836,7 +1746,7 @@ public class ApiChangeLogValidateTaskTest {
 		newWidget.put("name", "widget_name");
 		newWidget.put("label", "widget_label");
 		newWidget.put("description", "widget_description");
-		newWidget.put("iconClass", "widget_iconClass");
+		newWidget.put("canHasChildren", true);
 		
 		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
 		Map<String, Object> propertyMap = new HashMap<String, Object>();
@@ -1876,7 +1786,7 @@ public class ApiChangeLogValidateTaskTest {
 		newWidget.put("name", "widget_name");
 		newWidget.put("label", "widget_label");
 		newWidget.put("description", "widget_description");
-		newWidget.put("iconClass", "widget_iconClass");
+		newWidget.put("canHasChildren", true);
 		
 		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
 		Map<String, Object> propertyMap = new HashMap<String, Object>();
@@ -1916,7 +1826,7 @@ public class ApiChangeLogValidateTaskTest {
 		newWidget.put("name", "widget_name");
 		newWidget.put("label", "widget_label");
 		newWidget.put("description", "widget_description");
-		newWidget.put("iconClass", "widget_iconClass");
+		newWidget.put("canHasChildren", true);
 		
 		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
 		Map<String, Object> propertyMap = new HashMap<String, Object>();
@@ -1959,7 +1869,7 @@ public class ApiChangeLogValidateTaskTest {
 		newWidget.put("name", "widget_name");
 		newWidget.put("label", "widget_label");
 		newWidget.put("description", "widget_description");
-		newWidget.put("iconClass", "widget_iconClass");
+		newWidget.put("canHasChildren", true);
 		
 		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
 		Map<String, Object> propertyMap = new HashMap<String, Object>();
@@ -2008,7 +1918,7 @@ public class ApiChangeLogValidateTaskTest {
 		newWidget.put("name", "widget_name");
 		newWidget.put("label", "widget_label");
 		newWidget.put("description", "widget_description");
-		newWidget.put("iconClass", "widget_iconClass");
+		newWidget.put("canHasChildren", true);
 		
 		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
 		Map<String, Object> propertyMap = new HashMap<String, Object>();
@@ -2058,7 +1968,7 @@ public class ApiChangeLogValidateTaskTest {
 		newWidget.put("name", "widget_name");
 		newWidget.put("label", "widget_label");
 		newWidget.put("description", "widget_description");
-		newWidget.put("iconClass", "widget_iconClass");
+		newWidget.put("canHasChildren", true);
 		
 		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
 		Map<String, Object> propertyMap = new HashMap<String, Object>();
@@ -2109,7 +2019,7 @@ public class ApiChangeLogValidateTaskTest {
 		newWidget.put("name", "widget_name");
 		newWidget.put("label", "widget_label");
 		newWidget.put("description", "widget_description");
-		newWidget.put("iconClass", "widget_iconClass");
+		newWidget.put("canHasChildren", true);
 		
 		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
 		Map<String, Object> propertyMap = new HashMap<String, Object>();
@@ -2167,7 +2077,7 @@ public class ApiChangeLogValidateTaskTest {
 		newWidget.put("name", "widget_name");
 		newWidget.put("label", "widget_label");
 		newWidget.put("description", "widget_description");
-		newWidget.put("iconClass", "widget_iconClass");
+		newWidget.put("canHasChildren", true);
 		
 		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
 		Map<String, Object> propertyMap = new HashMap<String, Object>();
@@ -2225,7 +2135,7 @@ public class ApiChangeLogValidateTaskTest {
 		newWidget.put("name", "widget_name");
 		newWidget.put("label", "widget_label");
 		newWidget.put("description", "widget_description");
-		newWidget.put("iconClass", "widget_iconClass");
+		newWidget.put("canHasChildren", true);
 		
 		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
 		Map<String, Object> propertyMap = new HashMap<String, Object>();
@@ -2285,7 +2195,7 @@ public class ApiChangeLogValidateTaskTest {
 		newWidget.put("name", "widget_name");
 		newWidget.put("label", "widget_label");
 		newWidget.put("description", "widget_description");
-		newWidget.put("iconClass", "widget_iconClass");
+		newWidget.put("canHasChildren", true);
 		
 		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
 		Map<String, Object> propertyMap = new HashMap<String, Object>();

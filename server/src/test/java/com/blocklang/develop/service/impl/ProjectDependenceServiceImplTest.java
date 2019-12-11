@@ -3,18 +3,17 @@ package com.blocklang.develop.service.impl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.util.StopWatch;
@@ -57,8 +56,7 @@ import com.blocklang.marketplace.model.ComponentRepoVersion;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
-	@Rule
-	public TemporaryFolder tempFolder = new TemporaryFolder();
+
 	@MockBean
 	private PropertyService propertyService;
 	
@@ -175,7 +173,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 	}
 	
 	@Test
-	public void save_success() throws IOException {
+	public void save_success(@TempDir Path rootFolder) throws IOException {
 		Integer projectId = 1;
 		Integer componentRepoId = 2;
 		Integer userId = 3;
@@ -206,8 +204,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		assertThat(countRowsInTable("PROJECT_BUILD_PROFILE")).isEqualTo(0);
 		assertThat(countRowsInTable("PROJECT_DEPENDENCE")).isEqualTo(0);
 		
-		File rootFolder = tempFolder.newFolder();
-		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.getPath()));
+		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
 		ProjectDependence savedDependence = projectDependenceService.save(projectId, componentRepo, userId);
 		
@@ -222,7 +219,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
-	public void save_then_update_dependence_json_file() throws IOException {
+	public void save_then_update_dependence_json_file(@TempDir Path rootFolder) throws IOException {
 		UserInfo userInfo = new UserInfo();
 		userInfo.setLoginName("user_name");
 		userInfo.setAvatarUrl("avatar_url");
@@ -240,9 +237,8 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		project.setCreateTime(LocalDateTime.now());
 		project.setCreateUserName("user_name");
 		
-		File rootFolder = tempFolder.newFolder();
-		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.getPath()));
-		ProjectContext context = new ProjectContext("user_name", "project_name", rootFolder.getPath());
+		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
+		ProjectContext context = new ProjectContext("user_name", "project_name", rootFolder.toString());
 		
 		Project savedProject = projectService.create(userInfo, project);
 		
@@ -532,7 +528,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 	}
 
 	@Test
-	public void delete_then_update_dependence_json_file() throws IOException {
+	public void delete_then_update_dependence_json_file(@TempDir Path rootFolder) throws IOException {
 		// 一、创建一个项目
 		UserInfo userInfo = new UserInfo();
 		userInfo.setLoginName("user_name");
@@ -551,9 +547,8 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		project.setCreateTime(LocalDateTime.now());
 		project.setCreateUserName("user_name");
 		
-		File rootFolder = tempFolder.newFolder();
-		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.getPath()));
-		ProjectContext context = new ProjectContext("user_name", "project_name", rootFolder.getPath());
+		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
+		ProjectContext context = new ProjectContext("user_name", "project_name", rootFolder.toString());
 		
 		Project savedProject = projectService.create(userInfo, project);
 		
@@ -612,7 +607,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
-	public void update_then_update_dependence_json_file() throws IOException {
+	public void update_then_update_dependence_json_file(@TempDir Path rootFolder) throws IOException {
 		// 一、创建一个项目
 		UserInfo userInfo = new UserInfo();
 		userInfo.setLoginName("user_name");
@@ -631,9 +626,8 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		project.setCreateTime(LocalDateTime.now());
 		project.setCreateUserName("user_name");
 		
-		File rootFolder = tempFolder.newFolder();
-		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.getPath()));
-		ProjectContext context = new ProjectContext("user_name", "project_name", rootFolder.getPath());
+		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
+		ProjectContext context = new ProjectContext("user_name", "project_name", rootFolder.toString());
 		
 		Project savedProject = projectService.create(userInfo, project);
 		
@@ -950,7 +944,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 
 	// 测试一个 API 仓库中有两个分组的情况
 	// 尚不支持 category 字段
-	@Ignore
+	@Disabled
 	@Test
 	public void find_all_widgets_two_category() {
 		Integer projectId = 1;

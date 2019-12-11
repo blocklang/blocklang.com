@@ -7,16 +7,14 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Optional;
 
 import org.apache.http.HttpStatus;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -32,9 +30,6 @@ import io.restassured.http.ContentType;
 
 @WebMvcTest(ComponentRepoPublishTaskController.class)
 public class ComponentRepoPublishTaskControllerTest extends AbstractControllerTest {
-	
-	@Rule
-	public TemporaryFolder tempFolder = new TemporaryFolder();
 	
 	@MockBean
 	private ComponentRepoPublishTaskService componentRepoPublishTaskService;
@@ -198,7 +193,7 @@ public class ComponentRepoPublishTaskControllerTest extends AbstractControllerTe
 	
 	@WithMockUser("jack")
 	@Test
-	public void get_publish_log_success() throws IOException {
+	public void get_publish_log_success(@TempDir Path dataRootDirectory) throws IOException {
 		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
 		task.setId(1);
 		task.setCreateUserName("jack");
@@ -206,12 +201,11 @@ public class ComponentRepoPublishTaskControllerTest extends AbstractControllerTe
 		task.setLogFileName("get_publish_log_success.log");
 		when(componentRepoPublishTaskService.findById(anyInt())).thenReturn(Optional.of(task));
 
-		File dataRootDirectory = tempFolder.newFolder();
-		when(propertyService.findStringValue(anyString())).thenReturn(Optional.of(dataRootDirectory.getPath()));
+		when(propertyService.findStringValue(anyString())).thenReturn(Optional.of(dataRootDirectory.toString()));
 
 		// 创建一个日志文件，其中写入两行文字
 		// 这里借助 MarketplacePublishContext 类生成完整的日志文件
-		MarketplacePublishContext context = new MarketplacePublishContext(dataRootDirectory.getPath(), task);
+		MarketplacePublishContext context = new MarketplacePublishContext(dataRootDirectory.toString(), task);
 		Path logFolderPath = context.getLocalComponentRepoPath().getRepoRootDirectory().resolve("publishLogs");
 		Path logFilePath = logFolderPath.resolve("get_publish_log_success.log");
 		TaskLogger logger = new TaskLogger(logFilePath);

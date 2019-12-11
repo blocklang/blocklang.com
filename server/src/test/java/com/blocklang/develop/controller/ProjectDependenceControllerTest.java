@@ -15,7 +15,7 @@ import java.util.Collections;
 import java.util.Optional;
 
 import org.apache.http.HttpStatus;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;

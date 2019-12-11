@@ -15,7 +15,7 @@ import java.util.Collections;
 import java.util.Optional;
 
 import org.apache.http.HttpStatus;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -444,7 +444,7 @@ public class ProjectControllerTest extends AbstractControllerTest{
 		
 		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
 		
-		when(projectResourceService.findParentPath(anyInt())).thenReturn("");
+		when(projectResourceService.findParentPathes(anyInt())).thenReturn(Collections.emptyList());
 		
 		GitCommitInfo commitInfo = new GitCommitInfo();
 		commitInfo.setShortMessage("message");
@@ -467,7 +467,7 @@ public class ProjectControllerTest extends AbstractControllerTest{
 		
 		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
 		
-		when(projectResourceService.findParentPath(anyInt())).thenReturn("a");
+		when(projectResourceService.findParentPathes(anyInt())).thenReturn(Collections.singletonList("a"));
 		
 		GitCommitInfo commitInfo = new GitCommitInfo();
 		commitInfo.setShortMessage("message");

@@ -1,12 +1,12 @@
 package com.blocklang.develop.service.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.when;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -14,9 +14,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.eclipse.jgit.lib.Constants;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.MessageSource;
@@ -65,8 +65,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 
-	@Rule
-	public TemporaryFolder tempFolder = new TemporaryFolder();
 	@Autowired
 	private ProjectResourceService projectResourceService;
 	@Autowired
@@ -124,7 +122,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	}
 	
 	@Test
-	public void insert_empty_page_with_a_root_widget() throws IOException {
+	public void insert_empty_page_with_a_root_widget(@TempDir Path rootFolder) throws IOException {
 		Integer userId = 1;
 		// 创建一个标准库
 		ApiRepo stdApiRepo = new ApiRepo();
@@ -213,9 +211,8 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
 		
-		File rootFolder = tempFolder.newFolder();
-		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.getPath()));
-		ProjectContext context = new ProjectContext("jack", "project", rootFolder.getPath());
+		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
+		ProjectContext context = new ProjectContext("jack", "project", rootFolder.toString());
 		Files.createDirectories(context.getGitRepositoryDirectory());
 		
 		when(propertyService.findStringValue(CmPropKey.STD_WIDGET_API_NAME, "std-api-widget")).thenReturn("std-api-widget");
@@ -395,8 +392,8 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void find_parent_path_at_root() {
-		String path = projectResourceService.findParentPath(-1);
-		assertThat(path).isEmpty();
+		List<String> pathes = projectResourceService.findParentPathes(-1);
+		assertThat(pathes).isEmpty();
 	}
 	
 	@Test
@@ -437,8 +434,8 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		resource.setCreateTime(LocalDateTime.now());
 		savedResourceId = projectResourceDao.save(resource).getId();
 		
-		String path = projectResourceService.findParentPath(savedResourceId);
-		assertThat(path).isEqualTo("key1/key2/key3");
+		List<String> pathes = projectResourceService.findParentPathes(savedResourceId);
+		assertThat(String.join("/", pathes)).isEqualTo("key1/key2/key3");
 	}
 	
 	// 因为 getTitle 方法用到了 spring 的国际化帮助类，因为需要注入，所以将测试类放在 service 中
@@ -590,6 +587,31 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	}
 
 	@Test
+	public void find_all_pages_web_type_but_no_data() {
+		Integer projectId = Integer.MAX_VALUE;
+		assertThat(projectResourceService.findAllPages(projectId, AppType.WEB)).isEmpty();
+	}
+	
+	@Test
+	public void find_all_pages_web_type_success() {
+		Integer projectId = Integer.MAX_VALUE;
+		
+		ProjectResource resource = new ProjectResource();
+		resource.setProjectId(projectId);
+		resource.setKey("key1");
+		resource.setName("name1");
+		resource.setAppType(AppType.WEB);
+		resource.setResourceType(ProjectResourceType.PAGE);
+		resource.setParentId(Constant.TREE_ROOT_ID);
+		resource.setSeq(1);
+		resource.setCreateUserId(1);
+		resource.setCreateTime(LocalDateTime.now());
+		projectResourceDao.save(resource);
+		
+		assertThat(projectResourceService.findAllPages(projectId, AppType.WEB)).hasSize(1);
+	}
+	
+	@Test
 	public void find_parent_groups_by_parent_path_is_not_exist() {
 		assertThat(projectResourceService.findParentGroupsByParentPath(null, null)).isEmpty();
 		assertThat(projectResourceService.findParentGroupsByParentPath(null, "")).isEmpty();
@@ -676,7 +698,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	}
 
 	@Test
-	public void find_changes_success() throws IOException {
+	public void find_changes_success(@TempDir Path rootFolder) throws IOException {
 		UserInfo userInfo = new UserInfo();
 		userInfo.setLoginName("user_name");
 		userInfo.setAvatarUrl("avatar_url");
@@ -694,8 +716,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		project.setCreateTime(LocalDateTime.now());
 		project.setCreateUserName("user_name");
 		
-		File rootFolder = tempFolder.newFolder();
-		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.getPath()));
+		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
 		Project savedProject = projectService.create(userInfo, project);
 		
@@ -723,7 +744,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	}
 	
 	@Test
-	public void find_changes_not_contain_group() throws IOException {
+	public void find_changes_not_contain_group(@TempDir Path rootFolder) throws IOException {
 		UserInfo userInfo = new UserInfo();
 		userInfo.setLoginName("user_name");
 		userInfo.setAvatarUrl("avatar_url");
@@ -741,8 +762,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		project.setCreateTime(LocalDateTime.now());
 		project.setCreateUserName("user_name");
 		
-		File rootFolder = tempFolder.newFolder();
-		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.getPath()));
+		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
 		Project savedProject = projectService.create(userInfo, project);
 		
@@ -764,7 +784,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	}
 
 	@Test
-	public void find_changes_exist_two_level_parent_name_path_use_name() throws IOException {
+	public void find_changes_exist_two_level_parent_name_path_use_name(@TempDir Path rootFolder) throws IOException {
 		UserInfo userInfo = new UserInfo();
 		userInfo.setLoginName("user_name");
 		userInfo.setAvatarUrl("avatar_url");
@@ -782,8 +802,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		project.setCreateTime(LocalDateTime.now());
 		project.setCreateUserName("user_name");
 		
-		File rootFolder = tempFolder.newFolder();
-		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.getPath()));
+		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
 		Project savedProject = projectService.create(userInfo, project);
 		
@@ -833,7 +852,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	}
 	
 	@Test
-	public void stage_changes_success() throws IOException {
+	public void stage_changes_success(@TempDir Path rootFolder) throws IOException {
 		UserInfo userInfo = new UserInfo();
 		userInfo.setLoginName("user_name");
 		userInfo.setAvatarUrl("avatar_url");
@@ -851,8 +870,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		project.setCreateTime(LocalDateTime.now());
 		project.setCreateUserName("user_name");
 		
-		File rootFolder = tempFolder.newFolder();
-		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.getPath()));
+		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
 		Project savedProject = projectService.create(userInfo, project);
 		
@@ -882,7 +900,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	}
 	
 	@Test
-	public void unstage_changes_success() throws IOException {
+	public void unstage_changes_success(@TempDir Path rootFolder) throws IOException {
 		UserInfo userInfo = new UserInfo();
 		userInfo.setLoginName("user_name");
 		userInfo.setAvatarUrl("avatar_url");
@@ -900,8 +918,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		project.setCreateTime(LocalDateTime.now());
 		project.setCreateUserName("user_name");
 		
-		File rootFolder = tempFolder.newFolder();
-		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.getPath()));
+		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
 		Project savedProject = projectService.create(userInfo, project);
 		
@@ -931,8 +948,8 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		assertThat(file.getParentNamePath()).isBlank();
 	}
 	
-	@Test(expected = GitEmptyCommitException.class)
-	public void commit_no_stage() throws IOException {
+	@Test
+	public void commit_no_stage(@TempDir Path rootFolder) throws IOException {
 		UserInfo userInfo = new UserInfo();
 		userInfo.setLoginName("user_name");
 		userInfo.setAvatarUrl("avatar_url");
@@ -950,19 +967,18 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		project.setCreateTime(LocalDateTime.now());
 		project.setCreateUserName("user_name");
 		
-		File rootFolder = tempFolder.newFolder();
-		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.getPath()));
+		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
 		Project savedProject = projectService.create(userInfo, project);
 		
 		List<UncommittedFile> changes = projectResourceService.findChanges(savedProject);
 		assertThat(changes).isEmpty();
 		
-		projectResourceService.commit(userInfo, savedProject, "commit page1");
+		Assertions.assertThrows(GitEmptyCommitException.class, () -> projectResourceService.commit(userInfo, savedProject, "commit page1"));
 	}
 	
 	@Test
-	public void commit_success() throws IOException {
+	public void commit_success(@TempDir Path rootFolder) throws IOException {
 		UserInfo userInfo = new UserInfo();
 		userInfo.setLoginName("user_name");
 		userInfo.setAvatarUrl("avatar_url");
@@ -980,8 +996,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		project.setCreateTime(LocalDateTime.now());
 		project.setCreateUserName("user_name");
 		
-		File rootFolder = tempFolder.newFolder();
-		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.getPath()));
+		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
 		Project savedProject = projectService.create(userInfo, project);
 		
@@ -1361,7 +1376,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	}
 
 	@Test
-	public void update_page_model_widgets_read_page_file_in_git() throws IOException {
+	public void update_page_model_widgets_read_page_file_in_git(@TempDir Path rootFolder) throws IOException {
 		// 初始化数据
 		// 1. 创建一个 API 仓库，类型为 Widget
 		ApiRepo apiRepo = new ApiRepo();
@@ -1508,9 +1523,8 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		resource.setName("name");
 		resource.setResourceType(ProjectResourceType.PAGE);
 		
-		File rootFolder = tempFolder.newFolder();
-		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.getPath()));
-		ProjectContext context = new ProjectContext("jack", "project", rootFolder.getPath());
+		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
+		ProjectContext context = new ProjectContext("jack", "project", rootFolder.toString());
 		Files.createDirectories(context.getGitRepositoryDirectory());
 		
 		projectResourceService.updatePageModel(project, resource, model);

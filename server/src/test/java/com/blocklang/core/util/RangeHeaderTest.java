@@ -2,7 +2,8 @@ package com.blocklang.core.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Range;
 
 public class RangeHeaderTest {
@@ -19,34 +20,34 @@ public class RangeHeaderTest {
 		assertThat(RangeHeader.isValid("bytes=200-1000, 2000-6576,  19000-")).isTrue();
 	}
 
-	@Test(expected =IllegalArgumentException.class)
+	@Test
 	public void parse_range_header_is_null() {
-		RangeHeader.parse(null, 10L);
+		Assertions.assertThrows(IllegalArgumentException.class, () -> RangeHeader.parse(null, 10L));
 	}
 	
-	@Test(expected =IllegalArgumentException.class)
+	@Test
 	public void parse_range_header_is_blank() {
-		RangeHeader.parse(" ", 10L);
+		Assertions.assertThrows(IllegalArgumentException.class, () -> RangeHeader.parse(" ", 10L));
 	}
 	
-	@Test(expected =IllegalArgumentException.class)
+	@Test
 	public void parse_range_header_not_contains_range() {
-		RangeHeader.parse("xxx=-1 ", 10L);
+		Assertions.assertThrows(IllegalArgumentException.class, () -> RangeHeader.parse("xxx=-1 ", 10L));
 	}
 	
-	@Test(expected =IllegalArgumentException.class)
+	@Test
 	public void parse_range_header_not_contains_strikethrough() {
-		RangeHeader.parse("xxx=1 ", 10L);
+		Assertions.assertThrows(IllegalArgumentException.class, () -> RangeHeader.parse("xxx=1 ", 10L));
 	}
 	
-	@Test(expected =IllegalArgumentException.class)
+	@Test
 	public void parse_not_has_lower_or_upper() {
-		RangeHeader.parse("bytes=-", 10L);
+		Assertions.assertThrows(IllegalArgumentException.class, () -> RangeHeader.parse("bytes=-", 10L));
 	}
 	
-	@Test(expected =IllegalArgumentException.class)
+	@Test
 	public void parse_not_number() {
-		RangeHeader.parse("bytes=a-b", 10L);
+		Assertions.assertThrows(IllegalArgumentException.class, () -> RangeHeader.parse("bytes=a-b", 10L));
 	}
 	
 	@Test

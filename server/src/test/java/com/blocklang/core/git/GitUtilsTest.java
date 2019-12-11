@@ -2,7 +2,6 @@ package com.blocklang.core.git;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,11 +14,12 @@ import java.util.Optional;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import com.blocklang.core.constant.GitFileStatus;
+import com.blocklang.core.test.TestHelper;
 
 /**
  * git 测试用例
@@ -33,145 +33,176 @@ import com.blocklang.core.constant.GitFileStatus;
  * @author Zhengwei Jin
  */
 public class GitUtilsTest {
-	
-	@Rule
-	public TemporaryFolder tempFolder = new TemporaryFolder();
 
 	private String gitRepoDirectory = "gitRepo";
 	private String gitUserName = "user";
 	private String gitUserMail = "user@email.com";
 	
 	@Test
-	public void is_git_repo_folder_not_exist() throws IOException {
-		File folder = tempFolder.newFolder(gitRepoDirectory);
-		assertThat(GitUtils.isGitRepo(folder.toPath().resolve("not-exist-folder"))).isFalse();
+	public void is_git_repo_folder_not_exist(@TempDir Path tempDir) throws IOException {
+		Path folder = tempDir.resolve(gitRepoDirectory);
+		Files.createDirectory(folder);
+		
+		assertThat(GitUtils.isGitRepo(folder.resolve("not-exist-folder"))).isFalse();
 	}
 	
 	@Test
-	public void is_git_repo_is_not_a_folder() throws IOException {
-		File file = tempFolder.newFile(gitRepoDirectory);
-		assertThat(GitUtils.isGitRepo(file.toPath())).isFalse();
+	public void is_git_repo_is_not_a_folder(@TempDir Path tempDir) throws IOException {
+		Path file = tempDir.resolve(gitRepoDirectory);
+		Files.createFile(file);
+		
+		assertThat(GitUtils.isGitRepo(file)).isFalse();
 	}
 	
 	@Test
-	public void git_init_success() throws IOException {
-		File folder = tempFolder.newFolder(gitRepoDirectory);
+	public void git_init_success(@TempDir Path tempDir) throws IOException {
+		Path folder = tempDir.resolve(gitRepoDirectory);
+		Files.createDirectory(folder);
 		
-		assertThat(GitUtils.isGitRepo(folder.toPath())).isFalse();
+		assertThat(GitUtils.isGitRepo(folder)).isFalse();
 		
-		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+		GitUtils.init(folder, gitUserName, gitUserMail);
 		
-		assertThat(GitUtils.isGitRepo(folder.toPath())).isTrue();
+		assertThat(GitUtils.isGitRepo(folder)).isTrue();
+		
+		TestHelper.clearDir(folder);
 	}
 	
 	@Test
-	public void git_init_with_files_success() throws IOException {
-		File folder = tempFolder.newFolder(gitRepoDirectory);
+	public void git_init_with_files_success(@TempDir Path tempDir) throws IOException {
+		Path folder = tempDir.resolve(gitRepoDirectory);
+		Files.createDirectory(folder);
 		
-		GitUtils.beginInit(folder.toPath(), gitUserName, gitUserMail).addFile("a.txt", "Hello").commit("first commit");
-		assertContentEquals(folder.toPath().resolve("a.txt"), "Hello");
+		GitUtils.beginInit(folder, gitUserName, gitUserMail).addFile("a.txt", "Hello").commit("first commit");
+		assertContentEquals(folder.resolve("a.txt"), "Hello");
+		
+		TestHelper.clearDir(folder);
 	}
 	
 	@Test
-	public void git_commit_success() throws IOException {
-		File folder = tempFolder.newFolder(gitRepoDirectory);
-		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+	public void git_commit_success(@TempDir Path tempDir) throws IOException {
+		Path folder = tempDir.resolve(gitRepoDirectory);
+		Files.createDirectory(folder);
+		
+		GitUtils.init(folder, gitUserName, gitUserMail);
 		
 		// 在初始化时有一次 commit
-		assertThat(GitUtils.getLogCount(folder.toPath())).isEqualTo(1);
+		assertThat(GitUtils.getLogCount(folder)).isEqualTo(1);
 		
-		GitUtils.commit(folder.toPath(), "/a/b", "c.txt", "hello", "usera", "usera@email.com", "firstCommit");
-		assertThat(GitUtils.getLogCount(folder.toPath())).isEqualTo(2);
-		assertContentEquals(folder.toPath().resolve("a").resolve("b").resolve("c.txt"), "hello");
+		GitUtils.commit(folder, "/a/b", "c.txt", "hello", "usera", "usera@email.com", "firstCommit");
+		assertThat(GitUtils.getLogCount(folder)).isEqualTo(2);
+		assertContentEquals(folder.resolve("a").resolve("b").resolve("c.txt"), "hello");
 		
-		GitUtils.commit(folder.toPath(), "/a/b", "c.txt", "hello world", "usera", "usera@email.com", "secondCommit");
-		assertThat(GitUtils.getLogCount(folder.toPath())).isEqualTo(3);
-		assertContentEquals(folder.toPath().resolve("a").resolve("b").resolve("c.txt"), "hello world");
+		GitUtils.commit(folder, "/a/b", "c.txt", "hello world", "usera", "usera@email.com", "secondCommit");
+		assertThat(GitUtils.getLogCount(folder)).isEqualTo(3);
+		assertContentEquals(folder.resolve("a").resolve("b").resolve("c.txt"), "hello world");
+		
+		TestHelper.clearDir(folder);
 	}
 	
 	@Test
-	public void git_tag_success() throws IOException {
-		// 新建一个 git 仓库
-		File folder = tempFolder.newFolder(gitRepoDirectory);
-		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+	public void git_tag_success(@TempDir Path tempDir) throws IOException {
+		Path folder = tempDir.resolve(gitRepoDirectory);
+		Files.createDirectory(folder);
+		
+		GitUtils.init(folder, gitUserName, gitUserMail);
 		
 		// 断言仓库的标签数
-		assertThat(GitUtils.getTagCount(folder.toPath())).isEqualTo(0);
+		assertThat(GitUtils.getTagCount(folder)).isEqualTo(0);
 		// 为 git 仓库打标签
-		GitUtils.tag(folder.toPath(), "v0.1.0", "message");
+		GitUtils.tag(folder, "v0.1.0", "message");
 		// 断言仓库的标签数
-		assertThat(GitUtils.getTagCount(folder.toPath())).isEqualTo(1);
+		assertThat(GitUtils.getTagCount(folder)).isEqualTo(1);
+		
+		TestHelper.clearDir(folder);
 	}
 	
 	@Test
-	public void get_tag_success() throws IOException {
+	public void get_tag_success(@TempDir Path tempDir) throws IOException {
 		// 新建一个 git 仓库
-		File folder = tempFolder.newFolder(gitRepoDirectory);
-		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+		Path folder = tempDir.resolve(gitRepoDirectory);
+		Files.createDirectory(folder);
+		
+		GitUtils.init(folder, gitUserName, gitUserMail);
 		
 		// 为 git 仓库打标签
-		Ref existTag = GitUtils.tag(folder.toPath(), "v0.1.0", "message");
+		Ref existTag = GitUtils.tag(folder, "v0.1.0", "message");
 		// 获取仓库标签
 		// 刚才添加的标签
-		Optional<Ref> getedTag = GitUtils.getTag(folder.toPath(), "v0.1.0");
+		Optional<Ref> getedTag = GitUtils.getTag(folder, "v0.1.0");
 		assertThat(existTag.getObjectId().getName()).isEqualTo(getedTag.get().getObjectId().getName());
 		
 		// 不存在的标签
-		getedTag = GitUtils.getTag(folder.toPath(), "v0.1.0-1");
+		getedTag = GitUtils.getTag(folder, "v0.1.0-1");
 		assertThat(getedTag.isEmpty()).isTrue();
+		
+		TestHelper.clearDir(folder);
 	}
 	
 	@Test
-	public void get_latest_commit_at_root() throws IOException {
+	public void get_latest_commit_at_root(@TempDir Path tempDir) throws IOException {
 		// 新建一个 git 仓库
-		File folder = tempFolder.newFolder(gitRepoDirectory);
-		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+		Path folder = tempDir.resolve(gitRepoDirectory);
+		Files.createDirectory(folder);
 		
-		GitUtils.commit(folder.toPath(), null, "a.txt", "hello", gitUserName, gitUserMail, "commit 1");
-		RevCommit latestCommit = GitUtils.getLatestCommit(folder.toPath());
+		GitUtils.init(folder, gitUserName, gitUserMail);
+		
+		GitUtils.commit(folder, null, "a.txt", "hello", gitUserName, gitUserMail, "commit 1");
+		RevCommit latestCommit = GitUtils.getLatestCommit(folder);
 		assertThat(latestCommit.getFullMessage()).isEqualTo("commit 1");
 		
-		GitUtils.commit(folder.toPath(), null, "a.txt", "hello world", gitUserName, gitUserMail, "commit 2");
-		latestCommit = GitUtils.getLatestCommit(folder.toPath());
+		GitUtils.commit(folder, null, "a.txt", "hello world", gitUserName, gitUserMail, "commit 2");
+		latestCommit = GitUtils.getLatestCommit(folder);
 		assertThat(latestCommit.getFullMessage()).isEqualTo("commit 2");
+		
+		TestHelper.clearDir(folder);
 	}
 	
 	@Test
-	public void get_latest_commit_at_sub_folder() throws IOException {
+	public void get_latest_commit_at_sub_folder(@TempDir Path tempDir) throws IOException {
 		// 新建一个 git 仓库
-		File folder = tempFolder.newFolder(gitRepoDirectory);
-		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+		Path folder = tempDir.resolve(gitRepoDirectory);
+		Files.createDirectory(folder);
 		
-		GitUtils.commit(folder.toPath(), "a", "a.txt", "hello", gitUserName, gitUserMail, "commit 1");
-		RevCommit latestCommit = GitUtils.getLatestCommit(folder.toPath(), "a");
+		GitUtils.init(folder, gitUserName, gitUserMail);
+		
+		GitUtils.commit(folder, "a", "a.txt", "hello", gitUserName, gitUserMail, "commit 1");
+		RevCommit latestCommit = GitUtils.getLatestCommit(folder, "a");
 		assertThat(latestCommit.getFullMessage()).isEqualTo("commit 1");
 		
-		GitUtils.commit(folder.toPath(), "a", "a.txt", "hello world", gitUserName, gitUserMail, "commit 2");
-		latestCommit = GitUtils.getLatestCommit(folder.toPath(), "a");
+		GitUtils.commit(folder, "a", "a.txt", "hello world", gitUserName, gitUserMail, "commit 2");
+		latestCommit = GitUtils.getLatestCommit(folder, "a");
 		assertThat(latestCommit.getFullMessage()).isEqualTo("commit 2");
+		
+		TestHelper.clearDir(folder);
 	}
 	
 	@Test
-	public void get_files_in_invalid_repo() throws IOException {
+	public void get_files_in_invalid_repo(@TempDir Path tempDir) throws IOException {
 		// 新建一个 git 仓库
-		File folder = tempFolder.newFolder(gitRepoDirectory);
+		Path folder = tempDir.resolve(gitRepoDirectory);
+		Files.createDirectory(folder);
 
-		List<GitFileInfo> gitFiles = GitUtils.getFiles(folder.toPath(), null);
+		List<GitFileInfo> gitFiles = GitUtils.getFiles(folder, null);
 		
 		assertThat(gitFiles).isEmpty();
+		
+		TestHelper.clearDir(folder);
 	}
 	
 	// 只适用于 master 分支
 	@Test
-	public void get_files_at_root() throws IOException {
+	public void get_files_at_root(@TempDir Path tempDir) throws IOException {
 		// 新建一个 git 仓库
-		File folder = tempFolder.newFolder(gitRepoDirectory);
-		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+		Path folder = tempDir.resolve(gitRepoDirectory);
+		Files.createDirectory(folder);
 		
-		String commitId1 = GitUtils.commit(folder.toPath(), null, "1.txt", "hello", gitUserName, gitUserMail, "commit 1");
-		String commitId2 = GitUtils.commit(folder.toPath(), null, "2.txt", "world", gitUserName, gitUserMail, "commit 2");
+		GitUtils.init(folder, gitUserName, gitUserMail);
 		
-		List<GitFileInfo> gitFiles = GitUtils.getFiles(folder.toPath(), null);
+		String commitId1 = GitUtils.commit(folder, null, "1.txt", "hello", gitUserName, gitUserMail, "commit 1");
+		String commitId2 = GitUtils.commit(folder, null, "2.txt", "world", gitUserName, gitUserMail, "commit 2");
+		
+		List<GitFileInfo> gitFiles = GitUtils.getFiles(folder, null);
 
 		assertThat(gitFiles).hasSize(2).anyMatch(gitFile -> {
 			return gitFile.isFolder() == false &&
@@ -191,29 +222,36 @@ public class GitUtilsTest {
 					gitFile.getLatestCommitTime() != null;
 		});
 		
+		TestHelper.clearDir(folder);
 	}
 	
 	// 只适用于 master 分支
 	@Test
-	public void get_files_folder_not_commit() throws IOException {
-		File folder = tempFolder.newFolder(gitRepoDirectory);
-		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+	public void get_files_folder_not_commit(@TempDir Path tempDir) throws IOException {
+		Path folder = tempDir.resolve(gitRepoDirectory);
 		
-		List<GitFileInfo> gitFiles = GitUtils.getFiles(folder.toPath(), "a-folder-not-commit");
+		Files.createDirectory(folder);
+		GitUtils.init(folder, gitUserName, gitUserMail);
+		
+		List<GitFileInfo> gitFiles = GitUtils.getFiles(folder, "a-folder-not-commit");
 		assertThat(gitFiles).isEmpty();
+		
+		TestHelper.clearDir(folder);
 	}
 	
 	// 只适用于 master 分支
 	@Test
-	public void get_files_at_sub_folder() throws IOException {
+	public void get_files_at_sub_folder(@TempDir Path tempDir) throws IOException {
 		// 新建一个 git 仓库
-		File folder = tempFolder.newFolder(gitRepoDirectory);
-		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+		Path folder = tempDir.resolve(gitRepoDirectory);
+		Files.createDirectory(folder);
 		
-		String commitId1 = GitUtils.commit(folder.toPath(), "a", "1.txt", "hello", gitUserName, gitUserMail, "commit 1");
-		String commitId2 = GitUtils.commit(folder.toPath(), "a", "2.txt", "world", gitUserName, gitUserMail, "commit 2");
+		GitUtils.init(folder, gitUserName, gitUserMail);
 		
-		List<GitFileInfo> gitFiles = GitUtils.getFiles(folder.toPath(), "a");
+		String commitId1 = GitUtils.commit(folder, "a", "1.txt", "hello", gitUserName, gitUserMail, "commit 1");
+		String commitId2 = GitUtils.commit(folder, "a", "2.txt", "world", gitUserName, gitUserMail, "commit 2");
+		
+		List<GitFileInfo> gitFiles = GitUtils.getFiles(folder, "a");
 
 		assertThat(gitFiles).hasSize(2).anyMatch(gitFile -> {
 			return gitFile.isFolder() == false &&
@@ -232,219 +270,272 @@ public class GitUtilsTest {
 					gitFile.getPath().equals("a/2.txt") &&
 					gitFile.getLatestCommitTime() != null;
 		});
+		
+		TestHelper.clearDir(folder);
 	}
 	
-	@Test(expected = IllegalArgumentException.class)
-	public void get_all_files_from_tag_ref_name_can_not_blank() throws IOException {
-		File folder = tempFolder.newFolder(gitRepoDirectory);
-		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+	@Test
+	public void get_all_files_from_tag_ref_name_can_not_blank(@TempDir Path tempDir) throws IOException {
+		Path folder = tempDir.resolve(gitRepoDirectory);
+		Files.createDirectory(folder);
 		
-		GitUtils.getAllFilesFromTag(folder.toPath(), null, null);
-		GitUtils.getAllFilesFromTag(folder.toPath(), " ", null);
+		GitUtils.init(folder, gitUserName, gitUserMail);
+		
+		Exception exception = Assertions.assertThrows(IllegalArgumentException.class, () -> GitUtils.getAllFilesFromTag(folder, null, null));
+		assertThat(exception.getMessage()).isEqualTo("tag 的值不能为空");
+		
+		exception = Assertions.assertThrows(IllegalArgumentException.class, () -> GitUtils.getAllFilesFromTag(folder, " ", null));
+		assertThat(exception.getMessage()).isEqualTo("tag 的值不能为空");
+		
+		TestHelper.clearDir(folder);
 	}
 	
 	// 获取一个仓库中所有文件，不包括文件夹
 	@Test
-	public void get_all_files_from_tag_when_tag_not_exist() throws IOException {
-		File folder = tempFolder.newFolder(gitRepoDirectory);
-		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+	public void get_all_files_from_tag_when_tag_not_exist(@TempDir Path tempDir) throws IOException {
+		Path folder = tempDir.resolve(gitRepoDirectory);
+		Files.createDirectory(folder);
 		
-		List<GitFileInfo> gitFiles = GitUtils.getAllFilesFromTag(folder.toPath(), "refs/tags/v0.1.0", null);
-		assertThat(gitFiles).isEmpty();
-	}
-	
-	@Test
-	public void get_all_files_from_tag_at_root() throws IOException {
-		File folder = tempFolder.newFolder(gitRepoDirectory);
-		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
-		GitUtils.commit(folder.toPath(), null, "1.txt", "hello", gitUserName, gitUserMail, "commit 1");
-		GitUtils.tag(folder.toPath(), "v0.1.0", "message");
+		GitUtils.init(folder, gitUserName, gitUserMail);
 		
-		List<GitFileInfo> gitFiles = GitUtils.getAllFilesFromTag(folder.toPath(), "refs/tags/v0.1.0", null);
-		assertThat(gitFiles).hasSize(1);
-		GitFileInfo file = gitFiles.get(0);
-		assertThat(file.getPath()).isEqualTo("1.txt");
-		assertThat(file.getName()).isEqualTo("1.txt");
-		assertThat(file.getParentPath()).isEqualTo("");
-	}
-	
-	@Test
-	public void get_all_files_from_tag_at_sub_folder() throws IOException {
-		File folder = tempFolder.newFolder(gitRepoDirectory);
-		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
-		GitUtils.commit(folder.toPath(), "a", "1.txt", "hello", gitUserName, gitUserMail, "commit 1");
-		GitUtils.tag(folder.toPath(), "v0.1.0", "message");
-		
-		List<GitFileInfo> gitFiles = GitUtils.getAllFilesFromTag(folder.toPath(), "refs/tags/v0.1.0", null);
-		assertThat(gitFiles).hasSize(1);
-		GitFileInfo file = gitFiles.get(0);
-		assertThat(file.getPath()).isEqualTo("a/1.txt");
-		assertThat(file.getName()).isEqualTo("1.txt");
-		assertThat(file.getParentPath()).isEqualTo("a");
-	}
-	
-	@Test
-	public void get_all_files_from_tag_at_sub_folder_filter() throws IOException {
-		File folder = tempFolder.newFolder(gitRepoDirectory);
-		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
-		GitUtils.commit(folder.toPath(), "a", "1.txt", "hello", gitUserName, gitUserMail, "commit 1");
-		GitUtils.tag(folder.toPath(), "v0.1.0", "message");
-		
-		List<GitFileInfo> gitFiles = GitUtils.getAllFilesFromTag(folder.toPath(), "refs/tags/v0.1.0", ".json");
+		List<GitFileInfo> gitFiles = GitUtils.getAllFilesFromTag(folder, "refs/tags/v0.1.0", null);
 		assertThat(gitFiles).isEmpty();
 		
-		gitFiles = GitUtils.getAllFilesFromTag(folder.toPath(), "refs/tags/v0.1.0", ".txt");
-		assertThat(gitFiles).hasSize(1);
-		GitFileInfo file = gitFiles.get(0);
-		assertThat(file.getPath()).isEqualTo("a/1.txt");
-		assertThat(file.getName()).isEqualTo("1.txt");
-		assertThat(file.getParentPath()).isEqualTo("a");
+		TestHelper.clearDir(folder);
 	}
 	
 	@Test
-	public void get_all_files_from_tag_at_two_tags() throws IOException {
-		File folder = tempFolder.newFolder(gitRepoDirectory);
-		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
-		GitUtils.commit(folder.toPath(), null, "1.txt", "hello", gitUserName, gitUserMail, "commit 1");
-		GitUtils.tag(folder.toPath(), "v0.1.0", "message");
+	public void get_all_files_from_tag_at_root(@TempDir Path tempDir) throws IOException {
+		Path folder = tempDir.resolve(gitRepoDirectory);
+		Files.createDirectory(folder);
 		
-		GitUtils.commit(folder.toPath(), null, "2.txt", "hello", gitUserName, gitUserMail, "commit 1");
-		GitUtils.tag(folder.toPath(), "v0.2.0", "message");
+		GitUtils.init(folder, gitUserName, gitUserMail);
+		GitUtils.commit(folder, null, "1.txt", "hello", gitUserName, gitUserMail, "commit 1");
+		GitUtils.tag(folder, "v0.1.0", "message");
 		
-		List<GitFileInfo> gitFiles = GitUtils.getAllFilesFromTag(folder.toPath(), "refs/tags/v0.1.0", null);
+		List<GitFileInfo> gitFiles = GitUtils.getAllFilesFromTag(folder, "refs/tags/v0.1.0", null);
 		assertThat(gitFiles).hasSize(1);
 		GitFileInfo file = gitFiles.get(0);
 		assertThat(file.getPath()).isEqualTo("1.txt");
 		assertThat(file.getName()).isEqualTo("1.txt");
 		assertThat(file.getParentPath()).isEqualTo("");
 		
-		gitFiles = GitUtils.getAllFilesFromTag(folder.toPath(), "refs/tags/v0.2.0", null);
+		TestHelper.clearDir(folder);
+	}
+	
+	@Test
+	public void get_all_files_from_tag_at_sub_folder(@TempDir Path tempDir) throws IOException {
+		Path folder = tempDir.resolve(gitRepoDirectory);
+		Files.createDirectory(folder);
+		
+		GitUtils.init(folder, gitUserName, gitUserMail);
+		GitUtils.commit(folder, "a", "1.txt", "hello", gitUserName, gitUserMail, "commit 1");
+		GitUtils.tag(folder, "v0.1.0", "message");
+		
+		List<GitFileInfo> gitFiles = GitUtils.getAllFilesFromTag(folder, "refs/tags/v0.1.0", null);
+		assertThat(gitFiles).hasSize(1);
+		GitFileInfo file = gitFiles.get(0);
+		assertThat(file.getPath()).isEqualTo("a/1.txt");
+		assertThat(file.getName()).isEqualTo("1.txt");
+		assertThat(file.getParentPath()).isEqualTo("a");
+		
+		TestHelper.clearDir(folder);
+	}
+	
+	@Test
+	public void get_all_files_from_tag_at_sub_folder_filter(@TempDir Path tempDir) throws IOException {
+		Path folder = tempDir.resolve(gitRepoDirectory);
+		Files.createDirectory(folder);
+		
+		GitUtils.init(folder, gitUserName, gitUserMail);
+		GitUtils.commit(folder, "a", "1.txt", "hello", gitUserName, gitUserMail, "commit 1");
+		GitUtils.tag(folder, "v0.1.0", "message");
+		
+		List<GitFileInfo> gitFiles = GitUtils.getAllFilesFromTag(folder, "refs/tags/v0.1.0", ".json");
+		assertThat(gitFiles).isEmpty();
+		
+		gitFiles = GitUtils.getAllFilesFromTag(folder, "refs/tags/v0.1.0", ".txt");
+		assertThat(gitFiles).hasSize(1);
+		GitFileInfo file = gitFiles.get(0);
+		assertThat(file.getPath()).isEqualTo("a/1.txt");
+		assertThat(file.getName()).isEqualTo("1.txt");
+		assertThat(file.getParentPath()).isEqualTo("a");
+		
+		TestHelper.clearDir(folder);
+	}
+	
+	@Test
+	public void get_all_files_from_tag_at_two_tags(@TempDir Path tempDir) throws IOException {
+		Path folder = tempDir.resolve(gitRepoDirectory);
+		Files.createDirectory(folder);
+		
+		GitUtils.init(folder, gitUserName, gitUserMail);
+		GitUtils.commit(folder, null, "1.txt", "hello", gitUserName, gitUserMail, "commit 1");
+		GitUtils.tag(folder, "v0.1.0", "message");
+		
+		GitUtils.commit(folder, null, "2.txt", "hello", gitUserName, gitUserMail, "commit 1");
+		GitUtils.tag(folder, "v0.2.0", "message");
+		
+		List<GitFileInfo> gitFiles = GitUtils.getAllFilesFromTag(folder, "refs/tags/v0.1.0", null);
+		assertThat(gitFiles).hasSize(1);
+		GitFileInfo file = gitFiles.get(0);
+		assertThat(file.getPath()).isEqualTo("1.txt");
+		assertThat(file.getName()).isEqualTo("1.txt");
+		assertThat(file.getParentPath()).isEqualTo("");
+		
+		gitFiles = GitUtils.getAllFilesFromTag(folder, "refs/tags/v0.2.0", null);
 		assertThat(gitFiles).hasSize(2);
+		
+		TestHelper.clearDir(folder);
 	}
 	
 	@Test
-	public void status_untracked() throws IOException {
-		File folder = tempFolder.newFolder(gitRepoDirectory);
-		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+	public void status_untracked(@TempDir Path tempDir) throws IOException {
+		Path folder = tempDir.resolve(gitRepoDirectory);
+		Files.createDirectory(folder);
 		
-		Path file1 = folder.toPath().resolve("file1");
+		GitUtils.init(folder, gitUserName, gitUserMail);
+		
+		Path file1 = folder.resolve("file1");
 		Files.createFile(file1);
 		
-		Path subFolder = folder.toPath().resolve("a");
+		Path subFolder = folder.resolve("a");
 		Path file2 = subFolder.resolve("file2");
 		Files.createDirectory(subFolder);
 		Files.createFile(file2);
 		
-		Map<String, GitFileStatus> status = GitUtils.status(folder.toPath(), null);
+		Map<String, GitFileStatus> status = GitUtils.status(folder, null);
 		assertThat(status).hasSize(3).containsKeys("a", "file1", "a/file2").containsValue(GitFileStatus.UNTRACKED);
 		
-		status = GitUtils.status(folder.toPath(), "a");
+		status = GitUtils.status(folder, "a");
 		assertThat(status).hasSize(2).containsKeys("a", "a/file2").containsValue(GitFileStatus.UNTRACKED);
+		
+		TestHelper.clearDir(folder);
 	}
 	
 	@Test
-	public void status_added() throws IOException {
-		File folder = tempFolder.newFolder(gitRepoDirectory);
-		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+	public void status_added(@TempDir Path tempDir) throws IOException {
+		Path folder = tempDir.resolve(gitRepoDirectory);
+		Files.createDirectory(folder);
 		
-		Path file1 = folder.toPath().resolve("file1");
+		GitUtils.init(folder, gitUserName, gitUserMail);
+		
+		Path file1 = folder.resolve("file1");
 		Files.createFile(file1);
-		GitUtils.add(folder.toPath(), "file1");
+		GitUtils.add(folder, "file1");
 		
-		Path subFolder = folder.toPath().resolve("a");
+		Path subFolder = folder.resolve("a");
 		Path file2 = subFolder.resolve("file2");
 		Files.createDirectory(subFolder);
 		Files.createFile(file2);
-		GitUtils.add(folder.toPath(), "a/file2");
+		GitUtils.add(folder, "a/file2");
 		
-		Map<String, GitFileStatus> status = GitUtils.status(folder.toPath(), null);
+		Map<String, GitFileStatus> status = GitUtils.status(folder, null);
 		assertThat(status).hasSize(2).containsKeys("file1", "a/file2").containsValue(GitFileStatus.ADDED).doesNotContainValue(GitFileStatus.UNTRACKED);
 		
-		status = GitUtils.status(folder.toPath(), "a");
+		status = GitUtils.status(folder, "a");
 		assertThat(status).hasSize(1).containsKeys("a/file2").containsValue(GitFileStatus.ADDED);
+		
+		TestHelper.clearDir(folder);
 	}
 	
 	@Test
-	public void status_all_commited() throws IOException {
-		File folder = tempFolder.newFolder(gitRepoDirectory);
-		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+	public void status_all_commited(@TempDir Path tempDir) throws IOException {
+		Path folder = tempDir.resolve(gitRepoDirectory);
+		Files.createDirectory(folder);
 		
-		GitUtils.commit(folder.toPath(), null, "file1", "hello", gitUserName, gitUserMail, "commit 1");
-		GitUtils.commit(folder.toPath(), "a", "file2", "hello", gitUserName, gitUserMail, "commit 1");
+		GitUtils.init(folder, gitUserName, gitUserMail);
 		
-		Map<String, GitFileStatus> status = GitUtils.status(folder.toPath(), null);
+		GitUtils.commit(folder, null, "file1", "hello", gitUserName, gitUserMail, "commit 1");
+		GitUtils.commit(folder, "a", "file2", "hello", gitUserName, gitUserMail, "commit 1");
+		
+		Map<String, GitFileStatus> status = GitUtils.status(folder, null);
 		assertThat(status).isEmpty();
 		
-		status = GitUtils.status(folder.toPath(), "a");
+		status = GitUtils.status(folder, "a");
 		assertThat(status).isEmpty();
+		
+		TestHelper.clearDir(folder);
 	}
 	
 	@Test
-	public void status_modified() throws IOException {
-		File folder = tempFolder.newFolder(gitRepoDirectory);
-		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+	public void status_modified(@TempDir Path tempDir) throws IOException {
+		Path folder = tempDir.resolve(gitRepoDirectory);
+		Files.createDirectory(folder);
 		
-		GitUtils.commit(folder.toPath(), null, "file1", "hello", gitUserName, gitUserMail, "commit 1");
-		GitUtils.commit(folder.toPath(), "a", "file2", "hello", gitUserName, gitUserMail, "commit 1");
+		GitUtils.init(folder, gitUserName, gitUserMail);
 		
-		Path file1 = folder.toPath().resolve("file1");
+		GitUtils.commit(folder, null, "file1", "hello", gitUserName, gitUserMail, "commit 1");
+		GitUtils.commit(folder, "a", "file2", "hello", gitUserName, gitUserMail, "commit 1");
+		
+		Path file1 = folder.resolve("file1");
 		Files.writeString(file1, " world", StandardOpenOption.APPEND);
 		
-		Path file2 = folder.toPath().resolve("a").resolve("file2");
+		Path file2 = folder.resolve("a").resolve("file2");
 		Files.writeString(file2, " world", StandardOpenOption.APPEND);
 		
-		Map<String, GitFileStatus> status = GitUtils.status(folder.toPath(), null);
+		Map<String, GitFileStatus> status = GitUtils.status(folder, null);
 		assertThat(status).hasSize(2).containsKeys("file1", "a/file2").containsValue(GitFileStatus.MODIFIED);
 		
-		status = GitUtils.status(folder.toPath(), "a");
+		status = GitUtils.status(folder, "a");
 		assertThat(status).hasSize(1).containsKeys("a/file2").containsValue(GitFileStatus.MODIFIED);
+		
+		TestHelper.clearDir(folder);
 	}
 	
 	@Test
-	public void status_deleted() throws IOException {
-		File folder = tempFolder.newFolder(gitRepoDirectory);
-		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+	public void status_deleted(@TempDir Path tempDir) throws IOException {
+		Path folder = tempDir.resolve(gitRepoDirectory);
+		Files.createDirectory(folder);
 		
-		GitUtils.commit(folder.toPath(), null, "file1", "hello", gitUserName, gitUserMail, "commit 1");
-		GitUtils.commit(folder.toPath(), "a", "file2", "hello", gitUserName, gitUserMail, "commit 1");
+		GitUtils.init(folder, gitUserName, gitUserMail);
 		
-		Path file1 = folder.toPath().resolve("file1");
+		GitUtils.commit(folder, null, "file1", "hello", gitUserName, gitUserMail, "commit 1");
+		GitUtils.commit(folder, "a", "file2", "hello", gitUserName, gitUserMail, "commit 1");
+		
+		Path file1 = folder.resolve("file1");
 		Files.delete(file1);
 		
-		Path file2 = folder.toPath().resolve("a").resolve("file2");
+		Path file2 = folder.resolve("a").resolve("file2");
 		Files.delete(file2);
 		
-		Map<String, GitFileStatus> status = GitUtils.status(folder.toPath(), null);
+		Map<String, GitFileStatus> status = GitUtils.status(folder, null);
 		assertThat(status).hasSize(2).containsKeys("file1", "a/file2").containsValue(GitFileStatus.DELETED);
 		
-		status = GitUtils.status(folder.toPath(), "a");
+		status = GitUtils.status(folder, "a");
 		assertThat(status).hasSize(1).containsKeys("a/file2").containsValue(GitFileStatus.DELETED);
+		
+		TestHelper.clearDir(folder);
 	}
 	
 	@Test
-	public void remove_success() throws IOException {
-		File folder = tempFolder.newFolder(gitRepoDirectory);
-		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+	public void remove_success(@TempDir Path tempDir) throws IOException {
+		Path folder = tempDir.resolve(gitRepoDirectory);
+		Files.createDirectory(folder);
 		
-		Path file1 = folder.toPath().resolve("file1");
+		GitUtils.init(folder, gitUserName, gitUserMail);
+		
+		Path file1 = folder.resolve("file1");
 		Files.createFile(file1);
-		GitUtils.add(folder.toPath(), "file1");
+		GitUtils.add(folder, "file1");
 		
 		
-		Path subFolder = folder.toPath().resolve("a");
+		Path subFolder = folder.resolve("a");
 		Path file2 = subFolder.resolve("file2");
 		Files.createDirectory(subFolder);
 		Files.createFile(file2);
-		GitUtils.add(folder.toPath(), "a/file2");
+		GitUtils.add(folder, "a/file2");
 		
 		assertThat(file1).exists();
 		assertThat(file2).exists();
 		
-		GitUtils.remove(folder.toPath(), "file1");
-		GitUtils.remove(folder.toPath(), "a/file2");
+		GitUtils.remove(folder, "file1");
+		GitUtils.remove(folder, "a/file2");
 		
 		assertThat(file1).doesNotExist();
 		assertThat(file2).doesNotExist();
+		
+		TestHelper.clearDir(folder);
 	}
 	
 	@Test
@@ -456,65 +547,87 @@ public class GitUtilsTest {
 	}
 	
 	@Test
-	public void get_latest_tag_no_data() throws IOException {
-		File folder = tempFolder.newFolder(gitRepoDirectory);
-		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+	public void get_latest_tag_no_data(@TempDir Path tempDir) throws IOException {
+		Path folder = tempDir.resolve(gitRepoDirectory);
+		Files.createDirectory(folder);
 		
-		Optional<Ref> tagOption = GitUtils.getLatestTag(folder.toPath());
+		GitUtils.init(folder, gitUserName, gitUserMail);
+		
+		Optional<Ref> tagOption = GitUtils.getLatestTag(folder);
 		assertThat(tagOption).isEmpty();
+		
+		TestHelper.clearDir(folder);
 	}
 	
 	@Test
-	public void get_latest_tag_only_one_tag() throws IOException {
-		File folder = tempFolder.newFolder(gitRepoDirectory);
-		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
-		GitUtils.tag(folder.toPath(), "v0.1.0", "message");
+	public void get_latest_tag_only_one_tag(@TempDir Path tempDir) throws IOException {
+		Path folder = tempDir.resolve(gitRepoDirectory);
+		Files.createDirectory(folder);
 		
-		Optional<Ref> tagOption = GitUtils.getLatestTag(folder.toPath());
+		GitUtils.init(folder, gitUserName, gitUserMail);
+		GitUtils.tag(folder, "v0.1.0", "message");
+		
+		Optional<Ref> tagOption = GitUtils.getLatestTag(folder);
 		assertThat(tagOption).isPresent();
 		assertThat(tagOption.get().getName()).isEqualTo("refs/tags/v0.1.0");
+		
+		TestHelper.clearDir(folder);
 	}
 	
 	@Test
-	public void get_latest_tag_two_tags() throws IOException {
-		File folder = tempFolder.newFolder(gitRepoDirectory);
-		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
-		GitUtils.tag(folder.toPath(), "v0.1.0", "message1");
-		GitUtils.commit(folder.toPath(), "", "c.txt", "hello", "usera", "usera@email.com", "firstCommit");
-		GitUtils.tag(folder.toPath(), "v0.1.1", "message2");
+	public void get_latest_tag_two_tags(@TempDir Path tempDir) throws IOException {
+		Path folder = tempDir.resolve(gitRepoDirectory);
+		Files.createDirectory(folder);
 		
-		Optional<Ref> tagOption = GitUtils.getLatestTag(folder.toPath());
+		GitUtils.init(folder, gitUserName, gitUserMail);
+		GitUtils.tag(folder, "v0.1.0", "message1");
+		GitUtils.commit(folder, "", "c.txt", "hello", "usera", "usera@email.com", "firstCommit");
+		GitUtils.tag(folder, "v0.1.1", "message2");
+		
+		Optional<Ref> tagOption = GitUtils.getLatestTag(folder);
 		assertThat(tagOption).isPresent();
 		assertThat(tagOption.get().getName()).isEqualTo("refs/tags/v0.1.1");
+		
+		TestHelper.clearDir(folder);
 	}
 	
 	@Test
-	public void get_tags() throws IOException {
-		File folder = tempFolder.newFolder(gitRepoDirectory);
-		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
-		GitUtils.tag(folder.toPath(), "v0.1.0", "message1");
-		GitUtils.commit(folder.toPath(), "", "c.txt", "hello", "usera", "usera@email.com", "firstCommit");
-		GitUtils.tag(folder.toPath(), "v0.1.1", "message2");
+	public void get_tags(@TempDir Path tempDir) throws IOException {
+		Path folder = tempDir.resolve(gitRepoDirectory);
+		Files.createDirectory(folder);
 		
-		List<Ref> tags = GitUtils.getTags(folder.toPath());
+		GitUtils.init(folder, gitUserName, gitUserMail);
+		GitUtils.tag(folder, "v0.1.0", "message1");
+		GitUtils.commit(folder, "", "c.txt", "hello", "usera", "usera@email.com", "firstCommit");
+		GitUtils.tag(folder, "v0.1.1", "message2");
+		
+		List<Ref> tags = GitUtils.getTags(folder);
 		assertThat(tags).hasSize(2);
-	}
-	
-	@Test
-	public void get_blob_from_branch_no_data() throws IOException {
-		File folder = tempFolder.newFolder(gitRepoDirectory);
-		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
 		
-		Optional<GitBlobInfo> blobOption = GitUtils.getBlob(folder.toPath(), Constants.R_HEADS + Constants.MASTER, "a.txt");
-		assertThat(blobOption).isEmpty();
+		TestHelper.clearDir(folder);
 	}
 	
 	@Test
-	public void get_blob_from_branch_success() throws IOException {
-		File folder = tempFolder.newFolder(gitRepoDirectory);
-		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
-		String commitId = GitUtils.commit(folder.toPath(), "", "a.txt", "hello", "usera", "usera@email.com", "first commit");
-		Optional<GitBlobInfo> blobOption = GitUtils.getBlob(folder.toPath(), Constants.R_HEADS + Constants.MASTER, "a.txt");
+	public void get_blob_from_branch_no_data(@TempDir Path tempDir) throws IOException {
+		Path folder = tempDir.resolve(gitRepoDirectory);
+		Files.createDirectory(folder);
+		
+		GitUtils.init(folder, gitUserName, gitUserMail);
+		
+		Optional<GitBlobInfo> blobOption = GitUtils.getBlob(folder, Constants.R_HEADS + Constants.MASTER, "a.txt");
+		assertThat(blobOption).isEmpty();
+		
+		TestHelper.clearDir(folder);
+	}
+	
+	@Test
+	public void get_blob_from_branch_success(@TempDir Path tempDir) throws IOException {
+		Path folder = tempDir.resolve(gitRepoDirectory);
+		Files.createDirectory(folder);
+		
+		GitUtils.init(folder, gitUserName, gitUserMail);
+		String commitId = GitUtils.commit(folder, "", "a.txt", "hello", "usera", "usera@email.com", "first commit");
+		Optional<GitBlobInfo> blobOption = GitUtils.getBlob(folder, Constants.R_HEADS + Constants.MASTER, "a.txt");
 		
 		assertThat(blobOption).isPresent();
 		
@@ -526,27 +639,35 @@ public class GitUtilsTest {
 		assertThat(blob.getLatestShortMessage()).isEqualTo("first commit");
 		assertThat(blob.getLatestFullMessage()).isEqualTo("first commit");
 		assertThat(blob.getLatestCommitTime()).isNotNull();
+		
+		TestHelper.clearDir(folder);
 	}
 	
 	@Test
-	public void get_blob_from_tag_no_data() throws IOException {
-		File folder = tempFolder.newFolder(gitRepoDirectory);
-		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
+	public void get_blob_from_tag_no_data(@TempDir Path tempDir) throws IOException {
+		Path folder = tempDir.resolve(gitRepoDirectory);
+		Files.createDirectory(folder);
 		
-		Optional<GitBlobInfo> blobOption = GitUtils.getBlob(folder.toPath(), Constants.R_TAGS + "v0.1.0", "a.txt");
+		GitUtils.init(folder, gitUserName, gitUserMail);
+		
+		Optional<GitBlobInfo> blobOption = GitUtils.getBlob(folder, Constants.R_TAGS + "v0.1.0", "a.txt");
 		assertThat(blobOption).isEmpty();
+		
+		TestHelper.clearDir(folder);
 	}
 	
 	@Test
-	public void get_blob_from_tag_success() throws IOException {
-		File folder = tempFolder.newFolder(gitRepoDirectory);
-		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
-		String commitId = GitUtils.commit(folder.toPath(), "", "a.txt", "hello", "usera", "usera@email.com", "first commit");
-		GitUtils.tag(folder.toPath(), "v0.1.0", "first tag");
-		String commitId2 = GitUtils.commit(folder.toPath(), "", "a.txt", "hello world", "usera", "usera@email.com", "second commit");
-		GitUtils.tag(folder.toPath(), "v0.1.1", "second tag");
+	public void get_blob_from_tag_success(@TempDir Path tempDir) throws IOException {
+		Path folder = tempDir.resolve(gitRepoDirectory);
+		Files.createDirectory(folder);
 		
-		Optional<GitBlobInfo> blobOption = GitUtils.getBlob(folder.toPath(), Constants.R_TAGS + "v0.1.0", "a.txt");
+		GitUtils.init(folder, gitUserName, gitUserMail);
+		String commitId = GitUtils.commit(folder, "", "a.txt", "hello", "usera", "usera@email.com", "first commit");
+		GitUtils.tag(folder, "v0.1.0", "first tag");
+		String commitId2 = GitUtils.commit(folder, "", "a.txt", "hello world", "usera", "usera@email.com", "second commit");
+		GitUtils.tag(folder, "v0.1.1", "second tag");
+		
+		Optional<GitBlobInfo> blobOption = GitUtils.getBlob(folder, Constants.R_TAGS + "v0.1.0", "a.txt");
 		assertThat(blobOption).isPresent();
 		GitBlobInfo blob = blobOption.get();
 		assertThat(blob.getContent()).isEqualTo("hello");
@@ -557,7 +678,7 @@ public class GitUtilsTest {
 		assertThat(blob.getLatestFullMessage()).isEqualTo("first commit");
 		assertThat(blob.getLatestCommitTime()).isNotNull();
 		
-		blobOption = GitUtils.getBlob(folder.toPath(), Constants.R_TAGS + "v0.1.1", "a.txt");
+		blobOption = GitUtils.getBlob(folder, Constants.R_TAGS + "v0.1.1", "a.txt");
 		assertThat(blobOption).isPresent();
 		blob = blobOption.get();
 		assertThat(blob.getContent()).isEqualTo("hello world");
@@ -567,32 +688,42 @@ public class GitUtilsTest {
 		assertThat(blob.getLatestShortMessage()).isEqualTo("second commit");
 		assertThat(blob.getLatestFullMessage()).isEqualTo("second commit");
 		assertThat(blob.getLatestCommitTime()).isNotNull();
+		
+		TestHelper.clearDir(folder);
 	}
 	
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void load_data_param_is_null() throws IOException {
-		File folder = tempFolder.newFolder(gitRepoDirectory);
-		GitUtils.loadDataFromTag(folder.toPath(), Constants.R_TAGS + "v0.1.0", null);
+		Exception exception = Assertions.assertThrows(IllegalArgumentException.class, () -> GitUtils.loadDataFromTag(null, Constants.R_TAGS + "v0.1.0", null));
+		assertThat(exception.getMessage()).isEqualTo("传入的值不能为null");
 	}
 	
 	@Test
-	public void load_data_param_is_empty_list() throws IOException {
-		File folder = tempFolder.newFolder(gitRepoDirectory);
-		assertThat(GitUtils.loadDataFromTag(folder.toPath(), Constants.R_TAGS + "v0.1.0", Collections.emptyList())).isEmpty();
+	public void load_data_param_is_empty_list(@TempDir Path tempDir) throws IOException {
+		Path folder = tempDir.resolve(gitRepoDirectory);
+		Files.createDirectory(folder);
+		
+		assertThat(GitUtils.loadDataFromTag(folder, Constants.R_TAGS + "v0.1.0", Collections.emptyList())).isEmpty();
+		
+		TestHelper.clearDir(folder);
 	}
 	
 	@Test
-	public void load_data_success() throws IOException {
-		File folder = tempFolder.newFolder(gitRepoDirectory);
-		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
-		GitUtils.commit(folder.toPath(), null, "1.txt", "hello", gitUserName, gitUserMail, "commit 1");
-		GitUtils.tag(folder.toPath(), "v0.1.0", "message");
+	public void load_data_success(@TempDir Path tempDir) throws IOException {
+		Path folder = tempDir.resolve(gitRepoDirectory);
+		Files.createDirectory(folder);
 		
-		List<GitFileInfo> gitFiles = GitUtils.getAllFilesFromTag(folder.toPath(), "refs/tags/v0.1.0", null);
+		GitUtils.init(folder, gitUserName, gitUserMail);
+		GitUtils.commit(folder, null, "1.txt", "hello", gitUserName, gitUserMail, "commit 1");
+		GitUtils.tag(folder, "v0.1.0", "message");
 		
-		List<GitBlobInfo> files = GitUtils.loadDataFromTag(folder.toPath(), "refs/tags/v0.1.0", gitFiles);
+		List<GitFileInfo> gitFiles = GitUtils.getAllFilesFromTag(folder, "refs/tags/v0.1.0", null);
+		
+		List<GitBlobInfo> files = GitUtils.loadDataFromTag(folder, "refs/tags/v0.1.0", gitFiles);
 		assertThat(files).hasSize(1);
 		assertThat(files.get(0).getContent()).isEqualTo("hello");
+		
+		TestHelper.clearDir(folder);
 	}
 	
 	@Test
@@ -616,24 +747,28 @@ public class GitUtilsTest {
 	}
 
 	@Test
-	public void checkout_tag_success() throws IOException {
-		File folder = tempFolder.newFolder(gitRepoDirectory);
-		GitUtils.init(folder.toPath(), gitUserName, gitUserMail);
-		GitUtils.commit(folder.toPath(), "", "a.txt", "hello", "usera", "usera@email.com", "firstCommit");
-		GitUtils.tag(folder.toPath(), "v0.1.0", "message1");
-		GitUtils.commit(folder.toPath(), "", "a.txt", "hello world", "usera", "usera@email.com", "firstCommit");
+	public void checkout_tag_success(@TempDir Path tempDir) throws IOException {
+		Path folder = tempDir.resolve(gitRepoDirectory);
+		Files.createDirectory(folder);
+		
+		GitUtils.init(folder, gitUserName, gitUserMail);
+		GitUtils.commit(folder, "", "a.txt", "hello", "usera", "usera@email.com", "firstCommit");
+		GitUtils.tag(folder, "v0.1.0", "message1");
+		GitUtils.commit(folder, "", "a.txt", "hello world", "usera", "usera@email.com", "firstCommit");
 		
 		// 直接从文件系统中获取
 		// 先断言 a.txt 中的内容是 hello world
-		assertContentEquals(folder.toPath().resolve("a.txt"), "hello world");
+		assertContentEquals(folder.resolve("a.txt"), "hello world");
 		// 然后切换到 v0.1.0 分支
-		GitUtils.checkout(folder.toPath(), "v0.1.0");
+		GitUtils.checkout(folder, "v0.1.0");
 		// 再断言 a.txt 中的内容是 hello
-		assertContentEquals(folder.toPath().resolve("a.txt"), "hello");
+		assertContentEquals(folder.resolve("a.txt"), "hello");
 		
 		// 最后再切换回 master 分支
-		GitUtils.checkout(folder.toPath(), "master");
-		assertContentEquals(folder.toPath().resolve("a.txt"), "hello world");
+		GitUtils.checkout(folder, "master");
+		assertContentEquals(folder.resolve("a.txt"), "hello world");
+		
+		TestHelper.clearDir(folder);
 	}
 	
 	private void assertContentEquals(Path filePath, String content) throws IOException{

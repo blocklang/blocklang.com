@@ -2,27 +2,25 @@ package com.blocklang.release.task;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import com.blocklang.core.git.GitUtils;
+import com.blocklang.core.test.TestHelper;
 
 public class GitTagTaskTest {
 
-	@Rule
-	public TemporaryFolder tempFolder = new TemporaryFolder();
-	
 	private String gitRepoDirectory = "gitRepo";
 	
 	@Test
-	public void tag_success() throws IOException {
-		File folder = tempFolder.newFolder(gitRepoDirectory);
+	public void tag_success(@TempDir Path tempDir) throws IOException {
+		Path folder = Files.createDirectory(tempDir.resolve(gitRepoDirectory));
 		AppBuildContext context = new AppBuildContext(
-				folder.getPath(), 
+				folder.toString(), 
 				"c:/Users/Administrator/.m2", 
 				null, 
 				"jack", 
@@ -35,5 +33,7 @@ public class GitTagTaskTest {
 		
 		GitTagTask task = new GitTagTask(context);
 		assertThat(task.run()).isPresent();
+		
+		TestHelper.clearDir(folder);
 	}
 }

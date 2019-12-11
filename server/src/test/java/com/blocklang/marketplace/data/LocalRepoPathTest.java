@@ -4,16 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.file.Paths;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import com.blocklang.marketplace.data.LocalRepoPath;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class LocalRepoPathTest {
 
 	private LocalRepoPath localRepoPathInfo;
 	
-	@Before
+	@BeforeEach
 	public void setUp() {
 		localRepoPathInfo = new LocalRepoPath(
 				"c:/blocklang",

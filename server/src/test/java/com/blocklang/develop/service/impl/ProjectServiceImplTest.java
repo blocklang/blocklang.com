@@ -3,17 +3,16 @@ package com.blocklang.develop.service.impl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
@@ -60,9 +59,6 @@ import com.blocklang.release.dao.AppDao;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ProjectServiceImplTest extends AbstractServiceTest{
-	
-	@Rule
-	public TemporaryFolder tempFolder = new TemporaryFolder();
 	
 	@Autowired
 	private ProjectService projectService;
@@ -128,7 +124,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 	}
 	
 	@Test
-	public void create_success() throws IOException {
+	public void create_success(@TempDir Path rootFolder) throws IOException {
 		UserInfo userInfo = new UserInfo();
 		userInfo.setLoginName("user_name");
 		userInfo.setAvatarUrl("avatar_url");
@@ -193,8 +189,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		project.setCreateTime(LocalDateTime.now());
 		project.setCreateUserName("user_name");
 		
-		File rootFolder = tempFolder.newFolder();
-		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.getPath()));
+		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
 		when(propertyService.findStringValue(CmPropKey.STD_WIDGET_API_NAME, "std-api-widget")).thenReturn("std-api-widget");
 		when(propertyService.findIntegerValue(CmPropKey.STD_WIDGET_REGISTER_USERID, 1)).thenReturn(1);
@@ -292,7 +287,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		
 		// git 仓库已创建
 		// 测试时将 projectsRootPath 导向到 junit 的临时文件夹
-		ProjectContext context = new ProjectContext("user_name", "project_name", rootFolder.getPath());
+		ProjectContext context = new ProjectContext("user_name", "project_name", rootFolder.toString());
 		assertThat(GitUtils.isGitRepo(context.getGitRepositoryDirectory())).isTrue();
 		
 		// 在创建一个仓库时，会执行一个 git commit，此操作也保存在 project_commit 中
@@ -422,7 +417,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 	}
 
 	@Test
-	public void find_latest_commit_success() throws IOException {
+	public void find_latest_commit_success(@TempDir Path rootFolder) throws IOException {
 		UserInfo userInfo = new UserInfo();
 		userInfo.setLoginName("user_name");
 		userInfo.setAvatarUrl("avatar_url");
@@ -440,8 +435,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		project.setCreateTime(LocalDateTime.now());
 		project.setCreateUserName("user_name");
 		
-		File rootFolder = tempFolder.newFolder();
-		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.getPath()));
+		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
 		Project savedProject = projectService.create(userInfo, project);
 		
@@ -451,7 +445,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 	}
 	
 	@Test
-	public void find_latest_commit_for_untracked_and_empty_folder() throws IOException {
+	public void find_latest_commit_for_untracked_and_empty_folder(@TempDir Path rootFolder) throws IOException {
 		UserInfo userInfo = new UserInfo();
 		userInfo.setLoginName("user_name");
 		userInfo.setAvatarUrl("avatar_url");
@@ -469,8 +463,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		project.setCreateTime(LocalDateTime.now());
 		project.setCreateUserName("user_name");
 		
-		File rootFolder = tempFolder.newFolder();
-		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.getPath()));
+		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
 		Project savedProject = projectService.create(userInfo, project);
 		

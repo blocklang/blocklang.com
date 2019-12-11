@@ -3,7 +3,7 @@ package com.blocklang.release.service.impl;
 import java.io.IOException;
 import java.time.LocalDateTime;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.blocklang.core.test.AbstractServiceTest;

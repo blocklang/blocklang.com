@@ -2,7 +2,8 @@ package com.blocklang.marketplace.task;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class CodeGeneratorTest {
 
@@ -22,11 +23,9 @@ public class CodeGeneratorTest {
 		assertThat(generator.next()).isEqualTo("0002");
 	}
 	
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void next_seed_can_not_convert_to_number() {
-		// 默认产生四位字符串
-		CodeGenerator generator = new CodeGenerator("abcd");
-		generator.next();
+		Assertions.assertThrows(IllegalArgumentException.class, () -> new CodeGenerator("abcd"));
 	}
 	
 	@Test
@@ -49,11 +48,11 @@ public class CodeGeneratorTest {
 		assertThat(generator.next()).isEqualTo("0011");
 	}
 	
-	@Test(expected = IndexOutOfBoundsException.class)
+	@Test
 	public void next_seed_out_of_bound() {
 		// 默认产生四位字符串
 		CodeGenerator generator = new CodeGenerator("9999");
-		generator.next();
+		Assertions.assertThrows(IndexOutOfBoundsException.class, () -> generator.next());
 	}
 
 }

@@ -2,7 +2,7 @@ package com.blocklang.develop.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.blocklang.core.constant.Constant;
 import com.blocklang.develop.constant.AppType;

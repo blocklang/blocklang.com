@@ -1,6 +1,7 @@
 package com.blocklang.develop.controller;
 
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -9,7 +10,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,13 +19,13 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.apache.http.HttpStatus;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.web.util.NestedServletException;
 
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.test.AbstractControllerTest;
@@ -59,18 +59,15 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 	private ProjectResourceService projectResourceService;
 	@MockBean
 	private ProjectPermissionService projectPermissionService;
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
-	@Rule
-	public TemporaryFolder tempFolder = new TemporaryFolder();
 	
 	@Test
 	public void list_project_dependences_only_support_category_is_dev() {
-		thrown.expectMessage("当前仅支持获取 dev 依赖。");
-		given()
-			.contentType(ContentType.JSON)
-		.when()
-			.get("/designer/projects/{projectId}/dependences?category=api", 1);
+		Exception exception = Assertions.assertThrows(NestedServletException.class, () -> given()
+				.contentType(ContentType.JSON)
+				.when()
+					.get("/designer/projects/{projectId}/dependences?category=api", 1));
+		
+		assertThat(exception.getMessage()).endsWith("当前仅支持获取 dev 依赖。");
 	}
 	
 	@Test
@@ -442,9 +439,8 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 	}
 	
 	@Test
-	public void get_asset_file_not_exist() throws IOException {
-		File dataRootDirectory = tempFolder.newFolder();
-		when(propertyService.findStringValue(anyString(), anyString())).thenReturn(dataRootDirectory.getPath());
+	public void get_asset_file_not_exist(@TempDir Path dataRootDirectory) throws IOException {
+		when(propertyService.findStringValue(anyString(), anyString())).thenReturn(dataRootDirectory.toString());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -456,11 +452,10 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 	}
 	
 	@Test
-	public void get_asset_js_file_success() throws IOException {
-		File dataRootDirectory = tempFolder.newFolder();
-		when(propertyService.findStringValue(anyString(), anyString())).thenReturn(dataRootDirectory.getPath());
+	public void get_asset_js_file_success(@TempDir Path dataRootDirectory) throws IOException {
+		when(propertyService.findStringValue(anyString(), anyString())).thenReturn(dataRootDirectory.toString());
 		
-		Path dir = dataRootDirectory.toPath().resolve("marketplace").resolve("a").resolve("b").resolve("c").resolve("package").resolve("d");
+		Path dir = dataRootDirectory.resolve("marketplace").resolve("a").resolve("b").resolve("c").resolve("package").resolve("d");
 		Path createdDir = Files.createDirectories(dir);
 		Files.writeString(createdDir.resolve("main.bundle.js"), "a js file");
 		
@@ -476,11 +471,10 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 	}
 	
 	@Test
-	public void get_asset_css_file_success() throws IOException {
-		File dataRootDirectory = tempFolder.newFolder();
-		when(propertyService.findStringValue(anyString(), anyString())).thenReturn(dataRootDirectory.getPath());
+	public void get_asset_css_file_success(@TempDir Path dataRootDirectory) throws IOException {
+		when(propertyService.findStringValue(anyString(), anyString())).thenReturn(dataRootDirectory.toString());
 		
-		Path dir = dataRootDirectory.toPath().resolve("marketplace").resolve("a").resolve("b").resolve("c").resolve("package").resolve("d");
+		Path dir = dataRootDirectory.resolve("marketplace").resolve("a").resolve("b").resolve("c").resolve("package").resolve("d");
 		Path createdDir = Files.createDirectories(dir);
 		Files.writeString(createdDir.resolve("main.bundle.css"), "a css file");
 		
@@ -496,11 +490,10 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 	}
 	
 	@Test
-	public void get_asset_map_file_success() throws IOException {
-		File dataRootDirectory = tempFolder.newFolder();
-		when(propertyService.findStringValue(anyString(), anyString())).thenReturn(dataRootDirectory.getPath());
+	public void get_asset_map_file_success(@TempDir Path dataRootDirectory) throws IOException {
+		when(propertyService.findStringValue(anyString(), anyString())).thenReturn(dataRootDirectory.toString());
 		
-		Path dir = dataRootDirectory.toPath().resolve("marketplace").resolve("a").resolve("b").resolve("c").resolve("package").resolve("d");
+		Path dir = dataRootDirectory.resolve("marketplace").resolve("a").resolve("b").resolve("c").resolve("package").resolve("d");
 		Path createdDir = Files.createDirectories(dir);
 		Files.writeString(createdDir.resolve("main.bundle.js.map"), "a js source map file");
 		
@@ -515,11 +508,10 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 	}
 	
 	@Test
-	public void get_asset_svg_file_success() throws IOException {
-		File dataRootDirectory = tempFolder.newFolder();
-		when(propertyService.findStringValue(anyString(), anyString())).thenReturn(dataRootDirectory.getPath());
+	public void get_asset_svg_file_success(@TempDir Path dataRootDirectory) throws IOException {
+		when(propertyService.findStringValue(anyString(), anyString())).thenReturn(dataRootDirectory.toString());
 		
-		Path dir = dataRootDirectory.toPath().resolve("marketplace").resolve("a").resolve("b").resolve("c").resolve("package").resolve("d");
+		Path dir = dataRootDirectory.resolve("marketplace").resolve("a").resolve("b").resolve("c").resolve("package").resolve("d");
 		Path createdDir = Files.createDirectories(dir);
 		Files.writeString(createdDir.resolve("icons.svg"), "a js source map file");
 		

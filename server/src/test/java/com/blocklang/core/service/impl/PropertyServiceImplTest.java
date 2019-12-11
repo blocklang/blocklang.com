@@ -5,10 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.After;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -35,10 +34,7 @@ public class PropertyServiceImplTest extends AbstractServiceTest{
 	@Autowired
 	private CacheManager cacheManager;
 	
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
-	
-	@After
+	@AfterEach
 	public void tearDown() {
 		// 为了避免缓存干扰其他测试用例，每次执行后都清空缓存
 		this.cacheManager.getCache("cm_properties").clear();
@@ -81,8 +77,6 @@ public class PropertyServiceImplTest extends AbstractServiceTest{
 
 	@Test
 	public void find_string_value_not_set_parent_id() {
-		thrown.expect(DataIntegrityViolationException.class);
-		
 		CmProperty property = new CmProperty();
 		property.setId(MAX_ID);
 		property.setKey("key");
@@ -92,7 +86,7 @@ public class PropertyServiceImplTest extends AbstractServiceTest{
 		property.setParentId(null); // 不能设置为 null
 		// 如果使用 save 则不会做真正的保存，所以不会抛异常
 		// 这里需要立即生效，所以加上 flush 操作
-		propertyDao.saveAndFlush(property);
+		Assertions.assertThrows(DataIntegrityViolationException.class, () -> propertyDao.saveAndFlush(property));
 	}
 	
 	@Test

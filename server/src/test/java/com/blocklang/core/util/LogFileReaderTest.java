@@ -2,22 +2,18 @@ package com.blocklang.core.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 public class LogFileReaderTest {
-
-	@Rule
-	public TemporaryFolder tempFolder = new TemporaryFolder();
 	
 	@Test
 	public void read_all_lines_then_no_log_file() throws IOException {
@@ -26,11 +22,12 @@ public class LogFileReaderTest {
 	}
 	
 	@Test
-	public void read_all_lines_then_full_content() throws IOException {
-		File logFile = tempFolder.newFile();
-		Files.write(logFile.toPath(), Arrays.asList("a", "b", "c"), StandardOpenOption.APPEND);
+	public void read_all_lines_then_full_content(@TempDir Path tempFolder) throws IOException {
+		Path logFile = Files.createFile(tempFolder.resolve("a.log"));
+
+		Files.write(logFile, Arrays.asList("a", "b", "c"), StandardOpenOption.APPEND);
 		
-		List<String> content = LogFileReader.readAllLines(logFile.toPath());
+		List<String> content = LogFileReader.readAllLines(logFile);
 		assertThat(content).hasSize(3);
 		assertThat(content.get(0)).isEqualTo("a");
 		assertThat(content.get(1)).isEqualTo("b");

@@ -4,7 +4,7 @@ import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.Matchers.equalTo;
 
 import org.apache.http.HttpStatus;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 
 import com.blocklang.core.test.AbstractControllerTest;

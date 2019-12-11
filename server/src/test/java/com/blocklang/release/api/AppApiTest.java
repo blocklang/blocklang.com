@@ -6,20 +6,20 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Optional;
 
 import org.apache.http.HttpStatus;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import com.blocklang.core.constant.CmPropKey;
 import com.blocklang.core.test.AbstractControllerTest;
+import com.blocklang.core.test.TestHelper;
 import com.blocklang.release.constant.Arch;
 import com.blocklang.release.constant.TargetOs;
 import com.blocklang.release.model.App;
@@ -38,9 +38,6 @@ public class AppApiTest extends AbstractControllerTest{
 	private AppReleaseService appReleaseService;
 	@MockBean
 	private AppReleaseFileService appReleaseFileService;
-	
-	@Rule
-	public TemporaryFolder temp = new TemporaryFolder();
 
 	@Test
 	public void should_404_if_app_not_found() {
@@ -105,7 +102,7 @@ public class AppApiTest extends AbstractControllerTest{
 	}
 	
 	@Test
-	public void should_404_if_app_file_not_found() {
+	public void should_404_if_app_file_not_found(@TempDir Path rootPath) {
 		App app = new App();
 		app.setId(1);
 		app.setAppName("exist-app-name");
@@ -125,7 +122,7 @@ public class AppApiTest extends AbstractControllerTest{
 		appReleaseFile.setFilePath("path");
 		when(appReleaseFileService.find(anyInt(), anyString(), anyString())).thenReturn(Optional.of(appReleaseFile));
 		
-		when(propertyService.findStringValue(eq(CmPropKey.BLOCKLANG_ROOT_PATH))).thenReturn(Optional.of(temp.getRoot().getPath()));
+		when(propertyService.findStringValue(eq(CmPropKey.BLOCKLANG_ROOT_PATH))).thenReturn(Optional.of(rootPath.toString()));
 		when(propertyService.findStringValue(eq(CmPropKey.MAVEN_ROOT_PATH))).thenReturn(Optional.of("c:/b"));
 		
 		// 未在临时文件夹中创建任何文件。
@@ -142,7 +139,7 @@ public class AppApiTest extends AbstractControllerTest{
 	}
 	
 	@Test
-	public void should_download_upload_app_success() throws IOException {
+	public void should_download_upload_app_success(@TempDir Path rootPath) throws IOException {
 		// 因为没有设置 projectId，所以被认定为手工上传的 app
 		App app = new App();
 		app.setId(1);
@@ -164,11 +161,11 @@ public class AppApiTest extends AbstractControllerTest{
 		appReleaseFile.setFilePath(filePath);
 		when(appReleaseFileService.find(anyInt(), anyString(), anyString())).thenReturn(Optional.of(appReleaseFile));
 		
-		when(propertyService.findStringValue(eq(CmPropKey.BLOCKLANG_ROOT_PATH))).thenReturn(Optional.of(temp.getRoot().getPath()));
+		when(propertyService.findStringValue(eq(CmPropKey.BLOCKLANG_ROOT_PATH))).thenReturn(Optional.of(rootPath.toString()));
 		when(propertyService.findStringValue(eq(CmPropKey.MAVEN_ROOT_PATH))).thenReturn(Optional.of("c:/b"));
 		
-		File appsFolder = temp.newFolder("apps");
-		Files.createFile(appsFolder.toPath().resolve(filePath));
+		Path appsFolder = Files.createDirectory(rootPath.resolve("apps"));
+		Files.createFile(appsFolder.resolve(filePath));
 		
 		given()
 			.param("appName", "exist-app-name")
@@ -179,5 +176,7 @@ public class AppApiTest extends AbstractControllerTest{
 			.get("/apps")
 		.then()
 			.statusCode(HttpStatus.SC_OK);
+		
+		TestHelper.clearDir(appsFolder);
 	}
 }

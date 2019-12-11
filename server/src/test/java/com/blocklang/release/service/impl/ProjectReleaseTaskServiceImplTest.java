@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.Optional;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.blocklang.core.dao.UserDao;

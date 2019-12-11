@@ -2,26 +2,21 @@ package com.blocklang.release.task;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 public class AppBuildContextTest {
 
 	private AppBuildContext context;
 	
-	@Rule
-	public TemporaryFolder tempFolder = new TemporaryFolder();
-	
-	@Before
+	@BeforeEach
 	public void setUp() {
 		context = new AppBuildContext(
 				"c:/blocklang", 
@@ -135,10 +130,10 @@ public class AppBuildContextTest {
 	}
 	
 	@Test
-	public void error_append_new_line() throws IOException {
-		File logFolder = tempFolder.newFolder("logs");
+	public void error_append_new_line(@TempDir Path tempDir) throws IOException {
+		Path logFolder = Files.createDirectory(tempDir.resolve("logs"));
 		context = new AppBuildContext(
-				logFolder.getPath(), 
+				logFolder.toString(), 
 				"c:/Users/Administrator/.m2", 
 				null, 
 				"jack", 

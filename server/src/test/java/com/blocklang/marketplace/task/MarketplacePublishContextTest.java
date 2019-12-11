@@ -6,8 +6,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.blocklang.marketplace.model.ComponentRepoPublishTask;
 
@@ -15,7 +15,7 @@ public class MarketplacePublishContextTest {
 
 	private MarketplacePublishContext context;
 	
-	@Before
+	@BeforeEach
 	public void setUp() {
 		ComponentRepoPublishTask publishTask = new ComponentRepoPublishTask();
 		publishTask.setGitUrl("https://github.com/jack/app.git");

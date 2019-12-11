@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -48,7 +48,7 @@ public class UserServiceImplTest extends AbstractServiceTest{
 	@Autowired
 	private CacheManager cacheManager;
 	
-	@After
+	@AfterEach
 	public void tearDown() {
 		// 为了避免缓存干扰其他测试用例，每次执行后都清空缓存
 		this.cacheManager.getCache("users").clear();

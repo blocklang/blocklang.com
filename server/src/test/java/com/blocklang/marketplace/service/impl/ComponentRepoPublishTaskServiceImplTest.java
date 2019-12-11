@@ -6,9 +6,7 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.blocklang.core.dao.UserDao;
@@ -25,8 +23,6 @@ public class ComponentRepoPublishTaskServiceImplTest extends AbstractServiceTest
 	private ComponentRepoPublishTaskService componentRepoPublishTaskService;
 	@Autowired
 	private UserDao userDao;
-	@Rule
-	public TemporaryFolder tempFolder = new TemporaryFolder();
 	
 	@Test
 	public void save_success() {

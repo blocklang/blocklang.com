@@ -3,6 +3,7 @@ package com.blocklang.marketplace.task;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,10 +12,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.eclipse.jgit.lib.Constants;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.blocklang.core.test.AbstractServiceTest;
@@ -46,8 +46,6 @@ public class ApiChangeLogsSetupGroupTaskTest extends AbstractServiceTest {
 
 	private MarketplacePublishContext context;
 
-	@Rule
-	public TemporaryFolder temp = new TemporaryFolder();
 	@Autowired
 	private ComponentRepoDao componentRepoDao;
 	@Autowired
@@ -67,10 +65,9 @@ public class ApiChangeLogsSetupGroupTaskTest extends AbstractServiceTest {
 	@Autowired
 	private ApiChangeLogDao apiChangeLogDao;
 
-	@Before
-	public void setup() throws IOException {
-		String folder = temp.newFolder().getPath();
-		preparePublishTask(folder);
+	@BeforeEach
+	public void setup(@TempDir Path folder) throws IOException {
+		preparePublishTask(folder.toString());
 		prepareApiJson();
 		prepareComponentJson();
 	}
@@ -168,6 +165,7 @@ public class ApiChangeLogsSetupGroupTaskTest extends AbstractServiceTest {
 		NewWidgetChange change1 = new NewWidgetChange();
 		change1.setName("Widget1");
 		change1.setLabel("Widget 1");
+		change1.setCanHasChildren(false);
 		
 		List<WidgetProperty> properties = new ArrayList<WidgetProperty>();
 		WidgetProperty property1 = new WidgetProperty();

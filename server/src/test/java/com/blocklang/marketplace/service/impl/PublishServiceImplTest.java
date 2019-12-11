@@ -2,9 +2,7 @@ package com.blocklang.marketplace.service.impl;
 
 import java.time.LocalDateTime;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.blocklang.core.test.AbstractServiceTest;
@@ -19,8 +17,6 @@ public class PublishServiceImplTest extends AbstractServiceTest{
 	private ComponentRepoPublishTaskService componentRepoPublishTaskService;
 	@Autowired
 	private PublishService publishService;
-	@Rule
-	public TemporaryFolder tempFolder = new TemporaryFolder();
 	
 	@Test
 	public void publish() {
