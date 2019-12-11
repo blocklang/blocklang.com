@@ -24,7 +24,7 @@ public class GitSyncComponentRepoTask extends AbstractRepoPublishTask{
 			Path path = localRepoInfo.getRepoSourceDirectory();
 			if(GitUtils.isGitRepo(path)) {
 				logger.info("从 {0} 仓库拉取最新的组件仓库源码", localRepoInfo.getGitUrl());
-				GitUtils.pull(path);
+				GitUtils.pullWithTag(path);
 			} else {
 				logger.info("从 {0} 仓库克隆组件仓库源码", localRepoInfo.getGitUrl());
 				GitUtils.clone(localRepoInfo.getGitUrl(), path);

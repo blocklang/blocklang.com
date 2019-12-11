@@ -30,7 +30,7 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 	private List<String> childKeysForRoot = Arrays.asList("id", "author", "changes");
 	
 	private List<String> operators = Arrays.asList("newWidget");
-	private List<String> newWidgetKeys = Arrays.asList("name", "label", "description", "iconClass", "properties", "events");
+	private List<String> newWidgetKeys = Arrays.asList("name", "label", "description", "canHasChildren", "properties", "events");
 	private List<String> widgetPropertyKeys = Arrays.asList("name", "label", "defaultValue", "valueType", "description", "options");
 	private List<String> widgetEventKeys = Arrays.asList("name", "label", "valueType", "description", "arguments");
 	private List<String> widgetPropertyOptionKeys = Arrays.asList("value", "label", "description", "iconClass");
@@ -257,10 +257,10 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 		}
 		
 		
-		// iconClass
-		Object iconClassObj = newWidgetMap.get("iconClass");
-		if(iconClassObj != null && !String.class.isAssignableFrom(iconClassObj.getClass())) {
-			logger.error("iconClass 的值必须是字符串类型");
+		// canHasChildren
+		Object canHasChildrenObj = newWidgetMap.get("canHasChildren");
+		if(canHasChildrenObj != null && !Boolean.class.isAssignableFrom(canHasChildrenObj.getClass())) {
+			logger.error("canHasChildren 的值必须是布尔类型");
 			hasErrors = true;
 		}
 
@@ -704,10 +704,12 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 		if(widgetDescription != null) {
 			newWidgetChange.setDescription(widgetDescription.toString());
 		}
-		
-		Object iconClassObj = newWidgetMap.get("iconClass");
-		if(iconClassObj != null) {
-			newWidgetChange.setIconClass(iconClassObj.toString());
+
+		Object canHasChildrenObj = newWidgetMap.get("canHasChildren");
+		if(canHasChildrenObj != null) {
+			newWidgetChange.setCanHasChildren(Boolean.valueOf(canHasChildrenObj.toString()));
+		} else {
+			newWidgetChange.setCanHasChildren(false);
 		}
 		
 		List<WidgetProperty> properties = new ArrayList<WidgetProperty>();
@@ -746,6 +748,7 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 							option.setDescription(descriptionObj.toString());
 						}
 						
+						// TODO: 确认是否有用，用不到则删除
 						Object optionIconClassObj = optionMap.get("iconClass");
 						if(optionIconClassObj != null) {
 							option.setIconClass(optionIconClassObj.toString());

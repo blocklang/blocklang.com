@@ -2349,7 +2349,7 @@ public class ApiChangeLogValidateTaskTest {
 		newWidget.put("name", "widget_name");
 		newWidget.put("label", "widget_label");
 		newWidget.put("description", "widget_description");
-		newWidget.put("iconClass", "widget_iconClass");
+		newWidget.put("canHasChildren", true);
 		
 		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
 		Map<String, Object> propertyMap = new HashMap<String, Object>();
@@ -2404,7 +2404,7 @@ public class ApiChangeLogValidateTaskTest {
 		assertThat(newWidgetChange.getName()).isEqualTo("widget_name");
 		assertThat(newWidgetChange.getLabel()).isEqualTo("widget_label");
 		assertThat(newWidgetChange.getDescription()).isEqualTo("widget_description");
-		assertThat(newWidgetChange.getIconClass()).isEqualTo("widget_iconClass");
+		assertThat(newWidgetChange.getCanHasChildren()).isTrue();
 		assertThat(newWidgetChange.getProperties()).hasSize(1);
 		assertThat(newWidgetChange.getEvents()).hasSize(1);
 		
@@ -2450,7 +2450,7 @@ public class ApiChangeLogValidateTaskTest {
 		newWidget.put("name", "widget_name");
 		newWidget.put("label", "widget_label");
 		newWidget.put("description", "widget_description");
-		newWidget.put("iconClass", "widget_iconClass");
+		newWidget.put("canHasChildren", true);
 		
 		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
 		Map<String, Object> propertyMap = new HashMap<String, Object>();
@@ -2505,7 +2505,7 @@ public class ApiChangeLogValidateTaskTest {
 		assertThat(newWidgetChange.getName()).isEqualTo("widget_name");
 		assertThat(newWidgetChange.getLabel()).isEqualTo("widget_label");
 		assertThat(newWidgetChange.getDescription()).isEqualTo("widget_description");
-		assertThat(newWidgetChange.getIconClass()).isEqualTo("widget_iconClass");
+		assertThat(newWidgetChange.getCanHasChildren()).isTrue();
 		assertThat(newWidgetChange.getProperties()).hasSize(1);
 		assertThat(newWidgetChange.getEvents()).hasSize(1);
 		
@@ -2551,7 +2551,7 @@ public class ApiChangeLogValidateTaskTest {
 		newWidget.put("name", "widget_name");
 		newWidget.put("label", "widget_label");
 		newWidget.put("description", "widget_description");
-		newWidget.put("iconClass", "widget_iconClass");
+		newWidget.put("canHasChildren", true);
 		
 		List<Map<String, Object>> properties = new ArrayList<Map<String,Object>>();
 		Map<String, Object> propertyMap = new HashMap<String, Object>();
@@ -2606,7 +2606,7 @@ public class ApiChangeLogValidateTaskTest {
 		assertThat(newWidgetChange.getName()).isEqualTo("widget_name");
 		assertThat(newWidgetChange.getLabel()).isEqualTo("widget_label");
 		assertThat(newWidgetChange.getDescription()).isEqualTo("widget_description");
-		assertThat(newWidgetChange.getIconClass()).isEqualTo("widget_iconClass");
+		assertThat(newWidgetChange.getCanHasChildren()).isTrue();
 		assertThat(newWidgetChange.getProperties()).hasSize(1);
 		assertThat(newWidgetChange.getEvents()).hasSize(1);
 		

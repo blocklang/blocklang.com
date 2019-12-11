@@ -7,7 +7,7 @@ public class NewWidgetChange implements Change {
 	private String name;
 	private String label;
 	private String description;
-	private String iconClass;
+	private Boolean canHasChildren;
 	private List<WidgetProperty> properties;
 	private List<WidgetEvent> events;
 
@@ -35,12 +35,12 @@ public class NewWidgetChange implements Change {
 		this.description = description;
 	}
 
-	public String getIconClass() {
-		return iconClass;
+	public Boolean getCanHasChildren() {
+		return canHasChildren;
 	}
 
-	public void setIconClass(String iconClass) {
-		this.iconClass = iconClass;
+	public void setCanHasChildren(Boolean canHasChildren) {
+		this.canHasChildren = canHasChildren;
 	}
 
 	public List<WidgetProperty> getProperties() {

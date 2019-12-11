@@ -24,7 +24,7 @@ public class GitSyncApiRepoTask extends AbstractRepoPublishTask{
 			Path path = localRepoInfo.getRepoSourceDirectory();
 			if(GitUtils.isGitRepo(path)) {
 				logger.info("从 {0} 仓库拉取最新的 API 仓库源码", localRepoInfo.getGitUrl());
-				GitUtils.pull(path);
+				GitUtils.pullWithTag(path);
 			} else {
 				logger.info("从 {0} 仓库克隆 API 仓库源码", localRepoInfo.getGitUrl());
 				GitUtils.clone(localRepoInfo.getGitUrl(), path);

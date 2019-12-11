@@ -283,13 +283,13 @@ public class ApiChangeLogsSetupGroupTask extends AbstractRepoPublishTask {
 		apiComponent.setCode(componentCodeGenerator.next());
 		apiComponent.setName(newWidgetChange.getName());
 		apiComponent.setLabel(newWidgetChange.getLabel());
+		apiComponent.setCanHasChildren(newWidgetChange.getCanHasChildren());
 		// appType 不要放在 API 仓库上
 		apiComponent.setDescription(newWidgetChange.getDescription());
 		apiComponent.setCreateTime(LocalDateTime.now());
 		apiComponent.setCreateUserId(publishTask.getCreateUserId());
 		
-		ApiComponent savedApiComponent = apiComponentDao.save(apiComponent);
-		return savedApiComponent;
+		return apiComponentDao.save(apiComponent);
 	}
 
 	private void saveApiComponentFunArg(Integer apiComponentAttrId, WidgetEventArgument argument, CodeGenerator componentEventArgCodeGenerator) {
