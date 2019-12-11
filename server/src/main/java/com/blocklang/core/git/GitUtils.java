@@ -110,7 +110,12 @@ public class GitUtils {
 	 */
 	public static void pull(Path gitRepoPath){
 		GitPull gitPull = new GitPull();
-		gitPull.execute(gitRepoPath);
+		gitPull.execute(gitRepoPath, false);
+	}
+	
+	public static void pullWithTag(Path gitRepoPath) {
+		GitPull gitPull = new GitPull();
+		gitPull.execute(gitRepoPath, true);
 	}
 
 	/**
