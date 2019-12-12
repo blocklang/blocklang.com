@@ -51,7 +51,6 @@ import com.blocklang.marketplace.model.ComponentRepoVersion;
 import com.blocklang.marketplace.service.ComponentRepoVersionService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nimbusds.oauth2.sdk.util.StringUtils;
 
 import de.skuzzle.semantic.Version;
 
@@ -326,7 +325,6 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 		return dependences;
 	}
 
-
 	@Override
 	public List<ProjectDependenceData> findProjectDependences(Integer projectId, boolean includeStd) {
 		List<ProjectDependence> dependences;
@@ -336,6 +334,10 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 			dependences = projectDependenceDao.findAllByProjectId(projectId);
 		}
 		
+		return convert(dependences);
+	}
+
+	private List<ProjectDependenceData> convert(List<ProjectDependence> dependences) {
 		return dependences.stream().map(dependence -> {
 			ComponentRepoVersion componentRepoVersion = null;
 			ComponentRepo componentRepo = null;
@@ -359,6 +361,26 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 	@Override
 	public List<ProjectDependenceData> findProjectDependences(Integer projectId) {
 		return this.findProjectDependences(projectId, false);
+	}
+	
+	@Override
+	public List<ProjectDependenceData> findProjectBuildDependences(Integer projectId) {
+		List<ProjectDependence> allDeps = projectDependenceDao.findAllByProjectId(projectId);
+		// FIXME: 当前仅支持 web，需要考虑支持其他类型。
+		ProjectBuildProfile defaultProfile = projectBuildProfileDao.findByProjectIdAndAppTypeAndNameIgnoreCase(projectId, AppType.WEB, ProjectBuildProfile.DEFAULT_PROFILE_NAME).orElse(null);
+		if(defaultProfile == null) {
+			logger.error("项目中不存在 default profile");
+			return Collections.emptyList();
+		}
+		
+		// 过滤出 build 版 default profile 依赖
+		List<ProjectDependence> allBuildDefaultProfileDeps = allDeps.stream().filter(dep -> dep.getProfileId().equals(defaultProfile.getId())).collect(Collectors.toList());
+		this.findProjectBuildDependenceByStandardAndDefaultProfile().ifPresent(dep -> {
+			dep.setProjectId(projectId);
+			allBuildDefaultProfileDeps.add(dep);
+		});
+		
+		return convert(allBuildDefaultProfileDeps);
 	}
 
 	@Override
@@ -424,11 +446,7 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 							List<WidgetProperty> properties = apiComponentAttrDao.findAllByApiComponentIdOrderByCode(apiComponent.getId()).stream().map(property -> {
 								WidgetProperty each = new WidgetProperty();
 								each.setCode(property.getCode());
-								String name = property.getLabel();
-								if(StringUtils.isBlank(name)) {
-									name = property.getName();
-								}
-								each.setName(name);
+								each.setName(property.getName());
 								each.setValueType(property.getValueType().getKey());
 								each.setDefaultValue(property.getDefaultValue());
 								return each;
@@ -470,4 +488,27 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 		
 		return result;
 	}
+	
+	/**
+	 * 获取 build 版的标准库，当前实现只支持 dojo 版的标准库。
+	 * 
+	 * 1. 标准库
+	 * 2. Default Profile
+	 * 3. Build
+	 * 
+	 * @return
+	 */
+	private Optional<ProjectDependence> findProjectBuildDependenceByStandardAndDefaultProfile() {
+		String stdBuildRepoName = propertyService.findStringValue(CmPropKey.STD_WIDGET_BUILD_DOJO_NAME, "std-widget-web");
+		Integer createUserId = propertyService.findIntegerValue(CmPropKey.STD_WIDGET_REGISTER_USERID, 1);
+		// 事先要在组件仓库中注册 std-widget-web
+		// 标准库，永远只使用最新版的
+		
+		return componentRepoDao.findByNameAndCreateUserId(stdBuildRepoName, createUserId).flatMap(componentRepo -> componentRepoVersionService.findLatestVersion(componentRepo.getId())).map(componentRepoVersion -> {
+			ProjectDependence stdBuildWidgetRepo = new ProjectDependence();
+			stdBuildWidgetRepo.setComponentRepoVersionId(componentRepoVersion.getId());
+			return stdBuildWidgetRepo;
+		});
+	}
+
 }
