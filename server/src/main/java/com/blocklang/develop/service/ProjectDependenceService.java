@@ -46,6 +46,8 @@ public interface ProjectDependenceService {
 	 * @return
 	 */
 	List<ProjectDependenceData> findProjectDependences(Integer projectId);
+	
+	List<ProjectDependenceData> findProjectBuildDependences(Integer projectId);
 
 	/**
 	 * 

@@ -138,24 +138,26 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 			}
 		});
 		Integer latestRepoVersionId = componentRepoVersions.get(0).getId();
-		// 为项目生成一个默认的 Profile（如果已存在，则不生成）
-		ProjectBuildProfile profile = projectBuildProfileDao
-			.findByProjectIdAndAppTypeAndNameIgnoreCase(projectId, componentRepo.getAppType(), ProjectBuildProfile.DEFAULT_PROFILE_NAME)
-			.orElseGet(() -> {
-				ProjectBuildProfile p = new ProjectBuildProfile();
-				p.setProjectId(projectId);
-				p.setAppType(componentRepo.getAppType());
-				p.setName(ProjectBuildProfile.DEFAULT_PROFILE_NAME);
-				p.setCreateUserId(createUserId);
-				p.setCreateTime(LocalDateTime.now());
-				return projectBuildProfileDao.save(p);
-			});
 
 		// 为项目添加一个依赖
 		ProjectDependence dependence = new ProjectDependence();
 		dependence.setProjectId(projectId);
 		dependence.setComponentRepoVersionId(latestRepoVersionId);
-		dependence.setProfileId(profile.getId());
+		if(!componentRepo.getIsIdeExtension()) {
+			// 为项目生成一个默认的 Profile（如果已存在，则不生成）
+			ProjectBuildProfile profile = projectBuildProfileDao
+				.findByProjectIdAndAppTypeAndNameIgnoreCase(projectId, componentRepo.getAppType(), ProjectBuildProfile.DEFAULT_PROFILE_NAME)
+				.orElseGet(() -> {
+					ProjectBuildProfile p = new ProjectBuildProfile();
+					p.setProjectId(projectId);
+					p.setAppType(componentRepo.getAppType());
+					p.setName(ProjectBuildProfile.DEFAULT_PROFILE_NAME);
+					p.setCreateUserId(createUserId);
+					p.setCreateTime(LocalDateTime.now());
+					return projectBuildProfileDao.save(p);
+				});
+			dependence.setProfileId(profile.getId());
+		}
 		dependence.setCreateUserId(createUserId);
 		dependence.setCreateTime(LocalDateTime.now());
 		ProjectDependence savedDependence = projectDependenceDao.save(dependence);
@@ -368,17 +370,21 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 		List<ProjectDependence> allDeps = projectDependenceDao.findAllByProjectId(projectId);
 		// FIXME: 当前仅支持 web，需要考虑支持其他类型。
 		ProjectBuildProfile defaultProfile = projectBuildProfileDao.findByProjectIdAndAppTypeAndNameIgnoreCase(projectId, AppType.WEB, ProjectBuildProfile.DEFAULT_PROFILE_NAME).orElse(null);
-		if(defaultProfile == null) {
-			logger.error("项目中不存在 default profile");
-			return Collections.emptyList();
-		}
-		
+
 		// 过滤出 build 版 default profile 依赖
-		List<ProjectDependence> allBuildDefaultProfileDeps = allDeps.stream().filter(dep -> dep.getProfileId().equals(defaultProfile.getId())).collect(Collectors.toList());
+		// 只有 build 版才有 profileId 值，dev 版 profileId 的值为 null
+		List<ProjectDependence> allBuildDefaultProfileDeps = allDeps.stream()
+				.filter(dep -> defaultProfile != null && defaultProfile.getId().equals(dep.getProfileId())).collect(Collectors.toList());
+		// 添加标准库
 		this.findProjectBuildDependenceByStandardAndDefaultProfile().ifPresent(dep -> {
 			dep.setProjectId(projectId);
 			allBuildDefaultProfileDeps.add(dep);
 		});
+		
+		if(allBuildDefaultProfileDeps.isEmpty()) {
+			logger.error("项目中不存在 default profile");
+			return Collections.emptyList();
+		}
 		
 		return convert(allBuildDefaultProfileDeps);
 	}
@@ -501,8 +507,8 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 	private Optional<ProjectDependence> findProjectBuildDependenceByStandardAndDefaultProfile() {
 		String stdBuildRepoName = propertyService.findStringValue(CmPropKey.STD_WIDGET_BUILD_DOJO_NAME, "std-widget-web");
 		Integer createUserId = propertyService.findIntegerValue(CmPropKey.STD_WIDGET_REGISTER_USERID, 1);
-		// 事先要在组件仓库中注册 std-widget-web
-		// 标准库，永远只使用最新版的
+		// 事先要在组件仓库中注册 std-widget-web。
+		// 标准库，永远只使用最新版。
 		
 		return componentRepoDao.findByNameAndCreateUserId(stdBuildRepoName, createUserId).flatMap(componentRepo -> componentRepoVersionService.findLatestVersion(componentRepo.getId())).map(componentRepoVersion -> {
 			ProjectDependence stdBuildWidgetRepo = new ProjectDependence();

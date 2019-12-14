@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import com.blocklang.core.dao.UserDao;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.PropertyService;
 import com.blocklang.core.test.AbstractServiceTest;
+import com.blocklang.core.test.TestHelper;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.dao.ProjectBuildProfileDao;
 import com.blocklang.develop.dao.ProjectDependenceDao;
@@ -172,6 +174,35 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		assertThat(countRowsInTable("PROJECT_DEPENDENCE")).isEqualTo(0);
 	}
 	
+	@DisplayName("save: when saved dependence is dev dependence then not set profile")
+	@Test
+	public void save_when_saved_dependence_is_dev_then_not_set_profile(@TempDir Path rootFolder) throws IOException {
+		Integer projectId = Integer.MAX_VALUE;
+		Integer componentRepoId = Integer.MAX_VALUE - 1;
+		Integer userId = 3;
+		
+		ComponentRepo componentRepo = new ComponentRepo();
+		componentRepo.setId(componentRepoId);
+		componentRepo.setAppType(AppType.WEB);
+		componentRepo.setIsIdeExtension(true);
+		
+		// 创建组件仓库的版本信息
+		ComponentRepoVersion version = new ComponentRepoVersion();
+		version.setComponentRepoId(componentRepoId);
+		version.setVersion("0.1.0");
+		version.setGitTagName("v0.1.0");
+		version.setApiRepoVersionId(3);
+		version.setCreateUserId(11);
+		version.setCreateTime(LocalDateTime.now());
+		componentRepoVersionDao.save(version);
+		
+		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
+		
+		ProjectDependence savedDependence = projectDependenceService.save(projectId, componentRepo, userId);
+		
+		assertThat(savedDependence.getProfileId()).isNull();
+	}
+	
 	@Test
 	public void save_success(@TempDir Path rootFolder) throws IOException {
 		Integer projectId = 1;
@@ -310,6 +341,8 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		Map build = (Map)((Map)((Map)((Map)jsonObject.get("build")).get("web")).get("default")).get("website/jack/repo");
 		assertThat(build.get("git")).isEqualTo("url");
 		assertThat(build.get("tag")).isEqualTo("v0.1.0");
+		
+		TestHelper.clearDir(rootFolder);
 	}
 	
 	@Test
@@ -511,6 +544,122 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		assertThat(dependences).hasSize(1);
 	}
 	
+	@DisplayName("find project's build dependences: has no dependences")
+	@Test
+	public void findProjectBuildDependences_no_dependence() {
+		int projectId = Integer.MAX_VALUE;
+		assertThat(projectDependenceService.findProjectBuildDependences(projectId)).isEmpty();
+	}
+	
+	@DisplayName("find project's build dependences: should not contains dev dependences")
+	@Test
+	public void findProjectBuildDependences_not_contains_dev_dependence() {
+		Integer projectId = Integer.MAX_VALUE;
+		// 创建对应的 API 仓库信息
+		ApiRepo apiRepo = new ApiRepo();
+		apiRepo.setGitRepoUrl("a");
+		apiRepo.setGitRepoWebsite("b");
+		apiRepo.setGitRepoOwner("c");
+		apiRepo.setGitRepoName("d");
+		apiRepo.setName("e");
+		apiRepo.setVersion("f");
+		apiRepo.setCategory(RepoCategory.CLIENT_API);
+		apiRepo.setCreateUserId(1);
+		apiRepo.setCreateTime(LocalDateTime.now());
+		ApiRepo savedApiRepo = apiRepoDao.save(apiRepo);
+		// 创建对应的 API 仓库版本信息
+		ApiRepoVersion version = new ApiRepoVersion();
+		version.setApiRepoId(savedApiRepo.getId());
+		version.setVersion("0.1.0");
+		version.setGitTagName("v0.1.0");
+		version.setCreateUserId(1);
+		version.setCreateTime(LocalDateTime.now());
+		ApiRepoVersion savedApiRepoVersion = apiRepoVersionDao.save(version);
+		
+		// 创建组件仓库信息
+		// 1. dev
+		ComponentRepo repo = new ComponentRepo();
+		repo.setApiRepoId(savedApiRepo.getId());
+		repo.setGitRepoUrl("dev_url");
+		repo.setGitRepoWebsite("website");
+		repo.setGitRepoOwner("jack");
+		repo.setGitRepoName("repo");
+		repo.setName("dev_name");
+		repo.setVersion("version");
+		repo.setCategory(RepoCategory.WIDGET);
+		repo.setCreateUserId(1);
+		repo.setCreateTime(LocalDateTime.now());
+		repo.setLanguage(Language.TYPESCRIPT);
+		repo.setAppType(AppType.WEB);
+		repo.setIsIdeExtension(true);
+		ComponentRepo savedDevRepo = componentRepoDao.save(repo);
+		// 2. build
+		repo = new ComponentRepo();
+		repo.setApiRepoId(savedApiRepo.getId());
+		repo.setGitRepoUrl("build_url");
+		repo.setGitRepoWebsite("website");
+		repo.setGitRepoOwner("jack");
+		repo.setGitRepoName("repo");
+		repo.setName("build_name");
+		repo.setVersion("version");
+		repo.setCategory(RepoCategory.WIDGET);
+		repo.setCreateUserId(1);
+		repo.setCreateTime(LocalDateTime.now());
+		repo.setLanguage(Language.TYPESCRIPT);
+		repo.setAppType(AppType.WEB);
+		ComponentRepo savedBuildRepo = componentRepoDao.save(repo);
+		// 创建组件仓库版本信息
+		// 1. dev
+		ComponentRepoVersion componentRepoVersion = new ComponentRepoVersion();
+		componentRepoVersion.setComponentRepoId(savedDevRepo.getId());
+		componentRepoVersion.setVersion("0.1.0");
+		componentRepoVersion.setGitTagName("v0.1.0");
+		componentRepoVersion.setApiRepoVersionId(savedApiRepoVersion.getId());
+		componentRepoVersion.setCreateUserId(1);
+		componentRepoVersion.setCreateTime(LocalDateTime.now());
+		ComponentRepoVersion devRepoVersion = componentRepoVersionDao.save(componentRepoVersion);
+		// 2. build
+		componentRepoVersion = new ComponentRepoVersion();
+		componentRepoVersion.setComponentRepoId(savedBuildRepo.getId());
+		componentRepoVersion.setVersion("0.1.0");
+		componentRepoVersion.setGitTagName("v0.1.0");
+		componentRepoVersion.setApiRepoVersionId(savedApiRepoVersion.getId());
+		componentRepoVersion.setCreateUserId(1);
+		componentRepoVersion.setCreateTime(LocalDateTime.now());
+		ComponentRepoVersion buildRepoVersion = componentRepoVersionDao.save(componentRepoVersion);
+		// 创建一个 dev 依赖（不需创建 Profile）
+		ProjectDependence devDependence = new ProjectDependence();
+		devDependence.setProjectId(projectId);
+		devDependence.setComponentRepoVersionId(devRepoVersion.getId());
+		devDependence.setCreateUserId(11);
+		devDependence.setCreateTime(LocalDateTime.now());
+		projectDependenceDao.save(devDependence);
+		
+		// 创建一个 build 依赖（需创建默认的 Profile）
+		// 1. 为项目的 web 页面添加一个默认的 Profile
+		ProjectBuildProfile profile = new ProjectBuildProfile();
+		profile.setProjectId(projectId);
+		profile.setAppType(AppType.WEB);
+		profile.setName(ProjectBuildProfile.DEFAULT_PROFILE_NAME);
+		profile.setCreateUserId(11);
+		profile.setCreateTime(LocalDateTime.now());
+		projectBuildProfileDao.save(profile);
+		// 2. 为项目添加一个依赖
+		ProjectDependence buildDependence = new ProjectDependence();
+		buildDependence.setProjectId(projectId);
+		buildDependence.setComponentRepoVersionId(buildRepoVersion.getId());
+		buildDependence.setProfileId(profile.getId());
+		buildDependence.setCreateUserId(11);
+		buildDependence.setCreateTime(LocalDateTime.now());
+		projectDependenceDao.save(buildDependence);
+
+		List<ProjectDependenceData> dependences = projectDependenceService.findProjectBuildDependences(projectId);
+		
+		assertThat(dependences).hasSize(1);
+		assertThat(dependences.get(0).getComponentRepoVersion().getId()).isEqualTo(buildRepoVersion.getId());
+	}
+	
+	
 	// 注意，因为这些都是在一个事务中完成的，所以不要直接通过获取数据库表的记录数来断言，
 	// 而是通过 jpa 的 findById 来断言，因为事务没有结束，数据库可能还没有执行真正做删除操作。
 	@Test
@@ -589,6 +738,8 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		// 在 git 仓库中获取 DEPENDENCE.json 文件
 		String dependenceFileContent = Files.readString(context.getGitRepositoryDirectory().resolve(ProjectResource.DEPENDENCE_NAME));
 		assertThat(dependenceFileContent).isEqualTo("{ }");
+		
+		TestHelper.clearDir(rootFolder);
 	}
 	
 	@Test
@@ -684,6 +835,8 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		Map dev = (Map)((Map)((Map)jsonObject.get("dev")).get("web")).get("website1/jack1/repo1");
 		assertThat(dev.get("git")).isEqualTo("url1");
 		assertThat(dev.get("tag")).isEqualTo("v0.2.0");
+		
+		TestHelper.clearDir(rootFolder);
 	}
 	
 	@Test
