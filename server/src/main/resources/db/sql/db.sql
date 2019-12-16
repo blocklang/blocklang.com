@@ -6,7 +6,7 @@ CREATE DATABASE blocklang
     CONNECTION LIMIT = -1;
     
 -- test db
-CREATE DATABASE blocklang-test
+CREATE DATABASE blocklang_test
     WITH 
     OWNER = postgres
     ENCODING = 'UTF8'

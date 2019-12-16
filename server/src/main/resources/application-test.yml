@@ -1,7 +1,7 @@
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://127.0.0.1:5432/blocklang-test
+    url: jdbc:postgresql://127.0.0.1:5432/blocklang_test
     username: postgres
     password: abc123
   jpa:
