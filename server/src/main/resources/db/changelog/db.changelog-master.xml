@@ -4,9 +4,11 @@
 	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
 	
 	<!-- 表结构 -->
-	<include file="db/changelog/table/db.changelog-include.xml"/>
+	<include file="db/changelog/table/db.changelog-include.xml" context="test, dev, prod"/>
 	
 	<!-- 数据 -->
-	<include file="db/changelog/data/db.changelog-include.xml"/>
+	<include file="db/changelog/data/dev/db.changelog-include.xml" context="dev"/>
+	<include file="db/changelog/data/prod/db.changelog-include.xml" context="prod"/>
+	<include file="db/changelog/data/common/db.changelog-include.xml" context="dev, prod"/>
 
 </databaseChangeLog>

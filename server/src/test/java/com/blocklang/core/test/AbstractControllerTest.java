@@ -1,10 +1,10 @@
 package com.blocklang.core.test;
 
-
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.blocklang.core.service.GithubLoginService;
@@ -15,6 +15,7 @@ import com.blocklang.core.service.UserService;
 
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 
+@ActiveProfiles("test")
 public class AbstractControllerTest {
 
 	// 添加了 oauth2 后提示没有找到 bean，所以这里 mock 一个

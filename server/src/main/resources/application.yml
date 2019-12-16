@@ -1,14 +1,7 @@
 spring:
-  datasource:
-    driver-class-name: org.postgresql.Driver
-    # url: jdbc:postgresql://pgm-2ze9a80ozt4i63ea14790.pg.rds.aliyuncs.com:3433/blocklang
-    # username: blocklang
-    # password: blocklang%46
-    url: jdbc:postgresql://127.0.0.1:5432/blocklang
-    username: postgres
-    password: abc123
+  profiles:
+    active: dev
   jpa:
-    show-sql: true
     database-platform: org.hibernate.dialect.PostgreSQL10Dialect
     properties:
       hibernate:
@@ -19,31 +12,6 @@ spring:
           use_jdbc_metadata_defaults: false
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml
-  security:
-    oauth2:
-      client:
-        registration:
-          github:
-            # prod
-            # client-id: 6979d9b09aece54ff960
-            # client-secret: 9892875165b26db23601e59e75fddcca4ce36514
-            # test
-            client-id: 12313da299d8138f892c
-            client-secret: d40f5d6c9d1feb6e3ad1b3049c72f798f2c4901b
-          qq:
-            provider: qq
-            client-id: 101558855
-            client-secret: 920e1db9e7cd295dbd1da85b6a3a23cf
-            authorizationGrantType: authorization_code
-            redirectUri: https://blocklang.com/login/oauth2/code/qq
-            scope: get_user_info
-        provider:
-          qq:
-            authorization-uri: https://graph.qq.com/oauth2.0/authorize
-            token-uri: https://graph.qq.com/oauth2.0/token
-            user-info-uri: https://graph.qq.com/user/get_user_info
-            user-name-attribute: openid
-            jwk-set-uri: https://graph.qq.com/oauth2.0/token
   jackson:
     default-property-inclusion: non_null
 server:
@@ -53,11 +21,3 @@ server:
   compression:
     enabled: true
     mime-types: application/json,application/xml,text/html,text/xml,text/plain,application/javascript,text/css,image/jpg,image/png,image/gif
-  port: 443
-  ssl:
-    key-store: classpath:cert/1963553_www.blocklang.com.pfx
-    key-store-password: 5CvGL3by
-    keyStoreType: PKCS12
-  servlet:
-    session:
-      timeout: 30m

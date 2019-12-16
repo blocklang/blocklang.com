@@ -1,0 +1,19 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+	<include file="db/changelog/data/common/201903072140_insert_cm_property_installer.xml" />
+	<include file="db/changelog/data/common/201903150656_insert_app_jdk_11_0_2.xml" />
+	<include file="db/changelog/data/common/201903281921_insert_app_blocklang_installer_0_1_0.xml" />
+	<include file="db/changelog/data/common/201904110847_insert_cm_property_keywords.xml" />
+
+	<include file="db/changelog/data/common/201907221816_update_component_repo_column_dev.xml" />
+	
+	<include file="db/changelog/data/common/201907231536_insert_app_jdk_12_0_2.xml" />
+	<include file="db/changelog/data/common/201910291955_insert_app_jdk_13_0_1.xml" />
+	
+	<include file="db/changelog/data/common/201911120832_insert_cm_property_std_widget_library.xml" />
+	<include file="db/changelog/data/common/201912061032_insert_cm_property_std_widget_build_dojo_library.xml" />
+	
+</databaseChangeLog>

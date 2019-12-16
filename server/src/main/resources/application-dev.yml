@@ -1,0 +1,35 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://127.0.0.1:5432/blocklang
+    username: postgres
+    password: abc123
+  jpa:
+    show-sql: true
+  liquibase:
+    contexts: dev
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: 12313da299d8138f892c
+            client-secret: d40f5d6c9d1feb6e3ad1b3049c72f798f2c4901b
+          qq:
+            provider: qq
+            client-id: 101558855
+            client-secret: 920e1db9e7cd295dbd1da85b6a3a23cf
+            authorizationGrantType: authorization_code
+            redirectUri: https://blocklang.com/login/oauth2/code/qq
+            scope: get_user_info
+        provider:
+          qq:
+            authorization-uri: https://graph.qq.com/oauth2.0/authorize
+            token-uri: https://graph.qq.com/oauth2.0/token
+            user-info-uri: https://graph.qq.com/user/get_user_info
+            user-name-attribute: openid
+            jwk-set-uri: https://graph.qq.com/oauth2.0/token
+server:
+  servlet:
+    session:
+      timeout: 30m
