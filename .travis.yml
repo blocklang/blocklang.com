@@ -5,7 +5,7 @@ jdk:
 services:
   - postgresql
 before_script:
-  - psql -c 'create database blocklang;' -U postgres
+  - psql -c 'create database blocklang-test;' -U postgres
 
 before_install:
   - cd server
