@@ -113,6 +113,10 @@ public class AppBuildContext extends ProjectContext{
 		return this.getProjectRootSourceDirectory().resolve("server");
 	}
 	
+	public Path getProjectModelRootDirectory() {
+		return this.getProjectRootSourceDirectory().resolve(".blocklang_models");
+	}
+	
 	public Path getMavenPomFile() {
 		return this.getServerProjectRootDirectory().resolve("pom.xml");
 	}

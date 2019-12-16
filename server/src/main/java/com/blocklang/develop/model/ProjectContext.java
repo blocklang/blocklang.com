@@ -15,6 +15,7 @@ public class ProjectContext extends AppGlobalContext{
 	
 	private static final String GIT_REPO_ROOT_PATH = "gitRepo";
 
+	private Integer projectId;
 	protected String owner;
 	protected String projectName;
 	protected String description;
@@ -46,6 +47,14 @@ public class ProjectContext extends AppGlobalContext{
 
 	public Path getGitRepositoryDirectory() {
 		return Paths.get(this.dataRootPath, GIT_REPO_ROOT_PATH, this.owner, this.projectName);
+	}
+
+	public Integer getProjectId() {
+		return projectId;
+	}
+
+	public void setProjectId(Integer projectId) {
+		this.projectId = projectId;
 	}
 
 	protected void setOwner(String owner) {

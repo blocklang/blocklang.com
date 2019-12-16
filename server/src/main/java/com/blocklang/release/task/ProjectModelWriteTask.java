@@ -96,8 +96,10 @@ public class ProjectModelWriteTask extends AbstractTask {
 			pageInfo.put("id", projectResource.getId());
 			pageInfo.put("key", projectResource.getKey());
 			List<String> groupPathes = projectResourceService.findParentPathes(projectResource.getId());
-			// 临时存储。注意要去除当前资源的路径
-			result.put("groupPathes", groupPathes.remove(groupPathes.size() - 1));
+			// 注意要去除当前资源的路径
+			groupPathes.remove(groupPathes.size() - 1);
+			// 临时存储
+			result.put("groupPathes", groupPathes);
 			// widgets
 			// 1. id
 			// 2. parentId

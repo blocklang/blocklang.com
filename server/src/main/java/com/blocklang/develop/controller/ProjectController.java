@@ -169,7 +169,7 @@ public class ProjectController extends AbstractProjectController{
 		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
 		projectPermissionService.canRead(principal, project).orElseThrow(NoAuthorizationException::new);
 		
-		String filePath = projectResourceService.findParentPath(resourceId);
+		String filePath = String.join("/", projectResourceService.findParentPathes(resourceId));
 		project.setCreateUserName(owner);
 		GitCommitInfo commitInfo = projectService.findLatestCommitInfo(project, filePath).orElse(null);
 		

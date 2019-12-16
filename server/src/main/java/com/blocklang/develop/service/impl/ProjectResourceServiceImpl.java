@@ -110,7 +110,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 		
 		// 在 git 仓库中添加文件
 		Integer parentResourceId = resource.getParentId();
-		String relativeDir = parentResourceId == Constant.TREE_ROOT_ID ? null: this.findParentPath(parentResourceId);
+		String relativeDir = parentResourceId == Constant.TREE_ROOT_ID ? null: String.join("/", this.findParentPathes(parentResourceId));
 		
 		propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).map(rootDir -> {
 			return new ProjectContext(project.getCreateUserName(), project.getName(), rootDir).getGitRepositoryDirectory();
@@ -153,7 +153,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 			return new ArrayList<ProjectResource>();
 		}
 		
-		String relativeDir = parentResourceId == Constant.TREE_ROOT_ID ? "": this.findParentPath(parentResourceId);
+		String relativeDir = parentResourceId == Constant.TREE_ROOT_ID ? "": String.join("/", this.findParentPathes(parentResourceId));
 		
 		Optional<ProjectContext> projectContext = propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).map(rootDir -> {
 			return new ProjectContext(project.getCreateUserName(), project.getName(), rootDir);
@@ -249,7 +249,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 	}
 
 	@Override
-	public String findParentPath(Integer resourceId) {
+	public List<String> findParentPathes(Integer resourceId) {
 		List<String> pathes = new ArrayList<String>();
 		
 		while(resourceId != Constant.TREE_ROOT_ID) {
@@ -264,7 +264,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 			}).orElse(Constant.TREE_ROOT_ID);
 		}
 		
-		return String.join("/", pathes);
+		return pathes;
 	}
 
 	@Override
@@ -295,6 +295,11 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 				resourceType,
 				appType,
 				name);
+	}
+	
+	@Override
+	public List<ProjectResource> findAllPages(Integer projectId, AppType appType) {
+		return projectResourceDao.findAllByProjectIdAndAppTypeAndResourceType(projectId, appType, ProjectResourceType.PAGE);
 	}
 
 	@Override
@@ -570,7 +575,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 		}
 		
 		Integer parentResourceId = projectResource.getParentId();
-		String relativeDir = parentResourceId == Constant.TREE_ROOT_ID ? null: this.findParentPath(parentResourceId);
+		String relativeDir = parentResourceId == Constant.TREE_ROOT_ID ? null: String.join("/", this.findParentPathes(parentResourceId));
 		
 		propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).map(rootDir -> {
 			return new ProjectContext(user.getLoginName(), project.getName(), rootDir).getGitRepositoryDirectory();

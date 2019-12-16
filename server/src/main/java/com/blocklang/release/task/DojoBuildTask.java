@@ -26,7 +26,7 @@ public class DojoBuildTask extends AbstractCommandTask{
 	}
 	
 	/**
-	  * 执行 <code>dojo build --mode dist</code> 命令
+	 * 执行 <code>dojo build --mode dist</code> 命令
 	 * 
 	 * @return
 	 */

@@ -31,4 +31,6 @@ public interface ProjectResourceDao extends JpaRepository<ProjectResource, Integ
 
 	List<ProjectResource> findAllByProjectId(Integer projectId);
 
+	List<ProjectResource> findAllByProjectIdAndAppTypeAndResourceType(Integer projectId, AppType appType, ProjectResourceType resourceType);
+
 }

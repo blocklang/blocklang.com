@@ -25,12 +25,14 @@ public interface ProjectResourceService {
 	List<ProjectResource> findChildren(Project project, Integer parentResourceId);
 	
 	/**
-	 * 获取资源的父路径，包含当前资源，如果是根目录，则返回空字符串。
+	 * 获取资源的父路径，包含当前资源，如果是根目录，则返回空数组。
+	 * 
+	 * 注意，本方法返回的数组中最后一个元素是 <code>resourceId</code> 对应的资源 key 或 name (只用于 dependences.json 文件)
 	 * 
 	 * @param resourceId
 	 * @return
 	 */
-	String findParentPath(Integer resourceId);
+	List<String> findParentPathes(Integer resourceId);
 
 	/**
 	 * 在同一层级下，根据 key 查找
@@ -78,6 +80,15 @@ public interface ProjectResourceService {
 	 * @return 如果有一个分组匹配不上，则返回空数组
 	 */
 	List<ProjectResource> findParentGroupsByParentPath(Integer projectId, String parentPath);
+	
+	/**
+	 * 获取项目中所有页面
+	 * 
+	 * @param projectId 项目标识
+	 * @param appType 程序类型
+	 * @return 页面信息列表
+	 */
+	List<ProjectResource> findAllPages(Integer projectId, AppType appType);
 
 	List<UncommittedFile> findChanges(Project project);
 

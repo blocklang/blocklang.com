@@ -23,6 +23,9 @@ public abstract class CmPropKey {
 	public static final String STD_WIDGET_IDE_NAME = "std.widget.ide.name";
 	public static final String STD_WIDGET_REGISTER_USERID = "std.widget.register.userid";
 	public static final String STD_WIDGET_ROOT_NAME = "std.widget.root.name";
+	
+	// dojo 版的标准库
+	public static final String STD_WIDGET_BUILD_DOJO_NAME = "std.widget.build.dojo.name";
 
 	// 平台预留的关键字
 	public static final String PLATFORM_KEYWORDS = "platform.keywords";

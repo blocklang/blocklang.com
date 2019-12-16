@@ -17,6 +17,8 @@ import com.blocklang.core.constant.CmPropKey;
 import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.service.PropertyService;
 import com.blocklang.develop.model.Project;
+import com.blocklang.develop.service.ProjectDependenceService;
+import com.blocklang.develop.service.ProjectResourceService;
 import com.blocklang.release.constant.Arch;
 import com.blocklang.release.constant.BuildResult;
 import com.blocklang.release.constant.ReleaseMethod;
@@ -39,10 +41,12 @@ import com.blocklang.release.service.BuildService;
 import com.blocklang.release.task.AppBuildContext;
 import com.blocklang.release.task.ClientDistCopyTask;
 import com.blocklang.release.task.DojoBuildTask;
+import com.blocklang.release.task.DojoCodemodsTask;
 import com.blocklang.release.task.GitSyncProjectTemplateTask;
 import com.blocklang.release.task.GitTagTask;
 import com.blocklang.release.task.MavenInstallTask;
 import com.blocklang.release.task.MavenPomConfigTask;
+import com.blocklang.release.task.ProjectModelWriteTask;
 import com.blocklang.release.task.ProjectTemplateCopyTask;
 import com.blocklang.release.task.YarnTask;
 
@@ -50,42 +54,39 @@ import com.blocklang.release.task.YarnTask;
 public class BuildServiceImpl implements BuildService {
 
 	@Autowired
+	private PropertyService propertyService;
+	@Autowired
 	private GitTagDao gitTagDao;
-	
 	@Autowired
 	private ProjectBuildDao projectBuildDao;
-	
 	@Autowired
 	private ProjectReleaseTaskDao projectReleaseTaskDao;
-	
 	@Autowired
 	private AppDao appDao;
-	
 	@Autowired
 	private AppReleaseDao appReleaseDao;
-	
 	@Autowired
 	private AppReleaseRelationDao appReleaseRelationDao;
-	
 	@Autowired
 	private AppReleaseFileDao appReleaseFileDao;
-	
-	@Autowired
-	private PropertyService propertyService;
-	
 	@Autowired
 	private SimpMessagingTemplate messagingTemplate;
+	@Autowired
+	private ProjectDependenceService projectDependenceService;
+	@Autowired
+	private ProjectResourceService projectResourceService;
 	
 	@Override
 	public void build(Project project, ProjectReleaseTask releaseTask) {
 		StopWatch stopWatch = StopWatch.createStarted();
 
-		String dataRootPath = propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).get();
-		String mavenRootPath = propertyService.findStringValue(CmPropKey.MAVEN_ROOT_PATH).get();
-		String templateProjectGitUrl = propertyService.findStringValue(CmPropKey.TEMPLATE_PROJECT_GIT_URL).get();
-
 		// 默认从 11.0.2 开始"
 		String jdkVersion = appReleaseDao.findById(releaseTask.getJdkReleaseId()).map(AppRelease::getVersion).orElse("11.0.2");;
+		
+		String dataRootPath = propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).get();
+		String mavenRootPath = propertyService.findStringValue(CmPropKey.MAVEN_ROOT_PATH).get();
+		// FIXME: 本应校验是不是有效的 git 仓库，但是因为后续会重新设计这一块，因此暂不校验。
+		String templateProjectGitUrl = propertyService.findStringValue(CmPropKey.TEMPLATE_PROJECT_GIT_URL).get();
 		
 		AppBuildContext context = new AppBuildContext(
 				dataRootPath, 
@@ -96,6 +97,7 @@ public class BuildServiceImpl implements BuildService {
 				releaseTask.getVersion(),
 				project.getDescription(),
 				jdkVersion);
+		context.setProjectId(project.getId());
 		
 		// 需要存储日志文件名，当读取历史日志时，就可以根据此字段定位到日志文件。
 		releaseTask.setLogFileName(context.getLogFileName());
@@ -136,76 +138,72 @@ public class BuildServiceImpl implements BuildService {
 			context.error("失败");
 		}
 		
-		// 在 git 仓库上添加标签
-		context.info(StringUtils.repeat("-", 45));
-		context.info("二、为 git 仓库添加附注标签");
 		// 判断 git tag 是否已存在
 		// 如果已存在，则不添加标签，而是直接打印信息，并进行下一个环节
 		Integer projectTagId = null; // 在后续流程中使用。
-		
-		// 先判断是否存在 git 仓库，如果不存在则给出提示
-		if(!GitUtils.isGitRepo(context.getGitRepositoryDirectory())) {
-			success = false;
-			context.error("{0} 不是有效的 git 仓库", context.getGitRepositoryDirectory().toString());
-		}
-		
 		if(success) {
-			GitTagTask gitTagTask = new GitTagTask(context);
-			if(gitTagTask.exists()) {
-				context.info("git 仓库上已存在 {0} 标签", context.getTagName());
-			}else {
-				Optional<String> tagIdOption = gitTagTask.run();
-				success = tagIdOption.isPresent();
-				if (tagIdOption.isPresent()) {
-					context.info("完成");
-					context.info(StringUtils.repeat("-", 45));
-					
-					success = true;
-					String tagId = tagIdOption.get();
-					
-					// 在数据库中存储 git 标签信息
-					context.info("在数据库中存储 git 标签信息");
-					// 判断数据库中是否已存在标签信息
-					projectTagId = gitTagDao.findByProjectIdAndVersion(project.getId(), releaseTask.getVersion()).map(projectTag -> {
-						context.info("在数据库表中已存在 {0} 标签信息，开始更新标签信息", context.getTagName());
+			// 在 git 仓库上添加标签
+			context.info(StringUtils.repeat("-", 45));
+			context.info("二、为 git 仓库添加附注标签");
+			
+			// 先判断是否存在 git 仓库，如果不存在则给出提示
+			if(!GitUtils.isGitRepo(context.getGitRepositoryDirectory())) {
+				success = false;
+				context.error("{0} 不是有效的 git 仓库", context.getGitRepositoryDirectory().toString());
+			}
+			
+			if(success) {
+				GitTagTask gitTagTask = new GitTagTask(context);
+				if(gitTagTask.exists()) {
+					context.info("git 仓库上已存在 {0} 标签", context.getTagName());
+				}else {
+					Optional<String> tagIdOption = gitTagTask.run();
+					success = tagIdOption.isPresent();
+					if (tagIdOption.isPresent()) {
+						context.info("完成");
+						context.info(StringUtils.repeat("-", 45));
 						
-						projectTag.setGitTagId(tagId);
-						projectTag.setLastUpdateUserId(releaseTask.getCreateUserId());
-						projectTag.setLastUpdateTime(LocalDateTime.now());
-						Integer savedProjectTagId = gitTagDao.save(projectTag).getId();
+						success = true;
+						String tagId = tagIdOption.get();
 						
-						context.info("更新完成");
-						return savedProjectTagId;
-					}).orElseGet(() -> {
-						context.info("往数据库表中新增 {0} 标签信息", context.getTagName());
-						
-						ProjectTag projectTag = new ProjectTag();
-						projectTag.setProjectId(project.getId());
-						projectTag.setVersion(releaseTask.getVersion());
-						projectTag.setGitTagId(tagId);
-						projectTag.setCreateUserId(releaseTask.getCreateUserId());
-						projectTag.setCreateTime(LocalDateTime.now());
-						Integer savedProjectTagId = gitTagDao.save(projectTag).getId();
-						
-						context.info("新增完成");
-						return savedProjectTagId;
-					});
+						// 在数据库中存储 git 标签信息
+						context.info("在数据库中存储 git 标签信息");
+						// 判断数据库中是否已存在标签信息
+						projectTagId = gitTagDao.findByProjectIdAndVersion(project.getId(), releaseTask.getVersion()).map(projectTag -> {
+							context.info("在数据库表中已存在 {0} 标签信息，开始更新标签信息", context.getTagName());
+							
+							projectTag.setGitTagId(tagId);
+							projectTag.setLastUpdateUserId(releaseTask.getCreateUserId());
+							projectTag.setLastUpdateTime(LocalDateTime.now());
+							Integer savedProjectTagId = gitTagDao.save(projectTag).getId();
+							
+							context.info("更新完成");
+							return savedProjectTagId;
+						}).orElseGet(() -> {
+							context.info("往数据库表中新增 {0} 标签信息", context.getTagName());
+							
+							ProjectTag projectTag = new ProjectTag();
+							projectTag.setProjectId(project.getId());
+							projectTag.setVersion(releaseTask.getVersion());
+							projectTag.setGitTagId(tagId);
+							projectTag.setCreateUserId(releaseTask.getCreateUserId());
+							projectTag.setCreateTime(LocalDateTime.now());
+							Integer savedProjectTagId = gitTagDao.save(projectTag).getId();
+							
+							context.info("新增完成");
+							return savedProjectTagId;
+						});
+					}
 				}
 			}
 		}
 		
-		// 开始对项目进行个性化配置
 		if(success) {
 			context.info(StringUtils.repeat("-", 45));
-			context.info("三、开始配置项目");
-			// TODO: 
-			// 1. dojo 项目
-			context.info("1. 开始配置 dojo 项目");
-			context.info("====未实现====");
-			// 2. spring boot 项目
-			context.info("2. 开始配置 spring boot 项目");
-			MavenPomConfigTask pomConfigTask = new MavenPomConfigTask(context);
-			success = pomConfigTask.run().isPresent();
+			context.info("三、开始准备项目模型数据");
+			// 生成模型信息
+			ProjectModelWriteTask projectModelWriteTask = new ProjectModelWriteTask(context, projectDependenceService, projectResourceService);
+			success = projectModelWriteTask.run().isPresent();
 			
 			if(success) {
 				context.info("完成");
@@ -214,11 +212,44 @@ public class BuildServiceImpl implements BuildService {
 			}
 		}
 		
+		// 开始对项目进行个性化配置，并生成代码
+		if(success) {
+			context.info(StringUtils.repeat("-", 45));
+			context.info("四、开始配置项目");
+			// TODO: 完善 success 校验
+			
+			// 注意，这里不仅仅支持 dojo app，还要能支持 react，vue，angular 等 app
+			// TODO: 此处需加一个判断，来确定是要生成 dojo app
+			// 1. dojo 项目
+			context.info("1. 开始配置 dojo 项目，并生成 Dojo APP 源代码");
+			DojoCodemodsTask dojoCodemodsTask = new DojoCodemodsTask(context);
+			success = dojoCodemodsTask.run().isPresent();
+			if(success) {
+				context.info("完成");
+			}else {
+				context.error("失败");
+			}
+			
+			if(success) {
+				// 2. spring boot 项目
+				context.info("2. 开始配置 spring boot 项目");
+				// 2.1. 配置 pom.xml 文件
+				MavenPomConfigTask pomConfigTask = new MavenPomConfigTask(context);
+				success = pomConfigTask.run().isPresent();
+				
+				if(success) {
+					context.info("完成");
+				}else {
+					context.error("失败");
+				}
+			}
+		}
+		
 		Integer projectBuildId = null;
 		
 		if(success) {
 			context.info(StringUtils.repeat("-", 45));
-			context.info("四、开始构建项目");
+			context.info("五、开始构建项目");
 			
 			context.info("往数据库中存储项目构建信息");
 			// 注意，因为每次从新构建，都是全新的开始，所以如果已存在，则删除
@@ -230,6 +261,7 @@ public class BuildServiceImpl implements BuildService {
 		// 1. 安装依赖
 		if(success) {
 			// 因为使用 npm 或 cnpm 会出现 package 下载不全的问题，所以改为 yarn
+			// 并且 yarn 会在本地缓存 package，避免重复下载
 			context.info("开始执行 yarn 命令");
 			YarnTask yarnTask = new YarnTask(context);
 			success = yarnTask.run().isPresent();
@@ -331,6 +363,7 @@ public class BuildServiceImpl implements BuildService {
 		context.finished(releaseResult);
 	}
 
+	// FIXME: 注意，在此处增加 @Transactional 不会生效，提取到另一个 service 中
 	@Transactional
 	private void saveAppReleaseInfo(Project project, ProjectReleaseTask releaseTask, AppBuildContext context) {
 		// 1. 获取 APP 信息
@@ -367,6 +400,7 @@ public class BuildServiceImpl implements BuildService {
 		});
 	}
 
+	// FIXME: 注解不会生效
 	@Transactional
 	private Integer saveProjectBuild(ProjectReleaseTask releaseTask, Integer projectTagId) {
 		projectBuildDao.findByProjectTagId(projectTagId).ifPresent(projectBuild -> {

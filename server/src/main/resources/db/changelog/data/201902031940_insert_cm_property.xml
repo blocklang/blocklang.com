@@ -9,7 +9,7 @@
 			<column name="dbid" valueNumeric="1" />
 			<column name="prop_key" value="blocklang.root.path" />
 			 
-			<column name="prop_value" value="E:/data/blocklang" />
+			<column name="prop_value" value="D:/data/blocklang" />
 			
 			<!--
 			<column name="prop_value" value="/home/blocklang/data" />
@@ -24,7 +24,7 @@
 			<column name="dbid" valueNumeric="2" />
 			<column name="prop_key" value="maven.root.path" />
 			
-			<column name="prop_value" value="c:/Users/Administrator/.m2" />
+			<column name="prop_value" value="C:\Users\金正伟\.m2" />
 			
 			<!--
 			<column name="prop_value" value="/root/.m2" />
