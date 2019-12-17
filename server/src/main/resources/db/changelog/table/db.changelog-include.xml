@@ -4,7 +4,9 @@
 	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
 	
 	<property dbms="postgresql" name="datetime" value="TIMESTAMP WITH TIME ZONE"/>
-	<property dbms="postgresql" name="clob" value="text"/>
+	<property dbms="postgresql, mysql" name="clob" value="text"/>
+	
+	<property dbms="mysql" name="datetime" value="DATETIME"/>
 	
 	<include file="db/changelog/table/201901100838_create_app.xml" />
 	<include file="db/changelog/table/201901101035_create_app_release.xml" />

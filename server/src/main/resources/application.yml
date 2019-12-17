@@ -2,7 +2,6 @@ spring:
   profiles:
     active: dev
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQL10Dialect
     properties:
       hibernate:
         ddl-auto: none

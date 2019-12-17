@@ -15,8 +15,7 @@ import com.blocklang.core.service.UserService;
 
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 
-@ActiveProfiles("test")
-public class AbstractControllerTest {
+public class AbstractControllerTest extends AbstractSpringTest{
 
 	// 添加了 oauth2 后提示没有找到 bean，所以这里 mock 一个
 	// TODO: 学习此测试用例，以找出原因

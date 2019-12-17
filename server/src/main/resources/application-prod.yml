@@ -5,6 +5,7 @@ spring:
     username: blocklang
     password: blocklang%46
   jpa:
+    database-platform: org.hibernate.dialect.PostgreSQL10Dialect
     show-sql: false
   liquibase:
     contexts: prod

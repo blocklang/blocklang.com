@@ -5,6 +5,7 @@ spring:
     username: postgres
     password: abc123
   jpa:
+    database-platform: org.hibernate.dialect.PostgreSQL10Dialect
     show-sql: true
   liquibase:
     contexts: test

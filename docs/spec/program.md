@@ -85,6 +85,26 @@
 
 详见 [API 文档](../API/README.md)
 
+## 开发
+
+BlockLang 使用 Spring boot 的 profile 功能，将环境分为开发环境、测试环境和生产环境。
+
+### 开发环境
+
+默认是开发环境，profile 的名称为 `dev`，运行 `com.blocklang.BlockLangApplication` 类中的 `main` 函数，即可运行。
+
+### 测试环境
+
+测试环境的 profile 为 `test` 和 `mysql`。默认为 `test`。
+
+在 `test` 下运行测试用例，会在 postgresql 数据库上安装测试数据库；在 `mysql` 下运行测试用例，会在 mysql 数据库上安装数据库。
+
+要在 `test` 和 `mysql` 之间切换，可修改 `com.blocklang.core.test.AbstractSpringTest` 中的 `@ActiveProfiles` 的值即可。
+
+### 生产环境
+
+生产环境的 profile 为 `prod`。要为生产环境发布软件，则先将 `application.yml` 中的 `spring.profiles.active` 的值改为 `prod`，然后运行 `mvn clean install` 命令。
+
 ## 安装
 
 ### 安装环境
