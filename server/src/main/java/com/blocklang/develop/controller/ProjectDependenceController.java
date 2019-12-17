@@ -106,7 +106,7 @@ public class ProjectDependenceController extends AbstractProjectController{
 		
 		Map<String, Object> result = new HashMap<String, Object>();
 		result.put("resourceId", resource.getId());
-		result.put("pathes", projectResourceService.stripResourcePathes(Collections.singletonList(resource)));
+		result.put("pathes", ProjectResourcePathUtil.combinePathes(Collections.singletonList(resource)));
 		return ResponseEntity.ok(result);
 	}
 
