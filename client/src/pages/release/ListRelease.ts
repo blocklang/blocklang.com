@@ -96,7 +96,7 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 			project: { createUserName, name }
 		} = this.properties;
 
-		return v('div', { classes: [c.container], styles: { maxWidth: '700px' } }, [
+		return v('div', { key: 'empty', classes: [c.container], styles: { maxWidth: '700px' } }, [
 			v('div', { classes: [c.pb_4, c.mb_4, c.border_bottom] }, [
 				w(
 					Link,
@@ -153,9 +153,13 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 			}
 		}
 
-		return v('div', [
+		return v('div', { key: 'releases' }, [
 			this._renderReleaseHeader(),
-			v('div', { classes: [c.border_top] }, releases.map((release) => this._renderItem(release)))
+			v(
+				'div',
+				{ classes: [c.border_top] },
+				releases.map((release) => this._renderItem(release))
+			)
 		]);
 	}
 
