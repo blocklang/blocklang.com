@@ -4,15 +4,14 @@ jdk:
 
 services:
   - postgresql
-  - mysql
+  # - mysql
 before_script:
   - psql -c 'create database blocklang_test;' -U postgres
-  - mysql -e 'create database blocklang_test;'
+  #- mysql -e 'create database blocklang_test;'
 
 before_install:
   - cd server
   - chmod +x mvnw
 script:
-  - ls
-  #- ./mvnw install -Dmaven.javadoc.skip=true -B -V
-  - ./mvnw install -Dmaven.javadoc.skip=true -Dspring-boot.run.profiles=mysql -B -V
+  - ./mvnw install -Dmaven.javadoc.skip=true -B -V
+  #- ./mvnw install -Dmaven.javadoc.skip=true -Dspring-boot.run.profiles=mysql -B -V
