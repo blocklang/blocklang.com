@@ -378,14 +378,15 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 		String relativePath = "";
 		for(ProjectResource each : resources) {
 			relativePath = relativePath + "/" + each.getKey();
-			
-			Map<String, String> map = new HashMap<String, String>();
+			String name = "";
 			if(StringUtils.isBlank(each.getName())) {
-				map.put("name", each.getKey());
+				name = each.getKey();
 			} else {
-				map.put("name", each.getName());
+				name = each.getName();
 			}
 			
+			Map<String, String> map = new HashMap<String, String>();
+			map.put("name", name);
 			map.put("path", relativePath);
 			stripedParentGroups.add(map);
 		}
