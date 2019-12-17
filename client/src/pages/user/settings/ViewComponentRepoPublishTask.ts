@@ -19,6 +19,7 @@ import watch from '@dojo/framework/core/decorators/watch';
 
 import * as SockJS from 'sockjs-client';
 import { Client, IFrame } from '@stomp/stompjs';
+import Spinner from '../../../widgets/spinner';
 
 export interface ViewComponentRepoPublishTaskProperties {
 	loggedUsername: string;
@@ -64,13 +65,13 @@ export default class ViewComponentRepoPublishTask extends ThemedMixin(I18nMixin(
 			return w(Exception, { type: '403' });
 		}
 
-		if (!this._loginUserIsCreator()) {
-			return w(Exception, { type: '403' });
-		}
-
 		const { publishTask } = this.properties;
 		if (!publishTask) {
-			return;
+			return w(Spinner, {});
+		}
+
+		if (!this._loginUserIsCreator()) {
+			return w(Exception, { type: '403' });
 		}
 
 		if (this._publishResult === '') {
