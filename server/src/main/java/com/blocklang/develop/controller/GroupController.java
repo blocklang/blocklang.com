@@ -317,7 +317,7 @@ public class GroupController extends AbstractProjectController{
 				logger.error("根据传入的 parent path 没有找到对应的标识");
 				throw new ResourceNotFoundException();
 			}
-			stripedParentGroups = stripResourcePathes(parentGroups);
+			stripedParentGroups = projectResourceService.stripResourcePathes(parentGroups);
 			id = parentGroups.get(parentGroups.size() - 1).getId();
 		}
 		

@@ -1,6 +1,7 @@
 package com.blocklang.develop.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import com.blocklang.core.model.UserInfo;
@@ -80,6 +81,14 @@ public interface ProjectResourceService {
 	 * @return 如果有一个分组匹配不上，则返回空数组
 	 */
 	List<ProjectResource> findParentGroupsByParentPath(Integer projectId, String parentPath);
+	
+	/**
+	 * 对一条路径中的资源进行处理，并返回处理后的数据
+	 * 
+	 * @param resources 资源列表，按照资源路径的顺序存储，如 a/b/c/d
+	 * @return 返回为 Map 列表，Map 中的 key 分别为 name 和 path
+	 */
+	List<Map<String, String>> stripResourcePathes(List<ProjectResource> resources);
 	
 	/**
 	 * 获取项目中所有页面

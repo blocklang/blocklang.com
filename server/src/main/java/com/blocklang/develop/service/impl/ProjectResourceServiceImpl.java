@@ -373,6 +373,26 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 	}
 
 	@Override
+	public List<Map<String, String>> stripResourcePathes(List<ProjectResource> resources){
+		List<Map<String, String>> stripedParentGroups = new ArrayList<Map<String, String>>();
+		String relativePath = "";
+		for(ProjectResource each : resources) {
+			relativePath = relativePath + "/" + each.getKey();
+			
+			Map<String, String> map = new HashMap<String, String>();
+			if(StringUtils.isBlank(each.getName())) {
+				map.put("name", each.getKey());
+			} else {
+				map.put("name", each.getName());
+			}
+			
+			map.put("path", relativePath);
+			stripedParentGroups.add(map);
+		}
+		return stripedParentGroups;
+	}
+	
+	@Override
 	public List<UncommittedFile> findChanges(Project project) {
 		Map<String, GitFileStatus> fileStatusMap = propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)
 				.map(rootDir -> new ProjectContext(project.getCreateUserName(), project.getName(), rootDir))

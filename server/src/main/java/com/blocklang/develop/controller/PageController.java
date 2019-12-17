@@ -285,7 +285,7 @@ public class PageController extends AbstractProjectController {
 		projectResource.setMessageSource(messageSource); // 不加这行代码，在生成 json 时会出错
 		
 		parentGroups.add(projectResource);
-		List<Map<String, String>> stripedParentGroups = stripResourcePathes(parentGroups);
+		List<Map<String, String>> stripedParentGroups = projectResourceService.stripResourcePathes(parentGroups);
 		
 		Map<String, Object> result = new HashMap<>();
 		result.put("projectResource", projectResource);
