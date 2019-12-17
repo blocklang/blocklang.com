@@ -2,6 +2,7 @@ package com.blocklang.marketplace.service.impl;
 
 import java.time.LocalDateTime;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -18,6 +19,8 @@ public class PublishServiceImplTest extends AbstractServiceTest{
 	@Autowired
 	private PublishService publishService;
 	
+	// 如果要运行此测试用例，则需要 mock propertyService 并添加断言
+	@Disabled
 	@Test
 	public void publish() {
 		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
