@@ -58,4 +58,7 @@
 	<include file="db/changelog/table/201908260841_create_page_widget_attr_value.xml" />
 
 	<include file="db/changelog/table/201909191532_alter_component_repo_add_is_std.xml" />
+	
+	<include file="db/changelog/table/202001031049_create_page_data.xml" />
+	
 </databaseChangeLog>

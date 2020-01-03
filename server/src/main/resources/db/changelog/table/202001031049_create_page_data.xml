@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+	<changeSet author="Zhengwei Jin" id="202001031049">
+		<createTable tableName="page_data" remarks="页面数据">
+			<column name="dbid" type="varchar(32)">
+				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_PAGE_DATA" />
+			</column>
+			<column name="parent_id" remarks="父部件标识" type="varchar(32)">
+				<constraints nullable="false" />
+			</column>
+			<column name="seq" remarks="序列" type="int">
+				<constraints nullable="false" />
+			</column>
+			<column name="project_resource_id" remarks="项目资源标识" type="int">
+				<constraints nullable="false" />
+			</column>			
+			<column name="name" remarks="变量名" type="varchar(64)">
+				<constraints nullable="false" />
+			</column>
+			<column name="type" remarks="数据类型" type="varchar(10)">
+				<constraints nullable="false" />
+			</column>
+			<column name="default_value" remarks="默认值" type="clob" />
+		</createTable>
+		
+		<addUniqueConstraint columnNames="project_resource_id,parent_id,name"
+			constraintName="UK_PAGE_DATA_ON_RESOURCE_PARENT_NAME"
+			tableName="page_data" />
+	</changeSet>
+
+</databaseChangeLog>

@@ -32,6 +32,7 @@ drop table project_build_profile;
 drop table project_dependence;
 drop table page_widget;
 drop table page_widget_attr_value;
+drop table page_data;
 
 drop table databasechangelog;
 drop table databasechangeloglock;
