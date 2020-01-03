@@ -35,6 +35,7 @@ import com.blocklang.core.util.IdGenerator;
 import com.blocklang.core.util.StreamUtil;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.constant.ProjectResourceType;
+import com.blocklang.develop.dao.PageDataJdbcDao;
 import com.blocklang.develop.dao.PageWidgetAttrValueDao;
 import com.blocklang.develop.dao.PageWidgetDao;
 import com.blocklang.develop.dao.PageWidgetJdbcDao;
@@ -45,6 +46,7 @@ import com.blocklang.develop.designer.data.ApiRepoVersionInfo;
 import com.blocklang.develop.designer.data.AttachedWidget;
 import com.blocklang.develop.designer.data.AttachedWidgetProperty;
 import com.blocklang.develop.designer.data.PageModel;
+import com.blocklang.develop.model.PageDataItem;
 import com.blocklang.develop.model.PageWidget;
 import com.blocklang.develop.model.PageWidgetAttrValue;
 import com.blocklang.develop.model.Project;
@@ -83,6 +85,8 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 	private PageWidgetJdbcDao pageWidgetJdbcDao;
 	@Autowired
 	private PageWidgetAttrValueDao pageWidgetAttrValueDao;
+	@Autowired
+	private PageDataJdbcDao pageDataJdbcDao;
 	@Autowired
 	private ProjectDependenceService projectDependenceService;
 	@Autowired
@@ -536,6 +540,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 		// 注意：删除代码不要放在 !widgets.isEmpty 判断内
 		pageWidgetJdbcDao.deleteWidgetProperties(pageId);
 		pageWidgetJdbcDao.deleteWidgets(pageId);
+		pageDataJdbcDao.delete(pageId);
 		
 		if(!widgets.isEmpty()) {
 			List<PageWidgetAttrValue> properties = new ArrayList<>();
@@ -558,6 +563,11 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 			// 2. 然后再新增
 			pageWidgetJdbcDao.batchSaveWidgets(pageId, widgets);
 			pageWidgetJdbcDao.batchSaveWidgetProperties(properties);
+		}
+		
+		List<PageDataItem> allData = pageModel.getData();
+		if(allData != null && !allData.isEmpty()) {
+			pageDataJdbcDao.batchSave(pageId, allData);
 		}
 	}
 

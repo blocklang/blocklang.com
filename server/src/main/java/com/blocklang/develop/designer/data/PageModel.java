@@ -2,6 +2,8 @@ package com.blocklang.develop.designer.data;
 
 import java.util.List;
 
+import com.blocklang.develop.model.PageDataItem;
+
 /**
  * 设计器中使用的页面模型
  * 
@@ -12,6 +14,7 @@ public class PageModel {
 
 	private Integer pageId;
 	private List<AttachedWidget> widgets;
+	private List<PageDataItem> data;
 
 	public Integer getPageId() {
 		return pageId;
@@ -27,6 +30,14 @@ public class PageModel {
 
 	public void setWidgets(List<AttachedWidget> widgets) {
 		this.widgets = widgets;
+	}
+
+	public List<PageDataItem> getData() {
+		return data;
+	}
+
+	public void setData(List<PageDataItem> data) {
+		this.data = data;
 	}
 
 }

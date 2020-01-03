@@ -11,7 +11,7 @@ import javax.persistence.UniqueConstraint;
 @Entity
 @Table(name = "page_data", uniqueConstraints = @UniqueConstraint(columnNames = { "project_resource_id", "parent_id",
 		"name" }))
-public class PageData implements Serializable {
+public class PageDataItem implements Serializable {
 
 	private static final long serialVersionUID = -7686028426281625398L;
 
