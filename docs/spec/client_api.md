@@ -16,6 +16,10 @@
 
 这样客户端 API 的结构和 Widget 的结构就能保持一致了。
 
+疑问：
+
+1. 返回值如何处理？使用返回值的组件要作为子组件使用？
+
 ## Web 版
 
 创建以下项目存放 web 版的客户端 API：
@@ -37,3 +41,35 @@
 
 1. 如果 `request` 从服务器端请求数据，则数据成功返回后，要存在 dojo store 中；
 2. 在设计器中不建议直接使用 `request` 组件，而是使用远程的 service 组件，service 组件调用 `request` 组件。
+
+## `newClientApi` 操作
+
+```json
+"newClientAPI": {
+    "name": "getData",
+    "label": "获取页面数据",
+    "canHasChildren": false,
+    "params": [
+        {
+            "name": "key",
+            "label": "键",
+            "defaultValue": "",
+            "valueType": "string"
+        }
+    ],
+    "return": {
+        "name": "value",
+        "label": "值",
+        "defaultValue": "",
+        "valueType": "any"
+    }
+}
+```
+
+重点介绍如下属性：
+
+1. `name` - 函数名称
+2. `params` - 输入参数列表
+3. `return` - 返回值
+
+`valueType` 的值包括：`string`、`number`、`boolean`、`function`、`any` 等。
