@@ -9,44 +9,48 @@
     "test:unit": "dojo build --mode unit && dojo test --unit --config local",
     "test:functional": "dojo build --mode functional && dojo test --functional --config local",
     "test:all": "dojo build --mode unit && dojo build --mode functional && dojo test --all --config local",
-    "precommit": "lint-staged",
     "prettier": "prettier --write 'src/**/*.{ts,tsx}' 'src/**/*.css' 'tests/**/*.{ts,tsx}'"
   },
   "dependencies": {
-    "@dojo/framework": "^6.0.3",
+    "@dojo/framework": "^6.0.4",
     "@dojo/themes": "^6.0.0",
-    "@stomp/stompjs": "^5.4.2",
-    "@types/dompurify": "^0.0.33",
+    "@stomp/stompjs": "^5.4.4",
+    "@types/dompurify": "^2.0.1",
     "@types/highlight.js": "^9.12.3",
-    "@types/jquery": "^3.3.31",
+    "@types/jquery": "^3.3.34",
     "@types/lodash": "^4.14.149",
-    "@types/marked": "^0.6.5",
-    "@types/semver": "^6.2.0",
+    "@types/marked": "^0.7.3",
+    "@types/semver": "^7.1.0",
     "@types/sockjs-client": "^1.1.1",
     "bootstrap": "^4.4.1",
     "dojo-fontawesome": "~0.0.3-alpha.1",
-    "dompurify": "^2.0.7",
-    "github-markdown-css": "^3.0.1",
-    "highlight.js": "^9.17.0",
+    "dompurify": "^2.0.8",
+    "github-markdown-css": "^4.0.0",
+    "highlight.js": "^9.18.1",
     "jquery": "^3.4.1",
     "lodash": "^4.17.15",
-    "marked": "^0.7.0",
+    "marked": "^0.8.2",
     "moment": "^2.24.0",
     "page-designer": "~0.0.3-alpha.16",
-    "popper.js": "^1.16.0",
-    "semver": "^6.3.0",
+    "popper.js": "^1.16.1",
+    "semver": "^7.1.3",
     "sockjs-client": "^1.4.0",
-    "tslib": "~1.9.1"
+    "tslib": "~1.11.1"
   },
   "devDependencies": {
     "@dojo/cli": "^6.0.0",
     "@dojo/cli-build-app": "^6.0.9",
     "@dojo/cli-test-intern": "^6.0.1",
     "@types/node": "~10.12.10",
-    "husky": "^3.1.0",
-    "lint-staged": "^9.5.0",
-    "prettier": "^1.19.1",
+    "husky": "^4.2.3",
+    "lint-staged": "^10.1.1",
+    "prettier": "^2.0.2",
     "typescript": "~3.4.5"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   },
   "lint-staged": {
     "*.{ts,tsx,css}": [
