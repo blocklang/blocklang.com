@@ -63,9 +63,8 @@ BlockLang 平台由以下项目组成：
 
 * [blocklang/blocklang.com](https://github.com/blocklang/blocklang.com) - BlockLang 平台
 * [blocklang/installer](https://github.com/blocklang/blocklang-installer) - 一款自动化部署工具，专用于部署 BlockLang 平台中发布的 Spring Boot 项目
-* [blocklang/blocklang-template](https://github.com/blocklang/blocklang-template) - BlockLang 平台默认的项目模板
-* [blocklang/page-designer](https://github.com/blocklang/page-designer) - 可视化的页面设计器
 * [blocklang/designer-core](https://github.com/blocklang/designer-core) - 存放设计器的通用功能
+* [blocklang/page-designer](https://github.com/blocklang/page-designer) - 可视化的页面设计器
 * [blocklang/codemods](https://github.com/blocklang/codemods) - 生成客户端代码工具
 
 需要往 BlockLang 组件市场注册的项目：
@@ -81,6 +80,11 @@ BlockLang 平台由以下项目组成：
 
 * [blocklang/dojo-fontawesome](https://github.com/blocklang/dojo-fontawesome) - 在 dojo 中使用 [fontawesome 5](https://fontawesome.com/) 字体图标
 * [blocklang/bootstrap-classes](https://github.com/blocklang/bootstrap-classes) - 存放 [bootstrap 4](https://getbootstrap.com/) 的 css class 常量
+
+模板项目：
+
+* [blocklang/blocklang-template](https://github.com/blocklang/blocklang-template) - 空的模板项目
+* [blocklang/system](https://github.com/blocklang/system) - 包含系统管理功能的模板项目
 
 ## 贡献
 
