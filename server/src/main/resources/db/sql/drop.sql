@@ -33,6 +33,10 @@ drop table project_dependence;
 drop table page_widget;
 drop table page_widget_attr_value;
 drop table page_data;
+drop table page_func;
+drop table page_func_node;
+drop table page_func_node_port;
+drop table page_func_connection;
 
 drop table databasechangelog;
 drop table databasechangeloglock;

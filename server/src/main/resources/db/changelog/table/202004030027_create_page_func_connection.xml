@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+	<changeSet author="Zhengwei Jin" id="202004030015">
+		<createTable tableName="page_func_connection" remarks="函数节点连接线">
+			<column name="dbid" type="varchar(32)">
+				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_PAGE_FUNC_CONNECTION" />
+			</column>
+			<column name="from_output_port_id" remarks="起始节点中的输出型端口标识" type="varchar(32)">
+				<constraints nullable="false" />
+			</column>
+			<column name="to_input_port_id" remarks="终止节点中的输入型端口标识" type="varchar(32)">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+		
+		<addUniqueConstraint columnNames="from_output_port_id,to_input_port_id"
+			constraintName="UK_PAGE_FUNC_CONN_ON_FROM_TO"
+			tableName="page_func_connection" />
+	</changeSet>
+
+</databaseChangeLog>

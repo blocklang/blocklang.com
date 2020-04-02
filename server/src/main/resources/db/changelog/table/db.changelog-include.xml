@@ -61,4 +61,9 @@
 	
 	<include file="db/changelog/table/202001031049_create_page_data.xml" />
 	
+	<include file="db/changelog/table/202004030003_create_page_func.xml" />
+	<include file="db/changelog/table/202004030009_create_page_func_node.xml" />
+	<include file="db/changelog/table/202004030015_create_page_func_node_port.xml" />
+	<include file="db/changelog/table/202004030027_create_page_func_connection.xml" />
+	
 </databaseChangeLog>

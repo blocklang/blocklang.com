@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+	<changeSet author="Zhengwei Jin" id="202004030003">
+		<createTable tableName="page_func" remarks="页面函数">
+			<column name="dbid" type="varchar(32)">
+				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_PAGE_FUNC" />
+			</column>
+			<column name="project_resource_id" remarks="项目资源标识" type="varchar(32)">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+
+		<createIndex indexName="IDX_PAGE_FUNC_ON_PROJECT_RESOURCE_ID"
+			tableName="page_func">
+			<column name="project_resource_id" />
+		</createIndex>
+	</changeSet>
+
+</databaseChangeLog>
