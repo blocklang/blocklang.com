@@ -39,11 +39,11 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 		super();
 		this._wsClient = new Client({});
 
-		this._wsClient.webSocketFactory = function() {
+		this._wsClient.webSocketFactory = function () {
 			return new SockJS('/release-console');
 		};
 
-		this._wsClient.onStompError = function(frame: IFrame) {
+		this._wsClient.onStompError = function (frame: IFrame) {
 			console.log('Broker reported error: ' + frame.headers['message']);
 			console.log('Additional details: ' + frame.body);
 		};
@@ -81,7 +81,7 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 
 	private _renderHeader() {
 		const {
-			messages: { privateProjectTitle }
+			messages: { privateProjectTitle },
 		} = this._localizedMessages;
 		const { project } = this.properties;
 
@@ -90,10 +90,10 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 
 	private _renderEmptyReleases() {
 		const {
-			messages: { releaseText, noReleaseTitle, newReleaseText, noReleaseTip }
+			messages: { releaseText, noReleaseTitle, newReleaseText, noReleaseTip },
 		} = this._localizedMessages;
 		const {
-			project: { createUserName, name }
+			project: { createUserName, name },
 		} = this.properties;
 
 		return v('div', { key: 'empty', classes: [c.container], styles: { maxWidth: '700px' } }, [
@@ -103,10 +103,10 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 					{
 						classes: [c.btn, c.btn_info],
 						to: 'list-release',
-						params: { owner: createUserName, project: name }
+						params: { owner: createUserName, project: name },
 					},
 					[`${releaseText}`]
-				)
+				),
 			]),
 			v('div', { classes: [c.jumbotron, c.mx_auto, c.text_center], styles: { maxWidth: '544px' } }, [
 				w(FontAwesomeIcon, { icon: 'tag', size: '2x', classes: [c.text_muted] }),
@@ -118,12 +118,12 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 							{
 								classes: [c.btn, c.btn_secondary, c.btn_sm],
 								to: 'new-release',
-								params: { owner: createUserName, project: name }
+								params: { owner: createUserName, project: name },
 							},
 							[`${newReleaseText}`]
 					  )
-					: undefined
-			])
+					: undefined,
+			]),
 		]);
 	}
 
@@ -139,7 +139,7 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 							this._wsClient.subscribe('/topic/releases/' + item.id, (message) => {
 								const body = JSON.parse(message.body);
 								const {
-									headers: { event, releaseResult }
+									headers: { event, releaseResult },
 								} = body as WsMessage;
 								if (event === 'finish') {
 									item.releaseResult = releaseResult;
@@ -159,16 +159,16 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 				'div',
 				{ classes: [c.border_top] },
 				releases.map((release) => this._renderItem(release))
-			)
+			),
 		]);
 	}
 
 	private _renderReleaseHeader() {
 		const {
-			messages: { newReleaseText }
+			messages: { newReleaseText },
 		} = this._localizedMessages;
 		const {
-			project: { createUserName, name }
+			project: { createUserName, name },
 		} = this.properties;
 
 		return v('div', { classes: [c.pb_4, c.d_flex, c.justify_content_end] }, [
@@ -179,7 +179,7 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 							{
 								classes: [c.btn, c.btn_outline_secondary],
 								to: 'new-release',
-								params: { owner: createUserName, project: name }
+								params: { owner: createUserName, project: name },
 							},
 							[`${newReleaseText}`]
 					  )
@@ -188,11 +188,11 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 							{
 								classes: [c.btn, c.btn_outline_secondary, c.disabled],
 								tabIndex: -1,
-								'aria-disabled': 'true'
+								'aria-disabled': 'true',
 							},
 							[`${newReleaseText}`]
-					  )
-			])
+					  ),
+			]),
 		]);
 	}
 
@@ -239,13 +239,13 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 				v('ul', { classes: [c.list_unstyled, c.mt_2] }, [
 					v('li', { classes: [c.mb_1] }, [
 						w(FontAwesomeIcon, { icon: 'tag', classes: [c.text_muted] }),
-						` ${release.version}`
+						` ${release.version}`,
 					]),
 					v('li', { classes: [c.mb_1, resultClasses] }, [
 						w(FontAwesomeIcon, { icon, spin }),
-						` ${resultText}`
-					])
-				])
+						` ${resultText}`,
+					]),
+				]),
 			]),
 			v('div', { classes: [c.col_12, c.col_md_9, css.releaseMainSection, c.py_4] }, [
 				// header
@@ -255,20 +255,20 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 						{
 							to: 'view-release',
 							params: { owner: project.createUserName, project: project.name, version: release.version },
-							classes: [resultClasses]
+							classes: [resultClasses],
 						},
 						[`${release.title}`]
-					)
+					),
 				]),
 				v('ul', { classes: [c.d_md_none, c.list_inline, c.mb_1] }, [
 					v('li', { classes: [c.list_inline_item, c.mb_1] }, [
 						w(FontAwesomeIcon, { icon: 'tag', classes: [c.text_muted] }),
-						` ${release.version}`
+						` ${release.version}`,
 					]),
 					v('li', { classes: [c.list_inline_item, c.mb_1, resultClasses] }, [
 						w(FontAwesomeIcon, { icon, spin }),
-						` ${resultText}`
-					])
+						` ${resultText}`,
+					]),
 				]),
 				v('div', { classes: [c.mb_4] }, [
 					v('small', { classes: [c.text_muted] }, [
@@ -279,11 +279,11 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 								[]
 							),
 							' ',
-							v('strong', [`${release.createUserName}`])
+							v('strong', [`${release.createUserName}`]),
 						]),
 						' 发布于 ',
-						w(Moment, { datetime: release.createTime })
-					])
+						w(Moment, { datetime: release.createTime }),
+					]),
 				]),
 				// 介绍
 				release.description
@@ -293,9 +293,9 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 				v('hr'),
 				v('div', { classes: [c.text_muted, c.my_4] }, [
 					w(FontAwesomeIcon, { icon: ['fab', 'java'], size: '2x' }),
-					` ${release.jdkName}_${release.jdkVersion} `
-				])
-			])
+					` ${release.jdkName}_${release.jdkVersion} `,
+				]),
+			]),
 		]);
 	}
 }

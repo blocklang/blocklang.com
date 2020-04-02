@@ -8,13 +8,13 @@ import { ValidateStatus } from '../constant';
 const getComponentReposCommand = commandFactory(async ({ path, payload: { query = '', page = 0 } }) => {
 	// page 是从 0 开始的
 	const response = await fetch(`${baseUrl}/component-repos?q=${query}&page=${page}`, {
-		headers: getHeaders()
+		headers: getHeaders(),
 	});
 	const json = await response.json();
 	if (!response.ok) {
 		return [
 			replace(path('pagedComponentRepoInfos'), undefined),
-			replace(path('marketplacePageStatusCode'), response.status)
+			replace(path('marketplacePageStatusCode'), response.status),
 		];
 	}
 
@@ -25,13 +25,13 @@ const startInitForNewComponentRepoCommand = commandFactory(({ path }) => {
 	return [
 		replace(path('componentRepoUrlInputValidation', 'componentRepoUrlValidateStatus'), ValidateStatus.UNVALIDATED),
 		replace(path('componentRepoUrlInputValidation', 'componentRepoUrlErrorMessage'), undefined),
-		replace(path('componentRepoUrl'), undefined)
+		replace(path('componentRepoUrl'), undefined),
 	];
 });
 
 const getUserPublishingComponentRepoTasksCommand = commandFactory(async ({ path }) => {
 	const response = await fetch(`${baseUrl}/user/component-repos/publishing-tasks`, {
-		headers: getHeaders()
+		headers: getHeaders(),
 	});
 	const json = await response.json();
 	if (!response.ok) {
@@ -43,7 +43,7 @@ const getUserPublishingComponentRepoTasksCommand = commandFactory(async ({ path 
 
 const getUserComponentReposCommand = commandFactory(async ({ path }) => {
 	const response = await fetch(`${baseUrl}/user/component-repos`, {
-		headers: getHeaders()
+		headers: getHeaders(),
 	});
 	const json = await response.json();
 	if (!response.ok) {
@@ -55,7 +55,7 @@ const getUserComponentReposCommand = commandFactory(async ({ path }) => {
 
 const getComponentRepoPublishTask = commandFactory(async ({ path, payload: { taskId } }) => {
 	const response = await fetch(`${baseUrl}/marketplace/publish/${taskId}`, {
-		headers: getHeaders()
+		headers: getHeaders(),
 	});
 	const json = await response.json();
 	if (!response.ok) {
@@ -71,14 +71,14 @@ const componentRepoUrlInputCommand = commandFactory<UrlPayload>(({ path, payload
 	if (trimedUrl === '') {
 		return [
 			replace(path('componentRepoUrlInputValidation', 'componentRepoUrlValidateStatus'), ValidateStatus.INVALID),
-			replace(path('componentRepoUrlInputValidation', 'componentRepoUrlErrorMessage'), '不能为空')
+			replace(path('componentRepoUrlInputValidation', 'componentRepoUrlErrorMessage'), '不能为空'),
 		];
 	}
 
 	return [
 		replace(path('componentRepoUrlInputValidation', 'componentRepoUrlValidateStatus'), ValidateStatus.VALID),
 		replace(path('componentRepoUrlInputValidation', 'componentRepoUrlErrorMessage'), undefined),
-		replace(path('componentRepoUrl'), trimedUrl)
+		replace(path('componentRepoUrl'), trimedUrl),
 	];
 });
 
@@ -89,7 +89,7 @@ const publishComponentRepoCommand = commandFactory(async ({ path, get }) => {
 	if (gitUrl === '') {
 		return [
 			replace(path('componentRepoUrlInputValidation', 'componentRepoUrlValidateStatus'), ValidateStatus.INVALID),
-			replace(path('componentRepoUrlInputValidation', 'componentRepoUrlErrorMessage'), '不能为空')
+			replace(path('componentRepoUrlInputValidation', 'componentRepoUrlErrorMessage'), '不能为空'),
 		];
 	}
 
@@ -98,14 +98,14 @@ const publishComponentRepoCommand = commandFactory(async ({ path, get }) => {
 		method: 'POST',
 		headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
 		body: JSON.stringify({
-			gitUrl
-		})
+			gitUrl,
+		}),
 	});
 	const json = await response.json();
 	if (!response.ok) {
 		return [
 			replace(path('componentRepoUrlInputValidation', 'componentRepoUrlValidateStatus'), ValidateStatus.INVALID),
-			replace(path('componentRepoUrlInputValidation', 'componentRepoUrlErrorMessage'), json.errors.gitUrl)
+			replace(path('componentRepoUrlInputValidation', 'componentRepoUrlErrorMessage'), json.errors.gitUrl),
 		];
 	}
 
@@ -115,21 +115,21 @@ const publishComponentRepoCommand = commandFactory(async ({ path, get }) => {
 		replace(path('componentRepoUrlInputValidation', 'componentRepoUrlValidateStatus'), ValidateStatus.VALID),
 		replace(path('componentRepoUrlInputValidation', 'componentRepoUrlErrorMessage'), undefined),
 		// 跳转到发布详情页面
-		...linkTo(path, 'view-component-repo-publish-task', { taskId: json.id })
+		...linkTo(path, 'view-component-repo-publish-task', { taskId: json.id }),
 	];
 });
 
 export const initForListComponentReposProcess = createProcess('init-for-list-component-repos', [
-	getComponentReposCommand
+	getComponentReposCommand,
 ]);
 export const queryComponentReposProcess = createProcess('query-component-repos', [getComponentReposCommand]);
 export const initForListMyComponentReposProcess = createProcess('init-for-list-my-component-repos', [
 	startInitForNewComponentRepoCommand,
 	getUserPublishingComponentRepoTasksCommand,
-	getUserComponentReposCommand
+	getUserComponentReposCommand,
 ]);
 export const initForComponentRepoPublishTask = createProcess('init-for-component-repo-publish-task', [
-	getComponentRepoPublishTask
+	getComponentRepoPublishTask,
 ]);
 export const componentRepoUrlInputProcess = createProcess('component-repo-url-input', [componentRepoUrlInputCommand]);
 export const publishComponentRepoProcess = createProcess('publish-component-repo', [publishComponentRepoCommand]);

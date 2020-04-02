@@ -14,7 +14,7 @@ import {
 	ApiRepo,
 	ApiRepoVersion,
 	ComponentRepoVersion,
-	ProjectDependenceData
+	ProjectDependenceData,
 } from '../../interfaces';
 import Spinner from '../../widgets/spinner';
 import { isEmpty, getProgramingLanguageName, getRepoCategoryName, getProgramingLanguageColor } from '../../util';
@@ -28,7 +28,7 @@ import {
 	ProjectDependencePayload,
 	ProjectDependenceIdPayload,
 	ProjectDependenceVersionPayload,
-	ProjectDependenceWithProjectPathPayload
+	ProjectDependenceWithProjectPathPayload,
 } from '../../processes/interfaces';
 import LatestCommitInfo from './widgets/LatestCommitInfo';
 import ProjectResourceBreadcrumb from './widgets/ProjectResourceBreadcrumb';
@@ -82,7 +82,7 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 		return v('div', { classes: [css.root, c.container] }, [
 			this._renderHeader(),
 			this._renderNavigation(),
-			this._renderDependenceCard()
+			this._renderDependenceCard(),
 		]);
 	}
 
@@ -93,7 +93,7 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 
 	private _renderHeader() {
 		const {
-			messages: { privateProjectTitle }
+			messages: { privateProjectTitle },
 		} = this._localizedMessages;
 		const { project } = this.properties;
 
@@ -104,7 +104,7 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 		const { project, pathes, onOpenGroup } = this.properties;
 
 		return v('div', { classes: [c.d_flex, c.justify_content_between, c.mb_2] }, [
-			v('div', {}, [w(ProjectResourceBreadcrumb, { project, pathes, onOpenGroup })])
+			v('div', {}, [w(ProjectResourceBreadcrumb, { project, pathes, onOpenGroup })]),
 		]);
 	}
 
@@ -113,7 +113,7 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 
 		return v('div', { classes: [c.card, !latestCommitInfo ? c.border_top_0 : undefined] }, [
 			w(LatestCommitInfo, { latestCommitInfo, showBottomBorder: true }), // 最近提交信息区
-			this._renderDependenceEditor()
+			this._renderDependenceEditor(),
 		]);
 	}
 
@@ -123,7 +123,7 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 			// 显示项目依赖
 			// 1. 如果没有依赖，则显示提示信息
 			// 2. 否则显示依赖
-			this._renderDependencePart()
+			this._renderDependencePart(),
 		]);
 	}
 
@@ -131,13 +131,13 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 		return v('div', { classes: [c.py_4, c.border_bottom] }, [
 			this._renderSearchForm(),
 			this._renderSearchTip(),
-			this._renderSearchedComponentRepos()
+			this._renderSearchedComponentRepos(),
 		]);
 	}
 
 	private _renderSearchForm() {
 		const {
-			messages: { componentSearchForProjectPlaceholder }
+			messages: { componentSearchForProjectPlaceholder },
 		} = this._localizedMessages;
 
 		return v('form', {}, [
@@ -147,9 +147,9 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 					classes: [c.form_control],
 					placeholder: `${componentSearchForProjectPlaceholder}`,
 					oninput: this._onSearchComponentRepo,
-					value: `${this._search}`
-				})
-			])
+					value: `${this._search}`,
+				}),
+			]),
 		]);
 	}
 
@@ -171,18 +171,18 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 				v('strong', [`${this._search}`]),
 				' 共查出 ',
 				v('strong', [`${length}`]),
-				' 个组件仓库'
+				' 个组件仓库',
 			]),
 			v('div', [
 				v(
 					'button',
 					{
 						classes: [c.btn, c.btn_link, c.btn_sm, css.btnLink],
-						onclick: this._onClearSearchText
+						onclick: this._onClearSearchText,
 					},
 					[w(FontAwesomeIcon, { icon: 'times', classes: [c.mr_1] }), '清空搜索条件']
-				)
-			])
+				),
+			]),
 		]);
 	}
 
@@ -211,7 +211,7 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 			// 组件库列表
 			this._renderComponentRepos(),
 			// 分页
-			this._renderPagination()
+			this._renderPagination(),
 		]);
 	}
 
@@ -220,7 +220,7 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 			'div',
 			{
 				key: 'no-component-repos',
-				classes: [c.alert, c.alert_secondary, c.mx_auto, c.text_center, c.mt_3, c.py_4]
+				classes: [c.alert, c.alert_secondary, c.mx_auto, c.text_center, c.mt_3, c.py_4],
 			},
 			[v('strong', {}, ['没有查到组件仓库'])]
 		);
@@ -240,7 +240,7 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 					project,
 					componentRepoInfo: item,
 					used,
-					onAddDependence
+					onAddDependence,
 				});
 			})
 		);
@@ -260,7 +260,7 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 			first,
 			last,
 			number,
-			size
+			size,
 		});
 	}
 
@@ -276,7 +276,7 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 		return v('div', { key: 'dependence-items', classes: [c.mt_4] }, [
 			...this._renderApiRepos(),
 			...this._renderDevComponentRepos(),
-			...this._renderBuildComponentRepos()
+			...this._renderBuildComponentRepos(),
 		]);
 	}
 
@@ -320,7 +320,7 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 								target: '_blank',
 								href: `${item.apiRepo.gitRepoUrl}`,
 								title: '跳转到 API 仓库',
-								classes: [c.ml_1]
+								classes: [c.ml_1],
 							},
 							[`${item.apiRepo.gitRepoOwner}/${item.apiRepo.gitRepoName}`]
 						),
@@ -333,10 +333,10 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 							item.apiRepoVersions.map((version) =>
 								v('span', { classes: [c.mr_1, c.badge, c.badge_secondary] }, [`${version.version}`])
 							)
-						)
+						),
 					])
 				)
-			)
+			),
 		];
 	}
 
@@ -385,10 +385,10 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 								versions: item.componentRepoVersions || [],
 								onDeleteDependence,
 								onShowDependenceVersions,
-								onUpdateDependenceVersion
+								onUpdateDependenceVersion,
 							})
 						)
-					)
+					),
 				])
 			);
 		}
@@ -398,8 +398,8 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 	private _renderNoDependenceMessage() {
 		return v('div', { key: 'no-dependence', classes: [c.mt_4] }, [
 			v('div', { classes: [c.alert, c.alert_primary, c.mx_auto, c.text_center, c.py_4] }, [
-				v('strong', {}, ['此项目尚未配置依赖'])
-			])
+				v('strong', {}, ['此项目尚未配置依赖']),
+			]),
 		]);
 	}
 }
@@ -415,7 +415,7 @@ class ComponentRepoItem extends ThemedMixin(I18nMixin(WidgetBase))<ComponentRepo
 	protected render() {
 		const {
 			componentRepoInfo: { componentRepo, apiRepo },
-			used = false
+			used = false,
 		} = this.properties;
 
 		return v('li', { classes: [c.list_group_item] }, [
@@ -426,14 +426,14 @@ class ComponentRepoItem extends ThemedMixin(I18nMixin(WidgetBase))<ComponentRepo
 						width: 20,
 						height: 20,
 						classes: [c.avatar, c.mr_1],
-						src: `${componentRepo.createUserAvatarUrl}`
+						src: `${componentRepo.createUserAvatarUrl}`,
 					}),
-					`${componentRepo.createUserName} / ${componentRepo.name}`
+					`${componentRepo.createUserName} / ${componentRepo.name}`,
 				]),
 				componentRepo.label ? v('span', { classes: [c.text_muted] }, [`${componentRepo.label}`]) : undefined,
 				componentRepo.isIdeExtension
 					? v('span', { classes: [c.badge, c.badge_info, c.ml_3], title: '与 BlockLang 设计器集成' }, [
-							'设计器扩展'
+							'设计器扩展',
 					  ])
 					: undefined,
 				used
@@ -442,10 +442,10 @@ class ComponentRepoItem extends ThemedMixin(I18nMixin(WidgetBase))<ComponentRepo
 							'button',
 							{
 								classes: [c.btn, c.btn_secondary, c.btn_sm, c.float_right],
-								onclick: this._onAddDependence
+								onclick: this._onAddDependence,
 							},
 							['使用']
-					  )
+					  ),
 			]),
 			v('p', { itemprop: 'description', classes: [c.text_muted, c.mb_0] }, [`${componentRepo.description}`]),
 			v('div', { classes: [c.my_2] }, [
@@ -457,12 +457,12 @@ class ComponentRepoItem extends ThemedMixin(I18nMixin(WidgetBase))<ComponentRepo
 							target: '_blank',
 							href: `${apiRepo.gitRepoUrl}`,
 							title: '跳转到 API 仓库',
-							classes: [c.mr_1]
+							classes: [c.mr_1],
 						},
 						[`${apiRepo.gitRepoOwner}/${apiRepo.gitRepoName}`]
 					),
 					// 必须确保此版本号正是最新版组件库实现的 API 版本
-					v('span', {}, [`${apiRepo.version}`])
+					v('span', {}, [`${apiRepo.version}`]),
 				]),
 				' -> ',
 				v('span', { classes: [c.border, c.rounded, c.px_1] }, [
@@ -473,57 +473,57 @@ class ComponentRepoItem extends ThemedMixin(I18nMixin(WidgetBase))<ComponentRepo
 							target: '_blank',
 							href: `${componentRepo.gitRepoUrl}`,
 							title: '跳转到组件仓库',
-							classes: [c.mr_1]
+							classes: [c.mr_1],
 						},
 						[`${componentRepo.gitRepoOwner}/${componentRepo.gitRepoName}`]
 					),
 					// 组件库的最新版本
-					v('span', {}, [`${componentRepo.version}`])
-				])
+					v('span', {}, [`${componentRepo.version}`]),
+				]),
 			]),
 			v('small', { classes: [c.text_muted] }, [
 				v('span', { classes: [c.mr_3] }, [
 					w(FontAwesomeIcon, {
 						icon: componentRepo.icon.split(' ') as [IconPrefix, IconName],
-						classes: [c.mr_1]
+						classes: [c.mr_1],
 					}),
-					`${componentRepo.title}`
+					`${componentRepo.title}`,
 				]),
 				v('span', { classes: [c.mr_3] }, [
 					v('span', {
 						classes: [css.repoLanguageColor, c.mr_1],
 						styles: {
-							backgroundColor: `${getProgramingLanguageColor(componentRepo.language)}`
-						}
+							backgroundColor: `${getProgramingLanguageColor(componentRepo.language)}`,
+						},
 					}),
 					v('span', { itemprop: 'programmingLanguage' }, [
-						`${getProgramingLanguageName(componentRepo.language)}`
-					])
+						`${getProgramingLanguageName(componentRepo.language)}`,
+					]),
 				]),
 				v('span', { classes: [c.mr_3] }, [`${getRepoCategoryName(componentRepo.category)}`]),
 				v('span', { classes: [c.mr_3], title: '使用次数' }, [
 					w(FontAwesomeIcon, { icon: 'cube', classes: [c.mr_1] }),
-					'0'
+					'0',
 				]),
 				v('span', {}, [
 					w(FontAwesomeIcon, { icon: 'clock', classes: [c.mr_1] }),
 					'最近发布 · ',
-					w(Moment, { datetime: componentRepo.lastPublishTime })
-				])
-			])
+					w(Moment, { datetime: componentRepo.lastPublishTime }),
+				]),
+			]),
 		]);
 	}
 
 	private _onAddDependence() {
 		const {
 			project,
-			componentRepoInfo: { componentRepo }
+			componentRepoInfo: { componentRepo },
 		} = this.properties;
 		// componentRepoVersionId 默认使用最新版本
 		this.properties.onAddDependence({
 			owner: project.createUserName,
 			project: project.name,
-			componentRepoId: componentRepo.id!
+			componentRepoId: componentRepo.id!,
 		});
 	}
 }
@@ -550,7 +550,7 @@ class DependenceRow extends ThemedMixin(I18nMixin(WidgetBase))<DependenceRowProp
 					target: '_blank',
 					href: `${dependence.apiRepo.gitRepoUrl}`,
 					title: '跳转到组件仓库',
-					classes: [c.ml_1]
+					classes: [c.ml_1],
 				},
 				[`${dependence.componentRepo.gitRepoOwner}/${dependence.componentRepo.gitRepoName}`]
 			),
@@ -565,7 +565,7 @@ class DependenceRow extends ThemedMixin(I18nMixin(WidgetBase))<DependenceRowProp
 							classes: [c.btn, c.btn_secondary, c.btn_sm, c.dropdown_toggle, css.dropdownButton],
 							type: 'button',
 							'data-toggle': 'dropdown',
-							onclick: this._onShowVersions
+							onclick: this._onShowVersions,
 						},
 						[`${dependence.componentRepoVersion.version}`]
 					),
@@ -575,12 +575,12 @@ class DependenceRow extends ThemedMixin(I18nMixin(WidgetBase))<DependenceRowProp
 						versions.map((version) =>
 							w(DependenceVersionMenu, { project, dependence, version, onUpdateDependenceVersion })
 						)
-					)
-				])
+					),
+				]),
 			]),
 			v('button', { type: 'button', classes: [c.close, c.float_right], onclick: this._onDeleteDependence }, [
-				v('span', { 'aria-hidden': 'true', innerHTML: '&times;' })
-			])
+				v('span', { 'aria-hidden': 'true', innerHTML: '&times;' }),
+			]),
 		]);
 	}
 
@@ -588,7 +588,7 @@ class DependenceRow extends ThemedMixin(I18nMixin(WidgetBase))<DependenceRowProp
 		const { dependence } = this.properties;
 		this.properties.onShowDependenceVersions({
 			dependenceId: dependence.dependence.id,
-			componentRepoId: dependence.componentRepo.id!
+			componentRepoId: dependence.componentRepo.id!,
 		});
 	}
 
@@ -598,7 +598,7 @@ class DependenceRow extends ThemedMixin(I18nMixin(WidgetBase))<DependenceRowProp
 		this.properties.onDeleteDependence({
 			owner: project.createUserName,
 			project: project.name,
-			id: dependence.dependence.id
+			id: dependence.dependence.id,
 		});
 	}
 }
@@ -620,7 +620,7 @@ class DependenceVersionMenu extends ThemedMixin(I18nMixin(WidgetBase))<Dependenc
 			{
 				classes: [c.dropdown_item, isSelected ? c.active : undefined],
 				href: '#',
-				onclick: this._onUpdateVersion
+				onclick: this._onUpdateVersion,
 			},
 			[`${version.version}`]
 		);
@@ -637,7 +637,7 @@ class DependenceVersionMenu extends ThemedMixin(I18nMixin(WidgetBase))<Dependenc
 			owner: project.createUserName,
 			project: project.name,
 			dependenceId: dependence.dependence.id,
-			componentRepoVersionId: version.id
+			componentRepoVersionId: version.id,
 		});
 	}
 }

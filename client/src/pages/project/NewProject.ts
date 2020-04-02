@@ -51,7 +51,7 @@ export default class NewProject extends ThemedMixin(I18nMixin(WidgetBase))<NewPr
 		return v('div', [
 			v('h2', [messages.newProject]),
 			v('small', { classes: [c.form_text, c.text_muted] }, [messages.newProjectHelp]),
-			v('hr')
+			v('hr'),
 		]);
 	}
 
@@ -64,7 +64,7 @@ export default class NewProject extends ThemedMixin(I18nMixin(WidgetBase))<NewPr
 			this._renderIsPublicCheckbox(),
 			this._renderIsPrivateCheckbox(),
 			v('hr'),
-			this._renderSaveButton()
+			this._renderSaveButton(),
 		]);
 	}
 
@@ -80,7 +80,7 @@ export default class NewProject extends ThemedMixin(I18nMixin(WidgetBase))<NewPr
 		return v('div', { classes: [c.form_group] }, [
 			v('label', { for: 'projectName' }, [
 				messages.projectNameLabel,
-				v('small', { classes: [c.text_muted] }, [` ${messages.requiredLabel}`])
+				v('small', { classes: [c.text_muted] }, [` ${messages.requiredLabel}`]),
 			]),
 			v('div', { classes: [c.input_group] }, [
 				v('div', { classes: [c.input_group_prepend] }, [
@@ -92,11 +92,11 @@ export default class NewProject extends ThemedMixin(I18nMixin(WidgetBase))<NewPr
 								src: `${loggedAvatarUrl}`,
 								width: 20,
 								height: 20,
-								alt: `${loggedUsername}`
+								alt: `${loggedUsername}`,
 							},
 							[` ${loggedUsername} /`]
-						)
-					])
+						),
+					]),
 				]),
 				v('input', {
 					type: 'text',
@@ -105,17 +105,17 @@ export default class NewProject extends ThemedMixin(I18nMixin(WidgetBase))<NewPr
 					required: 'required',
 					maxlength: '32',
 					focus: true,
-					oninput: this._onNameInput
+					oninput: this._onNameInput,
 				}),
 				nameValidateStatus === ValidateStatus.INVALID
 					? v('div', { classes: [c.invalid_tooltip], innerHTML: `${nameErrorMessage}` })
-					: null
+					: null,
 			]),
 			v('small', { classes: [c.form_text, c.text_muted] }, [
 				messages.projectNameHelp,
 				v('strong', { classes: [c.text_info] }, ['hello-world']),
-				messages.dot
-			])
+				messages.dot,
+			]),
 		]);
 	}
 
@@ -125,7 +125,7 @@ export default class NewProject extends ThemedMixin(I18nMixin(WidgetBase))<NewPr
 		return v(
 			'div',
 			{
-				classes: [c.form_group]
+				classes: [c.form_group],
 			},
 			[
 				v('label', { for: 'projectDesc' }, [messages.projectDescLabel]),
@@ -134,8 +134,8 @@ export default class NewProject extends ThemedMixin(I18nMixin(WidgetBase))<NewPr
 					classes: [c.form_control],
 					id: 'projectDesc',
 					maxlength: '64',
-					oninput: this._onDescriptionInput
-				})
+					oninput: this._onDescriptionInput,
+				}),
 			]
 		);
 	}
@@ -152,10 +152,10 @@ export default class NewProject extends ThemedMixin(I18nMixin(WidgetBase))<NewPr
 				value: 'true',
 				checked: isPublic,
 				name: 'isPublic',
-				onclick: this._onIsPublicInput
+				onclick: this._onIsPublicInput,
 			}),
 			v('label', { classes: [c.form_check_label], for: 'isPublic' }, [messages.projectPublicLabel]),
-			v('small', { classes: [c.form_text, c.text_muted] }, [messages.projectPublicHelp])
+			v('small', { classes: [c.form_text, c.text_muted] }, [messages.projectPublicHelp]),
 		]);
 	}
 
@@ -171,10 +171,10 @@ export default class NewProject extends ThemedMixin(I18nMixin(WidgetBase))<NewPr
 				value: 'false',
 				checked: !isPublic,
 				name: 'isPublic',
-				onclick: this._onIsPublicInput
+				onclick: this._onIsPublicInput,
 			}),
 			v('label', { classes: [c.form_check_label], for: 'isPrivate' }, [messages.projectPrivateLabel]),
-			v('small', { classes: [c.form_text, c.text_muted] }, [messages.projectPrivateHelp])
+			v('small', { classes: [c.form_text, c.text_muted] }, [messages.projectPrivateHelp]),
 		]);
 	}
 
@@ -190,7 +190,7 @@ export default class NewProject extends ThemedMixin(I18nMixin(WidgetBase))<NewPr
 				type: 'button',
 				classes: [c.btn, c.btn_primary],
 				disabled,
-				onclick: disabled ? undefined : this._onSaveProject
+				onclick: disabled ? undefined : this._onSaveProject,
 			},
 			[messages.projectSaveLabel]
 		);

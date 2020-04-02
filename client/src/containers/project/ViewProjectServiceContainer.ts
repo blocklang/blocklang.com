@@ -11,5 +11,5 @@ function getProperties(store: Store<State>): ViewProjectServiceProperties {
 
 export default StoreContainer(ViewProjectService, 'state', {
 	paths: [],
-	getProperties
+	getProperties,
 });

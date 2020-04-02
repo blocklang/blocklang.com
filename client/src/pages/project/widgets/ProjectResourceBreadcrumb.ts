@@ -31,10 +31,10 @@ export default class ProjectResourceBreadcrumb extends ThemedMixin(I18nMixin(Wid
 						{
 							to: 'view-project',
 							params: { owner: project.createUserName, project: project.name },
-							classes: [c.font_weight_bold]
+							classes: [c.font_weight_bold],
 						},
 						[`${project.name}`]
-					)
+					),
 				]),
 				...pathes.map((item, index, array) => {
 					if (index !== array.length - 1) {
@@ -42,11 +42,11 @@ export default class ProjectResourceBreadcrumb extends ThemedMixin(I18nMixin(Wid
 					} else {
 						// 如果是最后一个元素
 						return v('li', { classes: [c.breadcrumb_item, c.active] }, [
-							v('strong', { classes: [c.pr_2] }, [`${item.name}`])
+							v('strong', { classes: [c.pr_2] }, [`${item.name}`]),
 						]);
 					}
-				})
-			])
+				}),
+			]),
 		]);
 	}
 

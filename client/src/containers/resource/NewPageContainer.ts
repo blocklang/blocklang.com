@@ -6,7 +6,7 @@ import {
 	pageKeyInputProcess,
 	pageDescriptionInputProcess,
 	savePageProcess,
-	pageNameInputProcess
+	pageNameInputProcess,
 } from '../../processes/projectPageProcesses';
 
 function getProperties(store: Store<State>): NewPageProperties {
@@ -26,7 +26,7 @@ function getProperties(store: Store<State>): NewPageProperties {
 		onKeyInput: pageKeyInputProcess(store),
 		onNameInput: pageNameInputProcess(store),
 		onDescriptionInput: pageDescriptionInputProcess(store),
-		onSavePage: savePageProcess(store)
+		onSavePage: savePageProcess(store),
 	};
 }
 
@@ -38,7 +38,7 @@ export default StoreContainer(NewPage, 'state', {
 		['pageParam'],
 		['projectResource'],
 		['parentGroups'],
-		['pageInputValidation']
+		['pageInputValidation'],
 	],
-	getProperties
+	getProperties,
 });

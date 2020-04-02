@@ -46,7 +46,7 @@ export default class ViewProjectPage extends ThemedMixin(I18nMixin(WidgetBase))<
 				externalScriptAndCssWebsite: '', // 不能为 "/"
 				customFetchHeaders: () => {
 					return getHeaders();
-				}
+				},
 			},
 			routes: {
 				profile: 'profile',
@@ -55,8 +55,8 @@ export default class ViewProjectPage extends ThemedMixin(I18nMixin(WidgetBase))<
 				gotoGroup: (owner: string, project: string, parentPath: string) => {
 					onGotoGroup({ owner, project, parentPath });
 					global.window.history.pushState({}, '', `/${owner}/${project}/groups/${parentPath}`);
-				}
-			}
+				},
+			},
 		});
 	}
 }

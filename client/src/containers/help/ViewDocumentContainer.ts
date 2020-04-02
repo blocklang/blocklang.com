@@ -7,11 +7,11 @@ import ViewDocument, { ViewDocumentProperties } from '../../pages/help/ViewDocum
 function getProperties(store: Store<State>): ViewDocumentProperties {
 	const { get, path } = store;
 	return {
-		content: get(path('help', 'content'))
+		content: get(path('help', 'content')),
 	};
 }
 
 export default StoreContainer(ViewDocument, 'state', {
 	paths: [['help']],
-	getProperties
+	getProperties,
 });

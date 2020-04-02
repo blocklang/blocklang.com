@@ -12,7 +12,7 @@ type Color = 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info'
 
 const spinnerTypeMap: { [key: string]: string } = {
 	border: c.spinner_border,
-	grow: c.spinner_grow
+	grow: c.spinner_grow,
 };
 
 const textColorMap: { [key: string]: string } = {
@@ -23,7 +23,7 @@ const textColorMap: { [key: string]: string } = {
 	warning: c.text_warning,
 	info: c.text_info,
 	light: c.text_light,
-	dark: c.text_dark
+	dark: c.text_dark,
 };
 
 export interface SpinnerProperties extends ThemedProperties {
@@ -35,7 +35,7 @@ export interface SpinnerProperties extends ThemedProperties {
 export const ThemedBase = ThemedMixin(WidgetBase);
 
 @customElement<SpinnerProperties>({
-	tag: 'bl-spinner'
+	tag: 'bl-spinner',
 })
 @theme(css)
 export class SpinnerBase<P extends SpinnerProperties = SpinnerProperties> extends ThemedBase<P> {
@@ -52,7 +52,7 @@ export class SpinnerBase<P extends SpinnerProperties = SpinnerProperties> extend
 		}
 
 		return v('div', { classes: [c.d_flex, c.justify_content_center, c.my_3] }, [
-			v('div', { classes, role: 'status' }, [v('span', { classes: [c.sr_only] }, ['Loading...'])])
+			v('div', { classes, role: 'status' }, [v('span', { classes: [c.sr_only] }, ['Loading...'])]),
 		]);
 	}
 }

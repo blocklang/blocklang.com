@@ -9,7 +9,7 @@ import {
 	CompanyPayload,
 	LocationPayload,
 	BioPayload,
-	LoginNamePayload
+	LoginNamePayload,
 } from './interfaces';
 import { ValidateStatus } from '../constant';
 
@@ -18,7 +18,7 @@ import { ValidateStatus } from '../constant';
  */
 export const getCurrentUserCommand = commandFactory(async ({ get, path }) => {
 	const response = await fetch(`${baseUrl}/user`, {
-		headers: getHeaders()
+		headers: getHeaders(),
 	});
 	const json = await response.json();
 	if (!response.ok) {
@@ -47,7 +47,7 @@ export const getCurrentUserCommand = commandFactory(async ({ get, path }) => {
 
 const getProfileCommand = commandFactory(async ({ path }) => {
 	const response = await fetch(`${baseUrl}/user/profile`, {
-		headers: getHeaders()
+		headers: getHeaders(),
 	});
 	const json = await response.json();
 	if (!response.ok) {
@@ -65,8 +65,8 @@ const updateProfileCommand = commandFactory(async ({ get, path }) => {
 		headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
 		body: JSON.stringify({
 			...profile,
-			...profileParam
-		})
+			...profileParam,
+		}),
 	});
 
 	const json = await response.json();
@@ -146,8 +146,8 @@ const loginNameInputCommand = commandFactory<LoginNamePayload>(async ({ path, pa
 		method: 'POST',
 		headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
 		body: JSON.stringify({
-			loginName: trimedLoginName
-		})
+			loginName: trimedLoginName,
+		}),
 	});
 	const json = await response.json();
 	if (!response.ok) {
@@ -170,8 +170,8 @@ const completeUserInfoCommand = commandFactory(async ({ get, path }) => {
 		method: 'PUT',
 		headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
 		body: JSON.stringify({
-			loginName
-		})
+			loginName,
+		}),
 	});
 
 	const json = await response.json();
@@ -182,7 +182,7 @@ const completeUserInfoCommand = commandFactory(async ({ get, path }) => {
 			replace(path('errors'), undefined),
 			replace(path('user'), json),
 			replace(path('thirdPartyUser'), undefined),
-			...linkTo(path, 'home')
+			...linkTo(path, 'home'),
 		];
 	}
 

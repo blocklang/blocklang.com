@@ -7,7 +7,7 @@ import {
 	PublishType,
 	ProgrammingLanguage,
 	RepoCategory,
-	PageAppType
+	PageAppType,
 } from './constant';
 import { IconName } from '@fortawesome/fontawesome-svg-core';
 

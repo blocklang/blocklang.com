@@ -49,11 +49,11 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 		super();
 		this._wsClient = new Client({});
 
-		this._wsClient.webSocketFactory = function() {
+		this._wsClient.webSocketFactory = function () {
 			return new SockJS('/release-console');
 		};
 
-		this._wsClient.onStompError = function(frame: IFrame) {
+		this._wsClient.onStompError = function (frame: IFrame) {
 			console.log('Broker reported error: ' + frame.headers['message']);
 			console.log('Additional details: ' + frame.body);
 		};
@@ -96,7 +96,7 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 						const body = JSON.parse(message.body);
 						const {
 							payload,
-							headers: { event, releaseResult }
+							headers: { event, releaseResult },
 						} = body as WsMessage;
 						if (event === 'finish') {
 							// 如果已读完，则关闭
@@ -117,20 +117,23 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 											const lineNum = item.headers.lineNum;
 											if (lineNum === logLineCount) {
 												console.log(
-													`历史日志的结束行是 ${logLineCount -
-														1}，实时日志的开始行是 ${lineNum},正好接上。`
+													`历史日志的结束行是 ${
+														logLineCount - 1
+													}，实时日志的开始行是 ${lineNum},正好接上。`
 												);
 												return true;
 											} else if (lineNum > logLineCount) {
 												console.log(
-													`历史日志的结束行是 ${logLineCount -
-														1}，实时日志的开始行是 ${lineNum},中间出现缺失。`
+													`历史日志的结束行是 ${
+														logLineCount - 1
+													}，实时日志的开始行是 ${lineNum},中间出现缺失。`
 												);
 												return true;
 											} else {
 												console.log(
-													`历史日志的结束行是 ${logLineCount -
-														1}，实时日志的开始行是 ${lineNum},中间出现重复。`
+													`历史日志的结束行是 ${
+														logLineCount - 1
+													}，实时日志的开始行是 ${lineNum},中间出现重复。`
 												);
 												// 去重
 												return false;
@@ -169,7 +172,7 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 
 	private _renderHeader() {
 		const {
-			messages: { privateProjectTitle }
+			messages: { privateProjectTitle },
 		} = this._localizedMessages;
 		const { project } = this.properties;
 
@@ -179,16 +182,16 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 	private _renderReleasePart() {
 		return v('div', [
 			this._renderReleaseHeader(),
-			v('div', [this._renderReleaseInfo(), this._renderReleaseLog(), this._renderScrollToEndLineAnchor()])
+			v('div', [this._renderReleaseInfo(), this._renderReleaseLog(), this._renderScrollToEndLineAnchor()]),
 		]);
 	}
 
 	private _renderReleaseHeader() {
 		const {
-			messages: { releaseText, newReleaseText }
+			messages: { releaseText, newReleaseText },
 		} = this._localizedMessages;
 		const {
-			project: { createUserName, name }
+			project: { createUserName, name },
 		} = this.properties;
 
 		return v('div', { classes: [c.pb_4, c.d_flex, c.justify_content_between] }, [
@@ -198,10 +201,10 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 					{
 						classes: [c.btn, c.btn_info],
 						to: 'list-release',
-						params: { owner: createUserName, project: name }
+						params: { owner: createUserName, project: name },
 					},
 					[`${releaseText}`]
-				)
+				),
 			]),
 			v('div', { classes: [] }, [
 				w(
@@ -209,11 +212,11 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 					{
 						classes: [c.btn, c.btn_outline_secondary],
 						to: 'new-release',
-						params: { owner: createUserName, project: name }
+						params: { owner: createUserName, project: name },
 					},
 					[`${newReleaseText}`]
-				)
-			])
+				),
+			]),
 		]);
 	}
 
@@ -221,8 +224,8 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 		return v('div', { classes: [css.logBody] }, [
 			v('pre', {}, [
 				...this._logs.map((lineContent) => this._renderLine(lineContent)),
-				...this._console.map((lineContent) => this._renderLine(lineContent))
-			])
+				...this._console.map((lineContent) => this._renderLine(lineContent)),
+			]),
 		]);
 	}
 
@@ -230,7 +233,7 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 		return v('div', {
 			scrollIntoView: () => {
 				return this._releaseResult === ReleaseResult.Started;
-			}
+			},
 		});
 	}
 
@@ -241,11 +244,11 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 	private async _fetchLog() {
 		const {
 			project: { createUserName: owner, name: project },
-			projectRelease: { version }
+			projectRelease: { version },
 		} = this.properties;
 
 		const response = await fetch(`${baseUrl}/projects/${owner}/${project}/releases/${version}/log`, {
-			headers: getHeaders()
+			headers: getHeaders(),
 		});
 		const json = await response.json();
 		if (response.ok) {
@@ -304,13 +307,13 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 					v('ul', { classes: [c.list_unstyled, c.mt_2] }, [
 						v('li', { classes: [c.mb_1] }, [
 							w(FontAwesomeIcon, { icon: 'tag', classes: [c.text_muted] }),
-							` ${release.version}`
+							` ${release.version}`,
 						]),
 						v('li', { classes: [c.mb_1, resultClasses] }, [
 							w(FontAwesomeIcon, { icon, spin }),
-							` ${resultText}`
-						])
-					])
+							` ${resultText}`,
+						]),
+					]),
 				]),
 				v('div', { classes: [c.col_9, css.releaseMainSection, c.py_4] }, [
 					// header
@@ -324,16 +327,16 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 										classes: [c.avatar],
 										src: `${release.createUserAvatarUrl}`,
 										width: 20,
-										height: 20
+										height: 20,
 									},
 									[]
 								),
 								' ',
-								v('strong', [`${release.createUserName}`])
+								v('strong', [`${release.createUserName}`]),
 							]),
 							' 发布于 ',
-							w(Moment, { datetime: release.createTime })
-						])
+							w(Moment, { datetime: release.createTime }),
+						]),
 					]),
 					// 介绍
 					release.description
@@ -343,10 +346,10 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 					v('hr'),
 					v('div', { classes: [c.text_muted, c.my_4] }, [
 						w(FontAwesomeIcon, { icon: ['fab', 'java'], size: '2x' }),
-						` ${release.jdkName}_${release.jdkVersion} `
-					])
-				])
-			])
+						` ${release.jdkName}_${release.jdkVersion} `,
+					]),
+				]),
+			]),
 		]);
 	}
 }

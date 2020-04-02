@@ -16,7 +16,7 @@ describe('NewProject', () => {
 				onNameInput: () => {},
 				onDescriptionInput: () => {},
 				onIsPublicInput: () => {},
-				onSaveProject: () => {}
+				onSaveProject: () => {},
 			})
 		);
 		h.expect(() =>
@@ -24,15 +24,15 @@ describe('NewProject', () => {
 				v('div', [
 					v('h2', ['创建项目']),
 					v('small', { classes: ['form-text text-muted'] }, [
-						'项目包含页面、页面分组、页面模板以及变更历史等。'
+						'项目包含页面、页面分组、页面模板以及变更历史等。',
 					]),
-					v('hr')
+					v('hr'),
 				]),
 				v('form', { classes: ['needs-validation'], novalidate: 'novalidate' }, [
 					v('div', { classes: ['form-group'] }, [
 						v('label', { for: 'projectName' }, [
 							'名称',
-							v('small', { classes: ['text-muted'] }, [' (必填)'])
+							v('small', { classes: ['text-muted'] }, [' (必填)']),
 						]),
 						v('div', { classes: ['input-group'] }, [
 							v('div', { classes: ['input-group-prepend'] }, [
@@ -41,8 +41,8 @@ describe('NewProject', () => {
 										'img',
 										{ classes: ['avatar mr-1'], src: 'avatar', width: 20, height: 20, alt: 'user' },
 										[` user /`]
-									)
-								])
+									),
+								]),
 							]),
 							v('input', {
 								type: 'text',
@@ -51,14 +51,14 @@ describe('NewProject', () => {
 								required: 'required',
 								maxlength: '32',
 								focus: true,
-								oninput: () => {}
-							})
+								oninput: () => {},
+							}),
 						]),
 						v('small', { classes: ['form-text text-muted'] }, [
 							'项目名要简短易记。只允许字母、数字、中划线(-)、下划线(_)、点(.)等。如 ',
 							v('strong', { classes: ['text-info'] }, ['hello-world']),
-							'。'
-						])
+							'。',
+						]),
 					]),
 					v('div', { classes: ['form-group'] }, [
 						v('label', { for: 'projectDesc' }, ['描述']),
@@ -67,8 +67,8 @@ describe('NewProject', () => {
 							classes: ['form-control'],
 							id: 'projectDesc',
 							maxlength: '64',
-							oninput: () => {}
-						})
+							oninput: () => {},
+						}),
 					]),
 					v('div', { classes: ['form-check'] }, [
 						v('input', {
@@ -78,10 +78,10 @@ describe('NewProject', () => {
 							value: 'true',
 							name: 'isPublic',
 							checked: true,
-							onclick: () => {}
+							onclick: () => {},
 						}),
 						v('label', { classes: ['form-check-label'], for: 'isPublic' }, ['公开']),
-						v('small', { classes: ['form-text text-muted'] }, ['所有访客均可浏览，可邀请用户维护。'])
+						v('small', { classes: ['form-text text-muted'] }, ['所有访客均可浏览，可邀请用户维护。']),
 					]),
 					v('div', { classes: ['form-check'] }, [
 						v('input', {
@@ -91,10 +91,10 @@ describe('NewProject', () => {
 							value: 'false',
 							name: 'isPublic',
 							checked: false,
-							onclick: () => {}
+							onclick: () => {},
 						}),
 						v('label', { classes: ['form-check-label'], for: 'isPrivate' }, ['私有']),
-						v('small', { classes: ['form-text text-muted'] }, ['仅成员可浏览，可邀请用户浏览和维护。'])
+						v('small', { classes: ['form-text text-muted'] }, ['仅成员可浏览，可邀请用户浏览和维护。']),
 					]),
 					v('hr'),
 					v(
@@ -103,11 +103,11 @@ describe('NewProject', () => {
 							type: 'button',
 							classes: ['btn btn-primary'],
 							disabled: true,
-							onclick: () => {}
+							onclick: () => {},
 						},
 						['创建']
-					)
-				])
+					),
+				]),
 			])
 		);
 	});

@@ -20,6 +20,20 @@
 
 1. 返回值如何处理？使用返回值的组件要作为子组件使用？
 
+### 方法和函数
+
+参考 Rust 语言，将需要传入页面上下文信息的称为方法，不需要传入的称为函数。
+
+方法的第一个参数名约定为 `self`，如 `setData(self: Self, key: string, value: any)`。
+
+`Self` 接口定义为：
+
+```ts
+interface Self {
+    store: Store
+}
+```
+
 ## Web 版
 
 创建以下项目存放 web 版的客户端 API：
@@ -73,3 +87,4 @@
 3. `return` - 返回值
 
 `valueType` 的值包括：`string`、`number`、`boolean`、`function`、`any` 等。
+

@@ -45,7 +45,7 @@ export default class ViewComponentRepoPublishTask extends ThemedMixin(I18nMixin(
 		super();
 
 		this._wsClient = new Client({});
-		this._wsClient.webSocketFactory = function() {
+		this._wsClient.webSocketFactory = function () {
 			return new SockJS('/release-console');
 		};
 		this._wsClient.onStompError = (frame: IFrame) => {
@@ -87,7 +87,7 @@ export default class ViewComponentRepoPublishTask extends ThemedMixin(I18nMixin(
 						const body = JSON.parse(message.body);
 						const {
 							payload,
-							headers: { event, releaseResult }
+							headers: { event, releaseResult },
 						} = body as WsMessage;
 
 						if (event === 'finish') {
@@ -106,20 +106,23 @@ export default class ViewComponentRepoPublishTask extends ThemedMixin(I18nMixin(
 											const lineNum = item.headers.lineNum;
 											if (lineNum === logLineCount) {
 												console.log(
-													`历史日志的结束行是 ${logLineCount -
-														1}，实时日志的开始行是 ${lineNum},正好接上。`
+													`历史日志的结束行是 ${
+														logLineCount - 1
+													}，实时日志的开始行是 ${lineNum},正好接上。`
 												);
 												return true;
 											} else if (lineNum > logLineCount) {
 												console.log(
-													`历史日志的结束行是 ${logLineCount -
-														1}，实时日志的开始行是 ${lineNum},中间出现缺失。`
+													`历史日志的结束行是 ${
+														logLineCount - 1
+													}，实时日志的开始行是 ${lineNum},中间出现缺失。`
 												);
 												return true;
 											} else {
 												console.log(
-													`历史日志的结束行是 ${logLineCount -
-														1}，实时日志的开始行是 ${lineNum},中间出现重复。`
+													`历史日志的结束行是 ${
+														logLineCount - 1
+													}，实时日志的开始行是 ${lineNum},中间出现重复。`
 												);
 												// 去重
 												return false;
@@ -160,9 +163,9 @@ export default class ViewComponentRepoPublishTask extends ThemedMixin(I18nMixin(
 					this._renderHeader(),
 					this._renderTaskInfo(),
 					this._renderPublishLog(),
-					this._renderScrollToEndLineAnchor()
-				])
-			])
+					this._renderScrollToEndLineAnchor(),
+				]),
+			]),
 		]);
 	}
 
@@ -170,7 +173,7 @@ export default class ViewComponentRepoPublishTask extends ThemedMixin(I18nMixin(
 		const { publishTask } = this.properties;
 
 		const response = await fetch(`${baseUrl}/marketplace/publish/${publishTask.id}/log`, {
-			headers: getHeaders()
+			headers: getHeaders(),
 		});
 		const json = await response.json();
 		if (response.ok) {
@@ -200,9 +203,9 @@ export default class ViewComponentRepoPublishTask extends ThemedMixin(I18nMixin(
 
 		return v('ul', { classes: [c.list_group] }, [
 			v('li', { classes: [c.list_group_item] }, [
-				w(Link, { to: 'settings-profile' }, [`${messages.userSettingMenuProfile}`])
+				w(Link, { to: 'settings-profile' }, [`${messages.userSettingMenuProfile}`]),
 			]),
-			v('li', { classes: [c.list_group_item, css.active] }, [`${messages.userSettingMenuMarketplace}`])
+			v('li', { classes: [c.list_group_item, css.active] }, [`${messages.userSettingMenuMarketplace}`]),
 		]);
 	}
 
@@ -214,16 +217,16 @@ export default class ViewComponentRepoPublishTask extends ThemedMixin(I18nMixin(
 				v('nav', { 'aria-label': 'breadcrumb' }, [
 					v('ol', { classes: [c.breadcrumb, css.navOl] }, [
 						v('li', { classes: [c.breadcrumb_item] }, [
-							w(Link, { to: 'settings-marketplace' }, [`${messages.userSettingMenuMarketplace}`])
+							w(Link, { to: 'settings-marketplace' }, [`${messages.userSettingMenuMarketplace}`]),
 						]),
 						v('li', { classes: [c.breadcrumb_item] }, [`${messages.componentRepoPublishMenuItem}`]),
 						v('li', { classes: [c.breadcrumb_item] }, [`${publishTask.website}`]),
 						v('li', { classes: [c.breadcrumb_item] }, [`${publishTask.owner}`]),
-						v('li', { classes: [c.breadcrumb_item] }, [`${publishTask.repoName}`])
-					])
-				])
+						v('li', { classes: [c.breadcrumb_item] }, [`${publishTask.repoName}`]),
+					]),
+				]),
 			]),
-			v('hr')
+			v('hr'),
 		]);
 	}
 
@@ -276,18 +279,18 @@ export default class ViewComponentRepoPublishTask extends ThemedMixin(I18nMixin(
 			v('div', { classes: [c.flex_grow_1] }, [
 				v('div', {}, [
 					v('a', { href: `${publishTask.gitUrl}`, classes: [c.font_weight_bold, c.mr_3], target: '_blank' }, [
-						`${publishTask.gitUrl}`
+						`${publishTask.gitUrl}`,
 					]),
-					v('span', { classes: [resultClasses] }, [`${resultText}`])
+					v('span', { classes: [resultClasses] }, [`${resultText}`]),
 				]),
 				v('div', { classes: [c.text_muted, c.mt_2] }, [
 					v('span', { classes: [c.mr_2], title: '任务编号' }, [`#${publishTask.seq}`]),
 					v('span', {}, [
 						w(FontAwesomeIcon, { icon: 'clock', classes: [c.mr_1] }),
-						w(Moment, { datetime: publishTask.startTime })
-					])
-				])
-			])
+						w(Moment, { datetime: publishTask.startTime }),
+					]),
+				]),
+			]),
 		]);
 	}
 
@@ -295,8 +298,8 @@ export default class ViewComponentRepoPublishTask extends ThemedMixin(I18nMixin(
 		return v('div', { classes: [css.logBody] }, [
 			v('pre', {}, [
 				...this._logs.map((lineContent) => this._renderLine(lineContent)),
-				...this._console.map((lineContent) => this._renderLine(lineContent))
-			])
+				...this._console.map((lineContent) => this._renderLine(lineContent)),
+			]),
 		]);
 	}
 
@@ -308,7 +311,7 @@ export default class ViewComponentRepoPublishTask extends ThemedMixin(I18nMixin(
 		return v('div', {
 			scrollIntoView: () => {
 				return this._publishResult === ReleaseResult.Started;
-			}
+			},
 		});
 	}
 }

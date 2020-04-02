@@ -17,9 +17,9 @@ describe('Home', () => {
 					v('h1', { classes: [] }, ['软件拼装工厂']),
 					v('a', { classes: ['btn btn-outline-primary btn-lg my-5'], href: '/oauth2/authorization/github' }, [
 						w(FontAwesomeIcon, { icon: ['fab', 'github'], size: 'lg' }),
-						' Github 登录'
-					])
-				])
+						' Github 登录',
+					]),
+				]),
 			])
 		);
 	});
@@ -28,7 +28,7 @@ describe('Home', () => {
 		const h = harness(() => w(Home, { isAuthenticated: true, loggedUsername: 'jack', canAccessProjects: [] }));
 		h.expect(() =>
 			v('div', { classes: [css.root] }, [
-				w(PrivateHome, { isAuthenticated: true, loggedUsername: 'jack', canAccessProjects: [] }, [])
+				w(PrivateHome, { isAuthenticated: true, loggedUsername: 'jack', canAccessProjects: [] }, []),
 			])
 		);
 	});

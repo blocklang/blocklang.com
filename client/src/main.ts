@@ -19,14 +19,14 @@ import {
 	initForNewProjectProcess,
 	initForViewProjectProcess,
 	initForViewProjectGroupProcess,
-	initForViewCommitChangesProcess
+	initForViewCommitChangesProcess,
 } from './processes/projectProcesses';
 import { changeRouteProcess } from './processes/routeProcesses';
 import { initHomeProcess } from './processes/homeProcesses';
 import {
 	initForListReleasesProcess,
 	initForNewReleaseProcess,
-	initForViewReleaseProcess
+	initForViewReleaseProcess,
 } from './processes/releaseProcesses';
 import { initForViewDocumentProcess } from './processes/documentProcess';
 import { setSessionProcess } from './processes/loginProcesses';
@@ -35,7 +35,7 @@ import { initForNewGroupProcess } from './processes/projectGroupProcesses';
 import {
 	initForListComponentReposProcess,
 	initForListMyComponentReposProcess,
-	initForComponentRepoPublishTask
+	initForComponentRepoPublishTask,
 } from './processes/componentRepoProcess';
 import { initForViewProjectDependenceProcess } from './processes/projectDependenceProcesses';
 
@@ -85,7 +85,7 @@ router.on('outlet', ({ outlet, action }) => {
 				initForViewProjectGroupProcess(store)({
 					owner: outlet.params.owner,
 					project: outlet.params.project,
-					parentPath
+					parentPath,
 				});
 				break;
 			case 'view-project-page':
@@ -102,7 +102,7 @@ router.on('outlet', ({ outlet, action }) => {
 				initForViewProjectPageProcess(store)({
 					owner: outlet.params.owner,
 					project: outlet.params.project,
-					pagePath
+					pagePath,
 				});
 				break;
 			case 'view-project-dependence':
@@ -117,7 +117,7 @@ router.on('outlet', ({ outlet, action }) => {
 				}
 				initForViewProjectDependenceProcess(store)({
 					owner: outlet.params.owner,
-					project: outlet.params.project
+					project: outlet.params.project,
 				});
 				break;
 			case 'list-release':
@@ -126,7 +126,7 @@ router.on('outlet', ({ outlet, action }) => {
 			case 'new-page-root':
 				initForNewPageProcess(store)({
 					owner: outlet.params.owner,
-					project: outlet.params.project
+					project: outlet.params.project,
 				});
 				break;
 			case 'new-page':
@@ -142,13 +142,13 @@ router.on('outlet', ({ outlet, action }) => {
 				initForNewPageProcess(store)({
 					owner: outlet.params.owner,
 					project: outlet.params.project,
-					parentPath
+					parentPath,
 				});
 				break;
 			case 'new-group-root':
 				initForNewGroupProcess(store)({
 					owner: outlet.params.owner,
-					project: outlet.params.project
+					project: outlet.params.project,
 				});
 				break;
 			case 'new-group':
@@ -164,7 +164,7 @@ router.on('outlet', ({ outlet, action }) => {
 				initForNewGroupProcess(store)({
 					owner: outlet.params.owner,
 					project: outlet.params.project,
-					parentPath
+					parentPath,
 				});
 				break;
 			case 'new-release':
@@ -174,7 +174,7 @@ router.on('outlet', ({ outlet, action }) => {
 				initForViewReleaseProcess(store)({
 					owner: outlet.params.owner,
 					project: outlet.params.project,
-					version: outlet.params.version
+					version: outlet.params.version,
 				});
 				break;
 			case 'list-component-repo':

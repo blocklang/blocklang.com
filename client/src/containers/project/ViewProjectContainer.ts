@@ -7,7 +7,7 @@ import {
 	stageChangesProcess,
 	unstageChangesProcess,
 	commitChangesProcess,
-	commitMessageInputProcess
+	commitMessageInputProcess,
 } from '../../processes/projectProcesses';
 
 function getProperties(store: Store<State>): ViewProjectProperties {
@@ -33,7 +33,7 @@ function getProperties(store: Store<State>): ViewProjectProperties {
 		onStageChanges: stageChangesProcess(store),
 		onUnstageChanges: unstageChangesProcess(store),
 		onCommitMessageInput: commitMessageInputProcess(store),
-		onCommit: commitChangesProcess(store)
+		onCommit: commitChangesProcess(store),
 	};
 }
 
@@ -50,7 +50,7 @@ export default StoreContainer(ViewProject, 'state', {
 		['stagedChanges'],
 		['unstagedChanges'],
 		['commitMessageParam'],
-		['commitMessageInputValidation']
+		['commitMessageInputValidation'],
 	],
-	getProperties
+	getProperties,
 });

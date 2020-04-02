@@ -7,7 +7,7 @@ function getProperties(store: Store<State>): FooterProperties {
 	const { get, path } = store;
 
 	return {
-		routing: get(path('routing', 'outlet'))
+		routing: get(path('routing', 'outlet')),
 	};
 }
 

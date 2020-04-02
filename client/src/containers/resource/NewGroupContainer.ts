@@ -6,7 +6,7 @@ import {
 	groupKeyInputProcess,
 	groupNameInputProcess,
 	groupDescriptionInputProcess,
-	saveGroupProcess
+	saveGroupProcess,
 } from '../../processes/projectGroupProcesses';
 
 function getProperties(store: Store<State>): NewGroupProperties {
@@ -24,11 +24,11 @@ function getProperties(store: Store<State>): NewGroupProperties {
 		onKeyInput: groupKeyInputProcess(store),
 		onNameInput: groupNameInputProcess(store),
 		onDescriptionInput: groupDescriptionInputProcess(store),
-		onSaveGroup: saveGroupProcess(store)
+		onSaveGroup: saveGroupProcess(store),
 	};
 }
 
 export default StoreContainer(NewGroup, 'state', {
 	paths: [['user'], ['project'], ['projectResource'], ['parentGroups'], ['groupInputValidation']],
-	getProperties
+	getProperties,
 });

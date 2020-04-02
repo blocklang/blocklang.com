@@ -25,10 +25,10 @@ export default class BreadcrumbItem extends ThemedMixin(I18nMixin(WidgetBase))<B
 				{
 					href: `/${project.createUserName}/${project.name}/groups/${parentGroup.path.substring(1)}`,
 					// 因为 dojo 5.0 的 route 不支持通配符，这里尝试实现类似效果
-					onclick: this._onGoToGroup
+					onclick: this._onGoToGroup,
 				},
 				[`${parentGroup.name}`]
-			)
+			),
 		]);
 	}
 
@@ -39,7 +39,7 @@ export default class BreadcrumbItem extends ThemedMixin(I18nMixin(WidgetBase))<B
 		this.properties.onGoToGroup({
 			owner: project.createUserName,
 			project: project.name,
-			parentPath: parentGroup.path.substring(1)
+			parentPath: parentGroup.path.substring(1),
 		});
 		global.window.history.pushState(
 			{},

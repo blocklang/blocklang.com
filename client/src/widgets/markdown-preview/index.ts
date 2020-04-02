@@ -16,7 +16,7 @@ export interface MarkdownPreviewProperties extends ThemedProperties {
 export const ThemedBase = ThemedMixin(WidgetBase);
 
 @customElement<MarkdownPreviewProperties>({
-	tag: 'bl-markdown-preview'
+	tag: 'bl-markdown-preview',
 })
 @theme(css)
 export class MarkdownPreviewBase<P extends MarkdownPreviewProperties = MarkdownPreviewProperties> extends ThemedBase<
@@ -35,12 +35,12 @@ export class MarkdownPreviewBase<P extends MarkdownPreviewProperties = MarkdownP
 			sanitize: true,
 			smartLists: true,
 			smartypants: false,
-			highlight: function(code: string, lang: string) {
+			highlight: function (code: string, lang: string) {
 				if (!!(lang && hljs.getLanguage(lang))) {
 					return hljs.highlightAuto(code).value;
 				}
 				return code;
-			}
+			},
 		};
 
 		marked.setOptions(this._options);

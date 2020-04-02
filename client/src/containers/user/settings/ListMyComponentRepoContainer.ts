@@ -5,7 +5,7 @@ import ListMyComponentRepo, { ListMyComponentRepoProperties } from '../../../pag
 import {
 	componentRepoUrlInputProcess,
 	publishComponentRepoProcess,
-	getUserComponentReposProcess
+	getUserComponentReposProcess,
 } from '../../../processes/componentRepoProcess';
 
 function getProperties(store: Store<State>): ListMyComponentRepoProperties {
@@ -21,7 +21,7 @@ function getProperties(store: Store<State>): ListMyComponentRepoProperties {
 		repoUrlErrorMessage: get(path('componentRepoUrlInputValidation', 'componentRepoUrlErrorMessage')),
 		onComponentRepoUrlInput: componentRepoUrlInputProcess(store),
 		onPublishComponentRepo: publishComponentRepoProcess(store),
-		reloadUserComponentRepos: getUserComponentReposProcess(store)
+		reloadUserComponentRepos: getUserComponentReposProcess(store),
 	};
 }
 
@@ -32,7 +32,7 @@ export default StoreContainer(ListMyComponentRepo, 'state', {
 		['userComponentRepoPublishingTasks'],
 		['marketplacePageStatusCode'],
 		['componentRepoUrl'],
-		['componentRepoUrlInputValidation']
+		['componentRepoUrlInputValidation'],
 	],
-	getProperties
+	getProperties,
 });

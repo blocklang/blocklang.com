@@ -14,7 +14,7 @@ const startInitForNewProjectCommand = commandFactory(({ path }) => {
 	return [
 		replace(path('projectParam', 'isPublic'), true),
 		replace(path('projectInputValidation', 'nameValidateStatus'), ValidateStatus.UNVALIDATED),
-		replace(path('projectInputValidation', 'nameErrorMessage'), '')
+		replace(path('projectInputValidation', 'nameErrorMessage'), ''),
 	];
 });
 
@@ -46,8 +46,8 @@ const nameInputCommand = commandFactory<NamePayload>(async ({ path, get, payload
 		headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
 		body: JSON.stringify({
 			owner: userName,
-			name: trimedName
-		})
+			name: trimedName,
+		}),
 	});
 	const json = await response.json();
 	if (!response.ok) {
@@ -84,8 +84,8 @@ const saveProjectCommand = commandFactory(async ({ path, get }) => {
 		headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
 		body: JSON.stringify({
 			owner,
-			...projectParam
-		})
+			...projectParam,
+		}),
 	});
 
 	const json = await response.json();
@@ -99,14 +99,14 @@ const saveProjectCommand = commandFactory(async ({ path, get }) => {
 		replace(path('project'), json),
 		// 清空输入参数
 		replace(path('projectParam'), undefined),
-		...linkTo(path, 'view-project', { owner, project: projectParam.name })
+		...linkTo(path, 'view-project', { owner, project: projectParam.name }),
 	];
 });
 
 /************************* view project ****************************/
 export const getProjectCommand = commandFactory(async ({ path, payload: { owner, project } }) => {
 	const response = await fetch(`${baseUrl}/projects/${owner}/${project}`, {
-		headers: getHeaders()
+		headers: getHeaders(),
 	});
 	const json = await response.json();
 	if (!response.ok) {
@@ -119,21 +119,21 @@ export const getProjectCommand = commandFactory(async ({ path, payload: { owner,
 export const getProjectGroupInfoCommand = commandFactory(
 	async ({ path, payload: { owner, project, parentPath = '' } }) => {
 		const response = await fetch(`${baseUrl}/projects/${owner}/${project}/groups/${parentPath}`, {
-			headers: getHeaders()
+			headers: getHeaders(),
 		});
 		const json = await response.json();
 		if (!response.ok) {
 			return [
 				replace(path('projectResource'), undefined),
 				replace(path('parentGroups'), undefined),
-				replace(path('childResources'), undefined)
+				replace(path('childResources'), undefined),
 			];
 		}
 
 		return [
 			replace(path('projectResource'), { id: json.id, fullPath: parentPath }),
 			replace(path('parentGroups'), json.parentGroups),
-			replace(path('childResources'), json.childResources)
+			replace(path('childResources'), json.childResources),
 		];
 	}
 );
@@ -148,7 +148,7 @@ export const getLatestCommitInfoCommand = commandFactory(async ({ get, path, pay
 	const parentId = get(path('projectResource', 'id'));
 
 	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/latest-commit/${parentId}`, {
-		headers: getHeaders()
+		headers: getHeaders(),
 	});
 	const json = await response.json();
 	if (!response.ok) {
@@ -166,7 +166,7 @@ const getProjectReadmeCommand = commandFactory(async ({ get, path, payload: { ow
 	}
 
 	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/readme`, {
-		headers: getHeaders()
+		headers: getHeaders(),
 	});
 	const readmeContent = await response.text();
 	if (!response.ok) {
@@ -184,7 +184,7 @@ const getReleaseCountCommand = commandFactory(async ({ get, path, payload: { own
 	}
 
 	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/stats/releases`, {
-		headers: getHeaders()
+		headers: getHeaders(),
 	});
 	const data = await response.json();
 	if (!response.ok) {
@@ -196,7 +196,7 @@ const getReleaseCountCommand = commandFactory(async ({ get, path, payload: { own
 
 const getDeployInfoCommand = commandFactory(async ({ path, payload: { owner, project } }) => {
 	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/deploy_setting`, {
-		headers: getHeaders()
+		headers: getHeaders(),
 	});
 	const userDeployInfo = await response.json();
 	if (!response.ok) {
@@ -208,7 +208,7 @@ const getDeployInfoCommand = commandFactory(async ({ path, payload: { owner, pro
 
 const getUncommittedFilesCommand = commandFactory(async ({ path, payload: { owner, project } }) => {
 	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/changes`, {
-		headers: getHeaders()
+		headers: getHeaders(),
 	});
 	const jsonData = await response.json();
 	if (!response.ok) {
@@ -241,7 +241,7 @@ const stageChangesCommand = commandFactory(async ({ path, payload: { owner, proj
 	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/stage-changes`, {
 		method: 'POST',
 		headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
-		body: JSON.stringify(files)
+		body: JSON.stringify(files),
 	});
 
 	if (!response.ok) {
@@ -254,7 +254,7 @@ const unstageChangesCommand = commandFactory(async ({ payload: { owner, project,
 	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/unstage-changes`, {
 		method: 'POST',
 		headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
-		body: JSON.stringify(files)
+		body: JSON.stringify(files),
 	});
 
 	if (!response.ok) {
@@ -266,7 +266,7 @@ const unstageChangesCommand = commandFactory(async ({ payload: { owner, project,
 const startInitForViewCommitChangesCommand = commandFactory(({ path }) => {
 	return [
 		replace(path('commitMessageInputValidation', 'commitMessageValidateStatus'), ValidateStatus.UNVALIDATED),
-		replace(path('commitMessageInputValidation', 'commitMessageErrorMessage'), '')
+		replace(path('commitMessageInputValidation', 'commitMessageErrorMessage'), ''),
 	];
 });
 
@@ -298,7 +298,7 @@ const commitChangesCommand = commandFactory(async ({ path, get, payload: { owner
 	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/commits`, {
 		method: 'POST',
 		headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
-		body: JSON.stringify(commitMessageParam)
+		body: JSON.stringify(commitMessageParam),
 	});
 
 	const json = await response.json();
@@ -310,7 +310,7 @@ const commitChangesCommand = commandFactory(async ({ path, get, payload: { owner
 
 	return [
 		// 清空输入参数
-		replace(path('commitMessageParam'), undefined)
+		replace(path('commitMessageParam'), undefined),
 	];
 });
 
@@ -322,35 +322,35 @@ export const saveProjectProcess = createProcess('save-project', [saveProjectComm
 
 export const initForViewProjectProcess = createProcess('init-for-view-project', [
 	[getProjectCommand, getProjectGroupInfoCommand],
-	[getLatestCommitInfoCommand, getProjectReadmeCommand, getReleaseCountCommand, getUncommittedFilesCommand]
+	[getLatestCommitInfoCommand, getProjectReadmeCommand, getReleaseCountCommand, getUncommittedFilesCommand],
 ]);
 export const getUserDeployInfoProcess = createProcess('get-user-deploy-info', [getDeployInfoCommand]);
 
 export const initForViewProjectGroupProcess = createProcess('init-for-view-project-group', [
 	[getProjectCommand, getProjectGroupInfoCommand],
-	getLatestCommitInfoCommand
+	getLatestCommitInfoCommand,
 ]);
 
 export const initForViewCommitChangesProcess = createProcess('init-for-view-commit-changes', [
-	startInitForViewCommitChangesCommand
+	startInitForViewCommitChangesCommand,
 ]);
 
 export const stageChangesProcess = createProcess('stage-changes', [stageChangesCommand, getUncommittedFilesCommand]);
 export const unstageChangesProcess = createProcess('unstage-changes', [
 	unstageChangesCommand,
-	getUncommittedFilesCommand
+	getUncommittedFilesCommand,
 ]);
 export const commitMessageInputProcess = createProcess('commit-message-input', [commitMessageInputCommand]);
 
 const reloadProjectResourcesAndLatestCommitProcess = createProcess('reload-project-resources-and-latest-commit', [
 	getProjectGroupInfoCommand,
-	getLatestCommitInfoCommand
+	getLatestCommitInfoCommand,
 ]);
 
 const afterCommit: ProcessCallback = () => ({
 	after(error, result) {
 		result.executor(reloadProjectResourcesAndLatestCommitProcess, { ...result.payload });
-	}
+	},
 });
 
 export const commitChangesProcess = createProcess(

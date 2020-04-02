@@ -31,15 +31,15 @@ export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderPro
 			v('li', { key: 'li-0', classes: [c.nav_item] }, [
 				v('a', { classes: [c.nav_link], href: `${baseUrl}/oauth2/authorization/github` }, [
 					w(FontAwesomeIcon, { icon: ['fab', 'github'] }),
-					` ${messages.loginGithub}`
-				])
+					` ${messages.loginGithub}`,
+				]),
 			]),
 			v('li', { key: 'li-1', classes: [c.nav_item] }, [
 				v('a', { classes: [c.nav_link], href: `${baseUrl}/oauth2/authorization/qq` }, [
 					w(FontAwesomeIcon, { icon: ['fab', 'qq'] }),
-					` ${messages.loginQq}`
-				])
-			])
+					` ${messages.loginQq}`,
+				]),
+			]),
 		];
 	}
 
@@ -52,8 +52,8 @@ export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderPro
 			v('li', { key: 'li-0', classes: [c.nav_item] }, [
 				w(Link, { to: 'new-project', classes: [c.nav_link] }, [
 					w(FontAwesomeIcon, { icon: 'plus' }),
-					` ${messages.newProject}`
-				])
+					` ${messages.newProject}`,
+				]),
 			]),
 			v('li', { key: 'li-1', classes: [c.nav_item, c.dropdown] }, [
 				v(
@@ -64,7 +64,7 @@ export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderPro
 						'data-toggle': 'dropdown',
 						id: 'dropdownUser',
 						'aria-haspopup': true,
-						'aria-expanded': false
+						'aria-expanded': false,
 					},
 					[v('img', { classes: [c.avatar], src: `${loggedAvatarUrl}`, width: 20, height: 20 })]
 				),
@@ -73,25 +73,25 @@ export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderPro
 					v('div', { classes: [c.dropdown_divider] }),
 					w(Link, { to: 'profile', params: { user: `${loggedUsername}` }, classes: [c.dropdown_item] }, [
 						w(FontAwesomeIcon, { icon: 'user', classes: [c.mr_2] }),
-						`${messages.userHome}`
+						`${messages.userHome}`,
 					]),
 					v('div', { classes: [c.dropdown_divider] }),
 
 					w(Link, { to: 'settings-profile', classes: [c.dropdown_item] }, [
 						w(FontAwesomeIcon, { icon: 'cog', classes: [c.mr_2] }),
-						`${messages.userSetting}`
+						`${messages.userSetting}`,
 					]),
 					v(
 						'a',
 						{
 							classes: [c.dropdown_item],
 							href: `${baseUrl}/logout`,
-							onclick: this._onLogout
+							onclick: this._onLogout,
 						},
 						[w(FontAwesomeIcon, { icon: 'sign-out-alt', classes: [c.mr_2] }), `${messages.logout}`]
-					)
-				])
-			])
+					),
+				]),
+			]),
 		];
 	}
 
@@ -132,7 +132,7 @@ export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderPro
 						'data-target': '#navbarSupportedContent',
 						'aria-controls': '#navbarSupportedContent',
 						'aria-expanded': 'false',
-						'aria-label': '收缩导航栏'
+						'aria-label': '收缩导航栏',
 					},
 					[v('span', { classes: [c.navbar_toggler_icon] })]
 				),
@@ -143,10 +143,10 @@ export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderPro
 								Link,
 								{
 									classes: [c.nav_link, marketplaceMenuActive ? c.active : null],
-									to: 'list-component-repo'
+									to: 'list-component-repo',
 								},
 								['市场']
-							)
+							),
 						]),
 						v('li', { classes: [c.nav_item] }, [
 							w(
@@ -154,19 +154,19 @@ export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderPro
 								{
 									classes: [c.nav_link, docsMenuActive ? c.active : null],
 									to: 'docs',
-									params: { fileName: 'getting-started' }
+									params: { fileName: 'getting-started' },
 								},
 								['教程']
-							)
-						])
+							),
+						]),
 					]),
 					v(
 						'ul',
 						{ classes: [c.navbar_nav, c.ml_auto] },
 						isAuthenticated ? this._authenticatedMenu() : this._unauthenticatedMenu()
-					)
-				])
-			])
+					),
+				]),
+			]),
 		]);
 	}
 

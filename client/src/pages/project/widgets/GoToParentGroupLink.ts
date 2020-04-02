@@ -29,7 +29,7 @@ export default class GoToParentGroupLink extends ThemedMixin(I18nMixin(WidgetBas
 					classes: [c.px_2],
 					title: '到上级目录',
 					to: 'view-project',
-					params: { owner: project.createUserName, project: project.name }
+					params: { owner: project.createUserName, project: project.name },
 				},
 				['..']
 			);
@@ -39,7 +39,7 @@ export default class GoToParentGroupLink extends ThemedMixin(I18nMixin(WidgetBas
 				{
 					href: `/${project.createUserName}/${project.name}/groups/${this._getParentPath()}`,
 					// 因为 dojo 5.0 的 route 不支持通配符，这里尝试实现类似效果
-					onclick: this._onGoToGroup
+					onclick: this._onGoToGroup,
 				},
 				['..']
 			);

@@ -45,7 +45,7 @@ export default class Home extends ThemedMixin(I18nMixin(WidgetBase))<HomePropert
 						'a',
 						{
 							classes: [c.btn, c.btn_lg, c.btn_outline_primary, css.loginButton, c.mb_2],
-							href: `${baseUrl}/oauth2/authorization/github`
+							href: `${baseUrl}/oauth2/authorization/github`,
 						},
 						[w(FontAwesomeIcon, { icon: ['fab', 'github'], size: 'lg' }), ` ${messages.loginGithub}`]
 					),
@@ -54,12 +54,12 @@ export default class Home extends ThemedMixin(I18nMixin(WidgetBase))<HomePropert
 						'a',
 						{
 							classes: [c.btn, c.btn_lg, c.btn_outline_primary, css.loginButton, c.mb_2],
-							href: `${baseUrl}/oauth2/authorization/qq`
+							href: `${baseUrl}/oauth2/authorization/qq`,
 						},
 						[w(FontAwesomeIcon, { icon: ['fab', 'qq'], size: 'lg' }), ` ${messages.loginQq}`]
-					)
-				])
-			])
+					),
+				]),
+			]),
 		]);
 	}
 

@@ -19,11 +19,11 @@ function getProperties(store: Store<State>): CompleteUserInfoProperties {
 			: get(path('userInputValidation', 'loginNameValidateStatus')),
 		loginNameErrorMessage: loginNameErrorMessage || get(path('userInputValidation', 'loginNameErrorMessage')),
 		onLoginNameInput: loginNameInputProcess(store),
-		onUpdateUserInfo: completeUserInfoProcess(store)
+		onUpdateUserInfo: completeUserInfoProcess(store),
 	};
 }
 
 export default StoreContainer(CompleteUserInfo, 'state', {
 	paths: [['thirdPartyUser'], ['userInputValidation']],
-	getProperties
+	getProperties,
 });

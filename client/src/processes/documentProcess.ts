@@ -5,7 +5,7 @@ import { baseUrl } from '../config';
 
 const getDocumentCommand = commandFactory(async ({ path, payload: { fileName } }) => {
 	const response = await fetch(`${baseUrl}/docs/${fileName}`, {
-		headers: getHeaders()
+		headers: getHeaders(),
 	});
 	const docContent = await response.text();
 	if (!response.ok) {

@@ -32,14 +32,14 @@ export default class Footer extends ThemedMixin(I18nMixin(WidgetBase))<FooterPro
 					c.pt_3,
 					c.text_muted,
 					c.d_flex,
-					c.justify_content_between
-				]
+					c.justify_content_between,
+				],
 			},
 			[
 				v('div', [`© ${new Date().getFullYear()} BlockLang `]),
 				v('div', [
 					v('a', { href: 'https://github.com/blocklang', classes: [c.text_muted], title: 'github' }, [
-						w(FontAwesomeIcon, { icon: ['fab', 'github'] })
+						w(FontAwesomeIcon, { icon: ['fab', 'github'] }),
 					]),
 					v(
 						'a',
@@ -48,11 +48,11 @@ export default class Footer extends ThemedMixin(I18nMixin(WidgetBase))<FooterPro
 								'//shang.qq.com/wpa/qunwpa?idkey=c20cdcd9c2570f0ba969283808b34d983a4d6d7b7bc83f41ead9417e5e4b6c2d',
 							classes: [c.ml_2, c.text_muted],
 							target: '_blank',
-							title: '诚邀志同道合的编程手艺人'
+							title: '诚邀志同道合的编程手艺人',
 						},
 						['QQ群 ', v('strong', ['619312757'])]
-					)
-				])
+					),
+				]),
 			]
 		);
 	}

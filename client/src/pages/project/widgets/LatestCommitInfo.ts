@@ -32,8 +32,8 @@ export default class LatestCommitInfo extends ThemedMixin(I18nMixin(WidgetBase))
 					c.text_muted,
 					c.px_2,
 					showBottomBorder ? undefined : c.border_bottom_0,
-					css.recentCommit
-				]
+					css.recentCommit,
+				],
 			},
 			[
 				// 最近提交的用户信息
@@ -42,9 +42,9 @@ export default class LatestCommitInfo extends ThemedMixin(I18nMixin(WidgetBase))
 						width: 20,
 						height: 20,
 						classes: [c.avatar, c.mr_1],
-						src: `${latestCommitInfo.avatarUrl}`
+						src: `${latestCommitInfo.avatarUrl}`,
 					}),
-					`${latestCommitInfo.userName}`
+					`${latestCommitInfo.userName}`,
 				]),
 				// 最近提交说明
 				v('span', [`${latestCommitInfo.shortMessage}`]),
@@ -52,8 +52,8 @@ export default class LatestCommitInfo extends ThemedMixin(I18nMixin(WidgetBase))
 				// 最近提交时间
 				v('span', { classes: [c.float_right] }, [
 					`${messages.latestCommitLabel}`,
-					w(Moment, { datetime: latestCommitInfo.commitTime })
-				])
+					w(Moment, { datetime: latestCommitInfo.commitTime }),
+				]),
 			]
 		);
 	}

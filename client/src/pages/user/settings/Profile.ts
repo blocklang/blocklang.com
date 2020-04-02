@@ -12,7 +12,7 @@ import {
 	WebsiteUrlPayload,
 	CompanyPayload,
 	LocationPayload,
-	BioPayload
+	BioPayload,
 } from '../../../processes/interfaces';
 import Exception from '../../error/Exception';
 import Link from '@dojo/framework/routing/Link';
@@ -42,15 +42,15 @@ export default class Profile extends ThemedMixin(I18nMixin(WidgetBase))<ProfileP
 		return v('div', { classes: [css.root, c.container, c.mt_5] }, [
 			v('div', { classes: [c.row] }, [
 				v('div', { classes: [c.col_3] }, [this._renderMenu()]),
-				v('div', { classes: [c.col_9] }, [this._renderHeader(), this._renderEditProfileForm()])
-			])
+				v('div', { classes: [c.col_9] }, [this._renderHeader(), this._renderEditProfileForm()]),
+			]),
 		]);
 	}
 
 	private _renderEditProfileForm() {
 		const {
 			profile: { email },
-			profileUpdateSuccessMessage
+			profileUpdateSuccessMessage,
 		} = this.properties;
 
 		return v('form', { classes: [c.needs_validation], novalidate: true }, [
@@ -62,7 +62,7 @@ export default class Profile extends ThemedMixin(I18nMixin(WidgetBase))<ProfileP
 			this._renderBio(),
 			v('hr'),
 			this._renderSaveButton(),
-			profileUpdateSuccessMessage ? this._renderSaveSuccessTip() : null
+			profileUpdateSuccessMessage ? this._renderSaveSuccessTip() : null,
 		]);
 	}
 
@@ -76,8 +76,8 @@ export default class Profile extends ThemedMixin(I18nMixin(WidgetBase))<ProfileP
 		return v('ul', { classes: [c.list_group] }, [
 			v('li', { classes: [c.list_group_item, css.active] }, [`${messages.userSettingMenuProfile}`]),
 			v('li', { classes: [c.list_group_item] }, [
-				w(Link, { to: 'settings-marketplace' }, [`${messages.userSettingMenuMarketplace}`])
-			])
+				w(Link, { to: 'settings-marketplace' }, [`${messages.userSettingMenuMarketplace}`]),
+			]),
 		]);
 	}
 
@@ -101,17 +101,17 @@ export default class Profile extends ThemedMixin(I18nMixin(WidgetBase))<ProfileP
 						classes: [c.close],
 						'data-dismiss': 'alert',
 						'aria-label': 'Close',
-						onclick: this._closeSuccessAlert
+						onclick: this._closeSuccessAlert,
 					},
 					[v('span', { 'aria-hidden': 'true', innerHTML: '&times;' })]
-				)
+				),
 			]
 		);
 	}
 
 	private _renderNickname() {
 		const {
-			profile: { nickname = '' }
+			profile: { nickname = '' },
 		} = this.properties;
 		const { messages } = this._localizedMessages;
 		return v('div', { classes: [c.form_group] }, [
@@ -123,14 +123,14 @@ export default class Profile extends ThemedMixin(I18nMixin(WidgetBase))<ProfileP
 				maxlength: 32,
 				focus: true,
 				value: `${nickname}`,
-				oninput: this._onNicknameInput
-			})
+				oninput: this._onNicknameInput,
+			}),
 		]);
 	}
 
 	private _renderEmail() {
 		const {
-			profile: { email }
+			profile: { email },
 		} = this.properties;
 		const { messages } = this._localizedMessages;
 		return v('div', { classes: [c.form_group] }, [
@@ -141,15 +141,15 @@ export default class Profile extends ThemedMixin(I18nMixin(WidgetBase))<ProfileP
 				readOnly: true,
 				classes: [c.form_control_plaintext],
 				maxlength: 64,
-				value: `${email}`
+				value: `${email}`,
 			}),
-			v('small', { classes: [c.form_text, c.text_muted] }, [`${messages.emailHelpText}`])
+			v('small', { classes: [c.form_text, c.text_muted] }, [`${messages.emailHelpText}`]),
 		]);
 	}
 
 	private _renderWebsiteUrl() {
 		const {
-			profile: { websiteUrl = '' }
+			profile: { websiteUrl = '' },
 		} = this.properties;
 		const { messages } = this._localizedMessages;
 
@@ -161,15 +161,15 @@ export default class Profile extends ThemedMixin(I18nMixin(WidgetBase))<ProfileP
 				id: 'websiteUrl',
 				maxlength: 128,
 				value: `${websiteUrl}`,
-				oninput: this._onWebsiteUrlInput
+				oninput: this._onWebsiteUrlInput,
 			}),
-			v('small', { classes: [c.form_text, c.text_muted] }, [`${messages.websiteUrlHelpText}`])
+			v('small', { classes: [c.form_text, c.text_muted] }, [`${messages.websiteUrlHelpText}`]),
 		]);
 	}
 
 	private _renderCompany() {
 		const {
-			profile: { company = '' }
+			profile: { company = '' },
 		} = this.properties;
 		const { messages } = this._localizedMessages;
 
@@ -181,14 +181,14 @@ export default class Profile extends ThemedMixin(I18nMixin(WidgetBase))<ProfileP
 				id: 'company',
 				maxlength: 64,
 				value: `${company}`,
-				oninput: this._onCompanyInput
-			})
+				oninput: this._onCompanyInput,
+			}),
 		]);
 	}
 
 	private _renderLocation() {
 		const {
-			profile: { location = '' }
+			profile: { location = '' },
 		} = this.properties;
 		const { messages } = this._localizedMessages;
 		return v('div', { classes: [c.form_group] }, [
@@ -199,14 +199,14 @@ export default class Profile extends ThemedMixin(I18nMixin(WidgetBase))<ProfileP
 				id: 'location',
 				maxlength: 128,
 				value: `${location}`,
-				oninput: this._onLocationInput
-			})
+				oninput: this._onLocationInput,
+			}),
 		]);
 	}
 
 	private _renderBio() {
 		const {
-			profile: { bio = '' }
+			profile: { bio = '' },
 		} = this.properties;
 		const { messages } = this._localizedMessages;
 		return v('div', { classes: [c.form_group] }, [
@@ -216,8 +216,8 @@ export default class Profile extends ThemedMixin(I18nMixin(WidgetBase))<ProfileP
 				id: 'bio',
 				maxlength: 256,
 				value: `${bio}`,
-				oninput: this._onBioInput
-			})
+				oninput: this._onBioInput,
+			}),
 		]);
 	}
 
@@ -228,7 +228,7 @@ export default class Profile extends ThemedMixin(I18nMixin(WidgetBase))<ProfileP
 			{
 				type: 'button',
 				classes: [c.btn, c.btn_primary],
-				onclick: this._onUpdateProfile
+				onclick: this._onUpdateProfile,
 			},
 			[`${messages.userSettingSaveButton}`]
 		);

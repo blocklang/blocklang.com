@@ -21,7 +21,7 @@ import {
 	ProjectPathPayload,
 	UnstagedChangesPayload,
 	StagedChangesPayload,
-	CommitMessagePayload
+	CommitMessagePayload,
 } from '../../processes/interfaces';
 
 import * as $ from 'jquery';
@@ -62,7 +62,7 @@ export interface ViewProjectProperties {
 
 enum ViewStatus {
 	Edit,
-	Commit
+	Commit,
 }
 
 @theme(css)
@@ -85,7 +85,7 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 		return v('div', { classes: [css.root, c.container] }, [
 			this._renderHeader(),
 			this._renderNavigation(),
-			this._viewStatus === ViewStatus.Edit ? this._renderEditView() : this._renderCommitView()
+			this._viewStatus === ViewStatus.Edit ? this._renderEditView() : this._renderCommitView(),
 		]);
 	}
 
@@ -100,7 +100,7 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 			unstagedChanges = [],
 			commitMessage = '',
 			commitMessageValidateStatus = ValidateStatus.UNVALIDATED,
-			commitMessageErrorMessage
+			commitMessageErrorMessage,
 		} = this.properties;
 
 		const inputClasses = [c.form_control];
@@ -119,7 +119,7 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 			v('div', { classes: [c.mt_2] }, [
 				v('div', { classes: [c.d_flex, c.justify_content_between, c.align_items_center] }, [
 					v('strong', [`${messages.stagedChangesLabel}`]),
-					v('span', { classes: [c.badge, c.badge_secondary] }, [`${stagedChanges.length}`])
+					v('span', { classes: [c.badge, c.badge_secondary] }, [`${stagedChanges.length}`]),
 				]),
 				v('table', { classes: [c.table, c.table_hover, c.table_borderless, c.mt_1] }, [
 					v(
@@ -127,17 +127,17 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 						stagedChanges.map((item) =>
 							w(StagedChangesItem, {
 								uncommittedFile: item,
-								onUnstageChanges: this._onUnstageChanges
+								onUnstageChanges: this._onUnstageChanges,
 							})
 						)
-					)
-				])
+					),
+				]),
 			]),
 			// unstaged changes
 			v('div', { classes: [c.mt_2] }, [
 				v('div', { classes: [c.d_flex, c.justify_content_between, c.align_items_center] }, [
 					v('strong', [`${messages.unstagedChangesLabel}`]),
-					v('span', { classes: [c.badge, c.badge_secondary] }, [`${unstagedChanges.length}`])
+					v('span', { classes: [c.badge, c.badge_secondary] }, [`${unstagedChanges.length}`]),
 				]),
 				v('table', { classes: [c.table, c.table_hover, c.table_borderless, c.mt_1] }, [
 					v(
@@ -145,11 +145,11 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 						unstagedChanges.map((item) =>
 							w(UnstagedChangesItem, {
 								uncommittedFile: item,
-								onStageChanges: this._onStageChanges
+								onStageChanges: this._onStageChanges,
 							})
 						)
-					)
-				])
+					),
+				]),
 			]),
 			v('form', { classes: [c.needs_validation, c.mb_3], novalidate: 'novalidate' }, [
 				v('div', { classes: [c.form_group, c.position_relative] }, [
@@ -158,11 +158,11 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 						rows: 3,
 						placeholder: `${messages.commitMessageTip}${messages.requiredLabel}`,
 						oninput: this._onCommitMessageInput,
-						value: `${commitMessage}`
+						value: `${commitMessage}`,
 					}),
 					commitMessageValidateStatus === ValidateStatus.INVALID
 						? v('div', { classes: [c.invalid_tooltip], innerHTML: `${commitMessageErrorMessage}` })
-						: undefined
+						: undefined,
 				]),
 				v(
 					'button',
@@ -170,12 +170,12 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 						type: 'button',
 						classes: [c.btn, c.btn_primary],
 						disabled,
-						onclick: disabled ? undefined : this._onCommit
+						onclick: disabled ? undefined : this._onCommit,
 					},
 					[`${messages.commitLabel}`]
 				),
-				v('small', { classes: [c.text_muted, c.ml_2] }, [`${messages.commitHelp}`])
-			])
+				v('small', { classes: [c.text_muted, c.ml_2] }, [`${messages.commitHelp}`]),
+			]),
 		]);
 	}
 
@@ -194,7 +194,7 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 		this.properties.onUnstageChanges({
 			owner: project.createUserName,
 			project: project.name,
-			files: [fullKeyPath]
+			files: [fullKeyPath],
 		});
 	}
 
@@ -215,7 +215,7 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 
 	private _renderHeader() {
 		const {
-			messages: { privateProjectTitle }
+			messages: { privateProjectTitle },
 		} = this._localizedMessages;
 		const { project } = this.properties;
 
@@ -230,8 +230,8 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 				// 发布按钮，后面显示发布次数
 				this._renderReleaseButton(),
 				// 部署按钮，显示部署步骤
-				this._renderDeployButton()
-			])
+				this._renderDeployButton(),
+			]),
 		]);
 	}
 
@@ -254,7 +254,7 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 			'div',
 			{
 				classes: [c.btn_group, c.btn_group_sm],
-				role: 'group'
+				role: 'group',
 			},
 			[
 				v(
@@ -264,9 +264,9 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 						classes: [
 							c.btn,
 							c.btn_outline_primary,
-							this._viewStatus === ViewStatus.Edit ? c.active : undefined
+							this._viewStatus === ViewStatus.Edit ? c.active : undefined,
 						],
-						onclick: this._switchToEditMode
+						onclick: this._switchToEditMode,
 					},
 					[w(FontAwesomeIcon, { icon: 'copy' }), ` ${messages.editLabel}`]
 				),
@@ -277,18 +277,18 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 						classes: [
 							c.btn,
 							c.btn_outline_primary,
-							this._viewStatus === ViewStatus.Commit ? c.active : undefined
+							this._viewStatus === ViewStatus.Commit ? c.active : undefined,
 						],
-						onclick: this._switchToCommitMode
+						onclick: this._switchToCommitMode,
 					},
 					[
 						w(FontAwesomeIcon, { icon: 'code-branch' }),
 						` ${messages.commitLabel} `,
 						changeCount > 0
 							? v('span', { classes: [c.badge, c.badge_light] }, [`${changeCount}`])
-							: undefined
+							: undefined,
 					]
-				)
+				),
 			]
 		);
 	}
@@ -328,7 +328,7 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 							{
 								classes: [c.btn, c.btn_outline_secondary, c.disabled],
 								tabIndex: -1,
-								'aria-disabled': 'true'
+								'aria-disabled': 'true',
 							},
 							[`${messages.newPage}`]
 						),
@@ -337,10 +337,10 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 							{
 								classes: [c.btn, c.btn_outline_secondary, c.disabled],
 								tabIndex: -1,
-								'aria-disabled': 'true'
+								'aria-disabled': 'true',
 							},
 							[`${messages.newGroup}`]
-						)
+						),
 				  ]
 				: [
 						w(
@@ -348,7 +348,7 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 							{
 								classes: [c.btn, c.btn_outline_secondary],
 								to: 'new-page-root',
-								params: { owner: project.createUserName, project: project.name }
+								params: { owner: project.createUserName, project: project.name },
 							},
 							[`${messages.newPage}`]
 						),
@@ -357,10 +357,10 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 							{
 								classes: [c.btn, c.btn_outline_secondary],
 								to: 'new-group-root',
-								params: { owner: project.createUserName, project: project.name }
+								params: { owner: project.createUserName, project: project.name },
 							},
 							[`${messages.newGroup}`]
-						)
+						),
 				  ]
 		);
 	}
@@ -373,7 +373,7 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 		// 这里没有设置 params，却依然起作用，因为当前页面的 url 中已包含 {owner}/{project}
 		return w(Link, { to: 'list-release', classes: [c.btn, c.btn_outline_secondary, c.btn_sm, c.mr_2] }, [
 			`${messages.releaseLabel} `,
-			v('span', { classes: [c.badge, c.badge_light] }, [`${releaseCount}`])
+			v('span', { classes: [c.badge, c.badge_light] }, [`${releaseCount}`]),
 		]);
 	}
 
@@ -396,12 +396,12 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 						'aria-haspopup': 'true',
 						'aria-expanded': 'false',
 						id: 'dropdownDeployButton',
-						onclick: this._onDeployButtonClick
+						onclick: this._onDeployButtonClick,
 					},
 					[`${messages.deployLabel}`]
 				),
 
-				this._renderDeployDropdownMenu()
+				this._renderDeployDropdownMenu(),
 			]);
 		} else {
 			const node = document.createElement('span');
@@ -411,17 +411,17 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 					props: {
 						classes: [c.d_inline_block],
 						tabIndex: 0,
-						title: messages.deployNotLoginTip
+						title: messages.deployNotLoginTip,
 					},
 					attrs: {
-						'data-toggle': 'tooltip'
+						'data-toggle': 'tooltip',
 					},
 					onAttach: () => {
 						// 使用 dom 函数，就是为了调用 tooltip 方法
 						// 因为 jQuery 的 $ 中没有 bootstrap 的 tooltip 方法
 						// 因为 bootstrap 默认没有初始化 tooltip
 						($(node) as any).tooltip();
-					}
+					},
 				},
 				[
 					v(
@@ -430,10 +430,10 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 							classes: [c.btn, c.btn_outline_secondary, c.dropdown_toggle, c.btn_sm],
 							type: 'button',
 							styles: { pointerEvents: 'none' },
-							disabled: true
+							disabled: true,
 						},
 						[`${messages.deployLabel}`]
-					)
+					),
 				]
 			);
 			return v('div', { classes: [c.btn_group, c.ml_2] }, [vnode]);
@@ -455,7 +455,7 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 				classes: [c.dropdown_menu, c.dropdown_menu_right, c.p_2, css.deployMenu],
 				'aria-labelledby': 'dropdownDeployButton',
 				styles: { width: '365px' },
-				onclick: this._onClickMenuInside
+				onclick: this._onClickMenuInside,
 			},
 			userDeployInfo
 				? this._activeOs === 'linux'
@@ -473,7 +473,7 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 					'div',
 					{
 						classes: [c.btn_group, c.btn_group_toggle, c.btn_group_sm, c.ml_2],
-						role: 'group'
+						role: 'group',
 					},
 					[
 						v(
@@ -481,7 +481,7 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 							{
 								type: 'button',
 								classes: [c.btn, c.btn_outline_primary, c.active, css.btnSmall],
-								onclick: this._onSelectLinux
+								onclick: this._onSelectLinux,
 							},
 							['Linux']
 						),
@@ -490,17 +490,17 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 							{
 								type: 'button',
 								classes: [c.btn, c.btn_outline_primary, css.btnSmall],
-								onclick: this._onSelectWindows
+								onclick: this._onSelectWindows,
 							},
 							['Windows']
-						)
+						),
 					]
-				)
+				),
 			]),
 			v('ol', { classes: [c.pl_3, c.mb_0] }, [
 				v('li', [
 					'下载并安装 ',
-					v('a', { href: `${userDeployInfo.installerLinuxUrl}` }, ['Blocklang-installer'])
+					v('a', { href: `${userDeployInfo.installerLinuxUrl}` }, ['Blocklang-installer']),
 				]),
 				v('li', [
 					'执行',
@@ -509,12 +509,12 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 					v('ol', { classes: [c.pl_3] }, [
 						v('li', ['指定 URL 为', v('code', [`${userDeployInfo.url}`])]),
 						v('li', ['指定注册 Token 为', v('code', [`${userDeployInfo.registrationToken}`])]),
-						v('li', ['设置运行端口 <port>'])
-					])
+						v('li', ['设置运行端口 <port>']),
+					]),
 				]),
 				v('li', ['执行', v('code', ['./blocklang-installer run --port <port>']), '命令启动服务']),
-				v('li', ['在浏览器中访问', v('code', ['http://<ip>:<port>'])])
-			])
+				v('li', ['在浏览器中访问', v('code', ['http://<ip>:<port>'])]),
+			]),
 		];
 	}
 
@@ -528,7 +528,7 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 					'div',
 					{
 						classes: [c.btn_group, c.btn_group_toggle, c.btn_group_sm, c.ml_2],
-						role: 'group'
+						role: 'group',
 					},
 					[
 						v(
@@ -536,7 +536,7 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 							{
 								type: 'button',
 								classes: [c.btn, c.btn_outline_primary, css.btnSmall],
-								onclick: this._onSelectLinux
+								onclick: this._onSelectLinux,
 							},
 							['Linux']
 						),
@@ -545,17 +545,17 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 							{
 								type: 'button',
 								classes: [c.btn, c.btn_outline_primary, c.active, css.btnSmall],
-								onclick: this._onSelectWindows
+								onclick: this._onSelectWindows,
 							},
 							['Windows']
-						)
+						),
 					]
-				)
+				),
 			]),
 			v('ol', { classes: [c.pl_3, c.mb_0] }, [
 				v('li', [
 					'下载并安装 ',
-					v('a', { href: `${userDeployInfo.installerWindowsUrl}` }, ['Blocklang-installer'])
+					v('a', { href: `${userDeployInfo.installerWindowsUrl}` }, ['Blocklang-installer']),
 				]),
 				v('li', [
 					'执行',
@@ -564,12 +564,12 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 					v('ol', { classes: [c.pl_3] }, [
 						v('li', ['指定 URL 为', v('code', [`${userDeployInfo.url}`])]),
 						v('li', ['指定注册 Token 为', v('code', [`${userDeployInfo.registrationToken}`])]),
-						v('li', ['设置运行端口 <port>'])
-					])
+						v('li', ['设置运行端口 <port>']),
+					]),
 				]),
 				v('li', ['执行', v('code', ['blocklang-installer.exe run --port <port>']), '命令启动服务']),
-				v('li', ['在浏览器中访问', v('code', ['http://<ip>:<port>'])])
-			])
+				v('li', ['在浏览器中访问', v('code', ['http://<ip>:<port>'])]),
+			]),
 		];
 	}
 
@@ -597,7 +597,7 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 
 		return v('div', { classes: [c.card] }, [
 			w(LatestCommitInfo, { latestCommitInfo }), // 最近提交信息区
-			this._renderResources()
+			this._renderResources(),
 		]);
 	}
 
@@ -606,7 +606,10 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 
 		return childResources
 			? v('table', { classes: [c.table, c.table_hover, c.mb_0] }, [
-					v('tbody', childResources.map((resource) => this._renderTr(resource)))
+					v(
+						'tbody',
+						childResources.map((resource) => this._renderTr(resource))
+					),
 			  ])
 			: w(Spinner, {});
 	}
@@ -629,10 +632,10 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 		return v('div', { classes: [c.card, c.mt_3] }, [
 			v('div', { classes: [c.card_header, c.px_2] }, [
 				v('div', {}, [w(FontAwesomeIcon, { icon: 'book-open' }), ` ${projectFile.name}`]),
-				canEditProject ? w(Link, { to: '' }, [w(FontAwesomeIcon, { icon: 'edit' })]) : null
+				canEditProject ? w(Link, { to: '' }, [w(FontAwesomeIcon, { icon: 'edit' })]) : null,
 			]),
 
-			v('div', { classes: [c.card_body, c.markdown_body] }, [w(MarkdownPreview, { value: readme })])
+			v('div', { classes: [c.card_body, c.markdown_body] }, [w(MarkdownPreview, { value: readme })]),
 		]);
 	}
 }
@@ -697,14 +700,14 @@ class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResou
 			v('td', { classes: [css.icon] }, [
 				w(FontAwesomeIcon, {
 					icon: projectResource.icon.split(' ') as [IconPrefix, IconName],
-					title: projectResource.title
-				})
+					title: projectResource.title,
+				}),
 			]),
 			// 资源名称
 			v('td', { classes: [css.content, c.px_1] }, [
 				v('span', { classes: [css.truncate] }, [
-					w(Link, { to, params, title, classes: [statusColor] }, [`${projectResource.name}`])
-				])
+					w(Link, { to, params, title, classes: [statusColor] }, [`${projectResource.name}`]),
+				]),
 			]),
 			v('td', { classes: [css.status, statusColor], title: `${statusTooltip}` }, [`${statusLetter}`]),
 			// 最近提交信息
@@ -712,20 +715,20 @@ class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResou
 				showCommitInfo
 					? v('span', { classes: [css.truncate] }, [
 							v('a', { title: `${projectResource.latestFullMessage}` }, [
-								`${projectResource.latestShortMessage}`
-							])
+								`${projectResource.latestShortMessage}`,
+							]),
 					  ])
-					: undefined
+					: undefined,
 			]),
 			// 最近提交时间
 			v('td', { classes: [css.age, c.text_muted] }, [
 				// 使用 moment.js 进行格式化
 				showCommitInfo
 					? v('span', { classes: [css.truncate] }, [
-							w(Moment, { datetime: `${projectResource.latestCommitTime}` })
+							w(Moment, { datetime: `${projectResource.latestCommitTime}` }),
 					  ])
-					: undefined
-			])
+					: undefined,
+			]),
 		]);
 	}
 
@@ -809,8 +812,8 @@ class StagedChangesItem extends ThemedMixin(I18nMixin(WidgetBase))<StagedChangeP
 			v('td', { classes: [css.icon] }, [
 				w(FontAwesomeIcon, {
 					icon: uncommittedFile.icon.split(' ') as [IconPrefix, IconName],
-					title: uncommittedFile.iconTitle
-				})
+					title: uncommittedFile.iconTitle,
+				}),
 			]),
 			// 资源名称
 			v('td', { classes: [c.px_1] }, [
@@ -818,25 +821,25 @@ class StagedChangesItem extends ThemedMixin(I18nMixin(WidgetBase))<StagedChangeP
 					gitStatus === GitFileStatus.Removed
 						? v('del', [`${uncommittedFile.resourceName}`])
 						: v('span', [`${uncommittedFile.resourceName}`]),
-					v('small', { classes: [c.text_muted, c.ml_1] }, [`${uncommittedFile.parentNamePath}`])
-				])
+					v('small', { classes: [c.text_muted, c.ml_1] }, [`${uncommittedFile.parentNamePath}`]),
+				]),
 			]),
 			v('td', { classes: [css.operator] }, [
 				v(
 					'span',
 					{
-						onclick: this._onUnstageChanges
+						onclick: this._onUnstageChanges,
 					},
 					[
 						w(FontAwesomeIcon, {
 							icon: 'minus',
 							title: '撤销暂存的更改',
-							classes: [css.op]
-						})
+							classes: [css.op],
+						}),
 					]
-				)
+				),
 			]),
-			v('td', { classes: [css.status, statusColor], title: `${statusTooltip}` }, [`${statusLetter}`])
+			v('td', { classes: [css.status, statusColor], title: `${statusTooltip}` }, [`${statusLetter}`]),
 		]);
 	}
 
@@ -880,8 +883,8 @@ class UnstagedChangesItem extends ThemedMixin(I18nMixin(WidgetBase))<UnstagedCha
 			v('td', { classes: [css.icon] }, [
 				w(FontAwesomeIcon, {
 					icon: uncommittedFile.icon.split(' ') as [IconPrefix, IconName],
-					title: uncommittedFile.iconTitle
-				})
+					title: uncommittedFile.iconTitle,
+				}),
 			]),
 			// 资源名称
 			v('td', { classes: [c.px_1] }, [
@@ -889,25 +892,25 @@ class UnstagedChangesItem extends ThemedMixin(I18nMixin(WidgetBase))<UnstagedCha
 					gitStatus === GitFileStatus.Deleted
 						? v('del', [`${uncommittedFile.resourceName}`])
 						: v('span', [`${uncommittedFile.resourceName}`]),
-					v('small', { classes: [c.text_muted, c.ml_1] }, [`${uncommittedFile.parentNamePath}`])
-				])
+					v('small', { classes: [c.text_muted, c.ml_1] }, [`${uncommittedFile.parentNamePath}`]),
+				]),
 			]),
 			v('td', { classes: [css.operator] }, [
 				v(
 					'span',
 					{
-						onclick: this._onStageChanges
+						onclick: this._onStageChanges,
 					},
 					[
 						w(FontAwesomeIcon, {
 							icon: 'plus',
 							title: '暂存更改',
-							classes: [css.op]
-						})
+							classes: [css.op],
+						}),
 					]
-				)
+				),
 			]),
-			v('td', { classes: [css.status, statusColor], title: `${statusTooltip}` }, [`${statusLetter}`])
+			v('td', { classes: [css.status, statusColor], title: `${statusTooltip}` }, [`${statusLetter}`]),
 		]);
 	}
 

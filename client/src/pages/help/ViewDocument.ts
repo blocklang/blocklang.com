@@ -22,7 +22,7 @@ export default class ViewDocument extends ThemedMixin(I18nMixin(WidgetBase))<Vie
 
 	protected render() {
 		const {
-			messages: { gettingStartedLabel }
+			messages: { gettingStartedLabel },
 		} = this._localizedMessages;
 		const { content } = this.properties;
 
@@ -36,17 +36,17 @@ export default class ViewDocument extends ThemedMixin(I18nMixin(WidgetBase))<Vie
 								{
 									to: 'docs',
 									params: { fileName: 'getting-started' },
-									classes: [c.nav_link, c.active]
+									classes: [c.nav_link, c.active],
 								},
 								[`${gettingStartedLabel}`]
-							)
-						])
-					])
+							),
+						]),
+					]),
 				]),
 				v('div', { classes: [c.col_10] }, [
-					v('div', { classes: [c.markdown_body] }, [w(MarkdownPreview, { value: content })])
-				])
-			])
+					v('div', { classes: [c.markdown_body] }, [w(MarkdownPreview, { value: content })]),
+				]),
+			]),
 		]);
 	}
 }

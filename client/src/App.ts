@@ -119,43 +119,43 @@ export default class App extends WidgetBase {
 				w(Outlet, {
 					key: 'complete-user-info',
 					id: 'complete-user-info',
-					renderer: () => w(CompleteUserInfoContainer, {})
+					renderer: () => w(CompleteUserInfoContainer, {}),
 				}),
 				w(Outlet, {
 					key: 'new-project',
 					id: 'new-project',
-					renderer: () => w(NewProjectContainer, {})
+					renderer: () => w(NewProjectContainer, {}),
 				}),
 				w(Outlet, { key: 'view-project', id: 'view-project', renderer: () => w(ViewProjectContainer, {}) }),
 				w(Outlet, {
 					key: 'view-project-group',
 					id: 'view-project-group',
-					renderer: () => w(ViewProjectGroupContainer, {})
+					renderer: () => w(ViewProjectGroupContainer, {}),
 				}),
 				w(Outlet, {
 					key: 'view-project-readme',
 					id: 'view-project-readme',
-					renderer: () => w(ViewProjectReadmeContainer, {})
+					renderer: () => w(ViewProjectReadmeContainer, {}),
 				}),
 				w(Outlet, {
 					key: 'view-project-dependence',
 					id: 'view-project-dependence',
-					renderer: () => w(ViewProjectDependenceContainer, {})
+					renderer: () => w(ViewProjectDependenceContainer, {}),
 				}),
 				w(Outlet, {
 					key: 'view-project-page',
 					id: 'view-project-page',
-					renderer: () => w(ViewProjectPageContainer, {})
+					renderer: () => w(ViewProjectPageContainer, {}),
 				}),
 				w(Outlet, {
 					key: 'view-project-templet',
 					id: 'view-project-templet',
-					renderer: () => w(ViewProjectTempletContainer, {})
+					renderer: () => w(ViewProjectTempletContainer, {}),
 				}),
 				w(Outlet, {
 					key: 'view-project-service',
 					id: 'view-project-service',
-					renderer: () => w(ViewProjectServiceContainer, {})
+					renderer: () => w(ViewProjectServiceContainer, {}),
 				}),
 				w(Outlet, { key: 'new-page-root', id: 'new-page-root', renderer: () => w(NewPageContainer, {}) }),
 				w(Outlet, { key: 'new-group-root', id: 'new-group-root', renderer: () => w(NewGroupContainer, {}) }),
@@ -166,40 +166,40 @@ export default class App extends WidgetBase {
 				w(Outlet, {
 					key: 'new-release',
 					id: 'new-release',
-					renderer: () => w(NewReleaseContainer, {})
+					renderer: () => w(NewReleaseContainer, {}),
 				}),
 				w(Outlet, { key: 'view-release', id: 'view-release', renderer: () => w(ViewReleaseContainer, {}) }),
 				w(Outlet, { key: 'docs', id: 'docs', renderer: () => w(ViewDocumentContainer, {}) }),
 				w(Outlet, {
 					key: 'list-component-repo',
 					id: 'list-component-repo',
-					renderer: () => w(ListComponentRepoContainer, {})
+					renderer: () => w(ListComponentRepoContainer, {}),
 				}),
 				// 登录用户-setting
 				w(Outlet, {
 					key: 'settings-profile',
 					id: 'settings-profile',
-					renderer: () => w(ProfileContainer, {})
+					renderer: () => w(ProfileContainer, {}),
 				}),
 				w(Outlet, {
 					key: 'settings-marketplace',
 					id: 'settings-marketplace',
-					renderer: () => w(ListMyComponentRepoContainer, {})
+					renderer: () => w(ListMyComponentRepoContainer, {}),
 				}),
 				w(Outlet, {
 					key: 'view-component-repo-publish-task',
 					id: 'view-component-repo-publish-task',
-					renderer: () => w(ViewComponentRepoPublishTaskContainer, {})
+					renderer: () => w(ViewComponentRepoPublishTaskContainer, {}),
 				}),
 				w(Outlet, { key: 'about', id: 'about', renderer: () => w(About, {}) }),
 				w(Outlet, {
 					id: 'errorOutlet',
 					renderer: () => {
 						return w(Exception, { type: '404' });
-					}
-				})
+					},
+				}),
 			]),
-			w(FooterContainer, {})
+			w(FooterContainer, {}),
 		]);
 	}
 }

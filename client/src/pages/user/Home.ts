@@ -30,8 +30,8 @@ export default class Home extends ThemedMixin(I18nMixin(WidgetBase))<HomePropert
 						v('div', { classes: [c.card_header] }, [
 							`${messages.canAccessProjectsCardTitle}`,
 							w(Link, { to: 'new-project', classes: [c.float_right], title: `${messages.newProject}` }, [
-								w(FontAwesomeIcon, { icon: 'plus' })
-							])
+								w(FontAwesomeIcon, { icon: 'plus' }),
+							]),
 						]),
 						v(
 							'ul',
@@ -39,10 +39,10 @@ export default class Home extends ThemedMixin(I18nMixin(WidgetBase))<HomePropert
 							canAccessProjects.length === 0
 								? this._renderEmptyProject()
 								: this._renderProjects(canAccessProjects)
-						)
-					])
-				])
-			])
+						),
+					]),
+				]),
+			]),
 		]);
 	}
 
@@ -52,8 +52,8 @@ export default class Home extends ThemedMixin(I18nMixin(WidgetBase))<HomePropert
 				noActivityMessageHeader,
 				noActivityMessageHelpTitle,
 				noActivityMessageHelp1,
-				noActivityMessageHelp2
-			}
+				noActivityMessageHelp2,
+			},
 		} = this._localizedMessages;
 
 		return [
@@ -62,9 +62,9 @@ export default class Home extends ThemedMixin(I18nMixin(WidgetBase))<HomePropert
 				v('h5', [`${noActivityMessageHelpTitle}`]),
 				v('ul', { classes: [c.list_unstyled] }, [
 					v('li', [`${noActivityMessageHelp1}`]),
-					v('li', [`${noActivityMessageHelp2}`])
-				])
-			])
+					v('li', [`${noActivityMessageHelp2}`]),
+				]),
+			]),
 		];
 	}
 
@@ -75,21 +75,21 @@ export default class Home extends ThemedMixin(I18nMixin(WidgetBase))<HomePropert
 			v('li', { classes: [c.list_group_item] }, [
 				v('div', { classes: [c.text_center] }, [
 					w(FontAwesomeIcon, { icon: 'info-circle', classes: [c.text_muted] }),
-					` ${messages.noProjectMessage}`
-				])
-			])
+					` ${messages.noProjectMessage}`,
+				]),
+			]),
 		];
 	}
 
 	private _renderProjects(projects: Project[]) {
 		const {
-			messages: { privateProjectTitle }
+			messages: { privateProjectTitle },
 		} = this._localizedMessages;
 
 		return projects.map((project) => {
 			return v('li', { classes: [c.list_group_item] }, [
 				w(Link, { to: 'view-project', params: { owner: project.createUserName, project: project.name } }, [
-					`${project.createUserName}/${project.name}`
+					`${project.createUserName}/${project.name}`,
 				]),
 				' ',
 				project.isPublic
@@ -98,8 +98,8 @@ export default class Home extends ThemedMixin(I18nMixin(WidgetBase))<HomePropert
 							icon: 'lock',
 							size: 'xs',
 							classes: [c.text_muted],
-							title: `${privateProjectTitle}`
-					  })
+							title: `${privateProjectTitle}`,
+					  }),
 			]);
 		});
 	}

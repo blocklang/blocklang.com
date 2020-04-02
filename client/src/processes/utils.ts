@@ -7,7 +7,7 @@ import { replace } from '@dojo/framework/stores/state/operations';
 
 export function getHeaders(): any {
 	const headers: { [key: string]: string } = {
-		'X-Requested-With': 'FetchApi'
+		'X-Requested-With': 'FetchApi',
 	};
 
 	const userSession = global.sessionStorage.getItem('blocklang-session');

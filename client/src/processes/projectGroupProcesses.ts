@@ -12,7 +12,7 @@ const startInitForNewGroupCommand = commandFactory(({ path }) => {
 		replace(path('groupInputValidation', 'keyValidateStatus'), ValidateStatus.UNVALIDATED),
 		replace(path('groupInputValidation', 'keyErrorMessage'), ''),
 		replace(path('groupInputValidation', 'nameValidateStatus'), ValidateStatus.UNVALIDATED),
-		replace(path('groupInputValidation', 'nameErrorMessage'), '')
+		replace(path('groupInputValidation', 'nameErrorMessage'), ''),
 	];
 });
 
@@ -44,8 +44,8 @@ const groupKeyInputCommand = commandFactory<GroupKeyPayload>(
 			headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
 			body: JSON.stringify({
 				key: trimedKey,
-				parentId
-			})
+				parentId,
+			}),
 		});
 		const json = await response.json();
 		if (!response.ok) {
@@ -75,8 +75,8 @@ const groupNameInputCommand = commandFactory<GroupNamePayload>(
 			headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
 			body: JSON.stringify({
 				name: trimedName,
-				parentId
-			})
+				parentId,
+			}),
 		});
 		const json = await response.json();
 		if (!response.ok) {
@@ -109,8 +109,8 @@ const saveGroupCommand = commandFactory(async ({ path, get, payload: { owner, pr
 		method: 'POST',
 		headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
 		body: JSON.stringify({
-			...groupParam
-		})
+			...groupParam,
+		}),
 	});
 
 	const json = await response.json();
@@ -122,13 +122,13 @@ const saveGroupCommand = commandFactory(async ({ path, get, payload: { owner, pr
 	return [
 		// 清空输入参数
 		replace(path('groupParam'), undefined),
-		...linkTo(path, parentPath.length > 0 ? 'view-project-group' : 'view-project', { owner, project, parentPath })
+		...linkTo(path, parentPath.length > 0 ? 'view-project-group' : 'view-project', { owner, project, parentPath }),
 	];
 });
 
 export const initForNewGroupProcess = createProcess('init-for-new-group', [
 	startInitForNewGroupCommand,
-	[getProjectCommand, getResourceParentPathCommand]
+	[getProjectCommand, getResourceParentPathCommand],
 ]);
 export const groupKeyInputProcess = createProcess('group-key-input', [groupKeyInputCommand]);
 export const groupNameInputProcess = createProcess('group-name-input', [groupNameInputCommand]);

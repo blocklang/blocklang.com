@@ -47,7 +47,7 @@ export default class CompleteUserInfo extends ThemedMixin(I18nMixin(WidgetBase))
 			nickname = '',
 			loginName = '',
 			loginNameValidateStatus,
-			loginNameErrorMessage
+			loginNameErrorMessage,
 		} = this.properties;
 
 		const disabled = loginNameValidateStatus === ValidateStatus.VALID ? false : true;
@@ -61,9 +61,9 @@ export default class CompleteUserInfo extends ThemedMixin(I18nMixin(WidgetBase))
 			v('div', [
 				v('h4', [
 					v('img', { classes: [c.avatar], src: `${avatarUrl}`, width: 20, height: 20 }),
-					` ${nickname} ${messages.completeUserInfoTip}`
+					` ${nickname} ${messages.completeUserInfoTip}`,
 				]),
-				v('hr')
+				v('hr'),
 			]),
 			v('form', { classes: [c.needs_validation], novalidate: true }, [
 				v('div', { classes: [c.form_group] }, [
@@ -76,13 +76,13 @@ export default class CompleteUserInfo extends ThemedMixin(I18nMixin(WidgetBase))
 							focus: true,
 							classes: inputClasses,
 							value: `${loginName}`,
-							oninput: this._onLoginNameInput
+							oninput: this._onLoginNameInput,
 						}),
 						loginNameValidateStatus === ValidateStatus.INVALID
 							? v('div', { classes: [c.invalid_tooltip], innerHTML: `${loginNameErrorMessage}` })
-							: null
+							: null,
 					]),
-					v('small', { classes: [c.form_text, c.text_muted] }, [`${messages.loginNameHelpText}`])
+					v('small', { classes: [c.form_text, c.text_muted] }, [`${messages.loginNameHelpText}`]),
 				]),
 				v('hr'),
 				v(
@@ -91,11 +91,11 @@ export default class CompleteUserInfo extends ThemedMixin(I18nMixin(WidgetBase))
 						type: 'button',
 						classes: [c.btn, c.btn_primary],
 						disabled,
-						onclick: disabled ? undefined : this._onUpdateUserInfo
+						onclick: disabled ? undefined : this._onUpdateUserInfo,
 					},
 					[`${messages.ok}`]
-				)
-			])
+				),
+			]),
 		]);
 	}
 

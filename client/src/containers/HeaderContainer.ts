@@ -12,7 +12,7 @@ function getProperties(store: Store<State>): HeaderProperties {
 		isAuthenticated: !!get(path('user', 'loginName')),
 		loggedUsername: get(path('user', 'loginName')),
 		loggedAvatarUrl: get(path('user', 'avatarUrl')),
-		onLogout: logoutProcess(store)
+		onLogout: logoutProcess(store),
 	};
 }
 

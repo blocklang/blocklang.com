@@ -18,11 +18,11 @@ describe('Header', () => {
 						v('li', { classes: ['nav-item'] }, [
 							v('a', { classes: ['nav-link'], href: '/oauth2/authorization/github' }, [
 								w(FontAwesomeIcon, { icon: ['fab', 'github'] }),
-								' Github 登录'
-							])
-						])
-					])
-				])
+								' Github 登录',
+							]),
+						]),
+					]),
+				]),
 			])
 		);
 	});
@@ -37,22 +37,22 @@ describe('Header', () => {
 						v('li', { classes: ['nav-item'] }, [
 							w(Link, { to: 'new-project', classes: ['nav-link'] }, [
 								w(FontAwesomeIcon, { icon: 'plus' }),
-								' 创建项目'
-							])
+								' 创建项目',
+							]),
 						]),
 						v('li', { classes: ['nav-item'] }, [
 							w(Link, { to: '/user/jack', classes: ['nav-link'] }, [
 								v('img', { classes: ['avatar'], src: '#', width: 20, height: 20 }, []),
-								' jack'
-							])
+								' jack',
+							]),
 						]),
 						v('li', { classes: ['nav-item'] }, [
 							v('a', { classes: ['nav-link'], title: '退出', href: '/logout' }, [
-								w(FontAwesomeIcon, { icon: 'sign-out-alt' })
-							])
-						])
-					])
-				])
+								w(FontAwesomeIcon, { icon: 'sign-out-alt' }),
+							]),
+						]),
+					]),
+				]),
 			])
 		);
 	});

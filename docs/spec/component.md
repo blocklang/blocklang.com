@@ -172,7 +172,7 @@ git tag 与 api.json 中的 `version` 各自的作用分别是：
 2. `version` - 组件库的版本(必填)
 3. `displayName` - 组件库的显示名(可选)
 4. `description` - 组件库详细介绍(可选)
-5. `category` - 组件库种类，当前仅支持 `Widget`(必填)
+5. `category` - 组件库种类，当前支持 `Widget` 和 `ClientAPI`(必填)
 6. `components` - 数组，存储组件的相对路径
    1. 当 category 为 `Widget` 时，如 Button 部件的 API 存在 `components/button` 文件夹中
 
@@ -226,6 +226,7 @@ changelog 的 json 格式
                     "defaultValue": "属性默认值",
                     "valueType": "string | number | boolean",
                     "description": "属性详细说明",
+                    "required": false,
                     "options": [{
                         "value": "选项值",
                         "label": "显示名",
@@ -239,6 +240,7 @@ changelog 的 json 格式
                     "label": "单击事件",
                     "valueType": "function",
                     "description": "事件详细说明",
+                    "requird": false,
                     "arguments": [{
                         "name": "参数名",
                         "label": "显示名",
@@ -259,6 +261,7 @@ changelog 的 json 格式
 2. 部件的图标在 API 库中管理
 3. `events` 下的 `valueType` (与 `name` 属性并列)的值只能是 `function`，所以不需要用户设置；如果设置为 `function` 也不会报错
 4. changelog 文件的命名约定是，名称使用版本号，但要将版本中的点替换为下划线，如 `0_1_0.json`
+5. `properties` 和 `events` 中增加 `required` 属性，如果部件的对应属性是可选的，则 `required` 的值为 `false`，否则为 `true`；如果 `required` 为 `true` 则要设置好默认值
 
 ##### Value Or Default Value
 
@@ -318,7 +321,11 @@ root
 4. `src/themes/` - 存放样式主题，一个文件夹对应一个主题
 5. `test/` - 存放单元测试和功能测试
 
-注意：**部件名和部件的属性名必须使用在 API 库中定义的名称**，这也是“组件库实现 API 库”这句话在实现层面的体现。
+注意：
+
+1. **部件名和部件的属性名必须使用在 API 库中定义的名称**，这也是“组件库实现 API 库”这句话在实现层面的体现；
+1. 必须按照上述结构存放部件，这是必须遵循的约定，如将部件存到 `src/widgets/{button}` 目录下，则发布到生产后的页面将找不到该部件；
+1. 约定部件名遵循驼峰命名规范，而部件存储路径使用中划线分割的小写字母，如部件 `TextInput`，而部件的存储路径为 `src/text-input/index.ts`。
 
 `component.json`
 

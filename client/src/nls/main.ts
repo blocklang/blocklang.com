@@ -113,6 +113,6 @@ export default {
 		// user settings
 		userSettingMenuProfile: '个人资料',
 		userSettingMenuMarketplace: '组件市场',
-		componentRepoPublishMenuItem: '发布'
-	}
+		componentRepoPublishMenuItem: '发布',
+	},
 };

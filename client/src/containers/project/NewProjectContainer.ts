@@ -6,7 +6,7 @@ import {
 	nameInputProcess,
 	descriptionInputProcess,
 	saveProjectProcess,
-	isPublicInputProcess
+	isPublicInputProcess,
 } from '../../processes/projectProcesses';
 
 function getProperties(store: Store<State>): NewProjectProperties {
@@ -22,11 +22,11 @@ function getProperties(store: Store<State>): NewProjectProperties {
 		onNameInput: nameInputProcess(store),
 		onDescriptionInput: descriptionInputProcess(store),
 		onIsPublicInput: isPublicInputProcess(store),
-		onSaveProject: saveProjectProcess(store)
+		onSaveProject: saveProjectProcess(store),
 	};
 }
 
 export default StoreContainer(NewProject, 'state', {
 	paths: [['user'], ['project'], ['projectInputValidation']],
-	getProperties
+	getProperties,
 });

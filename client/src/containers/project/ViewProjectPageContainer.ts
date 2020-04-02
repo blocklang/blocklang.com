@@ -12,11 +12,11 @@ function getProperties(store: Store<State>): ViewProjectPageProperties {
 		project: get(path('project')),
 		resource: get(path('projectResource')),
 		groups: get(path('parentGroups')),
-		onGotoGroup: initForViewProjectGroupProcess(store)
+		onGotoGroup: initForViewProjectGroupProcess(store),
 	};
 }
 
 export default StoreContainer(ViewProjectPage, 'state', {
 	paths: [['project'], ['projectResource'], ['parentGroups'], ['user']],
-	getProperties
+	getProperties,
 });

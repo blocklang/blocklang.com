@@ -12,7 +12,7 @@ const initCanAccessProjectsCommand = commandFactory(async ({ get, path }) => {
 	}
 
 	const response = await fetch(`${baseUrl}/user/projects`, {
-		headers: getHeaders()
+		headers: getHeaders(),
 	});
 	const json = await response.json();
 	if (!response.ok) {

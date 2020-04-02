@@ -12,14 +12,14 @@ const startInitForNewReleaseCommand = commandFactory(({ path }) => {
 		replace(path('releaseInputValidation', 'versionValidateStatus'), ValidateStatus.UNVALIDATED),
 		replace(path('releaseInputValidation', 'versionErrorMessage'), ''),
 		replace(path('releaseInputValidation', 'titleValidateStatus'), ValidateStatus.UNVALIDATED),
-		replace(path('releaseInputValidation', 'titleErrorMessage'), '')
+		replace(path('releaseInputValidation', 'titleErrorMessage'), ''),
 	];
 });
 
 /*******************list releases***********************/
 const getProjectReleasesCommand = commandFactory(async ({ path, payload: { owner, project } }) => {
 	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/releases`, {
-		headers: getHeaders()
+		headers: getHeaders(),
 	});
 	const json = await response.json();
 	if (!response.ok) {
@@ -36,7 +36,7 @@ const startInitForViewReleaseCommand = commandFactory(({ path }) => {
 // 获取指定的 release task
 const getProjectReleaseCommand = commandFactory(async ({ path, payload: { owner, project, version } }) => {
 	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/releases/${version}`, {
-		headers: getHeaders()
+		headers: getHeaders(),
 	});
 	const json = await response.json();
 	if (!response.ok) {
@@ -49,7 +49,7 @@ const getProjectReleaseCommand = commandFactory(async ({ path, payload: { owner,
 /*******************new release***********************/
 const getJdksCommand = commandFactory(async ({ path }) => {
 	const response = await fetch(`${baseUrl}/apps/jdk/releases`, {
-		headers: getHeaders()
+		headers: getHeaders(),
 	});
 	const json = await response.json();
 	if (!response.ok) {
@@ -71,7 +71,7 @@ const versionInputCommand = commandFactory(async ({ path, payload: { owner, proj
 	if (trimedVersion === '') {
 		return [
 			replace(path('releaseInputValidation', 'versionValidateStatus'), ValidateStatus.INVALID),
-			replace(path('releaseInputValidation', 'versionErrorMessage'), '版本号不能为空')
+			replace(path('releaseInputValidation', 'versionErrorMessage'), '版本号不能为空'),
 		];
 	}
 
@@ -82,7 +82,7 @@ const versionInputCommand = commandFactory(async ({ path, payload: { owner, proj
 			replace(
 				path('releaseInputValidation', 'versionErrorMessage'),
 				'不是有效的<a href="https://semver.org/lang/zh-CN/" target="_blank" tabindex="-1" class="text-white">语义化版本</a>'
-			)
+			),
 		];
 	}
 
@@ -91,8 +91,8 @@ const versionInputCommand = commandFactory(async ({ path, payload: { owner, proj
 		method: 'POST',
 		headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
 		body: JSON.stringify({
-			version: trimedVersion
-		})
+			version: trimedVersion,
+		}),
 	});
 	const json = await response.json();
 
@@ -100,7 +100,7 @@ const versionInputCommand = commandFactory(async ({ path, payload: { owner, proj
 	if (!response.ok) {
 		return [
 			replace(path('releaseInputValidation', 'versionValidateStatus'), ValidateStatus.INVALID),
-			replace(path('releaseInputValidation', 'versionErrorMessage'), json.errors.version)
+			replace(path('releaseInputValidation', 'versionErrorMessage'), json.errors.version),
 		];
 	}
 
@@ -108,7 +108,7 @@ const versionInputCommand = commandFactory(async ({ path, payload: { owner, proj
 	return [
 		replace(path('releaseInputValidation', 'versionValidateStatus'), ValidateStatus.VALID),
 		replace(path('releaseInputValidation', 'versionErrorMessage'), ''),
-		replace(path('projectReleaseParam', 'version'), trimedVersion)
+		replace(path('projectReleaseParam', 'version'), trimedVersion),
 	];
 });
 
@@ -122,14 +122,14 @@ const titleInputCommand = commandFactory(({ path, payload: { title } }) => {
 	if (trimedTitle === '') {
 		return [
 			replace(path('releaseInputValidation', 'titleValidateStatus'), ValidateStatus.INVALID),
-			replace(path('releaseInputValidation', 'titleErrorMessage'), '发行版标题不能为空')
+			replace(path('releaseInputValidation', 'titleErrorMessage'), '发行版标题不能为空'),
 		];
 	}
 	// 校验通过
 	return [
 		replace(path('releaseInputValidation', 'titleValidateStatus'), ValidateStatus.VALID),
 		replace(path('releaseInputValidation', 'titleErrorMessage'), ''),
-		replace(path('projectReleaseParam', 'title'), trimedTitle)
+		replace(path('projectReleaseParam', 'title'), trimedTitle),
 	];
 });
 
@@ -145,8 +145,8 @@ const saveReleaseTaskCommand = commandFactory(async ({ path, get, payload: { own
 		method: 'POST',
 		headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
 		body: JSON.stringify({
-			...projectReleaseParam
-		})
+			...projectReleaseParam,
+		}),
 	});
 
 	const json = await response.json();
@@ -159,7 +159,7 @@ const saveReleaseTaskCommand = commandFactory(async ({ path, get, payload: { own
 		replace(path('projectRelease'), json),
 		// 清空输入参数
 		replace(path('projectReleaseParam'), undefined),
-		...linkTo(path, 'view-release', { owner, project, version })
+		...linkTo(path, 'view-release', { owner, project, version }),
 	];
 });
 
@@ -168,17 +168,17 @@ export const initForListReleasesProcess = createProcess('init-for-list-releases'
 	// 但如果不获取的话，用户直接刷新路由时就会提示没有项目信息
 	// 但用户直接在页面之间通过路由跳转的话，项目信息一直存在的
 	getProjectCommand,
-	getProjectReleasesCommand
+	getProjectReleasesCommand,
 ]);
 export const initForNewReleaseProcess = createProcess('init-for-new-release', [
 	startInitForNewReleaseCommand,
 	getProjectCommand,
-	getJdksCommand
+	getJdksCommand,
 ]);
 export const initForViewReleaseProcess = createProcess('init-for-view-release', [
 	startInitForViewReleaseCommand,
 	getProjectCommand,
-	getProjectReleaseCommand
+	getProjectReleaseCommand,
 ]);
 export const versionInputProcess = createProcess('version-input', [versionInputCommand]);
 export const jdkReleaseIdInputProcess = createProcess('jdk-release-id-input', [jdkReleaseIdInputCommand]);

@@ -11,11 +11,11 @@ function getProperties(store: Store<State>): ListComponentRepoProperties {
 		loggedUsername: get(path('user', 'loginName')),
 		pagedComponentRepos: get(path('pagedComponentRepoInfos')),
 		marketplacePageStatusCode: get(path('marketplacePageStatusCode')),
-		onQueryComponentRepos: queryComponentReposProcess(store)
+		onQueryComponentRepos: queryComponentReposProcess(store),
 	};
 }
 
 export default StoreContainer(ListComponentRepo, 'state', {
 	paths: [['user'], ['pagedComponentRepoInfos'], ['marketplacePageStatusCode']],
-	getProperties
+	getProperties,
 });

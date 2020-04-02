@@ -7,7 +7,7 @@ import {
 	titleInputProcess,
 	jdkReleaseIdInputProcess,
 	descriptionInputProcess,
-	saveReleaseTaskProcess
+	saveReleaseTaskProcess,
 } from '../../processes/releaseProcesses';
 
 function getProperties(store: Store<State>): NewReleaseProperties {
@@ -28,11 +28,11 @@ function getProperties(store: Store<State>): NewReleaseProperties {
 		onJdkReleaseIdInput: jdkReleaseIdInputProcess(store),
 		onTitleInput: titleInputProcess(store),
 		onDescriptionInput: descriptionInputProcess(store),
-		onSaveReleaseTask: saveReleaseTaskProcess(store)
+		onSaveReleaseTask: saveReleaseTaskProcess(store),
 	};
 }
 
 export default StoreContainer(NewRelease, 'state', {
 	paths: [['user'], ['project'], ['jdks'], ['releaseInputValidation']],
-	getProperties
+	getProperties,
 });

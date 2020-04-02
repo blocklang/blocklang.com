@@ -49,7 +49,7 @@ export default class NewPage extends ThemedMixin(I18nMixin(WidgetBase))<NewPageP
 		}
 
 		const {
-			messages: { newPage }
+			messages: { newPage },
 		} = this._localizedMessages;
 
 		return v('div', { classes: [css.root, c.container] }, [
@@ -66,10 +66,10 @@ export default class NewPage extends ThemedMixin(I18nMixin(WidgetBase))<NewPageP
 						this._renderNameInput(),
 						this._renderDescriptionTextarea(),
 						v('hr'),
-						this._renderButtons()
-					])
-				])
-			])
+						this._renderButtons(),
+					]),
+				]),
+			]),
 		]);
 	}
 
@@ -84,7 +84,7 @@ export default class NewPage extends ThemedMixin(I18nMixin(WidgetBase))<NewPageP
 
 	private _renderHeader() {
 		const {
-			messages: { privateProjectTitle }
+			messages: { privateProjectTitle },
 		} = this._localizedMessages;
 		const { project } = this.properties;
 
@@ -103,10 +103,10 @@ export default class NewPage extends ThemedMixin(I18nMixin(WidgetBase))<NewPageP
 						{
 							to: 'view-project',
 							params: { owner: project.createUserName, project: project.name },
-							classes: [c.font_weight_bold]
+							classes: [c.font_weight_bold],
 						},
 						[`${project.name}`]
-					)
+					),
 				]),
 				...parentGroups.map((item) => {
 					return v('li', { classes: [c.breadcrumb_item] }, [
@@ -117,20 +117,20 @@ export default class NewPage extends ThemedMixin(I18nMixin(WidgetBase))<NewPageP
 								params: {
 									owner: project.createUserName,
 									project: project.name,
-									parentPath: item.path.substring(1)
-								}
+									parentPath: item.path.substring(1),
+								},
 							},
 							[`${item.name}`]
-						)
+						),
 					]);
-				})
-			])
+				}),
+			]),
 		]);
 	}
 
 	private _renderKeyInput() {
 		const {
-			messages: { pageKeyLabel, pageKeyHelp, requiredLabel, pageKeyPlaceholder }
+			messages: { pageKeyLabel, pageKeyHelp, requiredLabel, pageKeyPlaceholder },
 		} = this._localizedMessages;
 
 		const { keyValidateStatus = ValidateStatus.UNVALIDATED, keyErrorMessage } = this.properties;
@@ -143,7 +143,7 @@ export default class NewPage extends ThemedMixin(I18nMixin(WidgetBase))<NewPageP
 		return v('div', { classes: [c.form_group] }, [
 			v('label', { for: 'key' }, [
 				`${pageKeyLabel}`,
-				v('small', { classes: [c.text_muted] }, [`${requiredLabel}`])
+				v('small', { classes: [c.text_muted] }, [`${requiredLabel}`]),
 			]),
 			v('div', { classes: [c.input_group] }, [
 				v('input', {
@@ -154,20 +154,20 @@ export default class NewPage extends ThemedMixin(I18nMixin(WidgetBase))<NewPageP
 					focus: true,
 					maxlength: 32,
 					placeholder: `${pageKeyPlaceholder}`,
-					oninput: this._onKeyInput
+					oninput: this._onKeyInput,
 				}),
 				// 当校验未通过时显示
 				keyValidateStatus === ValidateStatus.INVALID
 					? v('div', { classes: [c.invalid_tooltip], innerHTML: `${keyErrorMessage}` })
-					: null
+					: null,
 			]),
-			v('small', { classes: [c.form_text, c.text_muted] }, [`${pageKeyHelp}`])
+			v('small', { classes: [c.form_text, c.text_muted] }, [`${pageKeyHelp}`]),
 		]);
 	}
 
 	private _renderNameInput() {
 		const {
-			messages: { pageNameLabel, pageNameHelp, pageNamePlaceholder }
+			messages: { pageNameLabel, pageNameHelp, pageNamePlaceholder },
 		} = this._localizedMessages;
 
 		const { nameValidateStatus = ValidateStatus.UNVALIDATED, nameErrorMessage } = this.properties;
@@ -186,20 +186,20 @@ export default class NewPage extends ThemedMixin(I18nMixin(WidgetBase))<NewPageP
 					classes: inputClasses,
 					maxlength: 32,
 					placeholder: `${pageNamePlaceholder}`,
-					oninput: this._onNameInput
+					oninput: this._onNameInput,
 				}),
 				// 当校验未通过时显示
 				nameValidateStatus === ValidateStatus.INVALID
 					? v('div', { classes: [c.invalid_tooltip], innerHTML: `${nameErrorMessage}` })
-					: null
+					: null,
 			]),
-			v('small', { classes: [c.form_text, c.text_muted] }, [`${pageNameHelp}`])
+			v('small', { classes: [c.form_text, c.text_muted] }, [`${pageNameHelp}`]),
 		]);
 	}
 
 	private _renderAppTypeRadioGroup() {
 		const {
-			messages: { pageTypeLabel }
+			messages: { pageTypeLabel },
 		} = this._localizedMessages;
 
 		const { appTypes } = this.properties;
@@ -215,21 +215,21 @@ export default class NewPage extends ThemedMixin(I18nMixin(WidgetBase))<NewPageP
 							type: 'radio',
 							id: `appType${index}`,
 							checked: index === 0 ? true : false,
-							value: item.key
+							value: item.key,
 						}),
 						v('label', { classes: [c.form_check_label], for: `appType${index}` }, [
 							w(FontAwesomeIcon, { icon: item.icon.split(' ') as [IconPrefix, IconName] }),
-							` ${item.value}`
-						])
+							` ${item.value}`,
+						]),
 					]);
-				})
-			])
+				}),
+			]),
 		]);
 	}
 
 	private _renderDescriptionTextarea() {
 		const {
-			messages: { pageDescriptionLabel }
+			messages: { pageDescriptionLabel },
 		} = this._localizedMessages;
 
 		return v('div', { classes: [c.form_group] }, [
@@ -239,21 +239,21 @@ export default class NewPage extends ThemedMixin(I18nMixin(WidgetBase))<NewPageP
 				rows: 2,
 				id: 'description',
 				maxlength: 64,
-				oninput: this._onDescriptionInput
-			})
+				oninput: this._onDescriptionInput,
+			}),
 		]);
 	}
 
 	private _renderButtons() {
 		const {
-			messages: { pageSaveLabel, pageCancelSaveLabel }
+			messages: { pageSaveLabel, pageCancelSaveLabel },
 		} = this._localizedMessages;
 
 		const {
 			project,
 			parentGroups = [],
 			keyValidateStatus = ValidateStatus.UNVALIDATED,
-			nameValidateStatus = ValidateStatus.UNVALIDATED
+			nameValidateStatus = ValidateStatus.UNVALIDATED,
 		} = this.properties;
 		// name 默认可以为空，所以可以不用填写，即不走校验。
 		const disabled =
@@ -266,7 +266,7 @@ export default class NewPage extends ThemedMixin(I18nMixin(WidgetBase))<NewPageP
 					type: 'button',
 					classes: [c.btn, c.btn_primary],
 					disabled,
-					onclick: disabled ? undefined : this._onSavePage
+					onclick: disabled ? undefined : this._onSavePage,
 				},
 				[`${pageSaveLabel}`]
 			),
@@ -277,7 +277,7 @@ export default class NewPage extends ThemedMixin(I18nMixin(WidgetBase))<NewPageP
 						{
 							classes: [c.btn, c.btn_secondary],
 							to: 'view-project',
-							params: { owner: project.createUserName, project: project.name }
+							params: { owner: project.createUserName, project: project.name },
 						},
 						[`${pageCancelSaveLabel}`]
 				  )
@@ -289,11 +289,11 @@ export default class NewPage extends ThemedMixin(I18nMixin(WidgetBase))<NewPageP
 							params: {
 								owner: project.createUserName,
 								project: project.name,
-								parentPath: parentGroups[parentGroups.length - 1].path.substring(1)
-							}
+								parentPath: parentGroups[parentGroups.length - 1].path.substring(1),
+							},
 						},
 						[`${pageCancelSaveLabel}`]
-				  )
+				  ),
 		]);
 	}
 
@@ -301,7 +301,7 @@ export default class NewPage extends ThemedMixin(I18nMixin(WidgetBase))<NewPageP
 		const {
 			project: { createUserName, name },
 			parentId,
-			appType
+			appType,
 		} = this.properties;
 		this.properties.onKeyInput({ key, owner: createUserName, project: name, parentId, appType });
 	}
@@ -310,7 +310,7 @@ export default class NewPage extends ThemedMixin(I18nMixin(WidgetBase))<NewPageP
 		const {
 			project: { createUserName, name },
 			parentId,
-			appType
+			appType,
 		} = this.properties;
 		this.properties.onNameInput({ name: pageName, owner: createUserName, project: name, parentId, appType });
 	}
@@ -322,7 +322,7 @@ export default class NewPage extends ThemedMixin(I18nMixin(WidgetBase))<NewPageP
 	private _onSavePage() {
 		const {
 			project: { createUserName, name },
-			parentGroups
+			parentGroups,
 		} = this.properties;
 
 		let parentPath = '';

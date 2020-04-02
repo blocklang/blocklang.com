@@ -43,14 +43,14 @@ export default class ListComponentRepo extends ThemedMixin(I18nMixin(WidgetBase)
 			v('div', { classes: [c.d_flex, c.justify_content_end] }, [
 				this._isLogin()
 					? w(Link, { to: 'settings-marketplace', classes: [c.btn, c.btn_primary] }, [
-							`${messages.publishComponentLabel}`
+							`${messages.publishComponentLabel}`,
 					  ])
-					: undefined
+					: undefined,
 			]),
 			// 组件库列表
 			this._renderCompomentReposBlock(),
 			// 分页
-			this._renderPagination()
+			this._renderPagination(),
 		]);
 	}
 
@@ -72,14 +72,14 @@ export default class ListComponentRepo extends ThemedMixin(I18nMixin(WidgetBase)
 						classes: [c.form_control],
 						'aria-describedby': 'btnSearch',
 						placeholder: `${messages.componentSearchPlaceholder}`,
-						oninput: this._onInputQueryString
+						oninput: this._onInputQueryString,
 					}),
 					v('small', { classes: [c.form_text, c.text_muted] }, [
 						w(FontAwesomeIcon, { icon: 'lightbulb' }),
-						` ${messages.componentSearchHelp}`
-					])
-				])
-			])
+						` ${messages.componentSearchHelp}`,
+					]),
+				]),
+			]),
 		]);
 	}
 
@@ -111,19 +111,19 @@ export default class ListComponentRepo extends ThemedMixin(I18nMixin(WidgetBase)
 				v('ol', { classes: [c.text_left] }, [
 					v('li', [`${messages.noComponentTipLine1}`]),
 					v('li', [`${messages.noComponentTipLine2}`]),
-					v('li', [`${messages.noComponentTipLine3}`])
-				])
+					v('li', [`${messages.noComponentTipLine3}`]),
+				]),
 			]),
 			this._isLogin()
 				? w(
 						Link,
 						{
 							classes: [c.btn, c.btn_secondary, c.btn_sm],
-							to: 'settings-marketplace'
+							to: 'settings-marketplace',
 						},
 						[`${messages.publishComponentLabel}`]
 				  )
-				: undefined
+				: undefined,
 		]);
 	}
 
@@ -146,16 +146,16 @@ export default class ListComponentRepo extends ThemedMixin(I18nMixin(WidgetBase)
 						width: 20,
 						height: 20,
 						classes: [c.avatar, c.mr_1],
-						src: `${componentRepo.createUserAvatarUrl}`
+						src: `${componentRepo.createUserAvatarUrl}`,
 					}),
-					`${componentRepo.createUserName} / ${componentRepo.name}`
+					`${componentRepo.createUserName} / ${componentRepo.name}`,
 				]),
 				componentRepo.label ? v('span', { classes: [c.text_muted] }, [`${componentRepo.label}`]) : undefined,
 				componentRepo.isIdeExtension
 					? v('span', { classes: [c.badge, c.badge_info, c.ml_3], title: '与 BlockLang 设计器集成' }, [
-							'设计器扩展'
+							'设计器扩展',
 					  ])
-					: undefined
+					: undefined,
 			]),
 			v('p', { itemprop: 'description', classes: [c.text_muted, c.mb_0] }, [`${componentRepo.description}`]),
 			v('div', { classes: [c.my_2] }, [
@@ -167,12 +167,12 @@ export default class ListComponentRepo extends ThemedMixin(I18nMixin(WidgetBase)
 							target: '_blank',
 							href: `${apiRepo.gitRepoUrl}`,
 							title: '跳转到 API 仓库',
-							classes: [c.mr_1]
+							classes: [c.mr_1],
 						},
 						[`${apiRepo.gitRepoOwner}/${apiRepo.gitRepoName}`]
 					),
 					// 必须确保此版本号正是最新版组件库实现的 API 版本
-					v('span', {}, [`${apiRepo.version}`])
+					v('span', {}, [`${apiRepo.version}`]),
 				]),
 				' -> ',
 				v('span', { classes: [c.border, c.rounded, c.px_1] }, [
@@ -183,44 +183,44 @@ export default class ListComponentRepo extends ThemedMixin(I18nMixin(WidgetBase)
 							target: '_blank',
 							href: `${componentRepo.gitRepoUrl}`,
 							title: '跳转到组件仓库',
-							classes: [c.mr_1]
+							classes: [c.mr_1],
 						},
 						[`${componentRepo.gitRepoOwner}/${componentRepo.gitRepoName}`]
 					),
 					// 组件库的最新版本
-					v('span', {}, [`${componentRepo.version}`])
-				])
+					v('span', {}, [`${componentRepo.version}`]),
+				]),
 			]),
 			v('small', { classes: [c.text_muted] }, [
 				v('span', { classes: [c.mr_3] }, [
 					w(FontAwesomeIcon, {
 						icon: componentRepo.icon.split(' ') as [IconPrefix, IconName],
-						classes: [c.mr_1]
+						classes: [c.mr_1],
 					}),
-					`${componentRepo.title}`
+					`${componentRepo.title}`,
 				]),
 				v('span', { classes: [c.mr_3] }, [
 					v('span', {
 						classes: [css.repoLanguageColor, c.mr_1],
 						styles: {
-							backgroundColor: `${getProgramingLanguageColor(componentRepo.language)}`
-						}
+							backgroundColor: `${getProgramingLanguageColor(componentRepo.language)}`,
+						},
 					}),
 					v('span', { itemprop: 'programmingLanguage' }, [
-						`${getProgramingLanguageName(componentRepo.language)}`
-					])
+						`${getProgramingLanguageName(componentRepo.language)}`,
+					]),
 				]),
 				v('span', { classes: [c.mr_3] }, [`${getRepoCategoryName(componentRepo.category)}`]),
 				v('span', { classes: [c.mr_3], title: '使用次数' }, [
 					w(FontAwesomeIcon, { icon: 'cube', classes: [c.mr_1] }),
-					'0'
+					'0',
 				]),
 				v('span', {}, [
 					w(FontAwesomeIcon, { icon: 'clock', classes: [c.mr_1] }),
 					'最近发布 · ',
-					w(Moment, { datetime: componentRepo.lastPublishTime })
-				])
-			])
+					w(Moment, { datetime: componentRepo.lastPublishTime }),
+				]),
+			]),
 		]);
 	}
 
@@ -238,7 +238,7 @@ export default class ListComponentRepo extends ThemedMixin(I18nMixin(WidgetBase)
 			first,
 			last,
 			number,
-			size
+			size,
 		});
 	}
 }

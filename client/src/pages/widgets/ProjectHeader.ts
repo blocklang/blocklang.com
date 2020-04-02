@@ -20,7 +20,7 @@ export class ProjectHeaderBase<P extends ProjectHeaderProperties = ProjectHeader
 	protected render() {
 		const {
 			project: { name, isPublic, createUserName },
-			privateProjectTitle
+			privateProjectTitle,
 		} = this.properties;
 
 		return v('div', { classes: [c.mt_4, c.mb_3] }, [
@@ -33,17 +33,17 @@ export class ProjectHeaderBase<P extends ProjectHeaderProperties = ProjectHeader
 									icon: 'lock',
 									size: 'xs',
 									classes: [c.text_muted, c.mr_1],
-									title: `${privateProjectTitle}`
+									title: `${privateProjectTitle}`,
 							  }),
-						w(Link, { to: 'profile', params: { user: createUserName } }, [`${createUserName}`])
+						w(Link, { to: 'profile', params: { user: createUserName } }, [`${createUserName}`]),
 					]),
 					v('li', { classes: [c.breadcrumb_item, c.active] }, [
 						w(Link, { to: 'view-project', params: { owner: createUserName, project: name } }, [
-							v('strong', [`${name}`])
-						])
-					])
-				])
-			])
+							v('strong', [`${name}`]),
+						]),
+					]),
+				]),
+			]),
 		]);
 	}
 }

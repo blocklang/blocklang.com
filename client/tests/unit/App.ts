@@ -29,18 +29,27 @@ describe('App', () => {
 	it('home outlet renderer', () => {
 		const h = harness(() => w(App, {}));
 		const renderer = h.trigger('@home', 'renderer');
-		h.expect(() => w(HomeContainer, {}), () => renderer);
+		h.expect(
+			() => w(HomeContainer, {}),
+			() => renderer
+		);
 	});
 
 	it('about outlet renderer', () => {
 		const h = harness(() => w(App, {}));
 		const renderer = h.trigger('@about', 'renderer');
-		h.expect(() => w(About, {}), () => renderer);
+		h.expect(
+			() => w(About, {}),
+			() => renderer
+		);
 	});
 
 	it('profile outlet renderer', () => {
 		const h = harness(() => w(App, {}));
 		const renderer = h.trigger('@profile', 'renderer');
-		h.expect(() => w(Profile, { username: 'Dojo User' }), () => renderer);
+		h.expect(
+			() => w(Profile, { username: 'Dojo User' }),
+			() => renderer
+		);
 	});
 });

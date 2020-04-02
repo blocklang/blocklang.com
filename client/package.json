@@ -9,7 +9,7 @@
     "test:unit": "dojo build --mode unit && dojo test --unit --config local",
     "test:functional": "dojo build --mode functional && dojo test --functional --config local",
     "test:all": "dojo build --mode unit && dojo build --mode functional && dojo test --all --config local",
-    "prettier": "prettier --write 'src/**/*.{ts,tsx}' 'src/**/*.css' 'tests/**/*.{ts,tsx}'"
+    "prettier": "prettier --write \"{src,tests}/**/*.{ts,tsx,css}\""
   },
   "dependencies": {
     "@commitlint/cli": "^8.3.5",

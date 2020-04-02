@@ -58,7 +58,7 @@ export default class ViewProjectGroup extends ThemedMixin(I18nMixin(WidgetBase))
 			this._renderHeader(),
 			this._renderNavigation(),
 			this._renderTable(),
-			this._renderNoResourceAlert()
+			this._renderNoResourceAlert(),
 		]);
 	}
 
@@ -74,7 +74,7 @@ export default class ViewProjectGroup extends ThemedMixin(I18nMixin(WidgetBase))
 
 	private _renderHeader() {
 		const {
-			messages: { privateProjectTitle }
+			messages: { privateProjectTitle },
 		} = this._localizedMessages;
 		const { project } = this.properties;
 
@@ -86,7 +86,7 @@ export default class ViewProjectGroup extends ThemedMixin(I18nMixin(WidgetBase))
 
 		return v('div', { classes: [c.d_flex, c.justify_content_between, c.mb_2] }, [
 			v('div', {}, [w(ProjectResourceBreadcrumb, { project, pathes: groups, onOpenGroup })]),
-			v('div', { classes: [] }, [this._renderNewResourceButtonGroup()])
+			v('div', { classes: [] }, [this._renderNewResourceButtonGroup()]),
 		]);
 	}
 
@@ -105,7 +105,7 @@ export default class ViewProjectGroup extends ThemedMixin(I18nMixin(WidgetBase))
 					onClick: (event: MouseEvent) => {
 						console.log(event);
 					},
-					disabled
+					disabled,
 				},
 				[`${messages.newPage}`]
 			),
@@ -118,10 +118,10 @@ export default class ViewProjectGroup extends ThemedMixin(I18nMixin(WidgetBase))
 					onClick: (event: MouseEvent) => {
 						console.log(event);
 					},
-					disabled
+					disabled,
 				},
 				[`${messages.newGroup}`]
-			)
+			),
 		]);
 	}
 
@@ -130,7 +130,7 @@ export default class ViewProjectGroup extends ThemedMixin(I18nMixin(WidgetBase))
 
 		return v('div', { classes: [c.card, !latestCommitInfo ? c.border_top_0 : undefined] }, [
 			w(LatestCommitInfo, { latestCommitInfo }), // 最近提交信息区
-			this._renderResources()
+			this._renderResources(),
 		]);
 	}
 
@@ -139,7 +139,7 @@ export default class ViewProjectGroup extends ThemedMixin(I18nMixin(WidgetBase))
 
 		return childResources
 			? v('table', { classes: [c.table, c.table_hover, c.mb_0] }, [
-					v('tbody', [this._renderBackTr(), ...childResources.map((resource) => this._renderTr(resource))])
+					v('tbody', [this._renderBackTr(), ...childResources.map((resource) => this._renderTr(resource))]),
 			  ])
 			: w(Spinner, {});
 	}
@@ -154,8 +154,8 @@ export default class ViewProjectGroup extends ThemedMixin(I18nMixin(WidgetBase))
 		return v('tr', [
 			v('td', { classes: [css.icon] }, []),
 			v('td', { colspan: '4', classes: [c.pl_1] }, [
-				w(GoToParentGroupLink, { project, parentGroups: groups, onGoToGroup: this._onGoToGroup })
-			])
+				w(GoToParentGroupLink, { project, parentGroups: groups, onGoToGroup: this._onGoToGroup }),
+			]),
 		]);
 	}
 
@@ -176,7 +176,7 @@ export default class ViewProjectGroup extends ThemedMixin(I18nMixin(WidgetBase))
 		const { childResources } = this.properties;
 		if (childResources.length === 0) {
 			return v('div', { classes: [c.alert, c.alert_info, c.text_center, c.mt_3], role: 'alert' }, [
-				'此分组下无内容'
+				'此分组下无内容',
 			]);
 		}
 	}
@@ -254,8 +254,8 @@ class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResou
 			v('td', { classes: [css.icon] }, [
 				w(FontAwesomeIcon, {
 					icon: projectResource.icon.split(' ') as [IconPrefix, IconName],
-					title: projectResource.title
-				})
+					title: projectResource.title,
+				}),
 			]),
 			// 资源名称
 			v('td', { classes: [css.content, c.px_1] }, [
@@ -268,12 +268,12 @@ class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResou
 									href: `/${project.createUserName}/${project.name}/groups/${fullPath}`,
 									title,
 									// 因为 dojo 5.0 的 route 不支持通配符，这里尝试实现类似效果
-									onclick: this._onOpenGroup
+									onclick: this._onOpenGroup,
 								},
 								[`${projectResource.name}`]
 						  )
-						: w(Link, { to, params, title, classes: [statusColor] }, [`${projectResource.name}`])
-				])
+						: w(Link, { to, params, title, classes: [statusColor] }, [`${projectResource.name}`]),
+				]),
 			]),
 			v('td', { classes: [css.status, statusColor], title: `${statusTooltip}` }, [`${statusLetter}`]),
 			// 最近提交信息
@@ -281,20 +281,20 @@ class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResou
 				showCommitInfo
 					? v('span', { classes: [css.truncate] }, [
 							v('a', { title: `${projectResource.latestFullMessage}` }, [
-								`${projectResource.latestShortMessage}`
-							])
+								`${projectResource.latestShortMessage}`,
+							]),
 					  ])
-					: undefined
+					: undefined,
 			]),
 			// 最近提交时间
 			v('td', { classes: [css.age, c.text_muted] }, [
 				// 使用 moment.js 进行格式化
 				showCommitInfo
 					? v('span', { classes: [css.truncate] }, [
-							w(Moment, { datetime: `${projectResource.latestCommitTime}` })
+							w(Moment, { datetime: `${projectResource.latestCommitTime}` }),
 					  ])
-					: undefined
-			])
+					: undefined,
+			]),
 		]);
 	}
 

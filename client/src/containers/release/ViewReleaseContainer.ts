@@ -8,11 +8,11 @@ function getProperties(store: Store<State>): ViewReleaseProperties {
 
 	return {
 		project: get(path('project')),
-		projectRelease: get(path('projectRelease'))
+		projectRelease: get(path('projectRelease')),
 	};
 }
 
 export default StoreContainer(ViewRelease, 'state', {
 	paths: [['project'], ['projectRelease']],
-	getProperties
+	getProperties,
 });

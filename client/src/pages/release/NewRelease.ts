@@ -49,8 +49,8 @@ export default class NewRelease extends ThemedMixin(I18nMixin(WidgetBase))<NewRe
 			this._renderHeader(),
 			v('div', { classes: [c.container], styles: { maxWidth: '700px' } }, [
 				this._renderNavigate(),
-				this._renderReleaseForm()
-			])
+				this._renderReleaseForm(),
+			]),
 		]);
 	}
 
@@ -61,7 +61,7 @@ export default class NewRelease extends ThemedMixin(I18nMixin(WidgetBase))<NewRe
 
 	private _renderHeader() {
 		const {
-			messages: { privateProjectTitle }
+			messages: { privateProjectTitle },
 		} = this._localizedMessages;
 		const { project } = this.properties;
 
@@ -70,17 +70,17 @@ export default class NewRelease extends ThemedMixin(I18nMixin(WidgetBase))<NewRe
 
 	private _renderNavigate() {
 		const {
-			messages: { releaseText }
+			messages: { releaseText },
 		} = this._localizedMessages;
 		const {
-			project: { createUserName, name }
+			project: { createUserName, name },
 		} = this.properties;
 		return v('div', { classes: [c.pb_4, c.mb_4, c.border_bottom] }, [
 			w(
 				Link,
 				{ classes: [c.btn, c.btn_info], to: 'list-release', params: { owner: createUserName, project: name } },
 				[`${releaseText}`]
-			)
+			),
 		]);
 	}
 
@@ -93,8 +93,8 @@ export default class NewRelease extends ThemedMixin(I18nMixin(WidgetBase))<NewRe
 				v('hr'),
 				this._renderJdkSelect(),
 				v('hr'),
-				this._renderSaveButton()
-			])
+				this._renderSaveButton(),
+			]),
 		]);
 	}
 
@@ -116,11 +116,11 @@ export default class NewRelease extends ThemedMixin(I18nMixin(WidgetBase))<NewRe
 					maxlength: '32',
 					required: true,
 					placeholder: '版本号，如 0.1.0',
-					oninput: this._onVersionInput
+					oninput: this._onVersionInput,
 				}),
 				versionValidateStatus === ValidateStatus.INVALID
 					? v('div', { classes: [c.invalid_tooltip], innerHTML: `${versionErrorMessage}` })
-					: null
+					: null,
 			]),
 			v('small', { classes: [c.form_text, c.text_muted] }, [
 				'请使用',
@@ -128,8 +128,8 @@ export default class NewRelease extends ThemedMixin(I18nMixin(WidgetBase))<NewRe
 				'。如用于生产环境为',
 				v('strong', { classes: [c.text_info] }, ['0.1.0']),
 				'，非生产环境为',
-				v('strong', { classes: [c.text_info] }, ['0.1.0-alpha'])
-			])
+				v('strong', { classes: [c.text_info] }, ['0.1.0-alpha']),
+			]),
 		]);
 	}
 
@@ -142,13 +142,13 @@ export default class NewRelease extends ThemedMixin(I18nMixin(WidgetBase))<NewRe
 				{
 					classes: [c.form_control],
 					id: 'selJdk',
-					onchange: this._onJdkSelect
+					onchange: this._onJdkSelect,
 				},
 				jdks.map((jdkInfo) => {
 					return v('option', { id: `${jdkInfo.id}` }, [`${jdkInfo.name} ${jdkInfo.version}`]);
 				})
 			),
-			v('small', { classes: [c.form_text, c.text_muted] }, [`发布的项目运行在 JDK 上，建议选择最新版 JDK`])
+			v('small', { classes: [c.form_text, c.text_muted] }, [`发布的项目运行在 JDK 上，建议选择最新版 JDK`]),
 		]);
 	}
 
@@ -160,13 +160,13 @@ export default class NewRelease extends ThemedMixin(I18nMixin(WidgetBase))<NewRe
 			inputClasses.push(c.is_invalid);
 		}
 		const {
-			messages: { requiredLabel, releaseTitle }
+			messages: { requiredLabel, releaseTitle },
 		} = this._localizedMessages;
 
 		return v('div', { classes: [c.form_group, c.position_relative] }, [
 			v('label', { for: 'txtTitle' }, [
 				`${releaseTitle}`,
-				v('small', { classes: [c.text_muted] }, [` ${requiredLabel}`])
+				v('small', { classes: [c.text_muted] }, [` ${requiredLabel}`]),
 			]),
 			v('input', {
 				type: 'text',
@@ -174,17 +174,17 @@ export default class NewRelease extends ThemedMixin(I18nMixin(WidgetBase))<NewRe
 				id: 'txtTitle',
 				required: true,
 				classes: inputClasses,
-				oninput: this._onTitleInput
+				oninput: this._onTitleInput,
 			}),
 			titleValidateStatus === ValidateStatus.INVALID
 				? v('div', { classes: [c.invalid_tooltip], innerHTML: `${titleErrorMessage}` })
-				: null
+				: null,
 		]);
 	}
 
 	private _renderDescriptionTextarea() {
 		const {
-			messages: { releaseDescription }
+			messages: { releaseDescription },
 		} = this._localizedMessages;
 
 		return v('div', { classes: [c.form_group] }, [
@@ -193,19 +193,19 @@ export default class NewRelease extends ThemedMixin(I18nMixin(WidgetBase))<NewRe
 				classes: [c.form_control],
 				id: 'txtDescription',
 				rows: '5',
-				oninput: this._onDescriptionInput
-			})
+				oninput: this._onDescriptionInput,
+			}),
 		]);
 	}
 
 	private _renderSaveButton() {
 		const {
-			messages: { releaseLabel }
+			messages: { releaseLabel },
 		} = this._localizedMessages;
 
 		const {
 			versionValidateStatus = ValidateStatus.UNVALIDATED,
-			titleValidateStatus = ValidateStatus.UNVALIDATED
+			titleValidateStatus = ValidateStatus.UNVALIDATED,
 		} = this.properties;
 		const disabled =
 			versionValidateStatus === ValidateStatus.VALID && titleValidateStatus === ValidateStatus.VALID
@@ -218,7 +218,7 @@ export default class NewRelease extends ThemedMixin(I18nMixin(WidgetBase))<NewRe
 				type: 'button',
 				classes: [c.btn, c.btn_primary],
 				disabled,
-				onclick: disabled ? undefined : this._onSaveReleaseTask
+				onclick: disabled ? undefined : this._onSaveReleaseTask,
 			},
 			[`${releaseLabel}`]
 		);
@@ -226,7 +226,7 @@ export default class NewRelease extends ThemedMixin(I18nMixin(WidgetBase))<NewRe
 
 	private _onVersionInput({ target: { value: version } }: WithTarget) {
 		const {
-			project: { createUserName, name }
+			project: { createUserName, name },
 		} = this.properties;
 		this.properties.onVersionInput({ version, owner: createUserName, project: name });
 	}
@@ -246,7 +246,7 @@ export default class NewRelease extends ThemedMixin(I18nMixin(WidgetBase))<NewRe
 	private _onSaveReleaseTask() {
 		const {
 			project: { createUserName, name },
-			version
+			version,
 		} = this.properties;
 		this.properties.onSaveReleaseTask({ owner: createUserName, project: name, version });
 	}

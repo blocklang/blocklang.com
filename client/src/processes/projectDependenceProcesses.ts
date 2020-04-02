@@ -10,14 +10,14 @@ const startInitForViewProjectDependenceCommand = commandFactory(({ path }) => {
 	return [
 		replace(path('projectResource'), undefined),
 		replace(path('pagedComponentRepoInfos'), undefined),
-		replace(path('projectDependenceResource'), undefined)
+		replace(path('projectDependenceResource'), undefined),
 	];
 });
 
 export const getProjectDependenceResourceCommand = commandFactory(
 	async ({ path, payload: { owner, project, parentPath = '' } }) => {
 		const response = await fetch(`${baseUrl}/projects/${owner}/${project}/dependence`, {
-			headers: getHeaders()
+			headers: getHeaders(),
 		});
 		const json = await response.json();
 		if (!response.ok) {
@@ -25,7 +25,7 @@ export const getProjectDependenceResourceCommand = commandFactory(
 		}
 		return [
 			replace(path('projectDependenceResource'), json),
-			replace(path('projectResource', 'id'), json.resourceId)
+			replace(path('projectResource', 'id'), json.resourceId),
 		];
 	}
 );
@@ -35,19 +35,19 @@ const getComponentReposCommand = commandFactory(async ({ path, payload: { query 
 	if (query.trim() === '') {
 		return [
 			replace(path('pagedComponentRepoInfos'), undefined),
-			replace(path('marketplacePageStatusCode'), undefined)
+			replace(path('marketplacePageStatusCode'), undefined),
 		];
 	}
 
 	// page 是从 0 开始的
 	const response = await fetch(`${baseUrl}/component-repos?q=${query}&page=${page}`, {
-		headers: getHeaders()
+		headers: getHeaders(),
 	});
 	const json = await response.json();
 	if (!response.ok) {
 		return [
 			replace(path('pagedComponentRepoInfos'), undefined),
-			replace(path('marketplacePageStatusCode'), response.status)
+			replace(path('marketplacePageStatusCode'), response.status),
 		];
 	}
 
@@ -60,8 +60,8 @@ const addDependenceCommand = commandFactory<ProjectDependenceWithProjectPathPayl
 			method: 'POST',
 			headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
 			body: JSON.stringify({
-				componentRepoId
-			})
+				componentRepoId,
+			}),
 		});
 
 		const json = await response.json();
@@ -78,7 +78,7 @@ const deleteDependenceCommand = commandFactory<ProjectDependenceIdPayload>(
 	async ({ at, get, path, payload: { owner, project, id: dependenceId } }) => {
 		const response = await fetch(`${baseUrl}/projects/${owner}/${project}/dependences/${dependenceId}`, {
 			method: 'DELETE',
-			headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' }
+			headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
 		});
 
 		if (response.ok) {
@@ -94,7 +94,7 @@ const deleteDependenceCommand = commandFactory<ProjectDependenceIdPayload>(
 
 const getProjectDependencesCommand = commandFactory(async ({ path, payload: { owner, project } }) => {
 	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/dependences`, {
-		headers: getHeaders()
+		headers: getHeaders(),
 	});
 	const json = await response.json();
 	if (!response.ok) {
@@ -107,7 +107,7 @@ const getProjectDependencesCommand = commandFactory(async ({ path, payload: { ow
 const getDependenceVersionsCommand = commandFactory(
 	async ({ at, get, path, payload: { dependenceId, componentRepoId } }) => {
 		const response = await fetch(`${baseUrl}/component-repos/${componentRepoId}/versions`, {
-			headers: getHeaders()
+			headers: getHeaders(),
 		});
 		const json = await response.json();
 
@@ -121,8 +121,8 @@ const getDependenceVersionsCommand = commandFactory(
 				replace(dependencePath, {
 					...dependences[index],
 					componentRepoVersions: [],
-					loadVersionsErrorMessage: '获取数据出错，请稍后再试'
-				})
+					loadVersionsErrorMessage: '获取数据出错，请稍后再试',
+				}),
 			];
 		}
 
@@ -130,8 +130,8 @@ const getDependenceVersionsCommand = commandFactory(
 			replace(dependencePath, {
 				...dependences[index],
 				componentRepoVersions: json,
-				loadVersionsErrorMessage: undefined
-			})
+				loadVersionsErrorMessage: undefined,
+			}),
 		];
 	}
 );
@@ -142,8 +142,8 @@ const updateDependenceVersionCommand = commandFactory(
 			method: 'PUT',
 			headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
 			body: JSON.stringify({
-				componentRepoVersionId
-			})
+				componentRepoVersionId,
+			}),
 		});
 
 		const json = await response.json();
@@ -163,14 +163,14 @@ const updateDependenceVersionCommand = commandFactory(
 export const initForViewProjectDependenceProcess = createProcess('init-for-view-project-dependence', [
 	startInitForViewProjectDependenceCommand,
 	[getProjectCommand, getProjectDependenceResourceCommand, getProjectDependencesCommand],
-	getLatestCommitInfoCommand
+	getLatestCommitInfoCommand,
 ]);
 export const queryComponentReposForProjectProcess = createProcess('query-component-repos-for-project', [
-	getComponentReposCommand
+	getComponentReposCommand,
 ]);
 export const addDependenceProcess = createProcess('add-dependence', [addDependenceCommand]);
 export const deleteDependenceProcess = createProcess('delete-dependence', [deleteDependenceCommand]);
 export const showDependenceVersionsProcess = createProcess('show-dependence-versions', [getDependenceVersionsCommand]);
 export const updateDependenceVersionProcess = createProcess('updateDependenceVersion', [
-	updateDependenceVersionCommand
+	updateDependenceVersionCommand,
 ]);

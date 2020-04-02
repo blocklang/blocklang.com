@@ -2,7 +2,7 @@ import Store from '@dojo/framework/stores/Store';
 import { State } from '../../../interfaces';
 import { StoreContainer } from '@dojo/framework/stores/StoreInjector';
 import ViewComponentRepoPublishTask, {
-	ViewComponentRepoPublishTaskProperties
+	ViewComponentRepoPublishTaskProperties,
 } from '../../../pages/user/settings/ViewComponentRepoPublishTask';
 
 function getProperties(store: Store<State>): ViewComponentRepoPublishTaskProperties {
@@ -10,11 +10,11 @@ function getProperties(store: Store<State>): ViewComponentRepoPublishTaskPropert
 
 	return {
 		loggedUsername: get(path('user', 'loginName')),
-		publishTask: get(path('componentRepoPublishTask'))
+		publishTask: get(path('componentRepoPublishTask')),
 	};
 }
 
 export default StoreContainer(ViewComponentRepoPublishTask, 'state', {
 	paths: [['user'], ['componentRepoPublishTask']],
-	getProperties
+	getProperties,
 });

@@ -11,5 +11,5 @@ function getProperties(store: Store<State>): ViewProjectTempletProperties {
 
 export default StoreContainer(ViewProjectTemplet, 'state', {
 	paths: [],
-	getProperties
+	getProperties,
 });

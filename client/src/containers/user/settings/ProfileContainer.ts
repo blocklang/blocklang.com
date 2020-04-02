@@ -9,7 +9,7 @@ import {
 	locationInputProcess,
 	bioInputProcess,
 	updateUserProfileProcess,
-	closeSuccessAlertProcess
+	closeSuccessAlertProcess,
 } from '../../../processes/userProcesses';
 
 function getProperties(store: Store<State>): ProfileProperties {
@@ -25,11 +25,11 @@ function getProperties(store: Store<State>): ProfileProperties {
 		onLocationInput: locationInputProcess(store),
 		onBioInput: bioInputProcess(store),
 		onUpdateProfile: updateUserProfileProcess(store),
-		onCloseSuccessAlert: closeSuccessAlertProcess(store)
+		onCloseSuccessAlert: closeSuccessAlertProcess(store),
 	};
 }
 
 export default StoreContainer(Profile, 'state', {
 	paths: [['user'], ['profile'], ['profileUpdateSuccessMessage']],
-	getProperties
+	getProperties,
 });

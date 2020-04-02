@@ -23,7 +23,7 @@ export const ThemedBase = ThemedMixin(WidgetBase);
  */
 
 @customElement<MomentProperties>({
-	tag: 'bl-moment'
+	tag: 'bl-moment',
 })
 @theme(css)
 export class MomentBase<P extends MomentProperties = MomentProperties> extends ThemedBase<P> {

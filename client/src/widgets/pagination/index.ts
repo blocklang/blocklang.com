@@ -30,7 +30,7 @@ export default class Pagination extends ThemedMixin(I18nMixin(WidgetBase))<Pagin
 			v(
 				'ul',
 				{
-					classes: [c.pagination, c.justify_content_center]
+					classes: [c.pagination, c.justify_content_center],
 				},
 				[
 					v('li', { classes: [c.page_item, first ? c.disabled : undefined] }, [
@@ -41,10 +41,10 @@ export default class Pagination extends ThemedMixin(I18nMixin(WidgetBase))<Pagin
 									{
 										classes: [c.page_link],
 										to: 'marketplace',
-										params: { page: `${number - 1}` }
+										params: { page: `${number - 1}` },
 									},
 									['上一页']
-							  )
+							  ),
 					]),
 					v('li', { classes: [c.page_item, last ? c.disabled : undefined] }, [
 						last
@@ -54,13 +54,13 @@ export default class Pagination extends ThemedMixin(I18nMixin(WidgetBase))<Pagin
 									{
 										classes: [c.page_link],
 										to: 'marketplace',
-										params: { page: `${number + 1}` }
+										params: { page: `${number + 1}` },
 									},
 									['下一页']
-							  )
-					])
+							  ),
+					]),
 				]
-			)
+			),
 		]);
 	}
 }
