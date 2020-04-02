@@ -10,6 +10,8 @@
 1. 输入型端口
 2. 输出型端口
 
+页面中显示的引用自组件或部件中的文本，要支持组件版本升级。
+
 ## 字段
 
 | 字段名                    | 注释                     | 类型    | 长度 | 默认值 | 主键 | 可空 |
@@ -19,10 +21,7 @@
 | port_type                 | 端口类型                 | varchar | 32   |        |      | 否   |
 | flow_type                 | 数据流方向               | varchar | 32   |        |      | 否   |
 | output_sequence_port_text | 输出型序列端口的显示文本 | varchar | 64   |        |      | 是   |
-| data_port_name            | 数据端口上的显示文本     | varchar | 64   |        |      | 是   |
-| data_port_value_type      | 数据端口上的值类型       | varchar | 64   |        |      | 是   |
 | input_data_port_value     | 输入型数据端口上的默认值 | varchar | 64   |        |      | 是   |
-
 | bind_source               | 节点绑定的数据源         | varchar | 16   |        |      | 否   |
 | api_repo_id               | API 仓库标识             | int     |      |        |      | 是   |
 | code                      | 组件编码                 | varchar | 32   |        |      | 否   |
@@ -38,4 +37,6 @@
 1. 注意，本表中不包含 4 个辅助字段
 2. `port_type` 的值为：`sequence` 表示序列端口，`data` 表示数据端口
 3. `flow_type` 的值为：`output` 表示输出型端口，`input` 表示输入型端口
-4. `data_port_name` 和 `data_port_value_type` 的值不在本表存储，而是通过 `bind_source`、`api_repo_id` 和 `code` 推导
+4. `output_sequence_port_text` 只用于当 `port_type` 的值为 `sequence`，`flow_type` 的值为 `output` 时，所以在字段名上显式标识出来
+5. `port_type` 的值为 `sequence` 时，`bind_source`、`api_repo_id` 和 `code` 的值为空；
+6. `data_port_name`（数据端口上的显示文本）和 `data_port_value_type`（数据端口上的值类型）的值不在本表存储，而是通过 `bind_source`、`api_repo_id` 和 `code` 推导；如果是设置或获取变量，则根据变量的类型和名称推导
