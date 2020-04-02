@@ -84,9 +84,10 @@ public class PropertyServiceImplTest extends AbstractServiceTest{
 		property.setValid(true);
 		property.setDataType(DataType.STRING);
 		property.setParentId(null); // 不能设置为 null
+		propertyDao.save(property);
 		// 如果使用 save 则不会做真正的保存，所以不会抛异常
 		// 这里需要立即生效，所以加上 flush 操作
-		Assertions.assertThrows(DataIntegrityViolationException.class, () -> propertyDao.saveAndFlush(property));
+		Assertions.assertThrows(DataIntegrityViolationException.class, () -> propertyDao.flush());
 	}
 	
 	@Test
