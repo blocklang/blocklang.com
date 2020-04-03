@@ -20,10 +20,10 @@
 			<column name="top" remarks="相对于设计器左上角的 y 坐标" type="int">
 				<constraints nullable="false" />
 			</column>
-			<column name="category" remarks="节点类型" type="varchar(16)">
+			<column name="layout" remarks="节点布局" type="varchar(16)">
 				<constraints nullable="false" />
 			</column>
-			<column name="function_type" remarks="定义或调用的函数类型" type="varchar(16)">
+			<column name="category" remarks="定义或调用的函数分类" type="varchar(16)">
 				<constraints nullable="false" />
 			</column>
 			<column name="bind_source" remarks="节点绑定的数据源" type="varchar(16)" />
