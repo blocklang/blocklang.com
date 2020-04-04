@@ -3,6 +3,7 @@ package com.blocklang.develop.service.impl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
+import static org.assertj.core.data.Index.atIndex;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -39,6 +40,7 @@ import com.blocklang.develop.data.UncommittedFile;
 import com.blocklang.develop.designer.data.AttachedWidget;
 import com.blocklang.develop.designer.data.AttachedWidgetProperty;
 import com.blocklang.develop.designer.data.PageModel;
+import com.blocklang.develop.model.PageDataItem;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectCommit;
 import com.blocklang.develop.model.ProjectContext;
@@ -1162,7 +1164,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 
 		projectResourceService.updatePageModel(null, null, model);
 		
-		PageModel savedModel = projectResourceService.getPageModel(pageId, projectId);
+		PageModel savedModel = projectResourceService.getPageModel(projectId, pageId);
 		
 		assertThat(savedModel).usingRecursiveComparison().isEqualTo(model);
 	}
@@ -1265,7 +1267,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		projectResourceService.updatePageModel(null, null, model); // 第一次执行
 		projectResourceService.updatePageModel(null, null, model); // 第二次执行
 		
-		PageModel savedModel = projectResourceService.getPageModel(pageId, projectId);
+		PageModel savedModel = projectResourceService.getPageModel(projectId, pageId);
 		
 		assertThat(savedModel).usingRecursiveComparison().isEqualTo(model);
 	}
@@ -1361,7 +1363,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		
 		projectResourceService.updatePageModel(null, null, model);
 		
-		PageModel result = projectResourceService.getPageModel(pageId, projectId);
+		PageModel result = projectResourceService.getPageModel(projectId, pageId);
 		
 		assertThat(result.getWidgets().get(0).getProperties()).hasSize(1);
 		
@@ -1533,4 +1535,50 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		String mainPageJsonString = Files.readString(context.getGitRepositoryDirectory().resolve(pageKey + ".page.web.json"));
 		assertThat(mapper.readValue(mainPageJsonString, PageModel.class)).usingRecursiveComparison().isEqualTo(model);
 	}
+
+	@Test
+	public void update_page_model_data_new() {
+		Integer projectId = 1;
+		Integer pageId = 2;
+		PageModel model = new PageModel();
+		model.setPageId(pageId);
+		
+		PageDataItem item1 = new PageDataItem();
+		item1.setPageId(pageId);
+		item1.setId("1");
+		item1.setParentId(Constant.TREE_ROOT_ID.toString());
+		item1.setName("root");
+		item1.setType("Object");
+		
+		PageDataItem item2 = new PageDataItem();
+		item2.setPageId(pageId);
+		item2.setId("2");
+		item2.setParentId("1");
+		item2.setName("foo");
+		item2.setType("String");
+		item2.setValue("bar");
+		
+		model.setData(Arrays.asList(item1, item2));
+		
+		projectResourceService.updatePageModel(null, null, model);
+		
+		PageModel savedModel = projectResourceService.getPageModel(projectId, pageId);
+		assertThat(savedModel.getData())
+			.hasSize(2)
+			.usingFieldByFieldElementComparator()
+			.contains(item1, atIndex(0))
+			.contains(item2, atIndex(1));
+	}
+
+	@Test
+	public void getPageModel_empty_page() {
+		Integer projectId = 1;
+		Integer pageId = 2;
+		
+		PageModel savedModel = projectResourceService.getPageModel(projectId, pageId);
+		assertThat(savedModel.getWidgets()).isEmpty();
+		assertThat(savedModel.getData()).isEmpty();
+		assertThat(savedModel.getFunctions()).isEmpty();
+	}
+	
 }

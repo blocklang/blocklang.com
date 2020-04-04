@@ -45,6 +45,7 @@ import com.blocklang.develop.data.UncommittedFile;
 import com.blocklang.develop.designer.data.ApiRepoVersionInfo;
 import com.blocklang.develop.designer.data.AttachedWidget;
 import com.blocklang.develop.designer.data.AttachedWidgetProperty;
+import com.blocklang.develop.designer.data.PageFunction;
 import com.blocklang.develop.designer.data.PageModel;
 import com.blocklang.develop.model.PageDataItem;
 import com.blocklang.develop.model.PageWidget;
@@ -614,14 +615,27 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 		
 		model.setPageId(pageId);
 		
+		List<AttachedWidget> widgets = getPageWidgets(projectId, pageId);
+		model.setWidgets(widgets);
+		model.setData(getPageData(pageId));
+		
+		// 因为事件处理函数是与部件上的事件绑定的，所以这里加一层判断
+		List<PageFunction> functions = widgets.size() == 0 ? Collections.emptyList() : getPageFunctions(pageId);
+		model.setFunctions(functions);
+		
+		return model;
+	}
+
+	private List<AttachedWidget> getPageWidgets(Integer projectId, Integer pageId) {
 		List<PageWidget> pageWidgets = pageWidgetDao.findAllByPageIdOrderBySeq(pageId);
 		
 		if(pageWidgets.isEmpty()) {
-			model.setWidgets(Collections.emptyList());
-			return model;
+			return Collections.emptyList();
 		}
 		
 		Map<Integer, List<ApiComponent>> cachedAndGroupedWidgets = new HashMap<>();
+		// 以下逻辑是用来支持版本升级的
+		
 		// 如果页面模型中存在部件，则获取项目依赖的所有部件列表
 		// 然后根据这个列表来匹配
 		projectDependenceService
@@ -654,7 +668,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 				cachedAndGroupedWidgets.put(apiVersionInfo.getApiRepoId(), widgets);
 			});
 		
-		List<AttachedWidget> convertedWidgets = pageWidgets.stream().map(item -> {
+		return pageWidgets.stream().map(item -> {
 			AttachedWidget result = new AttachedWidget();
 			result.setId(item.getId());
 			result.setParentId(item.getParentId());
@@ -711,13 +725,16 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 							.collect(Collectors.toList());
 					result.setProperties(properties); 
 				});
-			
 			return result;
 		}).collect(Collectors.toList());
-		
-		model.setPageId(pageId);
-		model.setWidgets(convertedWidgets);
-		return model;
+	}
+	
+	private List<PageDataItem> getPageData(Integer pageId) {
+		return Collections.emptyList();
+	}
+	
+	private List<PageFunction> getPageFunctions(Integer pageId) {
+		return Collections.emptyList();
 	}
 	
 	@Override
