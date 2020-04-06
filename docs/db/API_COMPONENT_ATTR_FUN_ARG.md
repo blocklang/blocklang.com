@@ -16,6 +16,7 @@
 | value_type            | 参数的值类型       | varchar | 32   |        |      | 否   |
 | default_value         | 参数的默认值       | varchar | 32   |        |      | 是   |
 | description           | 参数描述           | varchar | 512  |        |      | 是   |
+| seq                   | 参数顺序           | int     |      |        |      | 否   |
 
 ## 约束
 
@@ -28,3 +29,5 @@
 1. 不需要四个常规字段，取 `API_COMPONENT` 中的值
 2. 不同版本的同一个部件的同一个函数的同一个参数值，则 `code` 的值必须相同
 3. `CODE` 的值从 `0001` 开始，到 `9999` 结束
+4. `value_type` 的值为：`number(数字)`，`string(字符串)`，`boolean(布尔类型)`
+5. `seq` 参数的显示顺序，每个函数都是从 1 开始计数
