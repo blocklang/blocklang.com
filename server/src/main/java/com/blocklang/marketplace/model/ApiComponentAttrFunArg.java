@@ -41,6 +41,9 @@ public class ApiComponentAttrFunArg extends PartialIdField{
 	
 	@Column(name = "description", length = 512)
 	private String description;
+	
+	@Column(name = "seq", nullable = false)
+	private Integer seq;
 
 	public Integer getApiComponentAttrId() {
 		return apiComponentAttrId;
@@ -96,6 +99,14 @@ public class ApiComponentAttrFunArg extends PartialIdField{
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public Integer getSeq() {
+		return seq;
+	}
+
+	public void setSeq(Integer seq) {
+		this.seq = seq;
 	}
 
 }

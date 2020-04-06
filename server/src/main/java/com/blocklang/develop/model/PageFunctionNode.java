@@ -24,6 +24,17 @@ public class PageFunctionNode implements Serializable{
 	@Id
 	@Column(name = "dbid", length = 32, updatable = false)
 	private String id;
+	
+	@Column(name = "project_resource_id", nullable = false)
+	private Integer projectResourceId;
+
+	public Integer getProjectResourceId() {
+		return projectResourceId;
+	}
+
+	public void setProjectResourceId(Integer projectResourceId) {
+		this.projectResourceId = projectResourceId;
+	}
 
 	@Column(name = "page_func_id", length=32, nullable = false)
 	private String functionId;

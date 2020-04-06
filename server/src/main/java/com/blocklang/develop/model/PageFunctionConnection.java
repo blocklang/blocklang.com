@@ -17,6 +17,9 @@ public class PageFunctionConnection implements Serializable{
 	@Column(name = "dbid", length = 32, updatable = false)
 	private String id;
 	
+	@Column(name = "project_resource_id", nullable = false)
+	private Integer projectResourceId;
+	
 	@Column(name = "from_output_port_id", length = 32, nullable = false)
 	private String fromOutputPortId;
 	
@@ -45,6 +48,14 @@ public class PageFunctionConnection implements Serializable{
 
 	public void setToInputPortId(String toInputPortId) {
 		this.toInputPortId = toInputPortId;
+	}
+
+	public Integer getProjectResourceId() {
+		return projectResourceId;
+	}
+
+	public void setProjectResourceId(Integer projectResourceId) {
+		this.projectResourceId = projectResourceId;
 	}
 	
 }

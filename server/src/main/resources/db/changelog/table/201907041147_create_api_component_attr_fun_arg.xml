@@ -26,6 +26,9 @@
 			</column>
 			<column name="default_value" remarks="参数的默认值" type="varchar(32)" />
 			<column name="description" remarks="参数描述" type="varchar(512)" />
+			<column name="seq" remarks="参数顺序" type="int">
+				<constraints nullable="false" />
+			</column>
 		</createTable>
 
 		<addUniqueConstraint columnNames="api_component_attr_id,code"

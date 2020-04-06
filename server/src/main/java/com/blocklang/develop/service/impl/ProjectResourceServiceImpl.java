@@ -34,8 +34,17 @@ import com.blocklang.core.service.UserService;
 import com.blocklang.core.util.IdGenerator;
 import com.blocklang.core.util.StreamUtil;
 import com.blocklang.develop.constant.AppType;
+import com.blocklang.develop.constant.FlowType;
+import com.blocklang.develop.constant.NodeCategory;
+import com.blocklang.develop.constant.NodeLayout;
+import com.blocklang.develop.constant.PortType;
 import com.blocklang.develop.constant.ProjectResourceType;
+import com.blocklang.develop.dao.PageDataDao;
 import com.blocklang.develop.dao.PageDataJdbcDao;
+import com.blocklang.develop.dao.PageFunctionConnectionJdbcDao;
+import com.blocklang.develop.dao.PageFunctionJdbcDao;
+import com.blocklang.develop.dao.PageFunctionNodeJdbcDao;
+import com.blocklang.develop.dao.PageFunctionNodePortJdbcDao;
 import com.blocklang.develop.dao.PageWidgetAttrValueDao;
 import com.blocklang.develop.dao.PageWidgetDao;
 import com.blocklang.develop.dao.PageWidgetJdbcDao;
@@ -45,9 +54,15 @@ import com.blocklang.develop.data.UncommittedFile;
 import com.blocklang.develop.designer.data.ApiRepoVersionInfo;
 import com.blocklang.develop.designer.data.AttachedWidget;
 import com.blocklang.develop.designer.data.AttachedWidgetProperty;
-import com.blocklang.develop.designer.data.PageFunction;
+import com.blocklang.develop.designer.data.EventArgument;
+import com.blocklang.develop.designer.data.InputSequencePort;
+import com.blocklang.develop.designer.data.PageEventHandler;
 import com.blocklang.develop.designer.data.PageModel;
 import com.blocklang.develop.model.PageDataItem;
+import com.blocklang.develop.model.PageFunction;
+import com.blocklang.develop.model.PageFunctionConnection;
+import com.blocklang.develop.model.PageFunctionNode;
+import com.blocklang.develop.model.PageFunctionNodePort;
 import com.blocklang.develop.model.PageWidget;
 import com.blocklang.develop.model.PageWidgetAttrValue;
 import com.blocklang.develop.model.Project;
@@ -56,13 +71,16 @@ import com.blocklang.develop.model.ProjectContext;
 import com.blocklang.develop.model.ProjectResource;
 import com.blocklang.develop.service.ProjectDependenceService;
 import com.blocklang.develop.service.ProjectResourceService;
+import com.blocklang.marketplace.constant.ComponentAttrValueType;
 import com.blocklang.marketplace.constant.RepoCategory;
 import com.blocklang.marketplace.dao.ApiComponentAttrDao;
+import com.blocklang.marketplace.dao.ApiComponentAttrFunArgDao;
 import com.blocklang.marketplace.dao.ApiComponentDao;
 import com.blocklang.marketplace.dao.ApiRepoDao;
 import com.blocklang.marketplace.dao.ApiRepoVersionDao;
 import com.blocklang.marketplace.dao.ComponentRepoVersionDao;
 import com.blocklang.marketplace.model.ApiComponent;
+import com.blocklang.marketplace.model.ApiComponentAttrFunArg;
 import com.blocklang.marketplace.model.ApiRepo;
 import com.blocklang.marketplace.service.ApiRepoVersionService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -89,6 +107,16 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 	@Autowired
 	private PageDataJdbcDao pageDataJdbcDao;
 	@Autowired
+	private PageDataDao pageDataDao;
+	@Autowired
+	private PageFunctionJdbcDao pageFunctionJdbcDao;
+	@Autowired
+	private PageFunctionNodeJdbcDao pageFunctionNodeJdbcDao;
+	@Autowired
+	private PageFunctionNodePortJdbcDao pageFunctionNodePortJdbcDao;
+	@Autowired
+	private PageFunctionConnectionJdbcDao pageFunctionConnectionJdbcDao;
+	@Autowired
 	private ProjectDependenceService projectDependenceService;
 	@Autowired
 	private ComponentRepoVersionDao componentRepoVersionDao;
@@ -102,6 +130,8 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 	private ApiRepoDao apiRepoDao;
 	@Autowired
 	private ApiComponentAttrDao apiComponentAttrDao;
+	@Autowired
+	private ApiComponentAttrFunArgDao apiComponentAttrFunArgDao;
 	
 	//@Transactional
 	@Override
@@ -536,13 +566,25 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 	private void updatePageModel(PageModel pageModel) {
 		Integer pageId = pageModel.getPageId();
 		
-		List<AttachedWidget> widgets = pageModel.getWidgets();
-		// 1. 先全部删除
+		// 一. 先全部删除
 		// 注意：删除代码不要放在 !widgets.isEmpty 判断内
+		// 删除部件
 		pageWidgetJdbcDao.deleteWidgetProperties(pageId);
 		pageWidgetJdbcDao.deleteWidgets(pageId);
+		// 删除数据
 		pageDataJdbcDao.delete(pageId);
+		// 删除函数
+		// 1. 删除连接
+		pageFunctionConnectionJdbcDao.deleteByPageId(pageId);
+		// 2. 删除 port
+		pageFunctionNodePortJdbcDao.deleteByPageId(pageId);
+		// 3. 删除 node
+		pageFunctionNodeJdbcDao.deleteByPageId(pageId);
+		// 4. 删除函数
+		pageFunctionJdbcDao.deleteByPageId(pageId);
 		
+		List<AttachedWidget> widgets = pageModel.getWidgets();
+		// 插入部件
 		if(!widgets.isEmpty()) {
 			List<PageWidgetAttrValue> properties = new ArrayList<>();
 			widgets.forEach(widget -> {
@@ -566,9 +608,109 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 			pageWidgetJdbcDao.batchSaveWidgetProperties(properties);
 		}
 		
+		// 插入数据
 		List<PageDataItem> allData = pageModel.getData();
 		if(allData != null && !allData.isEmpty()) {
 			pageDataJdbcDao.batchSave(pageId, allData);
+		}
+		
+		// 插入函数
+		List<PageEventHandler> handlers = pageModel.getFunctions();
+		if(!handlers.isEmpty()) {
+			List<PageFunction> funcs = new ArrayList<>();
+			List<PageFunctionNode> nodes = new ArrayList<>();
+			List<PageFunctionNodePort> ports = new ArrayList<>();
+			List<PageFunctionConnection> connections = new ArrayList<>();
+			
+			handlers.forEach(handler -> {
+				PageFunction func = new PageFunction();
+				func.setId(handler.getId());
+				func.setProjectResourceId(pageId);
+				funcs.add(func);
+				
+				handler.getNodes().forEach(visualNode -> {
+					PageFunctionNode node = new PageFunctionNode();
+					node.setProjectResourceId(pageId);
+					node.setId(visualNode.getId());
+					node.setFunctionId(handler.getId());
+					node.setLeft(visualNode.getLeft());
+					node.setTop(visualNode.getTop());
+					node.setLayout(NodeLayout.fromKey(visualNode.getLayout()));
+					node.setCategory(NodeCategory.fromKey(visualNode.getCategory()));
+					// 函数定义不需要设置 bind_source、api_repo_id 和 code
+					nodes.add(node);
+					
+					InputSequencePort isp = visualNode.getInputSequencePort();
+					if(isp != null) {
+						PageFunctionNodePort port = new PageFunctionNodePort();
+						port.setProjectResourceId(pageId);
+						port.setId(isp.getId());
+						port.setNodeId(visualNode.getId());
+						port.setPortType(PortType.SEQUENCE);
+						port.setFlowType(FlowType.INPUT);
+						ports.add(port);
+					}
+					visualNode.getOutputSequencePorts().forEach(osp -> {
+						PageFunctionNodePort port = new PageFunctionNodePort();
+						port.setProjectResourceId(pageId);
+						port.setId(osp.getId());
+						port.setNodeId(visualNode.getId());
+						port.setPortType(PortType.SEQUENCE);
+						port.setFlowType(FlowType.OUTPUT);
+						port.setOutputSequencePortText(osp.getText());
+						ports.add(port);
+					});
+					visualNode.getInputDataPorts().forEach(idp -> {
+						PageFunctionNodePort port = new PageFunctionNodePort();
+						port.setProjectResourceId(pageId);
+						port.setId(idp.getId());
+						port.setNodeId(visualNode.getId());
+						port.setPortType(PortType.DATA);
+						port.setFlowType(FlowType.INPUT);
+						port.setInputDataPortValue(idp.getValue());
+						// TODO: code
+						ports.add(port);
+					});
+					
+					visualNode.getOutputDataPorts().forEach(odp -> {
+						PageFunctionNodePort port = new PageFunctionNodePort();
+						port.setProjectResourceId(pageId);
+						port.setId(odp.getId());
+						port.setNodeId(visualNode.getId());
+						port.setPortType(PortType.DATA);
+						port.setFlowType(FlowType.OUTPUT);
+						// TODO: code
+						ports.add(port);
+					});
+				});
+				
+				// 连接
+				handler.getSequenceConnections().forEach(sc -> {
+					PageFunctionConnection conn = new PageFunctionConnection();
+					conn.setProjectResourceId(pageId);
+					conn.setId(sc.getId());
+					conn.setFromOutputPortId(sc.getFromOutput());
+					conn.setToInputPortId(sc.getToInput());
+					connections.add(conn);
+				});
+
+				handler.getDataConnections().forEach(dc -> {
+					PageFunctionConnection conn = new PageFunctionConnection();
+					conn.setProjectResourceId(pageId);
+					conn.setId(dc.getId());
+					conn.setFromOutputPortId(dc.getFromOutput());
+					conn.setToInputPortId(dc.getToInput());
+					connections.add(conn);
+				});
+			});
+			// 批量插入页面函数
+			pageFunctionJdbcDao.batchSave(funcs);
+			// 批量插入函数节点
+			pageFunctionNodeJdbcDao.batchSave(nodes);
+			// 批量插入函数节点的端口
+			pageFunctionNodePortJdbcDao.batchSave(ports);
+			// 批量插入端口连接
+			pageFunctionConnectionJdbcDao.batchSave(connections);
 		}
 	}
 
@@ -620,7 +762,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 		model.setData(getPageData(pageId));
 		
 		// 因为事件处理函数是与部件上的事件绑定的，所以这里加一层判断
-		List<PageFunction> functions = widgets.size() == 0 ? Collections.emptyList() : getPageFunctions(pageId);
+		List<PageEventHandler> functions = widgets.size() == 0 ? Collections.emptyList() : getPageFunctions(pageId);
 		model.setFunctions(functions);
 		
 		return model;
@@ -702,7 +844,24 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 								// name 只能取 name，不能取 label
 								property.setName(componentAttr.getName());
 								property.setValueType(componentAttr.getValueType().getKey());
-								// 部件属性的实例信息
+								// 如果属性为事件，则添加事件参数
+								if(componentAttr.getValueType() == ComponentAttrValueType.FUNCTION) {
+									// 加载参数的定义
+									List<ApiComponentAttrFunArg> args = apiComponentAttrFunArgDao.findAllByApiComponentAttrId(componentAttr.getId());
+									List<EventArgument> eventArgs = args.stream().map(arg -> {
+										EventArgument ea = new EventArgument();
+										ea.setCode(arg.getCode());
+										ea.setName(arg.getName());
+										ea.setLabel(arg.getLabel());
+										ea.setValueType(arg.getValueType().getKey());
+										ea.setDefaultValue(arg.getDefaultValue());
+										ea.setDescription(arg.getDescription());
+										return ea;
+									}).collect(Collectors.toList());
+									property.setEventArgs(eventArgs);
+								}
+								
+								// 以下设置部件属性的实例信息
 								attachedProperties
 									.stream()
 									.filter(pageWidgetAttrValue -> pageWidgetAttrValue.getWidgetAttrCode().equals(componentAttr.getCode()))
@@ -730,10 +889,10 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 	}
 	
 	private List<PageDataItem> getPageData(Integer pageId) {
-		return Collections.emptyList();
+		return pageDataDao.findAllByPageId(pageId);
 	}
 	
-	private List<PageFunction> getPageFunctions(Integer pageId) {
+	private List<PageEventHandler> getPageFunctions(Integer pageId) {
 		return Collections.emptyList();
 	}
 	

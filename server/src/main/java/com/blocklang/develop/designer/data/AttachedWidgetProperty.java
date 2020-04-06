@@ -1,11 +1,15 @@
 package com.blocklang.develop.designer.data;
 
+import java.util.List;
+
 public class AttachedWidgetProperty {
 
 	// 以下字段是部件属性的基本信息
 	private String code;
 	private String name;
 	private String valueType;
+	// 当 valueType 的值为 function 时使用
+	private List<EventArgument> eventArgs;
 	
 	// 以下字段是实例化部件后，需要为属性设置的值
 	private String id;
@@ -69,6 +73,14 @@ public class AttachedWidgetProperty {
 
 	public void setExpr(Boolean expr) {
 		this.expr = expr;
+	}
+
+	public List<EventArgument> getEventArgs() {
+		return eventArgs;
+	}
+
+	public void setEventArgs(List<EventArgument> eventArgs) {
+		this.eventArgs = eventArgs;
 	}
 
 }

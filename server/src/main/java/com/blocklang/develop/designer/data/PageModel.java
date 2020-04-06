@@ -15,7 +15,7 @@ public class PageModel {
 	private Integer pageId;
 	private List<AttachedWidget> widgets;
 	private List<PageDataItem> data;
-	private List<PageFunction> functions;
+	private List<PageEventHandler> functions;
 
 	public Integer getPageId() {
 		return pageId;
@@ -41,11 +41,11 @@ public class PageModel {
 		this.data = data;
 	}
 
-	public List<PageFunction> getFunctions() {
+	public List<PageEventHandler> getFunctions() {
 		return functions;
 	}
 
-	public void setFunctions(List<PageFunction> functions) {
+	public void setFunctions(List<PageEventHandler> functions) {
 		this.functions = functions;
 	}
 

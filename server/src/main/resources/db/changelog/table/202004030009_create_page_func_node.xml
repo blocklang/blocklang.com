@@ -11,6 +11,9 @@
 			<column name="dbid" type="varchar(32)">
 				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_PAGE_FUNC_NODE" />
 			</column>
+			<column name="project_resource_id" remarks="项目资源标识" type="varchar(32)">
+				<constraints nullable="false" />
+			</column>
 			<column name="page_func_id" remarks="页面函数标识" type="varchar(32)">
 				<constraints nullable="false" />
 			</column>
@@ -30,6 +33,11 @@
 			<column name="api_repo_id" remarks="API 仓库标识" type="int" />
 			<column name="code" remarks="组件编码" type="varchar(32)" />
 		</createTable>
+		
+		<createIndex indexName="IDX_PAGE_FUNC_NODE_ON_PROJECT_RESOURCE_ID"
+			tableName="page_func_node">
+			<column name="project_resource_id" />
+		</createIndex>
 	</changeSet>
 
 </databaseChangeLog>

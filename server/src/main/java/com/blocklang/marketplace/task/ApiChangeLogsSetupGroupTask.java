@@ -270,9 +270,11 @@ public class ApiChangeLogsSetupGroupTask extends AbstractRepoPublishTask {
 			ApiComponentAttr savedApiComponentAttr = saveComponentAttr(apiComponentId, event, componentAttrCodeGenerator);
 		
 			CodeGenerator componentEventArgCodeGenerator = new CodeGenerator(null);
+			int seq = 1;
 			for(WidgetEventArgument argument : event.getArguments()) {
 				Integer apiComponentAttrId = savedApiComponentAttr.getId();
-				saveApiComponentFunArg(apiComponentAttrId, argument, componentEventArgCodeGenerator);
+				saveApiComponentFunArg(apiComponentAttrId, argument, seq, componentEventArgCodeGenerator);
+				seq++;
 			}
 		}
 	}
@@ -292,7 +294,7 @@ public class ApiChangeLogsSetupGroupTask extends AbstractRepoPublishTask {
 		return apiComponentDao.save(apiComponent);
 	}
 
-	private void saveApiComponentFunArg(Integer apiComponentAttrId, WidgetEventArgument argument, CodeGenerator componentEventArgCodeGenerator) {
+	private void saveApiComponentFunArg(Integer apiComponentAttrId, WidgetEventArgument argument, int seq, CodeGenerator componentEventArgCodeGenerator) {
 		ApiComponentAttrFunArg arg = new ApiComponentAttrFunArg();
 		arg.setApiComponentAttrId(apiComponentAttrId);
 		arg.setCode(componentEventArgCodeGenerator.next());
@@ -301,6 +303,7 @@ public class ApiChangeLogsSetupGroupTask extends AbstractRepoPublishTask {
 		arg.setValueType(ComponentAttrValueType.fromKey(argument.getValueType()));
 		arg.setDefaultValue(argument.getDefaultValue().toString());
 		arg.setDescription(argument.getDescription());
+		arg.setSeq(seq);
 
 		this.apiComponentAttrFunArgDao.save(arg);
 	}

@@ -1,9 +1,9 @@
 package com.blocklang.develop.service.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Index.atIndex;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
-import static org.assertj.core.data.Index.atIndex;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -32,6 +32,8 @@ import com.blocklang.core.service.PropertyService;
 import com.blocklang.core.service.UserService;
 import com.blocklang.core.test.AbstractServiceTest;
 import com.blocklang.develop.constant.AppType;
+import com.blocklang.develop.constant.NodeCategory;
+import com.blocklang.develop.constant.NodeLayout;
 import com.blocklang.develop.constant.ProjectResourceType;
 import com.blocklang.develop.dao.ProjectCommitDao;
 import com.blocklang.develop.dao.ProjectDependenceDao;
@@ -39,7 +41,12 @@ import com.blocklang.develop.dao.ProjectResourceDao;
 import com.blocklang.develop.data.UncommittedFile;
 import com.blocklang.develop.designer.data.AttachedWidget;
 import com.blocklang.develop.designer.data.AttachedWidgetProperty;
+import com.blocklang.develop.designer.data.DataPort;
+import com.blocklang.develop.designer.data.EventArgument;
+import com.blocklang.develop.designer.data.OutputSequencePort;
+import com.blocklang.develop.designer.data.PageEventHandler;
 import com.blocklang.develop.designer.data.PageModel;
+import com.blocklang.develop.designer.data.VisualNode;
 import com.blocklang.develop.model.PageDataItem;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectCommit;
@@ -52,6 +59,7 @@ import com.blocklang.marketplace.constant.ComponentAttrValueType;
 import com.blocklang.marketplace.constant.Language;
 import com.blocklang.marketplace.constant.RepoCategory;
 import com.blocklang.marketplace.dao.ApiComponentAttrDao;
+import com.blocklang.marketplace.dao.ApiComponentAttrFunArgDao;
 import com.blocklang.marketplace.dao.ApiComponentDao;
 import com.blocklang.marketplace.dao.ApiRepoDao;
 import com.blocklang.marketplace.dao.ApiRepoVersionDao;
@@ -59,6 +67,7 @@ import com.blocklang.marketplace.dao.ComponentRepoDao;
 import com.blocklang.marketplace.dao.ComponentRepoVersionDao;
 import com.blocklang.marketplace.model.ApiComponent;
 import com.blocklang.marketplace.model.ApiComponentAttr;
+import com.blocklang.marketplace.model.ApiComponentAttrFunArg;
 import com.blocklang.marketplace.model.ApiRepo;
 import com.blocklang.marketplace.model.ApiRepoVersion;
 import com.blocklang.marketplace.model.ComponentRepo;
@@ -91,6 +100,8 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	private ApiComponentDao apiComponentDao;
 	@Autowired
 	private ApiComponentAttrDao apiComponentAttrDao;
+	@Autowired
+	private ApiComponentAttrFunArgDao apiComponentAttrFunArgDao;
 	@Autowired
 	private ComponentRepoDao componentRepoDao;
 	@Autowired
@@ -1034,7 +1045,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	// 新创建一个页面模型
 	// 断言返回的页面模型与录入的页面模型，数据和顺序都完全一致。
 	@Test
-	public void update_page_model_widgets_new() {
+	public void updatePageModel_new_widget_with_property() {
 		// 初始化数据
 		// 1. 创建一个 API 仓库，类型为 Widget
 		ApiRepo apiRepo = new ApiRepo();
@@ -1158,9 +1169,286 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		attachedWidgetProperty21.setName("prop_name_21"); // 注意，不会直接在页面模型中存储该值，只取 name 值，不取 label 值
 		attachedWidgetProperty21.setValue("value21");
 		attachedWidgetProperty21.setValueType(ComponentAttrValueType.STRING.getKey());
-		attachedWidget2.setProperties(Collections.singletonList(attachedWidgetProperty21));
+		
+		attachedWidget2.setProperties(Arrays.asList(attachedWidgetProperty21));
 		
 		model.setWidgets(Arrays.asList(attachedWidget1, attachedWidget2));
+		model.setData(Collections.emptyList());
+		model.setFunctions(Collections.emptyList());
+
+		projectResourceService.updatePageModel(null, null, model);
+		
+		PageModel savedModel = projectResourceService.getPageModel(projectId, pageId);
+		
+		assertThat(savedModel).usingRecursiveComparison().isEqualTo(model);
+	}
+	
+	@Test
+	public void updatePageModel_new_widget_with_event_not_set_value() {
+		// 初始化数据
+		// 1. 创建一个 API 仓库，类型为 Widget
+		ApiRepo apiRepo = new ApiRepo();
+		apiRepo.setGitRepoUrl("a");
+		apiRepo.setGitRepoWebsite("b");
+		apiRepo.setGitRepoOwner("c");
+		apiRepo.setGitRepoName("d");
+		apiRepo.setName("e");
+		apiRepo.setVersion("f");
+		apiRepo.setCategory(RepoCategory.WIDGET);
+		apiRepo.setCreateUserId(1);
+		apiRepo.setCreateTime(LocalDateTime.now());
+		ApiRepo savedApiRepo = apiRepoDao.save(apiRepo);
+		// 2. 创建一个 API 版本号
+		ApiRepoVersion apiVersion = new ApiRepoVersion();
+		apiVersion.setApiRepoId(savedApiRepo.getId());
+		apiVersion.setVersion("0.1.0");
+		apiVersion.setGitTagName("v0.1.0");
+		apiVersion.setCreateUserId(1);
+		apiVersion.setCreateTime(LocalDateTime.now());
+		ApiRepoVersion savedApiRepoVersion = apiRepoVersionDao.save(apiVersion);
+		// 3. 在对应的 API 版本下添加一个部件，并为部件设置一个事件
+		// 部件
+		ApiComponent widget1 = new ApiComponent();
+		widget1.setApiRepoVersionId(savedApiRepoVersion.getId());
+		widget1.setCode("0001");
+		widget1.setName("Widget1");
+		widget1.setLabel("Widget 1");
+		widget1.setDescription("Description1");
+		widget1.setCanHasChildren(true);
+		widget1.setCreateUserId(1);
+		widget1.setCreateTime(LocalDateTime.now());
+		ApiComponent savedWidget1 = apiComponentDao.save(widget1);
+		// 事件
+		ApiComponentAttr widgetEvent1 = new ApiComponentAttr();
+		widgetEvent1.setApiComponentId(savedWidget1.getId());
+		widgetEvent1.setCode("0002");
+		widgetEvent1.setDescription("description_2");
+		widgetEvent1.setName("prop_name_2");
+		widgetEvent1.setLabel("prop_label_2");
+		widgetEvent1.setValueType(ComponentAttrValueType.FUNCTION);
+		ApiComponentAttr savedWidgetEvent1 = apiComponentAttrDao.save(widgetEvent1);
+		// 3.2 事件的输入参数
+		ApiComponentAttrFunArg arg = new ApiComponentAttrFunArg();
+		arg.setApiComponentAttrId(savedWidgetEvent1.getId());
+		arg.setCode("0003");
+		arg.setName("arg1");
+		arg.setValueType(ComponentAttrValueType.STRING);
+		arg.setSeq(1);
+		apiComponentAttrFunArgDao.save(arg);
+		
+		// 4. 创建一个 ide 组件库，实现上述的 API 仓库
+		//    因为在查数据时，可直接获得 ide 组件仓库的版本信息
+		//    然后根据版本信息，可直接获取 API 组件库的版本信息
+		//    所以准备数据时，可跳过这一步。
+		// 5. 为 ide 组件库创建一个版本号，实现上述的 API 版本
+		ComponentRepoVersion componentRepoVersion = new ComponentRepoVersion();
+		componentRepoVersion.setComponentRepoId(1); // 组件仓库 id 为 1
+		componentRepoVersion.setVersion("0.1.0");
+		componentRepoVersion.setGitTagName("v0.1.0");
+		componentRepoVersion.setApiRepoVersionId(savedApiRepoVersion.getId());
+		componentRepoVersion.setCreateUserId(1);
+		componentRepoVersion.setCreateTime(LocalDateTime.now());
+		ComponentRepoVersion savedComponentRepoVersion = componentRepoVersionDao.save(componentRepoVersion);
+		// 6. 创建一个项目
+		//    为项目添加依赖时，直接使用项目标识即可
+		//    所以准备数据时，可跳过这一步
+		Integer projectId = 1;
+		// 7. 将创建的 ide 组件库的一个版本添加为项目依赖
+		ProjectDependence dependence = new ProjectDependence();
+		dependence.setProjectId(projectId);
+		dependence.setComponentRepoVersionId(savedComponentRepoVersion.getId());
+		dependence.setCreateUserId(1);
+		dependence.setCreateTime(LocalDateTime.now());
+		projectDependenceDao.save(dependence);
+		
+		// 新增页面模型
+		PageModel model = new PageModel();
+		
+		Integer pageId = 1;
+		model.setPageId(pageId);
+		
+		AttachedWidget attachedWidget1 = new AttachedWidget();
+		attachedWidget1.setId("1");
+		attachedWidget1.setParentId(Constant.TREE_ROOT_ID.toString());
+		attachedWidget1.setApiRepoId(savedApiRepo.getId());
+		attachedWidget1.setWidgetCode("0001");
+		attachedWidget1.setWidgetName("Widget1"); // 只能取 widgetName 的值
+		attachedWidget1.setWidgetId(savedWidget1.getId());
+		attachedWidget1.setCanHasChildren(true);// 事件
+		
+		AttachedWidgetProperty attachedWidgetProperty22 = new AttachedWidgetProperty();
+		// id 是在前台生成的，如果前台没有生成，则后台生成
+		// 因为没有设置 value 的值，所以此 id 是后台生成的 uuid
+		attachedWidgetProperty22.setCode("0002");
+		attachedWidgetProperty22.setName("prop_name_2"); 
+		attachedWidgetProperty22.setValueType(ComponentAttrValueType.FUNCTION.getKey());
+		// 此处没有设置属性值
+		
+		EventArgument arg1 = new EventArgument();
+		arg1.setCode("0003");
+		arg1.setName("arg1");
+		arg1.setValueType(ComponentAttrValueType.STRING.getKey());
+		attachedWidgetProperty22.setEventArgs(Collections.singletonList(arg1));
+		
+		attachedWidget1.setProperties(Collections.singletonList(attachedWidgetProperty22));
+		
+		model.setWidgets(Collections.singletonList(attachedWidget1));
+		model.setData(Collections.emptyList());
+		model.setFunctions(Collections.emptyList());
+
+		projectResourceService.updatePageModel(null, null, model);
+		
+		PageModel savedModel = projectResourceService.getPageModel(projectId, pageId);
+		
+		// 因为此时的 widgets.properties.id 是在后台生成的 uuid，无法断言，所以忽略掉
+		assertThat(savedModel).usingRecursiveComparison().ignoringFields("widgets.properties.id").isEqualTo(model);
+		assertThat(savedModel.getWidgets().get(0).getProperties().get(0).getId()).matches((value) -> value.length() == 32);
+	}
+
+	@Test
+	public void updatePageModel_new_widget_with_event_set_value() {
+		// 初始化数据
+		// 1. 创建一个 API 仓库，类型为 Widget
+		ApiRepo apiRepo = new ApiRepo();
+		apiRepo.setGitRepoUrl("a");
+		apiRepo.setGitRepoWebsite("b");
+		apiRepo.setGitRepoOwner("c");
+		apiRepo.setGitRepoName("d");
+		apiRepo.setName("e");
+		apiRepo.setVersion("f");
+		apiRepo.setCategory(RepoCategory.WIDGET);
+		apiRepo.setCreateUserId(1);
+		apiRepo.setCreateTime(LocalDateTime.now());
+		ApiRepo savedApiRepo = apiRepoDao.save(apiRepo);
+		// 2. 创建一个 API 版本号
+		ApiRepoVersion apiVersion = new ApiRepoVersion();
+		apiVersion.setApiRepoId(savedApiRepo.getId());
+		apiVersion.setVersion("0.1.0");
+		apiVersion.setGitTagName("v0.1.0");
+		apiVersion.setCreateUserId(1);
+		apiVersion.setCreateTime(LocalDateTime.now());
+		ApiRepoVersion savedApiRepoVersion = apiRepoVersionDao.save(apiVersion);
+		// 3. 在对应的 API 版本下添加一个部件，并为部件设置一个事件
+		// 部件
+		ApiComponent widget1 = new ApiComponent();
+		widget1.setApiRepoVersionId(savedApiRepoVersion.getId());
+		widget1.setCode("0001");
+		widget1.setName("Widget1");
+		widget1.setLabel("Widget 1");
+		widget1.setDescription("Description1");
+		widget1.setCanHasChildren(true);
+		widget1.setCreateUserId(1);
+		widget1.setCreateTime(LocalDateTime.now());
+		ApiComponent savedWidget1 = apiComponentDao.save(widget1);
+		// 事件
+		ApiComponentAttr widgetEvent1 = new ApiComponentAttr();
+		widgetEvent1.setApiComponentId(savedWidget1.getId());
+		widgetEvent1.setCode("0002");
+		widgetEvent1.setDescription("description_2");
+		widgetEvent1.setName("onValue");
+		widgetEvent1.setLabel("prop_label_2");
+		widgetEvent1.setValueType(ComponentAttrValueType.FUNCTION);
+		ApiComponentAttr savedWidgetEvent1 = apiComponentAttrDao.save(widgetEvent1);
+		// 3.2 事件的输入参数
+		ApiComponentAttrFunArg arg = new ApiComponentAttrFunArg();
+		arg.setApiComponentAttrId(savedWidgetEvent1.getId());
+		arg.setCode("0003");
+		arg.setName("value");
+		arg.setValueType(ComponentAttrValueType.STRING);
+		arg.setSeq(1);
+		apiComponentAttrFunArgDao.save(arg);
+		
+		// 4. 创建一个 ide 组件库，实现上述的 API 仓库
+		//    因为在查数据时，可直接获得 ide 组件仓库的版本信息
+		//    然后根据版本信息，可直接获取 API 组件库的版本信息
+		//    所以准备数据时，可跳过这一步。
+		// 5. 为 ide 组件库创建一个版本号，实现上述的 API 版本
+		ComponentRepoVersion componentRepoVersion = new ComponentRepoVersion();
+		componentRepoVersion.setComponentRepoId(1); // 组件仓库 id 为 1
+		componentRepoVersion.setVersion("0.1.0");
+		componentRepoVersion.setGitTagName("v0.1.0");
+		componentRepoVersion.setApiRepoVersionId(savedApiRepoVersion.getId());
+		componentRepoVersion.setCreateUserId(1);
+		componentRepoVersion.setCreateTime(LocalDateTime.now());
+		ComponentRepoVersion savedComponentRepoVersion = componentRepoVersionDao.save(componentRepoVersion);
+		// 6. 创建一个项目
+		//    为项目添加依赖时，直接使用项目标识即可
+		//    所以准备数据时，可跳过这一步
+		Integer projectId = 1;
+		// 7. 将创建的 ide 组件库的一个版本添加为项目依赖
+		ProjectDependence dependence = new ProjectDependence();
+		dependence.setProjectId(projectId);
+		dependence.setComponentRepoVersionId(savedComponentRepoVersion.getId());
+		dependence.setCreateUserId(1);
+		dependence.setCreateTime(LocalDateTime.now());
+		projectDependenceDao.save(dependence);
+		
+		// 新增页面模型
+		PageModel model = new PageModel();
+		
+		Integer pageId = 1;
+		model.setPageId(pageId);
+		
+		AttachedWidget attachedWidget1 = new AttachedWidget();
+		attachedWidget1.setId("1");
+		attachedWidget1.setParentId(Constant.TREE_ROOT_ID.toString());
+		attachedWidget1.setApiRepoId(savedApiRepo.getId());
+		attachedWidget1.setWidgetCode("0001");
+		attachedWidget1.setWidgetName("Widget1"); // 只能取 widgetName 的值
+		attachedWidget1.setWidgetId(savedWidget1.getId());
+		attachedWidget1.setCanHasChildren(true);// 事件
+		
+		AttachedWidgetProperty attachedWidgetProperty22 = new AttachedWidgetProperty();
+		// id 是在前台生成的，如果前台没有生成，则后台生成
+		// 因为设置了 value 的值，所以此 id 是前台设置的值
+		attachedWidgetProperty22.setId("eventId");
+		attachedWidgetProperty22.setCode("0002");
+		attachedWidgetProperty22.setName("onValue"); 
+		attachedWidgetProperty22.setValueType(ComponentAttrValueType.FUNCTION.getKey());
+		// 此处设置属性值，即为事件绑定了一个 id 为 `a_function_id` 的事件处理函数
+		String handlerId = "a_function_id";
+		attachedWidgetProperty22.setValue(handlerId);
+		
+		EventArgument arg1 = new EventArgument();
+		arg1.setCode("0003");
+		arg1.setName("value");
+		arg1.setValueType(ComponentAttrValueType.STRING.getKey());
+		attachedWidgetProperty22.setEventArgs(Collections.singletonList(arg1));
+		
+		attachedWidget1.setProperties(Collections.singletonList(attachedWidgetProperty22));
+		
+		model.setWidgets(Collections.singletonList(attachedWidget1));
+		model.setData(Collections.emptyList());
+		
+		// 为事件绑定一个事件处理函数后，就需要定义一个事件处理函数
+		PageEventHandler func = new PageEventHandler();
+		func.setId(handlerId);
+		
+		// 一个函数定义节点
+		VisualNode node = new VisualNode();
+		node.setId("1");
+		node.setLeft(20);
+		node.setTop(20);
+		node.setCaption("事件处理函数");
+		node.setText("onValue");
+		node.setLayout(NodeLayout.FLOW_CONTROL.getKey());
+		node.setCategory(NodeCategory.FUNCTION.getKey());
+		
+		// 节点中包含一个 output sequence port 和 一个 output data port
+		OutputSequencePort outputSequencePort = new OutputSequencePort();
+		outputSequencePort.setId("osp1");
+		node.setOutputSequencePorts(Collections.singletonList(outputSequencePort));
+		
+		DataPort outputDataPort = new DataPort();
+		outputDataPort.setId("odp1");
+		outputDataPort.setName("value");
+		outputDataPort.setType(ComponentAttrValueType.STRING.getKey());
+		node.setOutputDataPorts(Collections.singletonList(outputDataPort));
+		
+		func.setNodes(Collections.singletonList(node));
+		
+		// 需要定义一个节点和一个 port（因为事件包含一个输入参数）
+		model.setFunctions(Collections.singletonList(func));
 
 		projectResourceService.updatePageModel(null, null, model);
 		
@@ -1171,7 +1459,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	
 	// 更新页面模型
 	@Test
-	public void update_page_model_widgets_update() {
+	public void updatePageModel_widgets_update() {
 		// 初始化数据
 		// 1. 创建一个 API 仓库，类型为 Widget
 		ApiRepo apiRepo = new ApiRepo();
@@ -1276,7 +1564,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	// 此时 API 部件属性列表中有新增属性，但是之前存的页面模型中不包含新增属性
 	// 则在查询时要包含新增属性
 	@Test
-	public void update_page_model_upgrade() {
+	public void updatePageModel_upgrade() {
 		// 初始化数据
 		// 1. 创建一个 API 仓库，类型为 Widget
 		ApiRepo apiRepo = new ApiRepo();
@@ -1378,7 +1666,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	}
 
 	@Test
-	public void update_page_model_widgets_read_page_file_in_git(@TempDir Path rootFolder) throws IOException {
+	public void updatePageModel_widgets_read_page_file_in_git(@TempDir Path rootFolder) throws IOException {
 		// 初始化数据
 		// 1. 创建一个 API 仓库，类型为 Widget
 		ApiRepo apiRepo = new ApiRepo();
@@ -1537,7 +1825,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	}
 
 	@Test
-	public void update_page_model_data_new() {
+	public void updatePageModel_data_new() {
 		Integer projectId = 1;
 		Integer pageId = 2;
 		PageModel model = new PageModel();
@@ -1558,9 +1846,14 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		item2.setType("String");
 		item2.setValue("bar");
 		
+		model.setWidgets(Collections.emptyList());
 		model.setData(Arrays.asList(item1, item2));
 		
 		projectResourceService.updatePageModel(null, null, model);
+		
+		// 保存成功后，补上排序号
+		item1.setSeq(1);
+		item2.setSeq(2);
 		
 		PageModel savedModel = projectResourceService.getPageModel(projectId, pageId);
 		assertThat(savedModel.getData())
@@ -1570,6 +1863,11 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 			.contains(item2, atIndex(1));
 	}
 
+	@Test
+	public void updatePageModel_functions_new() {
+		
+	}
+	
 	@Test
 	public void getPageModel_empty_page() {
 		Integer projectId = 1;
