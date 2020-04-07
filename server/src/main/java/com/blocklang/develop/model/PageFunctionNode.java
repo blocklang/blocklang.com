@@ -45,6 +45,9 @@ public class PageFunctionNode implements Serializable{
 	@Column(name = "category", length = 16, nullable = false)
 	private NodeCategory category;
 	
+	@Column(name = "data_item_id", length = 32)
+	private String dataItemId;
+	
 //	@Convert(converter = BindSourceConverter.class)
 //	@Column(name = "bind_source", length = 16)
 //	private BindSource bindSource;
@@ -133,6 +136,14 @@ public class PageFunctionNode implements Serializable{
 
 	public void setPageId(Integer pageId) {
 		this.pageId = pageId;
+	}
+
+	public String getDataItemId() {
+		return dataItemId;
+	}
+
+	public void setDataItemId(String dataItemId) {
+		this.dataItemId = dataItemId;
 	}
 
 }

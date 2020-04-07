@@ -13,6 +13,7 @@ public class VisualNode {
 	private String text;
 	private String layout;
 	private String category;
+	private String dataItemId;
 	private InputSequencePort inputSequencePort;
 	private List<OutputSequencePort> outputSequencePorts;
 	private List<InputDataPort> inputDataPorts;
@@ -126,4 +127,13 @@ public class VisualNode {
 		}
 		this.outputDataPorts.add(odp);
 	}
+
+	public String getDataItemId() {
+		return dataItemId;
+	}
+
+	public void setDataItemId(String dataItemId) {
+		this.dataItemId = dataItemId;
+	}
+	
 }

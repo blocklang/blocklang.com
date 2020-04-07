@@ -26,11 +26,12 @@ public class PageFunctionNodeJdbcDaoImpl implements PageFunctionNodeJdbcDao {
 			"\"left\", " + // 在 postgresql 中如果不加双引号，会报语法错误
 			"top, " +
 			"layout, " +
-			"category) " +
+			"category, " +
+			"data_item_id) " +
 //			"bind_source, " +
 //			"api_repo_id, " +
 //			"code) "+
-			"VALUES (?,?,?,?,?,?,?)";//,?,?,?
+			"VALUES (?,?,?,?,?,?,?,?)";//,?,?,?
 	
 	@Override
 	public void batchSave(List<PageFunctionNode> nodes) {
@@ -52,6 +53,7 @@ public class PageFunctionNodeJdbcDaoImpl implements PageFunctionNodeJdbcDao {
 				ps.setInt(5, each.getTop());
 				ps.setString(6, each.getLayout().getKey());
 				ps.setString(7, each.getCategory().getKey());
+				ps.setString(8, each.getDataItemId());
 //				ps.setString(8, each.getBindSource().getKey());
 //				ps.setInt(9, each.getApiRepoId());
 //				ps.setString(10, each.getCode());

@@ -654,6 +654,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 					node.setTop(visualNode.getTop());
 					node.setLayout(NodeLayout.fromKey(visualNode.getLayout()));
 					node.setCategory(NodeCategory.fromKey(visualNode.getCategory()));
+					node.setDataItemId(visualNode.getDataItemId());
 					// 函数定义不需要设置 bind_source、api_repo_id 和 code
 					nodes.add(node);
 					
@@ -782,7 +783,9 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 		
 		List<AttachedWidget> widgets = getPageWidgets(projectId, pageId);
 		model.setWidgets(widgets);
-		model.setData(getPageData(pageId));
+		
+		List<PageDataItem> pageData = getPageData(pageId);
+		model.setData(pageData);
 		
 		List<PageEventHandler> functions;
 		// 因为事件处理函数是与部件上的事件绑定的，所以这里加一层判断
@@ -793,7 +796,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 			List<AttachedWidgetProperty> events = widgets.stream().flatMap(widget -> {
 				return widget.getProperties().stream().filter(prop -> prop.getValueType().equals(ComponentAttrValueType.FUNCTION.getKey()));
 			}).collect(Collectors.toList());
-			functions = getPageFunctions(pageId, events);
+			functions = getPageFunctions(pageId, events, pageData);
 		}
 		model.setFunctions(functions);
 		
@@ -924,7 +927,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 		return pageDataDao.findAllByPageId(pageId);
 	}
 	
-	private List<PageEventHandler> getPageFunctions(Integer pageId, List<AttachedWidgetProperty> events) {
+	private List<PageEventHandler> getPageFunctions(Integer pageId, List<AttachedWidgetProperty> events, List<PageDataItem> pageData) {
 		// 尽量减少查询次数
 		List<PageFunction> functions = pageFunctionDao.findAllByPageId(pageId);
 		List<PageFunctionNode> nodes = functions.isEmpty() ? Collections.emptyList() : pageFunctionNodeDao.findAllByPageId(pageId);
@@ -945,10 +948,24 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 				visualNode.setId(node.getId());
 				visualNode.setLeft(node.getLeft());
 				visualNode.setTop(node.getTop());
+				
+				String dataItemId = node.getDataItemId();
+				visualNode.setDataItemId(dataItemId);
+				
+				Optional<PageDataItem> refDataItemOption = pageData
+					.stream()
+					.filter(dataItem -> dataItem.getId().equals(dataItemId))
+					.findAny();
+				
 				// 如果是函数定义，则从事件定义中获取相关信息
 				if(node.getCategory() == NodeCategory.FUNCTION) {
 					visualNode.setCaption("事件处理函数");
 					visualNode.setText(event.getName());
+				} else if(node.getCategory() == NodeCategory.VARIABLE_SET) {
+					refDataItemOption
+						.ifPresentOrElse(dataItem -> visualNode.setCaption("Set " + dataItem.getName()), ()->{
+							// TODO: 打印错误日志
+						});
 				}
 				
 				visualNode.setLayout(node.getLayout().getKey());
@@ -973,9 +990,12 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 							// input data port
 							InputDataPort idp = new InputDataPort();
 							idp.setId(port.getId());
-//							idp.setName();
-//							idp.setType();
-//							idp.setValue();
+							if(node.getCategory() == NodeCategory.VARIABLE_SET) {
+								idp.setName("set"); // 固定值
+								// 获取变量定义中的类型信息
+								refDataItemOption.ifPresent(dataItem -> idp.setType(dataItem.getType()));
+								idp.setValue(port.getInputDataPortValue());
+							}
 							visualNode.addInputDataPort(idp);
 						} else if(port.getFlowType() == FlowType.OUTPUT) {
 							// output data port
@@ -987,7 +1007,6 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 									odp.setType(arg.getValueType());
 									visualNode.addOutputDataPort(odp);
 								});
-								
 							}
 						}
 					}
