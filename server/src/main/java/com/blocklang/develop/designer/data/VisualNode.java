@@ -1,5 +1,7 @@
 package com.blocklang.develop.designer.data;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class VisualNode {
@@ -81,7 +83,7 @@ public class VisualNode {
 	}
 
 	public List<OutputSequencePort> getOutputSequencePorts() {
-		return outputSequencePorts;
+		return outputSequencePorts == null ? Collections.emptyList() : outputSequencePorts;
 	}
 
 	public void setOutputSequencePorts(List<OutputSequencePort> outputSequencePorts) {
@@ -89,7 +91,7 @@ public class VisualNode {
 	}
 
 	public List<InputDataPort> getInputDataPorts() {
-		return inputDataPorts;
+		return inputDataPorts == null ? Collections.emptyList() : inputDataPorts;
 	}
 
 	public void setInputDataPorts(List<InputDataPort> inputDataPorts) {
@@ -97,11 +99,31 @@ public class VisualNode {
 	}
 
 	public List<DataPort> getOutputDataPorts() {
-		return outputDataPorts;
+		return outputDataPorts == null ? Collections.emptyList() : outputDataPorts;
 	}
 
 	public void setOutputDataPorts(List<DataPort> outputDataPorts) {
 		this.outputDataPorts = outputDataPorts;
 	}
 
+	public void addOutputSequencePort(OutputSequencePort osp) {
+		if(this.outputSequencePorts == null) {
+			this.outputSequencePorts = new ArrayList<OutputSequencePort>();
+		}
+		this.outputSequencePorts.add(osp);
+	}
+	
+	public void addInputDataPort(InputDataPort idp) {
+		if(this.inputDataPorts == null) {
+			this.inputDataPorts = new ArrayList<InputDataPort>();
+		}
+		this.inputDataPorts.add(idp);
+	}
+
+	public void addOutputDataPort(DataPort odp) {
+		if(this.outputDataPorts == null) {
+			this.outputDataPorts = new ArrayList<DataPort>();
+		}
+		this.outputDataPorts.add(odp);
+	}
 }

@@ -42,7 +42,7 @@ public class PageFunctionNodePortJdbcDaoImpl implements PageFunctionNodePortJdbc
 			public void setValues(PreparedStatement ps, int index) throws SQLException {
 				PageFunctionNodePort each = ports.get(index);
 				ps.setString(1, each.getId());
-				ps.setInt(2, each.getProjectResourceId());
+				ps.setInt(2, each.getPageId());
 				ps.setString(3, each.getNodeId());
 				ps.setString(4, each.getPortType().getKey());
 				ps.setString(5, each.getFlowType().getKey());
@@ -61,7 +61,7 @@ public class PageFunctionNodePortJdbcDaoImpl implements PageFunctionNodePortJdbc
 	
 	@Override
 	public void deleteByPageId(Integer pageId) {
-		jdbcTemplate.update(SQL_DELETE_PAGE_FUNC_NODE_PORT_BY_PAGE_ID);
+		jdbcTemplate.update(SQL_DELETE_PAGE_FUNC_NODE_PORT_BY_PAGE_ID, pageId);
 	}
 
 }

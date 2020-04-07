@@ -1,5 +1,6 @@
 package com.blocklang.develop.designer.data;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -32,7 +33,7 @@ public class PageEventHandler {
 	}
 
 	public List<NodeConnection> getSequenceConnections() {
-		return sequenceConnections;
+		return sequenceConnections == null ? Collections.emptyList() : sequenceConnections;
 	}
 
 	public void setSequenceConnections(List<NodeConnection> sequenceConnections) {
@@ -40,7 +41,7 @@ public class PageEventHandler {
 	}
 
 	public List<NodeConnection> getDataConnections() {
-		return dataConnections;
+		return dataConnections == null ? Collections.emptyList() : dataConnections;
 	}
 
 	public void setDataConnections(List<NodeConnection> dataConnections) {

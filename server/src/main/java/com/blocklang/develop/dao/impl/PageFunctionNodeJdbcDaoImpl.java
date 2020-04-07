@@ -23,14 +23,14 @@ public class PageFunctionNodeJdbcDaoImpl implements PageFunctionNodeJdbcDao {
 			"(dbid, "+
 			"project_resource_id, " +
 			"page_func_id, "+
-			"left, " +
+			"\"left\", " + // 在 postgresql 中如果不加双引号，会报语法错误
 			"top, " +
 			"layout, " +
-			"category, " +
-			"bind_source, " +
-			"api_repo_id, " +
-			"code) "+
-			"VALUES (?,?,?,?,?,?,?,?,?,?)";
+			"category) " +
+//			"bind_source, " +
+//			"api_repo_id, " +
+//			"code) "+
+			"VALUES (?,?,?,?,?,?,?)";//,?,?,?
 	
 	@Override
 	public void batchSave(List<PageFunctionNode> nodes) {
@@ -46,15 +46,15 @@ public class PageFunctionNodeJdbcDaoImpl implements PageFunctionNodeJdbcDao {
 					throws SQLException {
 				PageFunctionNode each = nodes.get(index);
 				ps.setString(1, each.getId());
-				ps.setInt(2, each.getProjectResourceId());
+				ps.setInt(2, each.getPageId());
 				ps.setString(3, each.getFunctionId());
 				ps.setInt(4, each.getLeft());
 				ps.setInt(5, each.getTop());
-				ps.setString(6, each.getLayout().getValue());
+				ps.setString(6, each.getLayout().getKey());
 				ps.setString(7, each.getCategory().getKey());
-				ps.setString(8, each.getBindSource().getKey());
-				ps.setInt(9, each.getApiRepoId());
-				ps.setString(10, each.getCode());
+//				ps.setString(8, each.getBindSource().getKey());
+//				ps.setInt(9, each.getApiRepoId());
+//				ps.setString(10, each.getCode());
 			}
 			
 		});
@@ -67,6 +67,6 @@ public class PageFunctionNodeJdbcDaoImpl implements PageFunctionNodeJdbcDao {
 	
 	@Override
 	public void deleteByPageId(Integer pageId) {
-		jdbcTemplate.update(SQL_DELETE_PAGE_FUNC_NODE_BY_PAGE_ID);
+		jdbcTemplate.update(SQL_DELETE_PAGE_FUNC_NODE_BY_PAGE_ID, pageId);
 	}
 }

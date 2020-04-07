@@ -11,7 +11,10 @@
 | ------------------- | -------------------------- | ------- | ---- | ------ | ---- | ---- |
 | dbid                | 主键                       | varchar | 32   |        | 是   | 否   |
 | project_resource_id | 项目资源标识               | int     |      |        |      | 否   |
+| page_func_id        | 页面函数标识               | varchar | 32   |        |      | 否   |
+| from_node_id        | 起始节点标识               | varchar | 32   |        |      | 否   |
 | from_output_port_id | 起始节点中的输出型端口标识 | varchar | 32   |        |      | 否   |
+| to_node_id          | 终止节点标识               | varchar | 32   |        |      | 否   |
 | to_input_port_id    | 终止节点中的输入型端口标识 | varchar | 32   |        |      | 否   |
 
 ## 约束
@@ -24,3 +27,4 @@
 
 1. 注意，本表中不包含 4 个辅助字段
 2. `project_resource_id` 是一个冗余字段，便于快速查找出一个页面中所有事件处理函数的节点中的端口间的连接信息
+3. `page_func_id`、`from_node_id` 和 `to_node_id` 属于冗余字段，便于快速定位到 port 的上下文信息

@@ -11,7 +11,7 @@
 			<column name="dbid" type="varchar(32)">
 				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_PAGE_FUNC_NODE_PORT" />
 			</column>
-			<column name="project_resource_id" remarks="项目资源标识" type="varchar(32)">
+			<column name="project_resource_id" remarks="项目资源标识" type="int">
 				<constraints nullable="false" />
 			</column>
 			<column name="page_func_node_id" remarks="页面函数节点标识" type="varchar(32)">
@@ -25,6 +25,8 @@
 			</column>
 			<column name="output_sequence_port_text" remarks="输出型序列端口的显示文本" type="varchar(64)" />
 			<column name="input_data_port_value" remarks="输入型数据端口上的默认值" type="varchar(64)" />
+			
+			<!-- 
 			<column name="bind_source" remarks="节点绑定的数据源" type="varchar(16)" >
 				<constraints nullable="false" />
 			</column>
@@ -32,6 +34,7 @@
 			<column name="code" remarks="组件编码" type="varchar(32)" >
 				<constraints nullable="false" />
 			</column>
+			 -->
 		</createTable>
 		
 		<createIndex indexName="IDX_PAGE_FUNC_NODE_PORT_ON_PROJECT_RESOURCE_ID"

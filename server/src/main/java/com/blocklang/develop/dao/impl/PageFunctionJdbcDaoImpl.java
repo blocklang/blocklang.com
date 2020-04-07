@@ -38,7 +38,7 @@ public class PageFunctionJdbcDaoImpl implements PageFunctionJdbcDao {
 					throws SQLException {
 				PageFunction each = pageFunctions.get(index);
 				ps.setString(1, each.getId());
-				ps.setInt(2, each.getProjectResourceId());
+				ps.setInt(2, each.getPageId());
 			}
 			
 		});
@@ -50,7 +50,7 @@ public class PageFunctionJdbcDaoImpl implements PageFunctionJdbcDao {
 			"project_resource_id=?";
 	@Override
 	public void deleteByPageId(Integer pageId) {
-		jdbcTemplate.update(SQL_DELETE_PAGE_FUNC_BY_PAGE_ID);
+		jdbcTemplate.update(SQL_DELETE_PAGE_FUNC_BY_PAGE_ID, pageId);
 	}
 
 }

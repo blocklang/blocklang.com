@@ -11,7 +11,7 @@
 			<column name="dbid" type="varchar(32)">
 				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_PAGE_FUNC_NODE" />
 			</column>
-			<column name="project_resource_id" remarks="项目资源标识" type="varchar(32)">
+			<column name="project_resource_id" remarks="项目资源标识" type="int">
 				<constraints nullable="false" />
 			</column>
 			<column name="page_func_id" remarks="页面函数标识" type="varchar(32)">
@@ -29,9 +29,11 @@
 			<column name="category" remarks="定义或调用的函数分类" type="varchar(16)">
 				<constraints nullable="false" />
 			</column>
+			<!-- 
 			<column name="bind_source" remarks="节点绑定的数据源" type="varchar(16)" />
 			<column name="api_repo_id" remarks="API 仓库标识" type="int" />
 			<column name="code" remarks="组件编码" type="varchar(32)" />
+			 -->
 		</createTable>
 		
 		<createIndex indexName="IDX_PAGE_FUNC_NODE_ON_PROJECT_RESOURCE_ID"

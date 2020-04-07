@@ -41,9 +41,13 @@ import com.blocklang.develop.constant.PortType;
 import com.blocklang.develop.constant.ProjectResourceType;
 import com.blocklang.develop.dao.PageDataDao;
 import com.blocklang.develop.dao.PageDataJdbcDao;
+import com.blocklang.develop.dao.PageFunctionConnectionDao;
 import com.blocklang.develop.dao.PageFunctionConnectionJdbcDao;
+import com.blocklang.develop.dao.PageFunctionDao;
 import com.blocklang.develop.dao.PageFunctionJdbcDao;
+import com.blocklang.develop.dao.PageFunctionNodeDao;
 import com.blocklang.develop.dao.PageFunctionNodeJdbcDao;
+import com.blocklang.develop.dao.PageFunctionNodePortDao;
 import com.blocklang.develop.dao.PageFunctionNodePortJdbcDao;
 import com.blocklang.develop.dao.PageWidgetAttrValueDao;
 import com.blocklang.develop.dao.PageWidgetDao;
@@ -54,10 +58,15 @@ import com.blocklang.develop.data.UncommittedFile;
 import com.blocklang.develop.designer.data.ApiRepoVersionInfo;
 import com.blocklang.develop.designer.data.AttachedWidget;
 import com.blocklang.develop.designer.data.AttachedWidgetProperty;
+import com.blocklang.develop.designer.data.DataPort;
 import com.blocklang.develop.designer.data.EventArgument;
+import com.blocklang.develop.designer.data.InputDataPort;
 import com.blocklang.develop.designer.data.InputSequencePort;
+import com.blocklang.develop.designer.data.NodeConnection;
+import com.blocklang.develop.designer.data.OutputSequencePort;
 import com.blocklang.develop.designer.data.PageEventHandler;
 import com.blocklang.develop.designer.data.PageModel;
+import com.blocklang.develop.designer.data.VisualNode;
 import com.blocklang.develop.model.PageDataItem;
 import com.blocklang.develop.model.PageFunction;
 import com.blocklang.develop.model.PageFunctionConnection;
@@ -111,11 +120,19 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 	@Autowired
 	private PageFunctionJdbcDao pageFunctionJdbcDao;
 	@Autowired
+	private PageFunctionDao pageFunctionDao;
+	@Autowired
 	private PageFunctionNodeJdbcDao pageFunctionNodeJdbcDao;
+	@Autowired
+	private PageFunctionNodeDao pageFunctionNodeDao;
 	@Autowired
 	private PageFunctionNodePortJdbcDao pageFunctionNodePortJdbcDao;
 	@Autowired
+	private PageFunctionNodePortDao pageFunctionNodePortDao;
+	@Autowired
 	private PageFunctionConnectionJdbcDao pageFunctionConnectionJdbcDao;
+	@Autowired
+	private PageFunctionConnectionDao pageFunctionConnectionDao;
 	@Autowired
 	private ProjectDependenceService projectDependenceService;
 	@Autowired
@@ -625,12 +642,12 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 			handlers.forEach(handler -> {
 				PageFunction func = new PageFunction();
 				func.setId(handler.getId());
-				func.setProjectResourceId(pageId);
+				func.setPageId(pageId);
 				funcs.add(func);
 				
 				handler.getNodes().forEach(visualNode -> {
 					PageFunctionNode node = new PageFunctionNode();
-					node.setProjectResourceId(pageId);
+					node.setPageId(pageId);
 					node.setId(visualNode.getId());
 					node.setFunctionId(handler.getId());
 					node.setLeft(visualNode.getLeft());
@@ -643,7 +660,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 					InputSequencePort isp = visualNode.getInputSequencePort();
 					if(isp != null) {
 						PageFunctionNodePort port = new PageFunctionNodePort();
-						port.setProjectResourceId(pageId);
+						port.setPageId(pageId);
 						port.setId(isp.getId());
 						port.setNodeId(visualNode.getId());
 						port.setPortType(PortType.SEQUENCE);
@@ -652,7 +669,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 					}
 					visualNode.getOutputSequencePorts().forEach(osp -> {
 						PageFunctionNodePort port = new PageFunctionNodePort();
-						port.setProjectResourceId(pageId);
+						port.setPageId(pageId);
 						port.setId(osp.getId());
 						port.setNodeId(visualNode.getId());
 						port.setPortType(PortType.SEQUENCE);
@@ -662,7 +679,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 					});
 					visualNode.getInputDataPorts().forEach(idp -> {
 						PageFunctionNodePort port = new PageFunctionNodePort();
-						port.setProjectResourceId(pageId);
+						port.setPageId(pageId);
 						port.setId(idp.getId());
 						port.setNodeId(visualNode.getId());
 						port.setPortType(PortType.DATA);
@@ -674,7 +691,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 					
 					visualNode.getOutputDataPorts().forEach(odp -> {
 						PageFunctionNodePort port = new PageFunctionNodePort();
-						port.setProjectResourceId(pageId);
+						port.setPageId(pageId);
 						port.setId(odp.getId());
 						port.setNodeId(visualNode.getId());
 						port.setPortType(PortType.DATA);
@@ -687,18 +704,24 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 				// 连接
 				handler.getSequenceConnections().forEach(sc -> {
 					PageFunctionConnection conn = new PageFunctionConnection();
-					conn.setProjectResourceId(pageId);
+					conn.setPageId(pageId);
 					conn.setId(sc.getId());
+					conn.setFunctionId(handler.getId());
+					conn.setFromNodeId(sc.getFromNode());
 					conn.setFromOutputPortId(sc.getFromOutput());
+					conn.setToNodeId(sc.getToNode());
 					conn.setToInputPortId(sc.getToInput());
 					connections.add(conn);
 				});
 
 				handler.getDataConnections().forEach(dc -> {
 					PageFunctionConnection conn = new PageFunctionConnection();
-					conn.setProjectResourceId(pageId);
+					conn.setPageId(pageId);
 					conn.setId(dc.getId());
+					conn.setFunctionId(handler.getId());
+					conn.setFromNodeId(dc.getFromNode());
 					conn.setFromOutputPortId(dc.getFromOutput());
+					conn.setToNodeId(dc.getToNode());
 					conn.setToInputPortId(dc.getToInput());
 					connections.add(conn);
 				});
@@ -761,8 +784,17 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 		model.setWidgets(widgets);
 		model.setData(getPageData(pageId));
 		
+		List<PageEventHandler> functions;
 		// 因为事件处理函数是与部件上的事件绑定的，所以这里加一层判断
-		List<PageEventHandler> functions = widgets.size() == 0 ? Collections.emptyList() : getPageFunctions(pageId);
+		if(widgets.isEmpty()) {
+			functions = Collections.emptyList();
+		}else {
+			// 获取页面中所有事件
+			List<AttachedWidgetProperty> events = widgets.stream().flatMap(widget -> {
+				return widget.getProperties().stream().filter(prop -> prop.getValueType().equals(ComponentAttrValueType.FUNCTION.getKey()));
+			}).collect(Collectors.toList());
+			functions = getPageFunctions(pageId, events);
+		}
 		model.setFunctions(functions);
 		
 		return model;
@@ -892,8 +924,107 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 		return pageDataDao.findAllByPageId(pageId);
 	}
 	
-	private List<PageEventHandler> getPageFunctions(Integer pageId) {
-		return Collections.emptyList();
+	private List<PageEventHandler> getPageFunctions(Integer pageId, List<AttachedWidgetProperty> events) {
+		// 尽量减少查询次数
+		List<PageFunction> functions = pageFunctionDao.findAllByPageId(pageId);
+		List<PageFunctionNode> nodes = functions.isEmpty() ? Collections.emptyList() : pageFunctionNodeDao.findAllByPageId(pageId);
+		List<PageFunctionNodePort> ports = nodes.isEmpty() ? Collections.emptyList() : pageFunctionNodePortDao.findAllByPageId(pageId);
+		List<PageFunctionConnection> connections = ports.isEmpty() ? Collections.emptyList() : pageFunctionConnectionDao.findAllByPageId(pageId);
+		
+		return functions.stream().map(func -> {
+			PageEventHandler handler = new PageEventHandler();
+			
+			handler.setId(func.getId());
+			
+			// 获取对应的事件定义，因为肯定会存在对应的事件定义，所以这里直接使用 get()
+			AttachedWidgetProperty event = events.stream().filter(e -> e.getValue().equals(func.getId())).findAny().get();
+			
+			// 过滤出当前函数中的节点
+			List<VisualNode> visualNodes = nodes.stream().filter(node -> node.getFunctionId().equals(func.getId())).map(node -> {
+				VisualNode visualNode = new VisualNode();
+				visualNode.setId(node.getId());
+				visualNode.setLeft(node.getLeft());
+				visualNode.setTop(node.getTop());
+				// 如果是函数定义，则从事件定义中获取相关信息
+				if(node.getCategory() == NodeCategory.FUNCTION) {
+					visualNode.setCaption("事件处理函数");
+					visualNode.setText(event.getName());
+				}
+				
+				visualNode.setLayout(node.getLayout().getKey());
+				visualNode.setCategory(node.getCategory().getKey());
+				
+				ports.stream().filter(port -> port.getNodeId().equals(node.getId())).forEach(port -> {
+					if(port.getPortType() == PortType.SEQUENCE) {
+						if(port.getFlowType() == FlowType.INPUT) {
+							// input sequence port
+							InputSequencePort isp = new InputSequencePort();
+							isp.setId(port.getId());
+							visualNode.setInputSequencePort(isp);
+						} else if(port.getFlowType() == FlowType.OUTPUT) {
+							// output sequence port
+							OutputSequencePort osp = new OutputSequencePort();
+							osp.setId(port.getId());
+							osp.setText(port.getOutputSequencePortText());
+							visualNode.addOutputSequencePort(osp);
+						}
+					}else if(port.getPortType() == PortType.DATA) {
+						if(port.getFlowType() == FlowType.INPUT) {
+							// input data port
+							InputDataPort idp = new InputDataPort();
+							idp.setId(port.getId());
+//							idp.setName();
+//							idp.setType();
+//							idp.setValue();
+							visualNode.addInputDataPort(idp);
+						} else if(port.getFlowType() == FlowType.OUTPUT) {
+							// output data port
+							if(node.getCategory() == NodeCategory.FUNCTION) {
+								event.getEventArgs().forEach(arg -> {
+									DataPort odp = new DataPort();
+									odp.setId(port.getId());
+									odp.setName(arg.getName());
+									odp.setType(arg.getValueType());
+									visualNode.addOutputDataPort(odp);
+								});
+								
+							}
+						}
+					}
+				});
+				
+				return visualNode;
+			}).collect(Collectors.toList());
+			handler.setNodes(visualNodes);
+			
+			List<NodeConnection> dataConnections = new ArrayList<NodeConnection>();
+			List<NodeConnection> sequenceConnections = new ArrayList<NodeConnection>();
+			// 过滤出当前函数的连接
+			connections.stream().filter(conn -> conn.getFunctionId().equals(func.getId())).forEach(conn -> {
+				NodeConnection nodeConnection = new NodeConnection();
+				nodeConnection.setId(conn.getId());
+				nodeConnection.setFromNode(conn.getFromNodeId());
+				nodeConnection.setFromOutput(conn.getFromOutputPortId());
+				nodeConnection.setToNode(conn.getToNodeId());
+				nodeConnection.setToInput(conn.getToInputPortId());
+				
+				String fromNodeId = conn.getFromNodeId();
+				String fromOutputId = conn.getFromOutputPortId();
+				// 找到节点 -> 然后从节点中找到端口 -> 判断端口的类型 -> 将连接分为序列连接和数据连接
+				visualNodes.stream().filter(visualNode -> visualNode.getId().equals(fromNodeId)).findAny().ifPresent(visualNode -> {
+					if(visualNode.getOutputSequencePorts().stream().anyMatch(osp -> fromOutputId.equals(osp.getId()))) {
+						sequenceConnections.add(nodeConnection);
+					}else {
+						dataConnections.add(nodeConnection);
+					}
+				});
+			});
+			
+			handler.setSequenceConnections(sequenceConnections);
+			handler.setDataConnections(dataConnections);
+			
+			return handler;
+		}).collect(Collectors.toList());
 	}
 	
 	@Override

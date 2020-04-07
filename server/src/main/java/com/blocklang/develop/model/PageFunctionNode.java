@@ -26,15 +26,7 @@ public class PageFunctionNode implements Serializable{
 	private String id;
 	
 	@Column(name = "project_resource_id", nullable = false)
-	private Integer projectResourceId;
-
-	public Integer getProjectResourceId() {
-		return projectResourceId;
-	}
-
-	public void setProjectResourceId(Integer projectResourceId) {
-		this.projectResourceId = projectResourceId;
-	}
+	private Integer pageId;
 
 	@Column(name = "page_func_id", length=32, nullable = false)
 	private String functionId;
@@ -53,15 +45,15 @@ public class PageFunctionNode implements Serializable{
 	@Column(name = "category", length = 16, nullable = false)
 	private NodeCategory category;
 	
-	@Convert(converter = BindSourceConverter.class)
-	@Column(name = "bind_source", length = 16)
-	private BindSource bindSource;
-	
-	@Column(name = "api_repo_id")
-	private Integer apiRepoId;
-	
-	@Column(name = "code", length = 32)
-	private String code;
+//	@Convert(converter = BindSourceConverter.class)
+//	@Column(name = "bind_source", length = 16)
+//	private BindSource bindSource;
+//	
+//	@Column(name = "api_repo_id")
+//	private Integer apiRepoId;
+//	
+//	@Column(name = "code", length = 32)
+//	private String code;
 
 	public String getId() {
 		return id;
@@ -111,28 +103,36 @@ public class PageFunctionNode implements Serializable{
 		this.category = category;
 	}
 
-	public BindSource getBindSource() {
-		return bindSource;
+//	public BindSource getBindSource() {
+//		return bindSource;
+//	}
+//
+//	public void setBindSource(BindSource bindSource) {
+//		this.bindSource = bindSource;
+//	}
+//
+//	public Integer getApiRepoId() {
+//		return apiRepoId;
+//	}
+//
+//	public void setApiRepoId(Integer apiRepoId) {
+//		this.apiRepoId = apiRepoId;
+//	}
+//
+//	public String getCode() {
+//		return code;
+//	}
+//
+//	public void setCode(String code) {
+//		this.code = code;
+//	}
+
+	public Integer getPageId() {
+		return pageId;
 	}
 
-	public void setBindSource(BindSource bindSource) {
-		this.bindSource = bindSource;
-	}
-
-	public Integer getApiRepoId() {
-		return apiRepoId;
-	}
-
-	public void setApiRepoId(Integer apiRepoId) {
-		this.apiRepoId = apiRepoId;
-	}
-
-	public String getCode() {
-		return code;
-	}
-
-	public void setCode(String code) {
-		this.code = code;
+	public void setPageId(Integer pageId) {
+		this.pageId = pageId;
 	}
 
 }

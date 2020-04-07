@@ -24,15 +24,7 @@ public class PageFunctionNodePort implements Serializable{
 	private String id;
 
 	@Column(name = "project_resource_id", nullable = false)
-	private Integer projectResourceId;
-	
-	public Integer getProjectResourceId() {
-		return projectResourceId;
-	}
-
-	public void setProjectResourceId(Integer projectResourceId) {
-		this.projectResourceId = projectResourceId;
-	}
+	private Integer pageId;
 
 	@Column(name = "page_func_node_id", length=32, nullable = false)
 	private String nodeId;
@@ -51,8 +43,8 @@ public class PageFunctionNodePort implements Serializable{
 	@Column(name = "input_data_port_value", length = 64)
 	private String inputDataPortValue;
 	
-	@Column(name = "code", length = 32)
-	private String code;
+//	@Column(name = "code", length = 32)
+//	private String code;
 
 	public String getId() {
 		return id;
@@ -102,11 +94,19 @@ public class PageFunctionNodePort implements Serializable{
 		this.inputDataPortValue = inputDataPortValue;
 	}
 
-	public String getCode() {
-		return code;
+//	public String getCode() {
+//		return code;
+//	}
+//
+//	public void setCode(String code) {
+//		this.code = code;
+//	}
+
+	public Integer getPageId() {
+		return pageId;
 	}
 
-	public void setCode(String code) {
-		this.code = code;
+	public void setPageId(Integer pageId) {
+		this.pageId = pageId;
 	}
 }

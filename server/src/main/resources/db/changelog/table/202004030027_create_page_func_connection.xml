@@ -11,10 +11,19 @@
 			<column name="dbid" type="varchar(32)">
 				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_PAGE_FUNC_CONNECTION" />
 			</column>
-			<column name="project_resource_id" remarks="项目资源标识" type="varchar(32)">
+			<column name="project_resource_id" remarks="项目资源标识" type="int">
+				<constraints nullable="false" />
+			</column>
+			<column name="page_func_id" remarks="页面函数标识" type="varchar(32)">
+				<constraints nullable="false" />
+			</column>
+			<column name="from_node_id" remarks="起始节点标识" type="varchar(32)">
 				<constraints nullable="false" />
 			</column>
 			<column name="from_output_port_id" remarks="起始节点中的输出型端口标识" type="varchar(32)">
+				<constraints nullable="false" />
+			</column>
+			<column name="to_node_id" remarks="终止节点标识" type="varchar(32)">
 				<constraints nullable="false" />
 			</column>
 			<column name="to_input_port_id" remarks="终止节点中的输入型端口标识" type="varchar(32)">

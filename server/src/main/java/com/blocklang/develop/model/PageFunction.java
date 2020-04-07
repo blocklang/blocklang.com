@@ -18,7 +18,7 @@ public class PageFunction implements Serializable {
 	private String id;
 
 	@Column(name = "project_resource_id", nullable = false)
-	private Integer projectResourceId;
+	private Integer pageId;
 
 	public String getId() {
 		return id;
@@ -28,12 +28,12 @@ public class PageFunction implements Serializable {
 		this.id = id;
 	}
 
-	public Integer getProjectResourceId() {
-		return projectResourceId;
+	public Integer getPageId() {
+		return pageId;
 	}
 
-	public void setProjectResourceId(Integer projectResourceId) {
-		this.projectResourceId = projectResourceId;
+	public void setPageId(Integer pageId) {
+		this.pageId = pageId;
 	}
 
 }
