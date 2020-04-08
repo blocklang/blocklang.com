@@ -64,9 +64,99 @@ Status: 200 OK
 | `code`      | `int`     | 属性编码                       |
 | `name`      | `string`  | 属性名                         |
 | `valueType` | `string`  | 属性值数据类型                 |
+| `eventArgs` | `Array`   | 事件的参数列表                 |
 | `id`        | `int`     | 属性添加到页面后，新生成的标识 |
 | `value`     | `string`  | 属性值                         |
 | `expr`      | `boolean` | 是否包含表达式                 |
+
+`eventArgs` 是事件定义中的参数列表，是一个 Json Array，其中的字段为
+
+| 属性名         | 类型     | 描述                   |
+| -------------- | -------- | ---------------------- |
+| `code`         | `int`    | 参数编码               |
+| `name`         | `string` | 参数名                 |
+| `label`        | `string` | 参数的显示名（移除？） |
+| `valueType`    | `string` | 参数的数据类型         |
+| `defaultValue` | `string` | 参数的默认值           |
+| `description`  | `string` | 参数描述               |
+
+`data` 是页面中的数据列表，是一个 Json Array，其中的字段为
+
+| 属性名     | 类型     | 描述                 |
+| ---------- | -------- | -------------------- |
+| `id`       | `string` | 页面数据项标识       |
+| `parentId` | `string` | 页面数据项父标识     |
+| `name`     | `string` | 页面数据项的变量名   |
+| `type`     | `string` | 页面数据项的数据类型 |
+| `value`    | `string` | 页面数据项的默认值   |
+
+
+`functions` 是页面中的函数列表，是一个 Json Array，其中的字段为
+
+| 属性名                | 类型     | 描述             |
+| --------------------- | -------- | ---------------- |
+| `id`                  | `string` | 事件处理函数标识 |
+| `nodes`               | `Array`  | 节点列表         |
+| `sequenceConnections` | `Array`  | 序列连接线列表   |
+| `dataConnections`     | `Array`  | 数据连接线列表   |
+
+`nodes` 是节点列表，是一个 Json Array，其中的字段为
+
+| 属性名                | 类型     | 描述                 |
+| --------------------- | -------- | -------------------- |
+| `id`                  | `string` | 节点标识             |
+| `left`                | `int`    | 距左上角的 x 值      |
+| `top`                 | `int`    | 距左上角的 y 值      |
+| `caption`             | `string` | 标题                 |
+| `text`                | `string` | 简述                 |
+| `layout`              | `string` | 节点布局             |
+| `category`            | `string` | 函数定义或调用类型   |
+| `dataItemId`          | `string` | 引用的数据项标识     |
+| `inputSequencePort`   | `Object` | 输入型的序列端口     |
+| `outputSequencePorts` | `Array`  | 输出型的序列端口列表 |
+| `inputDataPorts`      | `Array`  | 输入型的数据端口列表 |
+| `outputDataPorts`     | `Array`  | 输出型的数据端口列表 |
+
+`inputSequencePort` 是一个 Json Object，其中的字段为
+
+| 属性名 | 类型     | 描述     |
+| ------ | -------- | -------- |
+| `id`   | `string` | 端口标识 |
+
+`outputSequencePorts` 是一个 Json Array，其中的字段为
+
+| 属性名 | 类型     | 描述             |
+| ------ | -------- | ---------------- |
+| `id`   | `string` | 端口标识         |
+| `text` | `string` | 端口上显示的文本 |
+
+`inputDataPorts` 是一个 Json Array，其中的字段为
+
+| 属性名  | 类型     | 描述                   |
+| ------- | -------- | ---------------------- |
+| `id`    | `string` | 端口标识               |
+| `name`  | `string` | 端口名称               |
+| `type`  | `string` | 端口上存储值的数据类型 |
+| `value` | `string` | 端口上存储的值         |
+
+
+`outputDataPorts` 是一个 Json Array，其中的字段为
+
+| 属性名 | 类型     | 描述                   |
+| ------ | -------- | ---------------------- |
+| `id`   | `string` | 端口标识               |
+| `name` | `string` | 端口名称               |
+| `type` | `string` | 端口上存储值的数据类型 |
+
+`sequenceConnections` 和 `dataConnections` 分别是一个 Json Array，其中的字段为
+
+| 属性名       | 类型     | 描述                       |
+| ------------ | -------- | -------------------------- |
+| `id`         | `string` | 连接标识                   |
+| `fromNode`   | `string` | 起始节点标识               |
+| `fromOutput` | `string` | 起始节点中的输出型端口标识 |
+| `toNode`     | `string` | 终止节点标识               |
+| `toInput`    | `string` | 终止节点中的输入型端口标识 |
 
 注意:
 

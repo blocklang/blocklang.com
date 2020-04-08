@@ -13,37 +13,7 @@ PUT /designer/pages/{pageId}/model
 
 ## Parameters
 
-| Name        | Type         | Description    |
-| ----------- | ------------ | -------------- |
-| `pageId`    | `int`        | 页面基本信息   |
-| `widgets`   | `Json Array` | 页面部件       |
-| `functions` | `Json Array` | 页面行为       |
-| `data`      | `Json Array` | 页面数据       |
-| `services`  | `Json Array` | 页面引用的服务 |
-
-`widgets` 是页面中包含的部件列表，是一个 Json Array，其中的字段为
-
-| 属性名           | 类型      | 描述                         |
-| ---------------- | --------- | ---------------------------- |
-| `id`             | `string`  | 添加到页面后生成的部件标识   |
-| `parentId`       | `string`  | 添加到页面后生成的父部件标识 |
-| `widgetId`       | `int`     | 部件标识                     |
-| `widgetCode`     | `string`  | 部件编码                     |
-| `widgetName`     | `string`  | 部件名称                     |
-| `canHasChildren` | `boolean` | 是否可以包含子部件           |
-| `apiRepoId`      | `int`     | API 仓库标识                 |
-| `properties`     | `Array`   | 部件的属性列表               |
-
-`properties` 是部件的属性列表，是一个 Json Array，其中的字段为
-
-| 属性名      | 类型      | 描述                           |
-| ----------- | --------- | ------------------------------ |
-| `code`      | `int`     | 属性编码                       |
-| `name`      | `string`  | 属性名                         |
-| `valueType` | `string`  | 属性值数据类型                 |
-| `id`        | `int`     | 属性添加到页面后，新生成的标识 |
-| `value`     | `string`  | 属性值                         |
-| `expr`      | `boolean` | 是否包含表达式                 |
+输入参数与 [update-a-page-model](./update-a-page-model.md) 中的返回值类型要**完全**保持一致。
 
 ## Response
 
