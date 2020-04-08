@@ -27,7 +27,7 @@ public class PageFunctionConnectionJdbcDaoImpl implements PageFunctionConnection
 			"from_output_port_id, " +
 			"to_node_id, " +
 			"to_input_port_id) " +
-			"VALUES (?,?,?,?,?,?)";
+			"VALUES (?,?,?,?,?,?,?)";
 
 	@Override
 	public void batchSave(List<PageFunctionConnection> connections) {

@@ -966,6 +966,11 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 						.ifPresentOrElse(dataItem -> visualNode.setCaption("Set " + dataItem.getName()), ()->{
 							// TODO: 打印错误日志
 						});
+				} else if(node.getCategory() == NodeCategory.VARIABLE_GET) {
+					refDataItemOption
+						.ifPresentOrElse(dataItem -> visualNode.setCaption("Get " + dataItem.getName()), ()->{
+							// TODO: 打印错误日志
+						});
 				}
 				
 				visualNode.setLayout(node.getLayout().getKey());
@@ -1007,6 +1012,14 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 									odp.setType(arg.getValueType());
 									visualNode.addOutputDataPort(odp);
 								});
+							}else if(node.getCategory() == NodeCategory.VARIABLE_GET) {
+								// variable get 节点只有一个 output data port
+								DataPort odp = new DataPort();
+								odp.setId(port.getId());
+								odp.setName("value");
+								refDataItemOption.ifPresent(dataItem -> odp.setType(dataItem.getType()));
+								
+								visualNode.addOutputDataPort(odp);
 							}
 						}
 					}
