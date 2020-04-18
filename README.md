@@ -82,6 +82,7 @@ BlockLang 平台由以下项目组成：
 * [blocklang/api-widgets-bootstrap](https://github.com/blocklang/api-widgets-bootstrap) - 扩展库，存放 UI 组件的 API
 * [blocklang/widgets-bootstrap](https://github.com/blocklang/widgets-bootstrap) - 扩展库，存放 UI 组件
 * [blocklang/ide-widgets-bootstrap](https://github.com/blocklang/ide-widgets-bootstrap) - 扩展库，存放 UI 组件的 IDE 版
+* [blocklang/service-demo](https://github.com/blocklang/service-demo) - RESTful API 示例仓库，存放 RESTful API 的接口描述
 
 依赖的通用组件：
 
