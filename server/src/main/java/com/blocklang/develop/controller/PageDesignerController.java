@@ -30,7 +30,7 @@ import com.blocklang.core.exception.ResourceNotFoundException;
 import com.blocklang.core.service.PropertyService;
 import com.blocklang.develop.designer.data.Dependence;
 import com.blocklang.develop.designer.data.PageModel;
-import com.blocklang.develop.designer.data.WidgetRepo;
+import com.blocklang.develop.designer.data.RepoWidgetList;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectResource;
 import com.blocklang.develop.service.ProjectDependenceService;
@@ -103,13 +103,13 @@ public class PageDesignerController extends AbstractProjectController {
 	 * @return
 	 */
 	@GetMapping("/designer/projects/{projectId}/dependences/widgets")
-	public ResponseEntity<List<WidgetRepo>> getProjectDependenceWidgets(
+	public ResponseEntity<List<RepoWidgetList>> getProjectDependenceWidgets(
 			Principal principal,
 			@PathVariable Integer projectId) {
 		Project project = projectService.findById(projectId).orElseThrow(ResourceNotFoundException::new);
 		projectPermissionService.canRead(principal, project).orElseThrow(NoAuthorizationException::new);
 		
-		List<WidgetRepo> result = projectDependenceService.findAllWidgets(project.getId());
+		List<RepoWidgetList> result = projectDependenceService.findAllWidgets(project.getId());
 		return ResponseEntity.ok(result);
 	}
 	

@@ -32,7 +32,7 @@ import com.blocklang.develop.data.ProjectDependenceData;
 import com.blocklang.develop.designer.data.Widget;
 import com.blocklang.develop.designer.data.WidgetCategory;
 import com.blocklang.develop.designer.data.WidgetProperty;
-import com.blocklang.develop.designer.data.WidgetRepo;
+import com.blocklang.develop.designer.data.RepoWidgetList;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectBuildProfile;
 import com.blocklang.develop.model.ProjectContext;
@@ -858,7 +858,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void find_all_widgets_no_data() {
-		List<WidgetRepo> result = projectDependenceService.findAllWidgets(1);
+		List<RepoWidgetList> result = projectDependenceService.findAllWidgets(1);
 		assertThat(result).isEmpty();
 	}
 	
@@ -931,13 +931,13 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		
 		StopWatch watch = new StopWatch();
 		watch.start();
-		List<WidgetRepo> result = projectDependenceService.findAllWidgets(projectId);
+		List<RepoWidgetList> result = projectDependenceService.findAllWidgets(projectId);
 		watch.stop();
 		System.out.println("毫秒：" + watch.getTotalTimeMillis());
 		
 		assertThat(result).hasSize(1);
 		// 测试未分组的情况
-		WidgetRepo repo = result.get(0);
+		RepoWidgetList repo = result.get(0);
 		assertThat(repo.getApiRepoId()).isEqualTo(savedApiRepo.getId());
 		assertThat(repo.getApiRepoName()).isEqualTo(apiRepoName);
 		assertThat(repo.getWidgetCategories()).hasSize(1);
@@ -1040,7 +1040,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		
 		StopWatch watch = new StopWatch();
 		watch.start();
-		List<WidgetRepo> result = projectDependenceService.findAllWidgets(projectId);
+		List<RepoWidgetList> result = projectDependenceService.findAllWidgets(projectId);
 		watch.stop();
 		System.out.println("毫秒：" + watch.getTotalTimeMillis());
 		assertThat(result).hasSize(1);
@@ -1091,7 +1091,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		dependence.setCreateTime(LocalDateTime.now());
 		projectDependenceDao.save(dependence);
 		
-		List<WidgetRepo> result = projectDependenceService.findAllWidgets(projectId);
+		List<RepoWidgetList> result = projectDependenceService.findAllWidgets(projectId);
 		assertThat(result).hasSize(0);
 	}
 
@@ -1161,13 +1161,13 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		
 		StopWatch watch = new StopWatch();
 		watch.start();
-		List<WidgetRepo> result = projectDependenceService.findAllWidgets(projectId);
+		List<RepoWidgetList> result = projectDependenceService.findAllWidgets(projectId);
 		watch.stop();
 		System.out.println("毫秒：" + watch.getTotalTimeMillis());
 		
 		assertThat(result).hasSize(1);
 		// 测试未分组的情况
-		WidgetRepo repo = result.get(0);
+		RepoWidgetList repo = result.get(0);
 		assertThat(repo.getApiRepoId()).isEqualTo(savedApiRepo.getId());
 		assertThat(repo.getApiRepoName()).isEqualTo(apiRepoName);
 		assertThat(repo.getWidgetCategories()).hasSize(1);

@@ -27,23 +27,27 @@ import com.blocklang.develop.dao.ProjectDao;
 import com.blocklang.develop.dao.ProjectDependenceDao;
 import com.blocklang.develop.data.ProjectDependenceData;
 import com.blocklang.develop.designer.data.ApiRepoVersionInfo;
+import com.blocklang.develop.designer.data.EventArgument;
 import com.blocklang.develop.designer.data.Widget;
 import com.blocklang.develop.designer.data.WidgetCategory;
 import com.blocklang.develop.designer.data.WidgetProperty;
-import com.blocklang.develop.designer.data.WidgetRepo;
+import com.blocklang.develop.designer.data.RepoWidgetList;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectBuildProfile;
 import com.blocklang.develop.model.ProjectContext;
 import com.blocklang.develop.model.ProjectDependence;
 import com.blocklang.develop.model.ProjectResource;
 import com.blocklang.develop.service.ProjectDependenceService;
+import com.blocklang.marketplace.constant.ComponentAttrValueType;
 import com.blocklang.marketplace.constant.RepoCategory;
 import com.blocklang.marketplace.dao.ApiComponentAttrDao;
+import com.blocklang.marketplace.dao.ApiComponentAttrFunArgDao;
 import com.blocklang.marketplace.dao.ApiComponentDao;
 import com.blocklang.marketplace.dao.ApiRepoDao;
 import com.blocklang.marketplace.dao.ApiRepoVersionDao;
 import com.blocklang.marketplace.dao.ComponentRepoDao;
 import com.blocklang.marketplace.dao.ComponentRepoVersionDao;
+import com.blocklang.marketplace.model.ApiComponentAttrFunArg;
 import com.blocklang.marketplace.model.ApiRepo;
 import com.blocklang.marketplace.model.ApiRepoVersion;
 import com.blocklang.marketplace.model.ComponentRepo;
@@ -79,6 +83,8 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 	private ApiComponentDao apiComponentDao;
 	@Autowired
 	private ApiComponentAttrDao apiComponentAttrDao;
+	@Autowired
+	private ApiComponentAttrFunArgDao apiComponentAttrFunArgDao;
 	@Autowired
 	private PropertyService propertyService;
 	
@@ -410,7 +416,7 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 	}
 	
 	@Override
-	public List<WidgetRepo> findAllWidgets(Integer projectId) {
+	public List<RepoWidgetList> findAllWidgets(Integer projectId) {
 		// 获取项目的所有依赖，包含组件仓库的版本信息
 		List<ProjectDependence> allDependences = projectDependenceDao.findAllByProjectId(projectId);
 		
@@ -455,6 +461,19 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 								each.setName(property.getName());
 								each.setValueType(property.getValueType().getKey());
 								each.setDefaultValue(property.getDefaultValue());
+								
+								// 添加事件参数列表
+								if(property.getValueType() == ComponentAttrValueType.FUNCTION) {
+									List<EventArgument> eventArgs = apiComponentAttrFunArgDao.findAllByApiComponentAttrId(property.getId()).stream().map(eventArg -> {
+										EventArgument ea = new EventArgument();
+										ea.setCode(eventArg.getCode());
+										ea.setName(eventArg.getName());
+										ea.setValueType(eventArg.getValueType().getKey());
+										ea.setDefaultValue(eventArg.getDefaultValue());
+										return ea;
+									}).collect(Collectors.toList());
+									each.setArguments(eventArgs);
+								}
 								return each;
 							}).collect(Collectors.toList());
 							result.setProperties(properties);
@@ -466,7 +485,7 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 				category.setName("_");
 				category.setWidgets(widgets);
 				
-				WidgetRepo widgetRepo = new WidgetRepo();
+				RepoWidgetList widgetRepo = new RepoWidgetList();
 				widgetRepo.setApiRepoId(apiVersionInfo.getApiRepoId());
 				widgetRepo.setApiRepoName(apiVersionInfo.getApiRepoName());
 				widgetRepo.setWidgetCategories(Collections.singletonList(category));

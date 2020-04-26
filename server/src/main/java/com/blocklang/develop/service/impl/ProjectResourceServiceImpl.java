@@ -633,7 +633,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 		
 		// 插入函数
 		List<PageEventHandler> handlers = pageModel.getFunctions();
-		if(!handlers.isEmpty()) {
+		if(handlers != null && !handlers.isEmpty()) {
 			List<PageFunction> funcs = new ArrayList<>();
 			List<PageFunctionNode> nodes = new ArrayList<>();
 			List<PageFunctionNodePort> ports = new ArrayList<>();

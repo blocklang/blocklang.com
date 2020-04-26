@@ -73,9 +73,19 @@ Status: 200 OK
 
 `properties` 是部件的属性列表，是一个 Json Array，其中的字段为
 
-| 属性名         | 类型     | 描述           |
-| -------------- | -------- | -------------- |
-| `code`         | `int`    | 属性编码       |
-| `name`         | `string` | 属性名         |
-| `defaultValue` | `string` | 属性默认值     |
-| `valueType`    | `string` | 属性值数据类型 |
+| 属性名         | 类型                 | 描述           |
+| -------------- | -------------------- | -------------- |
+| `code`         | `int`                | 属性编码       |
+| `name`         | `string`             | 属性名         |
+| `defaultValue` | `string`             | 属性默认值     |
+| `valueType`    | `string`             | 属性值数据类型 |
+| `arguments`    | `FunctionArgument[]` | 事件的输入参数 |
+
+`arguments` 是一个数组，其中的字段为
+
+| 属性名         | 类型     | 描述         |
+| -------------- | -------- | ------------ |
+| `id`           | `string` | 参数定义标识 |
+| `name`         | `string` | 参数名       |
+| `defaultValue` | `string` | 参数的默认值 |
+| `valueType`    | `string` | 参数值的类型 |

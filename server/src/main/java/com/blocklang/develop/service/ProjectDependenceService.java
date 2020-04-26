@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.data.ProjectDependenceData;
-import com.blocklang.develop.designer.data.WidgetRepo;
+import com.blocklang.develop.designer.data.RepoWidgetList;
 import com.blocklang.develop.model.ProjectDependence;
 import com.blocklang.marketplace.model.ComponentRepo;
 
@@ -69,6 +69,6 @@ public interface ProjectDependenceService {
 	 * @param projectId 项目标识
 	 * @return 先按仓库分组，在根据 category 分组的部件列表
 	 */
-	List<WidgetRepo> findAllWidgets(Integer projectId);
+	List<RepoWidgetList> findAllWidgets(Integer projectId);
 
 }
