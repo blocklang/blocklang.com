@@ -38,6 +38,9 @@ npm config set registry https://registry.npmjs.org/
 
 # 使用淘宝 puppeteer 镜像
 npm config set puppeteer_download_host=https://npm.taobao.org/mirrors
+
+# 使用淘宝 electron 镜像
+npm config set ELECTRON_MIRROR https://npm.taobao.org/mirrors/electron/
 ```
 
 ### 安装 yarn
