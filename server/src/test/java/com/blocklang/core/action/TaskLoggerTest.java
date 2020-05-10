@@ -1,6 +1,9 @@
-package com.blocklang.marketplace.task;
+package com.blocklang.core.action;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,8 +12,18 @@ import java.nio.file.Path;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.MockitoAnnotations;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
-public class TaskLoggerTest {
+import com.blocklang.release.constant.ReleaseResult;
+
+public class TaskLoggerTest{
+
+	@Captor 
+	ArgumentCaptor<Message<String>> messageCaptor;
 	
 	private Path logFolder;
 	private Path logFile;
@@ -107,6 +120,47 @@ public class TaskLoggerTest {
 		logger.println();
 		
 		String content = Files.readString(logFile);
-		assertThat(content).isEqualTo( System.lineSeparator());
+		assertThat(content).isEqualTo(System.lineSeparator());
+	}
+
+	@Test
+	public void enableSendStompMessage() {
+		MockitoAnnotations.initMocks(this);
+		
+		TaskLogger logger = new TaskLogger(logFile);
+		SimpMessagingTemplate messagingTemplate = mock(SimpMessagingTemplate.class);
+		
+		logger.enableSendStompMessage(1, messagingTemplate, "/topic/publish/");
+		String message = "abc";
+		logger.log(message);
+		verify(messagingTemplate).convertAndSend(eq("/topic/publish/1"), messageCaptor.capture());
+	}
+	
+	@Test
+	public void finished_enable_send_stop_message() throws IOException {
+		MockitoAnnotations.initMocks(this);
+		
+		TaskLogger logger = new TaskLogger(logFile);
+		SimpMessagingTemplate messagingTemplate = mock(SimpMessagingTemplate.class);
+		
+		logger.enableSendStompMessage(1, messagingTemplate, "/topic/publish/");
+		logger.finished(ReleaseResult.PASSED);
+		
+		// payload 参数只能使用 messageCaptor.capture() 代替，不能使用 any()，因为此参数是一个泛型对象
+		verify(messagingTemplate).convertAndSend(eq("/topic/publish/1"), messageCaptor.capture());
+		
+		String content = Files.readString(logFile);
+		assertThat(content).isEmpty();
+	}
+	
+	@Test
+	public void finished_disable_send_stop_message() throws IOException {
+		MockitoAnnotations.initMocks(this);
+		
+		TaskLogger logger = new TaskLogger(logFile);
+		logger.finished(ReleaseResult.PASSED);
+		
+		String content = Files.readString(logFile);
+		assertThat(content).isEmpty();
 	}
 }
