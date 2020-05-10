@@ -172,7 +172,7 @@ git tag 与 api.json 中的 `version` 各自的作用分别是：
 2. `version` - 组件库的版本(必填)
 3. `displayName` - 组件库的显示名(可选)
 4. `description` - 组件库详细介绍(可选)
-5. `category` - 组件库种类，当前支持 `Widget` 和 `ClientAPI`(必填)
+5. `category` - 组件库种类，当前支持 `Widget` 和 `WebAPI`(必填)
 6. `components` - 数组，存储组件的相对路径
    1. 当 category 为 `Widget` 时，如 Button 部件的 API 存在 `components/button` 文件夹中
 
@@ -358,7 +358,7 @@ root
 3. `displayName` - 组件库的显示名(可选)
 4. `description` - 组件库详细介绍(可选)
 5. `icon` - 组件库 logo 的存放路径(可选)
-6. `category` - 组件库种类，当前仅支持 `Widget`(必填)
+6. `category` - 组件库种类，当前仅支持 `Widget` 和 `WebAPI`(必填)
 7. `language` - 开发语言，当前支持 `Typescript`(必填)
 8. `std` - 是否为标准库，默认为 `false`，标准库是 blocklang 管理员注册到组件市场中的，但不会在组件市场中显示
 9. `baseOn` - 这个参数主要用于 Widget，常用的值有 `dojo`、`react`、`vue`、`angular` 等

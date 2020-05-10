@@ -110,7 +110,7 @@ public class ApiJsonParseGroupTask extends AbstractRepoPublishTask {
 			}
 		}
 		
-		// 校验 component.json 的 schema 和值的有效性
+		// 校验 api.json 的 schema 和值的有效性
 		if(success) {
 			logger.info("校验 {0} 文件的 schema 和值", MarketplaceConstant.FILE_NAME_API);
 			

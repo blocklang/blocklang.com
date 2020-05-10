@@ -6,6 +6,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+// FIXME: 调整值 Client API -> Web API
+// Service API -> Service
 public enum RepoCategory {
 
 	WIDGET("01", "Widget"),

@@ -14,6 +14,12 @@ import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.ValidationMessage;
 
+/**
+ * 校验 api 仓库根目录下的 api.json 文件是否符合规范
+ * 
+ * @author Zhengwei Jin
+ *
+ */
 public class JsonApiValidator {
 
 	private static final String SCHEMA_FILE_NAME = "api_json_schema.json";
