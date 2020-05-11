@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+// TODO: 重命名，这个类不仅适用于发布程序，也适用于往组件库发布组件
 public enum ReleaseResult {
 	
 	INITED("01", "Inited"),

@@ -8,6 +8,7 @@ import org.eclipse.jgit.lib.Ref;
 
 import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.git.exception.GitTagFailedException;
+import com.blocklang.core.runner.CliContext;
 
 import de.skuzzle.semantic.Version;
 
@@ -20,19 +21,19 @@ import de.skuzzle.semantic.Version;
  * @author Zhengwei Jin
  *
  */
-public class ApiRepoVersionsFindTask extends AbstractRepoPublishTask{
+public class ApiRepoVersionsFindTask extends AbstractPublishRepoTask{
 	
-	public ApiRepoVersionsFindTask(MarketplacePublishContext marketplacePublishContext) {
+	public ApiRepoVersionsFindTask(CliContext<MarketplacePublishData> marketplacePublishContext) {
 		super(marketplacePublishContext);
 	}
 
 	@Override
 	public Optional<Boolean> run() {
 		try {
-			List<Ref> tags = GitUtils.getTags(context.getLocalApiRepoPath().getRepoSourceDirectory());
+			List<Ref> tags = GitUtils.getTags(data.getLocalApiRepoPath().getRepoSourceDirectory());
 			logger.info("共有 {0} 个 git tags", tags.size());
 			
-			context.setAllApiRepoTagNames(tags.stream().map(ref -> ref.getName()).collect(Collectors.toList()));
+			data.setAllApiRepoTagNames(tags.stream().map(ref -> ref.getName()).collect(Collectors.toList()));
 			
 			List<String> versions = tags.stream()
 				.map(ref -> GitUtils.getVersionFromRefName(ref.getName()))
@@ -50,7 +51,7 @@ public class ApiRepoVersionsFindTask extends AbstractRepoPublishTask{
 				logger.error("共解析出 0 个有效的版本");
 				return Optional.empty();
 			}
-			context.setApiRepoVersions(versions);
+			data.setApiRepoVersions(versions);
 			return Optional.of(true);
 		}catch (GitTagFailedException e) {
 			logger.error(e);

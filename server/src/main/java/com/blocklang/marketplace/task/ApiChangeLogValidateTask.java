@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.blocklang.core.runner.AbstractTask;
+import com.blocklang.core.runner.CliContext;
 import com.blocklang.core.util.StringUtil;
 import com.blocklang.marketplace.constant.ComponentAttrValueType;
 import com.blocklang.marketplace.data.changelog.Change;
@@ -24,7 +26,7 @@ import com.blocklang.marketplace.data.changelog.WidgetPropertyOption;
  * @author Zhengwei Jin
  *
  */
-public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
+public class ApiChangeLogValidateTask extends AbstractPublishRepoTask {
 
 	private Map<?,?> changelogMap;
 	private List<String> childKeysForRoot = Arrays.asList("id", "author", "changes");
@@ -43,7 +45,7 @@ public class ApiChangeLogValidateTask extends AbstractRepoPublishTask {
 	 */
 	private List<String> valueTypes = Arrays.asList("string", "number", "boolean");
 	
-	public ApiChangeLogValidateTask(MarketplacePublishContext marketplacePublishContext, Map<?, ?> changelogMap) {
+	public ApiChangeLogValidateTask(CliContext<MarketplacePublishData> marketplacePublishContext, Map<?, ?> changelogMap) {
 		super(marketplacePublishContext);
 		this.changelogMap = changelogMap;
 	}

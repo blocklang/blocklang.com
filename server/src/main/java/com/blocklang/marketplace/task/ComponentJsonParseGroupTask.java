@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.eclipse.jgit.lib.Ref;
 
 import com.blocklang.core.git.GitUtils;
+import com.blocklang.core.runner.CliContext;
 import com.blocklang.marketplace.constant.MarketplaceConstant;
 import com.blocklang.marketplace.dao.ComponentRepoDao;
 import com.blocklang.marketplace.data.ComponentJson;
@@ -23,11 +24,11 @@ import de.skuzzle.semantic.Version;
  * @author Zhengwei Jin
  *
  */
-public class ComponentJsonParseGroupTask extends AbstractRepoPublishTask {
+public class ComponentJsonParseGroupTask extends AbstractPublishRepoTask {
 
 	private ComponentRepoDao componentRepoDao;
 	
-	public ComponentJsonParseGroupTask(MarketplacePublishContext context, 
+	public ComponentJsonParseGroupTask(CliContext<MarketplacePublishData> context, 
 			ComponentRepoDao componentRepoDao) {
 		super(context);
 
@@ -41,7 +42,7 @@ public class ComponentJsonParseGroupTask extends AbstractRepoPublishTask {
 	public Optional<Boolean> run() {
 		boolean success = true;
 		// 校验远程仓库是否存在
-		String gitUrl = context.getPublishTask().getGitUrl();
+		String gitUrl = data.getPublishTask().getGitUrl();
 		logger.info("开始校验 {0} 仓库是否存在", gitUrl);
 		success = GitUtils.isValidRemoteRepository(gitUrl);
 		if(success) {
@@ -52,7 +53,7 @@ public class ComponentJsonParseGroupTask extends AbstractRepoPublishTask {
 		
 		// 从源代码托管网站下载组件的源代码
 		if(success) {
-			logger.info("开始下载组件仓库的源码");
+			logger.info("开始下载 {0} 仓库", gitUrl);
 			GitSyncComponentRepoTask componentRepoTask = new GitSyncComponentRepoTask(context);
 			Optional<Boolean> gitSyncOption = componentRepoTask.run();
 			success = gitSyncOption.isPresent();
@@ -77,22 +78,22 @@ public class ComponentJsonParseGroupTask extends AbstractRepoPublishTask {
 				if(versionOption.isPresent()) {
 					String version = versionOption.get();
 					if(!Version.isValidVersion(version)) {
-						logger.error("{0} 不是有效的语义化版本号，请调整后重试", version);
+						logger.error("{0} 不是有效的语义版本号，请调整后重试", version);
 						success = false;
 					} else {
 						componentRepoLatestVersion = version;
-						context.setComponentRepoLatestVersion(version);
+						data.setComponentRepoLatestVersion(version);
 						
 						// 再保存一份 tag
-						context.setComponentRepoLatestTagName(GitUtils.getTagName(componentRepoLatestRefName).orElse(null));
+						data.setComponentRepoLatestTagName(GitUtils.getTagName(componentRepoLatestRefName).orElse(null));
 						
-						logger.info("完成，组件仓库的最新版本为 {0}", version);
+						logger.info("完成，仓库的最新版本为 {0}", version);
 					}
 				} else {
 					success = false;
 				}
 			} else {
-				logger.error("组件仓库中没有找到发布的版本，请为仓库标注 tag 后再重试");
+				logger.error("在仓库中没有找到发布的版本，请为仓库标注 tag 后再重试");
 			}
 		}
 
@@ -120,7 +121,7 @@ public class ComponentJsonParseGroupTask extends AbstractRepoPublishTask {
 			try {
 				componentJson = objectMapper.readValue(componentJsonContent, ComponentJson.class);
 				// 在这里往 context 中保存，这样在后续的校验子任务中，可以从 context 中获取 componentJson
-				context.setComponentJson(componentJson);
+				data.setComponentJson(componentJson);
 				logger.info("转换完成");
 			} catch (IOException e) {
 				logger.error("转换失败");

@@ -1,4 +1,4 @@
-package com.blocklang.core.action;
+package com.blocklang.core.runner;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -15,14 +15,6 @@ import org.springframework.util.Assert;
 
 import com.blocklang.release.constant.ReleaseResult;
 
-/**
- * 记录任务中的日志。
- * 
- * <p>默认只往日志文件中写日志，如果需要开启往浏览器端发送日志，则调用 {@link TaskLogger#enableSendStompMessage(Integer, SimpMessagingTemplate)}}
- * 
- * @author Zhengwei Jin
- *
- */
 public class TaskLogger implements CliLogger{
 	
 	private static final Logger logger = LoggerFactory.getLogger(TaskLogger.class);
@@ -55,13 +47,6 @@ public class TaskLogger implements CliLogger{
 		}
 	}
 	
-	/**
-	 * 开启发送 stomp 日志功能
-	 * 
-	 * @param taskId               任务标识
-	 * @param messagingTemplate    消息模板
-	 * @param destinationPrefix    发送目标的前缀，以/开头，并以/结束，如 "/topic/dosth/"
-	 */
 	public void enableSendStompMessage(Integer taskId, SimpMessagingTemplate messagingTemplate, String destinationPrefix) {
 		Assert.notNull(taskId, "taskId 不能为空");
 		
@@ -84,16 +69,10 @@ public class TaskLogger implements CliLogger{
 		this.writeLine("[INFO] " + getContent(pattern, arguments));
 	}
 	
-	public void println() {
+	public void newLine() {
 		this.writeLine("");
 	}
 	
-	/**
-	 * 注意：pattern 中不能包含换行符，即使包含，也不会解析
-	 * 
-	 * 没有 [INFO] [ERROR] 等前缀。
-	 * 
-	 */
 	public void log(String pattern, Object... arguments) {
 		this.writeLine(getContent(pattern, arguments));
 	}

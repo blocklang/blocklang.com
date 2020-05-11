@@ -1,6 +1,5 @@
 package com.blocklang.marketplace.service.impl;
 
-import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 
@@ -12,6 +11,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.blocklang.core.constant.CmPropKey;
+import com.blocklang.core.runner.CliContext;
+import com.blocklang.core.runner.CliLogger;
 import com.blocklang.core.service.PropertyService;
 import com.blocklang.marketplace.constant.MarketplaceConstant;
 import com.blocklang.marketplace.dao.ApiChangeLogDao;
@@ -31,7 +32,7 @@ import com.blocklang.marketplace.task.ApiChangeLogsSetupGroupTask;
 import com.blocklang.marketplace.task.ApiJsonParseGroupTask;
 import com.blocklang.marketplace.task.ComponentJsonParseGroupTask;
 import com.blocklang.marketplace.task.MarketplacePublishContext;
-import com.blocklang.marketplace.task.TaskLogger;
+import com.blocklang.marketplace.task.MarketplacePublishData;
 import com.blocklang.release.constant.ReleaseResult;
 
 @Service
@@ -60,7 +61,7 @@ public class PublishServiceImpl implements PublishService {
 	@Autowired
 	private ApiChangeLogDao apiChangeLogDao;
 	@Autowired
-	private SimpMessagingTemplate messagingTemplate;
+	public SimpMessagingTemplate messagingTemplate;
 	
 	@Async
 	@Override
@@ -73,33 +74,29 @@ public class PublishServiceImpl implements PublishService {
 	public void publish(ComponentRepoPublishTask publishTask) {
 		StopWatch stopWatch = StopWatch.createStarted();
 
+		// 因为系统运行时已校验是否配置 CmPropKey.BLOCKLANG_ROOT_PATH 参数，所以此处无需校验
 		String dataRootPath = propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH, "");
-		MarketplacePublishContext context = new MarketplacePublishContext(dataRootPath, publishTask);
+		CliContext<MarketplacePublishData> context = new MarketplacePublishContext(dataRootPath, publishTask);
 		
 		// 确保全程使用同一个 logger
-		Path logFile = context.getRepoPublishLogFile();
-		publishTask.setLogFileName(logFile.getFileName().toString());
+		publishTask.setLogFileName(context.getData().getRepoPublishLogFile().toString());
 		componentRepoPublishTaskDao.save(publishTask);
 		
-		TaskLogger logger = new TaskLogger(logFile);
-		// 以下三行是设置 websocket 消息的参数
-		// 设置日志组件，支持向远程发送消息
-		// TODO: 以下接口是否可以简化？
-		logger.setSendMessage(true);
-		logger.setMessagingTemplate(messagingTemplate);
-		logger.setTaskId(publishTask.getId());
-		// 所有的任务公用同一个日志对象
-		context.setLogger(logger);
+		CliLogger logger = context.newLogger(messagingTemplate, "/topic/publish/");
 		
 		logger.info(StringUtils.repeat("=", 60));
 		logger.info("开始发布 @{0}/{1} 组件库", 
-				context.getLocalComponentRepoPath().getOwner(), 
-				context.getLocalComponentRepoPath().getRepoName());
+				context.getData().getLocalComponentRepoPath().getOwner(), 
+				context.getData().getLocalComponentRepoPath().getRepoName());
 		
 		boolean success = true;
+		
+		// TODO: 判断是 API 仓库，还是组件仓库
+		// 以下处理组件仓库
+		
 
 		logger.info(StringUtils.repeat("-", 45));
-		logger.info("一、开始解析组件仓库中的 {0}", MarketplaceConstant.FILE_NAME_COMPONENT);
+		logger.info("一、开始解析仓库中的 {0}", MarketplaceConstant.FILE_NAME_COMPONENT);
 		ComponentJsonParseGroupTask componentJsonParseGroupTask = new ComponentJsonParseGroupTask(
 				context,
 				componentRepoDao);

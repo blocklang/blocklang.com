@@ -1,16 +1,11 @@
 package com.blocklang.marketplace.task;
 
-import java.nio.file.Path;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.util.Assert;
 
-import org.apache.commons.lang3.StringUtils;
-
-import com.blocklang.marketplace.data.ApiJson;
-import com.blocklang.marketplace.data.ComponentJson;
-import com.blocklang.marketplace.data.LocalRepoPath;
-import com.blocklang.marketplace.data.changelog.ComponentChangeLogs;
+import com.blocklang.core.runner.CliContext;
+import com.blocklang.core.runner.CliLogger;
+import com.blocklang.core.runner.TaskLogger;
 import com.blocklang.marketplace.model.ComponentRepoPublishTask;
 
 /**
@@ -19,156 +14,50 @@ import com.blocklang.marketplace.model.ComponentRepoPublishTask;
  * @author Zhengwei Jin
  *
  */
-public class MarketplacePublishContext {
-	
-	private ComponentRepoPublishTask publishTask;
-	private boolean isFirstPublish = true;
-	private String dataRootPath;
-	
-	private LocalRepoPath localComponentRepoPath;
-	private LocalRepoPath localApiRepoPath;
-	private Path logFile;
-	
-	private String componentRepoLatestTagName;
-	private String componentRepoLatestVersion;
-	
-	// tag name 是包含 ref/tags/ 的完整名
-	private String apiRepoRefName;
-	private List<String> allApiRepoRefNames; // tag 的名称
-	private List<String> apiRepoVersions; // version 是从 tag 名称中解析出来的
-	
-	private TaskLogger logger;
-	
-	// 组件库描述信息
-	// 组件库最新版本中 component.json 中的内容
-	private ComponentJson componentJson;
-	private ApiJson apiJson;
-	
-	// 按组件分组，并按照版本号正序排列的 changelog
-	private List<ComponentChangeLogs> changeLogs;
+public class MarketplacePublishContext implements CliContext<MarketplacePublishData>{
+
+	private CliLogger logger;
+	private MarketplacePublishData data;
 	
 	public MarketplacePublishContext(String dataRootPath, ComponentRepoPublishTask publishTask) {
-		this.dataRootPath = dataRootPath;
-		this.publishTask = publishTask;
-		this.localComponentRepoPath = new LocalRepoPath(dataRootPath, publishTask.getGitUrl());
+		data = new MarketplacePublishData(dataRootPath, publishTask);
 	}
 	
-	public void parseApiGitUrl(String apiGitUrl) {
-		this.localApiRepoPath = new LocalRepoPath(dataRootPath, apiGitUrl);
+	/**
+	 * 创建日志记录对象。开启了发送 stomp 日志功能。
+	 * 
+	 * <p>在执行任务过程中共用同一个日志对象。</p>
+	 * 
+	 * @param messagingTemplate    发送 stomp 消息的模板对象
+	 * @param desinationPrefix     发送地址前缀，以 / 开头，完整地址为 <code>desinationPrefix/{taskId}</code>
+	 * @return 日志记录对象
+	 */
+	@Override
+	public CliLogger newLogger(SimpMessagingTemplate messagingTemplate, String desinationPrefix) {
+		Assert.isNull(this.logger, "日志记录对象已创建，不要重复创建");
+
+		CliLogger taskLogger = new TaskLogger(this.data.getRepoPublishLogFile());
+		// 设置 websocket 消息的参数，启动发送 stomp 消息功能
+		taskLogger.enableSendStompMessage(this.data.getPublishTask().getId(), messagingTemplate, desinationPrefix);
+
+		this.logger = taskLogger;
+		return logger;
 	}
 
 	/**
-	 * 如果 publishTask 中已包含 logFileName，则取此名；否则重新生成一个日志文件名。
+	 * 获取日志记录对象，在调用此方法前，需要先调用 {@link #newLogger(SimpMessagingTemplate, String)} 创建日志记录对象。
 	 * 
-	 * @return
+	 * @return 日志记录对象
 	 */
-	public Path getRepoPublishLogFile() {
-		if(this.logFile == null) {
-			String logFileName = StringUtils.isNotBlank(publishTask.getLogFileName()) ? publishTask.getLogFileName() : this.getRepoPublishLogFileName();
-			this.logFile = this.getRepoPublishLogDirectory().resolve(logFileName);
-		}
-		return this.logFile;
-	}
-
-	private String getRepoPublishLogFileName() {
-		LocalDateTime startLogTime = LocalDateTime.now();
-		return startLogTime.format(DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss")) + ".log";
-	}
-
-	private Path getRepoPublishLogDirectory() {
-		return this.localComponentRepoPath.getRepoRootDirectory().resolve("publishLogs");
-	}
-	
-	public LocalRepoPath getLocalComponentRepoPath() {
-		return localComponentRepoPath;
-	}
-
-	public LocalRepoPath getLocalApiRepoPath() {
-		return localApiRepoPath;
-	}
-
-	public ComponentJson getComponentJson() {
-		return componentJson;
-	}
-
-	public void setComponentJson(ComponentJson componentJson) {
-		this.componentJson = componentJson;
-	}
-
-	public ApiJson getApiJson() {
-		return apiJson;
-	}
-
-	public void setApiJson(ApiJson apiJson) {
-		this.apiJson = apiJson;
-	}
-
-	public List<ComponentChangeLogs> getChangeLogs() {
-		return changeLogs;
-	}
-
-	public void setChangeLogs(List<ComponentChangeLogs> changeLogs) {
-		this.changeLogs = changeLogs;
-	}
-
-	public String getComponentRepoLatestVersion() {
-		return componentRepoLatestVersion;
-	}
-
-	public void setComponentRepoLatestVersion(String componentRepoLatestVersion) {
-		this.componentRepoLatestVersion = componentRepoLatestVersion;
-	}
-
-	public ComponentRepoPublishTask getPublishTask() {
-		return publishTask;
-	}
-
-	public boolean isFirstPublish() {
-		return isFirstPublish;
-	}
-
-	public void setFirstPublish(boolean isFirstPublish) {
-		this.isFirstPublish = isFirstPublish;
-	}
-
-	public String getApiRepoRefName() {
-		return apiRepoRefName;
-	}
-
-	public void setApiRepoRefName(String apiRepoRefName) {
-		this.apiRepoRefName = apiRepoRefName;
-	}
-
-	public List<String> getApiRepoVersions() {
-		return apiRepoVersions;
-	}
-
-	public void setApiRepoVersions(List<String> apiRepoVersions) {
-		this.apiRepoVersions = apiRepoVersions;
-	}
-
-	public List<String> getAllApiRepoRefNames() {
-		return allApiRepoRefNames;
-	}
-
-	public void setAllApiRepoTagNames(List<String> allApiRepoRefNames) {
-		this.allApiRepoRefNames = allApiRepoRefNames;
-	}
-	
-	public void setLogger(TaskLogger logger) {
-		this.logger = logger;
-	}
-
-	public TaskLogger getLogger() {
+	@Override
+	public CliLogger getLogger() {
+		Assert.notNull(this.logger, "日志记录对象未创建，请先调用 TaskLogger#newLogger");
 		return this.logger;
 	}
 
-	public String getComponentRepoLatestTagName() {
-		return componentRepoLatestTagName;
-	}
-
-	public void setComponentRepoLatestTagName(String componentRepoLatestTagName) {
-		this.componentRepoLatestTagName = componentRepoLatestTagName;
+	@Override
+	public MarketplacePublishData getData() {
+		return this.data;
 	}
 
 }

@@ -4,20 +4,22 @@ import java.io.IOException;
 import java.util.Optional;
 
 import com.blocklang.core.git.GitUtils;
+import com.blocklang.core.runner.AbstractTask;
+import com.blocklang.core.runner.CliContext;
 import com.blocklang.marketplace.constant.MarketplaceConstant;
 import com.blocklang.marketplace.data.ApiJson;
 import com.blocklang.marketplace.data.ComponentJson;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class ApiJsonParseGroupTask extends AbstractRepoPublishTask {
+public class ApiJsonParseGroupTask extends AbstractPublishRepoTask {
 
-	public ApiJsonParseGroupTask(MarketplacePublishContext context) {
+	public ApiJsonParseGroupTask(CliContext<MarketplacePublishData> context) {
 		super(context);
 	}
 
 	@Override
 	public Optional<Boolean> run() {
-		ComponentJson componentJson = context.getComponentJson();
+		ComponentJson componentJson = data.getComponentJson();
 		if(componentJson == null) {
 			// 如果执行了此处代码，则说明父分组任务中的代码有 bug
 			logger.error("本任务的前置条件不满足，即 {0} 的值没有解析完毕", MarketplaceConstant.FILE_NAME_COMPONENT);
@@ -37,7 +39,7 @@ public class ApiJsonParseGroupTask extends AbstractRepoPublishTask {
 		// 从源代码托管网站下载 API 项目
 		// 开始解析 api 项目
 		if(success) {
-			context.parseApiGitUrl(gitUrl);
+			data.parseApiGitUrl(gitUrl);
 			logger.info("开始下载 API 仓库源码");
 			GitSyncApiRepoTask apiRepoTask = new GitSyncApiRepoTask(context);
 			Optional<Boolean> gitSyncApiOption = apiRepoTask.run();
@@ -64,13 +66,13 @@ public class ApiJsonParseGroupTask extends AbstractRepoPublishTask {
 			String apiRepoVersion = componentJson.getApi().getVersion().trim();
 			logger.info("检查 API 仓库中是否存在 {0} 发行版", apiRepoVersion);
 			
-			Optional<String> tagNameOption = context.getAllApiRepoRefNames()
+			Optional<String> tagNameOption = data.getAllApiRepoRefNames()
 					.stream().filter(tagName -> tagName.endsWith(apiRepoVersion))
 					.findFirst();
 			success = tagNameOption.isPresent();
 			if(success) {
 				apiRepoRefName = tagNameOption.get();
-				context.setApiRepoRefName(apiRepoRefName);
+				data.setApiRepoRefName(apiRepoRefName);
 				logger.info("存在");
 			} else {
 				logger.error("不存在");
@@ -100,7 +102,7 @@ public class ApiJsonParseGroupTask extends AbstractRepoPublishTask {
 			ObjectMapper objectMapper = new ObjectMapper();
 			try {
 				apiJson = objectMapper.readValue(apiJsonContent, ApiJson.class);
-				context.setApiJson(apiJson);
+				data.setApiJson(apiJson);
 				logger.info("转换完成");
 				success = true;
 			} catch (IOException e) {

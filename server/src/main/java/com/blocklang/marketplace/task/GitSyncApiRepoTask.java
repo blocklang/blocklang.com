@@ -7,15 +7,16 @@ import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.git.exception.GitCloneFailedException;
 import com.blocklang.core.git.exception.GitPullFailedException;
 import com.blocklang.core.git.exception.GitRepoNotFoundException;
+import com.blocklang.core.runner.CliContext;
 import com.blocklang.marketplace.data.LocalRepoPath;
 
-public class GitSyncApiRepoTask extends AbstractRepoPublishTask{
+public class GitSyncApiRepoTask extends AbstractPublishRepoTask{
 
 	private LocalRepoPath localRepoInfo;
 	
-	public GitSyncApiRepoTask(MarketplacePublishContext marketplacePublishContext) {
+	public GitSyncApiRepoTask(CliContext<MarketplacePublishData> marketplacePublishContext) {
 		super(marketplacePublishContext);
-		this.localRepoInfo = marketplacePublishContext.getLocalApiRepoPath();
+		this.localRepoInfo = data.getLocalApiRepoPath();
 	}
 
 	@Override

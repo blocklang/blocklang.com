@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.transport.URIish;
 
 import com.blocklang.core.git.GitUtils;
+import com.blocklang.core.runner.CliContext;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.marketplace.dao.ComponentRepoDao;
 import com.blocklang.marketplace.data.ComponentJson;
@@ -83,7 +84,7 @@ import de.skuzzle.semantic.Version;
  * @author Zhengwei Jin
  *
  */
-public class ComponentJsonValidateTask extends AbstractRepoPublishTask {
+public class ComponentJsonValidateTask extends AbstractPublishRepoTask {
 	
 	private ComponentJson componentJson;
 	
@@ -91,12 +92,12 @@ public class ComponentJsonValidateTask extends AbstractRepoPublishTask {
 	private ComponentRepoPublishTask publishTask;
 	private boolean isFirstPublish;
 	
-	public ComponentJsonValidateTask(MarketplacePublishContext context, 
+	public ComponentJsonValidateTask(CliContext<MarketplacePublishData> context, 
 			ComponentRepoDao componentRepoDao) {
 		super(context);
-		this.componentJson = context.getComponentJson();
-		this.isFirstPublish = context.isFirstPublish();
-		this.publishTask = context.getPublishTask();
+		this.componentJson = data.getComponentJson();
+		this.isFirstPublish = data.isFirstPublish();
+		this.publishTask = data.getPublishTask();
 		this.componentRepoDao = componentRepoDao;
 	}
 

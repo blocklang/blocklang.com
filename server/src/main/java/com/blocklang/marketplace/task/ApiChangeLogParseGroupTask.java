@@ -10,10 +10,14 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.context.ApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import com.blocklang.core.git.GitBlobInfo;
 import com.blocklang.core.git.GitFileInfo;
 import com.blocklang.core.git.GitUtils;
+import com.blocklang.core.runner.AbstractTask;
+import com.blocklang.core.runner.CliContext;
 import com.blocklang.marketplace.constant.MarketplaceConstant;
 import com.blocklang.marketplace.dao.ApiChangeLogDao;
 import com.blocklang.marketplace.dao.ApiRepoDao;
@@ -24,17 +28,18 @@ import com.blocklang.marketplace.data.changelog.ComponentChangeLogs;
 import com.blocklang.marketplace.model.ApiChangeLog;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class ApiChangeLogParseGroupTask extends AbstractRepoPublishTask {
+public class ApiChangeLogParseGroupTask extends AbstractPublishRepoTask {
 
 	private ApiJson apiJson;
 	private LocalRepoPath localApiRepoPath;
 	private ApiRepoDao apiRepoDao;
 	private ApiChangeLogDao apiChangelogDao;
 	
-	public ApiChangeLogParseGroupTask(MarketplacePublishContext context, ApiRepoDao apiRepoDao, ApiChangeLogDao apiChangelogDao) {
+	public ApiChangeLogParseGroupTask(CliContext<MarketplacePublishData> context, ApiRepoDao apiRepoDao, ApiChangeLogDao apiChangelogDao) {
 		super(context);
-		this.apiJson = context.getApiJson();
-		this.localApiRepoPath = context.getLocalApiRepoPath();
+		
+		this.apiJson = data.getApiJson();
+		this.localApiRepoPath = data.getLocalApiRepoPath();
 		this.apiRepoDao = apiRepoDao;
 		this.apiChangelogDao = apiChangelogDao;
 	}
@@ -50,8 +55,8 @@ public class ApiChangeLogParseGroupTask extends AbstractRepoPublishTask {
 		// 从 API 仓库的指定 tag 中找到所有的 changelog 文件
 		List<GitFileInfo> allJsonFiles = GitUtils
 				.getAllFilesFromTag(
-					context.getLocalApiRepoPath().getRepoSourceDirectory(), 
-					context.getApiRepoRefName(),
+					data.getLocalApiRepoPath().getRepoSourceDirectory(), 
+					data.getApiRepoRefName(),
 					".json")
 				.stream()
 				// 过滤掉不属于 changelog 的文件
@@ -100,7 +105,7 @@ public class ApiChangeLogParseGroupTask extends AbstractRepoPublishTask {
 		// 获取已安装的 API 变更文件
 		// 注意：只有安装成功后，才能在 api_change_log 表中登记
 		List<ApiChangeLog> setupChangeFiles = apiRepoDao
-				.findByNameAndCreateUserId(apiJson.getName(), context.getPublishTask().getCreateUserId())
+				.findByNameAndCreateUserId(apiJson.getName(), data.getPublishTask().getCreateUserId())
 				.map(apiRepo -> apiChangelogDao.findAllByApiRepoId(apiRepo.getId()))
 				.orElse(Collections.emptyList());
 		// 按照组件分组，约定日志变更文件是直接存在{componentName}/changelog/ 文件夹下的，所以按照路径截取
@@ -147,7 +152,7 @@ public class ApiChangeLogParseGroupTask extends AbstractRepoPublishTask {
 		List<GitBlobInfo> blobs = new ArrayList<GitBlobInfo>();
 		if(success) {
 			// 获取未安装的 API 变更文件的内容
-			blobs = GitUtils.loadDataFromTag(context.getLocalApiRepoPath().getRepoSourceDirectory(), context.getApiRepoRefName(), allJsonFiles);
+			blobs = GitUtils.loadDataFromTag(data.getLocalApiRepoPath().getRepoSourceDirectory(), data.getApiRepoRefName(), allJsonFiles);
 			logger.info("校验是否存在，API 变更文件已经安装过，但在 API 项目中却修改了此文件");
 			i = 0;
 			for(Map.Entry<String, List<ApiChangeLog>> entry : groupedSetupChangeFiles.entrySet()) {
@@ -269,7 +274,7 @@ public class ApiChangeLogParseGroupTask extends AbstractRepoPublishTask {
 
 		if(success) {
 			// 只需要传入未安装文件
-			context.setChangeLogs(allComponentChangeLogs);
+			data.setChangeLogs(allComponentChangeLogs);
 			return Optional.of(true);
 		}
 		return Optional.empty();

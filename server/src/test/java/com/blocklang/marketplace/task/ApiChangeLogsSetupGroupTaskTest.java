@@ -17,6 +17,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.blocklang.core.runner.CliLogger;
+import com.blocklang.core.runner.TaskLogger;
 import com.blocklang.core.test.AbstractServiceTest;
 import com.blocklang.marketplace.constant.Language;
 import com.blocklang.marketplace.constant.RepoCategory;
@@ -80,9 +82,9 @@ public class ApiChangeLogsSetupGroupTaskTest extends AbstractServiceTest {
 		componentJson.setDescription("component description");
 		componentJson.setCategory(RepoCategory.WIDGET.getValue());
 		componentJson.setLanguage(Language.TYPESCRIPT.getValue());
-		context.setComponentJson(componentJson);
-		context.setComponentRepoLatestTagName("v0.1.0");
-		context.setComponentRepoLatestVersion("0.1.0");
+		context.getData().setComponentJson(componentJson);
+		context.getData().setComponentRepoLatestTagName("v0.1.0");
+		context.getData().setComponentRepoLatestVersion("0.1.0");
 	}
 
 	private void prepareApiJson() {
@@ -92,11 +94,11 @@ public class ApiChangeLogsSetupGroupTaskTest extends AbstractServiceTest {
 		apiJson.setDisplayName("API A");
 		apiJson.setDescription("api description");
 		apiJson.setCategory(RepoCategory.WIDGET.getValue());
-		context.setApiJson(apiJson);
+		context.getData().setApiJson(apiJson);
 		
-		context.setApiRepoRefName(Constants.R_TAGS + "v0.1.0");
-		context.setAllApiRepoTagNames(Collections.singletonList(Constants.R_TAGS + "v0.1.0"));
-		context.setApiRepoVersions(Arrays.asList(new String[] {"0.1.0"}));
+		context.getData().setApiRepoRefName(Constants.R_TAGS + "v0.1.0");
+		context.getData().setAllApiRepoTagNames(Collections.singletonList(Constants.R_TAGS + "v0.1.0"));
+		context.getData().setApiRepoVersions(Arrays.asList(new String[] {"0.1.0"}));
 	}
 
 	private void preparePublishTask(String folder) {
@@ -108,10 +110,7 @@ public class ApiChangeLogsSetupGroupTaskTest extends AbstractServiceTest {
 		publishTask.setCreateTime(LocalDateTime.now());
 		
 		context = new MarketplacePublishContext(folder, publishTask);
-		context.parseApiGitUrl("https://a.com/user/api.repo.git");
-		
-		TaskLogger logger = new TaskLogger(context.getRepoPublishLogFile());
-		context.setLogger(logger);
+		context.getData().parseApiGitUrl("https://a.com/user/api.repo.git");
 	}
 	
 	@Test
@@ -206,7 +205,7 @@ public class ApiChangeLogsSetupGroupTaskTest extends AbstractServiceTest {
 		changeLogs.add(changeLog);
 		componentChangeLogs.setChangeLogs(changeLogs);
 		allComponentChangeLogs.add(componentChangeLogs);
-		context.setChangeLogs(allComponentChangeLogs);
+		context.getData().setChangeLogs(allComponentChangeLogs);
 	}
 	
 }

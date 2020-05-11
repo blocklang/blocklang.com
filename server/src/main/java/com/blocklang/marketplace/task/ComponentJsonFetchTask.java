@@ -4,13 +4,14 @@ import java.util.Optional;
 
 import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.git.exception.GitTagFailedException;
+import com.blocklang.core.runner.CliContext;
 import com.blocklang.marketplace.constant.MarketplaceConstant;
 
-public class ComponentJsonFetchTask extends AbstractRepoPublishTask {
+public class ComponentJsonFetchTask extends AbstractPublishRepoTask {
 
 	private String gitRefName;
 
-	public ComponentJsonFetchTask(MarketplacePublishContext context, String gitRefName) {
+	public ComponentJsonFetchTask(CliContext<MarketplacePublishData> context, String gitRefName) {
 		super(context);
 		this.gitRefName = gitRefName;
 	}
@@ -21,7 +22,7 @@ public class ComponentJsonFetchTask extends AbstractRepoPublishTask {
 	@Override
 	public Optional<String> run() {
 		try {
-			return GitUtils.getBlob(context.getLocalComponentRepoPath().getRepoSourceDirectory(), gitRefName,
+			return GitUtils.getBlob(data.getLocalComponentRepoPath().getRepoSourceDirectory(), gitRefName,
 					MarketplaceConstant.FILE_NAME_COMPONENT).map(blobInfo -> blobInfo.getContent());
 		} catch (GitTagFailedException e) {
 			logger.error(e);

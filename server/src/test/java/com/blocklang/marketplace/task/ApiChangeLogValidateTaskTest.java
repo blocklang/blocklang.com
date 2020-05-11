@@ -17,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import com.blocklang.core.runner.TaskLogger;
 import com.blocklang.marketplace.data.changelog.ChangeLog;
 import com.blocklang.marketplace.data.changelog.NewWidgetChange;
 import com.blocklang.marketplace.data.changelog.WidgetEvent;

@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 import com.blocklang.core.git.GitUtils;
+import com.blocklang.core.runner.AbstractTask;
+import com.blocklang.core.runner.CliContext;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.marketplace.constant.ChangelogExecuteResult;
 import com.blocklang.marketplace.constant.ComponentAttrValueType;
@@ -64,7 +66,7 @@ import de.skuzzle.semantic.Version;
  * @author Zhengwei Jin
  *
  */
-public class ApiChangeLogsSetupGroupTask extends AbstractRepoPublishTask {
+public class ApiChangeLogsSetupGroupTask extends AbstractPublishRepoTask {
 
 	private ComponentRepoPublishTask publishTask;
 	private ComponentJson componentJson;
@@ -80,8 +82,9 @@ public class ApiChangeLogsSetupGroupTask extends AbstractRepoPublishTask {
 	private ApiComponentAttrFunArgDao apiComponentAttrFunArgDao;
 	private ApiChangeLogDao apiChangeLogDao;
 	
+	
 	public ApiChangeLogsSetupGroupTask(
-			MarketplacePublishContext marketplacePublishContext, 
+			CliContext<MarketplacePublishData> marketplacePublishContext, 
 			ComponentRepoDao componentRepoDao,
 			ComponentRepoVersionDao componentRepoVersionDao,
 			ApiRepoDao apiRepoDao,
@@ -93,9 +96,9 @@ public class ApiChangeLogsSetupGroupTask extends AbstractRepoPublishTask {
 			ApiChangeLogDao apiChangeLogDao) {
 		super(marketplacePublishContext);
 		
-		this.publishTask = context.getPublishTask();
-		this.componentJson = context.getComponentJson();
-		this.apiJson = context.getApiJson();
+		this.publishTask = data.getPublishTask();
+		this.componentJson = data.getComponentJson();
+		this.apiJson = data.getApiJson();
 		
 		this.componentRepoDao = componentRepoDao;
 		this.componentRepoVersionDao = componentRepoVersionDao;
@@ -136,7 +139,7 @@ public class ApiChangeLogsSetupGroupTask extends AbstractRepoPublishTask {
 			savedApiRepoVersions = Collections.emptyList();
 			currentApiRepoVersionId = apiRepoVersionOption.get().getId();
 		} else {
-			List<String> apiRepoVersions = context.getApiRepoVersions();
+			List<String> apiRepoVersions = data.getApiRepoVersions();
 			
 			List<ApiRepoVersion> setupedRepoVersions = apiRepoVersionDao.findAllByApiRepoId(savedApiRepo.getId());
 			// 删除已安装的版本
@@ -174,13 +177,13 @@ public class ApiChangeLogsSetupGroupTask extends AbstractRepoPublishTask {
 		// 如果漏发，而某一个 dev 库恰好引用了，则就会出现对应关系中断的问题
 		// 在每个 tag 内都要从头到尾将其中的 changelog 执行一遍
 		
-		logger.info("开始保存组件库的 {0} 版本信息", context.getComponentRepoLatestVersion());
+		logger.info("开始保存组件库的 {0} 版本信息", data.getComponentRepoLatestVersion());
 		saveComponentRepoVersion(savedCompRepo.getId(), currentApiRepoVersionId);
 		logger.info("保存成功");
 
 		// 增量安装 API 变更
 		// 先循环组件，再嵌套循环版本
-		List<ComponentChangeLogs> allChangeLogs = context.getChangeLogs();
+		List<ComponentChangeLogs> allChangeLogs = data.getChangeLogs();
 		for(ComponentChangeLogs component : allChangeLogs) {
 			String componentCodeSeed = null;
 
@@ -347,7 +350,7 @@ public class ApiChangeLogsSetupGroupTask extends AbstractRepoPublishTask {
 		ApiRepoVersion apiRepoVersion = new ApiRepoVersion();
 		apiRepoVersion.setApiRepoId(savedApiRepoId);
 		apiRepoVersion.setVersion(apiVersion);
-		apiRepoVersion.setGitTagName(GitUtils.getTagName(context.getApiRepoRefName()).orElse(null));
+		apiRepoVersion.setGitTagName(GitUtils.getTagName(data.getApiRepoRefName()).orElse(null));
 		apiRepoVersion.setCreateUserId(publishTask.getCreateUserId());
 		apiRepoVersion.setCreateTime(LocalDateTime.now());
 		return apiRepoVersionDao.save(apiRepoVersion);
@@ -355,10 +358,10 @@ public class ApiChangeLogsSetupGroupTask extends AbstractRepoPublishTask {
 
 	private ApiRepo saveApiRepo() {
 		ApiRepo apiRepo = new ApiRepo();
-		apiRepo.setGitRepoUrl(context.getLocalApiRepoPath().getGitUrl());
-		apiRepo.setGitRepoWebsite(context.getLocalApiRepoPath().getWebsite());
-		apiRepo.setGitRepoOwner(context.getLocalApiRepoPath().getOwner());
-		apiRepo.setGitRepoName(context.getLocalApiRepoPath().getRepoName());
+		apiRepo.setGitRepoUrl(data.getLocalApiRepoPath().getGitUrl());
+		apiRepo.setGitRepoWebsite(data.getLocalApiRepoPath().getWebsite());
+		apiRepo.setGitRepoOwner(data.getLocalApiRepoPath().getOwner());
+		apiRepo.setGitRepoName(data.getLocalApiRepoPath().getRepoName());
 		apiRepo.setName(apiJson.getName());
 		apiRepo.setVersion(apiJson.getVersion()); // 用哪个版本号？确保版本号一致
 		apiRepo.setLabel(apiJson.getDisplayName());
@@ -374,8 +377,8 @@ public class ApiChangeLogsSetupGroupTask extends AbstractRepoPublishTask {
 		compRepoVersion.setComponentRepoId(compRepoId);
 		compRepoVersion.setApiRepoVersionId(apiRepoVersionId);
 		// TODO: 确认 context.getComponentRepoLatestVersion() 的值与 componentJson.getVersion() 的值相同
-		compRepoVersion.setVersion(context.getComponentRepoLatestVersion().trim());
-		compRepoVersion.setGitTagName(context.getComponentRepoLatestTagName());
+		compRepoVersion.setVersion(data.getComponentRepoLatestVersion().trim());
+		compRepoVersion.setGitTagName(data.getComponentRepoLatestTagName());
 		compRepoVersion.setCreateUserId(publishTask.getCreateUserId());
 		compRepoVersion.setCreateTime(LocalDateTime.now());
 		return componentRepoVersionDao.save(compRepoVersion);
@@ -385,9 +388,9 @@ public class ApiChangeLogsSetupGroupTask extends AbstractRepoPublishTask {
 		ComponentRepo repo = new ComponentRepo();
 		repo.setApiRepoId(apiRepoId);
 		repo.setGitRepoUrl(publishTask.getGitUrl());
-		repo.setGitRepoWebsite(context.getLocalComponentRepoPath().getWebsite());
-		repo.setGitRepoOwner(context.getLocalComponentRepoPath().getOwner());
-		repo.setGitRepoName(context.getLocalComponentRepoPath().getRepoName());
+		repo.setGitRepoWebsite(data.getLocalComponentRepoPath().getWebsite());
+		repo.setGitRepoOwner(data.getLocalComponentRepoPath().getOwner());
+		repo.setGitRepoName(data.getLocalComponentRepoPath().getRepoName());
 		repo.setName(componentJson.getName().trim()); // name 必填
 		repo.setVersion(componentJson.getVersion().trim()); // version 必填
 		repo.setLabel(componentJson.getDisplayName());

@@ -9,15 +9,17 @@ import org.apache.commons.lang3.SystemUtils;
 import org.springframework.util.FileSystemUtils;
 
 import com.blocklang.core.git.GitUtils;
+import com.blocklang.core.runner.CliCommand;
+import com.blocklang.core.runner.CliContext;
 
 //准备好 componentJson 后，再先构建源代码，如果构建失败，则结束注册流程
 //如果是 ide 版、非标准库的组件库，则要构建项目
 //该操作只有在完成上述校验之后才有意义
 //要先切换到对应的 tag，构建完后，再切换回 master 分支
 //构建完后，要移动到指定的文件夹下，然后删除构建生成的所有文件
-public class DojoBuildAppGroupTask extends AbstractRepoPublishTask{
+public class DojoBuildAppGroupTask extends AbstractPublishRepoTask{
 
-	public DojoBuildAppGroupTask(MarketplacePublishContext context) {
+	public DojoBuildAppGroupTask(CliContext<MarketplacePublishData> context) {
 		super(context);
 	}
 
@@ -25,12 +27,12 @@ public class DojoBuildAppGroupTask extends AbstractRepoPublishTask{
 	public Optional<?> run() {
 		boolean success = true;
 		
-		Path sourceDirectoryPath = context.getLocalComponentRepoPath().getRepoSourceDirectory();
+		Path sourceDirectoryPath = data.getLocalComponentRepoPath().getRepoSourceDirectory();
 		// 将 source 中的源码切换（git checkout）到指定的 tag 下
 		boolean checkoutSuccess = false;
 		try {
-			logger.info("开始切换到 tag {0}", context.getComponentRepoLatestTagName());
-			GitUtils.checkout(sourceDirectoryPath, context.getComponentRepoLatestTagName());
+			logger.info("开始切换到 tag {0}", data.getComponentRepoLatestTagName());
+			GitUtils.checkout(sourceDirectoryPath, data.getComponentRepoLatestTagName());
 			checkoutSuccess = true;
 		}catch(RuntimeException e) {
 			success = false;
@@ -41,7 +43,7 @@ public class DojoBuildAppGroupTask extends AbstractRepoPublishTask{
 			logger.error("切换失败");
 		}
 		
-		Path buildDirectoryPath = context.getLocalComponentRepoPath().getRepoBuildDirectory();
+		Path buildDirectoryPath = data.getLocalComponentRepoPath().getRepoBuildDirectory();
 		if(success) {
 			// 如果 build 文件夹不存在，则创建 build 文件夹
 			logger.info("开始往 build 文件夹复制源代码");
@@ -121,8 +123,8 @@ public class DojoBuildAppGroupTask extends AbstractRepoPublishTask{
 		if(success) {
 			// 将 build/output/dist 文件夹下的内容复制到 package/{version}/ 文件夹下
 			try {
-				logger.info("将 build/output/dist/ 文件夹下的内容复制到 package/{0}/ 文件夹下", context.getComponentRepoLatestTagName());
-				FileSystemUtils.copyRecursively(buildDirectoryPath.resolve("output").resolve("dist"), context.getLocalComponentRepoPath().getRepoPackageDirectory().resolve(context.getComponentRepoLatestVersion()));
+				logger.info("将 build/output/dist/ 文件夹下的内容复制到 package/{0}/ 文件夹下", data.getComponentRepoLatestTagName());
+				FileSystemUtils.copyRecursively(buildDirectoryPath.resolve("output").resolve("dist"), data.getLocalComponentRepoPath().getRepoPackageDirectory().resolve(data.getComponentRepoLatestVersion()));
 			} catch (IOException e) {
 				logger.error(e);
 				success = false;

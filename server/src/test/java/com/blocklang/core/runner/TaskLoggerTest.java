@@ -1,4 +1,4 @@
-package com.blocklang.core.action;
+package com.blocklang.core.runner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -18,6 +18,8 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
+import com.blocklang.core.runner.CliLogger;
+import com.blocklang.core.runner.TaskLogger;
 import com.blocklang.release.constant.ReleaseResult;
 
 public class TaskLoggerTest{
@@ -36,7 +38,7 @@ public class TaskLoggerTest{
 	
 	@Test
 	public void info_no_arguments() throws IOException {
-		TaskLogger logger = new TaskLogger(logFile);
+		CliLogger logger = new TaskLogger(logFile);
 		
 		logger.info("Hello Block Lang");
 		
@@ -47,15 +49,17 @@ public class TaskLoggerTest{
 	@Test
 	public void info_log_file_not_exist() throws IOException {
 		Path logFile = logFolder.resolve("folder1").resolve("folder2").resolve("a.log");
-		TaskLogger logger = new TaskLogger(logFile);
+		CliLogger logger = new TaskLogger(logFile);
+		
 		logger.info("Hello Block Lang");
+		
 		String content = Files.readString(logFile);
 		assertThat(content).isEqualTo("[INFO] Hello Block Lang" + System.lineSeparator());
 	}
 	
 	@Test
 	public void info_with_arguments() throws IOException {
-		TaskLogger logger = new TaskLogger(logFile);
+		CliLogger logger = new TaskLogger(logFile);
 		
 		logger.info("Hello {0}", "Block Lang");
 		
@@ -65,7 +69,7 @@ public class TaskLoggerTest{
 	
 	@Test
 	public void error_throwable() throws IOException {
-		TaskLogger logger = new TaskLogger(logFile);
+		CliLogger logger = new TaskLogger(logFile);
 		
 		Throwable throwable = new Exception("throw a exception");
 		logger.error(throwable);
@@ -75,7 +79,7 @@ public class TaskLoggerTest{
 	
 	@Test
 	public void error_no_arguments() throws IOException {
-		TaskLogger logger = new TaskLogger(logFile);
+		CliLogger logger = new TaskLogger(logFile);
 		
 		logger.error("Hello Block Lang");
 		
@@ -85,7 +89,7 @@ public class TaskLoggerTest{
 	
 	@Test
 	public void error_with_arguments() throws IOException {
-		TaskLogger logger = new TaskLogger(logFile);
+		CliLogger logger = new TaskLogger(logFile);
 		
 		logger.error("Hello {0}", "Block Lang");
 		
@@ -95,7 +99,7 @@ public class TaskLoggerTest{
 	
 	@Test
 	public void log_no_arguments() throws IOException {
-		TaskLogger logger = new TaskLogger(logFile);
+		CliLogger logger = new TaskLogger(logFile);
 		
 		logger.log("Hello Block Lang");
 		
@@ -105,7 +109,7 @@ public class TaskLoggerTest{
 	
 	@Test
 	public void log_with_arguments() throws IOException {
-		TaskLogger logger = new TaskLogger(logFile);
+		CliLogger logger = new TaskLogger(logFile);
 		
 		logger.log("Hello {0}", "Block Lang");
 		
@@ -114,10 +118,10 @@ public class TaskLoggerTest{
 	}
 	
 	@Test
-	public void println() throws IOException {
-		TaskLogger logger = new TaskLogger(logFile);
+	public void newLine() throws IOException {
+		CliLogger logger = new TaskLogger(logFile);
 		
-		logger.println();
+		logger.newLine();
 		
 		String content = Files.readString(logFile);
 		assertThat(content).isEqualTo(System.lineSeparator());
@@ -127,7 +131,7 @@ public class TaskLoggerTest{
 	public void enableSendStompMessage() {
 		MockitoAnnotations.initMocks(this);
 		
-		TaskLogger logger = new TaskLogger(logFile);
+		CliLogger logger = new TaskLogger(logFile);
 		SimpMessagingTemplate messagingTemplate = mock(SimpMessagingTemplate.class);
 		
 		logger.enableSendStompMessage(1, messagingTemplate, "/topic/publish/");
@@ -140,7 +144,7 @@ public class TaskLoggerTest{
 	public void finished_enable_send_stop_message() throws IOException {
 		MockitoAnnotations.initMocks(this);
 		
-		TaskLogger logger = new TaskLogger(logFile);
+		CliLogger logger = new TaskLogger(logFile);
 		SimpMessagingTemplate messagingTemplate = mock(SimpMessagingTemplate.class);
 		
 		logger.enableSendStompMessage(1, messagingTemplate, "/topic/publish/");
@@ -157,7 +161,7 @@ public class TaskLoggerTest{
 	public void finished_disable_send_stop_message() throws IOException {
 		MockitoAnnotations.initMocks(this);
 		
-		TaskLogger logger = new TaskLogger(logFile);
+		CliLogger logger = new TaskLogger(logFile);
 		logger.finished(ReleaseResult.PASSED);
 		
 		String content = Files.readString(logFile);

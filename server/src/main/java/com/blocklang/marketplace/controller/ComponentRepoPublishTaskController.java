@@ -89,7 +89,7 @@ public class ComponentRepoPublishTaskController {
 		String dataRootPath = propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).orElseThrow(ResourceNotFoundException::new);
 		MarketplacePublishContext context = new MarketplacePublishContext(dataRootPath, task);
 		
-		List<String> logContent = LogFileReader.readAllLines(context.getRepoPublishLogFile());
+		List<String> logContent = LogFileReader.readAllLines(context.getData().getRepoPublishLogFile());
 		return ResponseEntity.ok(logContent);
 	}
 	

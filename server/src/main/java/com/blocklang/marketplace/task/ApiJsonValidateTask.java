@@ -8,22 +8,23 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.blocklang.core.runner.CliContext;
 import com.blocklang.marketplace.constant.MarketplaceConstant;
 import com.blocklang.marketplace.data.ApiJson;
 import com.blocklang.marketplace.data.ComponentJson;
 
 import de.skuzzle.semantic.Version;
 
-public class ApiJsonValidateTask extends AbstractRepoPublishTask {
+public class ApiJsonValidateTask extends AbstractPublishRepoTask {
 	
 	private ComponentJson componentJson;
 	private ApiJson apiJson;
 
-	public ApiJsonValidateTask(MarketplacePublishContext context) {
+	public ApiJsonValidateTask(CliContext<MarketplacePublishData> context) {
 		super(context);
 		
-		this.componentJson = context.getComponentJson();
-		this.apiJson = context.getApiJson();
+		this.componentJson = data.getComponentJson();
+		this.apiJson = data.getApiJson();
 	}
 
 	/**

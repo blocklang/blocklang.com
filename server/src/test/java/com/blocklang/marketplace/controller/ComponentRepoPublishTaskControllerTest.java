@@ -20,11 +20,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 
 import com.blocklang.core.model.UserInfo;
+import com.blocklang.core.runner.TaskLogger;
 import com.blocklang.core.test.AbstractControllerTest;
 import com.blocklang.marketplace.model.ComponentRepoPublishTask;
 import com.blocklang.marketplace.service.ComponentRepoPublishTaskService;
 import com.blocklang.marketplace.task.MarketplacePublishContext;
-import com.blocklang.marketplace.task.TaskLogger;
 
 import io.restassured.http.ContentType;
 
@@ -206,7 +206,7 @@ public class ComponentRepoPublishTaskControllerTest extends AbstractControllerTe
 		// 创建一个日志文件，其中写入两行文字
 		// 这里借助 MarketplacePublishContext 类生成完整的日志文件
 		MarketplacePublishContext context = new MarketplacePublishContext(dataRootDirectory.toString(), task);
-		Path logFolderPath = context.getLocalComponentRepoPath().getRepoRootDirectory().resolve("publishLogs");
+		Path logFolderPath = context.getData().getLocalComponentRepoPath().getRepoRootDirectory().resolve("publishLogs");
 		Path logFilePath = logFolderPath.resolve("get_publish_log_success.log");
 		TaskLogger logger = new TaskLogger(logFilePath);
 		logger.log("a");
