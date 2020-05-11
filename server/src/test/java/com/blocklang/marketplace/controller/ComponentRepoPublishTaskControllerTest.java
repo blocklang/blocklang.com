@@ -20,7 +20,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 
 import com.blocklang.core.model.UserInfo;
-import com.blocklang.core.runner.TaskLogger;
+import com.blocklang.core.runner.common.TaskLogger;
 import com.blocklang.core.test.AbstractControllerTest;
 import com.blocklang.marketplace.model.ComponentRepoPublishTask;
 import com.blocklang.marketplace.service.ComponentRepoPublishTaskService;

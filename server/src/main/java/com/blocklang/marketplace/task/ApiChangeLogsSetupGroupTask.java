@@ -9,8 +9,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 import com.blocklang.core.git.GitUtils;
-import com.blocklang.core.runner.AbstractTask;
-import com.blocklang.core.runner.CliContext;
+import com.blocklang.core.runner.common.AbstractTask;
+import com.blocklang.core.runner.common.CliContext;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.marketplace.constant.ChangelogExecuteResult;
 import com.blocklang.marketplace.constant.ComponentAttrValueType;

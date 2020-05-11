@@ -9,8 +9,8 @@ import org.apache.commons.lang3.SystemUtils;
 import org.springframework.util.FileSystemUtils;
 
 import com.blocklang.core.git.GitUtils;
-import com.blocklang.core.runner.CliCommand;
-import com.blocklang.core.runner.CliContext;
+import com.blocklang.core.runner.common.CliCommand;
+import com.blocklang.core.runner.common.CliContext;
 
 //准备好 componentJson 后，再先构建源代码，如果构建失败，则结束注册流程
 //如果是 ide 版、非标准库的组件库，则要构建项目

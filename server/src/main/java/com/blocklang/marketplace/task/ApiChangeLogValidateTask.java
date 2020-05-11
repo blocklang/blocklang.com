@@ -7,8 +7,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import com.blocklang.core.runner.AbstractTask;
-import com.blocklang.core.runner.CliContext;
+import com.blocklang.core.runner.common.AbstractTask;
+import com.blocklang.core.runner.common.CliContext;
 import com.blocklang.core.util.StringUtil;
 import com.blocklang.marketplace.constant.ComponentAttrValueType;
 import com.blocklang.marketplace.data.changelog.Change;

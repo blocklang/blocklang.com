@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.eclipse.jgit.lib.Ref;
 
 import com.blocklang.core.git.GitUtils;
-import com.blocklang.core.runner.CliContext;
+import com.blocklang.core.runner.common.CliContext;
 import com.blocklang.marketplace.constant.MarketplaceConstant;
 import com.blocklang.marketplace.dao.ComponentRepoDao;
 import com.blocklang.marketplace.data.ComponentJson;

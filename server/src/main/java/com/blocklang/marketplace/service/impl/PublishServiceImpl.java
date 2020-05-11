@@ -11,8 +11,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.blocklang.core.constant.CmPropKey;
-import com.blocklang.core.runner.CliContext;
-import com.blocklang.core.runner.CliLogger;
+import com.blocklang.core.runner.common.CliContext;
+import com.blocklang.core.runner.common.CliLogger;
 import com.blocklang.core.service.PropertyService;
 import com.blocklang.marketplace.constant.MarketplaceConstant;
 import com.blocklang.marketplace.dao.ApiChangeLogDao;
@@ -78,7 +78,7 @@ public class PublishServiceImpl implements PublishService {
 		String dataRootPath = propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH, "");
 		CliContext<MarketplacePublishData> context = new MarketplacePublishContext(dataRootPath, publishTask);
 		
-		// 确保全程使用同一个 logger
+		// 将此任务存储到组件发布任务表中
 		publishTask.setLogFileName(context.getData().getRepoPublishLogFile().toString());
 		componentRepoPublishTaskDao.save(publishTask);
 		
@@ -94,9 +94,21 @@ public class PublishServiceImpl implements PublishService {
 		// TODO: 判断是 API 仓库，还是组件仓库
 		// 以下处理组件仓库
 		
+		// 1. clone 或 pull git 仓库
+		// 2. 获取最新版的 git tag
+		//    1. 如果是 ide 或 prod 仓库，则只发布最新版
+		
+		// 列出 ide 或 prod 仓库中的所有版本，并标识出哪些发布了，哪些没有发布
+		// 同一个仓库，可能不同项目使用不同的版本。
+		
+		// 如何测试？
+		// 分成 workflow -> job -> step -> action，然后测试每个 action
+		
+		// 1. checkout
+		// 
 
 		logger.info(StringUtils.repeat("-", 45));
-		logger.info("一、开始解析仓库中的 {0}", MarketplaceConstant.FILE_NAME_COMPONENT);
+		logger.info("一、开始解析仓库中的 {0}", MarketplaceConstant.CONFIG_FILE);
 		ComponentJsonParseGroupTask componentJsonParseGroupTask = new ComponentJsonParseGroupTask(
 				context,
 				componentRepoDao);
@@ -277,5 +289,4 @@ public class PublishServiceImpl implements PublishService {
 		
 		logger.finished(releaseResult);
 	}
-
 }

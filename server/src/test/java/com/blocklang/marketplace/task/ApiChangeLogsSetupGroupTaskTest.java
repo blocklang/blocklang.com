@@ -17,8 +17,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.blocklang.core.runner.CliLogger;
-import com.blocklang.core.runner.TaskLogger;
+import com.blocklang.core.runner.common.CliLogger;
+import com.blocklang.core.runner.common.TaskLogger;
 import com.blocklang.core.test.AbstractServiceTest;
 import com.blocklang.marketplace.constant.Language;
 import com.blocklang.marketplace.constant.RepoCategory;

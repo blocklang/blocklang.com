@@ -16,6 +16,16 @@ import com.blocklang.marketplace.model.ComponentRepoPublishTask;
 public class MarketplacePublishData {
 
 	private ComponentRepoPublishTask publishTask;
+	
+	public MarketplacePublishData(String dataRootPath, ComponentRepoPublishTask publishTask) {
+		this.dataRootPath = dataRootPath;
+		this.publishTask = publishTask;
+		this.localComponentRepoPath = new LocalRepoPath(dataRootPath, publishTask.getGitUrl());
+	}
+	
+	
+	
+	
 	private boolean isFirstPublish = true;
 	private String dataRootPath;
 	
@@ -39,11 +49,7 @@ public class MarketplacePublishData {
 	// 按组件分组，并按照版本号正序排列的 changelog
 	private List<ComponentChangeLogs> changeLogs;
 	
-	public MarketplacePublishData(String dataRootPath, ComponentRepoPublishTask publishTask) {
-		this.dataRootPath = dataRootPath;
-		this.publishTask = publishTask;
-		this.localComponentRepoPath = new LocalRepoPath(dataRootPath, publishTask.getGitUrl());
-	}
+	
 	
 	public void parseApiGitUrl(String apiGitUrl) {
 		

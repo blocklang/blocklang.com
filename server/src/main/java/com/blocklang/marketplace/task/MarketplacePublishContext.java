@@ -3,9 +3,9 @@ package com.blocklang.marketplace.task;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.util.Assert;
 
-import com.blocklang.core.runner.CliContext;
-import com.blocklang.core.runner.CliLogger;
-import com.blocklang.core.runner.TaskLogger;
+import com.blocklang.core.runner.common.CliContext;
+import com.blocklang.core.runner.common.CliLogger;
+import com.blocklang.core.runner.common.TaskLogger;
 import com.blocklang.marketplace.model.ComponentRepoPublishTask;
 
 /**

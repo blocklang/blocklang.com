@@ -1,4 +1,4 @@
-package com.blocklang.core.runner;
+package com.blocklang.core.runner.common;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -18,8 +18,8 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
-import com.blocklang.core.runner.CliLogger;
-import com.blocklang.core.runner.TaskLogger;
+import com.blocklang.core.runner.common.CliLogger;
+import com.blocklang.core.runner.common.TaskLogger;
 import com.blocklang.release.constant.ReleaseResult;
 
 public class TaskLoggerTest{

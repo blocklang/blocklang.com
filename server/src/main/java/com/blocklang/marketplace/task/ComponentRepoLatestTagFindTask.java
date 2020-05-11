@@ -6,7 +6,7 @@ import org.eclipse.jgit.lib.Ref;
 
 import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.git.exception.GitTagFailedException;
-import com.blocklang.core.runner.CliContext;
+import com.blocklang.core.runner.common.CliContext;
 
 public class ComponentRepoLatestTagFindTask extends AbstractPublishRepoTask{
 

@@ -11,7 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.transport.URIish;
 
 import com.blocklang.core.git.GitUtils;
-import com.blocklang.core.runner.CliContext;
+import com.blocklang.core.runner.common.CliContext;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.marketplace.dao.ComponentRepoDao;
 import com.blocklang.marketplace.data.ComponentJson;

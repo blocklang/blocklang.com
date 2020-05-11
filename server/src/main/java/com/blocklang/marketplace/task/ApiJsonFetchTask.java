@@ -4,8 +4,8 @@ import java.util.Optional;
 
 import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.git.exception.GitTagFailedException;
-import com.blocklang.core.runner.AbstractTask;
-import com.blocklang.core.runner.CliContext;
+import com.blocklang.core.runner.common.AbstractTask;
+import com.blocklang.core.runner.common.CliContext;
 import com.blocklang.marketplace.constant.MarketplaceConstant;
 
 public class ApiJsonFetchTask extends AbstractPublishRepoTask {

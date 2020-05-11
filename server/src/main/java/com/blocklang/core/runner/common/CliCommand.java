@@ -1,4 +1,4 @@
-package com.blocklang.core.runner;
+package com.blocklang.core.runner.common;
 
 import java.io.BufferedReader;
 import java.io.IOException;
