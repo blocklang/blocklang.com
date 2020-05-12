@@ -7,6 +7,7 @@ import org.springframework.util.Assert;
 
 import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.runner.common.AbstractAction;
+import com.blocklang.core.runner.common.CliLogger;
 import com.blocklang.core.runner.common.ExecutionContext;
 
 /**
@@ -45,9 +46,9 @@ public class CheckoutAction extends AbstractAction{
 	@Override
 	public Optional<Boolean> run() {
 		logger.info("开始同步 git 仓库 {0}", this.gitUrl);
-		
 		try {
 			GitUtils.syncRepository(gitUrl, localSourceDirectory);
+			logger.info("{0} 同步完成", CliLogger.ANSWER);
 			return Optional.of(true);
 		} catch (RuntimeException e) {
 			logger.error(e);

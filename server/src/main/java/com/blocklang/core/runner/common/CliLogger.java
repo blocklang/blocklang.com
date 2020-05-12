@@ -14,6 +14,8 @@ import com.blocklang.release.constant.ReleaseResult;
  */
 public interface CliLogger {
 	
+	public static final String ANSWER = "&#x21B3;";
+	
 	/**
 	 * 注意：pattern 中不能包含换行符，即使包含，也不会解析
 	 * 

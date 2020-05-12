@@ -2,6 +2,8 @@ package com.blocklang.core.runner.common;
 
 public interface ExecutionContext {
 
+	public static final String MARKETPLACE_STORE = "marketplaceStore";
+
 	void setLogger(CliLogger logger);
 	
 	/**

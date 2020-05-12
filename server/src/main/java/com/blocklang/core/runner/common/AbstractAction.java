@@ -12,5 +12,6 @@ public abstract class AbstractAction {
 		this.logger = context.getLogger();
 	}
 	
+	// FIXME: 既然不通过 Optional 传返回的结果，是否可直接返回 boolean 类型。
 	public abstract Optional<?> run();
 }
