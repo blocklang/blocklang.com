@@ -171,6 +171,24 @@ public class GitUtils {
 	}
 	
 	/**
+	 * 从 repository 往本地的 localFolderPath 同步 git 仓库。
+	 * 
+	 * 如果本地不存在仓库，则执行 git clone，否则执行 git pull。
+	 * 
+	 * @param repository
+	 * @param localFolderPath
+	 */
+	public static void syncRepository(String repository, Path localFolderPath) {
+		if(GitUtils.isGitRepo(localFolderPath)) { 
+			// 本地已存在仓库，同步
+			GitUtils.pullWithTag(localFolderPath);
+		} else { 
+			// 本地不存在仓库，克隆
+			GitUtils.clone(repository, localFolderPath);
+		}
+	}
+	
+	/**
 	 * 获取 master 分支根目录上的最近一次提交
 	 * 
 	 * @param gitRepoPath
