@@ -16,8 +16,8 @@ import com.blocklang.core.runner.common.ExecutionContext;
  * 
  * <pre>
  * inputs:
- *     repository             - string(required), 远程仓库地址
- *     localSourceDirectory   - Path(required), 仓库在主机上的存储路径
+ *     gitUrl                  - string(required), git 仓库地址
+ *     localSourceDirectory    - Path(required), 仓库在主机上的存储路径
  * outputs:
  * </pre>
  * 
@@ -26,17 +26,17 @@ import com.blocklang.core.runner.common.ExecutionContext;
  */
 public class CheckoutAction extends AbstractAction{
 
-	public static final String INPUT_REPOSITORY = "repository";
+	public static final String INPUT_GIT_URL = "gitUrl";
 	public static final String INPUT_LOCAL_SOURCE_DIRECTORY = "localSourceDirectory";
 	
-	private String repository;
+	private String gitUrl;
 	private Path localSourceDirectory;
 	
 	public CheckoutAction(ExecutionContext context) {
 		super(context);
 		
-		this.repository = context.getStringValue(INPUT_REPOSITORY);
-		Assert.hasText(this.repository, "必须要设置 " + INPUT_REPOSITORY + " 参数!");
+		this.gitUrl = context.getStringValue(INPUT_GIT_URL);
+		Assert.hasText(this.gitUrl, "必须要设置 " + INPUT_GIT_URL + " 参数!");
 		
 		this.localSourceDirectory = context.getValue(INPUT_LOCAL_SOURCE_DIRECTORY, Path.class);
 		Assert.notNull(this.localSourceDirectory, "必须要设置 localSourceDirectory 参数!");
@@ -44,10 +44,10 @@ public class CheckoutAction extends AbstractAction{
 
 	@Override
 	public Optional<Boolean> run() {
-		logger.info("开始同步 git 仓库 {0}", this.repository);
+		logger.info("开始同步 git 仓库 {0}", this.gitUrl);
 		
 		try {
-			GitUtils.syncRepository(repository, localSourceDirectory);
+			GitUtils.syncRepository(gitUrl, localSourceDirectory);
 			return Optional.of(true);
 		} catch (RuntimeException e) {
 			logger.error(e);

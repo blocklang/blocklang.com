@@ -29,7 +29,7 @@ public class CheckoutActionTest {
 	public void new_should_set_inputs() {
 		assertThrows(IllegalArgumentException.class, () -> new CheckoutAction(context));
 		
-		context.putValue(CheckoutAction.INPUT_REPOSITORY, "a repo url");
+		context.putValue(CheckoutAction.INPUT_GIT_URL, "https://not-exist-host/you/you-repo.git");
 		assertThrows(IllegalArgumentException.class, () -> new CheckoutAction(context));
 	}
 	
@@ -37,7 +37,7 @@ public class CheckoutActionTest {
 	
 	@Test
 	public void run_failed(@TempDir Path tempDir) {
-		context.putValue(CheckoutAction.INPUT_REPOSITORY, "a repo url");
+		context.putValue(CheckoutAction.INPUT_GIT_URL, "https://not-exist-host/you/you-repo.git");
 		context.putValue(CheckoutAction.INPUT_LOCAL_SOURCE_DIRECTORY, tempDir);
 		
 		var action = new CheckoutAction(context);
