@@ -47,6 +47,7 @@ public class TaskLogger implements CliLogger{
 		}
 	}
 	
+	@Override
 	public void enableSendStompMessage(Integer taskId, SimpMessagingTemplate messagingTemplate, String destinationPrefix) {
 		Assert.notNull(taskId, "taskId 不能为空");
 		
@@ -61,18 +62,22 @@ public class TaskLogger implements CliLogger{
 		this.writeLine(e.toString());
 	}
 	
+	@Override
 	public void error(String pattern, Object... arguments) {
 		this.writeLine("[ERROR] " + getContent(pattern, arguments));
 	}
 
+	@Override
 	public void info(String pattern, Object... arguments) {
 		this.writeLine("[INFO] " + getContent(pattern, arguments));
 	}
 	
+	@Override
 	public void newLine() {
 		this.writeLine("");
 	}
 	
+	@Override
 	public void log(String pattern, Object... arguments) {
 		this.writeLine(getContent(pattern, arguments));
 	}
@@ -111,6 +116,7 @@ public class TaskLogger implements CliLogger{
 		sendWsMessage(message);
 	}
 
+	@Override
 	public void finished(ReleaseResult releaseResult) {
 		if(sendMessage) {
 			this.sendFinishMessage(releaseResult);
