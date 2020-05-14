@@ -15,8 +15,10 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryCache;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.util.FS;
 import org.eclipse.jgit.util.FileUtils;
@@ -372,6 +374,13 @@ public class GitUtils {
 	public static void checkout(Path gitRepoPath, String branchOrTagName) {
 		GitCheckout checkout = new GitCheckout();
 		checkout.execute(gitRepoPath, branchOrTagName);
+	}
+
+	public static String getCurrentBranch(Path gitRepoPath) throws IOException {
+		Path gitDir = gitRepoPath.resolve(Constants.DOT_GIT);
+		try (Repository repo = FileRepositoryBuilder.create(gitDir.toFile())){
+			return repo.getBranch();
+		}
 	}
 	
 }
