@@ -84,4 +84,18 @@ public class MarketplaceStore {
 				.resolve(version);
 	}
 
+	/**
+	 * 获取仓库中的 blocklang.json 文件路径。
+	 * 
+	 * <p>
+	 * 因为文件是存在 git 仓库中的，有多个版本，这里是直接使用 File API，而不是 Jgit API，来直接获取当前分支下的文件内容。
+	 * 暗含的意思，就是以最新版本的仓库信息为准。
+	 * </p>
+	 * 
+	 * @return blocklang.json 文件路径。
+	 */
+	public Path getRepoConfigFile() {
+		return this.getRepoSourceDirectory().resolve("blocklang.json");
+	}
+
 }
