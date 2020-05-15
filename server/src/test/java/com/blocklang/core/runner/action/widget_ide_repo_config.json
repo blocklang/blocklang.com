@@ -1,0 +1,15 @@
+{
+	"repo": "IDE",
+	"name": "ide-widgets",
+	"displayName": "IDE widgets",
+	"description": "A beautiful widgets",
+	"category": "Widget",
+	"appType": "web",
+	"build": "dojo",
+	"std": false,
+	"api": {
+		"git": "https://github.com/blocklang/api-widgets.git",
+		"version": "1.0.0"
+	},
+	"components": []
+}

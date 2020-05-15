@@ -1,0 +1,12 @@
+{
+	"repo": "IDE",
+	"name": "ide-widgets",
+	"displayName": "IDE widgets",
+	"description": "A beautiful widgets",
+	"category": "Widget",
+	"appType": "web",
+	"build": "dojo",
+	"std": false,
+	"api": {},
+	"components": []
+}
