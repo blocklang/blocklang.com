@@ -1,15 +1,35 @@
 package com.blocklang.marketplace.data.changelog;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class NewWidgetChange implements Change {
-
+//Widget changelog 生成的结果结构
+// 通常 CreateXXX 的属性与 XXX 的属性完全一致
+public class Widget implements ChangeData {
+	private String id; // widget 的唯一标识，对应目录名中的时间戳
+	private String code;
 	private String name;
 	private String label;
 	private String description;
 	private Boolean canHasChildren;
-	private List<WidgetProperty> properties;
-	private List<WidgetEvent> events;
+	private List<WidgetProperty> properties = new ArrayList<WidgetProperty>();
+	private List<WidgetEvent> events = new ArrayList<WidgetEvent>();
+	
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
 
 	public String getName() {
 		return name;
@@ -58,5 +78,4 @@ public class NewWidgetChange implements Change {
 	public void setEvents(List<WidgetEvent> events) {
 		this.events = events;
 	}
-
 }

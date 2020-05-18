@@ -4,11 +4,20 @@ import java.util.List;
 
 public class WidgetEvent {
 
+	private String code;
 	private String name;
 	private String label;
 	private String valueType;
 	private String description;
 	private List<WidgetEventArgument> arguments;
+
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
 
 	public String getName() {
 		return name;

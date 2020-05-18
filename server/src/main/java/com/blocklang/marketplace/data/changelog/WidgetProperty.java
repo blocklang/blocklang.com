@@ -4,12 +4,21 @@ import java.util.List;
 
 public class WidgetProperty {
 
+	private String code;
 	private String name;
 	private String label;
 	private Object defaultValue; // defaultValue 的类型要与 valueType 指定的值匹配
 	private String valueType;
 	private String description;
 	private List<WidgetPropertyOption> options;
+
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
 
 	public String getName() {
 		return name;

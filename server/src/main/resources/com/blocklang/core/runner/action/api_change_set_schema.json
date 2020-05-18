@@ -1,0 +1,253 @@
+{
+	"$schema": "https://json-schema.org/draft/2019-09/schema",
+	"title": "API change set config",
+	"type": "object",
+	"required": [
+		"id",
+		"author"
+	],
+	"properties": {
+		"id": {
+			"type": "string",
+			"description": "change set 唯一标识"
+		},
+		"author": {
+			"type": "string",
+			"description": "change set 作者"
+		},
+		"changes": {
+			"type": "array",
+			"description": "变更操作列表",
+			"minItems": 1,
+			"items": {
+				"type": "object",
+				"oneOf": [
+					{
+						"required": ["createWidget"],
+						"properties": {
+							"createWidget": {
+								"type": "object",
+								"description": "创建一个 Widget",
+								"required": [
+									"name"
+								],
+								"properties": {
+									"name": {
+										"type": "string",
+										"description": "Widget 名称"
+									},
+									"label": {
+										"type": "string",
+										"description": "Widget 显示名"
+									},
+									"description": {
+										"type": "string",
+										"description": "Widget 详细描述"
+									},
+									"properties": {
+										"type": "array",
+										"description": "Widget 属性列表",
+										"items": {
+											"type": "object",
+											"required": [
+												"name"
+											],
+											"properties": {
+												"name": {
+													"type": "string",
+													"description": "属性名"
+												},
+												"label": {
+													"type": "string",
+													"description": "属性显示名"
+												},
+												"defaultValue": {
+													"type": "string",
+													"description": "属性默认值"
+												},
+												"valueType": {
+													"type": "string",
+													"description": "属性值的数据类型",
+													"enum": [
+														"string",
+														"number",
+														"boolean"
+													]
+												}
+											}
+										}
+									},
+									"events": {
+										"type": "array",
+										"description": "Widget 事件列表",
+										"items": {
+											"type": "object",
+											"properties": {
+												"name": {
+													"type": "string",
+													"description": "事件名"
+												},
+												"label": {
+													"type": "string",
+													"description": "事件显示名"
+												},
+												"valueType": {
+													"type": "string",
+													"description": "事件的数据类型，只能为 function",
+													"default": "function",
+													"enum": [
+														"function"
+													]
+												},
+												"arguments": {
+													"type": "array",
+													"description": "事件的输入参数列表",
+													"items": {
+														"type": "object",
+														"properties": {
+															"name": {
+																"type": "string",
+																"description": "参数名"
+															},
+															"label": {
+																"type": "string",
+																"description": "参数显示名"
+															},
+															"defaultValue": {
+																"type": "string",
+																"description": "参数的默认值"
+															},
+															"valueType": {
+																"type": "string",
+																"description": "参数的数据类型",
+																"enum": [
+																	"string",
+																	"number",
+																	"boolean"
+																]
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					{
+						"required": ["addProperty"],
+						"properties": {
+							"addProperty": {
+								"type": "object",
+								"description": "新增属性列表",
+								"properties": {
+									"properties": {
+										"type": "array",
+										"description": "Widget 属性列表",
+										"items": {
+											"type": "object",
+											"required": [
+												"name"
+											],
+											"properties": {
+												"name": {
+													"type": "string",
+													"description": "属性名"
+												},
+												"label": {
+													"type": "string",
+													"description": "属性显示名"
+												},
+												"defaultValue": {
+													"type": "string",
+													"description": "属性默认值"
+												},
+												"valueType": {
+													"type": "string",
+													"description": "属性值的数据类型",
+													"enum": [
+														"string",
+														"number",
+														"boolean"
+													]
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					{
+						"required": ["addEvent"],
+						"properties": {
+							"addEvent": {
+								"type": "object",
+								"description": "新增事件列表",
+								"properties": {
+									"events": {
+										"type": "array",
+										"description": "Widget 事件列表",
+										"items": {
+											"type": "object",
+											"required": [
+												"name"
+											],
+											"properties": {
+												"name": {
+													"type": "string",
+													"description": "事件名"
+												},
+												"label": {
+													"type": "string",
+													"description": "事件显示名"
+												},
+												"valueType": {
+													"type": "string",
+													"description": "件的数据类型，只能为 function",
+													"const": "function"
+												},
+												"arguments": {
+													"type": "array",
+													"description": "事件的输入参数列表",
+													"items": {
+														"type": "object",
+														"properties": {
+															"name": {
+																"type": "string",
+																"description": "参数名"
+															},
+															"label": {
+																"type": "string",
+																"description": "参数显示名"
+															},
+															"defaultValue": {
+																"type": "string",
+																"description": "参数的默认值"
+															},
+															"valueType": {
+																"type": "string",
+																"description": "参数的数据类型",
+																"enum": [
+																	"string",
+																	"number",
+																	"boolean"
+																]
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				]
+			}
+		}
+	}
+}

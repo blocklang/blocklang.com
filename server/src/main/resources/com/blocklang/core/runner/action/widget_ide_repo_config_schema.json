@@ -54,7 +54,7 @@
 		"components": {
 			"type": "array",
 			"description": "widget 存放路径",
-			"item": {
+			"items": {
 				"type": "string"
 			}
 		},

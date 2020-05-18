@@ -2,6 +2,13 @@ package com.blocklang.core.runner.common;
 
 import java.util.Optional;
 
+/**
+ * 
+ * FIXME: 在此类中增加 getInputs 和 setOutputs 方法？这样就可以传递变量。
+ * 
+ * @author Zhengwei Jin
+ *
+ */
 public abstract class AbstractAction {
 
 	protected CliLogger logger;

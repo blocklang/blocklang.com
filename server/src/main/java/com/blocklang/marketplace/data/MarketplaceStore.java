@@ -9,6 +9,8 @@ import com.blocklang.core.util.GitUrlSegment;
 /**
  * 在往组件市场注册组件时，会生成一个文件。该类用于描述目录结构
  * 
+ * IDE 版组件仓库的结构
+ * 
  * <pre>
  * marketplace
  *     {website}
@@ -21,6 +23,27 @@ import com.blocklang.core.util.GitUrlSegment;
  *                 package
  *                     {version}
  *                         main.bundle.js
+ *                         
+ * </pre>
+ * 
+ * API 版仓库的结构
+ * 
+ * <pre>
+ * marketplace
+ *     {website}
+ *         {owner}
+ *             {project_name}
+ *                 source
+ *                 publishLogs
+ *                     yyyy_MM_dd_HH_mm_ss.log
+ *                 build
+ *                 package
+ *                     {version}
+ *                         {widget_timestamp}
+ *                             index.json
+ *                     __changelog__
+ *                         {widget_timestamp}
+ *                             index.json
  *                         
  * </pre>
  * 

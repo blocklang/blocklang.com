@@ -60,6 +60,16 @@ public abstract class JsonUtil {
 		return mapper.treeToValue(node, clazz);
 	}
  	
+	/**
+	 * 校验 json 格式是否遵循 schema 定义。
+	 * 
+	 * 注意：因为 json schema 规范尚不支持自定义错误信息，详见 https://github.com/networknt/json-schema-validator/issues/286
+	 * 当此功能实现后，再完善。
+	 * 
+	 * @param node json node
+	 * @param schema schema 定义
+	 * @return 返回错误信息
+	 */
 	public static Set<ValidationMessage> validate(JsonNode node, String schema) {
 		JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V201909);
 		return factory.getSchema(schema).validate(node);

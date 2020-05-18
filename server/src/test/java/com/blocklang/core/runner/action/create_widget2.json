@@ -1,0 +1,23 @@
+{
+	"id": "create-widget-2",
+	"author": "user",
+	"changes": [{
+		"createWidget": {
+			"name": "Widget2",
+			"label": "Widget 2",
+			"description": "",
+			"properties": [{
+				"name": "prop2",
+				"label": "prop 2",
+				"defaultValue": "",
+				"valueType": "string"
+			}],
+			"events": [{
+				"name": "event2",
+				"label": "event 2",
+				"valueType": "function",
+				"arguments": []
+			}]
+		}
+	}]
+}

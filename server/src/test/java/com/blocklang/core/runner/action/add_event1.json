@@ -1,0 +1,14 @@
+{
+	"id": "add-event-1",
+	"author": "user",
+	"changes": [{
+		"addEvent": {
+			"events": [{
+				"name": "event1",
+				"label": "event 1",
+				"valueType": "function",
+				"arguments": []
+			}]
+		}
+	}]
+}

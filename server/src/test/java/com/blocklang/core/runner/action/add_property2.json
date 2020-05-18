@@ -1,0 +1,14 @@
+{
+	"id": "add-property-2",
+	"author": "user",
+	"changes": [{
+		"addProperty": {
+			"properties": [{
+				"name": "prop2",
+				"label": "prop 2",
+				"defaultValue": "",
+				"valueType": "string"
+			}]
+		}
+	}]
+}
