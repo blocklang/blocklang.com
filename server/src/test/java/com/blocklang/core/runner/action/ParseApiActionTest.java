@@ -22,7 +22,6 @@ import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.runner.common.CliLogger;
 import com.blocklang.core.runner.common.DefaultExecutionContext;
 import com.blocklang.core.runner.common.ExecutionContext;
-import com.blocklang.core.test.TestHelper;
 import com.blocklang.core.util.JsonUtil;
 import com.blocklang.marketplace.data.MarketplaceStore;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -104,8 +103,6 @@ public class ParseApiActionTest {
 		// 该 jsonContent 中包含 \r，需要替换掉
 		firstChangeLog.setMd5sum(DigestUtils.md5Hex(widget1Json.replaceAll("\r", "")));
 		assertThat(changelogs).hasSize(1).first().usingRecursiveComparison().isEqualTo(firstChangeLog);
-		
-		TestHelper.clearDir(tempDir);
 	}
 	
 	@DisplayName("在第一个 tag 中创建一个 widget1，在第二 tag 中未对 widget1 做任何更改")
@@ -153,8 +150,6 @@ public class ParseApiActionTest {
 		// 该 jsonContent 中包含 \r，需要替换掉
 		firstChangeLog.setMd5sum(DigestUtils.md5Hex(widget1Json.replaceAll("\r", "")));
 		assertThat(changelogs).hasSize(1).first().usingRecursiveComparison().isEqualTo(firstChangeLog);
-				
-		TestHelper.clearDir(tempDir);
 	}
 	
 	@DisplayName("在第一个 tag 中创建一个 widget1，在第二 tag 中创建 widget2")
@@ -223,8 +218,6 @@ public class ParseApiActionTest {
 		changeLogInfo2.setVersion("0.2.0");
 		changeLogInfo2.setMd5sum(DigestUtils.md5Hex(widget2Json.replaceAll("\r", ""))); // 该 jsonContent 中包含 \r，需要替换掉
 		assertThat(changelogs2).hasSize(1).first().usingRecursiveComparison().isEqualTo(changeLogInfo2);
-
-		TestHelper.clearDir(tempDir);
 	}
 
 	// 当已发布的变更文件被修改后，给出错误提示
@@ -276,8 +269,6 @@ public class ParseApiActionTest {
 		// 该 jsonContent 中包含 \r，需要替换掉
 		firstChangeLog.setMd5sum(DigestUtils.md5Hex(widget1Json.replaceAll("\r", "")));
 		assertThat(changelogs).hasSize(1).first().usingRecursiveComparison().isEqualTo(firstChangeLog);
-
-		TestHelper.clearDir(tempDir);
 	}
 	
 	@DisplayName("对同一个 widget 执行两次 create widget")
@@ -308,8 +299,6 @@ public class ParseApiActionTest {
 		
 		assertThat(store.getPackageVersionDirectory("0.1.0").resolve(widget1Id).resolve("index.json").toFile().exists()).isFalse();
 		assertThat(store.getRepoPackageDirectory().resolve("__changelog__").resolve(widget1Id).resolve("index.json").toFile().exists()).isFalse();
-		
-		TestHelper.clearDir(tempDir);
 	}
 	
 	@DisplayName("在两个文件夹中分别创建了一个 widget，但是 name 相同，widget 名必须唯一")
@@ -347,8 +336,6 @@ public class ParseApiActionTest {
 		
 		assertThat(store.getPackageVersionDirectory("0.1.0").resolve(widget1Id).resolve("index.json").toFile().exists()).isFalse();
 		assertThat(store.getRepoPackageDirectory().resolve("__changelog__").resolve(widget1Id).resolve("index.json").toFile().exists()).isFalse();
-		
-		TestHelper.clearDir(tempDir);
 	}
 	
 	// create widget and add property in one change log file
@@ -408,8 +395,6 @@ public class ParseApiActionTest {
 		// 该 jsonContent 中包含 \r，需要替换掉
 		firstChangeLog.setMd5sum(DigestUtils.md5Hex(widget1Json.replaceAll("\r", "")));
 		assertThat(changelogs).hasSize(1).first().usingRecursiveComparison().isEqualTo(firstChangeLog);
-		
-		TestHelper.clearDir(tempDir);
 	}
 	
 	// add property_success in two changelog
@@ -490,8 +475,6 @@ public class ParseApiActionTest {
 		assertThat(changelogs).hasSize(2);
 		assertThat(changelogs.get(0)).usingRecursiveComparison().isEqualTo(firstChangeLog);
 		assertThat(changelogs.get(1)).usingRecursiveComparison().isEqualTo(secondChangeLog);
-		
-		TestHelper.clearDir(tempDir);
 	}
 	
 	// add property_already_exists
@@ -529,8 +512,6 @@ public class ParseApiActionTest {
 		// 即，changelog 日志文件和 widget 的最终结构，这两个文件应该不记录任何内容
 		assertThat(store.getPackageVersionDirectory("0.1.0").resolve(widgetId).resolve("index.json").toFile().exists()).isFalse();
 		assertThat(store.getRepoPackageDirectory().resolve("__changelog__").resolve(widgetId).resolve("index.json").toFile().exists()).isFalse();
-		
-		TestHelper.clearDir(tempDir);
 	}
 	
 	@DisplayName("没有 create widget 直接 add properties")
@@ -560,8 +541,6 @@ public class ParseApiActionTest {
 		
 		assertThat(store.getPackageVersionDirectory("0.1.0").resolve(widgetId).resolve("index.json").toFile().exists()).isFalse();
 		assertThat(store.getRepoPackageDirectory().resolve("__changelog__").resolve(widgetId).resolve("index.json").toFile().exists()).isFalse();
-		
-		TestHelper.clearDir(tempDir);
 	}
 	
 	@DisplayName("在一个 changelog 文件中，先使用 createWidget 创建一个 Widget，然后使用 addEvent 添加一个事件")
@@ -620,8 +599,6 @@ public class ParseApiActionTest {
 		// 该 jsonContent 中包含 \r，需要替换掉
 		firstChangeLog.setMd5sum(DigestUtils.md5Hex(widget1Json.replaceAll("\r", "")));
 		assertThat(changelogs).hasSize(1).first().usingRecursiveComparison().isEqualTo(firstChangeLog);
-		
-		TestHelper.clearDir(tempDir);
 	}
 	
 	@DisplayName("在一个 changelog 中 createWidget，然后在另一个 changlog 中 addEvent")
@@ -701,8 +678,6 @@ public class ParseApiActionTest {
 		assertThat(changelogs).hasSize(2);
 		assertThat(changelogs.get(0)).usingRecursiveComparison().isEqualTo(firstChangeLog);
 		assertThat(changelogs.get(1)).usingRecursiveComparison().isEqualTo(secondChangeLog);
-		
-		TestHelper.clearDir(tempDir);
 	}
 	
 	@DisplayName("通过 addEvent 为 widget 添加一个事件，而此事件已存在")
@@ -739,8 +714,6 @@ public class ParseApiActionTest {
 		// 即，changelog 日志文件和 widget 的最终结构，这两个文件应该不记录任何内容
 		assertThat(store.getPackageVersionDirectory("0.1.0").resolve(widgetId).resolve("index.json").toFile().exists()).isFalse();
 		assertThat(store.getRepoPackageDirectory().resolve("__changelog__").resolve(widgetId).resolve("index.json").toFile().exists()).isFalse();
-		
-		TestHelper.clearDir(tempDir);
 	}
 	
 	@DisplayName("没有 create widget 直接 add event")
@@ -770,9 +743,12 @@ public class ParseApiActionTest {
 		
 		assertThat(store.getPackageVersionDirectory("0.1.0").resolve(widgetId).resolve("index.json").toFile().exists()).isFalse();
 		assertThat(store.getRepoPackageDirectory().resolve("__changelog__").resolve(widgetId).resolve("index.json").toFile().exists()).isFalse();
-		
-		TestHelper.clearDir(tempDir);
 	}
+	
+	// run master
+	// 如果之前构建过 master，则依然解析，并覆盖之前的结构
+	
+	
 	
 	private void assertWidget1(String widgetJson) throws JsonProcessingException {
 		JsonNode widget = JsonUtil.readTree(widgetJson);

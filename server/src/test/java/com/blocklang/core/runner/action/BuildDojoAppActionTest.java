@@ -60,7 +60,7 @@ public class BuildDojoAppActionTest {
 	
 	// store 的目录结构
 	//
-	// root/
+	// marketplace/
 	//     github.com/
 	//         you/
 	//             your-repo/
@@ -127,8 +127,6 @@ public class BuildDojoAppActionTest {
 	
 		// 因为构建了两个分支，所以执行次数为 2 x 2
 		verify(cliCommand, times(4)).run(any(), any());
-		
-		TestHelper.clearDir(tempDir);
 	}
 	
 	// 测试此用例，不需要创建 dojo app
@@ -154,8 +152,6 @@ public class BuildDojoAppActionTest {
 		assertThat(store.getPackageVersionDirectory("0.1.0").resolve("main.bundle.js").toFile().exists()).isTrue();
 	
 		verify(cliCommand, never()).run(any(), any());
-		
-		TestHelper.clearDir(tempDir);
 	}
 	
 	// 如果切换 tag 失败，则停止构建本 tag，但要接着构建下一个 tag
@@ -182,8 +178,6 @@ public class BuildDojoAppActionTest {
 		// 断言 package/0.1.1 目录下没有 main.bundle.js
 		assertThat(store.getPackageVersionDirectory("0.1.1").resolve("main.bundle.js").toFile().exists()).isFalse();
 		verify(cliCommand, never()).run(any(), any());
-		
-		TestHelper.clearDir(tempDir);
 	}
 	
 	// 模拟将 build 文件夹中的文件复制到 package/{version} 文件夹
@@ -211,8 +205,6 @@ public class BuildDojoAppActionTest {
 		assertThat(actionSpy.run()).isEmpty();
 		assertThat(store.getPackageVersionDirectory("0.1.0").resolve("main.bundle.js").toFile().exists()).isFalse();
 		verify(cliCommand, never()).run(any(), any());
-		
-		TestHelper.clearDir(tempDir);
 	}
 	
 	@Test
@@ -239,8 +231,6 @@ public class BuildDojoAppActionTest {
 		assertThat(actionSpy.run()).isEmpty();
 		assertThat(store.getPackageVersionDirectory("0.1.0").resolve("main.bundle.js").toFile().exists()).isFalse();
 		verify(cliCommand).run(any(), any());
-		
-		TestHelper.clearDir(tempDir);
 	}
 	
 	@Test
@@ -269,8 +259,6 @@ public class BuildDojoAppActionTest {
 		assertThat(actionSpy.run()).isEmpty();
 		assertThat(store.getPackageVersionDirectory("0.1.0").resolve("main.bundle.js").toFile().exists()).isFalse();
 		verify(cliCommand, times(2)).run(any(), any());
-		
-		TestHelper.clearDir(tempDir);
 	}
 
 	// 为了模拟错误，将 build/output/dist 文件夹删掉
@@ -302,8 +290,6 @@ public class BuildDojoAppActionTest {
 		assertThat(actionSpy.run()).isEmpty();
 		assertThat(store.getPackageVersionDirectory("0.1.0").resolve("main.bundle.js").toFile().exists()).isFalse();
 		verify(cliCommand, times(2)).run(any(), any());
-		
-		TestHelper.clearDir(tempDir);
 	}
 	
 	@Test
@@ -337,8 +323,6 @@ public class BuildDojoAppActionTest {
 		assertThat(actionSpy.run()).isPresent();
 		assertThat(store.getPackageVersionDirectory("master").resolve("main.bundle.js").toFile().exists()).isTrue();
 		verify(cliCommand, times(2)).run(any(), any());
-		
-		TestHelper.clearDir(tempDir);
 	}
 	
 	// 如果没有构建 master，则也要确保切换到 master 分支
@@ -381,8 +365,6 @@ public class BuildDojoAppActionTest {
 		
 		// 断言当前为 master 分支
 		assertThat(GitUtils.getCurrentBranch(sourceDirectory)).isEqualTo("master");
-		
-		TestHelper.clearDir(tempDir);
 	}
 	
 	private Path createDojoApp(MarketplaceStore store) throws IOException {

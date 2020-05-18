@@ -10,9 +10,17 @@ import java.nio.file.attribute.BasicFileAttributes;
 
 import org.springframework.lang.Nullable;
 
+/**
+ * 
+ * @author Zhengwei Jin
+ * 
+ * 因为 junit 5.5.2 中使用 @TempDir 扩展时，最后删除临时文件夹有 bug，所以使用此工具手动删。
+ *
+ * @deprecated 现在 junit 已升级，此 bug 已修复，所以不再需要此工具类。
+ */
 public class TestHelper {
 
-	// FIXME：因为 5.5.2 中删除临时文件夹有 bug，所以手动删，当 junit 修复此 bug 后，删除此代码。
+	// FIXME：
 	public static void clearDir(Path folder) throws IOException {
 		if(Files.exists(folder)) {
 			deleteRecursively(folder);
