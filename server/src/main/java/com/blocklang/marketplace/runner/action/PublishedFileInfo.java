@@ -1,4 +1,4 @@
-package com.blocklang.core.runner.action;
+package com.blocklang.marketplace.runner.action;
 
 public class PublishedFileInfo {
 	private String version;
