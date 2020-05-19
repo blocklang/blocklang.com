@@ -224,16 +224,16 @@ public class GitUtils {
 	}
 	
 	/**
-	 * 从指定的 tag 下获取文件路径信息，不包括文件夹，但递归查找
+	 * 从指定的分支或 tag 下获取文件路径信息，不包括文件夹，但递归查找
 	 * 
 	 * @param gitRepoPath
 	 * @param refName 需要包含 refs/tags/ 前缀
 	 * @param pathSuffix 如果只查出 json 文件，则值为".json"；如果值为 null，显示全部
 	 * @return
 	 */
-	public static List<GitFileInfo> getAllFilesFromTag(Path gitRepoPath, String refName, String pathSuffix) {
+	public static List<GitFileInfo> readAllFiles(Path gitRepoPath, String refName, String pathSuffix) {
 		GitFile file = new GitFile(gitRepoPath, null);
-		return file.getAllFilesFromTag(refName, pathSuffix);
+		return file.readAllFiles(refName, pathSuffix);
 	}
 	
 	/**

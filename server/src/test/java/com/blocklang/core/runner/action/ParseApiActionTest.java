@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -96,13 +97,59 @@ public class ParseApiActionTest {
 		assertWidget1(widget1Api);
 		// 断言哪些文件已执行过
 		String changelog = Files.readString(store.getRepoPackageDirectory().resolve("__changelog__").resolve(widget1Id).resolve("index.json"));
-		List<ChangeLogInfo> changelogs = JsonUtil.fromJsonArray(changelog, ChangeLogInfo.class);
-		ChangeLogInfo firstChangeLog = new ChangeLogInfo();
+		List<PublishedFileInfo> changelogs = JsonUtil.fromJsonArray(changelog, PublishedFileInfo.class);
+		PublishedFileInfo firstChangeLog = new PublishedFileInfo();
 		firstChangeLog.setFileId(changeFileId); // 文件标识，不是文件夹标识
 		firstChangeLog.setVersion("0.1.0");
 		// 该 jsonContent 中包含 \r，需要替换掉
 		firstChangeLog.setMd5sum(DigestUtils.md5Hex(widget1Json.replaceAll("\r", "")));
 		assertThat(changelogs).hasSize(1).first().usingRecursiveComparison().isEqualTo(firstChangeLog);
+	}
+	
+	@DisplayName("有两个 tag，解析第一个 tag 出错后，不再解析第二个 tag")
+	@Test
+	public void run_tags_tag1_failed_then_not_parse_tag2(@TempDir Path tempDir) throws IOException {
+		context.putValue(ParseApiAction.INPUT_MASTER, false);
+
+		String widget1Id = "1";
+		String changeFileId = "2";
+		
+		// FIXME: context 贯穿 ide 仓库和 api 仓库的构建和解析，context 中需支持存储多个 store，当合并操作时再处理
+		var store = new MarketplaceStore(tempDir.resolve("rootPath").toString(), "https://github.com/you/you-repo.git");
+		
+		// v0.1.0 中的 changelog 定义无效
+		Path sourceDirectory = createApiRepo(store);
+		Path widget1Directory = sourceDirectory.resolve("changelog").resolve(widget1Id + "__widget1");
+		Files.createDirectories(widget1Directory);
+		Files.writeString(widget1Directory.resolve(changeFileId + "__create_widget.json"), "{}");
+		GitUtils.add(sourceDirectory, ".");
+		GitUtils.commit(sourceDirectory, "user", "user@email.com", "first commit");
+		GitUtils.tag(sourceDirectory, "v0.1.0", "first tag");
+		
+		// v0.1.0 中的 changelog 定义有效
+		sourceDirectory = createApiRepo(store);
+		widget1Directory = sourceDirectory.resolve("changelog").resolve(widget1Id + "__widget1");
+		Files.createDirectories(widget1Directory);
+		String widget1Json = StreamUtils.copyToString(getClass().getResourceAsStream("create_widget1.json"), Charset.defaultCharset());
+		Files.writeString(widget1Directory.resolve(changeFileId + "__create_widget.json"), widget1Json, StandardOpenOption.TRUNCATE_EXISTING);
+		GitUtils.add(sourceDirectory, ".");
+		GitUtils.commit(sourceDirectory, "user", "user@email.com", "first commit");
+		GitUtils.tag(sourceDirectory, "v0.2.0", "second tag");
+		
+		context.putValue(ParseApiAction.INPUT_TAGS, Arrays.asList("refs/tags/v0.1.0", "refs/tags/v0.2.0"));
+		context.putValue(ExecutionContext.MARKETPLACE_STORE, store);
+		var action = new ParseApiAction(context);
+		
+		assertThat(action.run()).isEmpty();
+
+		// tag v0.1.0
+		assertThat(store.getPackageVersionDirectory("0.1.0").resolve(widget1Id).resolve("index.json").toFile().exists()).isFalse();
+		
+		// tag v0.2.0
+		assertThat(store.getPackageVersionDirectory("0.2.0").resolve(widget1Id).resolve("index.json").toFile().exists()).isFalse();
+		
+		// 断言哪些文件已执行过
+		assertThat(store.getRepoPackageDirectory().resolve("__changelog__").resolve(widget1Id).resolve("index.json").toFile().exists()).isFalse();
 	}
 	
 	@DisplayName("在第一个 tag 中创建一个 widget1，在第二 tag 中未对 widget1 做任何更改")
@@ -143,8 +190,8 @@ public class ParseApiActionTest {
 		
 		// 断言哪些文件已执行过
 		String changelog = Files.readString(store.getRepoPackageDirectory().resolve("__changelog__").resolve(widget1Id).resolve("index.json"));
-		List<ChangeLogInfo> changelogs = JsonUtil.fromJsonArray(changelog, ChangeLogInfo.class);
-		ChangeLogInfo firstChangeLog = new ChangeLogInfo();
+		List<PublishedFileInfo> changelogs = JsonUtil.fromJsonArray(changelog, PublishedFileInfo.class);
+		PublishedFileInfo firstChangeLog = new PublishedFileInfo();
 		firstChangeLog.setFileId(changeFileId); // 文件标识，不是文件夹标识
 		firstChangeLog.setVersion("0.1.0");
 		// 该 jsonContent 中包含 \r，需要替换掉
@@ -203,8 +250,8 @@ public class ParseApiActionTest {
 		
 		// 断言生成 widget1 API 时执行了哪些 changelog
 		String changeLog1 = Files.readString(store.getRepoPackageDirectory().resolve("__changelog__").resolve(widget1Id).resolve("index.json"));
-		List<ChangeLogInfo> changelogs1 = JsonUtil.fromJsonArray(changeLog1, ChangeLogInfo.class);
-		ChangeLogInfo changeLogInfo1 = new ChangeLogInfo();
+		List<PublishedFileInfo> changelogs1 = JsonUtil.fromJsonArray(changeLog1, PublishedFileInfo.class);
+		PublishedFileInfo changeLogInfo1 = new PublishedFileInfo();
 		changeLogInfo1.setFileId(changeFile1Id);
 		changeLogInfo1.setVersion("0.1.0");
 		changeLogInfo1.setMd5sum(DigestUtils.md5Hex(widget1Json.replaceAll("\r", ""))); // 该 jsonContent 中包含 \r，需要替换掉
@@ -212,8 +259,8 @@ public class ParseApiActionTest {
 
 		// 断言生成 widget2 API 时执行了哪些 changelog
 		String changeLog2 = Files.readString(store.getRepoPackageDirectory().resolve("__changelog__").resolve(widget2Id).resolve("index.json"));
-		List<ChangeLogInfo> changelogs2 = JsonUtil.fromJsonArray(changeLog2, ChangeLogInfo.class);
-		ChangeLogInfo changeLogInfo2 = new ChangeLogInfo();
+		List<PublishedFileInfo> changelogs2 = JsonUtil.fromJsonArray(changeLog2, PublishedFileInfo.class);
+		PublishedFileInfo changeLogInfo2 = new PublishedFileInfo();
 		changeLogInfo2.setFileId(changeFile2Id);
 		changeLogInfo2.setVersion("0.2.0");
 		changeLogInfo2.setMd5sum(DigestUtils.md5Hex(widget2Json.replaceAll("\r", ""))); // 该 jsonContent 中包含 \r，需要替换掉
@@ -262,8 +309,8 @@ public class ParseApiActionTest {
 		
 		// 断言哪些文件已执行过
 		String changelog = Files.readString(store.getRepoPackageDirectory().resolve("__changelog__").resolve(widget1Id).resolve("index.json"));
-		List<ChangeLogInfo> changelogs = JsonUtil.fromJsonArray(changelog, ChangeLogInfo.class);
-		ChangeLogInfo firstChangeLog = new ChangeLogInfo();
+		List<PublishedFileInfo> changelogs = JsonUtil.fromJsonArray(changelog, PublishedFileInfo.class);
+		PublishedFileInfo firstChangeLog = new PublishedFileInfo();
 		firstChangeLog.setFileId(changeFile1Id); // 文件标识，不是文件夹标识
 		firstChangeLog.setVersion("0.1.0");
 		// 该 jsonContent 中包含 \r，需要替换掉
@@ -388,8 +435,8 @@ public class ParseApiActionTest {
 		
 		// 断言哪些文件已执行过
 		String changelog = Files.readString(store.getRepoPackageDirectory().resolve("__changelog__").resolve(widget1Id).resolve("index.json"));
-		List<ChangeLogInfo> changelogs = JsonUtil.fromJsonArray(changelog, ChangeLogInfo.class);
-		ChangeLogInfo firstChangeLog = new ChangeLogInfo();
+		List<PublishedFileInfo> changelogs = JsonUtil.fromJsonArray(changelog, PublishedFileInfo.class);
+		PublishedFileInfo firstChangeLog = new PublishedFileInfo();
 		firstChangeLog.setFileId(changeFileId); // 文件标识，不是文件夹标识
 		firstChangeLog.setVersion("0.1.0");
 		// 该 jsonContent 中包含 \r，需要替换掉
@@ -458,15 +505,15 @@ public class ParseApiActionTest {
 		
 		// 断言哪些文件已执行过
 		String changelog = Files.readString(store.getRepoPackageDirectory().resolve("__changelog__").resolve(widgetId).resolve("index.json"));
-		List<ChangeLogInfo> changelogs = JsonUtil.fromJsonArray(changelog, ChangeLogInfo.class);
+		List<PublishedFileInfo> changelogs = JsonUtil.fromJsonArray(changelog, PublishedFileInfo.class);
 		
-		ChangeLogInfo firstChangeLog = new ChangeLogInfo();
+		PublishedFileInfo firstChangeLog = new PublishedFileInfo();
 		firstChangeLog.setFileId(changeFile1Id); // 文件标识，不是文件夹标识
 		firstChangeLog.setVersion("0.1.0");
 		// 该 jsonContent 中包含 \r，需要替换掉
 		firstChangeLog.setMd5sum(DigestUtils.md5Hex(createWidget1Json.replaceAll("\r", "")));
 		
-		ChangeLogInfo secondChangeLog = new ChangeLogInfo();
+		PublishedFileInfo secondChangeLog = new PublishedFileInfo();
 		secondChangeLog.setFileId(changeFile2Id); // 文件标识，不是文件夹标识
 		secondChangeLog.setVersion("0.1.0");
 		// 该 jsonContent 中包含 \r，需要替换掉
@@ -592,8 +639,8 @@ public class ParseApiActionTest {
 		
 		// 断言哪些文件已执行过
 		String changelog = Files.readString(store.getRepoPackageDirectory().resolve("__changelog__").resolve(widget1Id).resolve("index.json"));
-		List<ChangeLogInfo> changelogs = JsonUtil.fromJsonArray(changelog, ChangeLogInfo.class);
-		ChangeLogInfo firstChangeLog = new ChangeLogInfo();
+		List<PublishedFileInfo> changelogs = JsonUtil.fromJsonArray(changelog, PublishedFileInfo.class);
+		PublishedFileInfo firstChangeLog = new PublishedFileInfo();
 		firstChangeLog.setFileId(changeFileId); // 文件标识，不是文件夹标识
 		firstChangeLog.setVersion("0.1.0");
 		// 该 jsonContent 中包含 \r，需要替换掉
@@ -661,15 +708,15 @@ public class ParseApiActionTest {
 		
 		// 断言哪些文件已执行过
 		String changelog = Files.readString(store.getRepoPackageDirectory().resolve("__changelog__").resolve(widgetId).resolve("index.json"));
-		List<ChangeLogInfo> changelogs = JsonUtil.fromJsonArray(changelog, ChangeLogInfo.class);
+		List<PublishedFileInfo> changelogs = JsonUtil.fromJsonArray(changelog, PublishedFileInfo.class);
 		
-		ChangeLogInfo firstChangeLog = new ChangeLogInfo();
+		PublishedFileInfo firstChangeLog = new PublishedFileInfo();
 		firstChangeLog.setFileId(changeFile1Id); // 文件标识，不是文件夹标识
 		firstChangeLog.setVersion("0.1.0");
 		// 该 jsonContent 中包含 \r，需要替换掉
 		firstChangeLog.setMd5sum(DigestUtils.md5Hex(createWidget1Json.replaceAll("\r", "")));
 		
-		ChangeLogInfo secondChangeLog = new ChangeLogInfo();
+		PublishedFileInfo secondChangeLog = new PublishedFileInfo();
 		secondChangeLog.setFileId(changeFile2Id); // 文件标识，不是文件夹标识
 		secondChangeLog.setVersion("0.1.0");
 		// 该 jsonContent 中包含 \r，需要替换掉
@@ -745,9 +792,120 @@ public class ParseApiActionTest {
 		assertThat(store.getRepoPackageDirectory().resolve("__changelog__").resolve(widgetId).resolve("index.json").toFile().exists()).isFalse();
 	}
 	
-	// run master
 	// 如果之前构建过 master，则依然解析，并覆盖之前的结构
+	@DisplayName("每次解析时都要重新解析 master 分支")
+	@Test
+	public void run_master_always_reparse(@TempDir Path tempDir) throws IOException {
+		String widgetId = "1";
+		String changeFile1Id = "2";
+		
+		var store = new MarketplaceStore(tempDir.resolve("rootPath").toString(), "https://github.com/you/your-repo.git");
+		Path sourceDirectory = createApiRepo(store);
+		
+		Path widgetDirectory = sourceDirectory.resolve("changelog").resolve(widgetId + "__widget1");
+		Files.createDirectories(widgetDirectory);
+		String createWidgetJson = StreamUtils.copyToString(getClass().getResourceAsStream("create_widget1.json"), Charset.defaultCharset());
+		Files.writeString(widgetDirectory.resolve(changeFile1Id + "__create_widget.json"), createWidgetJson);
+		GitUtils.add(sourceDirectory, ".");
+		GitUtils.commit(sourceDirectory, "user", "user@email.com", "first commit");
+		
+		// 此处并未设置 tags，也没有禁止解析 master，所以只会解析 master
+		context.putValue(ExecutionContext.MARKETPLACE_STORE, store);
+		var action = new ParseApiAction(context);
+		
+		assertThat(action.run()).isPresent();
+		
+		String widget1Api = Files.readString(store.getPackageVersionDirectory("master").resolve(widgetId).resolve("index.json"));
+		assertWidget1(widget1Api);
+		
+		String changelog = Files.readString(store.getRepoPackageDirectory().resolve("__changelog__").resolve(widgetId).resolve("index.json"));
+		List<PublishedFileInfo> changelogs = JsonUtil.fromJsonArray(changelog, PublishedFileInfo.class);
+		PublishedFileInfo firstPublishedFile = new PublishedFileInfo();
+		firstPublishedFile.setFileId(changeFile1Id); // 文件标识，不是文件夹标识
+		firstPublishedFile.setVersion("master");
+		// 该 jsonContent 中包含 \r，需要替换掉
+		firstPublishedFile.setMd5sum(DigestUtils.md5Hex(createWidgetJson.replaceAll("\r", "")));
+		assertThat(changelogs).hasSize(1).first().usingRecursiveComparison().isEqualTo(firstPublishedFile);
+		
+		// 修改内容后，依然解析
+		String createWidget2Json = StreamUtils.copyToString(getClass().getResourceAsStream("create_widget2.json"), Charset.defaultCharset());
+		Files.writeString(widgetDirectory.resolve(changeFile1Id + "__create_widget.json"), createWidget2Json);
+		GitUtils.add(sourceDirectory, ".");
+		GitUtils.commit(sourceDirectory, "user", "user@email.com", "first commit");
+		
+		assertThat(action.run()).isPresent();
+		
+		String widget21Api = Files.readString(store.getPackageVersionDirectory("master").resolve(widgetId).resolve("index.json"));
+		JsonNode widget = JsonUtil.readTree(widget21Api);
+		assertThat(widget.get("code").asText()).isEqualTo("0001");
+		assertThat(widget.get("name").asText()).isEqualTo("Widget2");
+		assertThat(widget.get("label").asText()).isEqualTo("Widget 2");
+		assertThat(widget.get("description").asText()).isEmpty();
+		
+		JsonNode propertiesNodes = widget.get("properties");
+		assertThat(propertiesNodes).hasSize(1);
+		assertThat(propertiesNodes.get(0).get("code").asText()).isEqualTo("0001");
+		assertThat(propertiesNodes.get(0).get("name").asText()).isEqualTo("prop2");
+		assertThat(propertiesNodes.get(0).get("label").asText()).isEqualTo("prop 2");
+		assertThat(propertiesNodes.get(0).get("defaultValue").asText()).isEqualTo("");
+		assertThat(propertiesNodes.get(0).get("valueType").asText()).isEqualTo("string");
+		
+		JsonNode eventsNodes = widget.get("events");
+		assertThat(eventsNodes).hasSize(1);
+		assertThat(eventsNodes.get(0).get("code").asText()).isEqualTo("0002");
+		assertThat(eventsNodes.get(0).get("name").asText()).isEqualTo("event2");
+		assertThat(eventsNodes.get(0).get("label").asText()).isEqualTo("event 2");
+		assertThat(eventsNodes.get(0).get("valueType").asText()).isEqualTo("function");
+		assertThat(eventsNodes.get(0).get("arguments")).isEmpty();
+		
+		String changelog2 = Files.readString(store.getRepoPackageDirectory().resolve("__changelog__").resolve(widgetId).resolve("index.json"));
+		List<PublishedFileInfo> changelogs2 = JsonUtil.fromJsonArray(changelog2, PublishedFileInfo.class);
+		PublishedFileInfo secondPublishedFile = new PublishedFileInfo();
+		secondPublishedFile.setFileId(changeFile1Id); // 文件标识，不是文件夹标识
+		secondPublishedFile.setVersion("master");
+		// 该 jsonContent 中包含 \r，需要替换掉
+		secondPublishedFile.setMd5sum(DigestUtils.md5Hex(createWidget2Json.replaceAll("\r", "")));
+		assertThat(changelogs2).hasSize(1).first().usingRecursiveComparison().isEqualTo(secondPublishedFile);
+		
+		assertThat(firstPublishedFile.getMd5sum()).isNotEqualTo(secondPublishedFile.getMd5sum());
+	}
 	
+	@DisplayName("先解析 tag，然后解析 master，但是 master 分支中没有新增内容")
+	@Test
+	public void run_tags_and_master_no_new_commit(@TempDir Path tempDir) throws IOException {
+		String widgetId = "1";
+		String changeFile1Id = "2";
+		
+		var store = new MarketplaceStore(tempDir.resolve("rootPath").toString(), "https://github.com/you/your-repo.git");
+		Path sourceDirectory = createApiRepo(store);
+		
+		Path widgetDirectory = sourceDirectory.resolve("changelog").resolve(widgetId + "__widget1");
+		Files.createDirectories(widgetDirectory);
+		String createWidgetJson = StreamUtils.copyToString(getClass().getResourceAsStream("create_widget1.json"), Charset.defaultCharset());
+		Files.writeString(widgetDirectory.resolve(changeFile1Id + "__create_widget.json"), createWidgetJson);
+		GitUtils.add(sourceDirectory, ".");
+		GitUtils.commit(sourceDirectory, "user", "user@email.com", "first commit");
+		GitUtils.tag(sourceDirectory, "v0.1.0", "first tag");
+		
+		// 此处并未设置 tags，也没有禁止解析 master，所以只会解析 master
+		context.putValue(ExecutionContext.MARKETPLACE_STORE, store);
+		context.putValue(ParseApiAction.INPUT_TAGS, Collections.singletonList("refs/tags/v0.1.0"));
+		var action = new ParseApiAction(context);
+		
+		assertThat(action.run()).isPresent();
+		
+		String widget1Api = Files.readString(store.getPackageVersionDirectory("master").resolve(widgetId).resolve("index.json"));
+		assertWidget1(widget1Api);
+		
+		String changelog = Files.readString(store.getRepoPackageDirectory().resolve("__changelog__").resolve(widgetId).resolve("index.json"));
+		List<PublishedFileInfo> changelogs = JsonUtil.fromJsonArray(changelog, PublishedFileInfo.class);
+		PublishedFileInfo firstPublishedFile = new PublishedFileInfo();
+		firstPublishedFile.setFileId(changeFile1Id); // 文件标识，不是文件夹标识
+		firstPublishedFile.setVersion("0.1.0");
+		// 该 jsonContent 中包含 \r，需要替换掉
+		firstPublishedFile.setMd5sum(DigestUtils.md5Hex(createWidgetJson.replaceAll("\r", "")));
+		assertThat(changelogs).hasSize(1).first().usingRecursiveComparison().isEqualTo(firstPublishedFile);
+	}
 	
 	
 	private void assertWidget1(String widgetJson) throws JsonProcessingException {

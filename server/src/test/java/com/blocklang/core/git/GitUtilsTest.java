@@ -19,7 +19,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import com.blocklang.core.constant.GitFileStatus;
-import com.blocklang.core.test.TestHelper;
 
 /**
  * git 测试用例
@@ -65,7 +64,7 @@ public class GitUtilsTest {
 		
 		assertThat(GitUtils.isGitRepo(folder)).isTrue();
 		
-		TestHelper.clearDir(folder);
+		
 	}
 	
 	@Test
@@ -76,7 +75,7 @@ public class GitUtilsTest {
 		GitUtils.beginInit(folder, gitUserName, gitUserMail).addFile("a.txt", "Hello").commit("first commit");
 		assertContentEquals(folder.resolve("a.txt"), "Hello");
 		
-		TestHelper.clearDir(folder);
+		
 	}
 	
 	@Test
@@ -97,7 +96,7 @@ public class GitUtilsTest {
 		assertThat(GitUtils.getLogCount(folder)).isEqualTo(3);
 		assertContentEquals(folder.resolve("a").resolve("b").resolve("c.txt"), "hello world");
 		
-		TestHelper.clearDir(folder);
+		
 	}
 	
 	@Test
@@ -114,7 +113,7 @@ public class GitUtilsTest {
 		// 断言仓库的标签数
 		assertThat(GitUtils.getTagCount(folder)).isEqualTo(1);
 		
-		TestHelper.clearDir(folder);
+		
 	}
 	
 	@Test
@@ -136,7 +135,7 @@ public class GitUtilsTest {
 		getedTag = GitUtils.getTag(folder, "v0.1.0-1");
 		assertThat(getedTag.isEmpty()).isTrue();
 		
-		TestHelper.clearDir(folder);
+		
 	}
 	
 	@Test
@@ -155,7 +154,7 @@ public class GitUtilsTest {
 		latestCommit = GitUtils.getLatestCommit(folder);
 		assertThat(latestCommit.getFullMessage()).isEqualTo("commit 2");
 		
-		TestHelper.clearDir(folder);
+		
 	}
 	
 	@Test
@@ -174,7 +173,7 @@ public class GitUtilsTest {
 		latestCommit = GitUtils.getLatestCommit(folder, "a");
 		assertThat(latestCommit.getFullMessage()).isEqualTo("commit 2");
 		
-		TestHelper.clearDir(folder);
+		
 	}
 	
 	@Test
@@ -187,7 +186,7 @@ public class GitUtilsTest {
 		
 		assertThat(gitFiles).isEmpty();
 		
-		TestHelper.clearDir(folder);
+		
 	}
 	
 	// 只适用于 master 分支
@@ -222,7 +221,7 @@ public class GitUtilsTest {
 					gitFile.getLatestCommitTime() != null;
 		});
 		
-		TestHelper.clearDir(folder);
+		
 	}
 	
 	// 只适用于 master 分支
@@ -236,7 +235,7 @@ public class GitUtilsTest {
 		List<GitFileInfo> gitFiles = GitUtils.getFiles(folder, "a-folder-not-commit");
 		assertThat(gitFiles).isEmpty();
 		
-		TestHelper.clearDir(folder);
+		
 	}
 	
 	// 只适用于 master 分支
@@ -271,7 +270,7 @@ public class GitUtilsTest {
 					gitFile.getLatestCommitTime() != null;
 		});
 		
-		TestHelper.clearDir(folder);
+		
 	}
 	
 	@Test
@@ -281,13 +280,13 @@ public class GitUtilsTest {
 		
 		GitUtils.init(folder, gitUserName, gitUserMail);
 		
-		Exception exception = Assertions.assertThrows(IllegalArgumentException.class, () -> GitUtils.getAllFilesFromTag(folder, null, null));
+		Exception exception = Assertions.assertThrows(IllegalArgumentException.class, () -> GitUtils.readAllFiles(folder, null, null));
 		assertThat(exception.getMessage()).isEqualTo("tag 的值不能为空");
 		
-		exception = Assertions.assertThrows(IllegalArgumentException.class, () -> GitUtils.getAllFilesFromTag(folder, " ", null));
+		exception = Assertions.assertThrows(IllegalArgumentException.class, () -> GitUtils.readAllFiles(folder, " ", null));
 		assertThat(exception.getMessage()).isEqualTo("tag 的值不能为空");
 		
-		TestHelper.clearDir(folder);
+		
 	}
 	
 	// 获取一个仓库中所有文件，不包括文件夹
@@ -298,10 +297,10 @@ public class GitUtilsTest {
 		
 		GitUtils.init(folder, gitUserName, gitUserMail);
 		
-		List<GitFileInfo> gitFiles = GitUtils.getAllFilesFromTag(folder, "refs/tags/v0.1.0", null);
+		List<GitFileInfo> gitFiles = GitUtils.readAllFiles(folder, "refs/tags/v0.1.0", null);
 		assertThat(gitFiles).isEmpty();
 		
-		TestHelper.clearDir(folder);
+		
 	}
 	
 	@Test
@@ -313,14 +312,14 @@ public class GitUtilsTest {
 		GitUtils.commit(folder, null, "1.txt", "hello", gitUserName, gitUserMail, "commit 1");
 		GitUtils.tag(folder, "v0.1.0", "message");
 		
-		List<GitFileInfo> gitFiles = GitUtils.getAllFilesFromTag(folder, "refs/tags/v0.1.0", null);
+		List<GitFileInfo> gitFiles = GitUtils.readAllFiles(folder, "refs/tags/v0.1.0", null);
 		assertThat(gitFiles).hasSize(1);
 		GitFileInfo file = gitFiles.get(0);
 		assertThat(file.getPath()).isEqualTo("1.txt");
 		assertThat(file.getName()).isEqualTo("1.txt");
 		assertThat(file.getParentPath()).isEqualTo("");
 		
-		TestHelper.clearDir(folder);
+		
 	}
 	
 	@Test
@@ -332,14 +331,14 @@ public class GitUtilsTest {
 		GitUtils.commit(folder, "a", "1.txt", "hello", gitUserName, gitUserMail, "commit 1");
 		GitUtils.tag(folder, "v0.1.0", "message");
 		
-		List<GitFileInfo> gitFiles = GitUtils.getAllFilesFromTag(folder, "refs/tags/v0.1.0", null);
+		List<GitFileInfo> gitFiles = GitUtils.readAllFiles(folder, "refs/tags/v0.1.0", null);
 		assertThat(gitFiles).hasSize(1);
 		GitFileInfo file = gitFiles.get(0);
 		assertThat(file.getPath()).isEqualTo("a/1.txt");
 		assertThat(file.getName()).isEqualTo("1.txt");
 		assertThat(file.getParentPath()).isEqualTo("a");
 		
-		TestHelper.clearDir(folder);
+		
 	}
 	
 	@Test
@@ -351,17 +350,17 @@ public class GitUtilsTest {
 		GitUtils.commit(folder, "a", "1.txt", "hello", gitUserName, gitUserMail, "commit 1");
 		GitUtils.tag(folder, "v0.1.0", "message");
 		
-		List<GitFileInfo> gitFiles = GitUtils.getAllFilesFromTag(folder, "refs/tags/v0.1.0", ".json");
+		List<GitFileInfo> gitFiles = GitUtils.readAllFiles(folder, "refs/tags/v0.1.0", ".json");
 		assertThat(gitFiles).isEmpty();
 		
-		gitFiles = GitUtils.getAllFilesFromTag(folder, "refs/tags/v0.1.0", ".txt");
+		gitFiles = GitUtils.readAllFiles(folder, "refs/tags/v0.1.0", ".txt");
 		assertThat(gitFiles).hasSize(1);
 		GitFileInfo file = gitFiles.get(0);
 		assertThat(file.getPath()).isEqualTo("a/1.txt");
 		assertThat(file.getName()).isEqualTo("1.txt");
 		assertThat(file.getParentPath()).isEqualTo("a");
 		
-		TestHelper.clearDir(folder);
+		
 	}
 	
 	@Test
@@ -376,17 +375,17 @@ public class GitUtilsTest {
 		GitUtils.commit(folder, null, "2.txt", "hello", gitUserName, gitUserMail, "commit 1");
 		GitUtils.tag(folder, "v0.2.0", "message");
 		
-		List<GitFileInfo> gitFiles = GitUtils.getAllFilesFromTag(folder, "refs/tags/v0.1.0", null);
+		List<GitFileInfo> gitFiles = GitUtils.readAllFiles(folder, "refs/tags/v0.1.0", null);
 		assertThat(gitFiles).hasSize(1);
 		GitFileInfo file = gitFiles.get(0);
 		assertThat(file.getPath()).isEqualTo("1.txt");
 		assertThat(file.getName()).isEqualTo("1.txt");
 		assertThat(file.getParentPath()).isEqualTo("");
 		
-		gitFiles = GitUtils.getAllFilesFromTag(folder, "refs/tags/v0.2.0", null);
+		gitFiles = GitUtils.readAllFiles(folder, "refs/tags/v0.2.0", null);
 		assertThat(gitFiles).hasSize(2);
 		
-		TestHelper.clearDir(folder);
+		
 	}
 	
 	@Test
@@ -410,7 +409,7 @@ public class GitUtilsTest {
 		status = GitUtils.status(folder, "a");
 		assertThat(status).hasSize(2).containsKeys("a", "a/file2").containsValue(GitFileStatus.UNTRACKED);
 		
-		TestHelper.clearDir(folder);
+		
 	}
 	
 	@Test
@@ -436,7 +435,7 @@ public class GitUtilsTest {
 		status = GitUtils.status(folder, "a");
 		assertThat(status).hasSize(1).containsKeys("a/file2").containsValue(GitFileStatus.ADDED);
 		
-		TestHelper.clearDir(folder);
+		
 	}
 	
 	@Test
@@ -455,7 +454,7 @@ public class GitUtilsTest {
 		status = GitUtils.status(folder, "a");
 		assertThat(status).isEmpty();
 		
-		TestHelper.clearDir(folder);
+		
 	}
 	
 	@Test
@@ -480,7 +479,7 @@ public class GitUtilsTest {
 		status = GitUtils.status(folder, "a");
 		assertThat(status).hasSize(1).containsKeys("a/file2").containsValue(GitFileStatus.MODIFIED);
 		
-		TestHelper.clearDir(folder);
+		
 	}
 	
 	@Test
@@ -505,7 +504,7 @@ public class GitUtilsTest {
 		status = GitUtils.status(folder, "a");
 		assertThat(status).hasSize(1).containsKeys("a/file2").containsValue(GitFileStatus.DELETED);
 		
-		TestHelper.clearDir(folder);
+		
 	}
 	
 	@Test
@@ -535,7 +534,7 @@ public class GitUtilsTest {
 		assertThat(file1).doesNotExist();
 		assertThat(file2).doesNotExist();
 		
-		TestHelper.clearDir(folder);
+		
 	}
 	
 	@Test
@@ -556,7 +555,7 @@ public class GitUtilsTest {
 		Optional<Ref> tagOption = GitUtils.getLatestTag(folder);
 		assertThat(tagOption).isEmpty();
 		
-		TestHelper.clearDir(folder);
+		
 	}
 	
 	@Test
@@ -571,7 +570,7 @@ public class GitUtilsTest {
 		assertThat(tagOption).isPresent();
 		assertThat(tagOption.get().getName()).isEqualTo("refs/tags/v0.1.0");
 		
-		TestHelper.clearDir(folder);
+		
 	}
 	
 	@Test
@@ -588,7 +587,7 @@ public class GitUtilsTest {
 		assertThat(tagOption).isPresent();
 		assertThat(tagOption.get().getName()).isEqualTo("refs/tags/v0.1.1");
 		
-		TestHelper.clearDir(folder);
+		
 	}
 	
 	@Test
@@ -604,7 +603,7 @@ public class GitUtilsTest {
 		List<Ref> tags = GitUtils.getTags(folder);
 		assertThat(tags).hasSize(2);
 		
-		TestHelper.clearDir(folder);
+		
 	}
 	
 	@Test
@@ -617,7 +616,7 @@ public class GitUtilsTest {
 		Optional<GitBlobInfo> blobOption = GitUtils.getBlob(folder, Constants.R_HEADS + Constants.MASTER, "a.txt");
 		assertThat(blobOption).isEmpty();
 		
-		TestHelper.clearDir(folder);
+		
 	}
 	
 	@Test
@@ -640,7 +639,7 @@ public class GitUtilsTest {
 		assertThat(blob.getLatestFullMessage()).isEqualTo("first commit");
 		assertThat(blob.getLatestCommitTime()).isNotNull();
 		
-		TestHelper.clearDir(folder);
+		
 	}
 	
 	@Test
@@ -653,7 +652,7 @@ public class GitUtilsTest {
 		Optional<GitBlobInfo> blobOption = GitUtils.getBlob(folder, Constants.R_TAGS + "v0.1.0", "a.txt");
 		assertThat(blobOption).isEmpty();
 		
-		TestHelper.clearDir(folder);
+		
 	}
 	
 	@Test
@@ -689,7 +688,7 @@ public class GitUtilsTest {
 		assertThat(blob.getLatestFullMessage()).isEqualTo("second commit");
 		assertThat(blob.getLatestCommitTime()).isNotNull();
 		
-		TestHelper.clearDir(folder);
+		
 	}
 	
 	@Test
@@ -705,7 +704,7 @@ public class GitUtilsTest {
 		
 		assertThat(GitUtils.loadDataFromTag(folder, Constants.R_TAGS + "v0.1.0", Collections.emptyList())).isEmpty();
 		
-		TestHelper.clearDir(folder);
+		
 	}
 	
 	@Test
@@ -717,13 +716,11 @@ public class GitUtilsTest {
 		GitUtils.commit(folder, null, "1.txt", "hello", gitUserName, gitUserMail, "commit 1");
 		GitUtils.tag(folder, "v0.1.0", "message");
 		
-		List<GitFileInfo> gitFiles = GitUtils.getAllFilesFromTag(folder, "refs/tags/v0.1.0", null);
+		List<GitFileInfo> gitFiles = GitUtils.readAllFiles(folder, "refs/tags/v0.1.0", null);
 		
 		List<GitBlobInfo> files = GitUtils.loadDataFromTag(folder, "refs/tags/v0.1.0", gitFiles);
 		assertThat(files).hasSize(1);
 		assertThat(files.get(0).getContent()).isEqualTo("hello");
-		
-		TestHelper.clearDir(folder);
 	}
 	
 	@Test
@@ -767,8 +764,6 @@ public class GitUtilsTest {
 		// 最后再切换回 master 分支
 		GitUtils.checkout(folder, "master");
 		assertContentEquals(folder.resolve("a.txt"), "hello world");
-		
-		TestHelper.clearDir(folder);
 	}
 	
 	private void assertContentEquals(Path filePath, String content) throws IOException{

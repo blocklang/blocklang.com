@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import com.blocklang.core.git.GitUtils;
-import com.blocklang.core.test.TestHelper;
 
 public class GitTagTaskTest {
 
@@ -33,7 +32,5 @@ public class GitTagTaskTest {
 		
 		GitTagTask task = new GitTagTask(context);
 		assertThat(task.run()).isPresent();
-		
-		TestHelper.clearDir(folder);
 	}
 }

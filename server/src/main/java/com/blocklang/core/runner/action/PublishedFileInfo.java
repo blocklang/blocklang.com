@@ -1,6 +1,6 @@
 package com.blocklang.core.runner.action;
 
-public class ChangeLogInfo {
+public class PublishedFileInfo {
 	private String version;
 	private String fileId;
 	private String md5sum;

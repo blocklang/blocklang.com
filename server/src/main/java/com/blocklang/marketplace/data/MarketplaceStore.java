@@ -94,6 +94,10 @@ public class MarketplaceStore {
 	public Path getRepoBuildDirectory() {
 		return this.getRepoRootDirectory().resolve("build");
 	}
+	
+	public Path getPackageChangeLogDirectory() {
+		return this.getRepoPackageDirectory().resolve("__changelog__");
+	}
 
 	private Path getRepoRootDirectory() {
 		return rootPath.resolve(DIR_NAME_MARKETPLACE)
