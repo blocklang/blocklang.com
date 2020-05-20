@@ -1,5 +1,6 @@
 package com.blocklang.core.runner.common;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -21,4 +22,9 @@ public abstract class AbstractAction {
 	
 	// FIXME: 既然不通过 Optional 传返回的结果，是否可直接返回 boolean 类型。
 	public abstract Optional<?> run();
+
+	protected abstract void setInputs(List<StepWith> inputs);
+
+	protected abstract Object getOutput(String paramKey);
+
 }
