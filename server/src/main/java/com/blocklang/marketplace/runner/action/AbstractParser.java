@@ -25,7 +25,6 @@ import com.blocklang.marketplace.data.changelog.AddWidgetEvent;
 import com.blocklang.marketplace.data.changelog.AddWidgetProperty;
 import com.blocklang.marketplace.data.changelog.Change;
 import com.blocklang.marketplace.data.changelog.Widget;
-import com.blocklang.marketplace.schema.ApiChangeSetValidator;
 import com.blocklang.marketplace.task.CodeGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -186,7 +185,6 @@ public abstract class AbstractParser {
 		}
 		return changes;
 	}
-
 
 	/**
 	 * 获取上一个 tag 中发布的 Widget

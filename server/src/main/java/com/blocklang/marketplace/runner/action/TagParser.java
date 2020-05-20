@@ -12,14 +12,20 @@ import com.blocklang.core.util.JsonUtil;
 import com.blocklang.marketplace.data.MarketplaceStore;
 import com.blocklang.marketplace.data.changelog.Widget;
 
+/**
+ * 解析 git tag 中的 api
+ * 
+ * @author Zhengwei Jin
+ *
+ */
 public class TagParser extends AbstractParser {
 	
 	public TagParser(List<String> tags, MarketplaceStore store, CliLogger logger) {
 		super(tags, store, logger);
 	}
 
-	// 如果有 tag 解析出错，则不再解析后续的 tag
 	public boolean run(String tag) {
+		// 如果有 tag 解析出错，则不再解析后续的 tag，
 		this.version = GitUtils.getVersionFromRefName(tag).orElse(null);
 		if(this.version == null) {
 			logger.info("从 tag {0} 中未解析出语义版本号，忽略解析此 tag", tag);

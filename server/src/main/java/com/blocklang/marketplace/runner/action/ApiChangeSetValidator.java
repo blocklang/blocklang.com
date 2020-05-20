@@ -1,4 +1,4 @@
-package com.blocklang.marketplace.schema;
+package com.blocklang.marketplace.runner.action;
 
 import java.io.InputStream;
 import java.util.Set;

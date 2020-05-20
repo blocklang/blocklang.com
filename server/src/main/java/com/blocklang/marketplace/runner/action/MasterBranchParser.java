@@ -12,14 +12,23 @@ import com.blocklang.core.util.JsonUtil;
 import com.blocklang.marketplace.data.MarketplaceStore;
 import com.blocklang.marketplace.data.changelog.Widget;
 
-//不需要判断 master 分支是否解析过，因为每次都要覆盖之前的解析
+//
 
+/**
+ * 解析 master 分支中的 api
+ * 
+ * <p>不需要判断 master 分支是否解析过，因为每次都要覆盖之前的解析>
+ * 
+ * @author Zhengwei Jin
+ *
+ */
 public class MasterBranchParser extends AbstractParser{
+	
 	private String masterRef = "refs/heads/master";
 	
 	public MasterBranchParser(List<String> tags, MarketplaceStore store, CliLogger logger) {
 		super(tags, store, logger);
-		this.version = "master";
+		super.version = "master";
 	}
 
 	public boolean run() {
@@ -37,7 +46,7 @@ public class MasterBranchParser extends AbstractParser{
 			return false;
 		}
 		
-		parseAllWidgets("master");
+		parseAllWidgets(version);
 		
 		// 在文件系统中保存所有的 widget 结构
 		if (!success) {
@@ -50,13 +59,13 @@ public class MasterBranchParser extends AbstractParser{
 	/**
 	 * 获取上一个 tag 中发布的 Widget
 	 * 
-	 * @param tag      git tag name
+	 * @param branch      git branch name
 	 * @param widgetId widget 标识，取文件名 202005161723_button 中的时间戳
 	 * @return 获取上一个 tag 中发布的 Widget，如果不存在上一个 tag，则返回 <code>null</code>
 	 */
 	@Override
-	protected Widget loadPreviousWidget(String tag, String widgetId) {
-		if(tag.equals("master") && tags.size() > 0) {
+	protected Widget loadPreviousWidget(String branch, String widgetId) {
+		if(branch.equals(version) && tags.size() > 0) {
 			String preVersion = GitUtils.getVersionFromRefName(tags.get(tags.size() - 1)).get();
 
 			Path widgetPath = store.getPackageVersionDirectory(preVersion).resolve(widgetId).resolve("index.json");

@@ -65,16 +65,16 @@ public class ParseApiAction extends AbstractAction {
 		if(tags.isEmpty()) {
 			logger.info("git 仓库中没有标注 tag");
 		} else {
-			TagParser tagParser = new TagParser(tags, store, logger);
+			var parser = new TagParser(tags, store, logger);
 			for(String tag : tags) {
 				if(success) {
-					success = tagParser.run(tag);
+					success = parser.run(tag);
 				}
 			}
 		}
 		
 		if(master && success) {
-			MasterBranchParser parser = new MasterBranchParser(tags, store, logger);
+			var parser = new MasterBranchParser(tags, store, logger);
 			success = parser.run();
 		}
 		
