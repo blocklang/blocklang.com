@@ -1,6 +1,7 @@
 package com.blocklang.core.runner.common;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -131,15 +132,15 @@ public class RunnerTest {
 				when(action1.run()).thenReturn(true);
 				when(action1.getOutput(eq("output_key1"))).thenReturn("world");
 				step1.setUses(action1);
+				job1.addStep(step1);
 				
 				Step step2 = new Step("step_2");
 				AbstractAction action2 = mock(AbstractAction.class);
 				when(action2.run()).thenReturn(true);
 				step2.setUses(action2);
-				job1.addStep(step2);
 				// 传入表达式，引用 action1 的 output
 				step2.addWith("input2", "Hello ${{steps.step_1.outputs.output_key1}}");
-			job1.addStep(step1);
+				job1.addStep(step2);
 		workflow.addJob(job1);
 		
 		Runner runner = new Runner();
@@ -166,15 +167,15 @@ public class RunnerTest {
 				when(action1.getOutput(eq("output_key1"))).thenReturn("b");
 				when(action1.getOutput("output_key2")).thenReturn("c");
 				step1.setUses(action1);
+				job1.addStep(step1);
 				
 				Step step2 = new Step("step_2");
 				AbstractAction action2 = mock(AbstractAction.class);
 				when(action2.run()).thenReturn(true);
 				step2.setUses(action2);
-				job1.addStep(step2);
 				// 传入表达式，引用 action1 的 output
 				step2.addWith("input2", "a ${{steps.step_1.outputs.output_key1}} ${{steps.step_1.outputs.output_key2}}");
-			job1.addStep(step1);
+				job1.addStep(step2);
 		workflow.addJob(job1);
 		
 		Runner runner = new Runner();
@@ -190,5 +191,44 @@ public class RunnerTest {
 					&& withItem.getValue().equals("a b c");
 		}));
 	}
+	
+	@Test
+	public void run_read_output_expression_not_exist_at_steps_context() {
+		Workflow workflow = new Workflow("I_am_a_workflow");
+		Job job1 = new Job("job_1");
+			Step step1 = new Step("step_1");
+			AbstractAction action1 = mock(AbstractAction.class);
+			when(action1.run()).thenReturn(true);
+			when(action1.getOutput(eq("output_key1"))).thenReturn("world");
+			step1.setUses(action1);
+			step1.addWith("input2", "Hello ${{steps.step_0.outputs.output_key1}}");
+		job1.addStep(step1);
+		
+		workflow.addJob(job1);
+		
+		Runner runner = new Runner();
+		
+		assertThrows(IllegalArgumentException.class, () -> runner.run(workflow));
+		verify(action1, never()).run();
+	}
 
+	@Test
+	public void run_read_output_expression_at_not_supported_context() {
+		Workflow workflow = new Workflow("I_am_a_workflow");
+		Job job1 = new Job("job_1");
+			Step step1 = new Step("step_1");
+			AbstractAction action1 = mock(AbstractAction.class);
+			when(action1.run()).thenReturn(true);
+			when(action1.getOutput(eq("output_key1"))).thenReturn("world");
+			step1.setUses(action1);
+			step1.addWith("input2", "Hello ${{notSupportContext.step_0.outputs.output_key1}}");
+		job1.addStep(step1);
+		
+		workflow.addJob(job1);
+		
+		Runner runner = new Runner();
+		
+		assertThrows(UnsupportedOperationException.class, () -> runner.run(workflow));
+		verify(action1, never()).run();
+	}
 }

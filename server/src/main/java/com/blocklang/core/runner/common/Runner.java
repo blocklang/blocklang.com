@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.springframework.util.Assert;
+
 public class Runner {
 
 	private static final String EXPR_PATTERN = "\\$\\{\\{([a-zA-Z0-9|\\.|_]+)\\}\\}";
@@ -49,14 +51,16 @@ public class Runner {
 			String[] segments = expr.split("\\.");
 			// 如果是在 steps 上下文查找
 			// steps.{stepId}.outputs.{outputName}
-			if("steps".equals(segments[0])) {
+			String context = segments[0];
+			if("steps".equals(context)) {
 				String stepId = segments[1];
 				String outputName = segments[3];
 				Step matchedStep = findStep(steps, stepId);
-				if(matchedStep != null) {
-					Object output = matchedStep.getUses().getOutput(outputName);
-					value = value.replaceAll("\\$\\{\\{" + expr + "\\}\\}", output.toString());
-				}
+				Assert.notNull(matchedStep, "在 steps 上下文中并没有找到 id 为 " + stepId + " 的 step 对象");
+				Object output = matchedStep.getUses().getOutput(outputName);
+				value = value.replaceAll("\\$\\{\\{" + expr + "\\}\\}", output.toString());
+			} else {
+				throw new UnsupportedOperationException("当前不支持从 " + context + "上下文中获取变量");
 			}
 		}
 		return value;
