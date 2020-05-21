@@ -1,47 +1,33 @@
 package com.blocklang.core.runner.action;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
-
-import java.nio.file.Path;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.spy;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
-import com.blocklang.core.runner.common.CliLogger;
-import com.blocklang.core.runner.common.DefaultExecutionContext;
-import com.blocklang.core.runner.common.ExecutionContext;
+public class CheckoutActionTest extends AbstractActionTest {
 
-public class CheckoutActionTest {
-
-	private ExecutionContext context;
+	private CheckoutAction action;
 	
 	@BeforeEach
 	public void setup() {
-		context = new DefaultExecutionContext();
-		var logger = mock(CliLogger.class);
-		context.setLogger(logger);
+		action = spy(new CheckoutAction(context));
 	}
 	
 	@Test
-	public void new_should_set_inputs() {
-		assertThrows(IllegalArgumentException.class, () -> new CheckoutAction(context));
-		
-		context.putValue(CheckoutAction.INPUT_GIT_URL, "https://not-exist-host/you/you-repo.git");
-		assertThrows(IllegalArgumentException.class, () -> new CheckoutAction(context));
+	public void run_success() {
+		// 注意，给 syncRepository 方法加上 final 后，该行代码不会生效
+		doNothing().when(action).syncRepository();
+		assertThat(action.run()).isTrue();
 	}
 	
-	// 因为目前尚不了解如何在测试用例中模拟下载远程仓库，所以未添加 run_success 测试用例
-	
 	@Test
-	public void run_failed(@TempDir Path tempDir) {
-		context.putValue(CheckoutAction.INPUT_GIT_URL, "https://not-exist-host/you/you-repo.git");
-		context.putValue(CheckoutAction.INPUT_LOCAL_SOURCE_DIRECTORY, tempDir);
-		
-		var action = new CheckoutAction(context);
-		assertThat(action.run()).isEmpty();
+	public void run_failed() {
+		doThrow(RuntimeException.class).when(action).syncRepository();
+		assertThat(action.run()).isFalse();
 	}
 	
 }

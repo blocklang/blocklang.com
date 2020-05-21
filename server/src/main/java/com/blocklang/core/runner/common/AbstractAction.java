@@ -1,7 +1,6 @@
 package com.blocklang.core.runner.common;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * 
@@ -20,11 +19,12 @@ public abstract class AbstractAction {
 		this.logger = context.getLogger();
 	}
 	
-	// FIXME: 既然不通过 Optional 传返回的结果，是否可直接返回 boolean 类型。
-	public abstract Optional<?> run();
+	public abstract boolean run();
 
-	protected abstract void setInputs(List<StepWith> inputs);
+	protected void setInputs(List<StepWith> inputs) { }
 
-	protected abstract Object getOutput(String paramKey);
+	protected Object getOutput(String paramKey) {
+		return null;
+	}
 
 }

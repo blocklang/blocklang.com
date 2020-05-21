@@ -1,14 +1,13 @@
 package com.blocklang.core.runner.action;
 
 import java.nio.file.Path;
-import java.util.Optional;
-
-import org.springframework.util.Assert;
 
 import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.runner.common.AbstractAction;
 import com.blocklang.core.runner.common.CliLogger;
 import com.blocklang.core.runner.common.ExecutionContext;
+import com.blocklang.marketplace.data.MarketplaceStore;
+import com.blocklang.marketplace.model.ComponentRepoPublishTask;
 
 /**
  * 从远程 git 仓库 clone 或 pull 源码。
@@ -16,44 +15,51 @@ import com.blocklang.core.runner.common.ExecutionContext;
  * 需要从上下文中读取 repository 变量，该变量表示 git 仓库的远程地址。
  * 
  * <pre>
- * inputs:
- *     gitUrl                  - string(required), git 仓库地址
- *     localSourceDirectory    - Path(required), 仓库在主机上的存储路径
- * outputs:
+ * inputs: 无
+ * outputs: 无
  * </pre>
+ * 
+ * 注意：
+ * <ul>
+ * <li>gitUrl                  - string(required), git 仓库地址，取自 publishTask.gitUrl</li>
+ * <li>localSourceDirectory    - Path(required), 仓库在主机上的存储路径，取自 marketplaceStore.getRepoSourceDirectory()</li>
+ * </ul>
  * 
  * @author Zhengwei Jin
  *
  */
 public class CheckoutAction extends AbstractAction{
 
-	public static final String INPUT_GIT_URL = "gitUrl";
-	public static final String INPUT_LOCAL_SOURCE_DIRECTORY = "localSourceDirectory";
-	
 	private String gitUrl;
 	private Path localSourceDirectory;
 	
 	public CheckoutAction(ExecutionContext context) {
 		super(context);
 		
-		this.gitUrl = context.getStringValue(INPUT_GIT_URL);
-		Assert.hasText(this.gitUrl, "必须要设置 " + INPUT_GIT_URL + " 参数!");
+		var task = context.getValue(ExecutionContext.PUBLISH_TASK, ComponentRepoPublishTask.class);
+		var store = context.getValue(ExecutionContext.MARKETPLACE_STORE, MarketplaceStore.class);
 		
-		this.localSourceDirectory = context.getValue(INPUT_LOCAL_SOURCE_DIRECTORY, Path.class);
-		Assert.notNull(this.localSourceDirectory, "必须要设置 localSourceDirectory 参数!");
+		this.gitUrl = task.getGitUrl();
+		this.localSourceDirectory = store.getRepoSourceDirectory();
 	}
 
 	@Override
-	public Optional<Boolean> run() {
+	public boolean run() {
 		logger.info("开始同步 git 仓库 {0}", this.gitUrl);
 		try {
-			GitUtils.syncRepository(gitUrl, localSourceDirectory);
+			syncRepository();
 			logger.info("{0} 同步完成", CliLogger.ANSWER);
-			return Optional.of(true);
+			return true;
 		} catch (RuntimeException e) {
+			logger.error("{0} 同步失败", CliLogger.ANSWER);
 			logger.error(e);
-			return Optional.empty();
+			return false;
 		}
 	}
 	
+	// 提取出来，方便 mock，添加 final 实现内联
+	// 但是此处没有添加 final，因为 mockito 默认不能 mock final 方法
+	protected void syncRepository() {
+		GitUtils.syncRepository(gitUrl, localSourceDirectory);
+	}
 }
