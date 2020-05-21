@@ -82,6 +82,10 @@ public class MarketplaceStore {
 		
 		return this.logFile;
 	}
+	
+	public String getLogFileName() {
+		return this.getLogFilePath().getFileName().toString();
+	}
 
 	public Path getRepoSourceDirectory() {
 		return this.getRepoRootDirectory().resolve("source");

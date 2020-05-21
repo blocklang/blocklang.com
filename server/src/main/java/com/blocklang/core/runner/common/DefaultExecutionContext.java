@@ -31,7 +31,7 @@ public class DefaultExecutionContext implements ExecutionContext{
 	public String getStringValue(String key) {
 		Object result = data.get(key);
 		if(result == null) {
-			return null;
+			Assert.notNull(key, "要先设置 " + key + " 参数!");
 		}
 		return result.toString();
 	}
@@ -45,7 +45,7 @@ public class DefaultExecutionContext implements ExecutionContext{
 	public <T> T getValue(String key, Class<T> clazz) {
 		Object result = data.get(key);
 		if(result == null) {
-			return null;
+			Assert.notNull(key, "要先设置 " + key + " 参数!");
 		}
 		return clazz.cast(result);
 	}

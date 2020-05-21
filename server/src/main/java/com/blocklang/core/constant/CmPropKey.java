@@ -10,8 +10,18 @@ package com.blocklang.core.constant;
  */
 public abstract class CmPropKey {
 
+	/**
+	 * 存放 blocklang 运行时生成文件的根目录。
+	 * 
+	 * <p> <strong>在系统启动时，已校验该参数是否已配置，所以通过 PropertyService 获取时无需再校验。</strong></p>
+	 */
 	public final static String BLOCKLANG_ROOT_PATH = "blocklang.root.path";
 	
+	/**
+	 * maven 仓库的根目录。
+	 * 
+	 * <p> <strong>在系统启动时，已校验该参数是否已配置，所以通过 PropertyService 获取时无需再校验。<strong></p>
+	 */
 	public final static String MAVEN_ROOT_PATH = "maven.root.path";
 	
 	public final static String TEMPLATE_PROJECT_GIT_URL = "template.project.git.url";

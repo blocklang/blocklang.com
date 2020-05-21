@@ -2,7 +2,11 @@ package com.blocklang.core.runner.common;
 
 public interface ExecutionContext {
 
+	// 将全局且必须在初始化上下文时要创建的变量名存在此处
+	// Action 中获取值有两种方式，一是 steps 中 action 之间传值
+	// 另一种是从全局上下文中获取，而 marketplaceStore 和 publishTask 就属于全局上下文
 	public static final String MARKETPLACE_STORE = "marketplaceStore";
+	public static final String PUBLISH_TASK = "publishTask";
 
 	void setLogger(CliLogger logger);
 	
