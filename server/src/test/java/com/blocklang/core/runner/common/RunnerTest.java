@@ -1,8 +1,10 @@
 package com.blocklang.core.runner.common;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -13,18 +15,37 @@ import org.junit.jupiter.api.Test;
 public class RunnerTest {
 
 	@Test
-	public void run_success() {
+	public void run_one_action_success() {
 		Workflow workflow = new Workflow("I_am_a_workflow");
 			Job job1 = new Job("job_1");
 				Step step1 = new Step("step_1");
 				AbstractAction action = mock(AbstractAction.class);
+				when(action.run()).thenReturn(true);
 				step1.setUses(action);
 			job1.addStep(step1);
 		workflow.addJob(job1);
 		
 		Runner runner = new Runner();
-		runner.run(workflow);
+		assertThat(runner.run(workflow)).isTrue();
+
+		verify(action).run();
+		verify(action).setInputs(eq(Collections.emptyList()));
+	}
+	
+	@Test
+	public void run_one_action_failed() {
+		Workflow workflow = new Workflow("I_am_a_workflow");
+			Job job1 = new Job("job_1");
+				Step step1 = new Step("step_1");
+				AbstractAction action = mock(AbstractAction.class);
+				when(action.run()).thenReturn(false);
+				step1.setUses(action);
+			job1.addStep(step1);
+		workflow.addJob(job1);
 		
+		Runner runner = new Runner();
+		assertThat(runner.run(workflow)).isFalse();
+
 		verify(action).run();
 		verify(action).setInputs(eq(Collections.emptyList()));
 	}
@@ -54,25 +75,51 @@ public class RunnerTest {
 	}
 	
 	@Test
-	public void run_two_action() {
+	public void run_two_action_success() {
 		Workflow workflow = new Workflow("I_am_a_workflow");
 			Job job1 = new Job("job_1");
 				Step step1 = new Step("step_1");
 				AbstractAction action1 = mock(AbstractAction.class);
+				when(action1.run()).thenReturn(true);
 				step1.setUses(action1);
 				job1.addStep(step1);
 				
 				Step step2 = new Step("step_2");
 				AbstractAction action2 = mock(AbstractAction.class);
+				when(action2.run()).thenReturn(true);
 				step2.setUses(action2);
 				job1.addStep(step2);
 		workflow.addJob(job1);
 		
 		Runner runner = new Runner();
-		runner.run(workflow);
+		assertThat(runner.run(workflow)).isTrue();
 		
 		verify(action1).run();
 		verify(action2).run();
+	}
+	
+	@Test
+	public void run_two_action_but_first_action_failed() {
+		Workflow workflow = new Workflow("I_am_a_workflow");
+			Job job1 = new Job("job_1");
+				Step step1 = new Step("step_1");
+				AbstractAction action1 = mock(AbstractAction.class);
+				when(action1.run()).thenReturn(false);
+				step1.setUses(action1);
+				job1.addStep(step1);
+				
+				Step step2 = new Step("step_2");
+				AbstractAction action2 = mock(AbstractAction.class);
+				when(action2.run()).thenReturn(true);
+				step2.setUses(action2);
+				job1.addStep(step2);
+		workflow.addJob(job1);
+		
+		Runner runner = new Runner();
+		assertThat(runner.run(workflow)).isFalse();
+		
+		verify(action1).run();
+		verify(action2, never()).run();
 	}
 	
 	@Test
@@ -81,11 +128,13 @@ public class RunnerTest {
 			Job job1 = new Job("job_1");
 				Step step1 = new Step("step_1");
 				AbstractAction action1 = mock(AbstractAction.class);
+				when(action1.run()).thenReturn(true);
 				when(action1.getOutput(eq("output_key1"))).thenReturn("world");
 				step1.setUses(action1);
 				
 				Step step2 = new Step("step_2");
 				AbstractAction action2 = mock(AbstractAction.class);
+				when(action2.run()).thenReturn(true);
 				step2.setUses(action2);
 				job1.addStep(step2);
 				// 传入表达式，引用 action1 的 output
@@ -107,19 +156,20 @@ public class RunnerTest {
 		}));
 	}
 	
-
 	@Test
 	public void run_get_outputs_two_output_for_action() {
 		Workflow workflow = new Workflow("I_am_a_workflow");
 			Job job1 = new Job("job_1");
 				Step step1 = new Step("step_1");
 				AbstractAction action1 = mock(AbstractAction.class);
+				when(action1.run()).thenReturn(true);
 				when(action1.getOutput(eq("output_key1"))).thenReturn("b");
 				when(action1.getOutput("output_key2")).thenReturn("c");
 				step1.setUses(action1);
 				
 				Step step2 = new Step("step_2");
 				AbstractAction action2 = mock(AbstractAction.class);
+				when(action2.run()).thenReturn(true);
 				step2.setUses(action2);
 				job1.addStep(step2);
 				// 传入表达式，引用 action1 的 output

@@ -10,14 +10,17 @@ public class Runner {
 	private static final String EXPR_PATTERN = "\\$\\{\\{([a-zA-Z0-9|\\.|_]+)\\}\\}";
 	private Pattern pattern = Pattern.compile(EXPR_PATTERN);
 	
-	public void run(Workflow workflow) {
+	public boolean run(Workflow workflow) {
 		List<Job> jobs = workflow.getJobs();
 		for(var job : jobs) {
-			runJob(job);
+			if(!runJob(job)) {
+				return false;
+			}
 		}
+		return true;
 	}
 
-	private void runJob(Job job) {
+	private boolean runJob(Job job) {
 		List<Step> steps = job.getSteps();
 		
 		// 将表达式转换为值，因为这些需要使用 steps 上下文，所以将代码放在此处
@@ -31,8 +34,11 @@ public class Runner {
 		
 		// 运行
 		for(var step : steps) {
-			runStep(step);
+			if(!runStep(step)) {
+				return false;
+			}
 		}
+		return true;
 	}
 
 	private String evaluate(List<Step> steps, StepWith withItem) {
@@ -75,11 +81,11 @@ public class Runner {
 		return exprs;
 	}
 
-	private void runStep(Step step) {
+	private boolean runStep(Step step) {
 		List<StepWith> inputs = step.getWith();
 		var action = step.getUses();
 		action.setInputs(inputs);
-		action.run();
+		return action.run();
 	}
 
 }
