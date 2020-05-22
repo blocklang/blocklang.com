@@ -45,6 +45,14 @@ public class CheckoutAction extends AbstractAction{
 
 	@Override
 	public boolean run() {
+		logger.info("检查 {0} 仓库是否存在", this.gitUrl);
+		if(!isValidRemoteRepository()) {
+			logger.error("{0} 不存在", CliLogger.ANSWER);
+			return false;
+		} else {
+			logger.info("{0} 存在", CliLogger.ANSWER);
+		}
+		
 		logger.info("开始同步 git 仓库 {0}", this.gitUrl);
 		try {
 			syncRepository();
@@ -55,6 +63,10 @@ public class CheckoutAction extends AbstractAction{
 			logger.error(e);
 			return false;
 		}
+	}
+	
+	protected boolean isValidRemoteRepository() {
+		return GitUtils.isValidRemoteRepository(this.gitUrl);
 	}
 	
 	// 提取出来，方便 mock，添加 final 实现内联
