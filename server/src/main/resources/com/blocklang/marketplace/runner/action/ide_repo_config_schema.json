@@ -1,6 +1,6 @@
 {
 	"$schema": "https://json-schema.org/draft/2019-09/schema",
-	"title": "Widget IDE repo config",
+	"title": "IDE repo config",
 	"type": "object",
 	"required": [
 		"repo",
@@ -13,7 +13,7 @@
 		"repo": {
 			"type": "string",
 			"description": "git 仓库种类",
-			"enum": ["IDE"]
+			"const": "IDE"
 		},
 		"name": {
 			"type": "string",
@@ -34,7 +34,7 @@
 		"category": {
 			"type": "string",
 			"description": "组件种类",
-			"enum": ["Widget"]
+			"enum": ["Widget", "WebAPI"]
 		},
 		"appType": {
 			"type": "string",

@@ -54,7 +54,8 @@ public class MarketplaceStore {
 	
 	private static final String DIR_NAME_MARKETPLACE = "marketplace";
 	private static final String DIR_NAME_PUBLISH_LOGS = "publishLogs";
-
+	public static final String BLOCKLANG_JSON = "blocklang.json";
+	
 	private Path rootPath;
 	private GitUrlSegment gitUrlSegment;
 	
@@ -70,6 +71,10 @@ public class MarketplaceStore {
 	public MarketplaceStore(String rootPath, String gitRemoteUrl) {
 		this.rootPath = Path.of(rootPath);
 		this.gitUrlSegment = GitUrlSegment.of(gitRemoteUrl);
+	}
+	
+	public Path getRootPath() {
+		return rootPath;
 	}
 	
 	public Path getLogFilePath() {
@@ -125,8 +130,7 @@ public class MarketplaceStore {
 	 * 
 	 * @return blocklang.json 文件路径。
 	 */
-	public Path getRepoConfigFile() {
-		return this.getRepoSourceDirectory().resolve("blocklang.json");
+	public Path getRepoBlocklangJsonFile() {
+		return this.getRepoSourceDirectory().resolve(BLOCKLANG_JSON);
 	}
-
 }

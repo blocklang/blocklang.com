@@ -1,0 +1,38 @@
+{
+	"$schema": "https://json-schema.org/draft/2019-09/schema",
+	"title": "API repo config",
+	"type": "object",
+	"required": [
+		"repo",
+		"name",
+		"category"
+	],
+	"properties": {
+		"repo": {
+			"type": "string",
+			"description": "git 仓库种类",
+			"const": "API"
+		},
+		"name": {
+			"type": "string",
+			"description": "widget 仓库名",
+			"maxLength": 60,
+			"pattern": "^[a-zA-Z0-9\\-\\w]+$"
+		},
+		"displayName": {
+			"type": "string",
+			"description": "仓库显示名",
+			"maxLength": 60
+		},
+		"description": {
+			"type": "string",
+			"description": "仓库的详细介绍",
+			"maxLength": 500
+		},
+		"category": {
+			"type": "string",
+			"description": "组件种类",
+			"enum": ["Widget", "Service", "WebAPI"]
+		}
+	}
+}

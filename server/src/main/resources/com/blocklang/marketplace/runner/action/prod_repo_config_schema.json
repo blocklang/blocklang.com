@@ -1,0 +1,71 @@
+{
+	"$schema": "https://json-schema.org/draft/2019-09/schema",
+	"title": " PROD repo config",
+	"type": "object",
+	"required": [
+		"repo",
+		"name",
+		"category",
+		"appType"
+	],
+	"properties": {
+		"repo": {
+			"type": "string",
+			"description": "git 仓库种类",
+			"const": "PROD"
+		},
+		"name": {
+			"type": "string",
+			"description": "widget 仓库名",
+			"maxLength": 60,
+			"pattern": "^[a-zA-Z0-9\\-\\w]+$"
+		},
+		"displayName": {
+			"type": "string",
+			"description": "仓库显示名",
+			"maxLength": 60
+		},
+		"description": {
+			"type": "string",
+			"description": "仓库的详细介绍",
+			"maxLength": 500
+		},
+		"category": {
+			"type": "string",
+			"description": "组件种类",
+			"enum": ["Widget", "Service", "WebAPI"]
+		},
+		"appType": {
+			"type": "string",
+			"description": "App 类型",
+			"enum": ["web", "android", "ios", "wechat", "alipay", "quickapp"]
+		},
+		"std": {
+			"type": "boolean",
+			"description": "是否标准库",
+			"default": "false"
+		},
+		"components": {
+			"type": "array",
+			"description": "widget 存放路径",
+			"items": {
+				"type": "string"
+			}
+		},
+		"api": {
+			"type": "object",
+			"description": "实现的 api 仓库信息",
+			"required": ["git", "version"],
+			"properties": {
+				"git": {
+					"type": "string",
+					"description": "git 仓库的克隆地址"
+				},
+				"version": {
+					"type": "string",
+					"description": "语义版本号"
+				}
+			}
+		}
+	}
+}

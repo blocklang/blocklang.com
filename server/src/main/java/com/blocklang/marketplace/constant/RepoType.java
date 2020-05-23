@@ -16,8 +16,7 @@ public enum RepoType {
 
 	API("01", "API"),
 	IDE("02", "IDE"),
-	PROD("03", "PROD"),
-	UNKNOWN("99", "Unknown");
+	PROD("03", "PROD");
 	
 	private final String key;
 	private final String value;
@@ -38,21 +37,21 @@ public enum RepoType {
 	
 	public static RepoType fromValue(String value) {
 		if (StringUtils.isBlank(value)) {
-			return RepoType.UNKNOWN;
+			return null;
 		}
 		return Arrays.stream(RepoType.values())
 				.filter((each) -> value.toLowerCase().equals(each.getValue().toLowerCase()))
 				.findFirst()
-				.orElse(RepoType.UNKNOWN);
+				.orElse(null);
 	}
 
 	public static RepoType fromKey(String key) {
 		if (StringUtils.isBlank(key)) {
-			return RepoType.UNKNOWN;
+			return null;
 		}
 		return Arrays.stream(RepoType.values())
 				.filter((each) -> key.equals(each.getKey()))
 				.findFirst()
-				.orElse(RepoType.UNKNOWN);
+				.orElse(null);
 	}
 }

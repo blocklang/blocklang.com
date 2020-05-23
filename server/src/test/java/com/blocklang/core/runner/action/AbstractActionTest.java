@@ -15,7 +15,8 @@ import com.blocklang.marketplace.model.ComponentRepoPublishTask;
 
 public class AbstractActionTest {
 	
-	ExecutionContext context;
+	protected ExecutionContext context;
+	protected MarketplaceStore store;
 
 	@BeforeEach
 	public void setup(@TempDir Path tempDir) {
@@ -26,7 +27,7 @@ public class AbstractActionTest {
 		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
 		var gitUrl = "https://github.com/you/your-repo.git";
 		task.setGitUrl(gitUrl);
-		MarketplaceStore store = new MarketplaceStore(tempDir.toString(), gitUrl);
+		store = new MarketplaceStore(tempDir.toString(), gitUrl);
 		
 		context.putValue(ExecutionContext.MARKETPLACE_STORE, store);
 		context.putValue(ExecutionContext.PUBLISH_TASK, task);

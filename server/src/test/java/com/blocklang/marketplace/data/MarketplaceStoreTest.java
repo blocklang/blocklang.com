@@ -64,7 +64,7 @@ public class MarketplaceStoreTest {
 	
 	@Test
 	public void getRepoConfigFile() {
-		var repoConfigFile = store.getRepoConfigFile();
+		var repoConfigFile = store.getRepoBlocklangJsonFile();
 		assertThat(repoConfigFile.compareTo(Path.of("c:/marketplace/github.com/you/your-repo/source/blocklang.json")))
 				.isEqualTo(0);
 	}
