@@ -383,4 +383,8 @@ public class GitUtils {
 		}
 	}
 	
+	public static String getCurrentTag(Path gitRepoPath) {
+		GitDescribe describe = new GitDescribe();
+		return describe.execute(gitRepoPath);
+	}
 }

@@ -104,6 +104,10 @@ public class MarketplaceStore {
 		return this.getRepoRootDirectory().resolve("build");
 	}
 	
+	public Path getOutputDistDirectory() {
+		return this.getRepoBuildDirectory().resolve("output").resolve("dist");
+	}
+	
 	public Path getPackageChangeLogDirectory() {
 		return this.getRepoPackageDirectory().resolve("__changelog__");
 	}

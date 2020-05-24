@@ -1,4 +1,4 @@
-package com.blocklang.core.runner.action;
+package com.blocklang.marketplace.runner.action;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -14,23 +14,16 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collections;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import com.blocklang.core.git.GitUtils;
+import com.blocklang.core.runner.action.AbstractActionTest;
 import com.blocklang.core.runner.common.CliCommand;
-import com.blocklang.core.runner.common.CliLogger;
-import com.blocklang.core.runner.common.DefaultExecutionContext;
 import com.blocklang.core.runner.common.ExecutionContext;
-import com.blocklang.core.test.TestHelper;
-import com.blocklang.marketplace.data.MarketplaceStore;
 
 /**
  * 构建所有 tag 和 master 分支
@@ -38,24 +31,17 @@ import com.blocklang.marketplace.data.MarketplaceStore;
  * @author Zhengwei Jin
  *
  */
-public class BuildDojoAppActionTest {
+public class BuildIdeRepoActionTest extends AbstractActionTest{
 
-	private ExecutionContext context;
-	
-	@BeforeEach
-	public void setup() {
-		context = new DefaultExecutionContext();
-		var logger = mock(CliLogger.class);
-		context.setLogger(logger);
-	}
-	
-	// FIXME: 因为添加了构建 master 分支的逻辑，所以此用例需要调整
 	@DisplayName("如果没有指定 tag 或分支，则不 build，但仍返回 true")
 	@Test
-	public void run_tags_and_branches_is_empty() {
-		context.putValue("master", false);
-		var action = new BuildDojoAppAction(context);
-		assertThat(action.run()).isPresent();
+	public void run_tags_and_branches_is_empty() throws IOException {
+		initIdeRepo();
+		
+		context.putValue("buildMaster", false);
+		var action = new BuildIdeRepoAction(context);
+		
+		assertThat(action.run()).isTrue();
 	}
 	
 	// store 的目录结构
@@ -83,11 +69,8 @@ public class BuildDojoAppActionTest {
 	//                       0.1.1
 	//                           main.bundle.js
 	@Test
-	public void run_build_tags_success(@TempDir Path tempDir) throws IOException {
-		context.putValue("master", false);
-		var store = new MarketplaceStore(tempDir.resolve("rootPath").toString(), "https://github.com/you/your-repo.git");
-		
-		Path sourceDirectory = createDojoApp(store);
+	public void run_build_two_tags_success() throws IOException {
+		Path sourceDirectory = initIdeRepo();
 		
 		GitUtils.add(sourceDirectory, ".");
 		GitUtils.commit(sourceDirectory, "user", "user@email.com", "first commit");
@@ -98,10 +81,10 @@ public class BuildDojoAppActionTest {
 		GitUtils.commit(sourceDirectory, "user", "user@email.com", "second commit");
 		GitUtils.tag(sourceDirectory, "v0.1.1", "tag v0.1.1");
 		
+		context.putValue("buildMaster", false);
 		context.putValue(ExecutionContext.MARKETPLACE_STORE, store);
-		context.putValue("tags", Arrays.asList("refs/tags/v0.1.0", "refs/tags/v0.1.1"));
 		
-		var actionSpy = spy(new BuildDojoAppAction(context));
+		var actionSpy = spy(new BuildIdeRepoAction(context));
 		var cliCommand = mock(CliCommand.class);
 		Path buildDirectory = store.getRepoBuildDirectory();
 		
@@ -120,7 +103,7 @@ public class BuildDojoAppActionTest {
 
 		doReturn(cliCommand).when(actionSpy).getCliCommand();
 		
-		assertThat(actionSpy.run()).isPresent();
+		assertThat(actionSpy.run()).isTrue();
 		// 断言 package/0.1.0 和 package/0.1.1 两个目录下有 main.bundle.js
 		assertThat(store.getPackageVersionDirectory("0.1.0").resolve("main.bundle.js").toFile().exists()).isTrue();
 		assertThat(store.getPackageVersionDirectory("0.1.1").resolve("main.bundle.js").toFile().exists()).isTrue();
@@ -129,65 +112,87 @@ public class BuildDojoAppActionTest {
 		verify(cliCommand, times(4)).run(any(), any());
 	}
 	
-	// 测试此用例，不需要创建 dojo app
+	// 测试此用例，不需要创建 app
 	@Test
-	public void run_build_tags_ignore_build_if_tag_has_built(@TempDir Path tempDir) throws IOException {
-		context.putValue("master", false);
-		var store = new MarketplaceStore(tempDir.resolve("rootPath").toString(), "https://github.com/you/your-repo.git");
-
-		context.putValue(ExecutionContext.MARKETPLACE_STORE, store);
-		context.putValue("tags", Arrays.asList("refs/tags/v0.1.0", "refs/tags/v0.1.0"));
-		
+	public void run_build_tags_ignore_build_if_tag_has_built() throws IOException {
 		// v0.1.0 已构建过
 		Path packageVersionDirectory = store.getPackageVersionDirectory("0.1.0");
 		Files.createDirectories(packageVersionDirectory);
 		Files.writeString(packageVersionDirectory.resolve("main.bundle.js"), "console.log('Hello main.bundle.js')");
 		
-		var actionSpy = spy(new BuildDojoAppAction(context));
+		context.putValue("buildMaster", false);
+		var actionSpy = spy(new BuildIdeRepoAction(context));
 		var cliCommand = mock(CliCommand.class);
 		doReturn(cliCommand).when(actionSpy).getCliCommand();
 		
-		assertThat(actionSpy.run()).isPresent(); // 都已构建时，则表明构建成功，而不是构建过程中出错。
-		// 断言 package/0.1.0 和 package/0.1.1 两个目录下有 main.bundle.js
+		// 都已构建时，则表明构建成功，而不是构建过程中出错。
+		assertThat(actionSpy.run()).isTrue(); 
+		// 断言 package/0.1.0 目录下有 main.bundle.js
 		assertThat(store.getPackageVersionDirectory("0.1.0").resolve("main.bundle.js").toFile().exists()).isTrue();
 	
+		// 因为已构建过，所以不会执行 build
 		verify(cliCommand, never()).run(any(), any());
 	}
 	
-	// 如果切换 tag 失败，则停止构建本 tag，但要接着构建下一个 tag
+	// 如果构建 tag 失败，则停止本 tag 的构建，但是要接着构建下一个 tag，
+	// 这样能够一次发现所有 tag 和 master 分支下的错误
+	// 但是出错的 tag 不能在文件系统中存储（存储就表示构建成功）
 	@Test
-	public void run_build_tags_checkout_to_tag_failed(@TempDir Path tempDir) throws IOException {
-		context.putValue("master", false);
-		var store = new MarketplaceStore(tempDir.resolve("rootPath").toString(), "https://github.com/you/your-repo.git");
-		
-		Path sourceDirectory = createDojoApp(store);
+	public void run_build_tags_a_tag_build_failed_then_build_next_tag() throws IOException {
+		Path sourceDirectory = initIdeRepo();
 		
 		GitUtils.add(sourceDirectory, ".");
 		GitUtils.commit(sourceDirectory, "user", "user@email.com", "first commit");
 		GitUtils.tag(sourceDirectory, "v0.1.0", "tag v0.1.0");
 		
-		// 只有 v0.1.0，却要构建 v0.1.1
-		context.putValue(ExecutionContext.MARKETPLACE_STORE, store);
-		context.putValue("tags", Collections.singletonList("refs/tags/v0.1.1"));
+		// 注意，如果测试用例需要在不同 tag 之间 checkout 时，则不能将两个 tag 打在同一个 commitId 上，
+		// 否则 checkout 无效
+		Files.writeString(sourceDirectory.resolve("src").resolve("index.html"), "<html></html>");
+		GitUtils.add(sourceDirectory, ".");
+		GitUtils.commit(sourceDirectory, "user", "user@email.com", "second commit");
+		GitUtils.tag(sourceDirectory, "v0.2.0", "tag v0.2.0");
 		
-		var actionSpy = spy(new BuildDojoAppAction(context));
+		context.putValue("buildMaster", false);
+
+		var actionSpy = spy(new BuildIdeRepoAction(context));
 		var cliCommand = mock(CliCommand.class);
 		doReturn(cliCommand).when(actionSpy).getCliCommand();
 		
-		assertThat(actionSpy.run()).isEmpty();
-		// 断言 package/0.1.1 目录下没有 main.bundle.js
-		assertThat(store.getPackageVersionDirectory("0.1.1").resolve("main.bundle.js").toFile().exists()).isFalse();
-		verify(cliCommand, never()).run(any(), any());
+		Path buildDirectory = store.getRepoBuildDirectory();
+		when(cliCommand.run(eq(buildDirectory), eq("yarn"))).thenReturn(true);
+		
+		when(cliCommand.run(eq(buildDirectory), eq("npm"), eq("run"), eq("build"))).thenAnswer(new Answer<Boolean>() {
+			@Override
+			public Boolean answer(InvocationOnMock invocation) throws Throwable {
+				// 在此处模拟 v0.1.0 构建失败，但 v0.2.0 构建失败
+				// 如果当前 tag 是 v0.1.0 则返回 false，否则返回 true
+				String tag = GitUtils.getCurrentTag(sourceDirectory);
+				if("v0.1.0".equals(tag)) {
+					return false;
+				}
+				
+				// 模拟 dojo build app 命令，在 build/output/dist/ 目录下创建 main.bundle.js
+				Path distDirectory = store.getRepoBuildDirectory().resolve("output").resolve("dist");
+				Files.createDirectories(distDirectory);
+				Files.writeString(distDirectory.resolve("main.bundle.js"), "console.log('Hello main.bundle.js')");
+				return true;
+			}
+		});
+		
+		// 因为 build 第一个 tag 出错了，所以应该返回 false
+		assertThat(actionSpy.run()).isFalse();
+		// 0.1.0 build 失败
+		assertThat(store.getPackageVersionDirectory("0.1.0").resolve("main.bundle.js").toFile().exists()).isFalse();
+		// 0.2.0 build 成功
+		assertThat(store.getPackageVersionDirectory("0.2.0").resolve("main.bundle.js").toFile().exists()).isTrue();
+		verify(cliCommand, times(4)).run(any(), any());
 	}
 	
 	// 模拟将 build 文件夹中的文件复制到 package/{version} 文件夹
 	// 这里通过删除 package.json，来让复制操作出错
 	@Test
-	public void run_build_tags_copy_from_build_to_package_failed(@TempDir Path tempDir) throws IOException {
-		context.putValue("master", false);
-		var store = new MarketplaceStore(tempDir.resolve("rootPath").toString(), "https://github.com/you/your-repo.git");
-		
-		Path sourceDirectory = createDojoApp(store);
+	public void run_build_tags_copy_from_build_to_package_failed() throws IOException {
+		Path sourceDirectory = initIdeRepo();
 		// 删除 package.json 文件，这样在移动时就会报错
 		Files.deleteIfExists(sourceDirectory.resolve("package.json"));
 		
@@ -195,59 +200,49 @@ public class BuildDojoAppActionTest {
 		GitUtils.commit(sourceDirectory, "user", "user@email.com", "first commit");
 		GitUtils.tag(sourceDirectory, "v0.1.0", "tag v0.1.0");
 		
-		context.putValue(ExecutionContext.MARKETPLACE_STORE, store);
-		context.putValue("tags", Collections.singletonList("refs/tags/v0.1.0"));
-		
-		var actionSpy = spy(new BuildDojoAppAction(context));
+		context.putValue("buildMaster", false);
+		var actionSpy = spy(new BuildIdeRepoAction(context));
 		var cliCommand = mock(CliCommand.class);
 		doReturn(cliCommand).when(actionSpy).getCliCommand();
 		
-		assertThat(actionSpy.run()).isEmpty();
+		assertThat(actionSpy.run()).isFalse();
 		assertThat(store.getPackageVersionDirectory("0.1.0").resolve("main.bundle.js").toFile().exists()).isFalse();
 		verify(cliCommand, never()).run(any(), any());
 	}
 	
 	@Test
-	public void run_build_tags_run_yarn_command_failed(@TempDir Path tempDir) throws IOException {
-		context.putValue("master", false);
-		var store = new MarketplaceStore(tempDir.resolve("rootPath").toString(), "https://github.com/you/your-repo.git");
-		
-		Path sourceDirectory = createDojoApp(store);
+	public void run_build_tags_run_yarn_command_failed() throws IOException {
+		Path sourceDirectory = initIdeRepo();
 		
 		GitUtils.add(sourceDirectory, ".");
 		GitUtils.commit(sourceDirectory, "user", "user@email.com", "first commit");
 		GitUtils.tag(sourceDirectory, "v0.1.0", "tag v0.1.0");
 		
-		context.putValue(ExecutionContext.MARKETPLACE_STORE, store);
-		context.putValue("tags", Collections.singletonList("refs/tags/v0.1.0"));
+		context.putValue("buildMaster", false);
 		
-		var actionSpy = spy(new BuildDojoAppAction(context));
+		var actionSpy = spy(new BuildIdeRepoAction(context));
 		var cliCommand = mock(CliCommand.class);
 		doReturn(cliCommand).when(actionSpy).getCliCommand();
 		
 		Path buildDirectory = store.getRepoBuildDirectory();
 		when(cliCommand.run(eq(buildDirectory), eq("yarn"))).thenReturn(false);
 		
-		assertThat(actionSpy.run()).isEmpty();
+		assertThat(actionSpy.run()).isFalse();
 		assertThat(store.getPackageVersionDirectory("0.1.0").resolve("main.bundle.js").toFile().exists()).isFalse();
 		verify(cliCommand).run(any(), any());
 	}
 	
 	@Test
-	public void run_build_tags_run_npm_run_build_failed(@TempDir Path tempDir) throws IOException {
-		context.putValue("master", false);
-		var store = new MarketplaceStore(tempDir.resolve("rootPath").toString(), "https://github.com/you/your-repo.git");
-	
-		Path sourceDirectory = createDojoApp(store);
+	public void run_build_tags_run_npm_run_build_failed() throws IOException {
+		Path sourceDirectory = initIdeRepo();
 		
 		GitUtils.add(sourceDirectory, ".");
 		GitUtils.commit(sourceDirectory, "user", "user@email.com", "first commit");
 		GitUtils.tag(sourceDirectory, "v0.1.0", "tag v0.1.0");
 		
-		context.putValue(ExecutionContext.MARKETPLACE_STORE, store);
-		context.putValue("tags", Collections.singletonList("refs/tags/v0.1.0"));
+		context.putValue("buildMaster", false);
 		
-		var actionSpy = spy(new BuildDojoAppAction(context));
+		var actionSpy = spy(new BuildIdeRepoAction(context));
 		var cliCommand = mock(CliCommand.class);
 		doReturn(cliCommand).when(actionSpy).getCliCommand();
 		
@@ -256,7 +251,7 @@ public class BuildDojoAppActionTest {
 		
 		when(cliCommand.run(eq(buildDirectory), eq("npm"), eq("run"), eq("build"))).thenReturn(false);
 		
-		assertThat(actionSpy.run()).isEmpty();
+		assertThat(actionSpy.run()).isFalse();
 		assertThat(store.getPackageVersionDirectory("0.1.0").resolve("main.bundle.js").toFile().exists()).isFalse();
 		verify(cliCommand, times(2)).run(any(), any());
 	}
@@ -264,20 +259,16 @@ public class BuildDojoAppActionTest {
 	// 为了模拟错误，将 build/output/dist 文件夹删掉
 	// 也就是在 spy 的 CliCommand.run 中不创建 dist 文件夹
 	@Test
-	public void run_build_tags_copy_from_build_output_dist_to_package_version_failed(@TempDir Path tempDir) throws IOException {
-		context.putValue("master", false);
-		var store = new MarketplaceStore(tempDir.resolve("rootPath").toString(), "https://github.com/you/your-repo.git");
-		
-		Path sourceDirectory = createDojoApp(store);
+	public void run_build_tags_copy_from_build_output_dist_to_package_version_failed() throws IOException {
+		Path sourceDirectory = initIdeRepo();
 		
 		GitUtils.add(sourceDirectory, ".");
 		GitUtils.commit(sourceDirectory, "user", "user@email.com", "first commit");
 		GitUtils.tag(sourceDirectory, "v0.1.0", "tag v0.1.0");
 		
-		context.putValue(ExecutionContext.MARKETPLACE_STORE, store);
-		context.putValue("tags", Collections.singletonList("refs/tags/v0.1.0"));
+		context.putValue("buildMaster", false);
 		
-		var actionSpy = spy(new BuildDojoAppAction(context));
+		var actionSpy = spy(new BuildIdeRepoAction(context));
 		var cliCommand = mock(CliCommand.class);
 		doReturn(cliCommand).when(actionSpy).getCliCommand();
 		
@@ -287,22 +278,19 @@ public class BuildDojoAppActionTest {
 		// 注意，此处没有模拟创建 build/output/dist/main.bundle.js 文件
 		when(cliCommand.run(eq(buildDirectory), eq("npm"), eq("run"), eq("build"))).thenReturn(true);
 		
-		assertThat(actionSpy.run()).isEmpty();
+		assertThat(actionSpy.run()).isFalse();
 		assertThat(store.getPackageVersionDirectory("0.1.0").resolve("main.bundle.js").toFile().exists()).isFalse();
 		verify(cliCommand, times(2)).run(any(), any());
 	}
 	
 	@Test
-	public void run_build_master_no_tags_success(@TempDir Path tempDir) throws IOException {
-		var store = new MarketplaceStore(tempDir.resolve("rootPath").toString(), "https://github.com/you/your-repo.git");
-		context.putValue(ExecutionContext.MARKETPLACE_STORE, store);
-		
-		Path sourceDirectory = createDojoApp(store);
+	public void run_build_master_no_tags_success() throws IOException {
+		Path sourceDirectory = initIdeRepo();
 		
 		GitUtils.add(sourceDirectory, ".");
 		GitUtils.commit(sourceDirectory, "user", "user@email.com", "first commit");
 
-		var actionSpy = spy(new BuildDojoAppAction(context));
+		var actionSpy = spy(new BuildIdeRepoAction(context));
 		var cliCommand = mock(CliCommand.class);
 		doReturn(cliCommand).when(actionSpy).getCliCommand();
 		
@@ -320,28 +308,23 @@ public class BuildDojoAppActionTest {
 			}
 		});
 		
-		assertThat(actionSpy.run()).isPresent();
+		assertThat(actionSpy.run()).isTrue();
 		assertThat(store.getPackageVersionDirectory("master").resolve("main.bundle.js").toFile().exists()).isTrue();
 		verify(cliCommand, times(2)).run(any(), any());
 	}
 	
 	// 如果没有构建 master，则也要确保切换到 master 分支
 	@Test
-	public void run_build_only_tags_ensure_chekout_to_master(@TempDir Path tempDir) throws IOException {
-		var store = new MarketplaceStore(tempDir.resolve("rootPath").toString(), "https://github.com/you/your-repo.git");
-		context.putValue(ExecutionContext.MARKETPLACE_STORE, store);
-		context.putValue("master", false);
-		
-		Path sourceDirectory = createDojoApp(store);
+	public void run_build_only_tags_ensure_chekout_to_master() throws IOException {
+		Path sourceDirectory = initIdeRepo();
 		
 		GitUtils.add(sourceDirectory, ".");
 		GitUtils.commit(sourceDirectory, "user", "user@email.com", "first commit");
 		GitUtils.tag(sourceDirectory, "v0.1.0", "tag v0.1.0");
 		
-		context.putValue(ExecutionContext.MARKETPLACE_STORE, store);
-		context.putValue("tags", Collections.singletonList("refs/tags/v0.1.0"));
+		context.putValue("buildMaster", false);
 
-		var actionSpy = spy(new BuildDojoAppAction(context));
+		var actionSpy = spy(new BuildIdeRepoAction(context));
 		var cliCommand = mock(CliCommand.class);
 		doReturn(cliCommand).when(actionSpy).getCliCommand();
 		
@@ -359,7 +342,7 @@ public class BuildDojoAppActionTest {
 			}
 		});
 		
-		assertThat(actionSpy.run()).isPresent();
+		assertThat(actionSpy.run()).isTrue();
 		assertThat(store.getPackageVersionDirectory("master").resolve("main.bundle.js").toFile().exists()).isFalse();
 		verify(cliCommand, times(2)).run(any(), any());
 		
@@ -367,7 +350,7 @@ public class BuildDojoAppActionTest {
 		assertThat(GitUtils.getCurrentBranch(sourceDirectory)).isEqualTo("master");
 	}
 	
-	private Path createDojoApp(MarketplaceStore store) throws IOException {
+	private Path initIdeRepo() throws IOException {
 		Path sourceDirectory = store.getRepoSourceDirectory();
 		Files.createDirectories(sourceDirectory);
 		GitUtils.init(sourceDirectory, "user", "user@email.com");
