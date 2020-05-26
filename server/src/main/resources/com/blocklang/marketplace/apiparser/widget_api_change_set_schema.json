@@ -1,10 +1,11 @@
 {
 	"$schema": "https://json-schema.org/draft/2019-09/schema",
-	"title": "API change set config",
+	"title": "widget API change set config",
 	"type": "object",
 	"required": [
 		"id",
-		"author"
+		"author",
+		"changes"
 	],
 	"properties": {
 		"id": {
