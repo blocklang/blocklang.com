@@ -20,6 +20,7 @@ import org.eclipse.jgit.lib.RepositoryCache;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.URIish;
+import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.jgit.util.FS;
 import org.eclipse.jgit.util.FileUtils;
 
@@ -251,6 +252,11 @@ public class GitUtils {
 	public static List<GitBlobInfo> loadDataFromTag(Path gitRepoPath, String refName, List<GitFileInfo> files) {
 		GitBlob blob = new GitBlob(gitRepoPath, refName);
 		return blob.loadDataFromTag(files);
+	}
+
+	public static List<GitBlobInfo> readAllFiles(Path gitRepoPath, String refName, TreeFilter treeFilter) {
+		GitBlob blob = new GitBlob(gitRepoPath, refName);
+		return blob.readAllFiles(treeFilter);
 	}
 	
 	/**

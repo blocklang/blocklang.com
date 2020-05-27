@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import com.blocklang.core.runner.common.CliLogger;
 import com.blocklang.core.runner.common.DefaultExecutionContext;
 import com.blocklang.core.runner.common.ExecutionContext;
+import com.blocklang.core.runner.common.JsonSchemaValidator;
 
 public class ApiRepoParserTest {
 	
@@ -36,8 +37,8 @@ public class ApiRepoParserTest {
 	public void setup() {
 		factory = mock(AbstractApiRepoParserFactory.class);
 		
-		ChangeSetSchemaValidator validator = mock(ChangeSetSchemaValidator.class);
-		when(validator.run()).thenReturn(Collections.emptySet());
+		JsonSchemaValidator validator = mock(JsonSchemaValidator.class);
+		when(validator.run(any())).thenReturn(Collections.emptySet());
 		when(factory.createSchemaValidator()).thenReturn(validator);
 		
 		tagParser = mock(TagParser.class);

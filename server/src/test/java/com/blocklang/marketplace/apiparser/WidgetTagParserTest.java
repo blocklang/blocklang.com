@@ -1,4 +1,4 @@
-package com.blocklang.marketplace.runner.action;
+package com.blocklang.marketplace.apiparser;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -7,12 +7,13 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.eclipse.jgit.lib.Constants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,67 +22,205 @@ import org.springframework.util.StreamUtils;
 
 import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.runner.common.CliLogger;
-import com.blocklang.core.runner.common.DefaultExecutionContext;
-import com.blocklang.core.runner.common.ExecutionContext;
 import com.blocklang.core.util.JsonUtil;
 import com.blocklang.marketplace.data.MarketplaceStore;
+import com.blocklang.marketplace.runner.action.PublishedFileInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 
-public class ParseApiActionTest {
-	
-	private ExecutionContext context;
+public class WidgetTagParserTest {
+
+	private MarketplaceStore store;
+	private CliLogger logger;
 
 	@BeforeEach
-	private void setup() {
-		context = new DefaultExecutionContext();
-		var logger = mock(CliLogger.class);
-		context.setLogger(logger);
+	public void setup(@TempDir Path tempDir) {
+		var gitUrl = "https://github.com/you/your-repo.git";
+		store = new MarketplaceStore(tempDir.toString(), gitUrl);
+		logger = mock(CliLogger.class);
+	}
+
+	@DisplayName("如果 tag 的名称不是有效且稳定的语义版本号，则忽略此 tag")
+	@Test
+	public void run_tag_invalid_semantic_version() throws IOException {
+		var invalidVersion = "invalid-semantic-version";
+		var preReleaseVersion = "1.0.0-rc.1";
+		
+		TagParser parser = new WidgetTagParser(
+				Arrays.asList(Constants.R_TAGS + invalidVersion, Constants.R_TAGS + preReleaseVersion),
+				store,
+				logger);
+		
+		assertThat(parser.run(Constants.R_TAGS + invalidVersion)).isEqualTo(ParseResult.ABORT);
+		assertThat(parser.run(Constants.R_TAGS + preReleaseVersion)).isEqualTo(ParseResult.ABORT);
 	}
 	
-	@DisplayName("当没有 tags 时，给出提示信息，但依然算操作成功")
+	@DisplayName("如果 tag 已解析过，则不重复解析")
 	@Test
-	public void run_tags_is_empty() {
-		context.putValue(ParseApiRepoAction.INPUT_MASTER, false);
+	public void run_tag_was_parsed() throws IOException {	
+		var validVersion = "1.0.0";
+		Path pasedVersionDirectory = store.getPackageVersionDirectory(validVersion);
+		Files.createDirectories(pasedVersionDirectory);
 		
-		var action = new ParseApiRepoAction(context);
-		assertThat(action.run()).isPresent();
+		TagParser parser = new WidgetTagParser(
+				Collections.singletonList(Constants.R_TAGS + validVersion),
+				store,
+				logger);
+		
+		assertThat(parser.run(Constants.R_TAGS + validVersion)).isEqualTo(ParseResult.ABORT);
 	}
 	
-	@DisplayName("校验 widget 的目录名和 changlog 文件名是否遵循 {order}__{description} 规范")
+	@DisplayName("只读取放在 changelog 文件夹中的 json 文件")
 	@Test
-	public void run_tag_validate_widget_directory_and_changelog_file_name_pattern() {
-		context.putValue(ParseApiRepoAction.INPUT_MASTER, false);
+	public void run_read_json_files_in_changelog_directory() throws IOException {
+		createApiRepo();
 		
+		// 以下都是无效的 changelog 文件
+		// 202001010101.json
+		// changelog
+		//     202001010102.md
+		//     202001010103
+		//         202001010104.md
+
+		Path resourceDirectory = store.getRepoSourceDirectory();
+		Files.createDirectories(resourceDirectory);
 		
+		Files.writeString(resourceDirectory.resolve("202001010101.json"), "{}");
+		Path changelogDirectory = resourceDirectory.resolve("changelog");
+		Files.createDirectory(changelogDirectory);
+		Files.writeString(changelogDirectory.resolve("202001010102.md"), "#");
+		Path groupDirectory = changelogDirectory.resolve("202001010103");
+		Files.createDirectory(groupDirectory);
+		Files.writeString(groupDirectory.resolve("202001010104.md"), "#");
+		
+		var validVersion = "v1.0.0";
+		GitUtils.add(resourceDirectory, ".");
+		GitUtils.commit(resourceDirectory, "jinzw", "email@email.com", "first commit");
+		GitUtils.tag(resourceDirectory, validVersion, "first tag");
+		
+		TagParser parser = new WidgetTagParser(
+				Collections.singletonList(Constants.R_TAGS + validVersion),
+				store,
+				logger);
+		assertThat(parser.run(Constants.R_TAGS + validVersion)).isEqualTo(ParseResult.ABORT);
 	}
 	
-	@Deprecated
-	@DisplayName("在 tag 中创建一个 Widget1 部件")
+	@DisplayName("目录名和 changlog 文件名没有遵循 {order}__{description} 规范")
 	@Test
-	public void run_tags_create_widget_success(@TempDir Path tempDir) throws IOException {
-		context.putValue(ParseApiRepoAction.INPUT_MASTER, false);
-		// FIXME: context 贯穿 ide 仓库和 api 仓库的构建和解析，context 中需支持存储多个 store，当合并操作时再处理
+	public void run_directory_and_file_name_invalid() throws IOException {
+		createApiRepo();
+		
+		// changelog
+		//     202001010101
+		//         a.json
+		//     b
+		//         202001010102.json
+
+		Path resourceDirectory = store.getRepoSourceDirectory();
+		Files.createDirectories(resourceDirectory);
+		
+		Path changelogDirectory = resourceDirectory.resolve("changelog");
+		Files.createDirectory(changelogDirectory);
+		
+		Path group1Directory = changelogDirectory.resolve("202001010101");
+		Files.createDirectory(group1Directory);
+		Files.writeString(group1Directory.resolve("a.json"), "{}");
+		
+		Path group2Directory = changelogDirectory.resolve("b");
+		Files.createDirectory(group2Directory);
+		Files.writeString(group2Directory.resolve("202001010102.json"), "{}");
+		
+		var validVersion = "v1.0.0";
+		GitUtils.add(resourceDirectory, ".");
+		GitUtils.commit(resourceDirectory, "jinzw", "email@email.com", "first commit");
+		GitUtils.tag(resourceDirectory, validVersion, "first tag");
+		
+		TagParser parser = new WidgetTagParser(
+				Collections.singletonList(Constants.R_TAGS + validVersion),
+				store,
+				logger);
+		assertThat(parser.run(Constants.R_TAGS + validVersion)).isEqualTo(ParseResult.FAILED);
+	}
+	
+	@DisplayName("一个 changelog 文件发布后，就不能再修改")
+	@Test
+	public void run_published_changelog_file_was_updated() throws IOException {
+		createApiRepo();
+		// changelog
+		//     202001010101
+		//         202001010102.json
+		// 202001010102.json 在 0.1.0 版已发布，但在 0.2.0 版修改了内容
+		
+		String widgetId = "202001010101";
+		String changelogFileId = "202001010102";
+		
+		Path publishedChangelogDir = store.getRepoPackageDirectory()
+				.resolve("__changelog__")
+				.resolve(widgetId);
+		Files.createDirectories(publishedChangelogDir);
+		
+		Path resourceDirectory = store.getRepoSourceDirectory();
+		Files.createDirectories(resourceDirectory);
+		Path changelogDirectory = resourceDirectory.resolve("changelog");
+		Files.createDirectory(changelogDirectory);
+		
+		var originChangelogFileContent = "{}";
+		Path group1Directory = changelogDirectory.resolve(widgetId);
+		Files.createDirectory(group1Directory);
+		Files.writeString(group1Directory.resolve(changelogFileId + ".json"), originChangelogFileContent);
+		
+		var version1 = "v0.1.0";
+		GitUtils.add(resourceDirectory, ".");
+		GitUtils.commit(resourceDirectory, "jinzw", "email@email.com", "first commit");
+		GitUtils.tag(resourceDirectory, version1, "first tag");
+		
+		var changedChangelogFileContent = "{a}";
+		Files.writeString(group1Directory.resolve(changelogFileId + ".json"), changedChangelogFileContent);
+		var version2 = "v0.2.0";
+		GitUtils.add(resourceDirectory, ".");
+		GitUtils.commit(resourceDirectory, "jinzw", "email@email.com", "second commit");
+		GitUtils.tag(resourceDirectory, version2, "second tag");
+		
+		// 在已发布的记录中已记录，在 0.1.0 版本中发布的 changelog 文件
+		List<PublishedFileInfo> changelogs = new ArrayList<PublishedFileInfo>();
+		PublishedFileInfo published = new PublishedFileInfo();
+		published.setFileId(changelogFileId);
+		published.setVersion(version1);
+		published.setMd5sum(DigestUtils.md5Hex(originChangelogFileContent));
+		changelogs.add(published);
+		Files.writeString(publishedChangelogDir.resolve("index.json"), JsonUtil.stringify(changelogs));
+		
+		TagParser parser = new WidgetTagParser(
+				Arrays.asList(Constants.R_TAGS + version1, Constants.R_TAGS + version2),
+				store,
+				logger);
+		assertThat(parser.run(Constants.R_TAGS + version2)).isEqualTo(ParseResult.FAILED);
+	}
+	
+	@DisplayName("在 v0.1.0 中成功创建一个 Widget1 部件")
+	@Test
+	public void run_create_widget_success() throws IOException {
+		createApiRepo();
 		
 		String widget1Id = "202005151645";
 		String changeFileId = "202005151646";
-
-		var store = new MarketplaceStore(tempDir.resolve("rootPath").toString(), "https://github.com/you/you-repo.git");
-		Path sourceDirectory = createApiRepo(store);
+		
+		Path sourceDirectory = store.getRepoSourceDirectory();
 		Path widget1Directory = sourceDirectory.resolve("changelog").resolve(widget1Id + "__widget1");
 		Files.createDirectories(widget1Directory);
 		String widget1Json = StreamUtils.copyToString(getClass().getResourceAsStream("create_widget1.json"), Charset.defaultCharset());
 		Files.writeString(widget1Directory.resolve(changeFileId + "__create_widget.json"), widget1Json);
 		GitUtils.add(sourceDirectory, ".");
 		GitUtils.commit(sourceDirectory, "user", "user@email.com", "first commit");
-		GitUtils.tag(sourceDirectory, "v0.1.0", "first tag");
+		String version1 = "v0.1.0";
+		GitUtils.tag(sourceDirectory, version1, "first tag");
 		
-		context.putValue(ParseApiRepoAction.INPUT_TAGS, Collections.singletonList("refs/tags/v0.1.0"));
-		context.putValue(ExecutionContext.MARKETPLACE_STORE, store);
-		var action = new ParseApiRepoAction(context);
-		// 1. 解析通过
-		assertThat(action.run()).isPresent();
-		// 2. 将解析结果存在 package/0.1.0/components/button/index.json 文件中
+		TagParser parser = new WidgetTagParser(
+				Collections.singletonList(Constants.R_TAGS + version1),
+				store,
+				logger);
+		assertThat(parser.run(Constants.R_TAGS + version1)).isEqualTo(ParseResult.SUCCESS);
+		// 将解析结果存在 package/0.1.0/202005151645/index.json 文件中
 		//    在输出结果中，为了提高辨识度，将 properties 和 events 分开存储
 		//    断言 index.json 文件中的内容
 		//		{	
@@ -102,10 +241,9 @@ public class ParseApiActionTest {
 		//			}]
 		//		}
 		String widget1Api = Files.readString(store.getPackageVersionDirectory("0.1.0").resolve(widget1Id).resolve("index.json"));
-		// FIXME: 之前的设计是此表存储 Widget、Service 和 API 等所有组件，但是这三个信息差别较大，ApiComponent 可能会专门存 Widget
 		assertWidget1(widget1Api);
 		// 断言哪些文件已执行过
-		String changelog = Files.readString(store.getRepoPackageDirectory().resolve("__changelog__").resolve(widget1Id).resolve("index.json"));
+		String changelog = Files.readString(store.getPackageChangeLogDirectory().resolve(widget1Id).resolve("index.json"));
 		List<PublishedFileInfo> changelogs = JsonUtil.fromJsonArray(changelog, PublishedFileInfo.class);
 		PublishedFileInfo firstChangeLog = new PublishedFileInfo();
 		firstChangeLog.setFileId(changeFileId); // 文件标识，不是文件夹标识
@@ -115,90 +253,47 @@ public class ParseApiActionTest {
 		assertThat(changelogs).hasSize(1).first().usingRecursiveComparison().isEqualTo(firstChangeLog);
 	}
 	
-	@DisplayName("有两个 tag，解析第一个 tag 出错后，不再解析第二个 tag")
+	@DisplayName("在 tag 0.1.0 中创建一个 Widget1，在 tag 0.2.0 中未修改 Widget1")
 	@Test
-	public void run_tags_tag1_failed_then_not_parse_tag2(@TempDir Path tempDir) throws IOException {
-		context.putValue(ParseApiRepoAction.INPUT_MASTER, false);
-
-		String widget1Id = "1";
-		String changeFileId = "2";
+	public void run_tag_1_create_widget1_tag_2_not_update_widget1() throws IOException {
+		createApiRepo();
 		
-		// FIXME: context 贯穿 ide 仓库和 api 仓库的构建和解析，context 中需支持存储多个 store，当合并操作时再处理
-		var store = new MarketplaceStore(tempDir.resolve("rootPath").toString(), "https://github.com/you/you-repo.git");
-		
-		// v0.1.0 中的 changelog 定义无效
-		Path sourceDirectory = createApiRepo(store);
-		Path widget1Directory = sourceDirectory.resolve("changelog").resolve(widget1Id + "__widget1");
-		Files.createDirectories(widget1Directory);
-		Files.writeString(widget1Directory.resolve(changeFileId + "__create_widget.json"), "{}");
-		GitUtils.add(sourceDirectory, ".");
-		GitUtils.commit(sourceDirectory, "user", "user@email.com", "first commit");
-		GitUtils.tag(sourceDirectory, "v0.1.0", "first tag");
-		
-		// v0.1.0 中的 changelog 定义有效
-		sourceDirectory = createApiRepo(store);
-		widget1Directory = sourceDirectory.resolve("changelog").resolve(widget1Id + "__widget1");
-		Files.createDirectories(widget1Directory);
-		String widget1Json = StreamUtils.copyToString(getClass().getResourceAsStream("create_widget1.json"), Charset.defaultCharset());
-		Files.writeString(widget1Directory.resolve(changeFileId + "__create_widget.json"), widget1Json, StandardOpenOption.TRUNCATE_EXISTING);
-		GitUtils.add(sourceDirectory, ".");
-		GitUtils.commit(sourceDirectory, "user", "user@email.com", "first commit");
-		GitUtils.tag(sourceDirectory, "v0.2.0", "second tag");
-		
-		context.putValue(ParseApiRepoAction.INPUT_TAGS, Arrays.asList("refs/tags/v0.1.0", "refs/tags/v0.2.0"));
-		context.putValue(ExecutionContext.MARKETPLACE_STORE, store);
-		var action = new ParseApiRepoAction(context);
-		
-		assertThat(action.run()).isEmpty();
-
-		// tag v0.1.0
-		assertThat(store.getPackageVersionDirectory("0.1.0").resolve(widget1Id).resolve("index.json").toFile().exists()).isFalse();
-		
-		// tag v0.2.0
-		assertThat(store.getPackageVersionDirectory("0.2.0").resolve(widget1Id).resolve("index.json").toFile().exists()).isFalse();
-		
-		// 断言哪些文件已执行过
-		assertThat(store.getRepoPackageDirectory().resolve("__changelog__").resolve(widget1Id).resolve("index.json").toFile().exists()).isFalse();
-	}
-	
-	@Deprecated
-	@DisplayName("在第一个 tag 中创建一个 widget1，在第二 tag 中未对 widget1 做任何更改")
-	@Test
-	public void run_tags_based_on_previous_tag_no_update(@TempDir Path tempDir) throws IOException {
-		context.putValue(ParseApiRepoAction.INPUT_MASTER, false);
-
 		String widget1Id = "202005151645";
 		String changeFileId = "202005151646";
 		
-		// FIXME: context 贯穿 ide 仓库和 api 仓库的构建和解析，context 中需支持存储多个 store，当合并操作时再处理
-		var store = new MarketplaceStore(tempDir.resolve("rootPath").toString(), "https://github.com/you/you-repo.git");
-		Path sourceDirectory = createApiRepo(store);
+		Path sourceDirectory = store.getRepoSourceDirectory();
 		Path widget1Directory = sourceDirectory.resolve("changelog").resolve(widget1Id + "__widget1");
 		Files.createDirectories(widget1Directory);
 		String widget1Json = StreamUtils.copyToString(getClass().getResourceAsStream("create_widget1.json"), Charset.defaultCharset());
 		Files.writeString(widget1Directory.resolve(changeFileId + "__create_widget.json"), widget1Json);
 		GitUtils.add(sourceDirectory, ".");
 		GitUtils.commit(sourceDirectory, "user", "user@email.com", "first commit");
-		GitUtils.tag(sourceDirectory, "v0.1.0", "first tag");
-		GitUtils.tag(sourceDirectory, "v0.2.0", "second tag");
+		String version1 = "v0.1.0";
+		GitUtils.tag(sourceDirectory, version1, "first tag");
 		
-		context.putValue(ParseApiRepoAction.INPUT_TAGS, Arrays.asList("refs/tags/v0.1.0", "refs/tags/v0.2.0"));
-		context.putValue(ExecutionContext.MARKETPLACE_STORE, store);
-		var action = new ParseApiRepoAction(context);
+		// 任意添加一个文件
+		Files.writeString(sourceDirectory.resolve("temp.md"), "#");
+		GitUtils.add(sourceDirectory, ".");
+		GitUtils.commit(sourceDirectory, "user", "user@email.com", "second commit");
+		String version2 = "v0.2.0";
+		GitUtils.tag(sourceDirectory, version2, "second tag");
 		
-		// 解析通过
-		assertThat(action.run()).isPresent();
-
+		TagParser parser = new WidgetTagParser(
+				Arrays.asList(Constants.R_TAGS + version1, Constants.R_TAGS + version2),
+				store,
+				logger);
+		assertThat(parser.run(Constants.R_TAGS + version1)).isEqualTo(ParseResult.SUCCESS);
+		assertThat(parser.run(Constants.R_TAGS + version2)).isEqualTo(ParseResult.SUCCESS);
+		
 		// tag v0.1.0
 		String widget1Api1 = Files.readString(store.getPackageVersionDirectory("0.1.0").resolve(widget1Id).resolve("index.json"));
-		// FIXME: 之前的设计是此表存储 Widget、Service 和 API 等所有组件，但是这三个信息差别较大，ApiComponent 可能会专门存 Widget
 		assertWidget1(widget1Api1);
 		
 		// tag v0.2.0
 		String widget1Api2 = Files.readString(store.getPackageVersionDirectory("0.2.0").resolve(widget1Id).resolve("index.json"));
 		assertWidget1(widget1Api2);
 		
-		// 断言哪些文件已执行过
+		// 只执行过一次
 		String changelog = Files.readString(store.getRepoPackageDirectory().resolve("__changelog__").resolve(widget1Id).resolve("index.json"));
 		List<PublishedFileInfo> changelogs = JsonUtil.fromJsonArray(changelog, PublishedFileInfo.class);
 		PublishedFileInfo firstChangeLog = new PublishedFileInfo();
@@ -209,43 +304,42 @@ public class ParseApiActionTest {
 		assertThat(changelogs).hasSize(1).first().usingRecursiveComparison().isEqualTo(firstChangeLog);
 	}
 	
-	@Deprecated
-	@DisplayName("在第一个 tag 中创建一个 widget1，在第二 tag 中创建 widget2")
+	@DisplayName("在 tag 0.1.0 中创建一个 Widget1，在 tag 0.2.0 中创建一个 Widget2")
 	@Test
-	public void run_tags_create_widget1_tag1_widget2_tag2(@TempDir Path tempDir) throws IOException {
-		context.putValue(ParseApiRepoAction.INPUT_MASTER, false);
+	public void run_tag_1_create_widget1_tag2_create_widget2() throws IOException {
+		createApiRepo();
 		
-		// FIXME: context 贯穿 ide 仓库和 api 仓库的构建和解析，context 中需支持存储多个 store，当合并操作时再处理
-		var store = new MarketplaceStore(tempDir.resolve("rootPath").toString(), "https://github.com/you/you-repo.git");
-		Path sourceDirectory = createApiRepo(store);
-		// 创建 widget1 并标注 git tag
-		String widget1Id = "1";
-		String changeFile1Id = "2";
+		String widget1Id = "202005151645";
+		String changeFile1Id = "202005151646";
+		
+		Path sourceDirectory = store.getRepoSourceDirectory();
 		Path widget1Directory = sourceDirectory.resolve("changelog").resolve(widget1Id + "__widget1");
 		Files.createDirectories(widget1Directory);
 		String widget1Json = StreamUtils.copyToString(getClass().getResourceAsStream("create_widget1.json"), Charset.defaultCharset());
 		Files.writeString(widget1Directory.resolve(changeFile1Id + "__create_widget.json"), widget1Json);
 		GitUtils.add(sourceDirectory, ".");
 		GitUtils.commit(sourceDirectory, "user", "user@email.com", "first commit");
-		GitUtils.tag(sourceDirectory, "v0.1.0", "first tag");
+		String version1 = "v0.1.0";
+		GitUtils.tag(sourceDirectory, version1, "first tag");
 		
-		// 创建 widget2 并标注 git tag
-		String widget2Id = "3";
-		String changeFile2Id = "4";
+		String widget2Id = "202005151647";
+		String changeFile2Id = "202005151648";
 		Path widget2Directory = sourceDirectory.resolve("changelog").resolve(widget2Id + "__widget2");
 		Files.createDirectory(widget2Directory);
 		String widget2Json = StreamUtils.copyToString(getClass().getResourceAsStream("create_widget2.json"), Charset.defaultCharset());
 		Files.writeString(widget2Directory.resolve(changeFile2Id + "__create_widget.json"), widget2Json);
 		GitUtils.add(sourceDirectory, ".");
 		GitUtils.commit(sourceDirectory, "user", "user@email.com", "second commit");
-		GitUtils.tag(sourceDirectory, "v0.2.0", "second tag");
+		String version2 = "v0.2.0";
+		GitUtils.tag(sourceDirectory, version2, "second tag");
 		
-		context.putValue(ParseApiRepoAction.INPUT_TAGS, Arrays.asList("refs/tags/v0.1.0", "refs/tags/v0.2.0"));
-		context.putValue(ExecutionContext.MARKETPLACE_STORE, store);
-		var action = new ParseApiRepoAction(context);
+		TagParser parser = new WidgetTagParser(
+				Arrays.asList(Constants.R_TAGS + version1, Constants.R_TAGS + version2),
+				store,
+				logger);
+		assertThat(parser.run(Constants.R_TAGS + version1)).isEqualTo(ParseResult.SUCCESS);
+		assertThat(parser.run(Constants.R_TAGS + version2)).isEqualTo(ParseResult.SUCCESS);
 		
-		assertThat(action.run()).isPresent();
-
 		// tag v0.1.0
 		String widget1Api1 = Files.readString(store.getPackageVersionDirectory("0.1.0").resolve(widget1Id).resolve("index.json"));
 		assertWidget1(widget1Api1);
@@ -278,39 +372,37 @@ public class ParseApiActionTest {
 		assertThat(changelogs2).hasSize(1).first().usingRecursiveComparison().isEqualTo(changeLogInfo2);
 	}
 
-	// 当已发布的变更文件被修改后，给出错误提示
-	@Deprecated
 	@DisplayName("已发布后的 changelog 文件不允许修改")
 	@Test
 	public void run_tags_report_errors_when_changelog_update_after_tag(@TempDir Path tempDir) throws IOException {
-		context.putValue(ParseApiRepoAction.INPUT_MASTER, false);
-
+		createApiRepo();
+		
 		String widget1Id = "202005151645";
 		String changeFile1Id = "202005151646";
-		
-		var store = new MarketplaceStore(tempDir.resolve("rootPath").toString(), "https://github.com/you/you-repo.git");
-		Path sourceDirectory = createApiRepo(store);
+		Path sourceDirectory = store.getRepoSourceDirectory();
 		Path widget1Directory = sourceDirectory.resolve("changelog").resolve(widget1Id + "__widget1");
 		Files.createDirectories(widget1Directory);
 		String widget1Json = StreamUtils.copyToString(getClass().getResourceAsStream("create_widget1.json"), Charset.defaultCharset());
 		Files.writeString(widget1Directory.resolve(changeFile1Id + "__create_widget.json"), widget1Json);
 		GitUtils.add(sourceDirectory, ".");
 		GitUtils.commit(sourceDirectory, "user", "user@email.com", "first commit");
-		GitUtils.tag(sourceDirectory, "v0.1.0", "first tag");
+		String version1 = "v0.1.0";
+		GitUtils.tag(sourceDirectory, version1, "first tag");
 
 		// 使用 __create_widget.json
 		String widget2Json = StreamUtils.copyToString(getClass().getResourceAsStream("create_widget2.json"), Charset.defaultCharset());
 		Files.writeString(widget1Directory.resolve(changeFile1Id + "__create_widget.json"), widget2Json);
 		GitUtils.add(sourceDirectory, ".");
 		GitUtils.commit(sourceDirectory, "user", "user@email.com", "second commit");
-		GitUtils.tag(sourceDirectory, "v0.2.0", "second tag");
+		String version2 = "v0.2.0";
+		GitUtils.tag(sourceDirectory, version2, "second tag");
 		
-		context.putValue(ParseApiRepoAction.INPUT_TAGS, Arrays.asList("refs/tags/v0.1.0", "refs/tags/v0.2.0"));
-		context.putValue(ExecutionContext.MARKETPLACE_STORE, store);
-		var action = new ParseApiRepoAction(context);
-		
-		// 解析未通过
-		assertThat(action.run()).isEmpty();
+		TagParser parser = new WidgetTagParser(
+				Arrays.asList(Constants.R_TAGS + version1, Constants.R_TAGS + version2),
+				store,
+				logger);
+		assertThat(parser.run(Constants.R_TAGS + version1)).isEqualTo(ParseResult.SUCCESS);
+		assertThat(parser.run(Constants.R_TAGS + version2)).isEqualTo(ParseResult.FAILED);
 
 		// tag v0.1.0，解析成功
 		String widget1Api1 = Files.readString(store.getPackageVersionDirectory("0.1.0").resolve(widget1Id).resolve("index.json"));
@@ -330,18 +422,16 @@ public class ParseApiActionTest {
 		assertThat(changelogs).hasSize(1).first().usingRecursiveComparison().isEqualTo(firstChangeLog);
 	}
 	
-	@Deprecated
-	@DisplayName("对同一个 widget 执行两次 create widget")
+	@DisplayName("在一个 widget 目录中有两个 create widget 操作文件")
 	@Test
-	public void run_tags_create_same_widget_twice(@TempDir Path tempDir) throws IOException {
-		context.putValue(ParseApiRepoAction.INPUT_MASTER, false);
+	public void run_create_same_widget_twice() throws IOException {
+		createApiRepo();
 		
-		String widget1Id = "1";
-		String changeFile1Id = "2";
-		String changeFile2Id = "3";
-
-		var store = new MarketplaceStore(tempDir.resolve("rootPath").toString(), "https://github.com/you/you-repo.git");
-		Path sourceDirectory = createApiRepo(store);
+		String widget1Id = "202005151645";
+		String changeFile1Id = "202005151646";
+		String changeFile2Id = "202005151647";
+		
+		Path sourceDirectory = store.getRepoSourceDirectory();
 		Path widget1Directory = sourceDirectory.resolve("changelog").resolve(widget1Id + "__widget1");
 		Files.createDirectories(widget1Directory);
 		String widget1Json = StreamUtils.copyToString(getClass().getResourceAsStream("create_widget_no_properties.json"), Charset.defaultCharset());
@@ -349,32 +439,30 @@ public class ParseApiActionTest {
 		Files.writeString(widget1Directory.resolve(changeFile2Id + "__create_widget.json"), widget1Json);
 		GitUtils.add(sourceDirectory, ".");
 		GitUtils.commit(sourceDirectory, "user", "user@email.com", "first commit");
-		GitUtils.tag(sourceDirectory, "v0.1.0", "first tag");
+		String version1 = "v0.1.0";
+		GitUtils.tag(sourceDirectory, version1, "first tag");
 		
-		context.putValue(ParseApiRepoAction.INPUT_TAGS, Collections.singletonList("refs/tags/v0.1.0"));
-		context.putValue(ExecutionContext.MARKETPLACE_STORE, store);
-		var action = new ParseApiRepoAction(context);
-		
-		assertThat(action.run()).isEmpty();
-		
+		TagParser parser = new WidgetTagParser(
+				Collections.singletonList(Constants.R_TAGS + version1),
+				store,
+				logger);
+		assertThat(parser.run(Constants.R_TAGS + version1)).isEqualTo(ParseResult.FAILED);
+		// 因为创建失败了，所以不会保存下来
 		assertThat(store.getPackageVersionDirectory("0.1.0").resolve(widget1Id).resolve("index.json").toFile().exists()).isFalse();
 		assertThat(store.getRepoPackageDirectory().resolve("__changelog__").resolve(widget1Id).resolve("index.json").toFile().exists()).isFalse();
 	}
 	
-	@Deprecated
-	@DisplayName("在两个文件夹中分别创建了一个 widget，但是 name 相同，widget 名必须唯一")
+	@DisplayName("在两个文件夹中分别创建了一个 widget，但是 name 相同(widget 名必须唯一)")
 	@Test
-	public void run_tags_create_widget_name_should_unique(@TempDir Path tempDir) throws IOException {
-		context.putValue(ParseApiRepoAction.INPUT_MASTER, false);
+	public void run_create_widget_name_should_unique() throws IOException {
+		createApiRepo();
 		
-		String widget1Id = "1";
-		String widget2Id = "2";
-		String changeFile1Id = "3";
-		String changeFile2Id = "4";
+		String widget1Id = "202005151645";
+		String widget2Id = "202005151646";
+		String changeFile1Id = "202005151647";
+		String changeFile2Id = "202005151648";
 
-		var store = new MarketplaceStore(tempDir.resolve("rootPath").toString(), "https://github.com/you/you-repo.git");
-		Path sourceDirectory = createApiRepo(store);
-		
+		Path sourceDirectory = store.getRepoSourceDirectory();
 		String widget1Json = StreamUtils.copyToString(getClass().getResourceAsStream("create_widget_no_properties.json"), Charset.defaultCharset());
 		
 		Path widget1Directory = sourceDirectory.resolve("changelog").resolve(widget1Id + "__widget1");
@@ -387,43 +475,44 @@ public class ParseApiActionTest {
 		
 		GitUtils.add(sourceDirectory, ".");
 		GitUtils.commit(sourceDirectory, "user", "user@email.com", "first commit");
-		GitUtils.tag(sourceDirectory, "v0.1.0", "first tag");
+		String version1 = "v0.1.0";
+		GitUtils.tag(sourceDirectory, version1, "first tag");
 		
-		context.putValue(ParseApiRepoAction.INPUT_TAGS, Collections.singletonList("refs/tags/v0.1.0"));
-		context.putValue(ExecutionContext.MARKETPLACE_STORE, store);
-		var action = new ParseApiRepoAction(context);
-		
-		assertThat(action.run()).isEmpty();
+		TagParser parser = new WidgetTagParser(
+				Collections.singletonList(Constants.R_TAGS + version1),
+				store,
+				logger);
+		assertThat(parser.run(Constants.R_TAGS + version1)).isEqualTo(ParseResult.FAILED);
 		
 		assertThat(store.getPackageVersionDirectory("0.1.0").resolve(widget1Id).resolve("index.json").toFile().exists()).isFalse();
+		assertThat(store.getPackageVersionDirectory("0.1.0").resolve(widget2Id).resolve("index.json").toFile().exists()).isFalse();
 		assertThat(store.getRepoPackageDirectory().resolve("__changelog__").resolve(widget1Id).resolve("index.json").toFile().exists()).isFalse();
+		assertThat(store.getRepoPackageDirectory().resolve("__changelog__").resolve(widget2Id).resolve("index.json").toFile().exists()).isFalse();
 	}
 	
-	// create widget and add property in one change log file
-	@Deprecated
 	@DisplayName("在一个 changelog 中先 createWidget，然后再 addProperty")
 	@Test
-	public void run_tags_create_widget_then_add_property_in_one_changelog_success(@TempDir Path tempDir) throws IOException {
-		context.putValue(ParseApiRepoAction.INPUT_MASTER, false);
+	public void run_create_widget_then_add_property_in_one_changelog() throws IOException {
+		createApiRepo();
 	
-		String widget1Id = "1";
-		String changeFileId = "2";
+		String widget1Id = "202005151645";
+		String changeFileId = "202005151646";
 
-		var store = new MarketplaceStore(tempDir.resolve("rootPath").toString(), "https://github.com/you/you-repo.git");
-		Path sourceDirectory = createApiRepo(store);
+		Path sourceDirectory = store.getRepoSourceDirectory();
 		Path widget1Directory = sourceDirectory.resolve("changelog").resolve(widget1Id + "__widget1");
 		Files.createDirectories(widget1Directory);
 		String widget1Json = StreamUtils.copyToString(getClass().getResourceAsStream("create_widget1_and_add_property1.json"), Charset.defaultCharset());
 		Files.writeString(widget1Directory.resolve(changeFileId + "__create_widget.json"), widget1Json);
 		GitUtils.add(sourceDirectory, ".");
 		GitUtils.commit(sourceDirectory, "user", "user@email.com", "first commit");
-		GitUtils.tag(sourceDirectory, "v0.1.0", "first tag");
+		String version1 = "v0.1.0";
+		GitUtils.tag(sourceDirectory, version1, "first tag");
 		
-		context.putValue(ParseApiRepoAction.INPUT_TAGS, Collections.singletonList("refs/tags/v0.1.0"));
-		context.putValue(ExecutionContext.MARKETPLACE_STORE, store);
-		var action = new ParseApiRepoAction(context);
-		// 解析通过
-		assertThat(action.run()).isPresent();
+		TagParser parser = new WidgetTagParser(
+				Collections.singletonList(Constants.R_TAGS + version1),
+				store,
+				logger);
+		assertThat(parser.run(Constants.R_TAGS + version1)).isEqualTo(ParseResult.SUCCESS);
 		
 		String widget1Api = Files.readString(store.getPackageVersionDirectory("0.1.0").resolve(widget1Id).resolve("index.json"));
 		JsonNode widget = JsonUtil.readTree(widget1Api);
@@ -459,19 +548,16 @@ public class ParseApiActionTest {
 		assertThat(changelogs).hasSize(1).first().usingRecursiveComparison().isEqualTo(firstChangeLog);
 	}
 	
-	// add property_success in two changelog
-	@Deprecated
 	@DisplayName("在一个 changelog 中 createWidget，然后在另一个 changlog 中 addProperty")
 	@Test
-	public void run_tags_create_widget_then_add_property_in_two_changelog_success(@TempDir Path tempDir) throws IOException {
-		context.putValue(ParseApiRepoAction.INPUT_MASTER, false);
-	
-		String widgetId = "1";
-		String changeFile1Id = "2";
-		String changeFile2Id = "3";
+	public void run_create_widget_then_add_property_in_two_changelog() throws IOException {
+		createApiRepo();
+		
+		String widgetId = "202005151645";
+		String changeFile1Id = "202005151646";
+		String changeFile2Id = "202005151647";
 
-		var store = new MarketplaceStore(tempDir.resolve("rootPath").toString(), "https://github.com/you/you-repo.git");
-		Path sourceDirectory = createApiRepo(store);
+		Path sourceDirectory = store.getRepoSourceDirectory();
 		Path widget1Directory = sourceDirectory.resolve("changelog").resolve(widgetId + "__widget1");
 		Files.createDirectories(widget1Directory);
 		String createWidget1Json = StreamUtils.copyToString(getClass().getResourceAsStream("create_widget1.json"), Charset.defaultCharset());
@@ -482,13 +568,14 @@ public class ParseApiActionTest {
 		
 		GitUtils.add(sourceDirectory, ".");
 		GitUtils.commit(sourceDirectory, "user", "user@email.com", "first commit");
-		GitUtils.tag(sourceDirectory, "v0.1.0", "first tag");
+		var version1 = "v0.1.0";
+		GitUtils.tag(sourceDirectory, version1, "first tag");
 		
-		context.putValue(ParseApiRepoAction.INPUT_TAGS, Collections.singletonList("refs/tags/v0.1.0"));
-		context.putValue(ExecutionContext.MARKETPLACE_STORE, store);
-		var action = new ParseApiRepoAction(context);
-		// 解析通过
-		assertThat(action.run()).isPresent();
+		TagParser parser = new WidgetTagParser(
+				Collections.singletonList(Constants.R_TAGS + version1),
+				store,
+				logger);
+		assertThat(parser.run(Constants.R_TAGS + version1)).isEqualTo(ParseResult.SUCCESS);
 		
 		String widget1Api = Files.readString(store.getPackageVersionDirectory("0.1.0").resolve(widgetId).resolve("index.json"));
 		JsonNode widget = JsonUtil.readTree(widget1Api);
@@ -540,19 +627,16 @@ public class ParseApiActionTest {
 		assertThat(changelogs.get(1)).usingRecursiveComparison().isEqualTo(secondChangeLog);
 	}
 	
-	// add property_already_exists
-	@Deprecated
-	@DisplayName("通过 addProperty 为 widget 添加一个属性，而此属性已存在")
+	@DisplayName("通过 addProperty 为 widget 添加一个属性，但此属性已存在")
 	@Test
-	public void run_tags_add_property_that_already_exist(@TempDir Path tempDir) throws IOException {
-		context.putValue(ParseApiRepoAction.INPUT_MASTER, false);
+	public void run_add_property_that_already_exist() throws IOException {
+		createApiRepo();
 	
-		String widgetId = "1";
-		String changeFile1Id = "2";
-		String changeFile2Id = "3";
+		String widgetId = "202005151645";
+		String changeFile1Id = "202005151646";
+		String changeFile2Id = "202005151647";
 
-		var store = new MarketplaceStore(tempDir.resolve("rootPath").toString(), "https://github.com/you/you-repo.git");
-		Path sourceDirectory = createApiRepo(store);
+		Path sourceDirectory = store.getRepoSourceDirectory();
 		Path widget1Directory = sourceDirectory.resolve("changelog").resolve(widgetId + "__widget1");
 		Files.createDirectories(widget1Directory);
 		String createWidget1Json = StreamUtils.copyToString(getClass().getResourceAsStream("create_widget1_and_add_property2.json"), Charset.defaultCharset());
@@ -563,13 +647,14 @@ public class ParseApiActionTest {
 		
 		GitUtils.add(sourceDirectory, ".");
 		GitUtils.commit(sourceDirectory, "user", "user@email.com", "first commit");
-		GitUtils.tag(sourceDirectory, "v0.1.0", "first tag");
+		var version1 = "v0.1.0";
+		GitUtils.tag(sourceDirectory, version1, "first tag");
 		
-		context.putValue(ParseApiRepoAction.INPUT_TAGS, Collections.singletonList("refs/tags/v0.1.0"));
-		context.putValue(ExecutionContext.MARKETPLACE_STORE, store);
-		var action = new ParseApiRepoAction(context);
-
-		assertThat(action.run()).isEmpty();
+		TagParser parser = new WidgetTagParser(
+				Collections.singletonList(Constants.R_TAGS + version1),
+				store,
+				logger);
+		assertThat(parser.run(Constants.R_TAGS + version1)).isEqualTo(ParseResult.FAILED);
 		
 		// createWidget 和 addProperty 两个操作分属两个变更文件，但在同一个 tag 中，
 		// 当 addProperty 解析错误后，则也应该回滚（或称为不应用）createWidget 的操作，
@@ -578,17 +663,15 @@ public class ParseApiActionTest {
 		assertThat(store.getRepoPackageDirectory().resolve("__changelog__").resolve(widgetId).resolve("index.json").toFile().exists()).isFalse();
 	}
 	
-	@Deprecated
 	@DisplayName("没有 create widget 直接 add properties")
 	@Test
-	public void run_tags_add_property_but_not_create_widget(@TempDir Path tempDir) throws IOException {
-		context.putValue(ParseApiRepoAction.INPUT_MASTER, false);
+	public void run_add_property_but_not_create_widget() throws IOException {
+		createApiRepo();
 		
-		String widgetId = "1";
-		String changeFile1Id = "2";
+		String widgetId = "202005151645";
+		String changeFile1Id = "202005151646";
 		
-		var store = new MarketplaceStore(tempDir.resolve("rootPath").toString(), "https://github.com/you/your-repo.git");
-		Path sourceDirectory = createApiRepo(store);
+		Path sourceDirectory = store.getRepoSourceDirectory();
 		Path widgetDirectory = sourceDirectory.resolve("changelog").resolve(widgetId + "__widget1");
 		Files.createDirectories(widgetDirectory);
 		String addPropertyJson = StreamUtils.copyToString(getClass().getResourceAsStream("add_property2.json"), Charset.defaultCharset());
@@ -596,42 +679,42 @@ public class ParseApiActionTest {
 		
 		GitUtils.add(sourceDirectory, ".");
 		GitUtils.commit(sourceDirectory, "user", "user@email.com", "first commit");
-		GitUtils.tag(sourceDirectory, "v0.1.0", "first tag");
+		var version1 = "v0.1.0";
+		GitUtils.tag(sourceDirectory, version1, "first tag");
 		
-		context.putValue(ParseApiRepoAction.INPUT_TAGS, Collections.singletonList("refs/tags/v0.1.0"));
-		context.putValue(ExecutionContext.MARKETPLACE_STORE, store);
-		var action = new ParseApiRepoAction(context);
-		
-		assertThat(action.run()).isEmpty();
+		TagParser parser = new WidgetTagParser(
+				Collections.singletonList(Constants.R_TAGS + version1),
+				store,
+				logger);
+		assertThat(parser.run(Constants.R_TAGS + version1)).isEqualTo(ParseResult.FAILED);
 		
 		assertThat(store.getPackageVersionDirectory("0.1.0").resolve(widgetId).resolve("index.json").toFile().exists()).isFalse();
 		assertThat(store.getRepoPackageDirectory().resolve("__changelog__").resolve(widgetId).resolve("index.json").toFile().exists()).isFalse();
 	}
 	
-	@Deprecated
 	@DisplayName("在一个 changelog 文件中，先使用 createWidget 创建一个 Widget，然后使用 addEvent 添加一个事件")
 	@Test
-	public void run_tags_create_widget_then_add_event_in_one_changelog_success(@TempDir Path tempDir) throws IOException {
-		context.putValue(ParseApiRepoAction.INPUT_MASTER, false);
+	public void run_create_widget_then_add_event_in_one_changelog() throws IOException {
+		createApiRepo();
 		
-		String widget1Id = "1";
-		String changeFileId = "2";
+		String widget1Id = "202005151645";
+		String changeFileId = "202005151646";
 
-		var store = new MarketplaceStore(tempDir.resolve("rootPath").toString(), "https://github.com/you/you-repo.git");
-		Path sourceDirectory = createApiRepo(store);
+		Path sourceDirectory = store.getRepoSourceDirectory();
 		Path widget1Directory = sourceDirectory.resolve("changelog").resolve(widget1Id + "__widget1");
 		Files.createDirectories(widget1Directory);
 		String widget1Json = StreamUtils.copyToString(getClass().getResourceAsStream("create_widget1_and_add_event1.json"), Charset.defaultCharset());
 		Files.writeString(widget1Directory.resolve(changeFileId + "__create_widget.json"), widget1Json);
 		GitUtils.add(sourceDirectory, ".");
 		GitUtils.commit(sourceDirectory, "user", "user@email.com", "first commit");
-		GitUtils.tag(sourceDirectory, "v0.1.0", "first tag");
+		var version1 = "v0.1.0";
+		GitUtils.tag(sourceDirectory, version1, "first tag");
 		
-		context.putValue(ParseApiRepoAction.INPUT_TAGS, Collections.singletonList("refs/tags/v0.1.0"));
-		context.putValue(ExecutionContext.MARKETPLACE_STORE, store);
-		var action = new ParseApiRepoAction(context);
-		// 解析通过
-		assertThat(action.run()).isPresent();
+		TagParser parser = new WidgetTagParser(
+				Collections.singletonList(Constants.R_TAGS + version1),
+				store,
+				logger);
+		assertThat(parser.run(Constants.R_TAGS + version1)).isEqualTo(ParseResult.SUCCESS);
 		
 		String widget1Api = Files.readString(store.getPackageVersionDirectory("0.1.0").resolve(widget1Id).resolve("index.json"));
 		JsonNode widget = JsonUtil.readTree(widget1Api);
@@ -667,18 +750,16 @@ public class ParseApiActionTest {
 		assertThat(changelogs).hasSize(1).first().usingRecursiveComparison().isEqualTo(firstChangeLog);
 	}
 	
-	@Deprecated
 	@DisplayName("在一个 changelog 中 createWidget，然后在另一个 changlog 中 addEvent")
 	@Test
-	public void run_tags_create_widget_then_add_event_in_two_changelog_success(@TempDir Path tempDir) throws IOException {
-		context.putValue(ParseApiRepoAction.INPUT_MASTER, false);
+	public void run_create_widget_then_add_event_in_two_changelog_success() throws IOException {
+		createApiRepo();
 		
-		String widgetId = "1";
-		String changeFile1Id = "2";
-		String changeFile2Id = "3";
+		String widgetId = "202005151645";
+		String changeFile1Id = "202005151646";
+		String changeFile2Id = "202005151647";
 
-		var store = new MarketplaceStore(tempDir.resolve("rootPath").toString(), "https://github.com/you/you-repo.git");
-		Path sourceDirectory = createApiRepo(store);
+		Path sourceDirectory = store.getRepoSourceDirectory();
 		Path widget1Directory = sourceDirectory.resolve("changelog").resolve(widgetId + "__widget1");
 		Files.createDirectories(widget1Directory);
 		String createWidget1Json = StreamUtils.copyToString(getClass().getResourceAsStream("create_widget1.json"), Charset.defaultCharset());
@@ -689,13 +770,14 @@ public class ParseApiActionTest {
 		
 		GitUtils.add(sourceDirectory, ".");
 		GitUtils.commit(sourceDirectory, "user", "user@email.com", "first commit");
-		GitUtils.tag(sourceDirectory, "v0.1.0", "first tag");
+		var version1 = "v0.1.0";
+		GitUtils.tag(sourceDirectory, version1, "first tag");
 		
-		context.putValue(ParseApiRepoAction.INPUT_TAGS, Collections.singletonList("refs/tags/v0.1.0"));
-		context.putValue(ExecutionContext.MARKETPLACE_STORE, store);
-		var action = new ParseApiRepoAction(context);
-		// 解析通过
-		assertThat(action.run()).isPresent();
+		TagParser parser = new WidgetTagParser(
+				Collections.singletonList(Constants.R_TAGS + version1),
+				store,
+				logger);
+		assertThat(parser.run(Constants.R_TAGS + version1)).isEqualTo(ParseResult.SUCCESS);
 		
 		String widget1Api = Files.readString(store.getPackageVersionDirectory("0.1.0").resolve(widgetId).resolve("index.json"));
 		JsonNode widget = JsonUtil.readTree(widget1Api);
@@ -747,18 +829,16 @@ public class ParseApiActionTest {
 		assertThat(changelogs.get(1)).usingRecursiveComparison().isEqualTo(secondChangeLog);
 	}
 	
-	@Deprecated
 	@DisplayName("通过 addEvent 为 widget 添加一个事件，而此事件已存在")
 	@Test
-	public void run_tags_add_event_that_already_exist(@TempDir Path tempDir) throws IOException {
-		context.putValue(ParseApiRepoAction.INPUT_MASTER, false);
+	public void run_add_event_that_already_exist() throws IOException {
+		createApiRepo();
 		
-		String widgetId = "1";
-		String changeFile1Id = "2";
-		String changeFile2Id = "3";
+		String widgetId = "202005151645";
+		String changeFile1Id = "202005151646";
+		String changeFile2Id = "202005151647";
 
-		var store = new MarketplaceStore(tempDir.resolve("rootPath").toString(), "https://github.com/you/you-repo.git");
-		Path sourceDirectory = createApiRepo(store);
+		Path sourceDirectory = store.getRepoSourceDirectory();
 		Path widget1Directory = sourceDirectory.resolve("changelog").resolve(widgetId + "__widget1");
 		Files.createDirectories(widget1Directory);
 		String createWidget1Json = StreamUtils.copyToString(getClass().getResourceAsStream("create_widget1.json"), Charset.defaultCharset());
@@ -769,13 +849,14 @@ public class ParseApiActionTest {
 		
 		GitUtils.add(sourceDirectory, ".");
 		GitUtils.commit(sourceDirectory, "user", "user@email.com", "first commit");
-		GitUtils.tag(sourceDirectory, "v0.1.0", "first tag");
+		var version1 = "v0.1.0";
+		GitUtils.tag(sourceDirectory, version1, "first tag");
 		
-		context.putValue(ParseApiRepoAction.INPUT_TAGS, Collections.singletonList("refs/tags/v0.1.0"));
-		context.putValue(ExecutionContext.MARKETPLACE_STORE, store);
-		var action = new ParseApiRepoAction(context);
-	
-		assertThat(action.run()).isEmpty();
+		TagParser parser = new WidgetTagParser(
+				Collections.singletonList(Constants.R_TAGS + version1),
+				store,
+				logger);
+		assertThat(parser.run(Constants.R_TAGS + version1)).isEqualTo(ParseResult.FAILED);
 		
 		// createWidget 和 addProperty 两个操作分属两个变更文件，但在同一个 tag 中，
 		// 当 addProperty 解析错误后，则也应该回滚（或称为不应用）createWidget 的操作，
@@ -784,17 +865,15 @@ public class ParseApiActionTest {
 		assertThat(store.getRepoPackageDirectory().resolve("__changelog__").resolve(widgetId).resolve("index.json").toFile().exists()).isFalse();
 	}
 	
-	@Deprecated
 	@DisplayName("没有 create widget 直接 add event")
 	@Test
-	public void run_tags_add_event_but_not_create_widget(@TempDir Path tempDir) throws IOException {
-		context.putValue(ParseApiRepoAction.INPUT_MASTER, false);
+	public void run_add_event_but_not_create_widget() throws IOException {
+		createApiRepo();
 		
-		String widgetId = "1";
-		String changeFile1Id = "2";
+		String widgetId = "202005151645";
+		String changeFile1Id = "202005151646";
 		
-		var store = new MarketplaceStore(tempDir.resolve("rootPath").toString(), "https://github.com/you/your-repo.git");
-		Path sourceDirectory = createApiRepo(store);
+		Path sourceDirectory = store.getRepoSourceDirectory();
 		Path widgetDirectory = sourceDirectory.resolve("changelog").resolve(widgetId + "__widget1");
 		Files.createDirectories(widgetDirectory);
 		String addEvent1Json = StreamUtils.copyToString(getClass().getResourceAsStream("add_event1.json"), Charset.defaultCharset());
@@ -802,133 +881,30 @@ public class ParseApiActionTest {
 		
 		GitUtils.add(sourceDirectory, ".");
 		GitUtils.commit(sourceDirectory, "user", "user@email.com", "first commit");
-		GitUtils.tag(sourceDirectory, "v0.1.0", "first tag");
+		var version1 = "v0.1.0";
+		GitUtils.tag(sourceDirectory, version1, "first tag");
 		
-		context.putValue(ParseApiRepoAction.INPUT_TAGS, Collections.singletonList("refs/tags/v0.1.0"));
-		context.putValue(ExecutionContext.MARKETPLACE_STORE, store);
-		var action = new ParseApiRepoAction(context);
-		
-		assertThat(action.run()).isEmpty();
+		TagParser parser = new WidgetTagParser(
+				Collections.singletonList(Constants.R_TAGS + version1),
+				store,
+				logger);
+		assertThat(parser.run(Constants.R_TAGS + version1)).isEqualTo(ParseResult.FAILED);
 		
 		assertThat(store.getPackageVersionDirectory("0.1.0").resolve(widgetId).resolve("index.json").toFile().exists()).isFalse();
 		assertThat(store.getRepoPackageDirectory().resolve("__changelog__").resolve(widgetId).resolve("index.json").toFile().exists()).isFalse();
 	}
 	
-	// 如果之前构建过 master，则依然解析，并覆盖之前的结构
-	@DisplayName("每次解析时都要重新解析 master 分支")
-	@Test
-	public void run_master_always_reparse(@TempDir Path tempDir) throws IOException {
-		String widgetId = "1";
-		String changeFile1Id = "2";
-		
-		var store = new MarketplaceStore(tempDir.resolve("rootPath").toString(), "https://github.com/you/your-repo.git");
-		Path sourceDirectory = createApiRepo(store);
-		
-		Path widgetDirectory = sourceDirectory.resolve("changelog").resolve(widgetId + "__widget1");
-		Files.createDirectories(widgetDirectory);
-		String createWidgetJson = StreamUtils.copyToString(getClass().getResourceAsStream("create_widget1.json"), Charset.defaultCharset());
-		Files.writeString(widgetDirectory.resolve(changeFile1Id + "__create_widget.json"), createWidgetJson);
-		GitUtils.add(sourceDirectory, ".");
-		GitUtils.commit(sourceDirectory, "user", "user@email.com", "first commit");
-		
-		// 此处并未设置 tags，也没有禁止解析 master，所以只会解析 master
-		context.putValue(ExecutionContext.MARKETPLACE_STORE, store);
-		var action = new ParseApiRepoAction(context);
-		
-		assertThat(action.run()).isPresent();
-		
-		String widget1Api = Files.readString(store.getPackageVersionDirectory("master").resolve(widgetId).resolve("index.json"));
-		assertWidget1(widget1Api);
-		
-		String changelog = Files.readString(store.getRepoPackageDirectory().resolve("__changelog__").resolve(widgetId).resolve("index.json"));
-		List<PublishedFileInfo> changelogs = JsonUtil.fromJsonArray(changelog, PublishedFileInfo.class);
-		PublishedFileInfo firstPublishedFile = new PublishedFileInfo();
-		firstPublishedFile.setFileId(changeFile1Id); // 文件标识，不是文件夹标识
-		firstPublishedFile.setVersion("master");
-		// 该 jsonContent 中包含 \r，需要替换掉
-		firstPublishedFile.setMd5sum(DigestUtils.md5Hex(createWidgetJson.replaceAll("\r", "")));
-		assertThat(changelogs).hasSize(1).first().usingRecursiveComparison().isEqualTo(firstPublishedFile);
-		
-		// 修改内容后，依然解析
-		String createWidget2Json = StreamUtils.copyToString(getClass().getResourceAsStream("create_widget2.json"), Charset.defaultCharset());
-		Files.writeString(widgetDirectory.resolve(changeFile1Id + "__create_widget.json"), createWidget2Json);
-		GitUtils.add(sourceDirectory, ".");
-		GitUtils.commit(sourceDirectory, "user", "user@email.com", "first commit");
-		
-		assertThat(action.run()).isPresent();
-		
-		String widget21Api = Files.readString(store.getPackageVersionDirectory("master").resolve(widgetId).resolve("index.json"));
-		JsonNode widget = JsonUtil.readTree(widget21Api);
-		assertThat(widget.get("code").asText()).isEqualTo("0001");
-		assertThat(widget.get("name").asText()).isEqualTo("Widget2");
-		assertThat(widget.get("label").asText()).isEqualTo("Widget 2");
-		assertThat(widget.get("description").asText()).isEmpty();
-		
-		JsonNode propertiesNodes = widget.get("properties");
-		assertThat(propertiesNodes).hasSize(1);
-		assertThat(propertiesNodes.get(0).get("code").asText()).isEqualTo("0001");
-		assertThat(propertiesNodes.get(0).get("name").asText()).isEqualTo("prop2");
-		assertThat(propertiesNodes.get(0).get("label").asText()).isEqualTo("prop 2");
-		assertThat(propertiesNodes.get(0).get("defaultValue").asText()).isEqualTo("");
-		assertThat(propertiesNodes.get(0).get("valueType").asText()).isEqualTo("string");
-		
-		JsonNode eventsNodes = widget.get("events");
-		assertThat(eventsNodes).hasSize(1);
-		assertThat(eventsNodes.get(0).get("code").asText()).isEqualTo("0002");
-		assertThat(eventsNodes.get(0).get("name").asText()).isEqualTo("event2");
-		assertThat(eventsNodes.get(0).get("label").asText()).isEqualTo("event 2");
-		assertThat(eventsNodes.get(0).get("valueType").asText()).isEqualTo("function");
-		assertThat(eventsNodes.get(0).get("arguments")).isEmpty();
-		
-		String changelog2 = Files.readString(store.getRepoPackageDirectory().resolve("__changelog__").resolve(widgetId).resolve("index.json"));
-		List<PublishedFileInfo> changelogs2 = JsonUtil.fromJsonArray(changelog2, PublishedFileInfo.class);
-		PublishedFileInfo secondPublishedFile = new PublishedFileInfo();
-		secondPublishedFile.setFileId(changeFile1Id); // 文件标识，不是文件夹标识
-		secondPublishedFile.setVersion("master");
-		// 该 jsonContent 中包含 \r，需要替换掉
-		secondPublishedFile.setMd5sum(DigestUtils.md5Hex(createWidget2Json.replaceAll("\r", "")));
-		assertThat(changelogs2).hasSize(1).first().usingRecursiveComparison().isEqualTo(secondPublishedFile);
-		
-		assertThat(firstPublishedFile.getMd5sum()).isNotEqualTo(secondPublishedFile.getMd5sum());
+	// api 仓库的目录结构
+	// marketplace/
+	//     github.com/
+	//         you/
+	//             you-repo/
+	private void createApiRepo() throws IOException {
+		Path sourceDirectory = store.getRepoSourceDirectory();
+		Files.createDirectories(sourceDirectory);
+		GitUtils.init(sourceDirectory, "user", "user@email.com");
 	}
-	
-	@DisplayName("先解析 tag，然后解析 master，但是 master 分支中没有新增内容")
-	@Test
-	public void run_tags_and_master_no_new_commit(@TempDir Path tempDir) throws IOException {
-		String widgetId = "1";
-		String changeFile1Id = "2";
-		
-		var store = new MarketplaceStore(tempDir.resolve("rootPath").toString(), "https://github.com/you/your-repo.git");
-		Path sourceDirectory = createApiRepo(store);
-		
-		Path widgetDirectory = sourceDirectory.resolve("changelog").resolve(widgetId + "__widget1");
-		Files.createDirectories(widgetDirectory);
-		String createWidgetJson = StreamUtils.copyToString(getClass().getResourceAsStream("create_widget1.json"), Charset.defaultCharset());
-		Files.writeString(widgetDirectory.resolve(changeFile1Id + "__create_widget.json"), createWidgetJson);
-		GitUtils.add(sourceDirectory, ".");
-		GitUtils.commit(sourceDirectory, "user", "user@email.com", "first commit");
-		GitUtils.tag(sourceDirectory, "v0.1.0", "first tag");
-		
-		// 此处并未设置 tags，也没有禁止解析 master，所以只会解析 master
-		context.putValue(ExecutionContext.MARKETPLACE_STORE, store);
-		context.putValue(ParseApiRepoAction.INPUT_TAGS, Collections.singletonList("refs/tags/v0.1.0"));
-		var action = new ParseApiRepoAction(context);
-		
-		assertThat(action.run()).isPresent();
-		
-		String widget1Api = Files.readString(store.getPackageVersionDirectory("master").resolve(widgetId).resolve("index.json"));
-		assertWidget1(widget1Api);
-		
-		String changelog = Files.readString(store.getRepoPackageDirectory().resolve("__changelog__").resolve(widgetId).resolve("index.json"));
-		List<PublishedFileInfo> changelogs = JsonUtil.fromJsonArray(changelog, PublishedFileInfo.class);
-		PublishedFileInfo firstPublishedFile = new PublishedFileInfo();
-		firstPublishedFile.setFileId(changeFile1Id); // 文件标识，不是文件夹标识
-		firstPublishedFile.setVersion("0.1.0");
-		// 该 jsonContent 中包含 \r，需要替换掉
-		firstPublishedFile.setMd5sum(DigestUtils.md5Hex(createWidgetJson.replaceAll("\r", "")));
-		assertThat(changelogs).hasSize(1).first().usingRecursiveComparison().isEqualTo(firstPublishedFile);
-	}
-	
+
 	private void assertWidget1(String widgetJson) throws JsonProcessingException {
 		JsonNode widget = JsonUtil.readTree(widgetJson);
 		assertThat(widget.get("code").asText()).isEqualTo("0001"); // 从 1 开始编号
@@ -952,7 +928,7 @@ public class ParseApiActionTest {
 		assertThat(eventsNodes.get(0).get("valueType").asText()).isEqualTo("function");
 		assertThat(eventsNodes.get(0).get("arguments")).isEmpty();
 	}
-	
+
 	private void assertWidget2(String widgetJson) throws JsonProcessingException {
 		JsonNode widget = JsonUtil.readTree(widgetJson);
 		assertThat(widget.get("code").asText()).isEqualTo("0002");
@@ -976,17 +952,4 @@ public class ParseApiActionTest {
 		assertThat(eventsNodes.get(0).get("valueType").asText()).isEqualTo("function");
 		assertThat(eventsNodes.get(0).get("arguments")).isEmpty();
 	}
-	
-	// api 仓库的目录结构
-	// marketplace/
-	//     github.com/
-	//         you/
-	//             you-repo/
-	private Path createApiRepo(MarketplaceStore store) throws IOException {
-		Path sourceDirectory = store.getRepoSourceDirectory();
-		Files.createDirectories(sourceDirectory);
-		GitUtils.init(sourceDirectory, "user", "user@email.com");
-		return sourceDirectory;
-	}
-	
 }

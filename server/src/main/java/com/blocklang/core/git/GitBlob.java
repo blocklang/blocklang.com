@@ -1,7 +1,9 @@
 package com.blocklang.core.git;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +24,7 @@ import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
@@ -156,6 +159,55 @@ public class GitBlob {
 				return null;
 			}).collect(Collectors.toList());
 		}catch (IOException e) {
+			logger.error(e.getMessage(), e);
+		}
+		return Collections.emptyList();
+	}
+
+
+	public List<GitBlobInfo> readAllFiles(TreeFilter treeFilter) {
+		Assert.hasText(this.ref, "refName 的值不能为空");
+		File gitDir = gitRepoPath.resolve(Constants.DOT_GIT).toFile();
+		if(!gitDir.exists()) {
+			return Collections.emptyList();
+		}
+		
+		try(Repository repository = FileRepositoryBuilder.create(gitDir);
+				Git git = new Git(repository);
+				RevWalk walk = new RevWalk(repository)){
+			Ref ref = repository.exactRef(this.ref);
+			if(ref == null) {
+				return Collections.emptyList();
+			}
+			
+			ObjectId objectId = ref.getObjectId();
+			RevCommit commit = walk.parseCommit(objectId);
+			RevTree tree = commit.getTree();
+			
+			List<GitBlobInfo> files = new ArrayList<GitBlobInfo>();
+			
+			try(TreeWalk treeWalk = new TreeWalk(repository)) {
+				treeWalk.addTree(tree);
+				treeWalk.setRecursive(true);
+				if(treeFilter != null) {
+					treeWalk.setFilter(treeFilter);
+				}
+				while (treeWalk.next()) {
+					GitBlobInfo fileInfo = new GitBlobInfo();
+					fileInfo.setPath(treeWalk.getPathString());
+					fileInfo.setName(treeWalk.getNameString());
+					fileInfo.setFolder(treeWalk.isSubtree());
+					
+					// 文件内容
+					ObjectId blobObjectId = treeWalk.getObjectId(0);
+					ObjectLoader loader = repository.open(blobObjectId);
+					fileInfo.setContent(new String(loader.getBytes()));
+
+					files.add(fileInfo);
+				}
+			}
+			return files;
+		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
 		}
 		return Collections.emptyList();

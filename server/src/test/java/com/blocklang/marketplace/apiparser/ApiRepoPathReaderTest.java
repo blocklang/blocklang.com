@@ -1,4 +1,4 @@
-package com.blocklang.marketplace.runner.action;
+package com.blocklang.marketplace.apiparser;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -21,6 +21,8 @@ public class ApiRepoPathReaderTest {
 		assertThat(reader.validate("202005200808")).isEmpty();
 		assertThat(reader.validate("202005200808__")).isEmpty();
 		assertThat(reader.validate("202005200808__a__b_c")).isEmpty();
+		
+		assertThat(reader.validate("202005200808.json")).isEmpty();
 	}
 	
 	@Test
@@ -42,8 +44,12 @@ public class ApiRepoPathReaderTest {
 			.hasFieldOrPropertyWithValue("description", null);
 		
 		assertThat(reader.read("202005200808__a__b_c"))
-		.hasFieldOrPropertyWithValue("order", "202005200808")
-		.hasFieldOrPropertyWithValue("description", "a__b_c");
+			.hasFieldOrPropertyWithValue("order", "202005200808")
+			.hasFieldOrPropertyWithValue("description", "a__b_c");
+		
+		assertThat(reader.read("202005200808.json"))
+			.hasFieldOrPropertyWithValue("order", "202005200808")
+			.hasFieldOrPropertyWithValue("description", null);
 	}
 	
 	@Test
