@@ -22,6 +22,7 @@ import org.springframework.util.StreamUtils;
 
 import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.runner.common.CliLogger;
+import com.blocklang.core.runner.common.JsonSchemaValidator;
 import com.blocklang.core.util.JsonUtil;
 import com.blocklang.marketplace.data.MarketplaceStore;
 import com.blocklang.marketplace.runner.action.PublishedFileInfo;
@@ -32,12 +33,14 @@ public class WidgetTagParserTest {
 
 	private MarketplaceStore store;
 	private CliLogger logger;
+	private JsonSchemaValidator validator;
 
 	@BeforeEach
 	public void setup(@TempDir Path tempDir) {
 		var gitUrl = "https://github.com/you/your-repo.git";
 		store = new MarketplaceStore(tempDir.toString(), gitUrl);
 		logger = mock(CliLogger.class);
+		validator = new WidgetChangeSetSchemaValidator();
 	}
 
 	@DisplayName("如果 tag 的名称不是有效且稳定的语义版本号，则忽略此 tag")
@@ -142,6 +145,76 @@ public class WidgetTagParserTest {
 		assertThat(parser.run(Constants.R_TAGS + validVersion)).isEqualTo(ParseResult.FAILED);
 	}
 	
+	@DisplayName("目录名中的 {order} 重复")
+	@Test
+	public void run_directory_id_duplicated() throws IOException {
+		createApiRepo();
+		
+		// changelog
+		//     202001010101__a
+		//         202001010102.json
+		//     202001010101__b
+		//         202001010103.json
+
+		Path resourceDirectory = store.getRepoSourceDirectory();
+		Files.createDirectories(resourceDirectory);
+		
+		Path changelogDirectory = resourceDirectory.resolve("changelog");
+		Files.createDirectory(changelogDirectory);
+		
+		Path group1Directory = changelogDirectory.resolve("202001010101__a");
+		Files.createDirectory(group1Directory);
+		Files.writeString(group1Directory.resolve("202001010102.json"), "{}");
+		
+		Path group2Directory = changelogDirectory.resolve("202001010101__b");
+		Files.createDirectory(group2Directory);
+		Files.writeString(group2Directory.resolve("202001010103.json"), "{}");
+		
+		var validVersion = "v1.0.0";
+		GitUtils.add(resourceDirectory, ".");
+		GitUtils.commit(resourceDirectory, "jinzw", "email@email.com", "first commit");
+		GitUtils.tag(resourceDirectory, validVersion, "first tag");
+		
+		TagParser parser = new WidgetTagParser(
+				Collections.singletonList(Constants.R_TAGS + validVersion),
+				store,
+				logger);
+		assertThat(parser.run(Constants.R_TAGS + validVersion)).isEqualTo(ParseResult.FAILED);
+	}
+	
+	@DisplayName("同一目录下文件名中的 {order} 重复")
+	@Test
+	public void run_changelog_file_id_duplicated() throws IOException {
+		createApiRepo();
+		
+		// changelog
+		//     202001010101__a
+		//         202001010102__b.json
+		//         202001010102__c.json
+
+		Path resourceDirectory = store.getRepoSourceDirectory();
+		Files.createDirectories(resourceDirectory);
+		
+		Path changelogDirectory = resourceDirectory.resolve("changelog");
+		Files.createDirectory(changelogDirectory);
+		
+		Path group1Directory = changelogDirectory.resolve("202001010101__a");
+		Files.createDirectory(group1Directory);
+		Files.writeString(group1Directory.resolve("202001010103__b.json"), "{}");
+		Files.writeString(group1Directory.resolve("202001010103__c.json"), "{}");
+		
+		var validVersion = "v1.0.0";
+		GitUtils.add(resourceDirectory, ".");
+		GitUtils.commit(resourceDirectory, "jinzw", "email@email.com", "first commit");
+		GitUtils.tag(resourceDirectory, validVersion, "first tag");
+		
+		TagParser parser = new WidgetTagParser(
+				Collections.singletonList(Constants.R_TAGS + validVersion),
+				store,
+				logger);
+		assertThat(parser.run(Constants.R_TAGS + validVersion)).isEqualTo(ParseResult.FAILED);
+	}
+	
 	@DisplayName("一个 changelog 文件发布后，就不能再修改")
 	@Test
 	public void run_published_changelog_file_was_updated() throws IOException {
@@ -219,6 +292,7 @@ public class WidgetTagParserTest {
 				Collections.singletonList(Constants.R_TAGS + version1),
 				store,
 				logger);
+		parser.setChangeSetSchemaValidator(validator);
 		assertThat(parser.run(Constants.R_TAGS + version1)).isEqualTo(ParseResult.SUCCESS);
 		// 将解析结果存在 package/0.1.0/202005151645/index.json 文件中
 		//    在输出结果中，为了提高辨识度，将 properties 和 events 分开存储
@@ -282,6 +356,7 @@ public class WidgetTagParserTest {
 				Arrays.asList(Constants.R_TAGS + version1, Constants.R_TAGS + version2),
 				store,
 				logger);
+		parser.setChangeSetSchemaValidator(validator);
 		assertThat(parser.run(Constants.R_TAGS + version1)).isEqualTo(ParseResult.SUCCESS);
 		assertThat(parser.run(Constants.R_TAGS + version2)).isEqualTo(ParseResult.SUCCESS);
 		
@@ -337,6 +412,7 @@ public class WidgetTagParserTest {
 				Arrays.asList(Constants.R_TAGS + version1, Constants.R_TAGS + version2),
 				store,
 				logger);
+		parser.setChangeSetSchemaValidator(validator);
 		assertThat(parser.run(Constants.R_TAGS + version1)).isEqualTo(ParseResult.SUCCESS);
 		assertThat(parser.run(Constants.R_TAGS + version2)).isEqualTo(ParseResult.SUCCESS);
 		
@@ -401,6 +477,7 @@ public class WidgetTagParserTest {
 				Arrays.asList(Constants.R_TAGS + version1, Constants.R_TAGS + version2),
 				store,
 				logger);
+		parser.setChangeSetSchemaValidator(validator);
 		assertThat(parser.run(Constants.R_TAGS + version1)).isEqualTo(ParseResult.SUCCESS);
 		assertThat(parser.run(Constants.R_TAGS + version2)).isEqualTo(ParseResult.FAILED);
 
@@ -446,6 +523,7 @@ public class WidgetTagParserTest {
 				Collections.singletonList(Constants.R_TAGS + version1),
 				store,
 				logger);
+		parser.setChangeSetSchemaValidator(validator);
 		assertThat(parser.run(Constants.R_TAGS + version1)).isEqualTo(ParseResult.FAILED);
 		// 因为创建失败了，所以不会保存下来
 		assertThat(store.getPackageVersionDirectory("0.1.0").resolve(widget1Id).resolve("index.json").toFile().exists()).isFalse();
@@ -482,6 +560,7 @@ public class WidgetTagParserTest {
 				Collections.singletonList(Constants.R_TAGS + version1),
 				store,
 				logger);
+		parser.setChangeSetSchemaValidator(validator);
 		assertThat(parser.run(Constants.R_TAGS + version1)).isEqualTo(ParseResult.FAILED);
 		
 		assertThat(store.getPackageVersionDirectory("0.1.0").resolve(widget1Id).resolve("index.json").toFile().exists()).isFalse();
@@ -512,6 +591,7 @@ public class WidgetTagParserTest {
 				Collections.singletonList(Constants.R_TAGS + version1),
 				store,
 				logger);
+		parser.setChangeSetSchemaValidator(validator);
 		assertThat(parser.run(Constants.R_TAGS + version1)).isEqualTo(ParseResult.SUCCESS);
 		
 		String widget1Api = Files.readString(store.getPackageVersionDirectory("0.1.0").resolve(widget1Id).resolve("index.json"));
@@ -575,6 +655,7 @@ public class WidgetTagParserTest {
 				Collections.singletonList(Constants.R_TAGS + version1),
 				store,
 				logger);
+		parser.setChangeSetSchemaValidator(validator);
 		assertThat(parser.run(Constants.R_TAGS + version1)).isEqualTo(ParseResult.SUCCESS);
 		
 		String widget1Api = Files.readString(store.getPackageVersionDirectory("0.1.0").resolve(widgetId).resolve("index.json"));
@@ -654,6 +735,7 @@ public class WidgetTagParserTest {
 				Collections.singletonList(Constants.R_TAGS + version1),
 				store,
 				logger);
+		parser.setChangeSetSchemaValidator(validator);
 		assertThat(parser.run(Constants.R_TAGS + version1)).isEqualTo(ParseResult.FAILED);
 		
 		// createWidget 和 addProperty 两个操作分属两个变更文件，但在同一个 tag 中，
@@ -686,6 +768,7 @@ public class WidgetTagParserTest {
 				Collections.singletonList(Constants.R_TAGS + version1),
 				store,
 				logger);
+		parser.setChangeSetSchemaValidator(validator);
 		assertThat(parser.run(Constants.R_TAGS + version1)).isEqualTo(ParseResult.FAILED);
 		
 		assertThat(store.getPackageVersionDirectory("0.1.0").resolve(widgetId).resolve("index.json").toFile().exists()).isFalse();
@@ -714,6 +797,7 @@ public class WidgetTagParserTest {
 				Collections.singletonList(Constants.R_TAGS + version1),
 				store,
 				logger);
+		parser.setChangeSetSchemaValidator(validator);
 		assertThat(parser.run(Constants.R_TAGS + version1)).isEqualTo(ParseResult.SUCCESS);
 		
 		String widget1Api = Files.readString(store.getPackageVersionDirectory("0.1.0").resolve(widget1Id).resolve("index.json"));
@@ -777,6 +861,7 @@ public class WidgetTagParserTest {
 				Collections.singletonList(Constants.R_TAGS + version1),
 				store,
 				logger);
+		parser.setChangeSetSchemaValidator(validator);
 		assertThat(parser.run(Constants.R_TAGS + version1)).isEqualTo(ParseResult.SUCCESS);
 		
 		String widget1Api = Files.readString(store.getPackageVersionDirectory("0.1.0").resolve(widgetId).resolve("index.json"));
@@ -856,6 +941,7 @@ public class WidgetTagParserTest {
 				Collections.singletonList(Constants.R_TAGS + version1),
 				store,
 				logger);
+		parser.setChangeSetSchemaValidator(validator);
 		assertThat(parser.run(Constants.R_TAGS + version1)).isEqualTo(ParseResult.FAILED);
 		
 		// createWidget 和 addProperty 两个操作分属两个变更文件，但在同一个 tag 中，
@@ -888,6 +974,7 @@ public class WidgetTagParserTest {
 				Collections.singletonList(Constants.R_TAGS + version1),
 				store,
 				logger);
+		parser.setChangeSetSchemaValidator(validator);
 		assertThat(parser.run(Constants.R_TAGS + version1)).isEqualTo(ParseResult.FAILED);
 		
 		assertThat(store.getPackageVersionDirectory("0.1.0").resolve(widgetId).resolve("index.json").toFile().exists()).isFalse();
