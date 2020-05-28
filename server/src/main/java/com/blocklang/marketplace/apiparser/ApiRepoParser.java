@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.runner.common.CliLogger;
 import com.blocklang.core.runner.common.ExecutionContext;
+import com.blocklang.core.runner.common.JsonSchemaValidator;
 import com.blocklang.marketplace.data.MarketplaceStore;
 
 public class ApiRepoParser {
@@ -25,7 +26,7 @@ public class ApiRepoParser {
 		this.logger = context.getLogger();
 		this.store = context.getValue(ExecutionContext.MARKETPLACE_STORE, MarketplaceStore.class);
 
-		ChangeSetSchemaValidator validator = factory.createSchemaValidator();
+		JsonSchemaValidator validator = factory.createSchemaValidator();
 		
 		this.tagParser = factory.createTagParser(context);
 		this.tagParser.setChangeSetSchemaValidator(validator);

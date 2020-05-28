@@ -16,7 +16,7 @@ import com.blocklang.marketplace.data.changelog.Widget;
  * 解析 git tag 中的 api
  * 
  * @author Zhengwei Jin
- *
+ * @deprecated
  */
 public class TagParser extends AbstractParser {
 	

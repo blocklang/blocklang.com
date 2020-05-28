@@ -1,4 +1,4 @@
-package com.blocklang.marketplace.runner.action;
+package com.blocklang.marketplace.apiparser;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -40,7 +40,10 @@ public class ApiRepoPathReader {
 		
 		List<String> errors = new ArrayList<String>();
 		
-		String[] array = name.split(SEPARATOR);
+		// 去掉后缀名
+		String stripedName = org.springframework.util.StringUtils.stripFilenameExtension(name);
+		
+		String[] array = stripedName.split(SEPARATOR);
 		if(array.length == 1) {
 			String order = array[0];
 			try {

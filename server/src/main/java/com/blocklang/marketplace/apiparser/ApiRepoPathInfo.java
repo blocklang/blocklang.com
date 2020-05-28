@@ -1,4 +1,4 @@
-package com.blocklang.marketplace.runner.action;
+package com.blocklang.marketplace.apiparser;
 
 public class ApiRepoPathInfo {
 

@@ -22,12 +22,11 @@ import com.blocklang.marketplace.task.CodeGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 
-public class WidgetTagParser extends TagParser {
-
+public class WidgetMasterParser extends MasterParser {
 	List<Widget> allWidgets = new ArrayList<Widget>();
 	private boolean success = true;
 	
-	public WidgetTagParser(List<String> tags, MarketplaceStore store, CliLogger logger) {
+	public WidgetMasterParser(List<String> tags, MarketplaceStore store, CliLogger logger) {
 		super(tags, store, logger);
 	}
 
@@ -88,7 +87,7 @@ public class WidgetTagParser extends TagParser {
 			// 执行完成后，在 changelog 中追加记录
 			PublishedFileInfo changeLog = new PublishedFileInfo();
 			changeLog.setFileId(jsonFileId);
-			changeLog.setVersion(version);
+			changeLog.setVersion(MASTER_REF_SHORT_NAME);
 			changeLog.setMd5sum(DigestUtils.md5Hex(jsonFile.getContent()));
 			publishedFiles.add(changeLog);
 		}
@@ -149,10 +148,11 @@ public class WidgetTagParser extends TagParser {
 		return changes;
 	}
 
+
 	@Override
 	protected boolean saveAllApi() {
 		allWidgets.forEach(widget -> {
-			Path widgetPath = store.getPackageVersionDirectory(version).resolve(widget.getId());
+			Path widgetPath = store.getPackageVersionDirectory(MASTER_REF_SHORT_NAME).resolve(widget.getId());
 			try {
 				Files.createDirectories(widgetPath);
 				Files.writeString(widgetPath.resolve("index.json"), JsonUtil.stringify(widget));
