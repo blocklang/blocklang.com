@@ -78,4 +78,24 @@ public class Widget implements ChangeData {
 	public void setEvents(List<WidgetEvent> events) {
 		this.events = events;
 	}
+
+	/**
+	 * 获取属性编码
+	 * 
+	 * <p> widget 中的属性和事件使用相同的编码序列，将事件看作特殊的属性。</p>
+	 * 
+	 * @return 返回最大属性编码，如果还未包含属性或事件则返回 "0"
+	 */
+	public String getMaxPropertyCode() {
+		String propertyMaxSeed = "0";
+		if(!properties.isEmpty()) {
+			propertyMaxSeed = properties.get(properties.size() - 1).getCode();
+		}
+		String eventMaxSeed = "0";
+		if(!events.isEmpty()) {
+			eventMaxSeed = events.get(events.size() - 1).getCode();
+		}
+		
+		return propertyMaxSeed.compareTo(eventMaxSeed) >= 0 ? propertyMaxSeed : eventMaxSeed;
+	}
 }

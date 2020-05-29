@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.blocklang.core.runner.common.CliLogger;
 import com.blocklang.marketplace.data.changelog.Widget;
-import com.blocklang.marketplace.data.changelog.WidgetEvent;
 import com.blocklang.marketplace.data.changelog.WidgetProperty;
 import com.blocklang.marketplace.task.CodeGenerator;
 
@@ -18,7 +17,7 @@ public class AddWidgetProperty implements WidgetOperator<List<WidgetProperty>>{
 		
 		Widget widget = context.getSelectedWidget();
 		
-		String seed = getMaxPropertyCode(widget);
+		String seed = widget.getMaxPropertyCode();
 		CodeGenerator codeGen = new CodeGenerator(seed);
 		
 		data.forEach(prop -> prop.setCode(codeGen.next()));
@@ -45,30 +44,6 @@ public class AddWidgetProperty implements WidgetOperator<List<WidgetProperty>>{
 			}
 			return true;
 		});
-	}
-	
-	/**
-	 * Widget 中的属性和事件使用相同的编码序列，将事件看作一种特殊的属性
-	 * 
-	 * @param widget Widget
-	 * @return 下一个属性编码
-	 */
-	private String getMaxPropertyCode(Widget widget) {
-		List<WidgetProperty> properties = widget.getProperties();
-		List<WidgetEvent> events = widget.getEvents();
-
-		// 默认值为 0，能简化后续的比较操作，如果为 null，需要加入 null check
-		String propertyMaxSeed = "0"; 
-		if(!properties.isEmpty()) {
-			propertyMaxSeed = properties.get(properties.size() - 1).getCode();
-		}
-		
-		String eventMaxSeed = "0";
-		if(!events.isEmpty()) {
-			eventMaxSeed = events.get(events.size() - 1).getCode();
-		}
-
-		return propertyMaxSeed.compareTo(eventMaxSeed) >= 0 ? propertyMaxSeed : eventMaxSeed;
 	}
 
 }

@@ -2,6 +2,11 @@ package com.blocklang.marketplace.data.changelog;
 
 import java.util.List;
 
+/**
+ * 
+ * @deprecated 
+ *
+ */
 public class AddWidgetProperty implements ChangeData{
 
 	private List<WidgetProperty> properties;
