@@ -1,4 +1,4 @@
-package com.blocklang.marketplace.data.changelog;
+package com.blocklang.marketplace.apiparser.widget;
 
 import java.util.List;
 

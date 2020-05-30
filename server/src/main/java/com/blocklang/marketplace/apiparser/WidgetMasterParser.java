@@ -11,19 +11,13 @@ import org.apache.commons.codec.digest.DigestUtils;
 import com.blocklang.core.git.GitBlobInfo;
 import com.blocklang.core.runner.common.CliLogger;
 import com.blocklang.core.util.JsonUtil;
+import com.blocklang.marketplace.apiparser.widget.WidgetData;
+import com.blocklang.marketplace.apiparser.widget.WidgetOperator;
 import com.blocklang.marketplace.data.MarketplaceStore;
-import com.blocklang.marketplace.data.changelog.AddWidgetEvent;
-import com.blocklang.marketplace.data.changelog.AddWidgetProperty;
-import com.blocklang.marketplace.data.changelog.Change;
-import com.blocklang.marketplace.data.changelog.Widget;
 import com.blocklang.marketplace.runner.action.PublishedFileInfo;
-import com.blocklang.marketplace.runner.action.WidgetMerger;
-import com.blocklang.marketplace.task.CodeGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 
 public class WidgetMasterParser extends MasterParser {
-	List<Widget> allWidgets = new ArrayList<Widget>();
+	List<WidgetData> allWidgets = new ArrayList<WidgetData>();
 	private boolean success = true;
 	
 	public WidgetMasterParser(List<String> tags, MarketplaceStore store, CliLogger logger) {
@@ -32,14 +26,13 @@ public class WidgetMasterParser extends MasterParser {
 
 	@Override
 	protected boolean parseAllApi(String fullRefName) {
-		CodeGenerator widgetCodeGen = new CodeGenerator(null);
 		allGroupedChangelogFiles.forEach((widgetDirectoryName, changelogFiles) -> {
-			parseWidget(fullRefName, widgetCodeGen, widgetDirectoryName, changelogFiles);
+			parseWidget(fullRefName, widgetDirectoryName, changelogFiles);
 		});
 		return success;
 	}
 	
-	private void parseWidget(String fullRefName, CodeGenerator widgetCodeGen, String widgetDirectoryName,
+	private void parseWidget(String fullRefName, String widgetDirectoryName,
 			List<GitBlobInfo> changelogFiles) {
 		String widgetId = pathReader.read(widgetDirectoryName).getOrder();
 		// 在上一个版本的基础上增量安装
@@ -57,7 +50,10 @@ public class WidgetMasterParser extends MasterParser {
 		// 需要定义实体类
 		// 如果变更文件已执行过，则不再执行
 		// 校验变更文件的内容是否已修改，如果修改，则给出提示
-		Widget widget = loadPreviousVersion(fullRefName, widgetId, Widget.class);
+		WidgetData widget = loadPreviousVersion(fullRefName, widgetId, WidgetData.class);
+		if(widget != null) {
+			operatorContext.addWidget(widget);
+		}
 		
 		boolean anyOperatorsInvalid = false;
 		// 开始解析 changelog
@@ -66,22 +62,22 @@ public class WidgetMasterParser extends MasterParser {
 		// 校验文件中的所有操作，如果有一个操作未通过校验，不中断，仍然继续校验后续的操作
 		// 但要利用此标识，不再应用这些变更。
 		for (GitBlobInfo jsonFile : changelogFiles) {
-			String widgetCode = widgetCodeGen.next();
 			String jsonFileId = pathReader.read(jsonFile.getName()).getOrder();
 			// 判断该文件是否已执行过
 			if (changelogFileParsed(publishedFiles, jsonFileId)) {
 				break;
 			}
 			
-			WidgetMerger widgetMerger = new WidgetMerger(allWidgets, widget, logger);
-			List<Change> changes = readChangesInOneFile(jsonFile);
+			List<WidgetOperator> changes = readChangesInOneFile(jsonFile);
+			for (WidgetOperator change : changes) {
+				anyOperatorsInvalid = !change.apply(operatorContext);
+			}
 			
-			if(!widgetMerger.run(changes, widgetCode)) {
-				anyOperatorsInvalid = true;
+			if(anyOperatorsInvalid) {
 				break; // 一个 Widget 的 changelog 合并出错，则无需再处理后续的合并
 			}
 			
-			widget = widgetMerger.getResult();
+			widget = operatorContext.getSelectedWidget();
 			widget.setId(widgetId);
 			
 			// 执行完成后，在 changelog 中追加记录
@@ -113,46 +109,10 @@ public class WidgetMasterParser extends MasterParser {
 		return changelogs.stream().anyMatch(changeLog -> changeLog.getFileId().equals(fileId));
 	}
 
-	private List<Change> readChangesInOneFile(GitBlobInfo jsonFile) {
-		// 一次处理一个文件中的变更，而不是将所有所有文件中的变更
-		List<Change> changes = new ArrayList<>();
-		// 从 json 中获取 changes 列表中的内容，并转换为对应的操作，先实现 createWidget 操作
-		try {
-			JsonNode jsonNode = JsonUtil.readTree(jsonFile.getContent());
-			JsonNode changeNodes = jsonNode.get("changes");
-			for (JsonNode operator : changeNodes) {
-				// FIXME: 是否可应用策略模式
-				if (operator.get("createWidget") != null) {
-					Widget widget = JsonUtil.treeToValue(operator.get("createWidget"), Widget.class);
-					Change change = new Change("createWidget", widget);
-					changes.add(change);
-				} else if (operator.get("addProperty") != null) {
-					AddWidgetProperty addWidgetProperty = JsonUtil.treeToValue(operator.get("addProperty"),
-							AddWidgetProperty.class);
-					// 约定 property 按照 code 排序，这样就可以取最后一个 property 的 code
-
-					// 并不需要 widgetName 指定引用关系，因为放在 widget 目录下的操作，都是针对 widget 的
-					// 新增的属性列表中，只要有一个属性名被占用，就不能应用变更
-					Change change = new Change("addProperty", addWidgetProperty);
-					changes.add(change);
-				} else if (operator.get("addEvent") != null) {
-					AddWidgetEvent addWidgetEvent = JsonUtil.treeToValue(operator.get("addEvent"),
-							AddWidgetEvent.class);
-					Change change = new Change("addEvent", addWidgetEvent);
-					changes.add(change); // TOOD: change.add(op, data);
-				}
-			}
-		} catch (JsonProcessingException e) {
-			// do nothing
-		}
-		return changes;
-	}
-
-
 	@Override
-	protected boolean saveAllApi() {
+	protected boolean saveAllApi(String shortRefName) {
 		allWidgets.forEach(widget -> {
-			Path widgetPath = store.getPackageVersionDirectory(MASTER_REF_SHORT_NAME).resolve(widget.getId());
+			Path widgetPath = store.getPackageVersionDirectory(shortRefName).resolve(widget.getId());
 			try {
 				Files.createDirectories(widgetPath);
 				Files.writeString(widgetPath.resolve("index.json"), JsonUtil.stringify(widget));

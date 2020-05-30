@@ -9,8 +9,8 @@ import java.util.List;
 import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.runner.common.CliLogger;
 import com.blocklang.core.util.JsonUtil;
+import com.blocklang.marketplace.apiparser.widget.WidgetData;
 import com.blocklang.marketplace.data.MarketplaceStore;
-import com.blocklang.marketplace.data.changelog.Widget;
 
 /**
  * 解析 git tag 中的 api
@@ -75,7 +75,7 @@ public class TagParser extends AbstractParser {
 	}
 	
 	@Override
-	protected Widget loadPreviousWidget(String tag, String widgetId) {
+	protected WidgetData loadPreviousWidget(String tag, String widgetId) {
 		int index = tags.indexOf(tag);
 
 		if (index <= 0) {
@@ -87,7 +87,7 @@ public class TagParser extends AbstractParser {
 		Path widgetPath = store.getPackageVersionDirectory(preVersion).resolve(widgetId).resolve("index.json");
 		try {
 			String content = Files.readString(widgetPath);
-			return JsonUtil.fromJsonObject(content, Widget.class);
+			return JsonUtil.fromJsonObject(content, WidgetData.class);
 		} catch (IOException e) {
 			// 如果组件是在该 tag 中新增的，则获取不到上一版本的 idnex.json 属于正常情况
 		}

@@ -1,40 +1,44 @@
-package com.blocklang.marketplace.apiparser;
-
-import java.util.List;
+package com.blocklang.marketplace.apiparser.widget;
 
 import com.blocklang.core.runner.common.CliLogger;
-import com.blocklang.marketplace.data.changelog.Widget;
-import com.blocklang.marketplace.data.changelog.WidgetProperty;
+import com.blocklang.marketplace.apiparser.ChangeData;
 import com.blocklang.marketplace.task.CodeGenerator;
 
-public class AddWidgetProperty implements WidgetOperator<List<WidgetProperty>>{
+public class AddWidgetProperty implements WidgetOperator{
 
+	private AddWidgetPropertyData data;
+	
 	@Override
-	public boolean apply(WidgetOperatorContext context, List<WidgetProperty> data) {
-		if(!validate(context, data)) {
+	public void setData(ChangeData data) {
+		this.data = (AddWidgetPropertyData) data;
+	}
+	
+	@Override
+	public boolean apply(WidgetOperatorContext context) {
+		if(!validate(context)) {
 			return false;
 		}
 		
-		Widget widget = context.getSelectedWidget();
+		WidgetData widget = context.getSelectedWidget();
 		
 		String seed = widget.getMaxPropertyCode();
 		CodeGenerator codeGen = new CodeGenerator(seed);
 		
-		data.forEach(prop -> prop.setCode(codeGen.next()));
-		widget.getProperties().addAll(data);
+		data.getProperties().forEach(prop -> prop.setCode(codeGen.next()));
+		widget.getProperties().addAll(data.getProperties());
 		return true;
 	}
 
-	private boolean validate(WidgetOperatorContext context, List<WidgetProperty> data) {
+	private boolean validate(WidgetOperatorContext context) {
 		CliLogger logger = context.getLogger();
-		Widget widget = context.getSelectedWidget();
+		WidgetData widget = context.getSelectedWidget();
 		if(widget == null) {
 			context.getLogger().error("无法执行 addProperty 操作，因为尚未创建 Widget");
 			return false;
 		}
 		
 		var existProperties = widget.getProperties();
-		return data.stream().allMatch(addedProperty -> {
+		return data.getProperties().stream().allMatch(addedProperty -> {
 			var propNameUsed = existProperties
 					.stream()
 					.anyMatch(existProperty -> existProperty.getName().equals(addedProperty.getName()));

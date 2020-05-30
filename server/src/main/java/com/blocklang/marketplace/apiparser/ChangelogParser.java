@@ -4,31 +4,41 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
 import com.blocklang.core.git.GitBlobInfo;
-import com.blocklang.core.runner.common.CliLogger;
 import com.blocklang.core.util.JsonUtil;
 import com.blocklang.marketplace.apiparser.widget.WidgetData;
 import com.blocklang.marketplace.apiparser.widget.WidgetOperator;
 import com.blocklang.marketplace.data.MarketplaceStore;
 import com.blocklang.marketplace.runner.action.PublishedFileInfo;
 
-public class WidgetTagParser extends TagParser {
+public class ChangelogParser {
 
-	List<WidgetData> allWidgets = new ArrayList<WidgetData>();
+	private Operator operator;
+	
+	private String fullRefName;
+	private LinkedHashMap<String, List<GitBlobInfo>> allGroupedChangelogFiles;
+	private ApiRepoPathReader pathReader = new ApiRepoPathReader(); 
+	private MarketplaceStore store;
+	
 	private boolean success = true;
 	
-	public WidgetTagParser(List<String> tags, MarketplaceStore store, CliLogger logger) {
-		super(tags, store, logger);
+	public ChangelogParser(MarketplaceStore store, String fullRefName, LinkedHashMap<String, List<GitBlobInfo>> allGroupedChangelogFiles) {
+		this.store = store;
+		this.fullRefName = fullRefName;
+		this.allGroupedChangelogFiles = allGroupedChangelogFiles;
 	}
-
-	@Override
-	protected boolean parseAllApi(String fullRefName) {
+	
+	public void setOperator(Operator operator) {
+		this.operator = operator;
+	}
+	
+	public boolean parse() {
 		allGroupedChangelogFiles.forEach((widgetDirectoryName, changelogFiles) -> {
 			parseWidget(fullRefName, widgetDirectoryName, changelogFiles);
 		});
@@ -114,32 +124,18 @@ public class WidgetTagParser extends TagParser {
 	private boolean changelogFileParsed(List<PublishedFileInfo> changelogs, String fileId) {
 		return changelogs.stream().anyMatch(changeLog -> changeLog.getFileId().equals(fileId));
 	}
+	
+	private List<PublishedFileInfo> getPublishedFiles(String dirId) {
+		List<PublishedFileInfo> changeLogs = new ArrayList<>();
+		Path changeLogPath = store.getPackageChangeLogDirectory().resolve(dirId).resolve("index.json");
 
-	@Override
-	protected boolean saveAllApi(String shortRefName) {
-		for(WidgetData widget : allWidgets) {
-			Path widgetPath = store.getPackageVersionDirectory(version).resolve(widget.getId());
-			try {
-				Files.createDirectories(widgetPath);
-				Files.writeString(widgetPath.resolve("index.json"), JsonUtil.stringify(widget));
-			} catch (IOException e) {
-				logger.error(e);
-				return false;
-			}
+		try {
+			String changeLog = Files.readString(changeLogPath);
+			changeLogs.addAll(JsonUtil.fromJsonArray(changeLog, PublishedFileInfo.class));
+		} catch (IOException e1) {
+			// 如果文件不存在，则模式使用空 List
 		}
-		
-		for(Map.Entry<String, List<PublishedFileInfo>> each : allPublishedFiles.entrySet()) {
-			
-			Path widgetChangelogDirectory = store.getPackageChangeLogDirectory().resolve(each.getKey());
-			try {
-				Files.createDirectories(widgetChangelogDirectory);
-				Files.writeString(widgetChangelogDirectory.resolve("index.json"), JsonUtil.stringify(each.getValue()));
-			} catch (IOException e) {
-				logger.error(e);
-				return false;
-			}
-		}
-		
-		return true; 
+		return changeLogs;
 	}
+	
 }

@@ -21,6 +21,8 @@ import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.runner.common.CliLogger;
 import com.blocklang.core.runner.common.JsonSchemaValidator;
 import com.blocklang.core.util.JsonUtil;
+import com.blocklang.marketplace.apiparser.widget.WidgetOperator;
+import com.blocklang.marketplace.apiparser.widget.WidgetOperatorContext;
 import com.blocklang.marketplace.data.MarketplaceStore;
 import com.blocklang.marketplace.runner.action.PublishedFileInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -29,6 +31,7 @@ import com.networknt.schema.ValidationMessage;
 
 public abstract class AbstractRefParser {
 
+	
 	protected Map<String, List<PublishedFileInfo>> allPublishedFiles = new HashMap<String, List<PublishedFileInfo>>();
 	protected LinkedHashMap<String, List<GitBlobInfo>> allGroupedChangelogFiles;
 	protected JsonSchemaValidator validator;
@@ -36,6 +39,7 @@ public abstract class AbstractRefParser {
 	protected CliLogger logger;
 	protected List<String> tags;
 	
+	protected WidgetOperatorContext operatorContext;
 	protected ApiRepoPathReader pathReader = new ApiRepoPathReader();
 	
 	public AbstractRefParser(List<String> tags, MarketplaceStore store, CliLogger logger) {
@@ -147,7 +151,7 @@ public abstract class AbstractRefParser {
 	
 	protected abstract boolean parseAllApi(String fullRefName);
 
-	protected abstract boolean saveAllApi();
+	protected abstract boolean saveAllApi(String shortRefName);
 	
 	protected abstract List<PublishedFileInfo> getPublishedFiles(String dirId);
 	
@@ -216,6 +220,27 @@ public abstract class AbstractRefParser {
 		}
 		
 		return result;
+	}
+	
+	protected List<WidgetOperator> readChangesInOneFile(GitBlobInfo jsonFile) {
+		// 一次处理一个文件中的变更，而不是将所有所有文件中的变更
+		List<WidgetOperator> changes = new ArrayList<>();
+		// 从 json 中获取 changes 列表中的内容，并转换为对应的操作，先实现 createWidget 操作
+		OperatorFactory factory = new OperatorFactory(logger);
+		try {
+			JsonNode jsonNode = JsonUtil.readTree(jsonFile.getContent());
+			JsonNode changeNodes = jsonNode.get("changes");
+			for (JsonNode changeNode : changeNodes) {
+				WidgetOperator operator = factory.create(changeNode);
+				if(operator == null) {
+					break;
+				}
+				changes.add(operator);
+			}
+		} catch (JsonProcessingException e) {
+			// do nothing
+		}
+		return changes;
 	}
 
 }

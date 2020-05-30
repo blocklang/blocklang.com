@@ -1,4 +1,4 @@
-package com.blocklang.marketplace.apiparser;
+package com.blocklang.marketplace.apiparser.widget;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -8,9 +8,6 @@ import java.util.Collections;
 import org.junit.jupiter.api.Test;
 
 import com.blocklang.core.runner.common.CliLogger;
-import com.blocklang.marketplace.data.changelog.Widget;
-import com.blocklang.marketplace.data.changelog.WidgetEvent;
-import com.blocklang.marketplace.data.changelog.WidgetProperty;
 
 public class AddWidgetEventTest {
 
@@ -20,18 +17,20 @@ public class AddWidgetEventTest {
 		context.setLogger(mock(CliLogger.class));
 		
 		String widgetName = "widget1";
-		Widget widget = new Widget();
+		WidgetData widget = new WidgetData();
 		widget.setName(widgetName);
 		widget.setCode("0001");
 		
 		context.addWidget(widget);
-		context.selectWidget(widgetName);
 		
 		WidgetEvent event1 = new WidgetEvent();
 		event1.setName("event1");
 		
-		AddWidgetEvent operator = new AddWidgetEvent();
-		assertThat(operator.apply(context, Collections.singletonList(event1))).isTrue();
+		WidgetOperator operator = new AddWidgetEvent();
+		AddWidgetEventData eventData = new AddWidgetEventData();
+		eventData.setEvents(Collections.singletonList(event1));
+		operator.setData(eventData);
+		assertThat(operator.apply(context)).isTrue();
 		
 		assertThat(context.getWidgets().get(0).getEvents())
 			.hasSize(1)
@@ -45,7 +44,7 @@ public class AddWidgetEventTest {
 		context.setLogger(mock(CliLogger.class));
 		
 		String widgetName = "widget1";
-		Widget widget = new Widget();
+		WidgetData widget = new WidgetData();
 		widget.setName(widgetName);
 		widget.setCode("0001");
 		
@@ -62,13 +61,17 @@ public class AddWidgetEventTest {
 		widget.getEvents().add(existEvent);
 		
 		context.addWidget(widget);
-		context.selectWidget(widgetName);
 		
 		WidgetEvent addEvent = new WidgetEvent();
 		addEvent.setName("event2");
 		
-		AddWidgetEvent operator = new AddWidgetEvent();
-		assertThat(operator.apply(context, Collections.singletonList(addEvent))).isTrue();
+		WidgetOperator operator = new AddWidgetEvent();
+		
+		AddWidgetEventData eventData = new AddWidgetEventData();
+		eventData.setEvents(Collections.singletonList(addEvent));
+		operator.setData(eventData);
+		
+		assertThat(operator.apply(context)).isTrue();
 		
 		assertThat(context.getWidgets().get(0).getEvents())
 			.hasSize(2)
@@ -85,17 +88,22 @@ public class AddWidgetEventTest {
 		WidgetEvent event1 = new WidgetEvent();
 		event1.setName("event1");
 		
-		AddWidgetEvent operator = new AddWidgetEvent();
-		assertThat(operator.apply(context, Collections.singletonList(event1))).isFalse();
+		WidgetOperator operator = new AddWidgetEvent();
+		
+		AddWidgetEventData eventData = new AddWidgetEventData();
+		eventData.setEvents(Collections.singletonList(event1));
+		operator.setData(eventData);
+	
+		assertThat(operator.apply(context)).isFalse();
 	}
 	
 	@Test
-	public void apply_widget_exist_but_not_select() {
+	public void apply_select_widget_when_add_widget() {
 		WidgetOperatorContext context = new WidgetOperatorContext();
 		context.setLogger(mock(CliLogger.class));
 		
 		String widgetName = "widget1";
-		Widget widget = new Widget();
+		WidgetData widget = new WidgetData();
 		widget.setName(widgetName);
 		widget.setCode("0001");
 		context.addWidget(widget);
@@ -103,8 +111,13 @@ public class AddWidgetEventTest {
 		WidgetEvent event1 = new WidgetEvent();
 		event1.setName("event1");
 		
-		AddWidgetEvent operator = new AddWidgetEvent();
-		assertThat(operator.apply(context, Collections.singletonList(event1))).isFalse();
+		WidgetOperator operator = new AddWidgetEvent();
+		
+		AddWidgetEventData eventData = new AddWidgetEventData();
+		eventData.setEvents(Collections.singletonList(event1));
+		operator.setData(eventData);
+		
+		assertThat(operator.apply(context)).isTrue();
 	}
 	
 	@Test
@@ -113,7 +126,7 @@ public class AddWidgetEventTest {
 		context.setLogger(mock(CliLogger.class));
 		
 		String widgetName = "widget1";
-		Widget widget = new Widget();
+		WidgetData widget = new WidgetData();
 		widget.setName(widgetName);
 		widget.setCode("0001");
 		
@@ -125,25 +138,15 @@ public class AddWidgetEventTest {
 		widget.getEvents().add(event);
 		context.addWidget(widget);
 		
-		context.selectWidget(widgetName);
-		
 		WidgetEvent addEvent = new WidgetEvent();
 		addEvent.setName(eventName);
 		
-		AddWidgetEvent operator = new AddWidgetEvent();
-		assertThat(operator.apply(context, Collections.singletonList(addEvent))).isFalse();
+		WidgetOperator operator = new AddWidgetEvent();
+		
+		AddWidgetEventData eventData = new AddWidgetEventData();
+		eventData.setEvents(Collections.singletonList(addEvent));
+		operator.setData(eventData);
+		assertThat(operator.apply(context)).isFalse();
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 }

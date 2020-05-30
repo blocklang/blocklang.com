@@ -1,13 +1,10 @@
-package com.blocklang.marketplace.data.changelog;
+package com.blocklang.marketplace.apiparser.widget;
 
 import java.util.List;
 
-/**
- * 
- * @deprecated 
- *
- */
-public class AddWidgetProperty implements ChangeData{
+import com.blocklang.marketplace.apiparser.ChangeData;
+
+public class AddWidgetPropertyData implements ChangeData{
 
 	private List<WidgetProperty> properties;
 

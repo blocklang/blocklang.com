@@ -1,11 +1,14 @@
-package com.blocklang.marketplace.data.changelog;
+package com.blocklang.marketplace.apiparser.widget;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import com.blocklang.marketplace.apiparser.ChangeData;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 //Widget changelog 生成的结果结构
 // 通常 CreateXXX 的属性与 XXX 的属性完全一致
-public class Widget implements ChangeData {
+public class WidgetData implements ChangeData {
 	private String id; // widget 的唯一标识，对应目录名中的时间戳
 	private String code;
 	private String name;
@@ -86,6 +89,7 @@ public class Widget implements ChangeData {
 	 * 
 	 * @return 返回最大属性编码，如果还未包含属性或事件则返回 "0"
 	 */
+	@JsonIgnore
 	public String getMaxPropertyCode() {
 		String propertyMaxSeed = "0";
 		if(!properties.isEmpty()) {

@@ -1,8 +1,10 @@
-package com.blocklang.marketplace.data.changelog;
+package com.blocklang.marketplace.apiparser.widget;
 
 import java.util.List;
 
-public class AddWidgetEvent implements ChangeData {
+import com.blocklang.marketplace.apiparser.ChangeData;
+
+public class AddWidgetEventData implements ChangeData {
 
 	private List<WidgetEvent> events;
 

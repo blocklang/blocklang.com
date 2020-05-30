@@ -1,16 +1,14 @@
-package com.blocklang.marketplace.apiparser;
+package com.blocklang.marketplace.apiparser.widget;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.util.Collections;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import com.blocklang.core.runner.common.CliLogger;
-import com.blocklang.marketplace.data.changelog.Widget;
-import com.blocklang.marketplace.data.changelog.WidgetEvent;
-import com.blocklang.marketplace.data.changelog.WidgetProperty;
 
 public class AddWidgetPropertyTest {
 
@@ -21,18 +19,23 @@ public class AddWidgetPropertyTest {
 		
 		WidgetProperty prop = new WidgetProperty();
 		prop.setName("prop1");
-		AddWidgetProperty operator = new AddWidgetProperty();
-		assertThat(operator.apply(context, Collections.singletonList(prop))).isFalse();
+		WidgetOperator operator = new AddWidgetProperty();
+		
+		AddWidgetPropertyData data = new AddWidgetPropertyData();
+		data.setProperties(Collections.singletonList(prop));
+		operator.setData(data);
+		
+		assertThat(operator.apply(context)).isFalse();
 	}
 	
-	// 未选中 widget
+	@DisplayName("当新增 Widget 时，默认选中该 Widget")
 	@Test
-	public void apply_not_select_widget() {
+	public void apply_select_widget_when_add_widget() {
 		WidgetOperatorContext context = new WidgetOperatorContext();
 		context.setLogger(mock(CliLogger.class));
 		
 		String widgetName = "widget1";
-		Widget widget = new Widget();
+		WidgetData widget = new WidgetData();
 		widget.setName(widgetName);
 		widget.setCode("0001");
 		
@@ -40,8 +43,11 @@ public class AddWidgetPropertyTest {
 		
 		WidgetProperty prop = new WidgetProperty();
 		prop.setName("prop1");
-		AddWidgetProperty operator = new AddWidgetProperty();
-		assertThat(operator.apply(context, Collections.singletonList(prop))).isFalse();
+		WidgetOperator operator = new AddWidgetProperty();
+		AddWidgetPropertyData data = new AddWidgetPropertyData();
+		data.setProperties(Collections.singletonList(prop));
+		operator.setData(data);
+		assertThat(operator.apply(context)).isTrue();
 	}
 	
 	@Test
@@ -52,21 +58,22 @@ public class AddWidgetPropertyTest {
 		String propName = "prop1";
 		
 		String widgetName = "widget1";
-		Widget widget = new Widget();
+		WidgetData widget = new WidgetData();
 		widget.setName(widgetName);
 		widget.setCode("0001");
 		WidgetProperty prop1 = new WidgetProperty();
 		prop1.setName(propName);
 		prop1.setCode("0001");
 		widget.getProperties().add(prop1);
-		context.addWidget(widget);
-		
-		context.selectWidget(widgetName);
+		context.addWidget(widget); // 默认选中新添加的 widget
 		
 		WidgetProperty prop = new WidgetProperty();
 		prop.setName(propName);
-		AddWidgetProperty operator = new AddWidgetProperty();
-		assertThat(operator.apply(context, Collections.singletonList(prop))).isFalse();
+		WidgetOperator operator = new AddWidgetProperty();
+		AddWidgetPropertyData data = new AddWidgetPropertyData();
+		data.setProperties(Collections.singletonList(prop));
+		operator.setData(data);
+		assertThat(operator.apply(context)).isFalse();
 	}
 	
 	@Test
@@ -74,19 +81,19 @@ public class AddWidgetPropertyTest {
 		WidgetOperatorContext context = new WidgetOperatorContext();
 		
 		String widgetName = "widget1";
-		Widget widget = new Widget();
+		WidgetData widget = new WidgetData();
 		widget.setName(widgetName);
 		widget.setCode("0001");
 		
 		context.addWidget(widget);
 		
-		// 在 context 中指定当前 widget，这样才能将属性应用到当前 widget 上
-		context.selectWidget(widgetName);
-		
 		WidgetProperty prop = new WidgetProperty();
 		prop.setName("prop1");
-		AddWidgetProperty operator = new AddWidgetProperty();
-		assertThat(operator.apply(context, Collections.singletonList(prop))).isTrue();
+		WidgetOperator operator = new AddWidgetProperty();
+		AddWidgetPropertyData data = new AddWidgetPropertyData();
+		data.setProperties(Collections.singletonList(prop));
+		operator.setData(data);
+		assertThat(operator.apply(context)).isTrue();
 		
 		// 为属性设置唯一编码
 		assertThat(context.getWidgets().get(0).getProperties())
@@ -99,7 +106,7 @@ public class AddWidgetPropertyTest {
 		WidgetOperatorContext context = new WidgetOperatorContext();
 		
 		String widgetName = "widget1";
-		Widget widget = new Widget();
+		WidgetData widget = new WidgetData();
 		widget.setName(widgetName);
 		widget.setCode("0001");
 		
@@ -114,12 +121,14 @@ public class AddWidgetPropertyTest {
 		widget.getEvents().add(existEvent);
 		
 		context.addWidget(widget);
-		context.selectWidget(widgetName);
 		
 		WidgetProperty prop = new WidgetProperty();
 		prop.setName("prop2");
-		AddWidgetProperty operator = new AddWidgetProperty();
-		assertThat(operator.apply(context, Collections.singletonList(prop))).isTrue();
+		WidgetOperator operator = new AddWidgetProperty();
+		AddWidgetPropertyData data = new AddWidgetPropertyData();
+		data.setProperties(Collections.singletonList(prop));
+		operator.setData(data);
+		assertThat(operator.apply(context)).isTrue();
 		
 		assertThat(context.getWidgets().get(0).getProperties())
 			.hasSize(2)

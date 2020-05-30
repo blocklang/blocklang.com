@@ -9,6 +9,7 @@ import java.util.List;
 import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.runner.common.CliLogger;
 import com.blocklang.core.util.JsonUtil;
+import com.blocklang.marketplace.apiparser.widget.WidgetOperatorContext;
 import com.blocklang.marketplace.data.MarketplaceStore;
 import com.blocklang.marketplace.runner.action.PublishedFileInfo;
 
@@ -23,6 +24,10 @@ public abstract class MasterParser extends AbstractRefParser {
 
 	public ParseResult run() {
 		logger.info("开始解析 master 分支");
+		// operatorContext 是 run 级别的变量
+		// 每次运行都是清空其中的数据
+		operatorContext = new WidgetOperatorContext();
+		operatorContext.setLogger(logger);
 
 		readAllChangelogs(MASTER_REF);
 		
@@ -47,7 +52,7 @@ public abstract class MasterParser extends AbstractRefParser {
 			return ParseResult.FAILED;
 		}
 
-		if(!saveAllApi()) {
+		if(!saveAllApi(MASTER_REF_SHORT_NAME)) {
 			return ParseResult.FAILED;
 		}
 
@@ -59,11 +64,15 @@ public abstract class MasterParser extends AbstractRefParser {
 		if(fullRefName.equals(MASTER_REF) && tags.size() > 0) {
 			String preVersion = GitUtils.getVersionFromRefName(tags.get(tags.size() - 1)).get();
 			Path widgetPath = store.getPackageVersionDirectory(preVersion).resolve(objectId).resolve("index.json");
+			if(!widgetPath.toFile().exists()) {
+				// 如果组件是在该 tag 中新增的，则获取不到上一版本的 index.json 属于正常情况
+				return null;
+			}
 			try {
 				String content = Files.readString(widgetPath);
 				return JsonUtil.fromJsonObject(content, clazz);
 			} catch (IOException e) {
-				// 如果组件是在该 tag 中新增的，则获取不到上一版本的 index.json 属于正常情况
+				System.out.println(e);
 			}
 		}
 		return null;
