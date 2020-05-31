@@ -1,23 +1,17 @@
-package com.blocklang.marketplace.apiparser;
+package com.blocklang.marketplace.apiparser.widget;
 
 import java.util.Iterator;
 
 import com.blocklang.core.runner.common.CliLogger;
 import com.blocklang.core.util.JsonUtil;
-import com.blocklang.marketplace.apiparser.widget.AddWidgetEvent;
-import com.blocklang.marketplace.apiparser.widget.AddWidgetEventData;
-import com.blocklang.marketplace.apiparser.widget.AddWidgetProperty;
-import com.blocklang.marketplace.apiparser.widget.AddWidgetPropertyData;
-import com.blocklang.marketplace.apiparser.widget.WidgetData;
-import com.blocklang.marketplace.apiparser.widget.WidgetOperator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 
-public class OperatorFactory {
+public class WidgetOperatorFactory {
 	
 	private CliLogger logger;
 	
-	public OperatorFactory(CliLogger logger) {
+	public WidgetOperatorFactory(CliLogger logger) {
 		this.logger = logger;
 	}
 

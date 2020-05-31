@@ -1,8 +1,7 @@
-package com.blocklang.marketplace.apiparser;
+package com.blocklang.marketplace.apiparser.widget;
 
-import com.blocklang.marketplace.apiparser.widget.WidgetData;
-import com.blocklang.marketplace.apiparser.widget.WidgetOperator;
-import com.blocklang.marketplace.apiparser.widget.WidgetOperatorContext;
+import com.blocklang.marketplace.apiparser.ChangeData;
+import com.blocklang.marketplace.apiparser.OperatorContext;
 import com.blocklang.marketplace.task.CodeGenerator;
 
 public class CreateWidget implements WidgetOperator {
@@ -15,23 +14,23 @@ public class CreateWidget implements WidgetOperator {
 	}
 	
 	@Override
-	public boolean apply(WidgetOperatorContext context) {
-		if(validate(context, data)) {
+	public boolean apply(OperatorContext<WidgetData> context) {
+		if(validate(context)) {
 			context.getLogger().error("Widget.name {0} 已经被占用，请更换", data.getName());
 			return false;
 		}
 		
-		data.setCode(context.getWidgetCodeGenerator().next());
+		data.setCode(context.getComponentCodeGenerator().next());
 		CodeGenerator propertiesCodeGen = new CodeGenerator(null);
 		data.getProperties().forEach(prop -> prop.setCode(propertiesCodeGen.next()));
 		data.getEvents().forEach(event -> event.setCode(propertiesCodeGen.next()));
 
-		context.addWidget(data);
+		context.addComponent(data);
 		return true;
 	}
 
-	private boolean validate(WidgetOperatorContext context, WidgetData data) {
-		return context.getWidgets().stream().anyMatch(w -> w.getName().equals(data.getName()));
+	private boolean validate(OperatorContext<WidgetData> context) {
+		return context.getComponents().stream().anyMatch(w -> w.getName().equals(data.getName()));
 	}
 
 }

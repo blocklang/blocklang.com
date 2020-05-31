@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.blocklang.marketplace.apiparser.ChangeData;
+import com.blocklang.marketplace.apiparser.Codeable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 //Widget changelog 生成的结果结构
 // 通常 CreateXXX 的属性与 XXX 的属性完全一致
-public class WidgetData implements ChangeData {
+public class WidgetData implements ChangeData, Codeable {
 	private String id; // widget 的唯一标识，对应目录名中的时间戳
 	private String code;
 	private String name;

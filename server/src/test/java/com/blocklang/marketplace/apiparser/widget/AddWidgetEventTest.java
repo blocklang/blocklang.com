@@ -8,12 +8,13 @@ import java.util.Collections;
 import org.junit.jupiter.api.Test;
 
 import com.blocklang.core.runner.common.CliLogger;
+import com.blocklang.marketplace.apiparser.OperatorContext;
 
 public class AddWidgetEventTest {
 
 	@Test
 	public void apply_first_event_success() {
-		WidgetOperatorContext context = new WidgetOperatorContext();
+		OperatorContext<WidgetData> context = new OperatorContext<WidgetData>();
 		context.setLogger(mock(CliLogger.class));
 		
 		String widgetName = "widget1";
@@ -21,7 +22,7 @@ public class AddWidgetEventTest {
 		widget.setName(widgetName);
 		widget.setCode("0001");
 		
-		context.addWidget(widget);
+		context.addComponent(widget);
 		
 		WidgetEvent event1 = new WidgetEvent();
 		event1.setName("event1");
@@ -32,7 +33,7 @@ public class AddWidgetEventTest {
 		operator.setData(eventData);
 		assertThat(operator.apply(context)).isTrue();
 		
-		assertThat(context.getWidgets().get(0).getEvents())
+		assertThat(context.getComponents().get(0).getEvents())
 			.hasSize(1)
 			.first()
 			.hasFieldOrPropertyWithValue("code", "0001");
@@ -40,7 +41,7 @@ public class AddWidgetEventTest {
 	
 	@Test
 	public void apply_second_event_success() {
-		WidgetOperatorContext context = new WidgetOperatorContext();
+		OperatorContext<WidgetData> context = new OperatorContext<WidgetData>();
 		context.setLogger(mock(CliLogger.class));
 		
 		String widgetName = "widget1";
@@ -60,7 +61,7 @@ public class AddWidgetEventTest {
 		
 		widget.getEvents().add(existEvent);
 		
-		context.addWidget(widget);
+		context.addComponent(widget);
 		
 		WidgetEvent addEvent = new WidgetEvent();
 		addEvent.setName("event2");
@@ -73,7 +74,7 @@ public class AddWidgetEventTest {
 		
 		assertThat(operator.apply(context)).isTrue();
 		
-		assertThat(context.getWidgets().get(0).getEvents())
+		assertThat(context.getComponents().get(0).getEvents())
 			.hasSize(2)
 			.last()
 			.hasFieldOrPropertyWithValue("code", "0003")
@@ -82,7 +83,7 @@ public class AddWidgetEventTest {
 	
 	@Test
 	public void apply_widget_not_exist() {
-		WidgetOperatorContext context = new WidgetOperatorContext();
+		OperatorContext<WidgetData> context = new OperatorContext<WidgetData>();
 		context.setLogger(mock(CliLogger.class));
 		
 		WidgetEvent event1 = new WidgetEvent();
@@ -99,14 +100,14 @@ public class AddWidgetEventTest {
 	
 	@Test
 	public void apply_select_widget_when_add_widget() {
-		WidgetOperatorContext context = new WidgetOperatorContext();
+		OperatorContext<WidgetData> context = new OperatorContext<WidgetData>();
 		context.setLogger(mock(CliLogger.class));
 		
 		String widgetName = "widget1";
 		WidgetData widget = new WidgetData();
 		widget.setName(widgetName);
 		widget.setCode("0001");
-		context.addWidget(widget);
+		context.addComponent(widget);
 		
 		WidgetEvent event1 = new WidgetEvent();
 		event1.setName("event1");
@@ -122,7 +123,7 @@ public class AddWidgetEventTest {
 	
 	@Test
 	public void apply_event_name_exists() {
-		WidgetOperatorContext context = new WidgetOperatorContext();
+		OperatorContext<WidgetData> context = new OperatorContext<WidgetData>();
 		context.setLogger(mock(CliLogger.class));
 		
 		String widgetName = "widget1";
@@ -136,7 +137,7 @@ public class AddWidgetEventTest {
 		event.setCode("0001");
 		
 		widget.getEvents().add(event);
-		context.addWidget(widget);
+		context.addComponent(widget);
 		
 		WidgetEvent addEvent = new WidgetEvent();
 		addEvent.setName(eventName);

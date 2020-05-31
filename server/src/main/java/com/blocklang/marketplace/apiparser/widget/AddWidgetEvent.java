@@ -1,6 +1,7 @@
 package com.blocklang.marketplace.apiparser.widget;
 
 import com.blocklang.marketplace.apiparser.ChangeData;
+import com.blocklang.marketplace.apiparser.OperatorContext;
 import com.blocklang.marketplace.task.CodeGenerator;
 
 public class AddWidgetEvent implements WidgetOperator{
@@ -9,16 +10,16 @@ public class AddWidgetEvent implements WidgetOperator{
 
 	@Override
 	public void setData(ChangeData data) {
-		this.data =  (AddWidgetEventData) data;
+		this.data = (AddWidgetEventData) data;
 	}
 	
 	@Override
-	public boolean apply(WidgetOperatorContext context) {
+	public boolean apply(OperatorContext<WidgetData> context) {
 		if(!validate(context)) {
 			return false;
 		}
 		
-		WidgetData widget = context.getSelectedWidget();
+		WidgetData widget = context.getSelectedComponent();
 		String seed = widget.getMaxPropertyCode();
 		CodeGenerator codeGen = new CodeGenerator(seed);
 		
@@ -28,8 +29,8 @@ public class AddWidgetEvent implements WidgetOperator{
 		return true;
 	}
 
-	private boolean validate(WidgetOperatorContext context) {
-		WidgetData widget = context.getSelectedWidget();
+	private boolean validate(OperatorContext<WidgetData> context) {
+		WidgetData widget = context.getSelectedComponent();
 		if(widget == null) {
 			context.getLogger().error("无法执行 addEvent 操作，因为尚未创建 Widget");
 			return false;
