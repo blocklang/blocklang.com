@@ -15,7 +15,7 @@ public class CreateObject implements JsObjectOperator{
 
 	@Override
 	public boolean apply(OperatorContext<JsObjectData> context) {
-		if(validate(context)) {
+		if(!validate(context)) {
 			context.getLogger().error("Object.name {0} 已经被占用，请更换", data.getName());
 			return false;
 		}
@@ -34,7 +34,7 @@ public class CreateObject implements JsObjectOperator{
 	}
 
 	private boolean validate(OperatorContext<JsObjectData> context) {
-		return context.getComponents().stream().anyMatch(w -> w.getName().equals(data.getName()));
+		return !context.getComponents().stream().anyMatch(w -> w.getName().equals(data.getName()));
 	}
 
 }

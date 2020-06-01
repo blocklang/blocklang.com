@@ -15,7 +15,7 @@ public class CreateWidget implements WidgetOperator {
 	
 	@Override
 	public boolean apply(OperatorContext<WidgetData> context) {
-		if(validate(context)) {
+		if(!validate(context)) {
 			context.getLogger().error("Widget.name {0} 已经被占用，请更换", data.getName());
 			return false;
 		}
@@ -30,7 +30,7 @@ public class CreateWidget implements WidgetOperator {
 	}
 
 	private boolean validate(OperatorContext<WidgetData> context) {
-		return context.getComponents().stream().anyMatch(w -> w.getName().equals(data.getName()));
+		return !context.getComponents().stream().anyMatch(w -> w.getName().equals(data.getName()));
 	}
 
 }
