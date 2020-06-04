@@ -232,7 +232,7 @@ public class GitUtils {
 	 * @param pathSuffix 如果只查出 json 文件，则值为".json"；如果值为 null，显示全部
 	 * @return
 	 */
-	public static List<GitFileInfo> readAllFiles(Path gitRepoPath, String refName, String pathSuffix) {
+	public static List<GitFileInfo> readAllFileInfo(Path gitRepoPath, String refName, String pathSuffix) {
 		GitFile file = new GitFile(gitRepoPath, null);
 		return file.readAllFiles(refName, pathSuffix);
 	}
@@ -254,7 +254,7 @@ public class GitUtils {
 		return blob.loadDataFromTag(files);
 	}
 
-	public static List<GitBlobInfo> readAllFiles(Path gitRepoPath, String refName, TreeFilter treeFilter) {
+	public static List<GitBlobInfo> readAllFileContent(Path gitRepoPath, String refName, TreeFilter treeFilter) {
 		GitBlob blob = new GitBlob(gitRepoPath, refName);
 		return blob.readAllFiles(treeFilter);
 	}

@@ -110,7 +110,7 @@ public abstract class RefParser {
 		PathSuffixFilter pathSuffixFilter = PathSuffixFilter.create(".json");
 		PathFilter pathFilter = PathFilter.create("changelog");
 		this.allApiObjectChangelogFiles = GitUtils
-			.readAllFiles(
+			.readAllFileContent(
 				store.getRepoSourceDirectory(), 
 				fullRefName, 
 				AndTreeFilter.create(pathFilter, pathSuffixFilter))

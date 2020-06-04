@@ -280,10 +280,10 @@ public class GitUtilsTest {
 		
 		GitUtils.init(folder, gitUserName, gitUserMail);
 		
-		Exception exception = Assertions.assertThrows(IllegalArgumentException.class, () -> GitUtils.readAllFiles(folder, null, null));
+		Exception exception = Assertions.assertThrows(IllegalArgumentException.class, () -> GitUtils.readAllFileInfo(folder, null, null));
 		assertThat(exception.getMessage()).isEqualTo("tag 的值不能为空");
 		
-		exception = Assertions.assertThrows(IllegalArgumentException.class, () -> GitUtils.readAllFiles(folder, " ", null));
+		exception = Assertions.assertThrows(IllegalArgumentException.class, () -> GitUtils.readAllFileInfo(folder, " ", null));
 		assertThat(exception.getMessage()).isEqualTo("tag 的值不能为空");
 		
 		
@@ -297,7 +297,7 @@ public class GitUtilsTest {
 		
 		GitUtils.init(folder, gitUserName, gitUserMail);
 		
-		List<GitFileInfo> gitFiles = GitUtils.readAllFiles(folder, "refs/tags/v0.1.0", null);
+		List<GitFileInfo> gitFiles = GitUtils.readAllFileInfo(folder, "refs/tags/v0.1.0", null);
 		assertThat(gitFiles).isEmpty();
 		
 		
@@ -312,7 +312,7 @@ public class GitUtilsTest {
 		GitUtils.commit(folder, null, "1.txt", "hello", gitUserName, gitUserMail, "commit 1");
 		GitUtils.tag(folder, "v0.1.0", "message");
 		
-		List<GitFileInfo> gitFiles = GitUtils.readAllFiles(folder, "refs/tags/v0.1.0", null);
+		List<GitFileInfo> gitFiles = GitUtils.readAllFileInfo(folder, "refs/tags/v0.1.0", null);
 		assertThat(gitFiles).hasSize(1);
 		GitFileInfo file = gitFiles.get(0);
 		assertThat(file.getPath()).isEqualTo("1.txt");
@@ -331,7 +331,7 @@ public class GitUtilsTest {
 		GitUtils.commit(folder, "a", "1.txt", "hello", gitUserName, gitUserMail, "commit 1");
 		GitUtils.tag(folder, "v0.1.0", "message");
 		
-		List<GitFileInfo> gitFiles = GitUtils.readAllFiles(folder, "refs/tags/v0.1.0", null);
+		List<GitFileInfo> gitFiles = GitUtils.readAllFileInfo(folder, "refs/tags/v0.1.0", null);
 		assertThat(gitFiles).hasSize(1);
 		GitFileInfo file = gitFiles.get(0);
 		assertThat(file.getPath()).isEqualTo("a/1.txt");
@@ -350,10 +350,10 @@ public class GitUtilsTest {
 		GitUtils.commit(folder, "a", "1.txt", "hello", gitUserName, gitUserMail, "commit 1");
 		GitUtils.tag(folder, "v0.1.0", "message");
 		
-		List<GitFileInfo> gitFiles = GitUtils.readAllFiles(folder, "refs/tags/v0.1.0", ".json");
+		List<GitFileInfo> gitFiles = GitUtils.readAllFileInfo(folder, "refs/tags/v0.1.0", ".json");
 		assertThat(gitFiles).isEmpty();
 		
-		gitFiles = GitUtils.readAllFiles(folder, "refs/tags/v0.1.0", ".txt");
+		gitFiles = GitUtils.readAllFileInfo(folder, "refs/tags/v0.1.0", ".txt");
 		assertThat(gitFiles).hasSize(1);
 		GitFileInfo file = gitFiles.get(0);
 		assertThat(file.getPath()).isEqualTo("a/1.txt");
@@ -375,14 +375,14 @@ public class GitUtilsTest {
 		GitUtils.commit(folder, null, "2.txt", "hello", gitUserName, gitUserMail, "commit 1");
 		GitUtils.tag(folder, "v0.2.0", "message");
 		
-		List<GitFileInfo> gitFiles = GitUtils.readAllFiles(folder, "refs/tags/v0.1.0", null);
+		List<GitFileInfo> gitFiles = GitUtils.readAllFileInfo(folder, "refs/tags/v0.1.0", null);
 		assertThat(gitFiles).hasSize(1);
 		GitFileInfo file = gitFiles.get(0);
 		assertThat(file.getPath()).isEqualTo("1.txt");
 		assertThat(file.getName()).isEqualTo("1.txt");
 		assertThat(file.getParentPath()).isEqualTo("");
 		
-		gitFiles = GitUtils.readAllFiles(folder, "refs/tags/v0.2.0", null);
+		gitFiles = GitUtils.readAllFileInfo(folder, "refs/tags/v0.2.0", null);
 		assertThat(gitFiles).hasSize(2);
 		
 		
@@ -716,7 +716,7 @@ public class GitUtilsTest {
 		GitUtils.commit(folder, null, "1.txt", "hello", gitUserName, gitUserMail, "commit 1");
 		GitUtils.tag(folder, "v0.1.0", "message");
 		
-		List<GitFileInfo> gitFiles = GitUtils.readAllFiles(folder, "refs/tags/v0.1.0", null);
+		List<GitFileInfo> gitFiles = GitUtils.readAllFileInfo(folder, "refs/tags/v0.1.0", null);
 		
 		List<GitBlobInfo> files = GitUtils.loadDataFromTag(folder, "refs/tags/v0.1.0", gitFiles);
 		assertThat(files).hasSize(1);
