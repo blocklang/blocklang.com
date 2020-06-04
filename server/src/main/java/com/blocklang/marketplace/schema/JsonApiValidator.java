@@ -18,8 +18,9 @@ import com.networknt.schema.ValidationMessage;
  * 校验 api 仓库根目录下的 api.json 文件是否符合规范
  * 
  * @author Zhengwei Jin
- *
+ * @deprecated
  */
+@Deprecated
 public class JsonApiValidator {
 
 	private static final String SCHEMA_FILE_NAME = "api_json_schema.json";

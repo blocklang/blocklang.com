@@ -12,7 +12,7 @@ import java.util.Collections;
 import org.junit.jupiter.api.Test;
 
 import com.blocklang.core.runner.action.AbstractActionTest;
-import com.blocklang.marketplace.apiparser.ApiRepoParser;
+import com.blocklang.marketplace.apirepo.RepoParser;
 
 public class AbstractParseApiRepoActionTest extends AbstractActionTest{
 
@@ -20,7 +20,7 @@ public class AbstractParseApiRepoActionTest extends AbstractActionTest{
 	public void run_success() {
 		var action = mock(AbstractParseApiRepoAction.class,
 				withSettings().useConstructor(context).defaultAnswer(CALLS_REAL_METHODS));
-		var parser = mock(ApiRepoParser.class);
+		var parser = mock(RepoParser.class);
 		when(parser.run()).thenReturn(true);
 		when(parser.getParsedTags()).thenReturn(Collections.singletonList("1"));
 		doReturn(parser).when(action).createApiRepoParser();
@@ -34,7 +34,7 @@ public class AbstractParseApiRepoActionTest extends AbstractActionTest{
 	public void run_failed() {
 		var action = mock(AbstractParseApiRepoAction.class,
 				withSettings().useConstructor(context).defaultAnswer(CALLS_REAL_METHODS));
-		var parser = mock(ApiRepoParser.class);
+		var parser = mock(RepoParser.class);
 		when(parser.run()).thenReturn(false);
 		doReturn(parser).when(action).createApiRepoParser();
 
