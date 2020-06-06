@@ -66,4 +66,6 @@
 	<include file="db/changelog/table/202004030015_create_page_func_node_port.xml" />
 	<include file="db/changelog/table/202004030027_create_page_func_connection.xml" />
 	
+	<include file="db/changelog/table/202006061040_alter_api_repo.xml" />
+	
 </databaseChangeLog>
