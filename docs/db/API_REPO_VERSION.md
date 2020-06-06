@@ -11,7 +11,7 @@ API 仓库的版本信息，其中存储 git 仓库的所有 tag 信息和 maste
 | version        | API 组件库的版本号 | varchar  | 32   |        |      | 否   |
 | git_tag_name   | git tag 名称       | varchar  | 32   |        |      | 否   |
 | name           | 组件库的名称       | varchar  | 64   |        |      | 否   |
-| displayName    | 组件库的显示名     | varchar  | 64   |        |      | 是   |
+| display_name   | 组件库的显示名     | varchar  | 64   |        |      | 是   |
 | description    | 组件库的详细说明   | varchar  | 512  |        |      | 是   |
 | create_user_id | 创建人标识         | int      |      |        |      | 否   |
 | create_time    | 创建时间           | datetime |      |        |      | 否   |

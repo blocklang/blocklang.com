@@ -11,7 +11,7 @@
 			<column name="name" remarks="组件库的名称" type="varchar(64)">
 				<constraints nullable="false" />
 			</column>
-			<column name="displayName" remarks="组件库的显示名" type="varchar(64)" />
+			<column name="display_name" remarks="组件库的显示名" type="varchar(64)" />
 			<column name="description" remarks="组件库的详细说明" type="varchar(512)" />
 		</addColumn>
 	</changeSet>
