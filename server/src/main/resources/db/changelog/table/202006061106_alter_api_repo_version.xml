@@ -13,6 +13,7 @@
 			</column>
 			<column name="display_name" remarks="组件库的显示名" type="varchar(64)" />
 			<column name="description" remarks="组件库的详细说明" type="varchar(512)" />
+			<column name="last_publish_time" remarks="最近发布时间" type="${datetime}" />
 		</addColumn>
 	</changeSet>
 

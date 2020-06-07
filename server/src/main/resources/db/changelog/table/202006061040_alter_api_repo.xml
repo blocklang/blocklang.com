@@ -13,6 +13,7 @@
 			<column name="label"/>
 			<column name="version"/>
 			<column name="description"/>
+			<column name="last_publish_time"/>
 		</dropColumn>
 	</changeSet>
 
