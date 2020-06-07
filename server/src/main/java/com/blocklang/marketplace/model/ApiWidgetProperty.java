@@ -11,18 +11,18 @@ import com.blocklang.marketplace.constant.ComponentAttrValueType;
 import com.blocklang.marketplace.constant.converter.ComponentAttrValueTypeConverter;
 
 @Entity
-@Table(name = "api_component_attr", 
+@Table(name = "api_widget_prop", 
 	uniqueConstraints = {
-		@UniqueConstraint(columnNames = { "api_component_id", "code" }),
-		@UniqueConstraint(columnNames = { "api_component_id", "name" }) 
+		@UniqueConstraint(columnNames = { "api_widget_id", "code" }),
+		@UniqueConstraint(columnNames = { "api_widget_id", "name" }) 
 	}
 )
-public class ApiComponentAttr extends PartialIdField{
+public class ApiWidgetProperty extends PartialIdField{
 
 	private static final long serialVersionUID = -6776355043794409062L;
 
-	@Column(name = "api_component_id", nullable = false)
-	private Integer apiComponentId;
+	@Column(name = "api_widget_id", nullable = false)
+	private Integer apiWidgetId;
 	
 	@Column(name = "code", nullable = false, length = 4)
 	private String code;
@@ -42,13 +42,16 @@ public class ApiComponentAttr extends PartialIdField{
 
 	@Column(name = "default_value", length = 32)
 	private String defaultValue;
+	
+	@Column(name = "required")
+	private Boolean required = false;
 
-	public Integer getApiComponentId() {
-		return apiComponentId;
+	public Integer getApiWidgetId() {
+		return apiWidgetId;
 	}
 
-	public void setApiComponentId(Integer apiComponentId) {
-		this.apiComponentId = apiComponentId;
+	public void setApiWidgetId(Integer apiWidgetId) {
+		this.apiWidgetId = apiWidgetId;
 	}
 
 	public String getCode() {
@@ -97,6 +100,14 @@ public class ApiComponentAttr extends PartialIdField{
 
 	public void setDefaultValue(String defaultValue) {
 		this.defaultValue = defaultValue;
+	}
+
+	public Boolean getRequired() {
+		return required;
+	}
+
+	public void setRequired(Boolean required) {
+		this.required = required;
 	}
 	
 }

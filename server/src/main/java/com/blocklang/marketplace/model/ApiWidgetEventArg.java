@@ -11,17 +11,17 @@ import com.blocklang.marketplace.constant.ComponentAttrValueType;
 import com.blocklang.marketplace.constant.converter.ComponentAttrValueTypeConverter;
 
 @Entity
-@Table(name = "api_component_attr_fun_arg", 
+@Table(name = "api_widget_event_arg", 
 	uniqueConstraints = {
-		@UniqueConstraint(columnNames = { "api_component_attr_id", "code" })
+		@UniqueConstraint(columnNames = { "api_widget_prop_id", "code" })
 	}
 )
-public class ApiComponentAttrFunArg extends PartialIdField{
+public class ApiWidgetEventArg extends PartialIdField{
 
 	private static final long serialVersionUID = 1097230294560182509L;
 
-	@Column(name = "api_component_attr_id", nullable = false)
-	private Integer apiComponentAttrId;
+	@Column(name = "api_widget_prop_id", nullable = false)
+	private Integer apiWidgetPropertyId;
 	
 	@Column(name = "code", nullable = false, length = 4)
 	private String code;
@@ -45,12 +45,12 @@ public class ApiComponentAttrFunArg extends PartialIdField{
 	@Column(name = "seq", nullable = false)
 	private Integer seq;
 
-	public Integer getApiComponentAttrId() {
-		return apiComponentAttrId;
+	public Integer getApiWidgetPropertyId() {
+		return apiWidgetPropertyId;
 	}
 
-	public void setApiComponentAttrId(Integer apiComponentAttrId) {
-		this.apiComponentAttrId = apiComponentAttrId;
+	public void setApiWidgetPropertyId(Integer apiWidgetPropertyId) {
+		this.apiWidgetPropertyId = apiWidgetPropertyId;
 	}
 
 	public String getCode() {

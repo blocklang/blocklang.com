@@ -1,7 +1,5 @@
 package com.blocklang.marketplace.model;
 
-import java.time.LocalDateTime;
-
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
@@ -13,11 +11,8 @@ import com.blocklang.marketplace.constant.RepoCategory;
 import com.blocklang.marketplace.constant.converter.RepoCategoryConverter;
 
 @Entity
-@Table(name = "api_repo", 
-uniqueConstraints = {
-	@UniqueConstraint(columnNames = { "create_user_id", "git_repo_url" })
-})
-public class ApiRepo extends PartialOperateFields{
+@Table(name = "api_repo", uniqueConstraints = { @UniqueConstraint(columnNames = { "create_user_id", "git_repo_url" }) })
+public class ApiRepo extends PartialOperateFields {
 
 	private static final long serialVersionUID = -7380348480679301101L;
 
@@ -36,9 +31,6 @@ public class ApiRepo extends PartialOperateFields{
 	@Convert(converter = RepoCategoryConverter.class)
 	@Column(name = "category", nullable = false, length = 2)
 	private RepoCategory category;
-	
-	@Column(name = "last_publish_time" )
-	private LocalDateTime lastPublishTime;
 
 	public String getGitRepoUrl() {
 		return gitRepoUrl;
@@ -80,12 +72,4 @@ public class ApiRepo extends PartialOperateFields{
 		this.category = category;
 	}
 
-	public LocalDateTime getLastPublishTime() {
-		return lastPublishTime;
-	}
-
-	public void setLastPublishTime(LocalDateTime lastPublishTime) {
-		this.lastPublishTime = lastPublishTime;
-	}
-	
 }

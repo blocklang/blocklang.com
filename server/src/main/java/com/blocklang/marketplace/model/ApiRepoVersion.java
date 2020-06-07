@@ -37,6 +37,9 @@ public class ApiRepoVersion extends PartialIdField{
 	@Column(name = "description", length = 512)
 	private String description;
 	
+	@Column(name = "last_publish_time" )
+	private LocalDateTime lastPublishTime;
+
 	@Column(name = "create_user_id", insertable = true, updatable = false, nullable = false)
 	private Integer createUserId;
 	
@@ -107,4 +110,11 @@ public class ApiRepoVersion extends PartialIdField{
 		this.description = description;
 	}
 	
+	public LocalDateTime getLastPublishTime() {
+		return lastPublishTime;
+	}
+
+	public void setLastPublishTime(LocalDateTime lastPublishTime) {
+		this.lastPublishTime = lastPublishTime;
+	}
 }

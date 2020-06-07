@@ -8,13 +8,13 @@ import javax.persistence.UniqueConstraint;
 import com.blocklang.core.model.PartialOperateFields;
 
 @Entity
-@Table(name = "api_component", 
+@Table(name = "api_widget", 
 	uniqueConstraints = {
 		@UniqueConstraint(columnNames = { "api_repo_version_id", "code" }),
 		@UniqueConstraint(columnNames = { "api_repo_version_id", "name" }) 
 	}
 )
-public class ApiComponent extends PartialOperateFields{
+public class ApiWidget extends PartialOperateFields{
 
 	private static final long serialVersionUID = 5534413982333214210L;
 
@@ -32,9 +32,6 @@ public class ApiComponent extends PartialOperateFields{
 	
 	@Column(name = "description", length = 128)
 	private String description;
-	
-	@Column(name = "can_has_children", nullable = false)
-	private Boolean canHasChildren = false;
 
 	public Integer getApiRepoVersionId() {
 		return apiRepoVersionId;
@@ -74,14 +71,6 @@ public class ApiComponent extends PartialOperateFields{
 
 	public void setDescription(String description) {
 		this.description = description;
-	}
-
-	public Boolean getCanHasChildren() {
-		return canHasChildren;
-	}
-
-	public void setCanHasChildren(Boolean canHasChildren) {
-		this.canHasChildren = canHasChildren;
 	}
 
 }
