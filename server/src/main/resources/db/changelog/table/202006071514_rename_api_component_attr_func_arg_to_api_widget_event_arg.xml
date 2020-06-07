@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+	<changeSet author="Zhengwei Jin" id="202006071514">
+		<dropPrimaryKey tableName="api_component_attr_fun_arg" constraintName="PK_API_COMPONENT_ATTR_FUN_ARG"/>
+		<dropUniqueConstraint tableName="api_component_attr_fun_arg" constraintName="UK_COMPONENT_ATTR_FUN_ARG_ON_CODE"/>
+		
+		<renameTable newTableName="api_widget_event_arg" oldTableName="api_component_attr_fun_arg"/>
+		<setTableRemarks tableName="api_widget_event_arg" remarks="Widget 事件的输入参数"/>
+		<renameColumn tableName="api_widget_event_arg" oldColumnName="api_component_attr_id" newColumnName="api_widget_prop_id" remarks="API Widget 的属性标识"/>
+		
+		<addPrimaryKey columnNames="dbid" tableName="api_widget_event_arg" constraintName="PK_API_WIDGET_EVENT_ARG" />
+		<addUniqueConstraint columnNames="api_widget_prop_id,code"
+			constraintName="UK_API_WIDGET_EVENT_ARG_ON_PROP_CODE"
+			tableName="api_widget_event_arg" />
+	</changeSet>
+
+</databaseChangeLog>

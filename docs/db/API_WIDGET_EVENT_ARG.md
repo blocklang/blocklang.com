@@ -18,7 +18,7 @@
 
 * 主键：`PK_API_WIDGET_EVENT_ARG`
 * 外键：(*未设置*)`FK_API_WIDGET_EVENT_ARG`，`API_WIDGET_PROP_ID` 对应 `API_WIDGET_PROP` 表的 `dbid`
-* 索引：`UK_API_WIDGET_EVENT_ARG_ON_ATTR_CODE`，对应字段 `api_widget_prop_id`、`code`
+* 索引：`UK_API_WIDGET_EVENT_ARG_ON_PROP_CODE`，对应字段 `api_widget_prop_id`、`code`
 
 ## 说明
 

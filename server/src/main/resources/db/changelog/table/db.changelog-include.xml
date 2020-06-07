@@ -69,4 +69,9 @@
 	<include file="db/changelog/table/202006061040_alter_api_repo.xml" />
 	<include file="db/changelog/table/202006061106_alter_api_repo_version.xml" />
 	
+	<include file="db/changelog/table/202006071054_rename_api_component_to_api_widget.xml" />
+	<include file="db/changelog/table/202006071106_rename_api_component_attr_to_api_widget_prop.xml" />
+	<include file="db/changelog/table/202006071122_rename_api_component_attr_val_opt_to_api_widget_prop_val_opt.xml" />
+	<include file="db/changelog/table/202006071514_rename_api_component_attr_func_arg_to_api_widget_event_arg.xml" />
+	
 </databaseChangeLog>

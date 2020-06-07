@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+	<changeSet author="Zhengwei Jin" id="202006071054">
+		<dropPrimaryKey tableName="api_component" constraintName="PK_API_COMPONENT"/>
+		<dropUniqueConstraint tableName="api_component" constraintName="UK_API_COMP_ON_API_REPO_VERSION_NAME"/>
+		<dropUniqueConstraint tableName="api_component" constraintName="UK_API_COMP_ON_API_REPO_VERSION_CODE"/>
+		<dropColumn tableName="api_component">
+			<column name="can_has_children"/>
+		</dropColumn>
+		
+		<renameTable newTableName="api_widget" oldTableName="api_component"/>
+		<setTableRemarks tableName="api_widget" remarks="Widget 基本信息"/>
+		
+		<addPrimaryKey columnNames="dbid" tableName="api_widget" constraintName="PK_API_WIDGET"></addPrimaryKey>
+		<addUniqueConstraint columnNames="api_repo_version_id,name"
+			constraintName="UK_API_WIDGET_ON_API_REPO_VERSION_NAME"
+			tableName="api_widget" />
+		<addUniqueConstraint columnNames="api_repo_version_id,code"
+			constraintName="UK_API_WIDGET_ON_API_REPO_VERSION_CODE"
+			tableName="api_widget" />
+	</changeSet>
+
+</databaseChangeLog>
