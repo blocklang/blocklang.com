@@ -16,7 +16,6 @@ public class WidgetData implements ApiObject, ChangeData {
 	private String name;
 	private String label;
 	private String description;
-	private Boolean canHasChildren;
 	private List<WidgetProperty> properties = new ArrayList<WidgetProperty>();
 	private List<WidgetEvent> events = new ArrayList<WidgetEvent>();
 	
@@ -58,14 +57,6 @@ public class WidgetData implements ApiObject, ChangeData {
 
 	public void setDescription(String description) {
 		this.description = description;
-	}
-
-	public Boolean getCanHasChildren() {
-		return canHasChildren;
-	}
-
-	public void setCanHasChildren(Boolean canHasChildren) {
-		this.canHasChildren = canHasChildren;
 	}
 
 	public List<WidgetProperty> getProperties() {

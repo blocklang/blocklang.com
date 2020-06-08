@@ -12,6 +12,8 @@
 		
 		<renameTable newTableName="api_widget_event_arg" oldTableName="api_component_attr_fun_arg"/>
 		<setTableRemarks tableName="api_widget_event_arg" remarks="Widget 事件的输入参数"/>
+		<renameSequence oldSequenceName="api_component_attr_fun_arg_dbid_seq" newSequenceName="api_widget_event_arg_dbid_seq"/>
+		
 		<renameColumn tableName="api_widget_event_arg" oldColumnName="api_component_attr_id" newColumnName="api_widget_prop_id" remarks="API Widget 的属性标识"/>
 		
 		<addPrimaryKey columnNames="dbid" tableName="api_widget_event_arg" constraintName="PK_API_WIDGET_EVENT_ARG" />

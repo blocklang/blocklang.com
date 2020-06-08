@@ -2,11 +2,20 @@ package com.blocklang.marketplace.apirepo.widget.data;
 
 public class WidgetEventArgument {
 
+	private String code;
 	private String name;
 	private String label;
-	private Object defaultValue; // defaultValue 的类型要与 valueType 指定的值匹配
+	private String defaultValue; // defaultValue 的类型要与 valueType 指定的值匹配
 	private String valueType;
 	private String description;
+
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
 
 	public String getName() {
 		return name;
@@ -24,11 +33,11 @@ public class WidgetEventArgument {
 		this.label = label;
 	}
 
-	public Object getDefaultValue() {
+	public String getDefaultValue() {
 		return defaultValue;
 	}
 
-	public void setDefaultValue(Object defaultValue) {
+	public void setDefaultValue(String defaultValue) {
 		this.defaultValue = defaultValue;
 	}
 

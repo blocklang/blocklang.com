@@ -10,17 +10,18 @@ import org.apache.commons.lang3.StringUtils;
  * @author Zhengwei Jin
  *
  */
-public enum ComponentAttrValueType {
+public enum WidgetPropertyValueType {
 
 	NUMBER("number", "数字"),
 	STRING("string", "字符串"),
 	BOOLEAN("boolean", "布尔类型"),
-	FUNCTION("function", "函数");
+	FUNCTION("function", "函数"),
+	SLOT("slot", "插槽");
 	
 	private final String key;
 	private final String value;
 
-	private ComponentAttrValueType(String key, String value) {
+	private WidgetPropertyValueType(String key, String value) {
 		this.key = key;
 		this.value = value;
 	}
@@ -33,21 +34,21 @@ public enum ComponentAttrValueType {
 		return this.value;
 	}
 	
-	public static ComponentAttrValueType fromValue(String value) {
+	public static WidgetPropertyValueType fromValue(String value) {
 		if (StringUtils.isBlank(value)) {
 			return null;
 		}
-		return Arrays.stream(ComponentAttrValueType.values())
+		return Arrays.stream(WidgetPropertyValueType.values())
 				.filter((each) -> value.toLowerCase().equals(each.getValue().toLowerCase()))
 				.findFirst()
 				.orElse(null);
 	}
 
-	public static ComponentAttrValueType fromKey(String key) {
+	public static WidgetPropertyValueType fromKey(String key) {
 		if (StringUtils.isBlank(key)) {
 			return null;
 		}
-		return Arrays.stream(ComponentAttrValueType.values())
+		return Arrays.stream(WidgetPropertyValueType.values())
 				.filter((each) -> key.equals(each.getKey()))
 				.findFirst()
 				.orElse(null);

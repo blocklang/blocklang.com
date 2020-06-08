@@ -2,12 +2,14 @@ package com.blocklang.marketplace.apirepo.widget.data;
 
 import java.util.List;
 
+import com.blocklang.marketplace.constant.WidgetPropertyValueType;
+
 public class WidgetEvent {
 
 	private String code;
 	private String name;
 	private String label;
-	private String valueType;
+	private String valueType = WidgetPropertyValueType.FUNCTION.getKey();
 	private String description;
 	private List<WidgetEventArgument> arguments;
 

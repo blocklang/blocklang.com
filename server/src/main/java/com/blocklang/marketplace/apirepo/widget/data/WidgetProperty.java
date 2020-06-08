@@ -7,9 +7,12 @@ public class WidgetProperty {
 	private String code;
 	private String name;
 	private String label;
-	private Object defaultValue; // defaultValue 的类型要与 valueType 指定的值匹配
+	// defaultValue 的类型要与 valueType 指定的值匹配？
+	// defautlValue 的类型应该为 String
+	private String defaultValue; 
 	private String valueType;
 	private String description;
+	private Boolean required = false;
 	private List<WidgetPropertyOption> options;
 
 	public String getCode() {
@@ -36,11 +39,11 @@ public class WidgetProperty {
 		this.label = label;
 	}
 
-	public Object getDefaultValue() {
+	public String getDefaultValue() {
 		return defaultValue;
 	}
 
-	public void setDefaultValue(Object defaultValue) {
+	public void setDefaultValue(String defaultValue) {
 		this.defaultValue = defaultValue;
 	}
 
@@ -66,6 +69,14 @@ public class WidgetProperty {
 
 	public void setOptions(List<WidgetPropertyOption> options) {
 		this.options = options;
+	}
+
+	public Boolean getRequired() {
+		return required;
+	}
+
+	public void setRequired(Boolean required) {
+		this.required = required;
 	}
 
 }

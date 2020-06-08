@@ -7,8 +7,8 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import com.blocklang.core.model.PartialIdField;
-import com.blocklang.marketplace.constant.ComponentAttrValueType;
-import com.blocklang.marketplace.constant.converter.ComponentAttrValueTypeConverter;
+import com.blocklang.marketplace.constant.WidgetPropertyValueType;
+import com.blocklang.marketplace.constant.converter.WidgetPropertyValueTypeConverter;
 
 @Entity
 @Table(name = "api_widget_prop", 
@@ -36,9 +36,9 @@ public class ApiWidgetProperty extends PartialIdField{
 	@Column(name = "description", length = 512)
 	private String description;
 	
-	@Convert(converter = ComponentAttrValueTypeConverter.class)
+	@Convert(converter = WidgetPropertyValueTypeConverter.class)
 	@Column(name = "value_type", nullable = false, length = 32)
-	private ComponentAttrValueType valueType;
+	private WidgetPropertyValueType valueType;
 
 	@Column(name = "default_value", length = 32)
 	private String defaultValue;
@@ -86,11 +86,11 @@ public class ApiWidgetProperty extends PartialIdField{
 		this.description = description;
 	}
 
-	public ComponentAttrValueType getValueType() {
+	public WidgetPropertyValueType getValueType() {
 		return valueType;
 	}
 
-	public void setValueType(ComponentAttrValueType valueType) {
+	public void setValueType(WidgetPropertyValueType valueType) {
 		this.valueType = valueType;
 	}
 

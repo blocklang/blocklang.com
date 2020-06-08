@@ -12,6 +12,7 @@
 		
 		<renameTable newTableName="api_widget_prop_val_opt" oldTableName="api_component_attr_val_opt"/>
 		<setTableRemarks tableName="api_widget_prop_val_opt" remarks="Widget 属性的可选值列表"/>
+		<renameSequence oldSequenceName="api_component_attr_val_opt_dbid_seq" newSequenceName="api_widget_prop_val_opt_dbid_seq"/>
 		
 		<renameColumn tableName="api_widget_prop_val_opt" oldColumnName="api_component_attr_id" newColumnName="api_widget_prop_id" remarks="API Widget 的属性标识"/>
 		<setColumnRemarks tableName="api_widget_prop_val_opt" columnName="description" remarks="选项的详细描述"/>

@@ -2,10 +2,19 @@ package com.blocklang.marketplace.apirepo.widget.data;
 
 public class WidgetPropertyOption {
 
+	private String code;
 	private String value;
 	private String label;
 	private String description;
-	private String iconClass;
+	private String valueDescription;
+
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
 
 	public String getValue() {
 		return value;
@@ -31,12 +40,12 @@ public class WidgetPropertyOption {
 		this.description = description;
 	}
 
-	public String getIconClass() {
-		return iconClass;
+	public String getValueDescription() {
+		return valueDescription;
 	}
 
-	public void setIconClass(String iconClass) {
-		this.iconClass = iconClass;
+	public void setValueDescription(String valueDescription) {
+		this.valueDescription = valueDescription;
 	}
 
 }
