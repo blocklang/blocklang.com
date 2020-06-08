@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+	<changeSet author="Zhengwei Jin" id="202006081724">
+		<createTable tableName="api_jsobj" remarks="JavaScript 对象基本信息">
+			<column name="dbid" type="int" autoIncrement="true">
+				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_API_JSOBJ" />
+			</column>
+			<column name="api_repo_version_id" remarks="API 仓库版本标识" type="int">
+				<constraints nullable="false" />
+			</column>
+			<column name="code" remarks="JavaScript 对象的编码" type="char(4)">
+				<constraints nullable="false" />
+			</column>
+			<column name="name" remarks="JavaScript 对象的名称" type="varchar(64)">
+				<constraints nullable="false" />
+			</column>
+			<column name="description" remarks="JavaScript 对象的详细说明" type="varchar(512)" />
+			<column name="create_user_id" remarks="创建人标识" type="int">
+				<constraints nullable="false" />
+			</column>
+			<column name="create_time" remarks="创建时间" type="${datetime}">
+				<constraints nullable="false" />
+			</column>
+			<column name="last_update_user_id" remarks="最近修改人标识" type="int" />
+			<column name="last_update_time" remarks="最近修改时间" type="${datetime}" />
+		</createTable>
+
+		<addUniqueConstraint columnNames="api_repo_version_id,name"
+			constraintName="UK_API_JSOBJ_ON_API_REPO_VERSION_NAME"
+			tableName="api_jsobj" />
+
+		<addUniqueConstraint columnNames="api_repo_version_id,code"
+			constraintName="UK_API_JSOBJ_ON_API_REPO_VERSION_CODE"
+			tableName="api_jsobj" />
+	</changeSet>
+
+</databaseChangeLog>

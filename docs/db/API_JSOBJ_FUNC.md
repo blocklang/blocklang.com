@@ -9,7 +9,7 @@
 | code         | 函数的编码                 | char    | 4    |        |      | 否   |
 | name         | 函数的名称                 | varchar | 64   |        |      | 否   |
 | description  | 函数的详细说明             | varchar | 512  |        |      | 是   |
-| returnType   | 函数的返回类型             | varchar | 32   |        |      | 是   |
+| return_type  | 函数的返回类型             | varchar | 32   |        |      | 是   |
 
 ## 约束
 

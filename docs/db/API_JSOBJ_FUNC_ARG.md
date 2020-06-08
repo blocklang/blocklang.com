@@ -1,4 +1,4 @@
-# `API_JSOBJ_FUNC_ARG` - WIDGET 事件的输入参数
+# `API_JSOBJ_FUNC_ARG` - JavaScript 函数的输入参数
 
 ## 字段
 
@@ -10,7 +10,7 @@
 | name              | 参数名                          | varchar | 32   |        |      | 否   |
 | type              | 参数的值类型                    | varchar | 32   |        |      | 否   |
 | optional          | 是否可选参数                    | boolean |      | false  |      | 是   |
-| variable          | 是否可变长度                    | boolean |      | false  |      | 是   |
+| variable          | 是否可变长度参数                | boolean |      | false  |      | 是   |
 | seq               | 参数顺序                        | int     |      |        |      | 否   |
 
 ## 约束

@@ -74,4 +74,8 @@
 	<include file="db/changelog/table/202006071122_rename_api_component_attr_val_opt_to_api_widget_prop_val_opt.xml" />
 	<include file="db/changelog/table/202006071514_rename_api_component_attr_func_arg_to_api_widget_event_arg.xml" />
 	
+	<include file="db/changelog/table/202006081724_create_api_jsobj.xml" />
+	<include file="db/changelog/table/202006081909_create_api_jsobj_func.xml" />
+	<include file="db/changelog/table/202006081910_create_api_jsobj_func_arg.xml" />
+	
 </databaseChangeLog>

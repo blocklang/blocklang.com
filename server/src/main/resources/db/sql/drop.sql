@@ -37,6 +37,9 @@ drop table page_func;
 drop table page_func_node;
 drop table page_func_node_port;
 drop table page_func_connection;
+drop table api_jsobj;
+drop table api_jsobj_func;
+drop table api_jsobj_func_arg;
 
 drop table databasechangelog;
 drop table databasechangeloglock;
