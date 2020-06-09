@@ -8,7 +8,6 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.blocklang.core.util.GitUrlSegment;
 import com.blocklang.marketplace.apirepo.RefData;
 import com.blocklang.marketplace.apirepo.widget.data.WidgetData;
 import com.blocklang.marketplace.apirepo.widget.data.WidgetEvent;
@@ -16,9 +15,6 @@ import com.blocklang.marketplace.apirepo.widget.data.WidgetEventArgument;
 import com.blocklang.marketplace.apirepo.widget.data.WidgetProperty;
 import com.blocklang.marketplace.apirepo.widget.data.WidgetPropertyOption;
 import com.blocklang.marketplace.constant.WidgetPropertyValueType;
-import com.blocklang.marketplace.constant.RepoCategory;
-import com.blocklang.marketplace.dao.ApiRepoDao;
-import com.blocklang.marketplace.dao.ApiRepoVersionDao;
 import com.blocklang.marketplace.dao.ApiWidgetDao;
 import com.blocklang.marketplace.dao.ApiWidgetEventArgDao;
 import com.blocklang.marketplace.dao.ApiWidgetPropertyDao;
@@ -32,12 +28,8 @@ import com.blocklang.marketplace.model.ApiWidgetPropertyValueOption;
 import com.blocklang.marketplace.service.WidgetApiRefService;
 
 @Service
-public class WidgetApiRefServiceImpl implements WidgetApiRefService {
+public class WidgetApiRefServiceImpl extends AbstractApiRefService implements WidgetApiRefService {
 
-	@Autowired
-	private ApiRepoDao apiRepoDao;
-	@Autowired
-	private ApiRepoVersionDao apiRepoVersionDao;
 	@Autowired
 	private ApiWidgetDao apiWidgetDao;
 	@Autowired
@@ -53,37 +45,6 @@ public class WidgetApiRefServiceImpl implements WidgetApiRefService {
 		ApiRepo apiRepo = saveApoRepo(refData);
 		ApiRepoVersion apiRepoVersion = saveApiRepoVersion(apiRepo.getId(), refData);
 		saveApiWidgets(apiRepoVersion, refData);
-	}
-
-	private ApiRepo saveApoRepo(RefData<WidgetData> refData) {
-		String gitUrl = refData.getGitUrl();
-		GitUrlSegment urlSegment = GitUrlSegment.of(gitUrl);
-		
-		ApiRepo apiRepo = new ApiRepo();
-		apiRepo.setGitRepoUrl(refData.getGitUrl());
-		apiRepo.setGitRepoWebsite(urlSegment.getWebsite());
-		apiRepo.setGitRepoOwner(urlSegment.getOwner());
-		apiRepo.setGitRepoName(urlSegment.getRepoName());
-		apiRepo.setCategory(RepoCategory.fromValue(refData.getRepoConfig().getCategory()));
-		apiRepo.setCreateTime(LocalDateTime.now());
-		apiRepo.setCreateUserId(refData.getCreateUserId());
-		
-		return apiRepoDao.save(apiRepo);
-	}
-	
-	private ApiRepoVersion saveApiRepoVersion(Integer apiRepoId, RefData<WidgetData> refData) {
-		ApiRepoVersion version = new ApiRepoVersion();
-		version.setApiRepoId(apiRepoId);
-		version.setVersion(refData.getShortRefName());
-		version.setGitTagName(refData.getFullRefName());
-		version.setName(refData.getRepoConfig().getName());
-		version.setDisplayName(refData.getRepoConfig().getDisplayName());
-		version.setDescription(refData.getRepoConfig().getDescription());
-		version.setLastPublishTime(LocalDateTime.now());
-		version.setCreateUserId(refData.getCreateUserId());
-		version.setCreateTime(LocalDateTime.now());
-		
-		return apiRepoVersionDao.save(version);
 	}
 
 	private void saveApiWidgets(ApiRepoVersion apiRepoVersion, RefData<WidgetData> refData) {

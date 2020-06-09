@@ -30,7 +30,7 @@ public class ApiWidget extends PartialOperateFields{
 	@Column(name = "label", length = 64)
 	private String label;
 	
-	@Column(name = "description", length = 128)
+	@Column(name = "description", length = 512)
 	private String description;
 
 	public Integer getApiRepoVersionId() {
