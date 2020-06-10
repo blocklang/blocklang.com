@@ -19,9 +19,9 @@
 
 * 主键：`PK_API_SERVICE`
 * 外键：(*未设置*)`FK_API_SERVICE_REPO_VERSION`，`API_REPO_VERSION_ID` 对应 `API_REPO_VERSION` 表的 `dbid`
-* 索引：`UK_API_SERVICE_ON_API_REPO_VERSION_NAME`，对应字段 `api_repo_version_id`、`name`；`UK_API_SERVICE_ON_API_REPO_VERSION_CODE`，对应字段 `api_repo_version_id`、`code`
+* 索引：`UK_API_SCHEMA_ON_REPO_VERSION_PARENT_NAME`，对应字段 `api_repo_version_id`、 `parent_id`、`name`
 
 ## 说明
 
-1. 不需要四个常规字段，取 `API_SERVICE` 中的值
-2. `parent_id` 的默认值为 `-1`，表示根节点
+1. `parent_id` 的默认值为 `-1`，表示根节点
+2. `type` 的值为 `string`、`number`、`boolean`、`object` 和 `array`

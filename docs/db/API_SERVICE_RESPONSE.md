@@ -2,17 +2,17 @@
 
 ## 字段
 
-| 字段名                | 注释             | 类型    | 长度 | 默认值 | 主键 | 可空 |
-| --------------------- | ---------------- | ------- | ---- | ------ | ---- | ---- |
-| dbid                  | 主键             | int     |      |        | 是   | 否   |
-| api_service_id        | API Service 标识 | int     |      |        |      | 否   |
-| code                  | 响应的编码       | char    | 4    |        |      | 否   |
-| name                  | 响应的名称       | varchar | 64   |        |      | 否   |
-| statusCode            | http 状态码      | char    | 3    |        |      | 否   |
-| contentType           | 内容类型         | varchar | 64   |        |      | 否   |
-| description           | 参数的详细说明   | varchar | 512  |        |      | 是   |
-| value_type            | 参数的值类型     | varchar | 32   |        |      | 否   |
-| api_service_schema_id | 参数的类型信息   | int     |      |        |      | 否   |
+| 字段名                | 注释               | 类型    | 长度 | 默认值 | 主键 | 可空 |
+| --------------------- | ------------------ | ------- | ---- | ------ | ---- | ---- |
+| dbid                  | 主键               | int     |      |        | 是   | 否   |
+| api_service_id        | API Service 标识   | int     |      |        |      | 否   |
+| code                  | 响应信息的编码     | char    | 4    |        |      | 否   |
+| name                  | 响应信息的名称     | varchar | 64   |        |      | 否   |
+| status_code            | http 状态码        | char    | 3    |        |      | 否   |
+| content_type           | 内容类型           | varchar | 64   |        |      | 否   |
+| description           | 响应信息的详细说明 | varchar | 512  |        |      | 是   |
+| value_type            | 响应信息的值类型   | varchar | 32   |        |      | 否   |
+| api_service_schema_id | 响应信息的类型信息 | int     |      |        |      | 否   |
 
 ## 约束
 

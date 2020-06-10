@@ -78,4 +78,10 @@
 	<include file="db/changelog/table/202006081909_create_api_jsobj_func.xml" />
 	<include file="db/changelog/table/202006081910_create_api_jsobj_func_arg.xml" />
 	
+	<include file="db/changelog/table/202006100723_create_api_service.xml" />
+	<include file="db/changelog/table/202006100728_create_api_service_param.xml" />
+	<include file="db/changelog/table/202006100737_create_api_service_request_body.xml" />
+	<include file="db/changelog/table/202006100739_create_api_service_response.xml" />
+	<include file="db/changelog/table/202006100746_create_api_service_schema.xml" />
+	
 </databaseChangeLog>

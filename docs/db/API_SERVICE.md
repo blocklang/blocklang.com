@@ -6,15 +6,15 @@
 
 ## 字段
 
-| 字段名              | 注释               | 类型    | 长度 | 默认值 | 主键 | 可空 |
-| ------------------- | ------------------ | ------- | ---- | ------ | ---- | ---- |
-| dbid                | 主键               | int     |      |        | 是   | 否   |
-| api_repo_version_id | API 仓库版本标识   | int     |      |        |      | 否   |
-| code                | Service 的编码     | char    | 4    |        |      | 否   |
-| name                | Service 的名称     | varchar | 64   |        |      | 否   |
-| url                 | Service 的访问 url | varchar | 64   |        |      | 否   |
-| httpMethod          | http method        | varchar | 32   |        |      | 否   |
-| description         | Widget 的详细说明  | varchar | 512  |        |      | 是   |
+| 字段名              | 注释                | 类型    | 长度 | 默认值 | 主键 | 可空 |
+| ------------------- | ------------------- | ------- | ---- | ------ | ---- | ---- |
+| dbid                | 主键                | int     |      |        | 是   | 否   |
+| api_repo_version_id | API 仓库版本标识    | int     |      |        |      | 否   |
+| code                | Service 的编码      | char    | 4    |        |      | 否   |
+| name                | Service 的名称      | varchar | 64   |        |      | 否   |
+| url                 | 访问 Service 的 url | varchar | 64   |        |      | 否   |
+| http_method         | http method         | varchar | 32   |        |      | 否   |
+| description         | Service 的详细说明  | varchar | 512  |        |      | 是   |
 
 ## 约束
 
