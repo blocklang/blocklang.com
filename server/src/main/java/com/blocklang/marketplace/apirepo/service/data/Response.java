@@ -2,10 +2,19 @@ package com.blocklang.marketplace.apirepo.service.data;
 
 public class Response {
 
+	private String code;
 	private String statusCode;
 	private String contentType;
 	private String description;
 	private Schema schema;
+
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
 
 	public String getStatusCode() {
 		return statusCode;

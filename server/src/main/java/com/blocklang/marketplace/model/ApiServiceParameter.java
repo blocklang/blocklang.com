@@ -27,8 +27,8 @@ public class ApiServiceParameter extends PartialIdField {
 	@Column(name = "name", nullable = false, length = 64)
 	private String name;
 
-	@Column(name = "in", nullable = false, length = 16)
-	private String in;
+	@Column(name = "param_type", nullable = false, length = 16)
+	private String paramType;
 
 	@Column(name = "description", length = 512)
 	private String description;
@@ -74,12 +74,12 @@ public class ApiServiceParameter extends PartialIdField {
 		this.apiServiceId = apiServiceId;
 	}
 
-	public String getIn() {
-		return in;
+	public String getParamType() {
+		return paramType;
 	}
 
-	public void setIn(String in) {
-		this.in = in;
+	public void setParamType(String paramType) {
+		this.paramType = paramType;
 	}
 
 	public String getValueType() {

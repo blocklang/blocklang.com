@@ -10,7 +10,7 @@
 | name                  | 参数的名称，取 `contentType` | varchar | 64   |        |      | 否   |
 | description           | 参数的详细说明               | varchar | 512  |        |      | 是   |
 | value_type            | 参数的值类型                 | varchar | 32   |        |      | 否   |
-| api_service_schema_id | 参数的类型信息               | int     |      |        |      | 否   |
+| api_service_schema_id | 参数的类型信息               | int     |      |        |      | 是   |
 
 ## 约束
 

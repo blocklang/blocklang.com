@@ -14,9 +14,7 @@
 			<column name="api_repo_version_id" remarks="API 仓库版本标识" type="int">
 				<constraints nullable="false" />
 			</column>
-			<column name="name" remarks="属性名" type="varchar(64)">
-				<constraints nullable="false" />
-			</column>
+			<column name="name" remarks="属性名" type="varchar(64)" />
 			<column name="type" remarks="数据类型" type="varchar(32)">
 				<constraints nullable="false" />
 			</column>

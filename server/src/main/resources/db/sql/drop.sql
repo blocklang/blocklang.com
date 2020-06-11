@@ -40,6 +40,11 @@ drop table page_func_connection;
 drop table api_jsobj;
 drop table api_jsobj_func;
 drop table api_jsobj_func_arg;
+drop table api_service;
+drop table api_service_param;
+drop table api_service_request_body;
+drop table api_service_response;
+drop table api_service_schema;
 
 drop table databasechangelog;
 drop table databasechangeloglock;

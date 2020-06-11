@@ -11,11 +11,11 @@
 | api_service_id        | API Service 标识 | int     |      |        |      | 否   |
 | code                  | 参数的编码       | char    | 4    |        |      | 否   |
 | name                  | 参数的名称       | varchar | 64   |        |      | 否   |
-| in                    | 参数的类型       | varchar | 16   |        |      | 否   |
+| param_type            | 参数的类型       | varchar | 16   |        |      | 否   |
 | description           | 参数的详细说明   | varchar | 512  |        |      | 是   |
 | required              | 是否必填         | boolean |      | true   |      | 是   |
 | value_type            | 参数的值类型     | varchar | 32   |        |      | 否   |
-| api_service_schema_id | 参数的类型信息   | int     |      |        |      | 否   |
+| api_service_schema_id | 参数的类型信息   | int     |      |        |      | 是   |
 
 ## 约束
 
@@ -26,7 +26,7 @@
 ## 说明
 
 1. 不需要四个常规字段，取 `API_SERVICE` 中的值
-2. `in` 的值为：`path`，`query`，`header` 和 `cookie`
+2. `param_type` 的值为：`path`，`query`，`header` 和 `cookie`
 3. 不同版本的同一个部件的同一个属性，则 `code` 的值必须相同
 4. 一个组件对应一套编码，`CODE` 的值从 `0001` 开始，到 `9999` 结束
 5. `value_type` 的值为 `string`、`number`、`boolean`、`object` 和 `array`

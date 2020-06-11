@@ -10,7 +10,7 @@
 | ------------------- | ---------------- | ------- | ---- | ------ | ---- | ---- |
 | dbid                | 主键             | int     |      |        | 是   | 否   |
 | api_repo_version_id | API 仓库版本标识 | int     |      |        |      | 否   |
-| name                | 属性名           | varchar | 64   |        |      | 否   |
+| name                | 属性名           | varchar | 64   |        |      | 是   |
 | type                | 数据类型         | varchar | 32   |        |      | 否   |
 | description         | 属性的详细说明   | varchar | 512  |        |      | 是   |
 | parent_id           | 父属性标识       | int     |      | -1       |      | 否   |

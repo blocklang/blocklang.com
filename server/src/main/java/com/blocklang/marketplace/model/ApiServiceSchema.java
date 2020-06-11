@@ -18,16 +18,16 @@ public class ApiServiceSchema extends PartialOperateFields {
 	@Column(name = "api_repo_version_id", nullable = false)
 	private Integer apiRepoVersionId;
 
-	@Column(name = "name", nullable = false, length = 64)
+	@Column(name = "name", length = 64)
 	private String name;
 
-	@Column(name = "type", length = 32)
+	@Column(name = "type", nullable = false, length = 32)
 	private String type;
 
 	@Column(name = "description", length = 512)
 	private String description;
 
-	@Column(name = "parent_id")
+	@Column(name = "parent_id", nullable = false)
 	private Integer parentId = Constant.TREE_ROOT_ID;
 
 	public Integer getApiRepoVersionId() {
