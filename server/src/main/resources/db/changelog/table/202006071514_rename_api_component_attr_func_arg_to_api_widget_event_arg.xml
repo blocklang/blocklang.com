@@ -20,6 +20,11 @@
 		<addUniqueConstraint columnNames="api_widget_prop_id,code"
 			constraintName="UK_API_WIDGET_EVENT_ARG_ON_PROP_CODE"
 			tableName="api_widget_event_arg" />
+		<addColumn tableName="api_widget_event_arg">
+			<column name="api_repo_version_id" remarks="API 仓库版本标识" type="int">
+				<constraints nullable="false" />
+			</column>
+		</addColumn>
 	</changeSet>
 
 </databaseChangeLog>

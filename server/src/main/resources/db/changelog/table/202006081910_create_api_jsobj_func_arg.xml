@@ -11,6 +11,9 @@
 			<column name="dbid" type="int" autoIncrement="true">
 				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_API_JSOBJ_FUNC_ARG" />
 			</column>
+			<column name="api_repo_version_id" remarks="API 仓库版本标识" type="int">
+				<constraints nullable="false" />
+			</column>
 			<column name="api_jsobj_func_id" remarks=" API JavaScript 对象中的函数标识" type="int">
 				<constraints nullable="false" />
 			</column>

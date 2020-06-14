@@ -26,7 +26,11 @@
 			tableName="api_widget_prop" />
 		<addColumn tableName="api_widget_prop">
 			<column name="required" remarks="是否必填" type="boolean" defaultValueBoolean="false"/>
+			<column name="api_repo_version_id" remarks="API 仓库版本标识" type="int">
+				<constraints nullable="false" />
+			</column>
 		</addColumn>
+		
 	</changeSet>
 
 </databaseChangeLog>

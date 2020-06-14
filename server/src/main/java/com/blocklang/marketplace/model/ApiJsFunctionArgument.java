@@ -14,6 +14,9 @@ public class ApiJsFunctionArgument extends PartialIdField {
 
 	private static final long serialVersionUID = -7111841175642612995L;
 
+	@Column(name = "api_repo_version_id", nullable = false)
+	private Integer apiRepoVersionId;
+	
 	@Column(name = "api_jsobj_func_id", nullable = false)
 	private Integer apiJsFunctionId;
 
@@ -34,6 +37,14 @@ public class ApiJsFunctionArgument extends PartialIdField {
 
 	@Column(name = "seq", nullable = false)
 	private Integer seq;
+
+	public Integer getApiRepoVersionId() {
+		return apiRepoVersionId;
+	}
+
+	public void setApiRepoVersionId(Integer apiRepoVersionId) {
+		this.apiRepoVersionId = apiRepoVersionId;
+	}
 
 	public String getCode() {
 		return code;

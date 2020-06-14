@@ -18,6 +18,9 @@ public class ApiServiceRequestBody extends PartialIdField {
 
 	private static final long serialVersionUID = 7468693291041931295L;
 
+	@Column(name = "api_repo_version_id", nullable = false)
+	private Integer apiRepoVersionId;
+	
 	@Column(name = "api_service_id", nullable = false)
 	private Integer apiServiceId;
 
@@ -35,6 +38,14 @@ public class ApiServiceRequestBody extends PartialIdField {
 
 	@Column(name = "api_service_schema_id")
 	private Integer apiServiceSchemaId;
+
+	public Integer getApiRepoVersionId() {
+		return apiRepoVersionId;
+	}
+
+	public void setApiRepoVersionId(Integer apiRepoVersionId) {
+		this.apiRepoVersionId = apiRepoVersionId;
+	}
 
 	public String getCode() {
 		return code;

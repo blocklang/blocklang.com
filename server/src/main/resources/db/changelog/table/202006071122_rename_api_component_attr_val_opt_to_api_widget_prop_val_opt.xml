@@ -23,6 +23,9 @@
 			
 		<addColumn tableName="api_widget_prop_val_opt">
 			<column name="value_description" remarks="选项值的详细描述" type="varchar(512)"/>
+			<column name="api_repo_version_id" remarks="API 仓库版本标识" type="int">
+				<constraints nullable="false" />
+			</column>
 		</addColumn>
 	</changeSet>
 

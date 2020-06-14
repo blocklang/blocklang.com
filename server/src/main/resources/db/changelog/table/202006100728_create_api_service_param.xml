@@ -11,6 +11,9 @@
 			<column name="dbid" type="int" autoIncrement="true">
 				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_API_SERVICE_PARAM" />
 			</column>
+			<column name="api_repo_version_id" remarks="API 仓库版本标识" type="int">
+				<constraints nullable="false" />
+			</column>
 			<column name="api_service_id" remarks="API Service 标识" type="int">
 				<constraints nullable="false" />
 			</column>

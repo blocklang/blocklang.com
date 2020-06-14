@@ -21,6 +21,9 @@ public class ApiWidgetProperty extends PartialIdField{
 
 	private static final long serialVersionUID = -6776355043794409062L;
 
+	@Column(name = "api_repo_version_id", nullable = false)
+	private Integer apiRepoVersionId;
+	
 	@Column(name = "api_widget_id", nullable = false)
 	private Integer apiWidgetId;
 	
@@ -45,6 +48,14 @@ public class ApiWidgetProperty extends PartialIdField{
 	
 	@Column(name = "required")
 	private Boolean required = false;
+
+	public Integer getApiRepoVersionId() {
+		return apiRepoVersionId;
+	}
+
+	public void setApiRepoVersionId(Integer apiRepoVersionId) {
+		this.apiRepoVersionId = apiRepoVersionId;
+	}
 
 	public Integer getApiWidgetId() {
 		return apiWidgetId;
