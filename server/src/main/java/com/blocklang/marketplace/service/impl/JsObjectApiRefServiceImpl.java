@@ -32,11 +32,20 @@ public class JsObjectApiRefServiceImpl extends AbstractApiRefService implements 
 	@Autowired
 	private ApiJsFunctionArgumentDao apiJsFunctionArgumentDao;
 	
+	
+	// FIXME: 先删除 master 分支中的所有内容
+	// 更新 master 的 last_publish_time
+	// 清除所有发布的 API
+	
 	@Override
 	@Transactional
 	public void save(RefData<JsObjectData> refData) {
 		ApiRepo apiRepo = saveApoRepo(refData);
 		ApiRepoVersion apiRepoVersion = saveApiRepoVersion(apiRepo.getId(), refData);
+		
+		if(refData.getShortRefName().equals("master")) {
+			clearRefApis(apiRepoVersion.getId());
+		}
 		saveApiJsObjects(apiRepoVersion, refData);
 	}
 
@@ -90,6 +99,13 @@ public class JsObjectApiRefServiceImpl extends AbstractApiRefService implements 
 			apiJsFunctionArgumentDao.save(apiArg);
 			seq++;
 		}
+	}
+
+	@Override
+	public void clearRefApis(Integer apiRepoVersionId) {
+		apiJsFunctionArgumentDao.deleteByApiRepoVersionId(apiRepoVersionId);
+		apiJsFunctionDao.deleteByApiRepoVersionId(apiRepoVersionId);
+		apiJsObjectDao.deleteByApiRepoVersionId(apiRepoVersionId);
 	}
 
 }

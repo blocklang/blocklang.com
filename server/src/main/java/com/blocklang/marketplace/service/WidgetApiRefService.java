@@ -1,10 +1,7 @@
 package com.blocklang.marketplace.service;
 
-import com.blocklang.marketplace.apirepo.RefData;
 import com.blocklang.marketplace.apirepo.widget.data.WidgetData;
 
-public interface WidgetApiRefService {
+public interface WidgetApiRefService extends PersistApiRefService<WidgetData> {
 
-	void save(RefData<WidgetData> refData);
-	
 }

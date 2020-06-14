@@ -12,6 +12,8 @@ public class RefData<T> {
 	private RepoConfigJson repoConfig;
 	private List<T> apiObjects;
 	private Integer createUserId;
+	
+	private boolean invalidData = false;
 
 	public String getGitUrl() {
 		return gitUrl;
@@ -59,6 +61,14 @@ public class RefData<T> {
 
 	public void setCreateUserId(Integer createUserId) {
 		this.createUserId = createUserId;
+	}
+
+	public void readFailed() {
+		this.invalidData = true;
+	}
+
+	public boolean isInvalidData() {
+		return invalidData;
 	}
 
 }

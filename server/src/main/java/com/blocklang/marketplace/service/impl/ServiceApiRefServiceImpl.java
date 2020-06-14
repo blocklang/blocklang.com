@@ -45,6 +45,10 @@ public class ServiceApiRefServiceImpl extends AbstractApiRefService implements S
 	public void save(RefData<ServiceData> refData) {
 		ApiRepo apiRepo = saveApoRepo(refData);
 		ApiRepoVersion apiRepoVersion = saveApiRepoVersion(apiRepo.getId(), refData);
+		
+		if(refData.getShortRefName().equals("master")) {
+			clearRefApis(apiRepoVersion.getId());
+		}
 		saveApiServices(apiRepoVersion, refData);
 	}
 
@@ -184,5 +188,13 @@ public class ServiceApiRefServiceImpl extends AbstractApiRefService implements S
 			saveSchemaProperty(apiRepoVersionId, apiSchema.getId(), each, createUserId);
 		}
 	}
-
+	
+	@Override
+	public void clearRefApis(Integer apiRepoVersionId) {
+		apiServiceResponseDao.deleteByApiRepoVersionId(apiRepoVersionId);
+		apiServiceRequestBodyDao.deleteByApiRepoVersionId(apiRepoVersionId);
+		apiServiceParameterDao.deleteByApiRepoVersionId(apiRepoVersionId);
+		apiServiceDao.deleteByApiRepoVersionId(apiRepoVersionId);
+	}
+	
 }

@@ -1,6 +1,7 @@
 package com.blocklang.marketplace.service.impl;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -19,6 +20,14 @@ public abstract class AbstractApiRefService {
 	@Autowired
 	private ApiRepoVersionDao apiRepoVersionDao;
 	
+	public boolean isPublished(String gitUrl, Integer createUserId, String shortRefName) {
+		Optional<ApiRepo> apiRepoOption = apiRepoDao.findByGitRepoUrlAndCreateUserId(gitUrl, createUserId);
+		if(apiRepoOption.isEmpty()) {
+			return false;
+		}
+		return apiRepoVersionDao.findByApiRepoIdAndVersion(apiRepoOption.get().getId(), shortRefName).isPresent();
+	}
+	
 	protected <T> ApiRepo saveApoRepo(RefData<T> refData) {
 		String gitUrl = refData.getGitUrl();
 		GitUrlSegment urlSegment = GitUrlSegment.of(gitUrl);
@@ -36,7 +45,7 @@ public abstract class AbstractApiRefService {
 	}
 	
 	protected <T> ApiRepoVersion saveApiRepoVersion(Integer apiRepoId, RefData<T> refData) {
-		ApiRepoVersion version = new ApiRepoVersion();
+		ApiRepoVersion version = apiRepoVersionDao.findByApiRepoIdAndVersion(apiRepoId, refData.getShortRefName()).orElse(new ApiRepoVersion());
 		version.setApiRepoId(apiRepoId);
 		version.setVersion(refData.getShortRefName());
 		version.setGitTagName(refData.getFullRefName());

@@ -44,6 +44,9 @@ public class WidgetApiRefServiceImpl extends AbstractApiRefService implements Wi
 	public void save(RefData<WidgetData> refData) {
 		ApiRepo apiRepo = saveApoRepo(refData);
 		ApiRepoVersion apiRepoVersion = saveApiRepoVersion(apiRepo.getId(), refData);
+		if(refData.getShortRefName().equals("master")) {
+			clearRefApis(apiRepoVersion.getId());
+		}
 		saveApiWidgets(apiRepoVersion, refData);
 	}
 
@@ -134,4 +137,13 @@ public class WidgetApiRefServiceImpl extends AbstractApiRefService implements Wi
 			apiWidgetEventArgDao.save(arg);
 		}
 	}
+
+	@Override
+	public void clearRefApis(Integer apiRepoVersionId) {
+		apiWidgetEventArgDao.deleteByApiRepoVersionId(apiRepoVersionId);
+		apiWidgetPropertyValueOptionDao.deleteByApiRepoVersionId(apiRepoVersionId);
+		apiWidgetPropertyDao.deleteByApiRepoVersionId(apiRepoVersionId);
+		apiWidgetDao.deleteByApiRepoVersionId(apiRepoVersionId);
+	}
+	
 }
