@@ -28,5 +28,5 @@ API 仓库的版本信息，其中存储 git 仓库的所有 tag 信息和 maste
 1. 不需要 `last_update_user_id` 和 `last_update_time` 字段
 2. 存储内容包括仓库的所有 git tag 和 master 分支
 3. 如果对应的是 git tag，则 `version` 的值是 git tag 名称中的语义化版本号；如果是 master 分支，则值为 `master`
-4. `git_tag_name`，如果是 tag，则要包含 `refs/tags/` 前缀，如果是 master 分支，则值固定为 `refs/heads/master`
+4. `git_tag_name`，如果是 tag 分支，则要包含 `refs/tags/` 前缀，如果是 master 分支，则值固定为 `refs/heads/master`
 5. 如果是 tag 分支，则 `create_time` 和 `last_publish_time` 的值相同，如果是 master 分支，因为 master 每次都重新发布，所以 `last_publish_time` 存的是最近发布时间

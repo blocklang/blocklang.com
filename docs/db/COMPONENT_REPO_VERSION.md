@@ -4,15 +4,23 @@
 
 ## 字段
 
-| 字段名              | 注释             | 类型     | 长度 | 默认值 | 主键 | 可空 |
-| ------------------- | ---------------- | -------- | ---- | ------ | ---- | ---- |
-| dbid                | 主键             | int      |      |        | 是   | 否   |
-| component_repo_id   | 组件仓库标识     | int      |      |        |      | 否   |
-| version             | 组件库的版本号   | varchar  | 32   |        |      | 否   |
-| git_tag_name        | git tag 名称     | varchar  | 32   |        |      | 否   |
-| api_repo_version_id | API 库的版本标识 | int      |      |        |      | 否   |
-| create_user_id      | 创建人标识       | int      |      |        |      | 否   |
-| create_time         | 创建时间         | datetime |      |        |      | 否   |
+| 字段名              | 注释               | 类型     | 长度 | 默认值 | 主键 | 可空 |
+| ------------------- | ------------------ | -------- | ---- | ------ | ---- | ---- |
+| dbid                | 主键               | int      |      |        | 是   | 否   |
+| component_repo_id   | 组件仓库标识       | int      |      |        |      | 否   |
+| version             | 组件库的版本号     | varchar  | 32   |        |      | 否   |
+| git_tag_name        | git tag 名称       | varchar  | 32   |        |      | 否   |
+| api_repo_version_id | API 库的版本标识   | int      |      |        |      | 否   |
+| app_type            | 程序类型           | char     | 2    |        |      | 否   |
+| name                | 组件库的名称       | varchar  | 64   |        |      | 否   |
+| displayName         | 组件库的显示名     | varchar  | 64   |        |      | 是   |
+| description         | 组件库的详细说明   | varchar  | 512  |        |      | 是   |
+| logo_path           | 项目 Logo 存储路径 | varchar  | 64   |        |      | 是   |
+| language            | 主编程语言         | varchar  | 32   |        |      | 否   |
+| build               | cli build 工具     | varchar  | 32   |        |      | 否   |
+| last_publish_time   | 最近发布时间       | datetime |      |        |      | 是   |
+| create_user_id      | 创建人标识         | int      |      |        |      | 否   |
+| create_time         | 创建时间           | datetime |      |        |      | 否   |
 
 ## 约束
 
@@ -25,4 +33,6 @@
 1. 不需要 `last_update_user_id` 和 `last_update_time` 字段
 2. 只存储在 blocklang 组件市场发布的版本，并不是仓库中的所有 version/tag 都要存
 3. `version` 记录的是 `api.json` 文件中对应的 version 属性值；`git_tag_name` 记录的是 git 仓库的 tag 名称
-4. `git_tag_name` 中不包含 `refs/tags/`
+4. `git_tag_name`，如果是 tag 分支，则要包含 `refs/tags/` 前缀，如果是 master 分支，则值固定为 `refs/heads/master`
+5. `app_type` 的值为：`01` 表示 `web`，`02` 表示 `mobile`，`03` 表示 `miniprogram`，注意此处是一个大类，当发布时再具体指出 `mobile` 是 `android` 还是 `ios`，`miniprogram` 是 `微信小程序` 还是 `支付宝小程序` 等
+6. 如果是 tag 分支，则 `create_time` 和 `last_publish_time` 的值相同，如果是 master 分支，因为 master 每次都重新发布，所以 `last_publish_time` 存的是最近发布时间
