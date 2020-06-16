@@ -113,6 +113,62 @@ public class ComponentRepoVersion extends PartialIdField {
 		this.gitTagName = gitTagName;
 	}
 	
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getDisplayName() {
+		return displayName;
+	}
+
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public String getLogoPath() {
+		return logoPath;
+	}
+
+	public void setLogoPath(String logoPath) {
+		this.logoPath = logoPath;
+	}
+
+	public Language getLanguage() {
+		return language;
+	}
+
+	public void setLanguage(Language language) {
+		this.language = language;
+	}
+
+	public LocalDateTime getLastPublishTime() {
+		return lastPublishTime;
+	}
+
+	public void setLastPublishTime(LocalDateTime lastPublishTime) {
+		this.lastPublishTime = lastPublishTime;
+	}
+
+	public AppType getAppType() {
+		return appType;
+	}
+
+	public void setAppType(AppType appType) {
+		this.appType = appType;
+	}
+
 	// FIXME: 注意，此处没有包含 Service
 	// Service 算不算是一个 app?
 	// 或者是 appType 需要改名？

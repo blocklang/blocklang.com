@@ -19,6 +19,7 @@
 			<column name="app_type" />
 			<column name="is_ide_extension" />
 			<column name="is_std" />
+			<column name="api_repo_id" />
 		</dropColumn>
 		<addColumn tableName="component_repo">
 			<column name="repo_type" remarks="仓库类型" type="char(2)">
