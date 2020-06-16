@@ -4,9 +4,9 @@ import com.blocklang.core.runner.common.CliLogger;
 import com.blocklang.marketplace.apirepo.ApiObjectContext;
 import com.blocklang.marketplace.apirepo.Change;
 import com.blocklang.marketplace.apirepo.ChangeData;
+import com.blocklang.marketplace.apirepo.CodeGenerator;
 import com.blocklang.marketplace.apirepo.widget.data.AddWidgetPropertyData;
 import com.blocklang.marketplace.apirepo.widget.data.WidgetData;
-import com.blocklang.marketplace.task.CodeGenerator;
 
 public class AddWidgetProperty extends Change{
 

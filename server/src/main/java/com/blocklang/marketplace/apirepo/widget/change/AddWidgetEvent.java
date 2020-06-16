@@ -3,9 +3,9 @@ package com.blocklang.marketplace.apirepo.widget.change;
 import com.blocklang.marketplace.apirepo.ApiObjectContext;
 import com.blocklang.marketplace.apirepo.Change;
 import com.blocklang.marketplace.apirepo.ChangeData;
+import com.blocklang.marketplace.apirepo.CodeGenerator;
 import com.blocklang.marketplace.apirepo.widget.data.AddWidgetEventData;
 import com.blocklang.marketplace.apirepo.widget.data.WidgetData;
-import com.blocklang.marketplace.task.CodeGenerator;
 
 public class AddWidgetEvent extends Change{
 
