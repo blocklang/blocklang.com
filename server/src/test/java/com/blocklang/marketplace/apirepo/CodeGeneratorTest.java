@@ -1,9 +1,11 @@
-package com.blocklang.marketplace.task;
+package com.blocklang.marketplace.apirepo;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import com.blocklang.marketplace.apirepo.CodeGenerator;
 
 public class CodeGeneratorTest {
 
