@@ -3,11 +3,16 @@ package com.blocklang.marketplace.model;
 import java.time.LocalDateTime;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import com.blocklang.core.model.PartialIdField;
+import com.blocklang.develop.constant.AppType;
+import com.blocklang.develop.constant.converter.AppTypeConverter;
+import com.blocklang.marketplace.constant.Language;
+import com.blocklang.marketplace.constant.converter.LanguageConverter;
 
 @Entity
 @Table(name = "component_repo_version", 
@@ -30,6 +35,29 @@ public class ComponentRepoVersion extends PartialIdField {
 	
 	@Column(name = "api_repo_version_id", nullable = false)
 	private Integer apiRepoVersionId;
+
+	@Column(name = "name", nullable = false, length = 64)
+	private String name;
+
+	@Column(name = "display_name", length = 64)
+	private String displayName;
+
+	@Column(name = "description", length = 512)
+	private String description;
+
+	@Column(name = "logo_path", length = 64)
+	private String logoPath;
+
+	@Convert(converter = LanguageConverter.class)
+	@Column(name = "language", nullable = false, length = 2)
+	private Language language;
+	
+	@Column(name = "last_publish_time" )
+	private LocalDateTime lastPublishTime;
+
+	@Convert(converter = AppTypeConverter.class)
+	@Column(name = "app_type", nullable = false, length = 2)
+	private AppType appType;
 
 	@Column(name = "create_user_id", insertable = true, updatable = false, nullable = false)
 	private Integer createUserId;
@@ -85,4 +113,14 @@ public class ComponentRepoVersion extends PartialIdField {
 		this.gitTagName = gitTagName;
 	}
 	
+	// FIXME: 注意，此处没有包含 Service
+	// Service 算不算是一个 app?
+	// 或者是 appType 需要改名？
+	public String getIcon() {
+		return this.appType.getIcon();
+	}
+	// FIXME: 注意，此处没有包含 Service
+	public String getTitle() {
+		return this.appType.getLabel();
+	}
 }

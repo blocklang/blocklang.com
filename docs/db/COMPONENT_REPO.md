@@ -21,7 +21,7 @@
 
 * 主键：`PK_COMPONENT_REPO`
 * 外键：(*未设置*)`FK_COMPONENT_REPO_API_REPO`，`api_repo_id` 对应 `API_REPO` 的 `dbid`
-* 索引：`UK_COMP_REPO_ON_GIT_REPO_URL_USER_ID`，对应字段 `git_repo_url`、`create_user_id`；`UK_COMP_REPO_ON_NAME_USER_ID`，对应字段 `name`、`create_user_id`
+* 索引：`UK_COMP_REPO_ON_GIT_REPO_URL_USER_ID`，对应字段 `git_repo_url`、`create_user_id`
 
 ## 说明
 
@@ -33,7 +33,7 @@
 6. `category` 的值：`01` 表示 `Widget`，`02` 表示 `Service`，`03` 表示 `WebAPI`，`99` 表示 `Unknown`
 7. `repo_type` 的值为: `02` 表示 `IDE`，`03` 表示 `PROD`(此表不存储 `01`，即 `API` 仓库信息)
 8. 登记仓库时间对应的字段是 `create_time`，当有新版本出现时，可能会发布新版内容，`last_publish_time` 中存的就是最近发布的时间
-9. 为了避免有人在市场中抢注仓库名，使用 `@{publisher}/{repo}` 的形式唯一定位一个组件库
+9. 为了避免有人在市场中抢注仓库名，使用 `@{createUserId}/{git_repo_url}` 的形式唯一定位一个组件库
 10. 一个组件仓库中只能存一类组件
 11. `repo_type` 的值为 `IDE` 时，在可视化的设计器中，需要为 API 仓库编写 IDE 专用的组件，如一个 `TextInput` 部件，在 IDE 中就需要提供展示 `TextInput` 部件的属性和事件的面板，在 IDE 扩展库中就是存储这些组件
 

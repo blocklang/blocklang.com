@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+	<changeSet author="Zhengwei Jin" id="202006151032">
+		<dropUniqueConstraint tableName="component_repo" constraintName="UK_COMP_REPO_ON_NAME_USER_ID"/>
+		<dropColumn tableName="component_repo">
+			<column name="name" />
+			<column name="version" />
+			<column name="label" />
+			<column name="description" />
+			<column name="logo_path" />
+			<column name="language" />
+			<column name="last_publish_time" />
+			<column name="app_type" />
+			<column name="is_ide_extension" />
+			<column name="is_std" />
+		</dropColumn>
+		<addColumn tableName="component_repo">
+			<column name="repo_type" remarks="仓库类型" type="char(2)">
+				<constraints nullable="false" />
+			</column>
+		</addColumn>
+		
+	</changeSet>
+
+</databaseChangeLog>

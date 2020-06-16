@@ -84,4 +84,7 @@
 	<include file="db/changelog/table/202006100739_create_api_service_response.xml" />
 	<include file="db/changelog/table/202006100746_create_api_service_schema.xml" />
 	
+	<include file="db/changelog/table/202006151032_alter_component_repo.xml" />
+	<include file="db/changelog/table/202006161035_alter_component_repo_version.xml" />
+	
 </databaseChangeLog>

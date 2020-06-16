@@ -16,7 +16,7 @@
 | displayName         | 组件库的显示名     | varchar  | 64   |        |      | 是   |
 | description         | 组件库的详细说明   | varchar  | 512  |        |      | 是   |
 | logo_path           | 项目 Logo 存储路径 | varchar  | 64   |        |      | 是   |
-| language            | 主编程语言         | varchar  | 32   |        |      | 否   |
+| language            | 主编程语言         | varchar  | 32   |        |      | 是   |
 | build               | cli build 工具     | varchar  | 32   |        |      | 否   |
 | last_publish_time   | 最近发布时间       | datetime |      |        |      | 是   |
 | create_user_id      | 创建人标识         | int      |      |        |      | 否   |
