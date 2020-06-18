@@ -10,6 +10,7 @@ public class RepoConfigJson {
 	private String category;
 	private String appType;
 	private String build;
+	private String language;
 	private boolean std;
 	private List<String> components;
 	private Api api;
@@ -84,6 +85,14 @@ public class RepoConfigJson {
 
 	public void setComponents(List<String> components) {
 		this.components = components;
+	}
+
+	public String getLanguage() {
+		return language;
+	}
+
+	public void setLanguage(String language) {
+		this.language = language;
 	}
 
 	public Api getApi() {

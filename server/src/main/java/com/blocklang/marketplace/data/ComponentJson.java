@@ -1,10 +1,14 @@
 package com.blocklang.marketplace.data;
 
+/**
+ * 
+ *  @deprecated 统一使用一个配置文件类 RepoConfigJson
+ */
 public class ComponentJson extends ApiJson{
 
 	private String language;
 	private String icon;
-	private String baseOn; // FIXME: 该字段尚未使用
+	private String baseOn; // 不再使用，改为 build
 	private Api api;
 	private String appType;
 	private Boolean dev = false; // 对应实体对象中的 isIdeExtension

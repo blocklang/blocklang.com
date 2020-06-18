@@ -1,5 +1,11 @@
 package com.blocklang.marketplace.data;
 
+// 不同种类的仓库配置文件定义稍有不同，是为每一种单独定义一个类，还是将所有属性定义到一个类中？
+/**
+ * 
+ * @author Zhengwei Jin
+ * @deprecated 使用 RepoConfigJson
+ */
 public class ApiJson {
 	private String name;
 	private String displayName;

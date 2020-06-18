@@ -15,7 +15,7 @@ import com.blocklang.core.exception.ResourceNotFoundException;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.PropertyService;
 import com.blocklang.core.service.UserService;
-import com.blocklang.core.util.GitUrlParser;
+import com.blocklang.core.util.GitUrlSegment;
 import com.blocklang.core.util.LogFileReader;
 import com.blocklang.marketplace.model.ComponentRepoPublishTask;
 import com.blocklang.marketplace.service.ComponentRepoPublishTaskService;
@@ -63,7 +63,7 @@ public class ComponentRepoPublishTaskController {
 			throw new NoAuthorizationException();
 		}
 		
-		GitUrlParser.parse(task.getGitUrl()).ifPresent(segment -> {
+		GitUrlSegment.of(task.getGitUrl()).ifPresent(segment -> {
 			task.setWebsite(segment.getWebsite());
 			task.setOwner(segment.getOwner());
 			task.setRepoName(segment.getRepoName());

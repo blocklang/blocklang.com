@@ -3,10 +3,13 @@ package com.blocklang.marketplace.service.impl;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.blocklang.core.constant.Constant;
+import com.blocklang.marketplace.apirepo.ApiObject;
 import com.blocklang.marketplace.apirepo.RefData;
 import com.blocklang.marketplace.apirepo.service.data.Parameter;
 import com.blocklang.marketplace.apirepo.service.data.RequestBody;
@@ -18,7 +21,6 @@ import com.blocklang.marketplace.dao.ApiServiceParameterDao;
 import com.blocklang.marketplace.dao.ApiServiceRequestBodyDao;
 import com.blocklang.marketplace.dao.ApiServiceResponseDao;
 import com.blocklang.marketplace.dao.ApiServiceSchemaDao;
-import com.blocklang.marketplace.model.ApiRepo;
 import com.blocklang.marketplace.model.ApiRepoVersion;
 import com.blocklang.marketplace.model.ApiService;
 import com.blocklang.marketplace.model.ApiServiceParameter;
@@ -41,10 +43,10 @@ public class ServiceApiRefServiceImpl extends AbstractApiRefService implements S
 	@Autowired
 	private ApiServiceResponseDao apiServiceResponseDao;
 	
+	@Transactional
 	@Override
-	public void save(RefData<ServiceData> refData) {
-		ApiRepo apiRepo = saveApoRepo(refData);
-		ApiRepoVersion apiRepoVersion = saveApiRepoVersion(apiRepo.getId(), refData);
+	public <T extends ApiObject> void save(Integer apiRepoId, RefData<T> refData) {
+		ApiRepoVersion apiRepoVersion = saveApiRepoVersion(apiRepoId, refData);
 		
 		if(refData.getShortRefName().equals("master")) {
 			clearRefApis(apiRepoVersion.getId());
@@ -52,10 +54,10 @@ public class ServiceApiRefServiceImpl extends AbstractApiRefService implements S
 		saveApiServices(apiRepoVersion, refData);
 	}
 
-	private void saveApiServices(ApiRepoVersion apiRepoVersion, RefData<ServiceData> refData) {
-		List<ServiceData> services = refData.getApiObjects();
-		for(ServiceData service : services) {
-			saveService(apiRepoVersion.getId(), service, refData.getCreateUserId());
+	private <T extends ApiObject> void saveApiServices(ApiRepoVersion apiRepoVersion, RefData<T> refData) {
+		List<T> services = refData.getApiObjects();
+		for(T service : services) {
+			saveService(apiRepoVersion.getId(), (ServiceData)service, refData.getCreateUserId());
 		}
 	}
 
@@ -196,5 +198,5 @@ public class ServiceApiRefServiceImpl extends AbstractApiRefService implements S
 		apiServiceParameterDao.deleteByApiRepoVersionId(apiRepoVersionId);
 		apiServiceDao.deleteByApiRepoVersionId(apiRepoVersionId);
 	}
-	
+
 }

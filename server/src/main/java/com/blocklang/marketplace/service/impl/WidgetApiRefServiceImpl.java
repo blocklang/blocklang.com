@@ -8,6 +8,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.blocklang.marketplace.apirepo.ApiObject;
 import com.blocklang.marketplace.apirepo.RefData;
 import com.blocklang.marketplace.apirepo.widget.data.WidgetData;
 import com.blocklang.marketplace.apirepo.widget.data.WidgetEvent;
@@ -19,7 +20,6 @@ import com.blocklang.marketplace.dao.ApiWidgetDao;
 import com.blocklang.marketplace.dao.ApiWidgetEventArgDao;
 import com.blocklang.marketplace.dao.ApiWidgetPropertyDao;
 import com.blocklang.marketplace.dao.ApiWidgetPropertyValueOptionDao;
-import com.blocklang.marketplace.model.ApiRepo;
 import com.blocklang.marketplace.model.ApiRepoVersion;
 import com.blocklang.marketplace.model.ApiWidget;
 import com.blocklang.marketplace.model.ApiWidgetEventArg;
@@ -41,19 +41,18 @@ public class WidgetApiRefServiceImpl extends AbstractApiRefService implements Wi
 	
 	@Override
 	@Transactional
-	public void save(RefData<WidgetData> refData) {
-		ApiRepo apiRepo = saveApoRepo(refData);
-		ApiRepoVersion apiRepoVersion = saveApiRepoVersion(apiRepo.getId(), refData);
+	public <T extends ApiObject> void save(Integer apiRepoId, RefData<T> refData) {
+		ApiRepoVersion apiRepoVersion = saveApiRepoVersion(apiRepoId, refData);
 		if(refData.getShortRefName().equals("master")) {
 			clearRefApis(apiRepoVersion.getId());
 		}
 		saveApiWidgets(apiRepoVersion, refData);
 	}
 
-	private void saveApiWidgets(ApiRepoVersion apiRepoVersion, RefData<WidgetData> refData) {
-		List<WidgetData> widgets = refData.getApiObjects();
-		for(WidgetData widget : widgets) {
-			saveWidget(apiRepoVersion.getId(), widget, refData.getCreateUserId());
+	private <T extends ApiObject> void saveApiWidgets(ApiRepoVersion apiRepoVersion, RefData<T> refData) {
+		List<T> widgets = refData.getApiObjects();
+		for(T widget : widgets) {
+			saveWidget(apiRepoVersion.getId(), (WidgetData)widget, refData.getCreateUserId());
 		}
 	}
 

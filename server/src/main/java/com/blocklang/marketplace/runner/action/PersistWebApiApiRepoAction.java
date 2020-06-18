@@ -1,9 +1,9 @@
 package com.blocklang.marketplace.runner.action;
 
 import com.blocklang.core.runner.common.ExecutionContext;
-import com.blocklang.marketplace.apirepo.ApiRefPersisterFactory;
-import com.blocklang.marketplace.apirepo.RepoPersister;
-import com.blocklang.marketplace.apirepo.webapi.JsObjectApiRefPersisterFactory;
+import com.blocklang.core.util.SpringUtils;
+import com.blocklang.marketplace.service.PersistApiRepoService;
+import com.blocklang.marketplace.service.PersistJsObjectApiRepoService;
 
 public class PersistWebApiApiRepoAction extends AbstractPersistApiRepoAction {
 
@@ -12,9 +12,8 @@ public class PersistWebApiApiRepoAction extends AbstractPersistApiRepoAction {
 	}
 
 	@Override
-	protected RepoPersister createApiRepoPersister() {
-		ApiRefPersisterFactory factory = new JsObjectApiRefPersisterFactory();
-		return new RepoPersister(context, factory);
+	protected PersistApiRepoService getPersistApiRepoService() {
+		return SpringUtils.getBean(PersistJsObjectApiRepoService.class);
 	}
 
 }

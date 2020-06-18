@@ -101,6 +101,11 @@ public class ComponentRepoPublishTask extends PartialOperateFields {
 	}
 
 	public void setPublishResult(ReleaseResult publishResult) {
+		// 因为这三个字段总是与 publishResult 结伴而行的，所以放在一起赋值
+		this.endTime = LocalDateTime.now();
+		this.setLastUpdateTime(LocalDateTime.now());
+		this.setLastUpdateUserId(this.getCreateUserId());
+		
 		this.publishResult = publishResult;
 	}
 

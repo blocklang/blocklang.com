@@ -1,18 +1,13 @@
-package com.blocklang.marketplace.apirepo;
-
-import java.util.List;
+package com.blocklang.marketplace.componentrepo;
 
 import com.blocklang.marketplace.data.RepoConfigJson;
 
-public class RefData<T extends ApiObject> {
-
+public class RefData {
 	private String gitUrl;
 	private String fullRefName;
 	private String shortRefName;
 	private RepoConfigJson repoConfig;
-	private List<T> apiObjects;
 	private Integer createUserId;
-	
 	private boolean invalidData = false;
 
 	public String getGitUrl() {
@@ -47,14 +42,6 @@ public class RefData<T extends ApiObject> {
 		this.repoConfig = repoConfig;
 	}
 
-	public List<T> getApiObjects() {
-		return apiObjects;
-	}
-
-	public void setApiObjects(List<T> apiObjects) {
-		this.apiObjects = apiObjects;
-	}
-
 	public Integer getCreateUserId() {
 		return createUserId;
 	}
@@ -70,5 +57,5 @@ public class RefData<T extends ApiObject> {
 	public boolean isInvalidData() {
 		return invalidData;
 	}
-
+	
 }

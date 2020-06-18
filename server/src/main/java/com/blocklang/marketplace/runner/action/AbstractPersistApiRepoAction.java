@@ -2,8 +2,7 @@ package com.blocklang.marketplace.runner.action;
 
 import com.blocklang.core.runner.common.AbstractAction;
 import com.blocklang.core.runner.common.ExecutionContext;
-import com.blocklang.marketplace.apirepo.ApiObject;
-import com.blocklang.marketplace.apirepo.RepoPersister;
+import com.blocklang.marketplace.service.PersistApiRepoService;
 
 public abstract class AbstractPersistApiRepoAction extends AbstractAction {
 
@@ -13,10 +12,9 @@ public abstract class AbstractPersistApiRepoAction extends AbstractAction {
 
 	@Override
 	public boolean run() {
-		RepoPersister<? extends ApiObject> persister = createApiRepoPersister();
-		return persister.run();
+		return getPersistApiRepoService().save(context);
 	}
 
-	protected abstract RepoPersister<? extends ApiObject> createApiRepoPersister();
+	protected abstract PersistApiRepoService getPersistApiRepoService();
 
 }

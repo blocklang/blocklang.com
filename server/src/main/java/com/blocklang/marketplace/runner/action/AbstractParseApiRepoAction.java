@@ -48,6 +48,9 @@ public abstract class AbstractParseApiRepoAction extends AbstractAction{
 	
 	protected abstract RepoParser createApiRepoParser();
 
+	/**
+	 * @deprecated 不需要返回此值
+	 */
 	@Override
 	protected Object getOutput(String paramKey) {
 		if("parsedTags".equals(paramKey)) {

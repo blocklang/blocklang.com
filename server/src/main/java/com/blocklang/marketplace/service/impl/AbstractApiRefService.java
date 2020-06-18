@@ -5,9 +5,8 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.blocklang.core.util.GitUrlSegment;
+import com.blocklang.marketplace.apirepo.ApiObject;
 import com.blocklang.marketplace.apirepo.RefData;
-import com.blocklang.marketplace.constant.RepoCategory;
 import com.blocklang.marketplace.dao.ApiRepoDao;
 import com.blocklang.marketplace.dao.ApiRepoVersionDao;
 import com.blocklang.marketplace.model.ApiRepo;
@@ -27,24 +26,8 @@ public abstract class AbstractApiRefService {
 		}
 		return apiRepoVersionDao.findByApiRepoIdAndVersion(apiRepoOption.get().getId(), shortRefName).isPresent();
 	}
-	
-	protected <T> ApiRepo saveApoRepo(RefData<T> refData) {
-		String gitUrl = refData.getGitUrl();
-		GitUrlSegment urlSegment = GitUrlSegment.of(gitUrl);
-		
-		ApiRepo apiRepo = new ApiRepo();
-		apiRepo.setGitRepoUrl(refData.getGitUrl());
-		apiRepo.setGitRepoWebsite(urlSegment.getWebsite());
-		apiRepo.setGitRepoOwner(urlSegment.getOwner());
-		apiRepo.setGitRepoName(urlSegment.getRepoName());
-		apiRepo.setCategory(RepoCategory.fromValue(refData.getRepoConfig().getCategory()));
-		apiRepo.setCreateTime(LocalDateTime.now());
-		apiRepo.setCreateUserId(refData.getCreateUserId());
-		
-		return apiRepoDao.save(apiRepo);
-	}
-	
-	protected <T> ApiRepoVersion saveApiRepoVersion(Integer apiRepoId, RefData<T> refData) {
+
+	protected <T extends ApiObject> ApiRepoVersion saveApiRepoVersion(Integer apiRepoId, RefData<T> refData) {
 		ApiRepoVersion version = apiRepoVersionDao.findByApiRepoIdAndVersion(apiRepoId, refData.getShortRefName()).orElse(new ApiRepoVersion());
 		version.setApiRepoId(apiRepoId);
 		version.setVersion(refData.getShortRefName());

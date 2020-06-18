@@ -11,20 +11,24 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.blocklang.core.constant.CmPropKey;
-import com.blocklang.core.runner.common.CliContext;
+import com.blocklang.core.runner.common.ExecutionContext;
+import com.blocklang.core.runner.common.TaskLogger;
 import com.blocklang.core.runner.common.CliLogger;
+import com.blocklang.core.runner.common.DefaultExecutionContext;
 import com.blocklang.core.service.PropertyService;
 import com.blocklang.marketplace.constant.MarketplaceConstant;
 import com.blocklang.marketplace.dao.ApiChangeLogDao;
-import com.blocklang.marketplace.dao.ApiComponentAttrDao;
-import com.blocklang.marketplace.dao.ApiComponentAttrFunArgDao;
-import com.blocklang.marketplace.dao.ApiComponentAttrValOptDao;
-import com.blocklang.marketplace.dao.ApiComponentDao;
+import com.blocklang.marketplace.dao.ApiWidgetPropertyDao;
+import com.blocklang.marketplace.dao.ApiWidgetEventArgDao;
+import com.blocklang.marketplace.dao.ApiWidgetPropertyValueOptionDao;
+import com.blocklang.marketplace.dao.ApiWidgetDao;
 import com.blocklang.marketplace.dao.ApiRepoDao;
 import com.blocklang.marketplace.dao.ApiRepoVersionDao;
 import com.blocklang.marketplace.dao.ComponentRepoDao;
 import com.blocklang.marketplace.dao.ComponentRepoPublishTaskDao;
 import com.blocklang.marketplace.dao.ComponentRepoVersionDao;
+import com.blocklang.marketplace.data.LocalRepoPath;
+import com.blocklang.marketplace.data.MarketplaceStore;
 import com.blocklang.marketplace.model.ComponentRepoPublishTask;
 import com.blocklang.marketplace.service.PublishService;
 import com.blocklang.marketplace.task.ApiChangeLogParseGroupTask;
@@ -51,13 +55,13 @@ public class PublishServiceImpl implements PublishService {
 	@Autowired
 	private ApiRepoVersionDao apiRepoVersionDao;
 	@Autowired
-	private ApiComponentDao apiComponentDao;
+	private ApiWidgetDao apiComponentDao;
 	@Autowired
-	private ApiComponentAttrDao apiComponentAttrDao;
+	private ApiWidgetPropertyDao apiComponentAttrDao;
 	@Autowired
-	private ApiComponentAttrValOptDao apiComponentAttrValOptDao;
+	private ApiWidgetPropertyValueOptionDao apiComponentAttrValOptDao;
 	@Autowired
-	private ApiComponentAttrFunArgDao apiComponentAttrFunArgDao;
+	private ApiWidgetEventArgDao apiComponentAttrFunArgDao;
 	@Autowired
 	private ApiChangeLogDao apiChangeLogDao;
 	@Autowired
@@ -76,18 +80,26 @@ public class PublishServiceImpl implements PublishService {
 
 		// 因为系统运行时已校验是否配置 CmPropKey.BLOCKLANG_ROOT_PATH 参数，所以此处无需校验
 		String dataRootPath = propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH, "");
-		CliContext<MarketplacePublishData> context = new MarketplacePublishContext(dataRootPath, publishTask);
+		
+		// 描述本地仓库目录结构
+		MarketplaceStore store = new MarketplaceStore(dataRootPath, publishTask.getGitUrl());
+		ExecutionContext context = new DefaultExecutionContext();
+		
+		CliLogger logger = new TaskLogger(store.getLogFilePath());
+		logger.enableSendStompMessage(publishTask.getId(), messagingTemplate, "/topic/publish/");
 		
 		// 将此任务存储到组件发布任务表中
-		publishTask.setLogFileName(context.getData().getRepoPublishLogFile().toString());
+		publishTask.setLogFileName(store.getLogFilePath().toString());
 		componentRepoPublishTaskDao.save(publishTask);
 		
-		CliLogger logger = context.newLogger(messagingTemplate, "/topic/publish/");
+		// Set up job
+		// 在其中设置数据
+		context.putValue(ExecutionContext.MARKETPLACE_STORE, store);
+		
+		// Complete job
 		
 		logger.info(StringUtils.repeat("=", 60));
-		logger.info("开始发布 @{0}/{1} 组件库", 
-				context.getData().getLocalComponentRepoPath().getOwner(), 
-				context.getData().getLocalComponentRepoPath().getRepoName());
+		logger.info("开始往组件市场注册 {0}", publishTask.getGitUrl());
 		
 		boolean success = true;
 		

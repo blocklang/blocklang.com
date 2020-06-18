@@ -3,9 +3,9 @@ package com.blocklang.marketplace.service;
 import com.blocklang.marketplace.apirepo.ApiObject;
 import com.blocklang.marketplace.apirepo.RefData;
 
-public interface PersistApiRefService<T extends ApiObject> {
+public interface PersistApiRefService {
 
-	void save(RefData<T> refData);
+	<T extends ApiObject> void save(Integer apiRepoId, RefData<T> refData);
 	
 	void clearRefApis(Integer apiRepoVersionId);
 

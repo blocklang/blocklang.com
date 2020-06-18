@@ -8,6 +8,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.blocklang.marketplace.apirepo.ApiObject;
 import com.blocklang.marketplace.apirepo.RefData;
 import com.blocklang.marketplace.apirepo.webapi.data.JsFunction;
 import com.blocklang.marketplace.apirepo.webapi.data.JsObjectData;
@@ -18,7 +19,6 @@ import com.blocklang.marketplace.dao.ApiJsObjectDao;
 import com.blocklang.marketplace.model.ApiJsFunction;
 import com.blocklang.marketplace.model.ApiJsFunctionArgument;
 import com.blocklang.marketplace.model.ApiJsObject;
-import com.blocklang.marketplace.model.ApiRepo;
 import com.blocklang.marketplace.model.ApiRepoVersion;
 import com.blocklang.marketplace.service.JsObjectApiRefService;
 
@@ -39,9 +39,8 @@ public class JsObjectApiRefServiceImpl extends AbstractApiRefService implements 
 	
 	@Override
 	@Transactional
-	public void save(RefData<JsObjectData> refData) {
-		ApiRepo apiRepo = saveApoRepo(refData);
-		ApiRepoVersion apiRepoVersion = saveApiRepoVersion(apiRepo.getId(), refData);
+	public <T extends ApiObject> void save(Integer apiRepoId, RefData<T> refData) {
+		ApiRepoVersion apiRepoVersion = saveApiRepoVersion(apiRepoId, refData);
 		
 		if(refData.getShortRefName().equals("master")) {
 			clearRefApis(apiRepoVersion.getId());
@@ -49,10 +48,10 @@ public class JsObjectApiRefServiceImpl extends AbstractApiRefService implements 
 		saveApiJsObjects(apiRepoVersion, refData);
 	}
 
-	private void saveApiJsObjects(ApiRepoVersion apiRepoVersion, RefData<JsObjectData> refData) {
-		List<JsObjectData> jsObjects = refData.getApiObjects();
-		for(JsObjectData jsObject : jsObjects) {
-			saveJsObject(apiRepoVersion.getId(), jsObject, refData.getCreateUserId());
+	private <T extends ApiObject> void saveApiJsObjects(ApiRepoVersion apiRepoVersion, RefData<T> refData) {
+		List<T> jsObjects = refData.getApiObjects();
+		for(T jsObject : jsObjects) {
+			saveJsObject(apiRepoVersion.getId(), (JsObjectData)jsObject, refData.getCreateUserId());
 		}
 	}
 

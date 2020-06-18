@@ -31,7 +31,6 @@ import com.blocklang.core.exception.NoAuthorizationException;
 import com.blocklang.core.exception.ResourceNotFoundException;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.UserService;
-import com.blocklang.core.util.GitUrlParser;
 import com.blocklang.core.util.GitUrlSegment;
 import com.blocklang.marketplace.constant.PublishType;
 import com.blocklang.marketplace.data.ComponentRepoInfo;
@@ -153,7 +152,7 @@ public class ComponentRepoController {
 			throw new InvalidRequestException(bindingResult);
 		}
 		
-		GitUrlSegment gitUrlSegment = GitUrlParser.parse(gitUrl).orElseThrow(() -> {
+		GitUrlSegment gitUrlSegment = GitUrlSegment.of(gitUrl).orElseThrow(() -> {
 			bindingResult.rejectValue("gitUrl", "NotValid.componentRepoGitUrl.shouldBeHttps");
 			throw new InvalidRequestException(bindingResult);
 		});
