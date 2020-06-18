@@ -52,7 +52,7 @@ public abstract class AbstractParseApiRepoAction extends AbstractAction{
 	 * @deprecated 不需要返回此值
 	 */
 	@Override
-	protected Object getOutput(String paramKey) {
+	public Object getOutput(String paramKey) {
 		if("parsedTags".equals(paramKey)) {
 			return parsedTags;
 		}

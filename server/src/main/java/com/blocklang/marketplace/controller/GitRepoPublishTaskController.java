@@ -17,17 +17,17 @@ import com.blocklang.core.service.PropertyService;
 import com.blocklang.core.service.UserService;
 import com.blocklang.core.util.GitUrlSegment;
 import com.blocklang.core.util.LogFileReader;
-import com.blocklang.marketplace.model.ComponentRepoPublishTask;
-import com.blocklang.marketplace.service.ComponentRepoPublishTaskService;
+import com.blocklang.marketplace.model.GitRepoPublishTask;
+import com.blocklang.marketplace.service.GitRepoPublishTaskService;
 import com.blocklang.marketplace.task.MarketplacePublishContext;
 
 @RestController
-public class ComponentRepoPublishTaskController {
+public class GitRepoPublishTaskController {
 
 	@Autowired
 	private UserService userService;
 	@Autowired
-	private ComponentRepoPublishTaskService componentRepoPublishTaskService;
+	private GitRepoPublishTaskService gitRepoPublishTaskService;
 	@Autowired
 	private PropertyService propertyService;
 	
@@ -38,27 +38,27 @@ public class ComponentRepoPublishTaskController {
 	 * @return
 	 */
 	@GetMapping("/user/component-repos/publishing-tasks")
-	public ResponseEntity<List<ComponentRepoPublishTask>> listMyComponentRepoPublishTasks(
+	public ResponseEntity<List<GitRepoPublishTask>> listMyComponentRepoPublishTasks(
 			Principal principal) {
 		if(principal == null) {
 			throw new NoAuthorizationException();
 		}
 		
 		UserInfo userInfo = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
-		List<ComponentRepoPublishTask> result = componentRepoPublishTaskService.findUserPublishingTasks(userInfo.getId());
+		List<GitRepoPublishTask> result = gitRepoPublishTaskService.findUserPublishingTasks(userInfo.getId());
 		
 		return ResponseEntity.ok(result);
 	}
 	
 	@GetMapping("/marketplace/publish/{taskId}")
-	public ResponseEntity<ComponentRepoPublishTask> getComponentRepoPublishTask(
+	public ResponseEntity<GitRepoPublishTask> getComponentRepoPublishTask(
 			Principal principal,
 			@PathVariable("taskId") Integer taskId) {
 		if(principal == null) {
 			throw new NoAuthorizationException();
 		}
 		
-		ComponentRepoPublishTask task = componentRepoPublishTaskService.findById(taskId).orElseThrow(ResourceNotFoundException::new);
+		GitRepoPublishTask task = gitRepoPublishTaskService.findById(taskId).orElseThrow(ResourceNotFoundException::new);
 		if(!task.getCreateUserName().equalsIgnoreCase(principal.getName())) {
 			throw new NoAuthorizationException();
 		}
@@ -81,7 +81,7 @@ public class ComponentRepoPublishTaskController {
 			throw new NoAuthorizationException();
 		}
 		
-		ComponentRepoPublishTask task = componentRepoPublishTaskService.findById(taskId).orElseThrow(ResourceNotFoundException::new);
+		GitRepoPublishTask task = gitRepoPublishTaskService.findById(taskId).orElseThrow(ResourceNotFoundException::new);
 		if(!task.getCreateUserName().equalsIgnoreCase(principal.getName())) {
 			throw new NoAuthorizationException();
 		}

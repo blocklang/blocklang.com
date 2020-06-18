@@ -1,4 +1,4 @@
-# `COMPONENT_REPO_PUBLISH_TASK` - 组件发布任务登记表
+# `GIT_REPO_PUBLISH_TASK` - Git 仓库发布任务登记表
 
 因为组件发布是一个包含多个节点的流程，耗时也较长，在本表登记发布任务，此表属于任务登记表。
 
@@ -19,8 +19,8 @@
 
 ## 约束
 
-* 主键：`PK_COMPONENT_REPO_PUBLISH_TASK`
-* 索引：`UK_COMP_REPO_PUBLISH_TASK_ON_URL_USER_SEQ`(唯一索引)，对应字段 `git_url`、`seq`、`create_user_id`
+* 主键：`PK_GIT_REPO_PUBLISH_TASK`
+* 索引：`UK_GIT_REPO_PUBLISH_TASK_ON_URL_USER_SEQ`(唯一索引)，对应字段 `git_url`、`seq`、`create_user_id`
 
 ## 说明
 

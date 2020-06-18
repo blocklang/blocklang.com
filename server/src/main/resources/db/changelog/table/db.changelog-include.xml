@@ -87,4 +87,6 @@
 	<include file="db/changelog/table/202006151032_alter_component_repo.xml" />
 	<include file="db/changelog/table/202006161035_alter_component_repo_version.xml" />
 	
+	<include file="db/changelog/table/202006181731_rename_component_repo_publish_task_to_git_repo_publish_task.xml" />
+	
 </databaseChangeLog>

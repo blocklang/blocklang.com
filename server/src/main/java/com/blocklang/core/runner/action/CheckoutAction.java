@@ -7,7 +7,7 @@ import com.blocklang.core.runner.common.AbstractAction;
 import com.blocklang.core.runner.common.CliLogger;
 import com.blocklang.core.runner.common.ExecutionContext;
 import com.blocklang.marketplace.data.MarketplaceStore;
-import com.blocklang.marketplace.model.ComponentRepoPublishTask;
+import com.blocklang.marketplace.model.GitRepoPublishTask;
 
 /**
  * 从远程 git 仓库 clone 或 pull 源码。
@@ -36,7 +36,7 @@ public class CheckoutAction extends AbstractAction{
 	public CheckoutAction(ExecutionContext context) {
 		super(context);
 		
-		var task = context.getValue(ExecutionContext.PUBLISH_TASK, ComponentRepoPublishTask.class);
+		var task = context.getValue(ExecutionContext.PUBLISH_TASK, GitRepoPublishTask.class);
 		var store = context.getValue(ExecutionContext.MARKETPLACE_STORE, MarketplaceStore.class);
 		
 		this.gitUrl = task.getGitUrl();

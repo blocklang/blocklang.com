@@ -11,7 +11,7 @@ import com.blocklang.core.runner.common.CliLogger;
 import com.blocklang.core.runner.common.DefaultExecutionContext;
 import com.blocklang.core.runner.common.ExecutionContext;
 import com.blocklang.marketplace.data.MarketplaceStore;
-import com.blocklang.marketplace.model.ComponentRepoPublishTask;
+import com.blocklang.marketplace.model.GitRepoPublishTask;
 
 public class AbstractActionTest {
 	
@@ -24,7 +24,7 @@ public class AbstractActionTest {
 		var logger = mock(CliLogger.class);
 		context.setLogger(logger);
 		
-		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
+		GitRepoPublishTask task = new GitRepoPublishTask();
 		var gitUrl = "https://github.com/you/your-repo.git";
 		task.setGitUrl(gitUrl);
 		store = new MarketplaceStore(tempDir.toString(), gitUrl);

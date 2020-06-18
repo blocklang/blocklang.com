@@ -18,7 +18,7 @@
 		<setTableRemarks tableName="api_widget" remarks="Widget 基本信息"/>
 		<renameSequence oldSequenceName="api_component_dbid_seq" newSequenceName="api_widget_dbid_seq"/>
 		
-		<addPrimaryKey columnNames="dbid" tableName="api_widget" constraintName="PK_API_WIDGET"></addPrimaryKey>
+		<addPrimaryKey columnNames="dbid" tableName="api_widget" constraintName="PK_API_WIDGET" />
 		<addUniqueConstraint columnNames="api_repo_version_id,name"
 			constraintName="UK_API_WIDGET_ON_API_REPO_VERSION_NAME"
 			tableName="api_widget" />

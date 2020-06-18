@@ -207,8 +207,11 @@ public class GetRepoConfigAction extends AbstractAction{
 		return blocklangContents;
 	}
 
+	/**
+	 * paramKey 的值为 repoConfig 时，返回 RepoConfigJson 对象
+	 */
 	@Override
-	protected Object getOutput(String paramKey) {
+	public Object getOutput(String paramKey) {
 		if(OUTPUT_REPO_CONFIG.equals(paramKey)) {
 			return repoConfigJson;
 		}

@@ -13,7 +13,7 @@ import com.blocklang.marketplace.apirepo.RefData;
 import com.blocklang.marketplace.apirepo.RefReader;
 import com.blocklang.marketplace.data.MarketplaceStore;
 import com.blocklang.marketplace.model.ApiRepo;
-import com.blocklang.marketplace.model.ComponentRepoPublishTask;
+import com.blocklang.marketplace.model.GitRepoPublishTask;
 
 public interface PersistApiRepoService {
 
@@ -28,7 +28,7 @@ public interface PersistApiRepoService {
 	 */
 	default boolean save(ExecutionContext context) {
 		MarketplaceStore store = context.getValue(ExecutionContext.MARKETPLACE_STORE, MarketplaceStore.class);
-		ComponentRepoPublishTask publishTask = context.getValue(ExecutionContext.PUBLISH_TASK, ComponentRepoPublishTask.class);
+		GitRepoPublishTask publishTask = context.getValue(ExecutionContext.PUBLISH_TASK, GitRepoPublishTask.class);
 		CliLogger logger = context.getLogger();
 		
 		RefReader<? extends ApiObject> reader = new RefReader<>(store, logger);

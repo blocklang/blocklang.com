@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+	<changeSet author="Zhengwei Jin" id="202006181731">
+		<dropPrimaryKey tableName="component_repo_publish_task" constraintName="PK_COMPONENT_REPO_PUBLISH_TASK"/>
+		<dropUniqueConstraint tableName="component_repo_publish_task" constraintName="UK_COMP_REPO_PUBLISH_TASK_ON_URL_USER_SEQ"/>
+	
+		<renameTable newTableName="git_repo_publish_task" oldTableName="component_repo_publish_task"/>
+		<setTableRemarks tableName="git_repo_publish_task" remarks="Git 仓库发布任务登记表"/>
+		<renameSequence oldSequenceName="component_repo_publish_task_dbid_seq" newSequenceName="git_repo_publish_task_dbid_seq"/>
+	
+		<addPrimaryKey columnNames="dbid" tableName="git_repo_publish_task" constraintName="PK_GIT_REPO_PUBLISH_TASK" />
+		<addUniqueConstraint columnNames="git_url,seq,create_user_id"
+			constraintName="UK_GIT_REPO_PUBLISH_TASK_ON_URL_USER_SEQ"
+			tableName="git_repo_publish_task" />
+	</changeSet>
+
+</databaseChangeLog>

@@ -7,6 +7,7 @@ public interface ExecutionContext {
 	// 另一种是从全局上下文中获取，而 marketplaceStore 和 publishTask 就属于全局上下文
 	public static final String MARKETPLACE_STORE = "marketplaceStore";
 	public static final String PUBLISH_TASK = "publishTask";
+	public static final String DATA_ROOT_PATH = "dataRootPath";
 
 	void setLogger(CliLogger logger);
 	

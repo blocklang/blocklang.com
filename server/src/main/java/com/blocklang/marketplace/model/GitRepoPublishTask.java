@@ -22,12 +22,12 @@ import com.blocklang.release.constant.converter.ReleaseResultConverter;
  *
  */
 @Entity
-@Table(name = "component_repo_publish_task", 
+@Table(name = "git_repo_publish_task", 
 	uniqueConstraints = {
 		@UniqueConstraint(columnNames = { "git_url", "seq", "create_user_id" })
 	}
 )
-public class ComponentRepoPublishTask extends PartialOperateFields {
+public class GitRepoPublishTask extends PartialOperateFields {
 
 	private static final long serialVersionUID = -2695309681346878878L;
 

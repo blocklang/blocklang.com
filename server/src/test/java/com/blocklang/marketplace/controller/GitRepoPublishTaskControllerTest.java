@@ -22,17 +22,17 @@ import org.springframework.security.test.context.support.WithMockUser;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.runner.common.TaskLogger;
 import com.blocklang.core.test.AbstractControllerTest;
-import com.blocklang.marketplace.model.ComponentRepoPublishTask;
-import com.blocklang.marketplace.service.ComponentRepoPublishTaskService;
+import com.blocklang.marketplace.model.GitRepoPublishTask;
+import com.blocklang.marketplace.service.GitRepoPublishTaskService;
 import com.blocklang.marketplace.task.MarketplacePublishContext;
 
 import io.restassured.http.ContentType;
 
-@WebMvcTest(ComponentRepoPublishTaskController.class)
-public class ComponentRepoPublishTaskControllerTest extends AbstractControllerTest {
+@WebMvcTest(GitRepoPublishTaskController.class)
+public class GitRepoPublishTaskControllerTest extends AbstractControllerTest {
 	
 	@MockBean
-	private ComponentRepoPublishTaskService componentRepoPublishTaskService;
+	private GitRepoPublishTaskService gitRepoPublishTaskService;
 	
 	@Test
 	public void list_my_component_repo_publishing_tasks_anonymous_forbidden() {
@@ -64,8 +64,8 @@ public class ComponentRepoPublishTaskControllerTest extends AbstractControllerTe
 		userInfo.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(userInfo));
 		
-		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
-		when(componentRepoPublishTaskService.findUserPublishingTasks(anyInt())).thenReturn(Collections.singletonList(task));
+		GitRepoPublishTask task = new GitRepoPublishTask();
+		when(gitRepoPublishTaskService.findUserPublishingTasks(anyInt())).thenReturn(Collections.singletonList(task));
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -89,7 +89,7 @@ public class ComponentRepoPublishTaskControllerTest extends AbstractControllerTe
 	@WithMockUser("jack")
 	@Test
 	public void get_component_repo_publish_task_task_not_exist() {
-		when(componentRepoPublishTaskService.findById(anyInt())).thenReturn(Optional.empty());
+		when(gitRepoPublishTaskService.findById(anyInt())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -102,9 +102,9 @@ public class ComponentRepoPublishTaskControllerTest extends AbstractControllerTe
 	@WithMockUser("jack")
 	@Test
 	public void get_component_repo_publish_task_login_user_is_not_creator_forbidden() {
-		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
+		GitRepoPublishTask task = new GitRepoPublishTask();
 		task.setCreateUserName("not-jack");
-		when(componentRepoPublishTaskService.findById(anyInt())).thenReturn(Optional.of(task));
+		when(gitRepoPublishTaskService.findById(anyInt())).thenReturn(Optional.of(task));
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -117,11 +117,11 @@ public class ComponentRepoPublishTaskControllerTest extends AbstractControllerTe
 	@WithMockUser("jack")
 	@Test
 	public void get_component_repo_publish_task_success() {
-		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
+		GitRepoPublishTask task = new GitRepoPublishTask();
 		task.setId(1);
 		task.setCreateUserName("jack");
 		task.setGitUrl("https://a.com/owner/repo.git");
-		when(componentRepoPublishTaskService.findById(anyInt())).thenReturn(Optional.of(task));
+		when(gitRepoPublishTaskService.findById(anyInt())).thenReturn(Optional.of(task));
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -144,7 +144,7 @@ public class ComponentRepoPublishTaskControllerTest extends AbstractControllerTe
 	@WithMockUser("jack")
 	@Test
 	public void get_publish_log_task_not_exist() {
-		when(componentRepoPublishTaskService.findById(anyInt())).thenReturn(Optional.empty());
+		when(gitRepoPublishTaskService.findById(anyInt())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -157,11 +157,11 @@ public class ComponentRepoPublishTaskControllerTest extends AbstractControllerTe
 	@WithMockUser("user-not-publisher")
 	@Test
 	public void get_publish_log_user_not_exist_forbidden() {
-		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
+		GitRepoPublishTask task = new GitRepoPublishTask();
 		task.setId(1);
 		task.setCreateUserName("jack");
 		task.setGitUrl("https://a.com/owner/repo.git");
-		when(componentRepoPublishTaskService.findById(anyInt())).thenReturn(Optional.of(task));
+		when(gitRepoPublishTaskService.findById(anyInt())).thenReturn(Optional.of(task));
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -174,12 +174,12 @@ public class ComponentRepoPublishTaskControllerTest extends AbstractControllerTe
 	@WithMockUser("jack")
 	@Test
 	public void get_publish_log_root_path_property_not_config() throws IOException {
-		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
+		GitRepoPublishTask task = new GitRepoPublishTask();
 		task.setId(1);
 		task.setCreateUserName("jack");
 		task.setGitUrl("https://a.com/owner/repo.git");
 		task.setLogFileName("get_publish_log_task_log_file_not_found.log");
-		when(componentRepoPublishTaskService.findById(anyInt())).thenReturn(Optional.of(task));
+		when(gitRepoPublishTaskService.findById(anyInt())).thenReturn(Optional.of(task));
 
 		when(propertyService.findStringValue(anyString())).thenReturn(Optional.empty());
 		
@@ -194,12 +194,12 @@ public class ComponentRepoPublishTaskControllerTest extends AbstractControllerTe
 	@WithMockUser("jack")
 	@Test
 	public void get_publish_log_success(@TempDir Path dataRootDirectory) throws IOException {
-		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
+		GitRepoPublishTask task = new GitRepoPublishTask();
 		task.setId(1);
 		task.setCreateUserName("jack");
 		task.setGitUrl("https://a.com/owner/repo.git");
 		task.setLogFileName("get_publish_log_success.log");
-		when(componentRepoPublishTaskService.findById(anyInt())).thenReturn(Optional.of(task));
+		when(gitRepoPublishTaskService.findById(anyInt())).thenReturn(Optional.of(task));
 
 		when(propertyService.findStringValue(anyString())).thenReturn(Optional.of(dataRootDirectory.toString()));
 

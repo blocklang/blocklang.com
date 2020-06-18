@@ -13,42 +13,42 @@ import com.blocklang.core.dao.UserDao;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.test.AbstractServiceTest;
 import com.blocklang.marketplace.constant.PublishType;
-import com.blocklang.marketplace.model.ComponentRepoPublishTask;
-import com.blocklang.marketplace.service.ComponentRepoPublishTaskService;
+import com.blocklang.marketplace.model.GitRepoPublishTask;
+import com.blocklang.marketplace.service.GitRepoPublishTaskService;
 import com.blocklang.release.constant.ReleaseResult;
 
-public class ComponentRepoPublishTaskServiceImplTest extends AbstractServiceTest{
+public class GitRepoPublishTaskServiceImplTest extends AbstractServiceTest{
 
 	@Autowired
-	private ComponentRepoPublishTaskService componentRepoPublishTaskService;
+	private GitRepoPublishTaskService gitRepoPublishTaskService;
 	@Autowired
 	private UserDao userDao;
 	
 	@Test
 	public void save_success() {
-		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
+		GitRepoPublishTask task = new GitRepoPublishTask();
 		task.setGitUrl("https://a.com/jack/repo");
 		task.setStartTime(LocalDateTime.now());
 		task.setPublishResult(ReleaseResult.STARTED);
 		task.setCreateTime(LocalDateTime.now());
 		task.setCreateUserId(1);
 		
-		ComponentRepoPublishTask savedTask = componentRepoPublishTaskService.save(task);
+		GitRepoPublishTask savedTask = gitRepoPublishTaskService.save(task);
 		assertThat(savedTask.getId()).isNotNull();
 		assertThat(savedTask.getSeq()).isEqualTo(1);
 	}
 	
 	@Test
 	public void save_seq_increase() {
-		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
+		GitRepoPublishTask task = new GitRepoPublishTask();
 		task.setGitUrl("https://a.com/jack/repo");
 		task.setStartTime(LocalDateTime.now());
 		task.setPublishResult(ReleaseResult.STARTED);
 		task.setCreateTime(LocalDateTime.now());
 		task.setCreateUserId(1);
-		ComponentRepoPublishTask savedTask = componentRepoPublishTaskService.save(task);
+		GitRepoPublishTask savedTask = gitRepoPublishTaskService.save(task);
 		
-		task = new ComponentRepoPublishTask();
+		task = new GitRepoPublishTask();
 		task.setGitUrl("https://a.com/jack/repo");
 		task.setStartTime(LocalDateTime.now());
 		task.setPublishType(PublishType.UPGRADE);
@@ -56,37 +56,37 @@ public class ComponentRepoPublishTaskServiceImplTest extends AbstractServiceTest
 		task.setCreateTime(LocalDateTime.now());
 		task.setCreateUserId(1);
 		
-		savedTask = componentRepoPublishTaskService.save(task);
+		savedTask = gitRepoPublishTaskService.save(task);
 		assertThat(savedTask.getId()).isNotNull();
 		assertThat(savedTask.getSeq()).isEqualTo(2);
 	}
 	
 	@Test
 	public void save_seq_start_from_1() {
-		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
+		GitRepoPublishTask task = new GitRepoPublishTask();
 		task.setGitUrl("https://a.com/jack/repo-A");
 		task.setStartTime(LocalDateTime.now());
 		task.setPublishResult(ReleaseResult.STARTED);
 		task.setCreateTime(LocalDateTime.now());
 		task.setCreateUserId(1);
-		ComponentRepoPublishTask savedTask = componentRepoPublishTaskService.save(task);
+		GitRepoPublishTask savedTask = gitRepoPublishTaskService.save(task);
 		
 		assertThat(savedTask.getSeq()).isEqualTo(1);
 		
-		task = new ComponentRepoPublishTask();
+		task = new GitRepoPublishTask();
 		task.setGitUrl("https://a.com/jack/repo-B");
 		task.setStartTime(LocalDateTime.now());
 		task.setPublishResult(ReleaseResult.STARTED);
 		task.setCreateTime(LocalDateTime.now());
 		task.setCreateUserId(1);
 		
-		savedTask = componentRepoPublishTaskService.save(task);
+		savedTask = gitRepoPublishTaskService.save(task);
 		assertThat(savedTask.getSeq()).isEqualTo(1);
 	}
 	
 	@Test
 	public void find_user_publishing_no_data() {
-		List<ComponentRepoPublishTask> result = componentRepoPublishTaskService.findUserPublishingTasks(1);
+		List<GitRepoPublishTask> result = gitRepoPublishTaskService.findUserPublishingTasks(1);
 		assertThat(result).isEmpty();;
 	}
 	
@@ -94,25 +94,25 @@ public class ComponentRepoPublishTaskServiceImplTest extends AbstractServiceTest
 	public void find_user_publishing_tasks_started() {
 		Integer createUserId = 1;
 		
-		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
+		GitRepoPublishTask task = new GitRepoPublishTask();
 		task.setGitUrl("https://a.com/jack/repo-1");
 		task.setSeq(1);
 		task.setStartTime(LocalDateTime.now());
 		task.setPublishResult(ReleaseResult.STARTED);
 		task.setCreateTime(LocalDateTime.now());
 		task.setCreateUserId(createUserId);
-		componentRepoPublishTaskService.save(task);
+		gitRepoPublishTaskService.save(task);
 		
-		task = new ComponentRepoPublishTask();
+		task = new GitRepoPublishTask();
 		task.setGitUrl("https://a.com/jack/repo-2");
 		task.setSeq(1);
 		task.setStartTime(LocalDateTime.now());
 		task.setPublishResult(ReleaseResult.STARTED);
 		task.setCreateTime(LocalDateTime.now());
 		task.setCreateUserId(2);
-		componentRepoPublishTaskService.save(task);
+		gitRepoPublishTaskService.save(task);
 		
-		List<ComponentRepoPublishTask> result = componentRepoPublishTaskService.findUserPublishingTasks(1);
+		List<GitRepoPublishTask> result = gitRepoPublishTaskService.findUserPublishingTasks(1);
 		assertThat(result).hasSize(1);
 	}
 	
@@ -120,43 +120,43 @@ public class ComponentRepoPublishTaskServiceImplTest extends AbstractServiceTest
 	public void find_user_publishing_tasks_inited_or_failed_or_passed_or_canceled() {
 		Integer createUserId = 1;
 		
-		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
+		GitRepoPublishTask task = new GitRepoPublishTask();
 		task.setGitUrl("https://a.com/jack/repo-1");
 		task.setSeq(1);
 		task.setStartTime(LocalDateTime.now());
 		task.setPublishResult(ReleaseResult.INITED);
 		task.setCreateTime(LocalDateTime.now());
 		task.setCreateUserId(createUserId);
-		componentRepoPublishTaskService.save(task);
+		gitRepoPublishTaskService.save(task);
 		
-		task = new ComponentRepoPublishTask();
+		task = new GitRepoPublishTask();
 		task.setGitUrl("https://a.com/jack/repo-2");
 		task.setSeq(1);
 		task.setStartTime(LocalDateTime.now());
 		task.setPublishResult(ReleaseResult.FAILED);
 		task.setCreateTime(LocalDateTime.now());
 		task.setCreateUserId(createUserId);
-		componentRepoPublishTaskService.save(task);
+		gitRepoPublishTaskService.save(task);
 		
-		task = new ComponentRepoPublishTask();
+		task = new GitRepoPublishTask();
 		task.setGitUrl("https://a.com/jack/repo-3");
 		task.setSeq(1);
 		task.setStartTime(LocalDateTime.now());
 		task.setPublishResult(ReleaseResult.PASSED);
 		task.setCreateTime(LocalDateTime.now());
 		task.setCreateUserId(createUserId);
-		componentRepoPublishTaskService.save(task);
+		gitRepoPublishTaskService.save(task);
 		
-		task = new ComponentRepoPublishTask();
+		task = new GitRepoPublishTask();
 		task.setGitUrl("https://a.com/jack/repo-4");
 		task.setSeq(1);
 		task.setStartTime(LocalDateTime.now());
 		task.setPublishResult(ReleaseResult.CANCELED);
 		task.setCreateTime(LocalDateTime.now());
 		task.setCreateUserId(createUserId);
-		componentRepoPublishTaskService.save(task);
+		gitRepoPublishTaskService.save(task);
 		
-		List<ComponentRepoPublishTask> result = componentRepoPublishTaskService.findUserPublishingTasks(1);
+		List<GitRepoPublishTask> result = gitRepoPublishTaskService.findUserPublishingTasks(1);
 		assertThat(result).isEmpty();
 	}
 	
@@ -164,26 +164,26 @@ public class ComponentRepoPublishTaskServiceImplTest extends AbstractServiceTest
 	public void find_user_publishing_tasks_order_by_create_time_desc() {
 		Integer createUserId = 1;
 		
-		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
+		GitRepoPublishTask task = new GitRepoPublishTask();
 		task.setGitUrl("https://a.com/jack/repo-1");
 		task.setSeq(1);
 		task.setStartTime(LocalDateTime.now());
 		task.setPublishResult(ReleaseResult.STARTED);
 		task.setCreateTime(LocalDateTime.now().minusSeconds(1));
 		task.setCreateUserId(createUserId);
-		componentRepoPublishTaskService.save(task);
+		gitRepoPublishTaskService.save(task);
 		
-		task = new ComponentRepoPublishTask();
+		task = new GitRepoPublishTask();
 		task.setGitUrl("https://a.com/jack/repo-2");
 		task.setSeq(1);
 		task.setStartTime(LocalDateTime.now());
 		task.setPublishResult(ReleaseResult.STARTED);
 		task.setCreateTime(LocalDateTime.now());
 		task.setCreateUserId(createUserId);
-		componentRepoPublishTaskService.save(task);
+		gitRepoPublishTaskService.save(task);
 		
-		List<ComponentRepoPublishTask> result = componentRepoPublishTaskService.findUserPublishingTasks(createUserId);
-		assertThat(result).hasSize(2).isSortedAccordingTo(Comparator.comparing(ComponentRepoPublishTask::getCreateTime).reversed());
+		List<GitRepoPublishTask> result = gitRepoPublishTaskService.findUserPublishingTasks(createUserId);
+		assertThat(result).hasSize(2).isSortedAccordingTo(Comparator.comparing(GitRepoPublishTask::getCreateTime).reversed());
 	}
 	
 	@Test
@@ -194,13 +194,13 @@ public class ComponentRepoPublishTaskServiceImplTest extends AbstractServiceTest
 		user.setCreateTime(LocalDateTime.now());
 		UserInfo savedUser = userDao.save(user);
 		
-		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
+		GitRepoPublishTask task = new GitRepoPublishTask();
 		task.setGitUrl("https://a.com/jack/repo-1");
 		task.setSeq(1);
 		task.setStartTime(LocalDateTime.now());
 		task.setPublishResult(ReleaseResult.STARTED);
 		task.setCreateTime(LocalDateTime.now().minusSeconds(1));
 		task.setCreateUserId(savedUser.getId());
-		assertThat(componentRepoPublishTaskService.findById(componentRepoPublishTaskService.save(task).getId()).get().getCreateUserName()).isEqualTo("jack");
+		assertThat(gitRepoPublishTaskService.findById(gitRepoPublishTaskService.save(task).getId()).get().getCreateUserName()).isEqualTo("jack");
 	}
 }

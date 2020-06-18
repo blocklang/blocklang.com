@@ -13,18 +13,18 @@ import com.blocklang.core.util.SpringUtils;
 import com.blocklang.marketplace.componentrepo.RefData;
 import com.blocklang.marketplace.data.MarketplaceStore;
 import com.blocklang.marketplace.data.RepoConfigJson;
-import com.blocklang.marketplace.model.ComponentRepoPublishTask;
+import com.blocklang.marketplace.model.GitRepoPublishTask;
 import com.blocklang.marketplace.service.PersistComponentRepoService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 public class PersistComponentRepoAction extends AbstractAction{
 
-	private ComponentRepoPublishTask publishTask;
+	private GitRepoPublishTask publishTask;
 	
 	private MarketplaceStore store;
 	public PersistComponentRepoAction(ExecutionContext context) {
 		super(context);
-		publishTask = context.getValue(ExecutionContext.PUBLISH_TASK, ComponentRepoPublishTask.class);
+		publishTask = context.getValue(ExecutionContext.PUBLISH_TASK, GitRepoPublishTask.class);
 	}
 
 	@Override

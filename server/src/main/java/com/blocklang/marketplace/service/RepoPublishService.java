@@ -1,6 +1,6 @@
 package com.blocklang.marketplace.service;
 
-import com.blocklang.marketplace.model.ComponentRepoPublishTask;
+import com.blocklang.marketplace.model.GitRepoPublishTask;
 
 /**
  * 发布组件库的服务接口
@@ -10,6 +10,7 @@ import com.blocklang.marketplace.model.ComponentRepoPublishTask;
  */
 public interface RepoPublishService {
 
-	void publish(ComponentRepoPublishTask publishTask);
+	void publish(GitRepoPublishTask publishTask);
 	
+	void asyncPublish(GitRepoPublishTask publishTask);
 }

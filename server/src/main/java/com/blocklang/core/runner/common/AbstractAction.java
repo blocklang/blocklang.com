@@ -21,9 +21,9 @@ public abstract class AbstractAction {
 	
 	public abstract boolean run();
 
-	protected void setInputs(List<StepWith> inputs) { }
+	public void setInputs(List<StepWith> inputs) { }
 
-	protected Object getOutput(String paramKey) {
+	public Object getOutput(String paramKey) {
 		return null;
 	}
 
