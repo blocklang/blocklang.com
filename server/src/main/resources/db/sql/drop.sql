@@ -18,7 +18,7 @@ drop table project_authorization;
 drop table project_commit;
 drop table project_deploy;
 drop table persistent_logins;
-drop table component_repo_publish_task;
+drop table git_repo_publish_task;
 drop table component_repo;
 drop table component_repo_version;
 drop table api_changelog;

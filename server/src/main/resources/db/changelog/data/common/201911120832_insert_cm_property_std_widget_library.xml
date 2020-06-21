@@ -8,18 +8,18 @@
 	<changeSet author="Zhengwei Jin" id="201911120832">
 		<insert tableName="cm_property">
 			<column name="dbid" valueNumeric="5" />
-			<column name="prop_key" value="std.widget.api.name" />
-			<column name="prop_value" value="std-api-widget" />
-			<column name="prop_desc" value="部件标准库的 api 项目名" />
+			<column name="prop_key" value="std.widget.api.git.url" />
+			<column name="prop_value" value="https://github.com/blocklang/std-api-widget.git" />
+			<column name="prop_desc" value="部件标准库的 api 仓库的 URL" />
 			<column name="parent_id" valueNumeric="-1" />
 			<column name="data_type" value="01" />
 			<column name="is_valid" valueBoolean="true" />
 		</insert>
 		<insert tableName="cm_property">
 			<column name="dbid" valueNumeric="6" />
-			<column name="prop_key" value="std.widget.ide.name" />
-			<column name="prop_value" value="std-ide-widget" />
-			<column name="prop_desc" value="部件标准库的 ide 项目名" />
+			<column name="prop_key" value="std.widget.ide.git.url" />
+			<column name="prop_value" value="https://github.com/blocklang/std-ide-widget.git" />
+			<column name="prop_desc" value="部件标准库的 ide 仓库的 URL" />
 			<column name="parent_id" valueNumeric="-1" />
 			<column name="data_type" value="01" />
 			<column name="is_valid" valueBoolean="true" />

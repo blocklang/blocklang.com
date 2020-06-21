@@ -27,11 +27,11 @@ import com.blocklang.core.test.AbstractControllerTest;
 import com.blocklang.marketplace.data.ComponentRepoInfo;
 import com.blocklang.marketplace.data.NewComponentRepoParam;
 import com.blocklang.marketplace.model.ComponentRepo;
-import com.blocklang.marketplace.model.ComponentRepoPublishTask;
-import com.blocklang.marketplace.service.ComponentRepoPublishTaskService;
+import com.blocklang.marketplace.model.GitRepoPublishTask;
 import com.blocklang.marketplace.service.ComponentRepoService;
 import com.blocklang.marketplace.service.ComponentRepoVersionService;
-import com.blocklang.marketplace.service.PublishService;
+import com.blocklang.marketplace.service.GitRepoPublishTaskService;
+import com.blocklang.marketplace.service.RepoPublishService;
 
 import io.restassured.http.ContentType;
 
@@ -43,15 +43,15 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 	@MockBean
 	private ComponentRepoVersionService componentRepoVersionService;
 	@MockBean
-	private ComponentRepoPublishTaskService componentRepoPublishTaskService;
+	private GitRepoPublishTaskService gitRepoPublishTaskService;
 	@MockBean
-	private PublishService publishService;
+	private RepoPublishService publishService;
 	
 	// 默认值，q 的值默认为 null，page 的值默认为 0
 	@Test
 	public void list_component_repos_q_is_null_and_page_is_null() {
 		Page<ComponentRepoInfo> result = new PageImpl<ComponentRepoInfo>(Collections.emptyList());
-		when(componentRepoService.findAllByNameOrLabel(any(), any())).thenReturn(result);
+		when(componentRepoService.findAllByGitRepoNameAndExcludeStd(any(), any())).thenReturn(result);
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -65,7 +65,7 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 	@Test
 	public void list_component_repos_q_is_empty_and_page_is_1() {
 		Page<ComponentRepoInfo> result = new PageImpl<ComponentRepoInfo>(Collections.emptyList());
-		when(componentRepoService.findAllByNameOrLabel(any(), any())).thenReturn(result);
+		when(componentRepoService.findAllByGitRepoNameAndExcludeStd(any(), any())).thenReturn(result);
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -105,7 +105,7 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 	@Test
 	public void list_component_repos_q_is_null_and_page_greater_than_total() {
 		Page<ComponentRepoInfo> result = new PageImpl<ComponentRepoInfo>(Collections.emptyList(), PageRequest.of(100, 6000), 1);
-		when(componentRepoService.findAllByNameOrLabel(any(), any())).thenReturn(result);
+		when(componentRepoService.findAllByGitRepoNameAndExcludeStd(any(), any())).thenReturn(result);
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -121,7 +121,7 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 	public void list_component_repos_success() {
 		ComponentRepoInfo registry = new ComponentRepoInfo(null, null);
 		Page<ComponentRepoInfo> result = new PageImpl<ComponentRepoInfo>(Collections.singletonList(registry));
-		when(componentRepoService.findAllByNameOrLabel(any(), any())).thenReturn(result);
+		when(componentRepoService.findAllByGitRepoNameAndExcludeStd(any(), any())).thenReturn(result);
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -269,10 +269,10 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 		userInfo.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(userInfo));
 		
-		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
+		GitRepoPublishTask task = new GitRepoPublishTask();
 		task.setId(1);
 		task.setGitUrl("https://github.com/blocklang/blocklang.com.git");
-		when(componentRepoPublishTaskService.save(any())).thenReturn(task);
+		when(gitRepoPublishTaskService.save(any())).thenReturn(task);
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -303,7 +303,7 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 		ComponentRepo repo = new ComponentRepo();
 		when(componentRepoService.findById(anyInt())).thenReturn(Optional.of(repo));
 		
-		when(componentRepoVersionService.findByComponentRepoId(anyInt())).thenReturn(Collections.emptyList());
+		when(componentRepoVersionService.findAllByComponentRepoId(anyInt())).thenReturn(Collections.emptyList());
 		
 		given()
 			.contentType(ContentType.JSON)

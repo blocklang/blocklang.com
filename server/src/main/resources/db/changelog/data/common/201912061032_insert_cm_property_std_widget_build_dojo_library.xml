@@ -8,9 +8,9 @@
 	<changeSet author="Zhengwei Jin" id="201912061032">
 		<insert tableName="cm_property">
 			<column name="dbid" valueNumeric="9" />
-			<column name="prop_key" value="std.widget.build.dojo.name" />
-			<column name="prop_value" value="std-widget-web" />
-			<column name="prop_desc" value="部件标准库的 build 版 dojo 实现的项目名" />
+			<column name="prop_key" value="std.widget.build.dojo.git.url" />
+			<column name="prop_value" value="https://github.com/blocklang/std-widget-web.git" />
+			<column name="prop_desc" value="部件标准库的 build 版 dojo 实现的仓库 url" />
 			<column name="parent_id" valueNumeric="-1" />
 			<column name="data_type" value="01" />
 			<column name="is_valid" valueBoolean="true" />
