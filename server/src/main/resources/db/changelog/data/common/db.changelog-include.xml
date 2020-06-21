@@ -8,8 +8,6 @@
 	<include file="db/changelog/data/common/201903281921_insert_app_blocklang_installer_0_1_0.xml" />
 	<include file="db/changelog/data/common/201904110847_insert_cm_property_keywords.xml" />
 
-	<include file="db/changelog/data/common/201907221816_update_component_repo_column_dev.xml" />
-	
 	<include file="db/changelog/data/common/201907231536_insert_app_jdk_12_0_2.xml" />
 	<include file="db/changelog/data/common/201910291955_insert_app_jdk_13_0_1.xml" />
 	
