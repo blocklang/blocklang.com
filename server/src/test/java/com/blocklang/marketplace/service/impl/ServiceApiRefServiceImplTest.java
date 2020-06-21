@@ -18,7 +18,6 @@ import com.blocklang.marketplace.apirepo.service.data.RequestBody;
 import com.blocklang.marketplace.apirepo.service.data.Response;
 import com.blocklang.marketplace.apirepo.service.data.Schema;
 import com.blocklang.marketplace.apirepo.service.data.ServiceData;
-import com.blocklang.marketplace.dao.ApiRepoDao;
 import com.blocklang.marketplace.dao.ApiRepoVersionDao;
 import com.blocklang.marketplace.dao.ApiServiceDao;
 import com.blocklang.marketplace.dao.ApiServiceParameterDao;
@@ -26,7 +25,6 @@ import com.blocklang.marketplace.dao.ApiServiceRequestBodyDao;
 import com.blocklang.marketplace.dao.ApiServiceResponseDao;
 import com.blocklang.marketplace.dao.ApiServiceSchemaDao;
 import com.blocklang.marketplace.data.RepoConfigJson;
-import com.blocklang.marketplace.model.ApiRepo;
 import com.blocklang.marketplace.model.ApiRepoVersion;
 import com.blocklang.marketplace.model.ApiService;
 import com.blocklang.marketplace.model.ApiServiceParameter;
@@ -39,8 +37,6 @@ public class ServiceApiRefServiceImplTest extends AbstractServiceTest{
 
 	@Autowired
 	private ServiceApiRefService serviceApiRefService;
-	@Autowired
-	private ApiRepoDao apiRepoDao;
 	@Autowired
 	private ApiRepoVersionDao apiRepoVersionDao;
 	@Autowired
@@ -130,13 +126,10 @@ public class ServiceApiRefServiceImplTest extends AbstractServiceTest{
 		refData.setApiObjects(services);
 		refData.setCreateUserId(createUserId);
 		
-		serviceApiRefService.save(refData);
+		Integer apiRepoId = 1;
+		serviceApiRefService.save(apiRepoId, refData);
 		
-		Optional<ApiRepo> expectedApiRepoOption = apiRepoDao.findByGitRepoUrlAndCreateUserId(gitUrl, createUserId);
-		assertThat(expectedApiRepoOption).isPresent();
-		assertThat(expectedApiRepoOption.get()).hasNoNullFieldsOrPropertiesExcept("lastUpdateTime", "lastUpdateUserId");
-		
-		Optional<ApiRepoVersion> expectedVersionOption = apiRepoVersionDao.findByApiRepoIdAndVersion(expectedApiRepoOption.get().getId(), version);
+		Optional<ApiRepoVersion> expectedVersionOption = apiRepoVersionDao.findByApiRepoIdAndVersion(apiRepoId, version);
 		assertThat(expectedVersionOption).isPresent();
 		assertThat(expectedVersionOption.get()).hasNoNullFieldsOrProperties();
 		

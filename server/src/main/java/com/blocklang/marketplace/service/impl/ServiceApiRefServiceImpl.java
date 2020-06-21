@@ -76,7 +76,7 @@ public class ServiceApiRefServiceImpl extends AbstractApiRefService implements S
 		
 		List<Parameter> parameters = service.getParameters();
 		for(Parameter param : parameters) {
-			saveServiceParameter(apiService.getId(), param);
+			saveServiceParameter(apiRepoVersionId, apiService.getId(), param);
 		}
 		
 		saveRequestBody(apiRepoVersionId, apiService.getId(), service.getRequestBody(), createUserId);
@@ -87,8 +87,9 @@ public class ServiceApiRefServiceImpl extends AbstractApiRefService implements S
 		}
 	}
 
-	private void saveServiceParameter(Integer apiServiceId, Parameter param) {
+	private void saveServiceParameter(Integer apiRepoVersionId, Integer apiServiceId, Parameter param) {
 		ApiServiceParameter apiParam = new ApiServiceParameter();
+		apiParam.setApiRepoVersionId(apiRepoVersionId);
 		apiParam.setApiServiceId(apiServiceId);
 		apiParam.setCode(param.getCode());
 		apiParam.setName(param.getName());
@@ -112,6 +113,7 @@ public class ServiceApiRefServiceImpl extends AbstractApiRefService implements S
 		Integer rootSchemaId = saveSchema(apiRepoVersionId, requestBody.getSchema(), createUserId);
 		
 		ApiServiceRequestBody apiServiceRequestBody = new ApiServiceRequestBody();
+		apiServiceRequestBody.setApiRepoVersionId(apiRepoVersionId);
 		apiServiceRequestBody.setApiServiceId(apiServiceId);
 		apiServiceRequestBody.setCode(requestBody.getCode());
 		apiServiceRequestBody.setName(requestBody.getContentType());
@@ -127,6 +129,7 @@ public class ServiceApiRefServiceImpl extends AbstractApiRefService implements S
 		Integer rootSchemaId = saveSchema(apiRepoVersionId, response.getSchema(), createUserId);
 		
 		ApiServiceResponse apiResponse = new ApiServiceResponse();
+		apiResponse.setApiRepoVersionId(apiRepoVersionId);
 		apiResponse.setApiServiceId(apiService.getId());
 		apiResponse.setCode(response.getCode());
 		// 不需要传入 name，将 statusCode 和 contentType 组合起来形成唯一标识

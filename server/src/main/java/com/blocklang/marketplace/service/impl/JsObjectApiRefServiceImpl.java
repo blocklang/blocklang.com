@@ -68,12 +68,13 @@ public class JsObjectApiRefServiceImpl extends AbstractApiRefService implements 
 		
 		List<JsFunction> funcs = jsObject.getFunctions();
 		for(JsFunction each : funcs) {
-			saveJsFunction(apiJsObject.getId(), each);
+			saveJsFunction(apiRepoVersionId, apiJsObject.getId(), each);
 		}
 	}
 
-	private void saveJsFunction(Integer apiJsObjectId, JsFunction func) {
+	private void saveJsFunction(Integer apiRepoVersionId, Integer apiJsObjectId, JsFunction func) {
 		ApiJsFunction apiJsFunc = new ApiJsFunction();
+		apiJsFunc.setApiRepoVersionId(apiRepoVersionId);
 		apiJsFunc.setApiJsObjectId(apiJsObjectId);
 		apiJsFunc.setCode(func.getCode());
 		apiJsFunc.setName(func.getName());
@@ -87,6 +88,7 @@ public class JsObjectApiRefServiceImpl extends AbstractApiRefService implements 
 		int seq = 1;
 		for(Parameter arg : args) {
 			ApiJsFunctionArgument apiArg = new ApiJsFunctionArgument();
+			apiArg.setApiRepoVersionId(apiRepoVersionId);
 			apiArg.setApiJsFunctionId(apiJsFunc.getId());
 			apiArg.setCode(arg.getCode());
 			apiArg.setName(arg.getName());

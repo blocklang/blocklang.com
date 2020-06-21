@@ -69,17 +69,18 @@ public class WidgetApiRefServiceImpl extends AbstractApiRefService implements Wi
 		
 		List<WidgetProperty> properties = widget.getProperties();
 		for(WidgetProperty property : properties) {
-			saveWidgetProperty(apiWidget.getId(), property);
+			saveWidgetProperty(apiRepoVersionId, apiWidget.getId(), property);
 		}
 		
 		List<WidgetEvent> events = widget.getEvents();
 		for(WidgetEvent event : events) {
-			saveWidgetEvent(apiWidget.getId(), event);
+			saveWidgetEvent(apiRepoVersionId, apiWidget.getId(), event);
 		}
 	}
 
-	private void saveWidgetProperty(Integer apiWidgetId, WidgetProperty property) {
+	private void saveWidgetProperty(Integer apiRepoVersionId, Integer apiWidgetId, WidgetProperty property) {
 		ApiWidgetProperty apiWidgetProperty = new ApiWidgetProperty();
+		apiWidgetProperty.setApiRepoVersionId(apiRepoVersionId);
 		apiWidgetProperty.setApiWidgetId(apiWidgetId);
 		apiWidgetProperty.setCode(property.getCode());
 		apiWidgetProperty.setName(property.getName());
@@ -94,12 +95,13 @@ public class WidgetApiRefServiceImpl extends AbstractApiRefService implements Wi
 		List<WidgetPropertyOption> options = property.getOptions();
 		Integer apiWidgetPropertyId = apiWidgetProperty.getId();
 		for(WidgetPropertyOption each : options) {
-			saveWidgetPropertyValueOption(apiWidgetPropertyId, each);
+			saveWidgetPropertyValueOption(apiRepoVersionId, apiWidgetPropertyId, each);
 		}
 	}
 
-	private void saveWidgetPropertyValueOption(Integer apiWidgetPropertyId, WidgetPropertyOption option) {
+	private void saveWidgetPropertyValueOption(Integer apiRepoVersionId, Integer apiWidgetPropertyId, WidgetPropertyOption option) {
 		ApiWidgetPropertyValueOption apiWidgetPropertyValueOption = new ApiWidgetPropertyValueOption();
+		apiWidgetPropertyValueOption.setApiRepoVersionId(apiRepoVersionId);
 		apiWidgetPropertyValueOption.setApiWidgetPropertyId(apiWidgetPropertyId);
 		apiWidgetPropertyValueOption.setCode(option.getCode());
 		apiWidgetPropertyValueOption.setLabel(option.getLabel());
@@ -110,8 +112,9 @@ public class WidgetApiRefServiceImpl extends AbstractApiRefService implements Wi
 		apiWidgetPropertyValueOptionDao.save(apiWidgetPropertyValueOption);
 	}
 
-	private void saveWidgetEvent(Integer apiWidgetId, WidgetEvent event) {
+	private void saveWidgetEvent(Integer apiRepoVersionId, Integer apiWidgetId, WidgetEvent event) {
 		ApiWidgetProperty apiWidgetProperty = new ApiWidgetProperty();
+		apiWidgetProperty.setApiRepoVersionId(apiRepoVersionId);
 		apiWidgetProperty.setApiWidgetId(apiWidgetId);
 		apiWidgetProperty.setCode(event.getCode());
 		apiWidgetProperty.setName(event.getName());
@@ -125,6 +128,7 @@ public class WidgetApiRefServiceImpl extends AbstractApiRefService implements Wi
 		for(var i = 0; i < args.size(); i++) {
 			WidgetEventArgument each = args.get(i);
 			ApiWidgetEventArg arg = new ApiWidgetEventArg();
+			arg.setApiRepoVersionId(apiRepoVersionId);
 			arg.setApiWidgetPropertyId(apiWidgetProperty.getId());
 			arg.setCode(each.getCode());
 			arg.setName(each.getName());

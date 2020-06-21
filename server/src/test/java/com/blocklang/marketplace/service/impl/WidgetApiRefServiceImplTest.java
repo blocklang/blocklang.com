@@ -17,14 +17,12 @@ import com.blocklang.marketplace.apirepo.widget.data.WidgetEvent;
 import com.blocklang.marketplace.apirepo.widget.data.WidgetEventArgument;
 import com.blocklang.marketplace.apirepo.widget.data.WidgetProperty;
 import com.blocklang.marketplace.apirepo.widget.data.WidgetPropertyOption;
-import com.blocklang.marketplace.dao.ApiRepoDao;
 import com.blocklang.marketplace.dao.ApiRepoVersionDao;
 import com.blocklang.marketplace.dao.ApiWidgetDao;
 import com.blocklang.marketplace.dao.ApiWidgetEventArgDao;
 import com.blocklang.marketplace.dao.ApiWidgetPropertyDao;
 import com.blocklang.marketplace.dao.ApiWidgetPropertyValueOptionDao;
 import com.blocklang.marketplace.data.RepoConfigJson;
-import com.blocklang.marketplace.model.ApiRepo;
 import com.blocklang.marketplace.model.ApiRepoVersion;
 import com.blocklang.marketplace.model.ApiWidget;
 import com.blocklang.marketplace.model.ApiWidgetEventArg;
@@ -36,8 +34,6 @@ public class WidgetApiRefServiceImplTest extends AbstractServiceTest{
 
 	@Autowired
 	private WidgetApiRefService widgetApiRefService;
-	@Autowired
-	private ApiRepoDao apiRepoDao;
 	@Autowired
 	private ApiRepoVersionDao apiRepoVersionDao;
 	@Autowired
@@ -112,13 +108,10 @@ public class WidgetApiRefServiceImplTest extends AbstractServiceTest{
 		refData.setApiObjects(widgets);
 		refData.setCreateUserId(createUserId);
 		
-		widgetApiRefService.save(refData);
+		Integer apiRepoId = 1;
+		widgetApiRefService.save(apiRepoId, refData);
 		
-		Optional<ApiRepo> expectedApiRepoOption = apiRepoDao.findByGitRepoUrlAndCreateUserId(gitUrl, createUserId);
-		assertThat(expectedApiRepoOption).isPresent();
-		assertThat(expectedApiRepoOption.get()).hasNoNullFieldsOrPropertiesExcept("lastUpdateTime", "lastUpdateUserId");
-		
-		Optional<ApiRepoVersion> expectedVersionOption = apiRepoVersionDao.findByApiRepoIdAndVersion(expectedApiRepoOption.get().getId(), version);
+		Optional<ApiRepoVersion> expectedVersionOption = apiRepoVersionDao.findByApiRepoIdAndVersion(apiRepoId, version);
 		assertThat(expectedVersionOption).isPresent();
 		assertThat(expectedVersionOption.get()).hasNoNullFieldsOrProperties();
 		

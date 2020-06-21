@@ -18,13 +18,11 @@ import com.blocklang.marketplace.apirepo.webapi.data.Parameter;
 import com.blocklang.marketplace.dao.ApiJsFunctionArgumentDao;
 import com.blocklang.marketplace.dao.ApiJsFunctionDao;
 import com.blocklang.marketplace.dao.ApiJsObjectDao;
-import com.blocklang.marketplace.dao.ApiRepoDao;
 import com.blocklang.marketplace.dao.ApiRepoVersionDao;
 import com.blocklang.marketplace.data.RepoConfigJson;
 import com.blocklang.marketplace.model.ApiJsFunction;
 import com.blocklang.marketplace.model.ApiJsFunctionArgument;
 import com.blocklang.marketplace.model.ApiJsObject;
-import com.blocklang.marketplace.model.ApiRepo;
 import com.blocklang.marketplace.model.ApiRepoVersion;
 import com.blocklang.marketplace.service.JsObjectApiRefService;
 
@@ -32,8 +30,6 @@ public class JsObjectApiRefServiceImplTest extends AbstractServiceTest{
 
 	@Autowired
 	private JsObjectApiRefService jsObjectApiRefService;
-	@Autowired
-	private ApiRepoDao apiRepoDao;
 	@Autowired
 	private ApiRepoVersionDao apiRepoVersionDao;
 	@Autowired
@@ -85,13 +81,10 @@ public class JsObjectApiRefServiceImplTest extends AbstractServiceTest{
 		refData.setApiObjects(jsObjects);
 		refData.setCreateUserId(createUserId);
 		
-		jsObjectApiRefService.save(refData);
+		Integer apiRepoId = 1;
+		jsObjectApiRefService.save(apiRepoId, refData);
 		
-		Optional<ApiRepo> expectedApiRepoOption = apiRepoDao.findByGitRepoUrlAndCreateUserId(gitUrl, createUserId);
-		assertThat(expectedApiRepoOption).isPresent();
-		assertThat(expectedApiRepoOption.get()).hasNoNullFieldsOrPropertiesExcept("lastUpdateTime", "lastUpdateUserId");
-		
-		Optional<ApiRepoVersion> expectedVersionOption = apiRepoVersionDao.findByApiRepoIdAndVersion(expectedApiRepoOption.get().getId(), version);
+		Optional<ApiRepoVersion> expectedVersionOption = apiRepoVersionDao.findByApiRepoIdAndVersion(apiRepoId, version);
 		assertThat(expectedVersionOption).isPresent();
 		assertThat(expectedVersionOption.get()).hasNoNullFieldsOrProperties();
 		
