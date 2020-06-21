@@ -3,6 +3,7 @@ package com.blocklang.marketplace.service.impl;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,14 +31,20 @@ public class ApiRepoVersionServiceImpl implements ApiRepoVersionService {
 		if(allVersions.isEmpty()) {
 			return Optional.empty();
 		}
+		
+		// 要先过滤掉 master 版本
+		List<ApiRepoVersion> filtered = allVersions.stream().filter(apiRepoVersion -> !apiRepoVersion.getVersion().equals("master")).collect(Collectors.toList());
+		if(filtered.isEmpty()) {
+			return Optional.empty();
+		}
 		// 最新版本在最前面
-		allVersions.sort(new Comparator<ApiRepoVersion>() {
+		filtered.sort(new Comparator<ApiRepoVersion>() {
 			@Override
 			public int compare(ApiRepoVersion version1, ApiRepoVersion version2) {
 				return Version.compare(Version.parseVersion(version2.getVersion()), Version.parseVersion(version1.getVersion()));
 			}
 		});
-		return Optional.of(allVersions.get(0));
+		return Optional.of(filtered.get(0));
 	}
 
 }
