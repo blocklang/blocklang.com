@@ -11,6 +11,6 @@ public interface ComponentRepoVersionDao extends JpaRepository<ComponentRepoVers
 
 	List<ComponentRepoVersion> findAllByComponentRepoId(Integer componentRepoId);
 
-	Optional<ComponentRepoVersion> findByComponentIdAndVersion(Integer componentId, Integer createUserId);
+	Optional<ComponentRepoVersion> findByComponentRepoIdAndVersion(Integer componentRepoId, String version);
 
 }

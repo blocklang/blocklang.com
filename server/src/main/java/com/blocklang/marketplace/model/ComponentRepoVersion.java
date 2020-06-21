@@ -49,8 +49,11 @@ public class ComponentRepoVersion extends PartialIdField {
 	private String logoPath;
 
 	@Convert(converter = LanguageConverter.class)
-	@Column(name = "language", nullable = false, length = 2)
+	@Column(name = "language", length = 32)
 	private Language language;
+	
+	@Column(name = "build", nullable = false, length = 32)
+	private String build;
 	
 	@Column(name = "last_publish_time" )
 	private LocalDateTime lastPublishTime;
@@ -167,6 +170,14 @@ public class ComponentRepoVersion extends PartialIdField {
 
 	public void setAppType(AppType appType) {
 		this.appType = appType;
+	}
+
+	public String getBuild() {
+		return build;
+	}
+
+	public void setBuild(String build) {
+		this.build = build;
 	}
 
 	// FIXME: 注意，此处没有包含 Service

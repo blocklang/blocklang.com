@@ -9,8 +9,10 @@ public interface ComponentRepoVersionService {
 
 	Optional<ComponentRepoVersion> findById(Integer componentRepoVersionId);
 
-	List<ComponentRepoVersion> findByComponentRepoId(Integer componentRepoId);
+	List<ComponentRepoVersion> findAllByComponentRepoId(Integer componentRepoId);
 	
 	Optional<ComponentRepoVersion> findLatestVersion(Integer componentRepoId);
+
+	Optional<ComponentRepoVersion> findByComponentIdAndVersion(Integer componentRepoId, String version);
 
 }
