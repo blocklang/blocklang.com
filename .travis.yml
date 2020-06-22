@@ -13,5 +13,5 @@ before_install:
   - cd server
   - chmod +x mvnw
 script:
-  - ./mvnw install -Dmaven.javadoc.skip=true -Dspring-boot.run.profiles=prod -B -V
+  - ./mvnw install -Dmaven.javadoc.skip=true -B -V
   #- ./mvnw install -Dmaven.javadoc.skip=true -Dspring-boot.run.profiles=mysql -B -V
