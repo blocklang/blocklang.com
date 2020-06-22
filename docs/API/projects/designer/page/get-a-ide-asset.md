@@ -1,6 +1,6 @@
-# 获取 dev 项目资源
+# 获取 IDE 项目资源
 
-在页面设计器中设计页面时，需要通过 `<script />` 方式加载 dev 版的资源，目前确定的资源包含：
+在页面设计器中设计页面时，需要通过 `<script />` 方式加载 IDE 版的资源，目前确定的资源包含：
 
 1. `main.bundle.js` 和 `main.bundle.js.map`
 2. `main.bundle.css` 和 `main.bundle.css.map`
