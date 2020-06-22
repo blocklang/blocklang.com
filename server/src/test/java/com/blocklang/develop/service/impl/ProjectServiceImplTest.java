@@ -45,14 +45,14 @@ import com.blocklang.develop.model.ProjectContext;
 import com.blocklang.develop.model.ProjectResource;
 import com.blocklang.develop.service.ProjectResourceService;
 import com.blocklang.develop.service.ProjectService;
-import com.blocklang.marketplace.constant.ComponentAttrValueType;
+import com.blocklang.marketplace.constant.WidgetPropertyValueType;
 import com.blocklang.marketplace.constant.RepoCategory;
-import com.blocklang.marketplace.dao.ApiComponentAttrDao;
-import com.blocklang.marketplace.dao.ApiComponentDao;
+import com.blocklang.marketplace.dao.ApiWidgetPropertyDao;
+import com.blocklang.marketplace.dao.ApiWidgetDao;
 import com.blocklang.marketplace.dao.ApiRepoDao;
 import com.blocklang.marketplace.dao.ApiRepoVersionDao;
-import com.blocklang.marketplace.model.ApiComponent;
-import com.blocklang.marketplace.model.ApiComponentAttr;
+import com.blocklang.marketplace.model.ApiWidget;
+import com.blocklang.marketplace.model.ApiWidgetProperty;
 import com.blocklang.marketplace.model.ApiRepo;
 import com.blocklang.marketplace.model.ApiRepoVersion;
 import com.blocklang.release.dao.AppDao;
@@ -89,9 +89,9 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 	@Autowired
 	private ApiRepoVersionDao apiRepoVersionDao;
 	@Autowired
-	private ApiComponentDao apiComponentDao;
+	private ApiWidgetDao apiComponentDao;
 	@Autowired
-	private ApiComponentAttrDao apiComponentAttrDao;
+	private ApiWidgetPropertyDao apiComponentAttrDao;
 	
 	@Test
 	public void find_no_data() {
@@ -134,14 +134,13 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		Integer userId = userDao.save(userInfo).getId();
 		
 		// 创建一个标准库
+		String stdApiRepoUrl = "std-api-widget-url";
 		ApiRepo stdApiRepo = new ApiRepo();
 		stdApiRepo.setCategory(RepoCategory.WIDGET);
-		stdApiRepo.setGitRepoUrl("url");
+		stdApiRepo.setGitRepoUrl(stdApiRepoUrl);
 		stdApiRepo.setGitRepoWebsite("website");
 		stdApiRepo.setGitRepoOwner("owner");
 		stdApiRepo.setGitRepoName("repo_name");
-		stdApiRepo.setName("std-api-widget");
-		stdApiRepo.setVersion("0.0.1");
 		stdApiRepo.setCreateUserId(1);
 		stdApiRepo.setCreateTime(LocalDateTime.now());
 		Integer stdApiRepoId = apiRepoDao.save(stdApiRepo).getId();
@@ -149,6 +148,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		// 创建对应的 API 仓库版本信息
 		ApiRepoVersion apiVersion = new ApiRepoVersion();
 		apiVersion.setApiRepoId(stdApiRepoId);
+		apiVersion.setName("a api version");
 		apiVersion.setVersion("0.0.1");
 		apiVersion.setGitTagName("v0.0.1");
 		apiVersion.setCreateUserId(1);
@@ -156,23 +156,23 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		ApiRepoVersion savedApiRepoVersion = apiRepoVersionDao.save(apiVersion);
 
 		// 在标准库中创建一个 Page 部件
-		ApiComponent widget = new ApiComponent();
+		ApiWidget widget = new ApiWidget();
 		String widgetCode = "0001";
 		String widgetName = "Page";
 		widget.setApiRepoVersionId(savedApiRepoVersion.getId());
 		widget.setCode(widgetCode);
 		widget.setName(widgetName);
-		widget.setCanHasChildren(true);
 		widget.setCreateUserId(1);
 		widget.setCreateTime(LocalDateTime.now());
-		ApiComponent savedWidget = apiComponentDao.save(widget);
+		ApiWidget savedWidget = apiComponentDao.save(widget);
 		// 为 Page 部件添加一个属性
-		ApiComponentAttr widgetProperty = new ApiComponentAttr();
-		widgetProperty.setApiComponentId(savedWidget.getId());
+		ApiWidgetProperty widgetProperty = new ApiWidgetProperty();
+		widgetProperty.setApiRepoVersionId(savedApiRepoVersion.getId());
+		widgetProperty.setApiWidgetId(savedWidget.getId());
 		widgetProperty.setCode("0011");
 		widgetProperty.setName("prop_name");
 		widgetProperty.setDefaultValue("default_value");
-		widgetProperty.setValueType(ComponentAttrValueType.STRING);
+		widgetProperty.setValueType(WidgetPropertyValueType.STRING);
 		apiComponentAttrDao.save(widgetProperty);
 		// 并在配置文件中引用该标准库
 		// 项目应直接依赖于 ide 版本的仓库
@@ -191,7 +191,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		when(propertyService.findStringValue(CmPropKey.STD_WIDGET_API_NAME, "std-api-widget")).thenReturn("std-api-widget");
+		when(propertyService.findStringValue(CmPropKey.STD_WIDGET_API_GIT_URL, "")).thenReturn(stdApiRepoUrl);
 		when(propertyService.findIntegerValue(CmPropKey.STD_WIDGET_REGISTER_USERID, 1)).thenReturn(1);
 		when(propertyService.findStringValue(CmPropKey.STD_WIDGET_ROOT_NAME, "Page")).thenReturn("Page");
 		
@@ -310,13 +310,12 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		assertThat(actualRootWidget.getWidgetId()).isEqualTo(widget.getId());
 		assertThat(actualRootWidget.getWidgetCode()).isEqualTo(widgetCode);
 		assertThat(actualRootWidget.getWidgetName()).isEqualTo(widgetName);
-		assertThat(actualRootWidget.getCanHasChildren()).isTrue();
 		// Page 部件的属性信息
 		assertThat(actualRootWidget.getProperties()).hasSize(1);
 		AttachedWidgetProperty actualRootWidgetProperty1 = actualRootWidget.getProperties().get(0);
 		assertThat(actualRootWidgetProperty1.getId()).isEqualTo(rootWidgetAttrValue1.getId());
 		assertThat(actualRootWidgetProperty1.getCode()).isEqualTo(rootWidgetAttrValue1.getWidgetAttrCode());
-		assertThat(actualRootWidgetProperty1.getValueType()).isEqualTo(ComponentAttrValueType.STRING.getKey());
+		assertThat(actualRootWidgetProperty1.getValueType()).isEqualTo(WidgetPropertyValueType.STRING.getKey());
 		assertThat(actualRootWidgetProperty1.getValue()).isEqualTo(rootWidgetAttrValue1.getAttrValue());
 		assertThat(actualRootWidgetProperty1.getName()).isEqualTo("prop_name");
 		

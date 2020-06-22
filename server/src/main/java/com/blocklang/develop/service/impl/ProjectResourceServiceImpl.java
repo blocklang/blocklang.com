@@ -80,16 +80,16 @@ import com.blocklang.develop.model.ProjectContext;
 import com.blocklang.develop.model.ProjectResource;
 import com.blocklang.develop.service.ProjectDependenceService;
 import com.blocklang.develop.service.ProjectResourceService;
-import com.blocklang.marketplace.constant.ComponentAttrValueType;
+import com.blocklang.marketplace.constant.WidgetPropertyValueType;
 import com.blocklang.marketplace.constant.RepoCategory;
-import com.blocklang.marketplace.dao.ApiComponentAttrDao;
-import com.blocklang.marketplace.dao.ApiComponentAttrFunArgDao;
-import com.blocklang.marketplace.dao.ApiComponentDao;
+import com.blocklang.marketplace.dao.ApiWidgetPropertyDao;
+import com.blocklang.marketplace.dao.ApiWidgetEventArgDao;
+import com.blocklang.marketplace.dao.ApiWidgetDao;
 import com.blocklang.marketplace.dao.ApiRepoDao;
 import com.blocklang.marketplace.dao.ApiRepoVersionDao;
 import com.blocklang.marketplace.dao.ComponentRepoVersionDao;
-import com.blocklang.marketplace.model.ApiComponent;
-import com.blocklang.marketplace.model.ApiComponentAttrFunArg;
+import com.blocklang.marketplace.model.ApiWidget;
+import com.blocklang.marketplace.model.ApiWidgetEventArg;
 import com.blocklang.marketplace.model.ApiRepo;
 import com.blocklang.marketplace.service.ApiRepoVersionService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -138,7 +138,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 	@Autowired
 	private ComponentRepoVersionDao componentRepoVersionDao;
 	@Autowired
-	private ApiComponentDao apiComponentDao;
+	private ApiWidgetDao apiComponentDao;
 	@Autowired
 	private ApiRepoVersionService apiRepoVersionService;
 	@Autowired
@@ -146,9 +146,9 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 	@Autowired
 	private ApiRepoDao apiRepoDao;
 	@Autowired
-	private ApiComponentAttrDao apiComponentAttrDao;
+	private ApiWidgetPropertyDao apiComponentAttrDao;
 	@Autowired
-	private ApiComponentAttrFunArgDao apiComponentAttrFunArgDao;
+	private ApiWidgetEventArgDao apiComponentAttrFunArgDao;
 	
 	//@Transactional
 	@Override
@@ -794,7 +794,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 		}else {
 			// 获取页面中所有事件
 			List<AttachedWidgetProperty> events = widgets.stream().flatMap(widget -> {
-				return widget.getProperties().stream().filter(prop -> prop.getValueType().equals(ComponentAttrValueType.FUNCTION.getKey()));
+				return widget.getProperties().stream().filter(prop -> prop.getValueType().equals(WidgetPropertyValueType.FUNCTION.getKey()));
 			}).collect(Collectors.toList());
 			functions = getPageFunctions(pageId, events, pageData);
 		}
@@ -810,7 +810,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 			return Collections.emptyList();
 		}
 		
-		Map<Integer, List<ApiComponent>> cachedAndGroupedWidgets = new HashMap<>();
+		Map<Integer, List<ApiWidget>> cachedAndGroupedWidgets = new HashMap<>();
 		// 以下逻辑是用来支持版本升级的
 		
 		// 如果页面模型中存在部件，则获取项目依赖的所有部件列表
@@ -832,7 +832,8 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 				ApiRepoVersionInfo result = new ApiRepoVersionInfo();
 				result.setApiRepoVersionId(item.getApiRepoVersionId());
 				apiRepoOption.ifPresent(apiRepo -> {
-					result.setApiRepoName(apiRepo.getName());
+					// FIXME: 已从表中删除了 name 字段
+					// result.setApiRepoName(apiRepo.getName());
 					result.setApiRepoId(apiRepo.getId());
 					result.setCategory(apiRepo.getCategory());
 				});
@@ -841,7 +842,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 			.filter(apiVersionInfo -> apiVersionInfo.getCategory() == RepoCategory.WIDGET)
 			.forEach(apiVersionInfo -> {
 				// 4. 获取到该版本下的所有部件
-				List<ApiComponent> widgets = apiComponentDao.findAllByApiRepoVersionId(apiVersionInfo.getApiRepoVersionId());
+				List<ApiWidget> widgets = apiComponentDao.findAllByApiRepoVersionId(apiVersionInfo.getApiRepoVersionId());
 				cachedAndGroupedWidgets.put(apiVersionInfo.getApiRepoId(), widgets);
 			});
 		
@@ -863,12 +864,11 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 					// 因为页面设计器中需要根据 widgetName 来定位部件实例，所以不能使用 label
 					result.setWidgetName(component.getName());
 					result.setWidgetId(component.getId());
-					result.setCanHasChildren(component.getCanHasChildren());
 
 					List<PageWidgetAttrValue> attachedProperties = pageWidgetAttrValueDao.findAllByPageWidgetId(item.getId());
 					
 					List<AttachedWidgetProperty> properties = apiComponentAttrDao
-							.findAllByApiComponentIdOrderByCode(component.getId())
+							.findAllByApiWidgetIdOrderByCode(component.getId())
 							.stream()
 							.map(componentAttr -> {
 								// 注意，属性列表要先获取部件的属性列表，然后再赋值，确保新增的属性（页面模型中未添加）也能包括进来
@@ -880,9 +880,9 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 								property.setName(componentAttr.getName());
 								property.setValueType(componentAttr.getValueType().getKey());
 								// 如果属性为事件，则添加事件参数
-								if(componentAttr.getValueType() == ComponentAttrValueType.FUNCTION) {
+								if(componentAttr.getValueType() == WidgetPropertyValueType.FUNCTION) {
 									// 加载参数的定义
-									List<ApiComponentAttrFunArg> args = apiComponentAttrFunArgDao.findAllByApiComponentAttrId(componentAttr.getId());
+									List<ApiWidgetEventArg> args = apiComponentAttrFunArgDao.findAllByApiWidgetPropertyId(componentAttr.getId());
 									List<EventArgument> eventArgs = args.stream().map(arg -> {
 										EventArgument ea = new EventArgument();
 										ea.setCode(arg.getCode());
@@ -1065,11 +1065,11 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 		pageModel.setPageId(pageId);
 		
 		// 标准库所实现的 API 仓库的地址
-		String stdApiRepoName = propertyService.findStringValue(CmPropKey.STD_WIDGET_API_NAME, "std-api-widget");
+		String stdApiRepoUrl = propertyService.findStringValue(CmPropKey.STD_WIDGET_API_GIT_URL, "");
 		Integer stdApiRepoPublishUserId = propertyService.findIntegerValue(CmPropKey.STD_WIDGET_REGISTER_USERID, 1);
 		String rootWidgetName = propertyService.findStringValue(CmPropKey.STD_WIDGET_ROOT_NAME, "Page");
 		
-		apiRepoDao.findByNameAndCreateUserId(stdApiRepoName, stdApiRepoPublishUserId).map(apiRepo -> {
+		apiRepoDao.findByGitRepoUrlAndCreateUserId(stdApiRepoUrl, stdApiRepoPublishUserId).map(apiRepo -> {
 			AttachedWidget rootWidget = new AttachedWidget();
 			rootWidget.setApiRepoId(apiRepo.getId());
 			return rootWidget;
@@ -1079,7 +1079,6 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 					rootWidget.setWidgetCode(apiComponent.getCode());
 					rootWidget.setWidgetId(apiComponent.getId());
 					rootWidget.setWidgetName(apiComponent.getName());
-					rootWidget.setCanHasChildren(apiComponent.getCanHasChildren());
 				});
 			});
 			return rootWidget;
@@ -1088,7 +1087,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 			rootWidget.setParentId(Constant.TREE_ROOT_ID.toString());
 			
 			List<AttachedWidgetProperty> rootWidgetProperties = apiComponentAttrDao
-					.findAllByApiComponentIdOrderByCode(rootWidget.getWidgetId())
+					.findAllByApiWidgetIdOrderByCode(rootWidget.getWidgetId())
 					.stream()
 					.map(apiComponentAttr -> {
 						AttachedWidgetProperty p = new AttachedWidgetProperty();

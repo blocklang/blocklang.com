@@ -8,7 +8,6 @@ public class Widget {
 	private Integer widgetId;
 	private String widgetName;
 	private String widgetCode;
-	private Boolean canHasChildren;
 	private Integer apiRepoId;
 	private List<WidgetProperty> properties;
 
@@ -34,14 +33,6 @@ public class Widget {
 
 	public void setWidgetCode(String widgetCode) {
 		this.widgetCode = widgetCode;
-	}
-
-	public Boolean getCanHasChildren() {
-		return canHasChildren;
-	}
-
-	public void setCanHasChildren(Boolean canHasChildren) {
-		this.canHasChildren = canHasChildren;
 	}
 
 	public Integer getApiRepoId() {

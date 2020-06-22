@@ -17,9 +17,9 @@ import com.blocklang.core.service.PropertyService;
 import com.blocklang.core.service.UserService;
 import com.blocklang.core.util.GitUrlSegment;
 import com.blocklang.core.util.LogFileReader;
+import com.blocklang.marketplace.data.MarketplaceStore;
 import com.blocklang.marketplace.model.GitRepoPublishTask;
 import com.blocklang.marketplace.service.GitRepoPublishTaskService;
-import com.blocklang.marketplace.task.MarketplacePublishContext;
 
 @RestController
 public class GitRepoPublishTaskController {
@@ -63,11 +63,12 @@ public class GitRepoPublishTaskController {
 			throw new NoAuthorizationException();
 		}
 		
-		GitUrlSegment.of(task.getGitUrl()).ifPresent(segment -> {
+		var segment = GitUrlSegment.of(task.getGitUrl());
+		if(segment != null) {
 			task.setWebsite(segment.getWebsite());
 			task.setOwner(segment.getOwner());
 			task.setRepoName(segment.getRepoName());
-		});
+		}
 		
 		return ResponseEntity.ok(task);
 	}
@@ -81,15 +82,16 @@ public class GitRepoPublishTaskController {
 			throw new NoAuthorizationException();
 		}
 		
-		GitRepoPublishTask task = gitRepoPublishTaskService.findById(taskId).orElseThrow(ResourceNotFoundException::new);
+		GitRepoPublishTask task = gitRepoPublishTaskService.findById(taskId)
+				.orElseThrow(ResourceNotFoundException::new);
 		if(!task.getCreateUserName().equalsIgnoreCase(principal.getName())) {
 			throw new NoAuthorizationException();
 		}
 		
-		String dataRootPath = propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).orElseThrow(ResourceNotFoundException::new);
-		MarketplacePublishContext context = new MarketplacePublishContext(dataRootPath, task);
-		
-		List<String> logContent = LogFileReader.readAllLines(context.getData().getRepoPublishLogFile());
+		String dataRootPath = propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)
+				.orElseThrow(ResourceNotFoundException::new);
+		MarketplaceStore store = new MarketplaceStore(dataRootPath, task.getGitUrl());
+		List<String> logContent = LogFileReader.readAllLines(store.getLogFilePath(task.getLogFileName()));
 		return ResponseEntity.ok(logContent);
 	}
 	

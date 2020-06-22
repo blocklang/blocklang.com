@@ -43,7 +43,12 @@ public class AbstractControllerTest extends AbstractSpringTest{
 	
 	@BeforeEach
 	public void setUp() {
-		RestAssuredMockMvc.config = RestAssuredMockMvc.config().encoderConfig(EncoderConfig.encoderConfig().defaultCharsetForContentType(Charset.forName("UTF-8"), ContentType.JSON));
+		var encoderConfig = EncoderConfig
+				.encoderConfig()
+				.defaultCharsetForContentType(Charset.forName("UTF-8"), ContentType.JSON);
+		RestAssuredMockMvc.config = RestAssuredMockMvc
+				.config()
+				.encoderConfig(encoderConfig);
 		RestAssuredMockMvc.mockMvc(mvc);
 	}
 }

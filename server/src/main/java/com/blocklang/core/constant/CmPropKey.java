@@ -28,14 +28,14 @@ public abstract class CmPropKey {
 
 	public static final String INSTALL_API_ROOT_URL = "install.api.root.url";
 	
-	// 标准库
-	public static final String STD_WIDGET_API_NAME = "std.widget.api.name";
-	public static final String STD_WIDGET_IDE_NAME = "std.widget.ide.name";
+	// git 标准库常量
+	public static final String STD_WIDGET_API_GIT_URL = "std.widget.api.git.url";
+	public static final String STD_WIDGET_IDE_GIT_URL = "std.widget.ide.git.url";
 	public static final String STD_WIDGET_REGISTER_USERID = "std.widget.register.userid";
 	public static final String STD_WIDGET_ROOT_NAME = "std.widget.root.name";
 	
 	// dojo 版的标准库
-	public static final String STD_WIDGET_BUILD_DOJO_NAME = "std.widget.build.dojo.name";
+	public static final String STD_WIDGET_BUILD_DOJO_GIT_URL = "std.widget.build.dojo.git.url";
 
 	// 平台预留的关键字
 	public static final String PLATFORM_KEYWORDS = "platform.keywords";

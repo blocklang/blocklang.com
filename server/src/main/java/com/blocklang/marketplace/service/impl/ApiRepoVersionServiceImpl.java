@@ -31,7 +31,7 @@ public class ApiRepoVersionServiceImpl implements ApiRepoVersionService {
 		if(allVersions.isEmpty()) {
 			return Optional.empty();
 		}
-		
+
 		// 要先过滤掉 master 版本
 		List<ApiRepoVersion> filtered = allVersions.stream().filter(apiRepoVersion -> !apiRepoVersion.getVersion().equals("master")).collect(Collectors.toList());
 		if(filtered.isEmpty()) {

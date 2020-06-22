@@ -73,6 +73,11 @@ public class MarketplaceStore {
 		this.gitUrlSegment = GitUrlSegment.of(gitRemoteUrl);
 	}
 	
+	public MarketplaceStore(String rootPath, String gitRepoWebsite, String gitRepoOwner, String gitRepoName) {
+		this.rootPath = Path.of(rootPath);
+		this.gitUrlSegment = new GitUrlSegment(gitRepoWebsite, gitRepoOwner, gitRepoName);
+	}
+
 	public Path getRootPath() {
 		return rootPath;
 	}
@@ -86,6 +91,16 @@ public class MarketplaceStore {
 		}
 		
 		return this.logFile;
+	}
+	
+	/**
+	 * 在读取日志文件时使用
+	 * 
+	 * @param logFileName 日志文件名，不包含文件路径
+	 * @return 日志文件的完整路径
+	 */
+	public Path getLogFilePath(String logFileName) {
+		return getRepoRootDirectory().resolve(DIR_NAME_PUBLISH_LOGS).resolve(logFileName);
 	}
 	
 	public String getLogFileName() {
@@ -137,4 +152,5 @@ public class MarketplaceStore {
 	public Path getRepoBlocklangJsonFile() {
 		return this.getRepoSourceDirectory().resolve(BLOCKLANG_JSON);
 	}
+
 }

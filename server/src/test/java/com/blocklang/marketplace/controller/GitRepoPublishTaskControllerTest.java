@@ -22,9 +22,9 @@ import org.springframework.security.test.context.support.WithMockUser;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.runner.common.TaskLogger;
 import com.blocklang.core.test.AbstractControllerTest;
+import com.blocklang.marketplace.data.MarketplaceStore;
 import com.blocklang.marketplace.model.GitRepoPublishTask;
 import com.blocklang.marketplace.service.GitRepoPublishTaskService;
-import com.blocklang.marketplace.task.MarketplacePublishContext;
 
 import io.restassured.http.ContentType;
 
@@ -204,10 +204,8 @@ public class GitRepoPublishTaskControllerTest extends AbstractControllerTest {
 		when(propertyService.findStringValue(anyString())).thenReturn(Optional.of(dataRootDirectory.toString()));
 
 		// 创建一个日志文件，其中写入两行文字
-		// 这里借助 MarketplacePublishContext 类生成完整的日志文件
-		MarketplacePublishContext context = new MarketplacePublishContext(dataRootDirectory.toString(), task);
-		Path logFolderPath = context.getData().getLocalComponentRepoPath().getRepoRootDirectory().resolve("publishLogs");
-		Path logFilePath = logFolderPath.resolve("get_publish_log_success.log");
+		MarketplaceStore store = new MarketplaceStore(dataRootDirectory.toString(), task.getGitUrl());
+		Path logFilePath = store.getLogFilePath().getParent().resolve("get_publish_log_success.log");
 		TaskLogger logger = new TaskLogger(logFilePath);
 		logger.log("a");
 		logger.log("b");

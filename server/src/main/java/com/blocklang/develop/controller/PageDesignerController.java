@@ -35,7 +35,8 @@ import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectResource;
 import com.blocklang.develop.service.ProjectDependenceService;
 import com.blocklang.develop.service.ProjectResourceService;
-import com.blocklang.marketplace.data.LocalRepoPath;
+import com.blocklang.marketplace.constant.RepoType;
+import com.blocklang.marketplace.data.MarketplaceStore;
 import com.blocklang.marketplace.model.ComponentRepo;
 
 /**
@@ -67,16 +68,22 @@ public class PageDesignerController extends AbstractProjectController {
 	public ResponseEntity<List<Dependence>> listProjectDependences(
 			Principal principal,
 			@PathVariable Integer projectId,
-			@RequestParam String category) {
+			@RequestParam String repo) {
 		
-		if(!category.equalsIgnoreCase("dev")) {
-			throw new UnsupportedOperationException("当前仅支持获取 dev 依赖。");
+		if(!repo.equalsIgnoreCase("ide")) {
+			throw new UnsupportedOperationException("当前仅支持获取 ide 依赖。");
 		}
 		Project project = projectService.findById(projectId).orElseThrow(ResourceNotFoundException::new);
 		projectPermissionService.canRead(principal, project).orElseThrow(NoAuthorizationException::new);
+
+		String stdIdeWidgetGitUrl = propertyService.findStringValue(CmPropKey.STD_WIDGET_IDE_GIT_URL)
+				.orElseThrow(ResourceNotFoundException::new);
 		
-		List<Dependence> result = projectDependenceService.findProjectDependences(project.getId(), true).stream()
-				.filter(item -> item.getComponentRepo().getIsIdeExtension()).map(item -> {
+		List<Dependence> result = projectDependenceService
+				.findProjectDependences(project.getId(), true)
+				.stream()
+				.filter(item -> item.getComponentRepo().getRepoType().equals(RepoType.IDE))
+				.map(item -> {
 					Dependence dependence = new Dependence();
 
 					ComponentRepo componentRepo = item.getComponentRepo();
@@ -84,15 +91,14 @@ public class PageDesignerController extends AbstractProjectController {
 					dependence.setGitRepoWebsite(componentRepo.getGitRepoWebsite());
 					dependence.setGitRepoOwner(componentRepo.getGitRepoOwner());
 					dependence.setGitRepoName(componentRepo.getGitRepoName());
-					dependence.setName(componentRepo.getName());
 					dependence.setCategory(componentRepo.getCategory().getValue());
-					dependence.setStd(componentRepo.isStd());
-
+					dependence.setStd(stdIdeWidgetGitUrl.equals(componentRepo.getGitRepoUrl()));
 					dependence.setVersion(item.getComponentRepoVersion().getVersion());
-
 					dependence.setApiRepoId(item.getApiRepo().getId());
+					
 					return dependence;
-				}).collect(Collectors.toList());
+				})
+				.collect(Collectors.toList());
 		return ResponseEntity.ok(result);
 	}
 	
@@ -162,8 +168,8 @@ public class PageDesignerController extends AbstractProjectController {
 		Arrays.stream(VALID_ASSET_NAMES).filter(item -> item.equals(fileName)).findAny().orElseThrow(ResourceNotFoundException::new);
 		
 		String dataRootPath = propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH, "");
-		LocalRepoPath localRepoPath = new LocalRepoPath(dataRootPath, gitRepoWebsite, gitRepoOwner, gitRepoName);
-		Path filePath = localRepoPath.getRepoPackageDirectory().resolve(version).resolve(fileName);
+		MarketplaceStore store = new MarketplaceStore(dataRootPath, gitRepoWebsite, gitRepoOwner, gitRepoName);
+		Path filePath = store.getPackageVersionDirectory(version).resolve(fileName);
 		
 		if(Files.notExists(filePath)) {
 			throw new ResourceNotFoundException();

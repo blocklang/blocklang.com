@@ -3,10 +3,12 @@ package com.blocklang.develop.controller;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -20,6 +22,7 @@ import java.util.Optional;
 
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -27,6 +30,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.web.util.NestedServletException;
 
+import com.blocklang.core.constant.CmPropKey;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.test.AbstractControllerTest;
 import com.blocklang.develop.constant.AccessLevel;
@@ -41,6 +45,7 @@ import com.blocklang.develop.service.ProjectPermissionService;
 import com.blocklang.develop.service.ProjectResourceService;
 import com.blocklang.develop.service.ProjectService;
 import com.blocklang.marketplace.constant.RepoCategory;
+import com.blocklang.marketplace.constant.RepoType;
 import com.blocklang.marketplace.model.ApiRepo;
 import com.blocklang.marketplace.model.ApiRepoVersion;
 import com.blocklang.marketplace.model.ComponentRepo;
@@ -61,29 +66,29 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 	private ProjectPermissionService projectPermissionService;
 	
 	@Test
-	public void list_project_dependences_only_support_category_is_dev() {
+	public void listProjectDependences_only_support_repo_is_ide() {
 		Exception exception = Assertions.assertThrows(NestedServletException.class, () -> given()
 				.contentType(ContentType.JSON)
 				.when()
-					.get("/designer/projects/{projectId}/dependences?category=api", 1));
+					.get("/designer/projects/{projectId}/dependences?repo=api", 1));
 		
-		assertThat(exception.getMessage()).endsWith("当前仅支持获取 dev 依赖。");
+		assertThat(exception.getMessage()).endsWith("当前仅支持获取 ide 依赖。");
 	}
 	
 	@Test
-	public void list_project_dependences_project_not_exist() {
+	public void listProjectDependences_project_not_exist() {
 		when(projectService.findById(anyInt())).thenReturn(Optional.empty());
 
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/designer/projects/{projectId}/dependences?category=dev", 1)
+			.get("/designer/projects/{projectId}/dependences?repo=ide", 1)
 		.then()
 			.statusCode(HttpStatus.SC_NOT_FOUND);
 	}
 	
 	@Test
-	public void list_project_dependences_project_exist_but_can_not_read() {
+	public void listProjectDependences_project_exist_but_can_not_read() {
 		Project project = new Project();
 		project.setId(1);
 		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
@@ -93,29 +98,30 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/designer/projects/{projectId}/dependences?category=dev", 1)
+			.get("/designer/projects/{projectId}/dependences?repo=ide", 1)
 		.then()
 			.statusCode(HttpStatus.SC_FORBIDDEN);
 	}
 	
+	@DisplayName("只过滤出 IDE 版仓库，即排除掉 PROD 版仓库")
 	@Test
-	public void list_project_dependences_only_filter_dev_repo() {
+	public void listProjectDependences_only_filter_ide_repo() {
 		Project project = new Project();
 		project.setId(1);
 		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
-		
 		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
+		when(propertyService.findStringValue(eq(CmPropKey.STD_WIDGET_IDE_GIT_URL))).thenReturn(Optional.of("url"));
 		
 		ProjectDependence dependence = new ProjectDependence();
 		ComponentRepo componentRepo = new ComponentRepo();
 		componentRepo.setId(1);
+		componentRepo.setGitRepoUrl("url2");
 		componentRepo.setGitRepoWebsite("website1");
 		componentRepo.setGitRepoOwner("owner1");
 		componentRepo.setGitRepoName("repoName1");
-		componentRepo.setName("name1");
 		componentRepo.setCategory(RepoCategory.WIDGET);
-		componentRepo.setStd(true);
-		componentRepo.setIsIdeExtension(false);
+		componentRepo.setRepoType(RepoType.PROD);
+
 		ComponentRepoVersion componentRepoVersion = new ComponentRepoVersion();
 		componentRepoVersion.setVersion("0.0.1");
 		ApiRepo apiRepo = new ApiRepo();
@@ -127,29 +133,30 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/designer/projects/{projectId}/dependences?category=dev", 1)
+			.get("/designer/projects/{projectId}/dependences?repo=ide", 1)
 		.then()
 			.statusCode(HttpStatus.SC_OK)
 			.body("size()", equalTo(0));
 	}
 	
+	@DisplayName("成功过滤出 IDE 版仓库")
 	@Test
-	public void list_project_dependences_success() {
+	public void listProjectDependences_success() {
 		Project project = new Project();
 		project.setId(1);
 		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
 		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
+		when(propertyService.findStringValue(eq(CmPropKey.STD_WIDGET_IDE_GIT_URL))).thenReturn(Optional.of("url"));
 		
 		ProjectDependence dependence = new ProjectDependence();
 		ComponentRepo componentRepo = new ComponentRepo();
 		componentRepo.setId(1);
+		componentRepo.setGitRepoUrl("url");
 		componentRepo.setGitRepoWebsite("website1");
 		componentRepo.setGitRepoOwner("owner1");
 		componentRepo.setGitRepoName("repoName1");
-		componentRepo.setName("name1");
 		componentRepo.setCategory(RepoCategory.WIDGET);
-		componentRepo.setStd(true);
-		componentRepo.setIsIdeExtension(true);
+		componentRepo.setRepoType(RepoType.IDE);
 		ComponentRepoVersion componentRepoVersion = new ComponentRepoVersion();
 		componentRepoVersion.setVersion("0.0.1");
 		ApiRepo apiRepo = new ApiRepo();
@@ -161,7 +168,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/designer/projects/{projectId}/dependences?category=dev", 1)
+			.get("/designer/projects/{projectId}/dependences?repo=ide", 1)
 		.then()
 			.statusCode(HttpStatus.SC_OK)
 			.body("size()", equalTo(1),
@@ -169,9 +176,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 					"[0].gitRepoWebsite", equalTo("website1"),
 					"[0].gitRepoOwner", equalTo("owner1"),
 					"[0].gitRepoName", equalTo("repoName1"),
-					"[0].name", equalTo("name1"),
 					"[0].apiRepoId", equalTo(2),
-					"[0].category", equalTo("Widget"),
 					"[0].version", equalTo("0.0.1"),
 					"[0].std", equalTo(true));
 	}
@@ -321,7 +326,9 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 			.get("/designer/pages/{pageId}/model", "1")
 		.then()
 			.statusCode(HttpStatus.SC_OK)
-			.body(equalTo("{}"));
+			.body("data.size()", is(0),
+					"widgets.size()", is(0),
+					"functions.size()", is(0));
 	}
 
 	@Test
@@ -341,6 +348,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 	@Test
 	public void update_page_model_page_not_exist() {
 		PageModel model = new PageModel();
+		model.setPageId(1);
 		
 		when(projectResourceService.findById(anyInt())).thenReturn(Optional.empty());
 		

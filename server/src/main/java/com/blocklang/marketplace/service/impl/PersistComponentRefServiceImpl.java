@@ -57,7 +57,7 @@ public class PersistComponentRefServiceImpl implements PersistComponentRepoServi
 			return;
 		}
 		
-		Optional<ComponentRepoVersion> repoVersionOption = componentRepoVersionDao.findByComponentIdAndVersion(repoId, refData.getCreateUserId());
+		Optional<ComponentRepoVersion> repoVersionOption = componentRepoVersionDao.findByComponentRepoIdAndVersion(repoId, refData.getShortRefName());
 		if(refData.getShortRefName().equals("master")) {
 			if(repoVersionOption.isPresent()) {
 				ComponentRepoVersion repoVersion = repoVersionOption.get();

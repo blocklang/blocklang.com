@@ -40,6 +40,7 @@ import com.blocklang.develop.model.ProjectDependence;
 import com.blocklang.develop.model.ProjectResource;
 import com.blocklang.develop.service.ProjectDependenceService;
 import com.blocklang.develop.service.ProjectResourceService;
+import com.blocklang.marketplace.constant.RepoType;
 import com.blocklang.marketplace.model.ApiRepo;
 import com.blocklang.marketplace.model.ApiRepoVersion;
 import com.blocklang.marketplace.model.ComponentRepo;
@@ -79,9 +80,11 @@ public class ProjectDependenceController extends AbstractProjectController{
 	 * 注意，这里重点是资源信息，不是依赖详情。
 	 * 
 	 * <p>
-	 * 就如分开获取页面基本信息和页面模型一样，依赖本身也是项目资源的一种，所以此方法用于获取项目依赖这个资源的基本信息，并不获取项目依赖项列表。
+	 * 就如分开获取页面基本信息和页面模型一样，依赖本身也是项目资源的一种，
+	 * 所以此方法用于获取项目依赖这个资源的基本信息，并不获取项目依赖项列表。
 	 * 
-	 * FIXME：如果是获取资源的基本信息，是不是可以将获取页面的基本信息、获取依赖的基本信息和获取 readme 等资源的基本信息，放在一个方法中呢？
+	 * FIXME：如果是获取资源的基本信息，是不是可以将获取页面的基本信息、获取依赖的基本信息和获取 readme 等资源的基本信息，
+	 * 放在一个方法中呢？
 	 * </p>
 	 * 
 	 * @param principal
@@ -110,6 +113,7 @@ public class ProjectDependenceController extends AbstractProjectController{
 		return ResponseEntity.ok(result);
 	}
 
+	// 新增的依赖库，默认依赖 master
 	@PostMapping("/projects/{owner}/{projectName}/dependences")
 	public ResponseEntity<ProjectDependenceData> addDependence(
 			Principal principal,
@@ -123,12 +127,12 @@ public class ProjectDependenceController extends AbstractProjectController{
 		}
 		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
 		projectPermissionService.canWrite(principal, project).orElseThrow(NoAuthorizationException::new);
-
-		ComponentRepo componentRepo = componentRepoService.findById(param.getComponentRepoId()).orElseThrow(ResourceNotFoundException::new);
-		
-		if(componentRepo.getIsIdeExtension()) {
-			// 当前只支持一个默认 profile
-			// 后续版本会考虑是否需要支持多个 profile
+		ComponentRepo componentRepo = componentRepoService.findById(param.getComponentRepoId())
+				.orElseThrow(ResourceNotFoundException::new);
+		ComponentRepoVersion componentRepoVersion = componentRepoVersionService
+				.findByComponentIdAndVersion(componentRepo.getId(), "master").orElse(null);
+		// 不能重复添加依赖
+		if(RepoType.IDE.equals(componentRepo.getRepoType())) {
 			if(projectDependenceService.devDependenceExists(
 					project.getId(), 
 					param.getComponentRepoId())){
@@ -136,37 +140,39 @@ public class ProjectDependenceController extends AbstractProjectController{
 				bindingResult.rejectValue("componentRepoId", "Duplicated.dependence");
 				throw new InvalidRequestException(bindingResult);
 			}
-		} else {
+		} else if(RepoType.PROD.equals(componentRepo.getRepoType())) {
 			// 当前只支持一个默认 profile
 			// 后续版本会考虑是否需要支持多个 profile
-			if(projectDependenceService.buildDependenceExists(
-					project.getId(), 
-					componentRepo.getId(),
-					componentRepo.getAppType(),
-					// 从客户端传过来的是 profileName
-					ProjectBuildProfile.DEFAULT_PROFILE_NAME)){
-				logger.error("项目已依赖该组件仓库");
-				bindingResult.rejectValue("componentRepoId", "Duplicated.dependence");
-				throw new InvalidRequestException(bindingResult);
+			// 默认依赖 master 分支中的内容
+			if(componentRepoVersion != null) {
+				if(projectDependenceService.buildDependenceExists(
+						project.getId(), 
+						componentRepo.getId(),
+						componentRepoVersion.getAppType(),
+						// 从客户端传过来的是 profileName
+						ProjectBuildProfile.DEFAULT_PROFILE_NAME)){
+					logger.error("项目已依赖该组件仓库");
+					bindingResult.rejectValue("componentRepoId", "Duplicated.dependence");
+					throw new InvalidRequestException(bindingResult);
+				}
 			}
 		}
 		
 		UserInfo user = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
-		
 		ProjectDependence savedProjectDependence = projectDependenceService.save(project.getId(), componentRepo, user.getId());
 		
-		ApiRepo apiRepo = apiRepoService.findById(componentRepo.getApiRepoId()).orElseThrow(() -> {
-			logger.error("组件仓库 {0} 没有找到对应的 API 仓库", componentRepo.getName());
-			return new ResourceNotFoundException();
-		});
-		
-		ComponentRepoVersion componentRepoVersion = componentRepoVersionService.findById(savedProjectDependence.getComponentRepoVersionId()).orElseThrow(() -> {
-			logger.error("组件仓库 {0} 没有找到 ID 为 {1} 版本号", componentRepo.getName(), savedProjectDependence.getComponentRepoVersionId());
-			return new ResourceNotFoundException();
-		});
+		if(componentRepoVersion == null) {
+			logger.error("组件仓库 {0} 没有找到已发布的 master", componentRepo.getGitRepoUrl());
+			throw new ResourceNotFoundException();
+		}
 		
 		ApiRepoVersion apiRepoVersion = apiRepoVersionService.findById(componentRepoVersion.getApiRepoVersionId()).orElseThrow(() -> {
-			logger.error("API 仓库 {0} 没有找到 ID 为 {1} 版本号", apiRepo.getName(), componentRepoVersion.getApiRepoVersionId());
+			logger.error("未找到 ID 为 {0} 的 API 仓库的版本", componentRepoVersion.getApiRepoVersionId());
+			return new ResourceNotFoundException();
+		});
+
+		ApiRepo apiRepo = apiRepoService.findById(apiRepoVersion.getApiRepoId()).orElseThrow(() -> {
+			logger.error("未找到 ID 为 {0} 的 API 仓库", apiRepoVersion.getApiRepoId());
 			return new ResourceNotFoundException();
 		});
 		

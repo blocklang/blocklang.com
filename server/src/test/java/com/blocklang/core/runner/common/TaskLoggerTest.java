@@ -8,6 +8,8 @@ import static org.mockito.Mockito.verify;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,8 +20,6 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
-import com.blocklang.core.runner.common.CliLogger;
-import com.blocklang.core.runner.common.TaskLogger;
 import com.blocklang.release.constant.ReleaseResult;
 
 public class TaskLoggerTest{
@@ -66,6 +66,17 @@ public class TaskLoggerTest{
 		String content = Files.readString(logFile);
 		assertThat(content).isEqualTo("[INFO] Hello Block Lang" + System.lineSeparator());
 	}
+	
+//	@Test
+//	public void info_lines() throws IOException {
+//		CliLogger logger = new TaskLogger(logFile);
+//		
+//		logger.info(Arrays.asList("a", "b"));
+//		
+//		List<String> content = Files.readAllLines(logFile);
+//		assertThat(content).first().isEqualTo("[INFO] a");
+//		assertThat(content).last().isEqualTo("[INFO] b");
+//	}
 	
 	@Test
 	public void error_throwable() throws IOException {

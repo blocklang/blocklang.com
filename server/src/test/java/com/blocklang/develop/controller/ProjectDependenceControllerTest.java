@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -33,6 +34,7 @@ import com.blocklang.develop.service.ProjectDependenceService;
 import com.blocklang.develop.service.ProjectPermissionService;
 import com.blocklang.develop.service.ProjectResourceService;
 import com.blocklang.develop.service.ProjectService;
+import com.blocklang.marketplace.constant.RepoType;
 import com.blocklang.marketplace.model.ApiRepo;
 import com.blocklang.marketplace.model.ApiRepoVersion;
 import com.blocklang.marketplace.model.ComponentRepo;
@@ -210,10 +212,14 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		ComponentRepo repo = new ComponentRepo();
-		repo.setIsIdeExtension(false);
+		repo.setRepoType(RepoType.PROD);
 		repo.setId(1);
-		repo.setAppType(AppType.WEB);
 		when(componentRepoService.findById(anyInt())).thenReturn(Optional.of(repo));
+		
+		ComponentRepoVersion repoMaster = new ComponentRepoVersion();
+		repoMaster.setApiRepoVersionId(1);
+		repoMaster.setAppType(AppType.WEB);
+		when(componentRepoVersionService.findByComponentIdAndVersion(anyInt(), eq("master"))).thenReturn(Optional.of(repoMaster));
 		
 		when(projectDependenceService.buildDependenceExists(anyInt(), anyInt(), any(), anyString())).thenReturn(true);
 		
@@ -240,7 +246,7 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		ComponentRepo repo = new ComponentRepo();
-		repo.setIsIdeExtension(true);
+		repo.setRepoType(RepoType.IDE);
 		when(componentRepoService.findById(anyInt())).thenReturn(Optional.of(repo));
 		
 		when(projectDependenceService.devDependenceExists(anyInt(), anyInt())).thenReturn(true);
@@ -268,10 +274,14 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		ComponentRepo componentRepo = new ComponentRepo();
-		componentRepo.setApiRepoId(1);
-		componentRepo.setIsIdeExtension(false);
-		componentRepo.setAppType(AppType.WEB);
+		componentRepo.setId(1);
+		componentRepo.setRepoType(RepoType.PROD);
 		when(componentRepoService.findById(anyInt())).thenReturn(Optional.of(componentRepo));
+		
+		ComponentRepoVersion repoMaster = new ComponentRepoVersion();
+		repoMaster.setApiRepoVersionId(1);
+		repoMaster.setAppType(AppType.WEB);
+		when(componentRepoVersionService.findByComponentIdAndVersion(anyInt(), eq("master"))).thenReturn(Optional.of(repoMaster));
 		
 		when(projectDependenceService.buildDependenceExists(anyInt(), anyInt(), any(), anyString())).thenReturn(false);
 		
@@ -283,8 +293,10 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 		dependence.setId(10);
 		dependence.setComponentRepoVersionId(2);
 		when(projectDependenceService.save(anyInt(), any(), any())).thenReturn(dependence);
-		
+	
+		Integer apiRepoId = 1;
 		ApiRepo apiRepo = new ApiRepo();
+		apiRepo.setId(apiRepoId);
 		when(apiRepoService.findById(anyInt())).thenReturn(Optional.of(apiRepo));
 		
 		ComponentRepoVersion componentRepoVersion = new ComponentRepoVersion();
@@ -292,6 +304,7 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 		when(componentRepoVersionService.findById(anyInt())).thenReturn(Optional.of(componentRepoVersion));
 		
 		ApiRepoVersion apiRepoVersion = new ApiRepoVersion();
+		apiRepoVersion.setApiRepoId(apiRepoId);
 		when(apiRepoVersionService.findById(anyInt())).thenReturn(Optional.of(apiRepoVersion));
 		
 		AddDependenceParam param = new AddDependenceParam();
@@ -455,8 +468,6 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 			.statusCode(HttpStatus.SC_NOT_FOUND);
 	}
 	
-	
-	
 	@WithMockUser("jack")
 	@Test
 	public void update_dependence_can_not_write_project() {
@@ -496,6 +507,7 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 		ComponentRepoVersion version = new ComponentRepoVersion();
 		version.setId(1);
 		version.setVersion("0.2.0");
+		version.setAppType(AppType.WEB);
 		when(componentRepoVersionService.findById(anyInt())).thenReturn(Optional.of(version));
 		
 		UpdateDependenceParam param = new UpdateDependenceParam();

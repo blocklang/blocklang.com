@@ -68,7 +68,7 @@ public class ProjectModelWriteTask extends AbstractTask {
 		appBuildContext.info("开始生成 dependences.json 文件");
 		List<Map<String, Object>> dependences = projectDependenceService.findProjectBuildDependences(appBuildContext.getProjectId()).stream().map(data -> {
 			Map<String, Object> toMap = new HashMap<String, Object>();
-			toMap.put("name", data.getComponentRepo().getName());
+			toMap.put("name", data.getComponentRepoVersion().getName());
 			toMap.put("version", data.getComponentRepoVersion().getVersion());
 			toMap.put("apiRepoId", data.getApiRepo().getId());
 			return toMap;

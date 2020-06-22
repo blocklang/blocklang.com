@@ -1,6 +1,6 @@
 package com.blocklang.develop.designer.data;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.blocklang.develop.model.PageDataItem;
@@ -14,9 +14,9 @@ import com.blocklang.develop.model.PageDataItem;
 public class PageModel {
 
 	private Integer pageId;
-	private List<AttachedWidget> widgets;
-	private List<PageDataItem> data;
-	private List<PageEventHandler> functions;
+	private List<AttachedWidget> widgets = new ArrayList<AttachedWidget>();
+	private List<PageDataItem> data = new ArrayList<PageDataItem>();
+	private List<PageEventHandler> functions = new ArrayList<PageEventHandler>();
 
 	public Integer getPageId() {
 		return pageId;
