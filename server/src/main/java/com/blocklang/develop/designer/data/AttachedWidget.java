@@ -10,7 +10,6 @@ public class AttachedWidget {
 	private Integer widgetId;
 	private String widgetCode;
 	private String widgetName;
-	private Boolean canHasChildren;
 	private Integer apiRepoId;
 	private List<AttachedWidgetProperty> properties;
 
@@ -52,14 +51,6 @@ public class AttachedWidget {
 
 	public void setWidgetName(String widgetName) {
 		this.widgetName = widgetName;
-	}
-
-	public Boolean getCanHasChildren() {
-		return canHasChildren;
-	}
-
-	public void setCanHasChildren(Boolean canHasChildren) {
-		this.canHasChildren = canHasChildren;
 	}
 
 	public Integer getApiRepoId() {

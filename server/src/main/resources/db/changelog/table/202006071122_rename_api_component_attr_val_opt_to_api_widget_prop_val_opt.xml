@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+	<changeSet author="Zhengwei Jin" id="202006071122">
+		<dropPrimaryKey tableName="api_component_attr_val_opt" constraintName="PK_API_COMPONENT_ATTR_VAL_OPT"/>
+		<dropUniqueConstraint tableName="api_component_attr_val_opt" constraintName="UK_API_COMP_ATTR_VAL_OPT_ON_ATTR_CODE"/>
+		
+		<renameTable newTableName="api_widget_prop_val_opt" oldTableName="api_component_attr_val_opt"/>
+		<setTableRemarks tableName="api_widget_prop_val_opt" remarks="Widget 属性的可选值列表"/>
+		<renameSequence oldSequenceName="api_component_attr_val_opt_dbid_seq" newSequenceName="api_widget_prop_val_opt_dbid_seq"/>
+		
+		<renameColumn tableName="api_widget_prop_val_opt" oldColumnName="api_component_attr_id" newColumnName="api_widget_prop_id" remarks="API Widget 的属性标识"/>
+		<setColumnRemarks tableName="api_widget_prop_val_opt" columnName="description" remarks="选项的详细描述"/>
+		<addPrimaryKey columnNames="dbid" tableName="api_widget_prop_val_opt" constraintName="PK_API_WIDGET_PROP_VAL_OPT" />
+		<addUniqueConstraint columnNames="api_widget_prop_id,code"
+			constraintName="UK_API_WIDGET_ATTR_VAL_OPT_ON_PROP_CODE"
+			tableName="api_widget_prop_val_opt" />
+			
+		<addColumn tableName="api_widget_prop_val_opt">
+			<column name="value_description" remarks="选项值的详细描述" type="varchar(512)"/>
+			<column name="api_repo_version_id" remarks="API 仓库版本标识" type="int">
+				<constraints nullable="false" />
+			</column>
+		</addColumn>
+	</changeSet>
+
+</databaseChangeLog>

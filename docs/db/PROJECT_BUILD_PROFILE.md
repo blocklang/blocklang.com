@@ -1,6 +1,6 @@
 # `PROJECT_BUILD_PROFILE` - 项目构建的 Profile
 
-项目依赖可规范三类：API、Dev、Build，Profile 只用于 Build。通过 profile，实现了在构建时根据不同的 profile 来构建项目。
+项目依赖可规范三类：API、IDE、PROD，Profile 只用于 PROD。通过 profile，实现了在构建时根据不同的 profile 来构建项目。
 
 ## 字段
 

@@ -28,6 +28,18 @@ public class ApiRepoVersion extends PartialIdField{
 	@Column(name = "git_tag_name", nullable = false, length = 32)
 	private String gitTagName;
 	
+	@Column(name = "name", nullable = false, length = 64)
+	private String name;
+
+	@Column(name = "display_name", length = 64)
+	private String displayName;
+
+	@Column(name = "description", length = 512)
+	private String description;
+	
+	@Column(name = "last_publish_time" )
+	private LocalDateTime lastPublishTime;
+
 	@Column(name = "create_user_id", insertable = true, updatable = false, nullable = false)
 	private Integer createUserId;
 	
@@ -73,5 +85,36 @@ public class ApiRepoVersion extends PartialIdField{
 	public void setGitTagName(String gitTagName) {
 		this.gitTagName = gitTagName;
 	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getDisplayName() {
+		return displayName;
+	}
+
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
 	
+	public LocalDateTime getLastPublishTime() {
+		return lastPublishTime;
+	}
+
+	public void setLastPublishTime(LocalDateTime lastPublishTime) {
+		this.lastPublishTime = lastPublishTime;
+	}
 }

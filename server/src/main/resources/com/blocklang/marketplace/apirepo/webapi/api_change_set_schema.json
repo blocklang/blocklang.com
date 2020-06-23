@@ -1,0 +1,181 @@
+{
+	"$schema": "https://json-schema.org/draft/2019-09/schema",
+	"title": "webApi API change set config",
+	"type": "object",
+	"required": [
+		"id",
+		"author",
+		"changes"
+	],
+	"properties": {
+		"id": {
+			"type": "string",
+			"description": "change set 唯一标识"
+		},
+		"author": {
+			"type": "string",
+			"description": "change set 作者"
+		},
+		"changes": {
+			"type": "array",
+			"description": "变更操作列表",
+			"minItems": 1,
+			"items": {
+				"type": "object",
+				"oneOf": [
+					{
+						"required": [
+							"createObject"
+						],
+						"properties": {
+							"createObject": {
+								"type": "object",
+								"description": "创建一个 JavaScript 对象",
+								"required": [
+									"name"
+								],
+								"properties": {
+									"name": {
+										"type": "string",
+										"description": "对象的名称"
+									},
+									"description": {
+										"type": "string",
+										"description": "对象的描述"
+									},
+									"functions": {
+										"type": "array",
+										"description": "对象中的函数列表",
+										"items": {
+											"type": "object",
+											"required": [
+												"name"
+											],
+											"properties": {
+												"name": {
+													"type": "string",
+													"description": "函数名"
+												},
+												"description": {
+													"type": "string",
+													"description": "函数的描述"
+												},
+												"parameters": {
+													"type": "array",
+													"description": "输入参数",
+													"items": {
+														"type": "object",
+														"properties": {
+															"name": {
+																"type": "string",
+																"description": "参数名"
+															},
+															"type": {
+																"type": "string",
+																"description": "参数类型",
+																"enum": [
+																	"any",
+																	"string",
+																	"boolean",
+																	"number"
+																]
+															},
+															"optional": {
+																"type": "boolean",
+																"description": "可选参数",
+																"default": "false"
+															},
+															"variable": {
+																"type": "boolean",
+																"description": "可变参数",
+																"default": "false"
+															}
+														}
+													}
+												},
+												"returnType": {
+													"type": "string",
+													"description": "返回值类型"
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					{
+						"required": [
+							"addFunction"
+						],
+						"properties": {
+							"addFunction": {
+								"type": "object",
+								"description": "新增函数列表",
+								"properties": {
+									"functions": {
+										"type": "array",
+										"description": "对象中的函数列表",
+										"items": {
+											"type": "object",
+											"required": [
+												"name"
+											],
+											"properties": {
+												"name": {
+													"type": "string",
+													"description": "函数名"
+												},
+												"description": {
+													"type": "string",
+													"description": "函数的描述"
+												},
+												"parameters": {
+													"type": "array",
+													"description": "输入参数",
+													"items": {
+														"type": "object",
+														"properties": {
+															"name": {
+																"type": "string",
+																"description": "参数名"
+															},
+															"type": {
+																"type": "string",
+																"description": "参数类型",
+																"enum": [
+																	"any",
+																	"string",
+																	"boolean",
+																	"number"
+																]
+															},
+															"optional": {
+																"type": "boolean",
+																"description": "可选参数",
+																"default": "false"
+															},
+															"variable": {
+																"type": "boolean",
+																"description": "可变参数",
+																"default": "false"
+															}
+														}
+													}
+												},
+												"returnType": {
+													"type": "string",
+													"description": "返回值类型"
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				]
+			}
+		}
+	}
+}

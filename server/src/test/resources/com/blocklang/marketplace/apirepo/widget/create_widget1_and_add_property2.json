@@ -1,0 +1,41 @@
+{
+	"id": "create-widget-1",
+	"author": "user",
+	"changes": [
+		{
+			"createWidget": {
+				"name": "Widget1",
+				"label": "Widget 1",
+				"description": "",
+				"properties": [
+					{
+						"name": "prop1",
+						"label": "prop 1",
+						"defaultValue": "",
+						"valueType": "string"
+					}
+				],
+				"events": [
+					{
+						"name": "event1",
+						"label": "event 1",
+						"valueType": "function",
+						"arguments": []
+					}
+				]
+			}
+		},
+		{
+			"addProperty": {
+				"properties": [
+					{
+						"name": "prop2",
+						"label": "prop 2",
+						"defaultValue": "",
+						"valueType": "string"
+					}
+				]
+			}
+		}
+	]
+}

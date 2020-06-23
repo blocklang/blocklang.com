@@ -1,7 +1,5 @@
 package com.blocklang.marketplace.model;
 
-import java.time.LocalDateTime;
-
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
@@ -10,26 +8,20 @@ import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import com.blocklang.core.model.PartialOperateFields;
-import com.blocklang.develop.constant.AppType;
-import com.blocklang.develop.constant.converter.AppTypeConverter;
-import com.blocklang.marketplace.constant.Language;
 import com.blocklang.marketplace.constant.RepoCategory;
-import com.blocklang.marketplace.constant.converter.LanguageConverter;
+import com.blocklang.marketplace.constant.RepoType;
 import com.blocklang.marketplace.constant.converter.RepoCategoryConverter;
+import com.blocklang.marketplace.constant.converter.RepoTypeConverter;
 
 @Entity
 @Table(name = "component_repo", 
 	uniqueConstraints = {
-		@UniqueConstraint(columnNames = { "create_user_id", "git_repo_url" }),
-		@UniqueConstraint(columnNames = { "create_user_id", "name" }) 
+		@UniqueConstraint(columnNames = { "create_user_id", "git_repo_url" })
 	}
 )
 public class ComponentRepo extends PartialOperateFields {
 
 	private static final long serialVersionUID = 8362695653909646856L;
-
-	@Column(name = "api_repo_id", nullable = false)
-	private Integer apiRepoId;
 	
 	@Column(name = "git_repo_url", nullable = false, length = 128)
 	private String gitRepoUrl;
@@ -43,54 +35,18 @@ public class ComponentRepo extends PartialOperateFields {
 	@Column(name = "git_repo_name", nullable = false, length = 64)
 	private String gitRepoName;
 
-	@Column(name = "name", nullable = false, length = 64)
-	private String name;
-
-	@Column(name = "version", nullable = false, length = 32)
-	private String version;
-
-	@Column(name = "label", length = 32)
-	private String label;
-
-	@Column(name = "description", length = 512)
-	private String description;
-
-	@Column(name = "logo_path", length = 64)
-	private String logoPath;
-
 	@Convert(converter = RepoCategoryConverter.class)
 	@Column(name = "category", nullable = false, length = 2)
 	private RepoCategory category;
 	
-	@Convert(converter = LanguageConverter.class)
-	@Column(name = "language", nullable = false, length = 2)
-	private Language language;
-	
-	@Column(name = "last_publish_time" )
-	private LocalDateTime lastPublishTime;
-	
-	@Column(name = "is_ide_extension", nullable = false)
-	private Boolean isIdeExtension = false;
-	
-	@Convert(converter = AppTypeConverter.class)
-	@Column(name = "app_type", nullable = false, length = 2)
-	private AppType appType;
-	
-	@Column(name = "is_std", nullable = false)
-	private Boolean std = false;
+	@Convert(converter = RepoTypeConverter.class)
+	@Column(name = "repo_type", nullable = false)
+	private RepoType repoType;
 
 	@Transient
 	private String createUserName;
 	@Transient
 	private String createUserAvatarUrl;
-	
-	public Integer getApiRepoId() {
-		return apiRepoId;
-	}
-
-	public void setApiRepoId(Integer apiRepoId) {
-		this.apiRepoId = apiRepoId;
-	}
 
 	public String getGitRepoUrl() {
 		return gitRepoUrl;
@@ -124,45 +80,6 @@ public class ComponentRepo extends PartialOperateFields {
 		this.gitRepoName = gitRepoName;
 	}
 
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getVersion() {
-		return version;
-	}
-
-	public void setVersion(String version) {
-		this.version = version;
-	}
-
-	public String getLabel() {
-		return label;
-	}
-
-	public void setLabel(String label) {
-		this.label = label;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String getLogoPath() {
-		return logoPath;
-	}
-
-	public void setLogoPath(String logoPath) {
-		this.logoPath = logoPath;
-	}
 
 	public RepoCategory getCategory() {
 		return category;
@@ -170,22 +87,6 @@ public class ComponentRepo extends PartialOperateFields {
 
 	public void setCategory(RepoCategory category) {
 		this.category = category;
-	}
-
-	public Language getLanguage() {
-		return language;
-	}
-
-	public void setLanguage(Language language) {
-		this.language = language;
-	}
-
-	public LocalDateTime getLastPublishTime() {
-		return lastPublishTime;
-	}
-
-	public void setLastPublishTime(LocalDateTime lastPublishTime) {
-		this.lastPublishTime = lastPublishTime;
 	}
 
 	public String getCreateUserName() {
@@ -204,39 +105,12 @@ public class ComponentRepo extends PartialOperateFields {
 		this.createUserAvatarUrl = createUserAvatarUrl;
 	}
 
-	public Boolean getIsIdeExtension() {
-		return isIdeExtension;
+	public RepoType getRepoType() {
+		return repoType;
 	}
 
-	public void setIsIdeExtension(Boolean isIdeExtension) {
-		this.isIdeExtension = isIdeExtension;
-	}
-
-	public AppType getAppType() {
-		return appType;
-	}
-
-	public void setAppType(AppType appType) {
-		this.appType = appType;
-	}
-	
-	public Boolean isStd() {
-		return std;
-	}
-
-	public void setStd(Boolean std) {
-		this.std = std;
-	}
-
-	// FIXME: 注意，此处没有包含 Service
-	// Service 算不算是一个 app?
-	// 或者是 appType 需要改名？
-	public String getIcon() {
-		return this.appType.getIcon();
-	}
-	// FIXME: 注意，此处没有包含 Service
-	public String getTitle() {
-		return this.appType.getLabel();
+	public void setRepoType(RepoType repoType) {
+		this.repoType = repoType;
 	}
 
 }

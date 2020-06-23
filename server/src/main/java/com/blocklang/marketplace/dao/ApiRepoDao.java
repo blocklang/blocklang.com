@@ -8,8 +8,6 @@ import com.blocklang.marketplace.model.ApiRepo;
 
 public interface ApiRepoDao extends JpaRepository<ApiRepo, Integer> {
 
-	Optional<ApiRepo> findByNameAndCreateUserId(String name, Integer createUserId);
-
-	Optional<ApiRepo> findByGitRepoUrlAndCreateUserId(String gitRepoUrl, Integer createUserId);
+	Optional<ApiRepo> findByGitRepoUrlAndCreateUserId(String gitUrl, Integer createUserId);
 
 }

@@ -6,13 +6,18 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
-// FIXME: 调整值 Client API -> Web API
-// Service API -> Service
+/**
+ * 组件种类
+ * 
+ * @author Zhengwei Jin
+ *
+ */
 public enum RepoCategory {
 
 	WIDGET("01", "Widget"),
-	CLIENT_API("02", "Client API"),
-	SERVER_API("03", "Server API"),
+	SERVICE("02", "Service"),
+	CLIENT_API("03", "WebAPI"),
+	//SERVER_API("04", "Server API"),
 	UNKNOWN("99", "Unknown");
 	
 	private final String key;

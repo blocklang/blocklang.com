@@ -1,5 +1,7 @@
 package com.blocklang.core.test;
 
+import java.nio.charset.Charset;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -12,6 +14,8 @@ import com.blocklang.core.service.QqLoginService;
 import com.blocklang.core.service.UserBindService;
 import com.blocklang.core.service.UserService;
 
+import io.restassured.config.EncoderConfig;
+import io.restassured.http.ContentType;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 
 public class AbstractControllerTest extends AbstractSpringTest{
@@ -39,6 +43,12 @@ public class AbstractControllerTest extends AbstractSpringTest{
 	
 	@BeforeEach
 	public void setUp() {
+		var encoderConfig = EncoderConfig
+				.encoderConfig()
+				.defaultCharsetForContentType(Charset.forName("UTF-8"), ContentType.JSON);
+		RestAssuredMockMvc.config = RestAssuredMockMvc
+				.config()
+				.encoderConfig(encoderConfig);
 		RestAssuredMockMvc.mockMvc(mvc);
 	}
 }

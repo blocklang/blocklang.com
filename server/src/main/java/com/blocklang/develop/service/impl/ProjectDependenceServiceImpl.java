@@ -5,7 +5,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,11 +37,12 @@ import com.blocklang.develop.model.ProjectContext;
 import com.blocklang.develop.model.ProjectDependence;
 import com.blocklang.develop.model.ProjectResource;
 import com.blocklang.develop.service.ProjectDependenceService;
-import com.blocklang.marketplace.constant.ComponentAttrValueType;
+import com.blocklang.marketplace.constant.WidgetPropertyValueType;
 import com.blocklang.marketplace.constant.RepoCategory;
-import com.blocklang.marketplace.dao.ApiComponentAttrDao;
-import com.blocklang.marketplace.dao.ApiComponentAttrFunArgDao;
-import com.blocklang.marketplace.dao.ApiComponentDao;
+import com.blocklang.marketplace.constant.RepoType;
+import com.blocklang.marketplace.dao.ApiWidgetPropertyDao;
+import com.blocklang.marketplace.dao.ApiWidgetEventArgDao;
+import com.blocklang.marketplace.dao.ApiWidgetDao;
 import com.blocklang.marketplace.dao.ApiRepoDao;
 import com.blocklang.marketplace.dao.ApiRepoVersionDao;
 import com.blocklang.marketplace.dao.ComponentRepoDao;
@@ -54,8 +54,6 @@ import com.blocklang.marketplace.model.ComponentRepoVersion;
 import com.blocklang.marketplace.service.ComponentRepoVersionService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import de.skuzzle.semantic.Version;
 
 @Service
 public class ProjectDependenceServiceImpl implements ProjectDependenceService{
@@ -79,11 +77,11 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 	@Autowired
 	private ApiRepoVersionDao apiRepoVersionDao;
 	@Autowired
-	private ApiComponentDao apiComponentDao;
+	private ApiWidgetDao apiComponentDao;
 	@Autowired
-	private ApiComponentAttrDao apiComponentAttrDao;
+	private ApiWidgetPropertyDao apiComponentAttrDao;
 	@Autowired
-	private ApiComponentAttrFunArgDao apiComponentAttrFunArgDao;
+	private ApiWidgetEventArgDao apiComponentAttrFunArgDao;
 	@Autowired
 	private PropertyService propertyService;
 	
@@ -128,34 +126,53 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 		});
 	}
 
+//	componentRepoVersions.sort(new Comparator<ComponentRepoVersion>() {
+//		@Override
+//		public int compare(ComponentRepoVersion version1, ComponentRepoVersion version2) {
+//			// master 排在最后
+//			if(version1.getVersion().equals("master")) {
+//				return 1;
+//			}
+//			if(version2.getVersion().equals("master")) {
+//				return 1;
+//			}
+//			return Version.compare(Version.parseVersion(version2.getVersion()), Version.parseVersion(version1.getVersion()));
+//		}
+//	});
+	
 	@Transactional
 	@Override
-	public ProjectDependence save(Integer projectId, ComponentRepo componentRepo,  Integer createUserId) {
+	public ProjectDependence save(Integer projectId, ComponentRepo componentRepo, Integer createUserId) {
 		// 获取组件库的最新版本信息
 		List<ComponentRepoVersion> componentRepoVersions = componentRepoVersionDao.findAllByComponentRepoId(componentRepo.getId());
 		if(componentRepoVersions.isEmpty()) {
+			logger.error("未发现已发布的版本");
 			return null;
 		}
-		componentRepoVersions.sort(new Comparator<ComponentRepoVersion>() {
-			@Override
-			public int compare(ComponentRepoVersion version1, ComponentRepoVersion version2) {
-				return Version.compare(Version.parseVersion(version2.getVersion()), Version.parseVersion(version1.getVersion()));
-			}
-		});
-		Integer latestRepoVersionId = componentRepoVersions.get(0).getId();
+		// 默认依赖 master 分支
+		Optional<ComponentRepoVersion> masterRepoVersionOption = componentRepoVersions
+				.stream()
+				.filter(version -> version.getVersion().equals("master"))
+				.findFirst();
+		if(masterRepoVersionOption.isEmpty()) {
+			logger.error("未找到 master");
+			return null;
+		}
+		ComponentRepoVersion masterRepoVersion = masterRepoVersionOption.get();
+		Integer masterRepoVersionId = masterRepoVersion.getId();
 
 		// 为项目添加一个依赖
 		ProjectDependence dependence = new ProjectDependence();
 		dependence.setProjectId(projectId);
-		dependence.setComponentRepoVersionId(latestRepoVersionId);
-		if(!componentRepo.getIsIdeExtension()) {
+		dependence.setComponentRepoVersionId(masterRepoVersionId);
+		if(!RepoType.IDE.equals(componentRepo.getRepoType())) {
 			// 为项目生成一个默认的 Profile（如果已存在，则不生成）
 			ProjectBuildProfile profile = projectBuildProfileDao
-				.findByProjectIdAndAppTypeAndNameIgnoreCase(projectId, componentRepo.getAppType(), ProjectBuildProfile.DEFAULT_PROFILE_NAME)
+				.findByProjectIdAndAppTypeAndNameIgnoreCase(projectId, masterRepoVersion.getAppType(), ProjectBuildProfile.DEFAULT_PROFILE_NAME)
 				.orElseGet(() -> {
 					ProjectBuildProfile p = new ProjectBuildProfile();
 					p.setProjectId(projectId);
-					p.setAppType(componentRepo.getAppType());
+					p.setAppType(masterRepoVersion.getAppType());
 					p.setName(ProjectBuildProfile.DEFAULT_PROFILE_NAME);
 					p.setCreateUserId(createUserId);
 					p.setCreateTime(LocalDateTime.now());
@@ -245,11 +262,10 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 		Map<String, Object> result = new HashMap<String, Object>();
 		List<ProjectDependenceData> devDependences = dependences
 				.stream()
-				.filter(dependence -> dependence.getComponentRepo().getIsIdeExtension())
+				.filter(dependence -> dependence.getComponentRepo().getRepoType().equals(RepoType.IDE))
 				.collect(Collectors.toList());
-		Map<String, List<ProjectDependenceData>> groupedDevDependences = devDependences
-				.stream()
-				.collect(Collectors.groupingBy(dependenceData -> dependenceData.getComponentRepo().getAppType().getValue()));
+		Map<String, List<ProjectDependenceData>> groupedDevDependences = devDependences.stream()
+				.collect(Collectors.groupingBy(dependenceData -> dependenceData.getComponentRepoVersion().getAppType().getValue()));
 		
 		Map<String, Object> devMap = new HashMap<String, Object>();
 		for(Map.Entry<String, List<ProjectDependenceData>> entry : groupedDevDependences.entrySet()) {
@@ -274,11 +290,12 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 		
 		List<ProjectDependenceData> buildDependence = dependences
 				.stream()
-				.filter(dependence -> !dependence.getComponentRepo().getIsIdeExtension())
+				.filter(dependence -> !dependence.getComponentRepo().getRepoType().equals(RepoType.IDE))
 				.collect(Collectors.toList());
+		
 		Map<String, Map<String, List<ProjectDependenceData>>> groupedBuildDependences = buildDependence
 				.stream()
-				.collect(Collectors.groupingBy(dependenceData -> dependenceData.getComponentRepo().getAppType().getValue(), 
+				.collect(Collectors.groupingBy(dependenceData -> dependenceData.getComponentRepoVersion().getAppType().getValue(), 
 								Collectors.groupingBy(dependenceData -> dependenceData.getProfile().getName())));
 
 		Map<String, Object> buildMap = new HashMap<String, Object>();
@@ -433,7 +450,8 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 				ApiRepoVersionInfo result = new ApiRepoVersionInfo();
 				result.setApiRepoVersionId(apiVersionId);
 				apiRepoOption.ifPresent(apiRepo -> {
-					result.setApiRepoName(apiRepo.getName());
+					// FIXME: 是否需要该字段名
+					result.setApiRepoName(apiRepo.getGitRepoUrl());
 					result.setApiRepoId(apiRepo.getId());
 					result.setCategory(apiRepo.getCategory());
 				});
@@ -450,11 +468,10 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 							result.setWidgetId(apiComponent.getId());
 							result.setWidgetCode(apiComponent.getCode());
 							result.setWidgetName(apiComponent.getName());
-							result.setCanHasChildren(apiComponent.getCanHasChildren());
 							
 							result.setApiRepoId(apiVersionInfo.getApiRepoId());
 							// 添加属性列表
-							List<WidgetProperty> properties = apiComponentAttrDao.findAllByApiComponentIdOrderByCode(apiComponent.getId()).stream().map(property -> {
+							List<WidgetProperty> properties = apiComponentAttrDao.findAllByApiWidgetIdOrderByCode(apiComponent.getId()).stream().map(property -> {
 								WidgetProperty each = new WidgetProperty();
 								each.setCode(property.getCode());
 								each.setName(property.getName());
@@ -462,8 +479,8 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 								each.setDefaultValue(property.getDefaultValue());
 								
 								// 添加事件参数列表
-								if(property.getValueType() == ComponentAttrValueType.FUNCTION) {
-									List<EventArgument> eventArgs = apiComponentAttrFunArgDao.findAllByApiComponentAttrId(property.getId()).stream().map(eventArg -> {
+								if(property.getValueType() == WidgetPropertyValueType.FUNCTION) {
+									List<EventArgument> eventArgs = apiComponentAttrFunArgDao.findAllByApiWidgetPropertyId(property.getId()).stream().map(eventArg -> {
 										EventArgument ea = new EventArgument();
 										ea.setCode(eventArg.getCode());
 										ea.setName(eventArg.getName());
@@ -498,10 +515,10 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 		
 		// 将系统使用的标准库依赖添加到最前面
 		// 获取最新的依赖版本号
-		String stdIdeRepoName = propertyService.findStringValue(CmPropKey.STD_WIDGET_IDE_NAME, "std-ide-widget");
+		String stdIdeRepoUrl = propertyService.findStringValue(CmPropKey.STD_WIDGET_IDE_GIT_URL, "");
 		Integer createUserId = propertyService.findIntegerValue(CmPropKey.STD_WIDGET_REGISTER_USERID, 1);
-		
-		componentRepoDao.findByNameAndCreateUserId(stdIdeRepoName, createUserId).flatMap(componentRepo -> {
+
+		componentRepoDao.findByGitRepoUrlAndCreateUserId(stdIdeRepoUrl, createUserId).flatMap(componentRepo -> {
 			return componentRepoVersionService.findLatestVersion(componentRepo.getId());
 		}).ifPresent(componentRepoVersion -> {
 			ProjectDependence stdIdeWidgetRepo = new ProjectDependence();
@@ -523,12 +540,14 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 	 * @return
 	 */
 	private Optional<ProjectDependence> findProjectBuildDependenceByStandardAndDefaultProfile() {
-		String stdBuildRepoName = propertyService.findStringValue(CmPropKey.STD_WIDGET_BUILD_DOJO_NAME, "std-widget-web");
+		String stdBuildRepoUrl = propertyService.findStringValue(CmPropKey.STD_WIDGET_BUILD_DOJO_GIT_URL, "");
 		Integer createUserId = propertyService.findIntegerValue(CmPropKey.STD_WIDGET_REGISTER_USERID, 1);
 		// 事先要在组件仓库中注册 std-widget-web。
 		// 标准库，永远只使用最新版。
 		
-		return componentRepoDao.findByNameAndCreateUserId(stdBuildRepoName, createUserId).flatMap(componentRepo -> componentRepoVersionService.findLatestVersion(componentRepo.getId())).map(componentRepoVersion -> {
+		return componentRepoDao.findByGitRepoUrlAndCreateUserId(stdBuildRepoUrl, createUserId)
+				.flatMap(componentRepo -> componentRepoVersionService.findLatestVersion(componentRepo.getId()))
+				.map(componentRepoVersion -> {
 			ProjectDependence stdBuildWidgetRepo = new ProjectDependence();
 			stdBuildWidgetRepo.setComponentRepoVersionId(componentRepoVersion.getId());
 			return stdBuildWidgetRepo;

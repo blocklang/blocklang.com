@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+	<changeSet author="Zhengwei Jin" id="202006100737">
+		<createTable tableName="api_service_request_body" remarks="HTTP 请求体">
+			<column name="dbid" type="int" autoIncrement="true">
+				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_API_SERVICE_REQUEST_BODY" />
+			</column>
+			<column name="api_repo_version_id" remarks="API 仓库版本标识" type="int">
+				<constraints nullable="false" />
+			</column>
+			<column name="api_service_id" remarks="API Service 标识" type="int">
+				<constraints nullable="false" />
+			</column>
+			<column name="code" remarks="参数的编码" type="char(4)">
+				<constraints nullable="false" />
+			</column>
+			<column name="name" remarks="参数的名称" type="varchar(64)">
+				<constraints nullable="false" />
+			</column>
+			<column name="description" remarks="参数的详细说明" type="varchar(512)" />
+			<column name="value_type" remarks="参数的值类型" type="varchar(32)">
+				<constraints nullable="false" />
+			</column>
+			<column name="api_service_schema_id" remarks="参数的类型信息" type="int" />
+		</createTable>
+
+		<addUniqueConstraint columnNames="api_service_id,name"
+			constraintName="UK_API_BODY_ON_API_SERVICE_NAME"
+			tableName="api_service_request_body" />
+
+		<addUniqueConstraint columnNames="api_service_id,code"
+			constraintName="UK_API_BODY_ON_API_SERVICE_CODE"
+			tableName="api_service_request_body" />
+	</changeSet>
+
+</databaseChangeLog>

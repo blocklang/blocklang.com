@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+	<changeSet author="Zhengwei Jin" id="202006071106">
+	
+		<dropPrimaryKey tableName="api_component_attr" constraintName="PK_API_COMPONENT_ATTR"/>
+		<dropUniqueConstraint tableName="api_component_attr" constraintName="UK_API_COMP_ATTR_ON_API_COMPONENT_NAME"/>
+		<dropUniqueConstraint tableName="api_component_attr" constraintName="UK_API_COMP_ATTR_ON_API_COMPONENT_CODE"/>
+		
+		<renameTable newTableName="api_widget_prop" oldTableName="api_component_attr"/>
+		<setTableRemarks tableName="api_widget_prop" remarks="Widget 属性"/>
+		<renameColumn tableName="api_widget_prop" oldColumnName="api_component_id" newColumnName="api_widget_id" remarks="API Widget 标识"/>
+		<renameSequence oldSequenceName="api_component_attr_dbid_seq" newSequenceName="api_widget_prop_dbid_seq"/>
+		
+		<addPrimaryKey columnNames="dbid" tableName="api_widget_prop" constraintName="PK_API_WIDGET_PROP" />
+		<addUniqueConstraint columnNames="api_widget_id,name"
+			constraintName="UK_API_PROP_ON_API_WIDGET_NAME"
+			tableName="api_widget_prop" />
+		<addUniqueConstraint columnNames="api_widget_id,code"
+			constraintName="UK_API_PROP_ON_API_WIDGET_CODE"
+			tableName="api_widget_prop" />
+		<addColumn tableName="api_widget_prop">
+			<column name="required" remarks="是否必填" type="boolean" defaultValueBoolean="false"/>
+			<column name="api_repo_version_id" remarks="API 仓库版本标识" type="int">
+				<constraints nullable="false" />
+			</column>
+		</addColumn>
+		
+	</changeSet>
+
+</databaseChangeLog>

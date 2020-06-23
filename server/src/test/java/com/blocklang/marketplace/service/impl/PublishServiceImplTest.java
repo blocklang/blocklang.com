@@ -7,30 +7,30 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.blocklang.core.test.AbstractServiceTest;
-import com.blocklang.marketplace.model.ComponentRepoPublishTask;
-import com.blocklang.marketplace.service.ComponentRepoPublishTaskService;
-import com.blocklang.marketplace.service.PublishService;
+import com.blocklang.marketplace.model.GitRepoPublishTask;
+import com.blocklang.marketplace.service.GitRepoPublishTaskService;
+import com.blocklang.marketplace.service.RepoPublishService;
 import com.blocklang.release.constant.ReleaseResult;
 
 public class PublishServiceImplTest extends AbstractServiceTest{
 
 	@Autowired
-	private ComponentRepoPublishTaskService componentRepoPublishTaskService;
+	private GitRepoPublishTaskService gitRepoPublishTaskService;
 	@Autowired
-	private PublishService publishService;
+	private RepoPublishService publishService;
 	
 	// 如果要运行此测试用例，则需要 mock propertyService 并添加断言
 	@Disabled
 	@Test
 	public void publish() {
-		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
+		GitRepoPublishTask task = new GitRepoPublishTask();
 		task.setGitUrl("https://github.com/blocklang/widgets-bootstrap.git");
 		task.setCreateUserId(1);
 		task.setPublishResult(ReleaseResult.STARTED);
 		task.setCreateTime(LocalDateTime.now());
 		task.setStartTime(LocalDateTime.now());
 		
-		ComponentRepoPublishTask savedTask = componentRepoPublishTaskService.save(task);
+		GitRepoPublishTask savedTask = gitRepoPublishTaskService.save(task);
 		publishService.publish(savedTask);
 	}
 }

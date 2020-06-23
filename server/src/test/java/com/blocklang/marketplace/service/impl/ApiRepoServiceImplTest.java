@@ -32,8 +32,6 @@ public class ApiRepoServiceImplTest extends AbstractServiceTest{
 		repo.setGitRepoWebsite("b");
 		repo.setGitRepoOwner("c");
 		repo.setGitRepoName("d");
-		repo.setName("e");
-		repo.setVersion("f");
 		repo.setCategory(RepoCategory.CLIENT_API);
 		repo.setCreateUserId(1);
 		repo.setCreateTime(LocalDateTime.now());

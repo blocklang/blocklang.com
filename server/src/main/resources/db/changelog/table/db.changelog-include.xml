@@ -66,4 +66,27 @@
 	<include file="db/changelog/table/202004030015_create_page_func_node_port.xml" />
 	<include file="db/changelog/table/202004030027_create_page_func_connection.xml" />
 	
+	<include file="db/changelog/table/202006061040_alter_api_repo.xml" />
+	<include file="db/changelog/table/202006061106_alter_api_repo_version.xml" />
+	
+	<include file="db/changelog/table/202006071054_rename_api_component_to_api_widget.xml" />
+	<include file="db/changelog/table/202006071106_rename_api_component_attr_to_api_widget_prop.xml" />
+	<include file="db/changelog/table/202006071122_rename_api_component_attr_val_opt_to_api_widget_prop_val_opt.xml" />
+	<include file="db/changelog/table/202006071514_rename_api_component_attr_func_arg_to_api_widget_event_arg.xml" />
+	
+	<include file="db/changelog/table/202006081724_create_api_jsobj.xml" />
+	<include file="db/changelog/table/202006081909_create_api_jsobj_func.xml" />
+	<include file="db/changelog/table/202006081910_create_api_jsobj_func_arg.xml" />
+	
+	<include file="db/changelog/table/202006100723_create_api_service.xml" />
+	<include file="db/changelog/table/202006100728_create_api_service_param.xml" />
+	<include file="db/changelog/table/202006100737_create_api_service_request_body.xml" />
+	<include file="db/changelog/table/202006100739_create_api_service_response.xml" />
+	<include file="db/changelog/table/202006100746_create_api_service_schema.xml" />
+	
+	<include file="db/changelog/table/202006151032_alter_component_repo.xml" />
+	<include file="db/changelog/table/202006161035_alter_component_repo_version.xml" />
+	
+	<include file="db/changelog/table/202006181731_rename_component_repo_publish_task_to_git_repo_publish_task.xml" />
+	
 </databaseChangeLog>

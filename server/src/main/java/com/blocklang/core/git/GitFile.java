@@ -141,7 +141,7 @@ public class GitFile {
 		return treeWalk;
 	}
 
-	public List<GitFileInfo> getAllFilesFromTag(String refName, String pathSuffix) {
+	public List<GitFileInfo> readAllFiles(String refName, String pathSuffix) {
 		Assert.hasText(refName, "tag 的值不能为空");
 		File gitDir = gitRepoPath.resolve(Constants.DOT_GIT).toFile();
 		if(!gitDir.exists()) {
@@ -152,11 +152,11 @@ public class GitFile {
 				Git git = new Git(repository);
 				RevWalk walk = new RevWalk(repository)){
 			
-			Ref tag = repository.exactRef(refName);
-			if(tag == null) {
+			Ref ref = repository.exactRef(refName);
+			if(ref == null) {
 				return Collections.emptyList();
 			}
-			ObjectId objectId = tag.getObjectId();
+			ObjectId objectId = ref.getObjectId();
 			RevCommit commit = walk.parseCommit(objectId);
 			RevTree tree = commit.getTree();
 			

@@ -15,9 +15,12 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryCache;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.URIish;
+import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.jgit.util.FS;
 import org.eclipse.jgit.util.FileUtils;
 
@@ -171,6 +174,24 @@ public class GitUtils {
 	}
 	
 	/**
+	 * 从 repository 往本地的 localFolderPath 同步 git 仓库。
+	 * 
+	 * 如果本地不存在仓库，则执行 git clone，否则执行 git pull。
+	 * 
+	 * @param repository
+	 * @param localFolderPath
+	 */
+	public static void syncRepository(String repository, Path localFolderPath) {
+		if(GitUtils.isGitRepo(localFolderPath)) { 
+			// 本地已存在仓库，同步
+			GitUtils.pullWithTag(localFolderPath);
+		} else { 
+			// 本地不存在仓库，克隆
+			GitUtils.clone(repository, localFolderPath);
+		}
+	}
+	
+	/**
 	 * 获取 master 分支根目录上的最近一次提交
 	 * 
 	 * @param gitRepoPath
@@ -204,23 +225,23 @@ public class GitUtils {
 	}
 	
 	/**
-	 * 从指定的 tag 下获取文件路径信息，不包括文件夹，但递归查找
+	 * 从指定的分支或 tag 下获取文件路径信息，不包括文件夹，但递归查找
 	 * 
 	 * @param gitRepoPath
 	 * @param refName 需要包含 refs/tags/ 前缀
 	 * @param pathSuffix 如果只查出 json 文件，则值为".json"；如果值为 null，显示全部
 	 * @return
 	 */
-	public static List<GitFileInfo> getAllFilesFromTag(Path gitRepoPath, String refName, String pathSuffix) {
+	public static List<GitFileInfo> readAllFileInfo(Path gitRepoPath, String refName, String pathSuffix) {
 		GitFile file = new GitFile(gitRepoPath, null);
-		return file.getAllFilesFromTag(refName, pathSuffix);
+		return file.readAllFiles(refName, pathSuffix);
 	}
 	
 	/**
 	 * 
 	 * @param gitRepoPath
 	 * @param ref 可以是分支或 tag。注意，不能使用简称，如不能为“master”，而应该为“refs/heads/master”；不能为“v0.1.0”，应该为“refs/tags/v0.1.0”
-	 * @param filePath
+	 * @param filePath 文件相对路径，不需要以 / 开头
 	 * @return
 	 */
 	public static Optional<GitBlobInfo> getBlob(Path gitRepoPath, String ref, String filePath) {
@@ -231,6 +252,11 @@ public class GitUtils {
 	public static List<GitBlobInfo> loadDataFromTag(Path gitRepoPath, String refName, List<GitFileInfo> files) {
 		GitBlob blob = new GitBlob(gitRepoPath, refName);
 		return blob.loadDataFromTag(files);
+	}
+
+	public static List<GitBlobInfo> readAllFileContent(Path gitRepoPath, String refName, TreeFilter treeFilter) {
+		GitBlob blob = new GitBlob(gitRepoPath, refName);
+		return blob.readAllFiles(treeFilter);
 	}
 	
 	/**
@@ -355,5 +381,16 @@ public class GitUtils {
 		GitCheckout checkout = new GitCheckout();
 		checkout.execute(gitRepoPath, branchOrTagName);
 	}
+
+	public static String getCurrentBranch(Path gitRepoPath) throws IOException {
+		Path gitDir = gitRepoPath.resolve(Constants.DOT_GIT);
+		try (Repository repo = FileRepositoryBuilder.create(gitDir.toFile())){
+			return repo.getBranch();
+		}
+	}
 	
+	public static String getCurrentTag(Path gitRepoPath) {
+		GitDescribe describe = new GitDescribe();
+		return describe.execute(gitRepoPath);
+	}
 }

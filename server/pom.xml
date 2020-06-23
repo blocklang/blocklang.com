@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.2.6.RELEASE</version>
+		<version>2.3.1.RELEASE</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.blocklang</groupId>
@@ -48,6 +48,10 @@
 			<artifactId>spring-boot-starter-websocket</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.liquibase</groupId>
 			<artifactId>liquibase-core</artifactId>
 		</dependency>
@@ -66,7 +70,7 @@
 		<dependency>
 			<groupId>org.eclipse.jgit</groupId>
 			<artifactId>org.eclipse.jgit</artifactId>
-			<version>5.7.0.202003110725-r</version>
+			<version>5.8.0.202006091008-r</version>
 		</dependency>
 		<dependency>
 			<groupId>de.skuzzle</groupId>
@@ -81,7 +85,7 @@
 		<dependency>
 			<groupId>com.networknt</groupId>
 			<artifactId>json-schema-validator</artifactId>
-			<version>1.0.38</version>
+			<version>1.0.40</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -139,13 +143,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<!-- FIXME: junit 升级到 5.0 之后可能不再需要此配置 -->
 				<configuration>
-					<excludes>
-						<exclude>**/AbstractControllerTest.java</exclude>
-						<exclude>**/AbstractServiceTest.java</exclude>
-						<exclude>**/AbstractDaoTest.java</exclude>
-					</excludes>
 					<argLine>-Dfile.encoding=UTF-8</argLine>
 				</configuration>
 			</plugin>

@@ -31,17 +31,16 @@ import com.blocklang.core.exception.NoAuthorizationException;
 import com.blocklang.core.exception.ResourceNotFoundException;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.UserService;
-import com.blocklang.core.util.GitUrlParser;
 import com.blocklang.core.util.GitUrlSegment;
 import com.blocklang.marketplace.constant.PublishType;
 import com.blocklang.marketplace.data.ComponentRepoInfo;
 import com.blocklang.marketplace.data.NewComponentRepoParam;
-import com.blocklang.marketplace.model.ComponentRepoPublishTask;
+import com.blocklang.marketplace.model.GitRepoPublishTask;
 import com.blocklang.marketplace.model.ComponentRepoVersion;
-import com.blocklang.marketplace.service.ComponentRepoPublishTaskService;
+import com.blocklang.marketplace.service.GitRepoPublishTaskService;
 import com.blocklang.marketplace.service.ComponentRepoService;
 import com.blocklang.marketplace.service.ComponentRepoVersionService;
-import com.blocklang.marketplace.service.PublishService;
+import com.blocklang.marketplace.service.RepoPublishService;
 import com.blocklang.release.constant.ReleaseResult;
 
 @EnableAsync
@@ -55,9 +54,9 @@ public class ComponentRepoController {
 	@Autowired
 	private ComponentRepoVersionService componentRepoVersionService;
 	@Autowired
-	private ComponentRepoPublishTaskService componentRepoPublishTaskService;
+	private GitRepoPublishTaskService gitRepoPublishTaskService;
 	@Autowired
-	private PublishService publishService;
+	private RepoPublishService publishService;
 
 	@GetMapping("/component-repos")
 	public ResponseEntity<Page<ComponentRepoInfo>> listComponentRepos(
@@ -79,8 +78,8 @@ public class ComponentRepoController {
 		}
 		
 		// 默认一页显示 60 项组件仓库
-		Pageable pageable = PageRequest.of(iPage, 60, Sort.by(Direction.ASC, "name"));
-		Page<ComponentRepoInfo> result = componentRepoService.findAllByNameOrLabel(query, pageable);
+		Pageable pageable = PageRequest.of(iPage, 60, Sort.by(Direction.ASC, "gitRepoOwner", "gitRepoName"));
+		Page<ComponentRepoInfo> result = componentRepoService.findAllByGitRepoNameAndExcludeStd(query, pageable);
 		
 		if(iPage > result.getTotalPages()) {
 			throw new ResourceNotFoundException();
@@ -121,7 +120,7 @@ public class ComponentRepoController {
 	 * @return
 	 */
 	@PostMapping("/component-repos")
-	public ResponseEntity<ComponentRepoPublishTask> newComponentRepo(
+	public ResponseEntity<GitRepoPublishTask> newComponentRepo(
 			Principal principal,
 			@Valid @RequestBody NewComponentRepoParam param, 
 			BindingResult bindingResult) {
@@ -153,10 +152,11 @@ public class ComponentRepoController {
 			throw new InvalidRequestException(bindingResult);
 		}
 		
-		GitUrlSegment gitUrlSegment = GitUrlParser.parse(gitUrl).orElseThrow(() -> {
+		GitUrlSegment gitUrlSegment = GitUrlSegment.of(gitUrl);
+		if(gitUrlSegment == null) {
 			bindingResult.rejectValue("gitUrl", "NotValid.componentRepoGitUrl.shouldBeHttps");
 			throw new InvalidRequestException(bindingResult);
-		});
+		}
 		
 		UserInfo currentUser = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
 		Integer currentUserId = currentUser.getId();
@@ -169,7 +169,7 @@ public class ComponentRepoController {
 			throw new InvalidRequestException(bindingResult);
 		};
 		
-		ComponentRepoPublishTask task = new ComponentRepoPublishTask();
+		GitRepoPublishTask task = new GitRepoPublishTask();
 		task.setGitUrl(gitUrl);
 		task.setStartTime(LocalDateTime.now());
 		task.setPublishType(PublishType.NEW);
@@ -177,7 +177,7 @@ public class ComponentRepoController {
 		task.setCreateTime(LocalDateTime.now());
 		task.setCreateUserId(currentUserId);
 		task.setCreateUserName(principal.getName());
-		ComponentRepoPublishTask savedTask = componentRepoPublishTaskService.save(task);
+		GitRepoPublishTask savedTask = gitRepoPublishTaskService.save(task);
 
 		// 派生字段
 		savedTask.setWebsite(gitUrlSegment.getWebsite());
@@ -187,14 +187,14 @@ public class ComponentRepoController {
 		publishService.asyncPublish(savedTask);
 		
 		// 这里的 CREATED 只表示 task 创建成功，并不表示发布成功
-		return new ResponseEntity<ComponentRepoPublishTask>(savedTask, HttpStatus.CREATED);
+		return new ResponseEntity<GitRepoPublishTask>(savedTask, HttpStatus.CREATED);
 	}
 	
 	@GetMapping("/component-repos/{componentRepoId}/versions")
 	public ResponseEntity<List<ComponentRepoVersion>> listComponentRepoVersions(
 			@PathVariable Integer componentRepoId) {
 		componentRepoService.findById(componentRepoId).orElseThrow(ResourceNotFoundException::new);
-		List<ComponentRepoVersion> versions = componentRepoVersionService.findByComponentRepoId(componentRepoId);
+		List<ComponentRepoVersion> versions = componentRepoVersionService.findAllByComponentRepoId(componentRepoId);
 		return ResponseEntity.ok(versions);
 	}
 }

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+	<changeSet author="Zhengwei Jin" id="202006081910">
+		<createTable tableName="api_jsobj_func_arg" remarks="JavaScript 函数的输入参数">
+			<column name="dbid" type="int" autoIncrement="true">
+				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_API_JSOBJ_FUNC_ARG" />
+			</column>
+			<column name="api_repo_version_id" remarks="API 仓库版本标识" type="int">
+				<constraints nullable="false" />
+			</column>
+			<column name="api_jsobj_func_id" remarks=" API JavaScript 对象中的函数标识" type="int">
+				<constraints nullable="false" />
+			</column>
+			<column name="code" remarks="参数编码" type="char(4)">
+				<constraints nullable="false" />
+			</column>
+			<column name="name" remarks="参数名" type="varchar(32)">
+				<constraints nullable="false" />
+			</column>
+			<column name="type" remarks="参数的值类型" type="varchar(32)" >
+				<constraints nullable="false" />
+			</column>
+			<column name="optional" remarks="是否可选参数" type="boolean" defaultValueBoolean="false"/>
+			<column name="variable" remarks="是否可变长度参数" type="boolean" defaultValueBoolean="false"/>
+			<column name="seq" remarks="参数顺序" type="int">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+
+		<addUniqueConstraint columnNames="api_jsobj_func_id,code"
+			constraintName="UK_API_JSOBJ_FUNC_ARG_ON_FUNC_CODE"
+			tableName="api_jsobj_func_arg" />
+	</changeSet>
+
+</databaseChangeLog>

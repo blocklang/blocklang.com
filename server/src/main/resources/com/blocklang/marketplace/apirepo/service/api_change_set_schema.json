@@ -1,0 +1,154 @@
+{
+	"$schema": "https://json-schema.org/draft/2019-09/schema",
+	"title": "Service API change set config",
+	"type": "object",
+	"required": [
+		"id",
+		"author",
+		"changes"
+	],
+	"properties": {
+		"id": {
+			"type": "string",
+			"description": "change set 唯一标识"
+		},
+		"author": {
+			"type": "string",
+			"description": "change set 作者"
+		},
+		"changes": {
+			"type": "array",
+			"description": "变更操作列表",
+			"minItems": 1,
+			"items": {
+				"type": "object",
+				"oneOf": [
+					{
+						"required": ["createApi"],
+						"properties": {
+							"createApi": {
+								"type": "object",
+								"description": "创建一个 RESTful API",
+								"required": [],
+								"properties": {
+									"url": {
+										"type": "string",
+										"description": "url"
+									},
+									"httpMethod": {
+										"type": "string",
+										"description": "http method",
+										"enum": ["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH", "TRACE"]
+									},
+									"description": {
+										"type": "string",
+										"description": "详细介绍"
+									},
+									"parameters": {
+										"type": "array",
+										"description": "输入参数",
+										"items": {
+											"type": "object",
+											"properties": {
+												"name": {
+													"type": "string",
+													"description": "参数名"
+												},
+												"in": {
+													"type": "string",
+													"description": "参数种类",
+													"enum": ["path", "query", "header", "cookie"]
+												},
+												"description": {
+													"type": "string",
+													"description": "参数的详细说明"
+												},
+												"required": {
+													"type": "boolean",
+													"description": "是否必填",
+													"default": "true"
+												},
+												"schema": {
+													"$ref": "#/definitions/schema"
+												}
+											}
+										}
+									},
+									"requestBody": {
+										"type": "object",
+										"description": "请求体",
+										"properties": {
+											"contentType": {
+												"type": "string",
+												"description": "内容类型",
+												"enum": ["application/json", "application/octet-stream", "application/x-www-form-urlencoded", "text/plain", "application/xml"]
+											},
+											"description": {
+												"type": "string",
+												"description": "请求体的详细说明"
+											},
+											"schema": {
+												"$ref": "#/definitions/schema"
+											}
+											
+										}
+									},
+									"responses": {
+										"type": "array",
+										"description": "响应",
+										"items": {
+											"type": "object",
+											"properties": {
+												"statusCode": {
+													"type": "string",
+													"description": "http 状态码",
+													"enum": ["200", "201", "202", "204", "400", "401", "403", "404", "410", "422", "500"]
+												},
+												"contentType": {
+													"type": "string",
+													"description": "内容类型",
+													"enum": ["application/json", "application/octet-stream", "application/x-www-form-urlencoded", "text/plain", "application/xml"]
+												},
+												"description": {
+													"type": "string",
+													"description": "请求体的详细说明"
+												},
+												"schema": {
+													"$ref": "#/definitions/schema"
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				]
+			}
+		}
+	},
+	"definitions": {
+		"schema": {
+			"type": "object",
+			"properties": {
+				"type": {
+					"type": "string",
+					"description": "数据类型",
+					"enum": ["array", "object", "boolean", "number", "string"]
+				},
+				"name": {
+					"type": "string",
+					"description": "属性名"
+				},
+				"description": {
+					"type": "string",
+					"description": "详细说明"
+				},
+				"properties": {
+					"$ref": "#/definitions/schema"
+				}
+			}
+		}
+	}
+
+}

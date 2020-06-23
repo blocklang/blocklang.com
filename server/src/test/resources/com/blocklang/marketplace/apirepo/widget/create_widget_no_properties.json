@@ -1,0 +1,11 @@
+{
+	"id": "create-widget-no-props",
+	"author": "user",
+	"changes": [{
+		"createWidget": {
+			"name": "Widget1",
+			"label": "Widget 1",
+			"description": ""
+		}
+	}]
+}

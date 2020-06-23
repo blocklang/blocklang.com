@@ -58,21 +58,21 @@ import com.blocklang.develop.model.ProjectDependence;
 import com.blocklang.develop.model.ProjectResource;
 import com.blocklang.develop.service.ProjectResourceService;
 import com.blocklang.develop.service.ProjectService;
-import com.blocklang.marketplace.constant.ComponentAttrValueType;
-import com.blocklang.marketplace.constant.Language;
 import com.blocklang.marketplace.constant.RepoCategory;
-import com.blocklang.marketplace.dao.ApiComponentAttrDao;
-import com.blocklang.marketplace.dao.ApiComponentAttrFunArgDao;
-import com.blocklang.marketplace.dao.ApiComponentDao;
+import com.blocklang.marketplace.constant.RepoType;
+import com.blocklang.marketplace.constant.WidgetPropertyValueType;
 import com.blocklang.marketplace.dao.ApiRepoDao;
 import com.blocklang.marketplace.dao.ApiRepoVersionDao;
+import com.blocklang.marketplace.dao.ApiWidgetDao;
+import com.blocklang.marketplace.dao.ApiWidgetEventArgDao;
+import com.blocklang.marketplace.dao.ApiWidgetPropertyDao;
 import com.blocklang.marketplace.dao.ComponentRepoDao;
 import com.blocklang.marketplace.dao.ComponentRepoVersionDao;
-import com.blocklang.marketplace.model.ApiComponent;
-import com.blocklang.marketplace.model.ApiComponentAttr;
-import com.blocklang.marketplace.model.ApiComponentAttrFunArg;
 import com.blocklang.marketplace.model.ApiRepo;
 import com.blocklang.marketplace.model.ApiRepoVersion;
+import com.blocklang.marketplace.model.ApiWidget;
+import com.blocklang.marketplace.model.ApiWidgetEventArg;
+import com.blocklang.marketplace.model.ApiWidgetProperty;
 import com.blocklang.marketplace.model.ComponentRepo;
 import com.blocklang.marketplace.model.ComponentRepoVersion;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -100,11 +100,11 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	@Autowired
 	private ApiRepoVersionDao apiRepoVersionDao;
 	@Autowired
-	private ApiComponentDao apiComponentDao;
+	private ApiWidgetDao apiComponentDao;
 	@Autowired
-	private ApiComponentAttrDao apiComponentAttrDao;
+	private ApiWidgetPropertyDao apiComponentAttrDao;
 	@Autowired
-	private ApiComponentAttrFunArgDao apiComponentAttrFunArgDao;
+	private ApiWidgetEventArgDao apiComponentAttrFunArgDao;
 	@Autowired
 	private ComponentRepoDao componentRepoDao;
 	@Autowired
@@ -141,14 +141,13 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	public void insert_empty_page_with_a_root_widget(@TempDir Path rootFolder) throws IOException {
 		Integer userId = 1;
 		// 创建一个标准库
+		String stdApiRepoUrl = "std-api-widget-url";
 		ApiRepo stdApiRepo = new ApiRepo();
 		stdApiRepo.setCategory(RepoCategory.WIDGET);
-		stdApiRepo.setGitRepoUrl("url");
+		stdApiRepo.setGitRepoUrl(stdApiRepoUrl);
 		stdApiRepo.setGitRepoWebsite("website");
 		stdApiRepo.setGitRepoOwner("owner");
 		stdApiRepo.setGitRepoName("repo_name");
-		stdApiRepo.setName("std-api-widget"); // 默认的标准库
-		stdApiRepo.setVersion("0.0.1");
 		stdApiRepo.setCreateUserId(userId);
 		stdApiRepo.setCreateTime(LocalDateTime.now());
 		Integer stdApiRepoId = apiRepoDao.save(stdApiRepo).getId();
@@ -156,6 +155,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		// 创建对应的 API 仓库版本信息
 		ApiRepoVersion apiVersion = new ApiRepoVersion();
 		apiVersion.setApiRepoId(stdApiRepoId);
+		apiVersion.setName("name");
 		apiVersion.setVersion("0.0.1");
 		apiVersion.setGitTagName("v0.0.1");
 		apiVersion.setCreateUserId(userId);
@@ -163,49 +163,46 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		ApiRepoVersion savedApiRepoVersion = apiRepoVersionDao.save(apiVersion);
 
 		// 在标准库中创建一个 Page 部件
-		ApiComponent widget = new ApiComponent();
+		ApiWidget widget = new ApiWidget();
 		String widgetCode = "0001";
 		String widgetName = "Page";
 		widget.setApiRepoVersionId(savedApiRepoVersion.getId());
 		widget.setCode(widgetCode);
 		widget.setName(widgetName);
-		widget.setCanHasChildren(true);
 		widget.setCreateUserId(userId);
 		widget.setCreateTime(LocalDateTime.now());
-		ApiComponent savedWidget = apiComponentDao.save(widget);
+		ApiWidget savedWidget = apiComponentDao.save(widget);
 		// 为 Page 部件添加一个属性
-		ApiComponentAttr widgetProperty = new ApiComponentAttr();
-		widgetProperty.setApiComponentId(savedWidget.getId());
+		ApiWidgetProperty widgetProperty = new ApiWidgetProperty();
+		widgetProperty.setApiRepoVersionId(savedApiRepoVersion.getId());
+		widgetProperty.setApiWidgetId(savedWidget.getId());
 		widgetProperty.setCode("0011");
 		widgetProperty.setName("prop_name");
 		widgetProperty.setDefaultValue("default_value");
-		widgetProperty.setValueType(ComponentAttrValueType.STRING);
+		widgetProperty.setValueType(WidgetPropertyValueType.STRING);
 		apiComponentAttrDao.save(widgetProperty);
 		
 		// 创建一个 ide 版的组件库
+		String stdIdeRepoUrl = "std-ide-widget-url";
 		ComponentRepo repo = new ComponentRepo();
-		repo.setApiRepoId(stdApiRepoId);
-		repo.setGitRepoUrl("url");
+		repo.setGitRepoUrl(stdIdeRepoUrl);
 		repo.setGitRepoWebsite("website");
 		repo.setGitRepoOwner("jack");
 		repo.setGitRepoName("repo");
-		repo.setName("std-ide-widget");
-		repo.setLabel("label");
-		repo.setVersion("version");
 		repo.setCategory(RepoCategory.WIDGET);
 		repo.setCreateUserId(1);
 		repo.setCreateTime(LocalDateTime.now());
-		repo.setLanguage(Language.TYPESCRIPT);
-		repo.setAppType(AppType.WEB);
-		repo.setStd(true);
-		repo.setIsIdeExtension(true);
+		repo.setRepoType(RepoType.IDE);
 		ComponentRepo savedComponentRepo = componentRepoDao.save(repo);
 		// 创建一个 ide 版的组件库版本
 		ComponentRepoVersion version = new ComponentRepoVersion();
 		version.setComponentRepoId(savedComponentRepo.getId());
+		version.setApiRepoVersionId(savedApiRepoVersion.getId());
+		version.setName("name");
 		version.setVersion("0.1.0");
 		version.setGitTagName("v0.1.0");
-		version.setApiRepoVersionId(savedApiRepoVersion.getId());
+		version.setAppType(AppType.WEB);
+		version.setBuild("dojo");
 		version.setCreateUserId(1);
 		version.setCreateTime(LocalDateTime.now());
 		componentRepoVersionDao.save(version);
@@ -231,8 +228,8 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		ProjectContext context = new ProjectContext("jack", "project", rootFolder.toString());
 		Files.createDirectories(context.getGitRepositoryDirectory());
 		
-		when(propertyService.findStringValue(CmPropKey.STD_WIDGET_API_NAME, "std-api-widget")).thenReturn("std-api-widget");
-		when(propertyService.findStringValue(CmPropKey.STD_WIDGET_IDE_NAME, "std-ide-widget")).thenReturn("std-ide-widget");
+		when(propertyService.findStringValue(CmPropKey.STD_WIDGET_API_GIT_URL, "")).thenReturn(stdApiRepoUrl);
+		when(propertyService.findStringValue(CmPropKey.STD_WIDGET_IDE_GIT_URL, "")).thenReturn(stdIdeRepoUrl);
 		when(propertyService.findIntegerValue(CmPropKey.STD_WIDGET_REGISTER_USERID, 1)).thenReturn(1);
 		when(propertyService.findStringValue(CmPropKey.STD_WIDGET_ROOT_NAME, "Page")).thenReturn("Page");
 		
@@ -250,13 +247,12 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		assertThat(actualRootWidget.getWidgetId()).isEqualTo(widget.getId());
 		assertThat(actualRootWidget.getWidgetCode()).isEqualTo(widgetCode);
 		assertThat(actualRootWidget.getWidgetName()).isEqualTo(widgetName);
-		assertThat(actualRootWidget.getCanHasChildren()).isTrue();
 		// Page 部件的属性信息
 		assertThat(actualRootWidget.getProperties()).hasSize(1);
 		AttachedWidgetProperty actualRootWidgetProperty1 = actualRootWidget.getProperties().get(0);
 		assertThat(actualRootWidgetProperty1.getId()).hasSize(32);
 		assertThat(actualRootWidgetProperty1.getCode()).isEqualTo("0011");
-		assertThat(actualRootWidgetProperty1.getValueType()).isEqualTo(ComponentAttrValueType.STRING.getKey());
+		assertThat(actualRootWidgetProperty1.getValueType()).isEqualTo(WidgetPropertyValueType.STRING.getKey());
 		assertThat(actualRootWidgetProperty1.getValue()).isEqualTo("default_value");
 		assertThat(actualRootWidgetProperty1.getName()).isEqualTo("prop_name");
 		
@@ -1056,8 +1052,6 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		apiRepo.setGitRepoWebsite("b");
 		apiRepo.setGitRepoOwner("c");
 		apiRepo.setGitRepoName("d");
-		apiRepo.setName("e");
-		apiRepo.setVersion("f");
 		apiRepo.setCategory(RepoCategory.WIDGET);
 		apiRepo.setCreateUserId(1);
 		apiRepo.setCreateTime(LocalDateTime.now());
@@ -1065,6 +1059,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		// 2. 创建一个 API 版本号
 		ApiRepoVersion apiVersion = new ApiRepoVersion();
 		apiVersion.setApiRepoId(savedApiRepo.getId());
+		apiVersion.setName("name");
 		apiVersion.setVersion("0.1.0");
 		apiVersion.setGitTagName("v0.1.0");
 		apiVersion.setCreateUserId(1);
@@ -1072,44 +1067,44 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		ApiRepoVersion savedApiRepoVersion = apiRepoVersionDao.save(apiVersion);
 		// 3. 在对应的 API 版本下添加两个部件，分别为每一个部件设置一个属性
 		// 3.1 部件1
-		ApiComponent widget1 = new ApiComponent();
+		ApiWidget widget1 = new ApiWidget();
 		widget1.setApiRepoVersionId(savedApiRepoVersion.getId());
 		widget1.setCode("0001");
 		widget1.setName("Widget1");
 		widget1.setLabel("Widget 1");
 		widget1.setDescription("Description1");
-		widget1.setCanHasChildren(true);
 		widget1.setCreateUserId(1);
 		widget1.setCreateTime(LocalDateTime.now());
-		ApiComponent savedWidget1 = apiComponentDao.save(widget1);
+		ApiWidget savedWidget1 = apiComponentDao.save(widget1);
 		// 3.1 属性1
-		ApiComponentAttr widgetProperty11 = new ApiComponentAttr();
-		widgetProperty11.setApiComponentId(savedWidget1.getId());
+		ApiWidgetProperty widgetProperty11 = new ApiWidgetProperty();
+		widgetProperty11.setApiWidgetId(savedWidget1.getId());
+		widgetProperty11.setApiRepoVersionId(savedApiRepoVersion.getId());
 		widgetProperty11.setCode("0011");
 		widgetProperty11.setDefaultValue("default_value_11");
 		widgetProperty11.setDescription("description_11");
 		widgetProperty11.setName("prop_name_11");
-		widgetProperty11.setValueType(ComponentAttrValueType.STRING);
+		widgetProperty11.setValueType(WidgetPropertyValueType.STRING);
 		apiComponentAttrDao.save(widgetProperty11);
 		// 3.2 部件2
-		ApiComponent widget2 = new ApiComponent();
+		ApiWidget widget2 = new ApiWidget();
 		widget2.setApiRepoVersionId(savedApiRepoVersion.getId());
 		widget2.setCode("0002");
 		widget2.setName("Widget2");
 		widget2.setDescription("Description2");
-		widget2.setCanHasChildren(false);
 		widget2.setCreateUserId(1);
 		widget2.setCreateTime(LocalDateTime.now());
-		ApiComponent savedWidget2 = apiComponentDao.save(widget2);
+		ApiWidget savedWidget2 = apiComponentDao.save(widget2);
 		// 3.2  属性2
-		ApiComponentAttr widgetProperty21 = new ApiComponentAttr();
-		widgetProperty21.setApiComponentId(savedWidget2.getId());
+		ApiWidgetProperty widgetProperty21 = new ApiWidgetProperty();
+		widgetProperty21.setApiWidgetId(savedWidget2.getId());
+		widgetProperty21.setApiRepoVersionId(savedApiRepoVersion.getId());
 		widgetProperty21.setCode("0021");
 		widgetProperty21.setDefaultValue("default_value_21");
 		widgetProperty21.setDescription("description_21");
 		widgetProperty21.setName("prop_name_21");
 		widgetProperty21.setLabel("prop_label_21");
-		widgetProperty21.setValueType(ComponentAttrValueType.STRING);
+		widgetProperty21.setValueType(WidgetPropertyValueType.STRING);
 		apiComponentAttrDao.save(widgetProperty21);
 		// 4. 创建一个 ide 组件库，实现上述的 API 仓库
 		//    因为在查数据时，可直接获得 ide 组件仓库的版本信息
@@ -1118,9 +1113,12 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		// 5. 为 ide 组件库创建一个版本号，实现上述的 API 版本
 		ComponentRepoVersion componentRepoVersion = new ComponentRepoVersion();
 		componentRepoVersion.setComponentRepoId(1); // 组件仓库 id 为 1
+		componentRepoVersion.setName("name");
 		componentRepoVersion.setVersion("0.1.0");
 		componentRepoVersion.setGitTagName("v0.1.0");
 		componentRepoVersion.setApiRepoVersionId(savedApiRepoVersion.getId());
+		componentRepoVersion.setAppType(AppType.WEB);
+		componentRepoVersion.setBuild("build");
 		componentRepoVersion.setCreateUserId(1);
 		componentRepoVersion.setCreateTime(LocalDateTime.now());
 		ComponentRepoVersion savedComponentRepoVersion = componentRepoVersionDao.save(componentRepoVersion);
@@ -1149,13 +1147,12 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		attachedWidget1.setWidgetCode("0001");
 		attachedWidget1.setWidgetName("Widget1"); // 只能取 widgetName 的值
 		attachedWidget1.setWidgetId(savedWidget1.getId());
-		attachedWidget1.setCanHasChildren(true);
 		AttachedWidgetProperty attachedWidgetProperty11 = new AttachedWidgetProperty();
 		attachedWidgetProperty11.setId("11");
 		attachedWidgetProperty11.setCode("0011");
 		attachedWidgetProperty11.setName("prop_name_11"); // 注意，不会直接在页面模型中存储该值，只取 name 值，不取 label 值
 		attachedWidgetProperty11.setValue("value11");
-		attachedWidgetProperty11.setValueType(ComponentAttrValueType.STRING.getKey());
+		attachedWidgetProperty11.setValueType(WidgetPropertyValueType.STRING.getKey());
 		attachedWidget1.setProperties(Collections.singletonList(attachedWidgetProperty11));
 		
 		AttachedWidget attachedWidget2 = new AttachedWidget();
@@ -1165,13 +1162,12 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		attachedWidget2.setWidgetCode("0002");
 		attachedWidget2.setWidgetName("Widget2"); // 只能取 widgetName 的值
 		attachedWidget2.setWidgetId(savedWidget2.getId());
-		attachedWidget2.setCanHasChildren(false);
 		AttachedWidgetProperty attachedWidgetProperty21 = new AttachedWidgetProperty();
 		attachedWidgetProperty21.setId("21"); // id 是在前台生成的
 		attachedWidgetProperty21.setCode("0021");
 		attachedWidgetProperty21.setName("prop_name_21"); // 注意，不会直接在页面模型中存储该值，只取 name 值，不取 label 值
 		attachedWidgetProperty21.setValue("value21");
-		attachedWidgetProperty21.setValueType(ComponentAttrValueType.STRING.getKey());
+		attachedWidgetProperty21.setValueType(WidgetPropertyValueType.STRING.getKey());
 		
 		attachedWidget2.setProperties(Arrays.asList(attachedWidgetProperty21));
 		
@@ -1195,8 +1191,6 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		apiRepo.setGitRepoWebsite("b");
 		apiRepo.setGitRepoOwner("c");
 		apiRepo.setGitRepoName("d");
-		apiRepo.setName("e");
-		apiRepo.setVersion("f");
 		apiRepo.setCategory(RepoCategory.WIDGET);
 		apiRepo.setCreateUserId(1);
 		apiRepo.setCreateTime(LocalDateTime.now());
@@ -1204,6 +1198,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		// 2. 创建一个 API 版本号
 		ApiRepoVersion apiVersion = new ApiRepoVersion();
 		apiVersion.setApiRepoId(savedApiRepo.getId());
+		apiVersion.setName("name");
 		apiVersion.setVersion("0.1.0");
 		apiVersion.setGitTagName("v0.1.0");
 		apiVersion.setCreateUserId(1);
@@ -1211,31 +1206,32 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		ApiRepoVersion savedApiRepoVersion = apiRepoVersionDao.save(apiVersion);
 		// 3. 在对应的 API 版本下添加一个部件，并为部件设置一个事件
 		// 部件
-		ApiComponent widget1 = new ApiComponent();
+		ApiWidget widget1 = new ApiWidget();
 		widget1.setApiRepoVersionId(savedApiRepoVersion.getId());
 		widget1.setCode("0001");
 		widget1.setName("Widget1");
 		widget1.setLabel("Widget 1");
 		widget1.setDescription("Description1");
-		widget1.setCanHasChildren(true);
 		widget1.setCreateUserId(1);
 		widget1.setCreateTime(LocalDateTime.now());
-		ApiComponent savedWidget1 = apiComponentDao.save(widget1);
+		ApiWidget savedWidget1 = apiComponentDao.save(widget1);
 		// 事件
-		ApiComponentAttr widgetEvent1 = new ApiComponentAttr();
-		widgetEvent1.setApiComponentId(savedWidget1.getId());
+		ApiWidgetProperty widgetEvent1 = new ApiWidgetProperty();
+		widgetEvent1.setApiWidgetId(savedWidget1.getId());
+		widgetEvent1.setApiRepoVersionId(savedApiRepoVersion.getId());
 		widgetEvent1.setCode("0002");
 		widgetEvent1.setDescription("description_2");
 		widgetEvent1.setName("prop_name_2");
 		widgetEvent1.setLabel("prop_label_2");
-		widgetEvent1.setValueType(ComponentAttrValueType.FUNCTION);
-		ApiComponentAttr savedWidgetEvent1 = apiComponentAttrDao.save(widgetEvent1);
+		widgetEvent1.setValueType(WidgetPropertyValueType.FUNCTION);
+		ApiWidgetProperty savedWidgetEvent1 = apiComponentAttrDao.save(widgetEvent1);
 		// 3.2 事件的输入参数
-		ApiComponentAttrFunArg arg = new ApiComponentAttrFunArg();
-		arg.setApiComponentAttrId(savedWidgetEvent1.getId());
+		ApiWidgetEventArg arg = new ApiWidgetEventArg();
+		arg.setApiWidgetPropertyId(savedWidgetEvent1.getId());
+		arg.setApiRepoVersionId(savedApiRepoVersion.getId());
 		arg.setCode("0003");
 		arg.setName("arg1");
-		arg.setValueType(ComponentAttrValueType.STRING);
+		arg.setValueType(WidgetPropertyValueType.STRING);
 		arg.setSeq(1);
 		apiComponentAttrFunArgDao.save(arg);
 		
@@ -1246,9 +1242,12 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		// 5. 为 ide 组件库创建一个版本号，实现上述的 API 版本
 		ComponentRepoVersion componentRepoVersion = new ComponentRepoVersion();
 		componentRepoVersion.setComponentRepoId(1); // 组件仓库 id 为 1
+		componentRepoVersion.setName("name");
 		componentRepoVersion.setVersion("0.1.0");
 		componentRepoVersion.setGitTagName("v0.1.0");
 		componentRepoVersion.setApiRepoVersionId(savedApiRepoVersion.getId());
+		componentRepoVersion.setAppType(AppType.WEB);
+		componentRepoVersion.setBuild("build");
 		componentRepoVersion.setCreateUserId(1);
 		componentRepoVersion.setCreateTime(LocalDateTime.now());
 		ComponentRepoVersion savedComponentRepoVersion = componentRepoVersionDao.save(componentRepoVersion);
@@ -1277,20 +1276,19 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		attachedWidget1.setWidgetCode("0001");
 		attachedWidget1.setWidgetName("Widget1"); // 只能取 widgetName 的值
 		attachedWidget1.setWidgetId(savedWidget1.getId());
-		attachedWidget1.setCanHasChildren(true);// 事件
 		
 		AttachedWidgetProperty attachedWidgetProperty22 = new AttachedWidgetProperty();
 		// id 是在前台生成的，如果前台没有生成，则后台生成
 		// 因为没有设置 value 的值，所以此 id 是后台生成的 uuid
 		attachedWidgetProperty22.setCode("0002");
 		attachedWidgetProperty22.setName("prop_name_2"); 
-		attachedWidgetProperty22.setValueType(ComponentAttrValueType.FUNCTION.getKey());
+		attachedWidgetProperty22.setValueType(WidgetPropertyValueType.FUNCTION.getKey());
 		// 此处没有设置属性值
 		
 		EventArgument arg1 = new EventArgument();
 		arg1.setCode("0003");
 		arg1.setName("arg1");
-		arg1.setValueType(ComponentAttrValueType.STRING.getKey());
+		arg1.setValueType(WidgetPropertyValueType.STRING.getKey());
 		attachedWidgetProperty22.setEventArgs(Collections.singletonList(arg1));
 		
 		attachedWidget1.setProperties(Collections.singletonList(attachedWidgetProperty22));
@@ -1317,8 +1315,6 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		apiRepo.setGitRepoWebsite("b");
 		apiRepo.setGitRepoOwner("c");
 		apiRepo.setGitRepoName("d");
-		apiRepo.setName("e");
-		apiRepo.setVersion("f");
 		apiRepo.setCategory(RepoCategory.WIDGET);
 		apiRepo.setCreateUserId(1);
 		apiRepo.setCreateTime(LocalDateTime.now());
@@ -1326,6 +1322,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		// 2. 创建一个 API 版本号
 		ApiRepoVersion apiVersion = new ApiRepoVersion();
 		apiVersion.setApiRepoId(savedApiRepo.getId());
+		apiVersion.setName("name");
 		apiVersion.setVersion("0.1.0");
 		apiVersion.setGitTagName("v0.1.0");
 		apiVersion.setCreateUserId(1);
@@ -1333,31 +1330,32 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		ApiRepoVersion savedApiRepoVersion = apiRepoVersionDao.save(apiVersion);
 		// 3. 在对应的 API 版本下添加一个部件，并为部件设置一个事件
 		// 部件
-		ApiComponent widget1 = new ApiComponent();
+		ApiWidget widget1 = new ApiWidget();
 		widget1.setApiRepoVersionId(savedApiRepoVersion.getId());
 		widget1.setCode("0001");
 		widget1.setName("Widget1");
 		widget1.setLabel("Widget 1");
 		widget1.setDescription("Description1");
-		widget1.setCanHasChildren(true);
 		widget1.setCreateUserId(1);
 		widget1.setCreateTime(LocalDateTime.now());
-		ApiComponent savedWidget1 = apiComponentDao.save(widget1);
+		ApiWidget savedWidget1 = apiComponentDao.save(widget1);
 		// 事件
-		ApiComponentAttr widgetEvent1 = new ApiComponentAttr();
-		widgetEvent1.setApiComponentId(savedWidget1.getId());
+		ApiWidgetProperty widgetEvent1 = new ApiWidgetProperty();
+		widgetEvent1.setApiWidgetId(savedWidget1.getId());
+		widgetEvent1.setApiRepoVersionId(savedApiRepoVersion.getId());
 		widgetEvent1.setCode("0002");
 		widgetEvent1.setDescription("description_2");
 		widgetEvent1.setName("onValue");
 		widgetEvent1.setLabel("prop_label_2");
-		widgetEvent1.setValueType(ComponentAttrValueType.FUNCTION);
-		ApiComponentAttr savedWidgetEvent1 = apiComponentAttrDao.save(widgetEvent1);
+		widgetEvent1.setValueType(WidgetPropertyValueType.FUNCTION);
+		ApiWidgetProperty savedWidgetEvent1 = apiComponentAttrDao.save(widgetEvent1);
 		// 3.2 事件的输入参数
-		ApiComponentAttrFunArg arg = new ApiComponentAttrFunArg();
-		arg.setApiComponentAttrId(savedWidgetEvent1.getId());
+		ApiWidgetEventArg arg = new ApiWidgetEventArg();
+		arg.setApiWidgetPropertyId(savedWidgetEvent1.getId());
+		arg.setApiRepoVersionId(savedApiRepoVersion.getId());
 		arg.setCode("0003");
 		arg.setName("value");
-		arg.setValueType(ComponentAttrValueType.STRING);
+		arg.setValueType(WidgetPropertyValueType.STRING);
 		arg.setSeq(1);
 		apiComponentAttrFunArgDao.save(arg);
 		
@@ -1368,9 +1366,12 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		// 5. 为 ide 组件库创建一个版本号，实现上述的 API 版本
 		ComponentRepoVersion componentRepoVersion = new ComponentRepoVersion();
 		componentRepoVersion.setComponentRepoId(1); // 组件仓库 id 为 1
+		componentRepoVersion.setApiRepoVersionId(savedApiRepoVersion.getId());
+		componentRepoVersion.setName("name");
 		componentRepoVersion.setVersion("0.1.0");
 		componentRepoVersion.setGitTagName("v0.1.0");
-		componentRepoVersion.setApiRepoVersionId(savedApiRepoVersion.getId());
+		componentRepoVersion.setAppType(AppType.WEB);
+		componentRepoVersion.setBuild("build");
 		componentRepoVersion.setCreateUserId(1);
 		componentRepoVersion.setCreateTime(LocalDateTime.now());
 		ComponentRepoVersion savedComponentRepoVersion = componentRepoVersionDao.save(componentRepoVersion);
@@ -1399,7 +1400,6 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		attachedWidget1.setWidgetCode("0001");
 		attachedWidget1.setWidgetName("Widget1"); // 只能取 widgetName 的值
 		attachedWidget1.setWidgetId(savedWidget1.getId());
-		attachedWidget1.setCanHasChildren(true);// 事件
 		
 		AttachedWidgetProperty attachedWidgetProperty22 = new AttachedWidgetProperty();
 		// id 是在前台生成的，如果前台没有生成，则后台生成
@@ -1407,7 +1407,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		attachedWidgetProperty22.setId("eventId");
 		attachedWidgetProperty22.setCode("0002");
 		attachedWidgetProperty22.setName("onValue"); 
-		attachedWidgetProperty22.setValueType(ComponentAttrValueType.FUNCTION.getKey());
+		attachedWidgetProperty22.setValueType(WidgetPropertyValueType.FUNCTION.getKey());
 		// 此处设置属性值，即为事件绑定了一个 id 为 `a_function_id` 的事件处理函数
 		String handlerId = "a_function_id";
 		attachedWidgetProperty22.setValue(handlerId);
@@ -1415,7 +1415,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		EventArgument arg1 = new EventArgument();
 		arg1.setCode("0003");
 		arg1.setName("value");
-		arg1.setValueType(ComponentAttrValueType.STRING.getKey());
+		arg1.setValueType(WidgetPropertyValueType.STRING.getKey());
 		attachedWidgetProperty22.setEventArgs(Collections.singletonList(arg1));
 		
 		attachedWidget1.setProperties(Collections.singletonList(attachedWidgetProperty22));
@@ -1445,7 +1445,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		DataPort outputDataPort = new DataPort();
 		outputDataPort.setId("odp1");
 		outputDataPort.setName("value");
-		outputDataPort.setType(ComponentAttrValueType.STRING.getKey());
+		outputDataPort.setType(WidgetPropertyValueType.STRING.getKey());
 		node.setOutputDataPorts(Collections.singletonList(outputDataPort));
 		
 		func.setNodes(Collections.singletonList(node));
@@ -1470,8 +1470,6 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		apiRepo.setGitRepoWebsite("b");
 		apiRepo.setGitRepoOwner("c");
 		apiRepo.setGitRepoName("d");
-		apiRepo.setName("e");
-		apiRepo.setVersion("f");
 		apiRepo.setCategory(RepoCategory.WIDGET);
 		apiRepo.setCreateUserId(1);
 		apiRepo.setCreateTime(LocalDateTime.now());
@@ -1479,6 +1477,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		// 2. 创建一个 API 版本号
 		ApiRepoVersion apiVersion = new ApiRepoVersion();
 		apiVersion.setApiRepoId(savedApiRepo.getId());
+		apiVersion.setName("name");
 		apiVersion.setVersion("0.1.0");
 		apiVersion.setGitTagName("v0.1.0");
 		apiVersion.setCreateUserId(1);
@@ -1486,31 +1485,32 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		ApiRepoVersion savedApiRepoVersion = apiRepoVersionDao.save(apiVersion);
 		// 3. 在对应的 API 版本下添加一个部件，并为部件设置一个事件
 		// 部件
-		ApiComponent widget1 = new ApiComponent();
+		ApiWidget widget1 = new ApiWidget();
 		widget1.setApiRepoVersionId(savedApiRepoVersion.getId());
 		widget1.setCode("0001");
 		widget1.setName("Widget1");
 		widget1.setLabel("Widget 1");
 		widget1.setDescription("Description1");
-		widget1.setCanHasChildren(true);
 		widget1.setCreateUserId(1);
 		widget1.setCreateTime(LocalDateTime.now());
-		ApiComponent savedWidget1 = apiComponentDao.save(widget1);
+		ApiWidget savedWidget1 = apiComponentDao.save(widget1);
 		// 事件
-		ApiComponentAttr widgetEvent1 = new ApiComponentAttr();
-		widgetEvent1.setApiComponentId(savedWidget1.getId());
+		ApiWidgetProperty widgetEvent1 = new ApiWidgetProperty();
+		widgetEvent1.setApiWidgetId(savedWidget1.getId());
+		widgetEvent1.setApiRepoVersionId(savedApiRepoVersion.getId());
 		widgetEvent1.setCode("0002");
 		widgetEvent1.setDescription("description_2");
 		widgetEvent1.setName("onValue");
 		widgetEvent1.setLabel("prop_label_2");
-		widgetEvent1.setValueType(ComponentAttrValueType.FUNCTION);
-		ApiComponentAttr savedWidgetEvent1 = apiComponentAttrDao.save(widgetEvent1);
+		widgetEvent1.setValueType(WidgetPropertyValueType.FUNCTION);
+		ApiWidgetProperty savedWidgetEvent1 = apiComponentAttrDao.save(widgetEvent1);
 		// 3.2 事件的输入参数
-		ApiComponentAttrFunArg arg = new ApiComponentAttrFunArg();
-		arg.setApiComponentAttrId(savedWidgetEvent1.getId());
+		ApiWidgetEventArg arg = new ApiWidgetEventArg();
+		arg.setApiWidgetPropertyId(savedWidgetEvent1.getId());
+		arg.setApiRepoVersionId(savedApiRepoVersion.getId());
 		arg.setCode("0003");
 		arg.setName("value");
-		arg.setValueType(ComponentAttrValueType.STRING);
+		arg.setValueType(WidgetPropertyValueType.STRING);
 		arg.setSeq(1);
 		apiComponentAttrFunArgDao.save(arg);
 		
@@ -1521,9 +1521,12 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		// 5. 为 ide 组件库创建一个版本号，实现上述的 API 版本
 		ComponentRepoVersion componentRepoVersion = new ComponentRepoVersion();
 		componentRepoVersion.setComponentRepoId(1); // 组件仓库 id 为 1
+		componentRepoVersion.setApiRepoVersionId(savedApiRepoVersion.getId());
+		componentRepoVersion.setName("name");
 		componentRepoVersion.setVersion("0.1.0");
 		componentRepoVersion.setGitTagName("v0.1.0");
-		componentRepoVersion.setApiRepoVersionId(savedApiRepoVersion.getId());
+		componentRepoVersion.setAppType(AppType.WEB);
+		componentRepoVersion.setBuild("dojo");
 		componentRepoVersion.setCreateUserId(1);
 		componentRepoVersion.setCreateTime(LocalDateTime.now());
 		ComponentRepoVersion savedComponentRepoVersion = componentRepoVersionDao.save(componentRepoVersion);
@@ -1552,7 +1555,6 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		attachedWidget1.setWidgetCode("0001");
 		attachedWidget1.setWidgetName("Widget1"); // 只能取 widgetName 的值
 		attachedWidget1.setWidgetId(savedWidget1.getId());
-		attachedWidget1.setCanHasChildren(true);// 事件
 		
 		AttachedWidgetProperty attachedWidgetProperty22 = new AttachedWidgetProperty();
 		// id 是在前台生成的，如果前台没有生成，则后台生成
@@ -1560,7 +1562,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		attachedWidgetProperty22.setId("eventId");
 		attachedWidgetProperty22.setCode("0002");
 		attachedWidgetProperty22.setName("onValue"); 
-		attachedWidgetProperty22.setValueType(ComponentAttrValueType.FUNCTION.getKey());
+		attachedWidgetProperty22.setValueType(WidgetPropertyValueType.FUNCTION.getKey());
 		// 此处设置属性值，即为事件绑定了一个 id 为 `a_function_id` 的事件处理函数
 		String handlerId = "a_function_id";
 		attachedWidgetProperty22.setValue(handlerId);
@@ -1568,7 +1570,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		EventArgument arg1 = new EventArgument();
 		arg1.setCode("0003");
 		arg1.setName("value");
-		arg1.setValueType(ComponentAttrValueType.STRING.getKey());
+		arg1.setValueType(WidgetPropertyValueType.STRING.getKey());
 		attachedWidgetProperty22.setEventArgs(Collections.singletonList(arg1));
 		
 		attachedWidget1.setProperties(Collections.singletonList(attachedWidgetProperty22));
@@ -1618,7 +1620,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		DataPort outputDataPort = new DataPort();
 		outputDataPort.setId("odp1");
 		outputDataPort.setName("value");
-		outputDataPort.setType(ComponentAttrValueType.STRING.getKey());
+		outputDataPort.setType(WidgetPropertyValueType.STRING.getKey());
 		node1.setOutputDataPorts(Collections.singletonList(outputDataPort));
 		
 		// set variable node
@@ -1657,7 +1659,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		
 		PageModel savedModel = projectResourceService.getPageModel(projectId, pageId);
 		
-		assertThat(savedModel).usingRecursiveComparison().isEqualTo(model);
+		assertThat(savedModel).usingRecursiveComparison().ignoringCollectionOrder().isEqualTo(model);
 	}
 	
 	@Test
@@ -1669,8 +1671,6 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		apiRepo.setGitRepoWebsite("b");
 		apiRepo.setGitRepoOwner("c");
 		apiRepo.setGitRepoName("d");
-		apiRepo.setName("e");
-		apiRepo.setVersion("f");
 		apiRepo.setCategory(RepoCategory.WIDGET);
 		apiRepo.setCreateUserId(1);
 		apiRepo.setCreateTime(LocalDateTime.now());
@@ -1678,6 +1678,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		// 2. 创建一个 API 版本号
 		ApiRepoVersion apiVersion = new ApiRepoVersion();
 		apiVersion.setApiRepoId(savedApiRepo.getId());
+		apiVersion.setName("name");
 		apiVersion.setVersion("0.1.0");
 		apiVersion.setGitTagName("v0.1.0");
 		apiVersion.setCreateUserId(1);
@@ -1685,31 +1686,32 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		ApiRepoVersion savedApiRepoVersion = apiRepoVersionDao.save(apiVersion);
 		// 3. 在对应的 API 版本下添加一个部件，并为部件设置一个事件
 		// 部件
-		ApiComponent widget1 = new ApiComponent();
+		ApiWidget widget1 = new ApiWidget();
 		widget1.setApiRepoVersionId(savedApiRepoVersion.getId());
 		widget1.setCode("0001");
 		widget1.setName("Widget1");
 		widget1.setLabel("Widget 1");
 		widget1.setDescription("Description1");
-		widget1.setCanHasChildren(true);
 		widget1.setCreateUserId(1);
 		widget1.setCreateTime(LocalDateTime.now());
-		ApiComponent savedWidget1 = apiComponentDao.save(widget1);
+		ApiWidget savedWidget1 = apiComponentDao.save(widget1);
 		// 事件
-		ApiComponentAttr widgetEvent1 = new ApiComponentAttr();
-		widgetEvent1.setApiComponentId(savedWidget1.getId());
+		ApiWidgetProperty widgetEvent1 = new ApiWidgetProperty();
+		widgetEvent1.setApiWidgetId(savedWidget1.getId());
+		widgetEvent1.setApiRepoVersionId(savedApiRepoVersion.getId());
 		widgetEvent1.setCode("0002");
 		widgetEvent1.setDescription("description_2");
 		widgetEvent1.setName("onValue");
 		widgetEvent1.setLabel("prop_label_2");
-		widgetEvent1.setValueType(ComponentAttrValueType.FUNCTION);
-		ApiComponentAttr savedWidgetEvent1 = apiComponentAttrDao.save(widgetEvent1);
+		widgetEvent1.setValueType(WidgetPropertyValueType.FUNCTION);
+		ApiWidgetProperty savedWidgetEvent1 = apiComponentAttrDao.save(widgetEvent1);
 		// 3.2 事件的输入参数
-		ApiComponentAttrFunArg arg = new ApiComponentAttrFunArg();
-		arg.setApiComponentAttrId(savedWidgetEvent1.getId());
+		ApiWidgetEventArg arg = new ApiWidgetEventArg();
+		arg.setApiRepoVersionId(savedApiRepoVersion.getId());
+		arg.setApiWidgetPropertyId(savedWidgetEvent1.getId());
 		arg.setCode("0003");
 		arg.setName("value");
-		arg.setValueType(ComponentAttrValueType.STRING);
+		arg.setValueType(WidgetPropertyValueType.STRING);
 		arg.setSeq(1);
 		apiComponentAttrFunArgDao.save(arg);
 		
@@ -1720,9 +1722,12 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		// 5. 为 ide 组件库创建一个版本号，实现上述的 API 版本
 		ComponentRepoVersion componentRepoVersion = new ComponentRepoVersion();
 		componentRepoVersion.setComponentRepoId(1); // 组件仓库 id 为 1
+		componentRepoVersion.setApiRepoVersionId(savedApiRepoVersion.getId());
+		componentRepoVersion.setName("name");
 		componentRepoVersion.setVersion("0.1.0");
 		componentRepoVersion.setGitTagName("v0.1.0");
-		componentRepoVersion.setApiRepoVersionId(savedApiRepoVersion.getId());
+		componentRepoVersion.setAppType(AppType.WEB);
+		componentRepoVersion.setBuild("dojo");
 		componentRepoVersion.setCreateUserId(1);
 		componentRepoVersion.setCreateTime(LocalDateTime.now());
 		ComponentRepoVersion savedComponentRepoVersion = componentRepoVersionDao.save(componentRepoVersion);
@@ -1751,7 +1756,6 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		attachedWidget1.setWidgetCode("0001");
 		attachedWidget1.setWidgetName("Widget1"); // 只能取 widgetName 的值
 		attachedWidget1.setWidgetId(savedWidget1.getId());
-		attachedWidget1.setCanHasChildren(true);// 事件
 		
 		AttachedWidgetProperty attachedWidgetProperty22 = new AttachedWidgetProperty();
 		// id 是在前台生成的，如果前台没有生成，则后台生成
@@ -1759,7 +1763,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		attachedWidgetProperty22.setId("eventId");
 		attachedWidgetProperty22.setCode("0002");
 		attachedWidgetProperty22.setName("onValue"); 
-		attachedWidgetProperty22.setValueType(ComponentAttrValueType.FUNCTION.getKey());
+		attachedWidgetProperty22.setValueType(WidgetPropertyValueType.FUNCTION.getKey());
 		// 此处设置属性值，即为事件绑定了一个 id 为 `a_function_id` 的事件处理函数
 		String handlerId = "a_function_id";
 		attachedWidgetProperty22.setValue(handlerId);
@@ -1767,7 +1771,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		EventArgument arg1 = new EventArgument();
 		arg1.setCode("0003");
 		arg1.setName("value");
-		arg1.setValueType(ComponentAttrValueType.STRING.getKey());
+		arg1.setValueType(WidgetPropertyValueType.STRING.getKey());
 		attachedWidgetProperty22.setEventArgs(Collections.singletonList(arg1));
 		
 		attachedWidget1.setProperties(Collections.singletonList(attachedWidgetProperty22));
@@ -1817,7 +1821,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		DataPort outputDataPort = new DataPort();
 		outputDataPort.setId("odp1");
 		outputDataPort.setName("value");
-		outputDataPort.setType(ComponentAttrValueType.STRING.getKey());
+		outputDataPort.setType(WidgetPropertyValueType.STRING.getKey());
 		node1.setOutputDataPorts(Collections.singletonList(outputDataPort));
 		
 		// get variable node
@@ -1847,7 +1851,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		
 		PageModel savedModel = projectResourceService.getPageModel(projectId, pageId);
 		
-		assertThat(savedModel).usingRecursiveComparison().isEqualTo(model);
+		assertThat(savedModel).usingRecursiveComparison().ignoringCollectionOrder().isEqualTo(model);
 	}
 	
 	@Test
@@ -1859,8 +1863,6 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		apiRepo.setGitRepoWebsite("b");
 		apiRepo.setGitRepoOwner("c");
 		apiRepo.setGitRepoName("d");
-		apiRepo.setName("e");
-		apiRepo.setVersion("f");
 		apiRepo.setCategory(RepoCategory.WIDGET);
 		apiRepo.setCreateUserId(1);
 		apiRepo.setCreateTime(LocalDateTime.now());
@@ -1868,6 +1870,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		// 2. 创建一个 API 版本号
 		ApiRepoVersion apiVersion = new ApiRepoVersion();
 		apiVersion.setApiRepoId(savedApiRepo.getId());
+		apiVersion.setName("name");
 		apiVersion.setVersion("0.1.0");
 		apiVersion.setGitTagName("v0.1.0");
 		apiVersion.setCreateUserId(1);
@@ -1875,31 +1878,32 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		ApiRepoVersion savedApiRepoVersion = apiRepoVersionDao.save(apiVersion);
 		// 3. 在对应的 API 版本下添加一个部件，并为部件设置一个事件
 		// 部件
-		ApiComponent widget1 = new ApiComponent();
+		ApiWidget widget1 = new ApiWidget();
 		widget1.setApiRepoVersionId(savedApiRepoVersion.getId());
 		widget1.setCode("0001");
 		widget1.setName("Widget1");
 		widget1.setLabel("Widget 1");
 		widget1.setDescription("Description1");
-		widget1.setCanHasChildren(true);
 		widget1.setCreateUserId(1);
 		widget1.setCreateTime(LocalDateTime.now());
-		ApiComponent savedWidget1 = apiComponentDao.save(widget1);
+		ApiWidget savedWidget1 = apiComponentDao.save(widget1);
 		// 事件
-		ApiComponentAttr widgetEvent1 = new ApiComponentAttr();
-		widgetEvent1.setApiComponentId(savedWidget1.getId());
+		ApiWidgetProperty widgetEvent1 = new ApiWidgetProperty();
+		widgetEvent1.setApiWidgetId(savedWidget1.getId());
+		widgetEvent1.setApiRepoVersionId(savedApiRepoVersion.getId());
 		widgetEvent1.setCode("0002");
 		widgetEvent1.setDescription("description_2");
 		widgetEvent1.setName("onValue");
 		widgetEvent1.setLabel("prop_label_2");
-		widgetEvent1.setValueType(ComponentAttrValueType.FUNCTION);
-		ApiComponentAttr savedWidgetEvent1 = apiComponentAttrDao.save(widgetEvent1);
+		widgetEvent1.setValueType(WidgetPropertyValueType.FUNCTION);
+		ApiWidgetProperty savedWidgetEvent1 = apiComponentAttrDao.save(widgetEvent1);
 		// 3.2 事件的输入参数
-		ApiComponentAttrFunArg arg = new ApiComponentAttrFunArg();
-		arg.setApiComponentAttrId(savedWidgetEvent1.getId());
+		ApiWidgetEventArg arg = new ApiWidgetEventArg();
+		arg.setApiWidgetPropertyId(savedWidgetEvent1.getId());
+		arg.setApiRepoVersionId(savedApiRepoVersion.getId());
 		arg.setCode("0003");
 		arg.setName("value");
-		arg.setValueType(ComponentAttrValueType.STRING);
+		arg.setValueType(WidgetPropertyValueType.STRING);
 		arg.setSeq(1);
 		apiComponentAttrFunArgDao.save(arg);
 		
@@ -1910,9 +1914,12 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		// 5. 为 ide 组件库创建一个版本号，实现上述的 API 版本
 		ComponentRepoVersion componentRepoVersion = new ComponentRepoVersion();
 		componentRepoVersion.setComponentRepoId(1); // 组件仓库 id 为 1
+		componentRepoVersion.setApiRepoVersionId(savedApiRepoVersion.getId());
+		componentRepoVersion.setName("name");
 		componentRepoVersion.setVersion("0.1.0");
 		componentRepoVersion.setGitTagName("v0.1.0");
-		componentRepoVersion.setApiRepoVersionId(savedApiRepoVersion.getId());
+		componentRepoVersion.setAppType(AppType.WEB);
+		componentRepoVersion.setBuild("build");
 		componentRepoVersion.setCreateUserId(1);
 		componentRepoVersion.setCreateTime(LocalDateTime.now());
 		ComponentRepoVersion savedComponentRepoVersion = componentRepoVersionDao.save(componentRepoVersion);
@@ -1941,7 +1948,6 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		attachedWidget1.setWidgetCode("0001");
 		attachedWidget1.setWidgetName("Widget1"); // 只能取 widgetName 的值
 		attachedWidget1.setWidgetId(savedWidget1.getId());
-		attachedWidget1.setCanHasChildren(true);// 事件
 		
 		AttachedWidgetProperty attachedWidgetProperty22 = new AttachedWidgetProperty();
 		// id 是在前台生成的，如果前台没有生成，则后台生成
@@ -1949,7 +1955,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		attachedWidgetProperty22.setId("eventId");
 		attachedWidgetProperty22.setCode("0002");
 		attachedWidgetProperty22.setName("onValue"); 
-		attachedWidgetProperty22.setValueType(ComponentAttrValueType.FUNCTION.getKey());
+		attachedWidgetProperty22.setValueType(WidgetPropertyValueType.FUNCTION.getKey());
 		// 此处设置属性值，即为事件绑定了一个 id 为 `a_function_id` 的事件处理函数
 		String handlerId = "a_function_id";
 		attachedWidgetProperty22.setValue(handlerId);
@@ -1957,7 +1963,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		EventArgument arg1 = new EventArgument();
 		arg1.setCode("0003");
 		arg1.setName("value");
-		arg1.setValueType(ComponentAttrValueType.STRING.getKey());
+		arg1.setValueType(WidgetPropertyValueType.STRING.getKey());
 		attachedWidgetProperty22.setEventArgs(Collections.singletonList(arg1));
 		
 		attachedWidget1.setProperties(Collections.singletonList(attachedWidgetProperty22));
@@ -2007,7 +2013,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		DataPort outputDataPort = new DataPort();
 		outputDataPort.setId("odp1");
 		outputDataPort.setName("value");
-		outputDataPort.setType(ComponentAttrValueType.STRING.getKey());
+		outputDataPort.setType(WidgetPropertyValueType.STRING.getKey());
 		node1.setOutputDataPorts(Collections.singletonList(outputDataPort));
 		
 		// set variable node
@@ -2065,7 +2071,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		
 		PageModel savedModel = projectResourceService.getPageModel(projectId, pageId);
 		
-		assertThat(savedModel).usingRecursiveComparison().isEqualTo(model);
+		assertThat(savedModel).usingRecursiveComparison().ignoringCollectionOrder().isEqualTo(model);
 	}
 	
 	// 更新页面模型
@@ -2078,8 +2084,6 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		apiRepo.setGitRepoWebsite("b");
 		apiRepo.setGitRepoOwner("c");
 		apiRepo.setGitRepoName("d");
-		apiRepo.setName("e");
-		apiRepo.setVersion("f");
 		apiRepo.setCategory(RepoCategory.WIDGET);
 		apiRepo.setCreateUserId(1);
 		apiRepo.setCreateTime(LocalDateTime.now());
@@ -2087,6 +2091,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		// 2. 创建一个 API 版本号
 		ApiRepoVersion apiVersion = new ApiRepoVersion();
 		apiVersion.setApiRepoId(savedApiRepo.getId());
+		apiVersion.setName("name");
 		apiVersion.setVersion("0.1.0");
 		apiVersion.setGitTagName("v0.1.0");
 		apiVersion.setCreateUserId(1);
@@ -2094,24 +2099,24 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		ApiRepoVersion savedApiRepoVersion = apiRepoVersionDao.save(apiVersion);
 		// 3. 在对应的 API 版本下添加两个部件，分别为每一个部件设置一个属性
 		//  部件
-		ApiComponent widget1 = new ApiComponent();
+		ApiWidget widget1 = new ApiWidget();
 		widget1.setApiRepoVersionId(savedApiRepoVersion.getId());
 		widget1.setCode("0001");
 		widget1.setName("Widget1");
 		widget1.setLabel("Widget 1");
 		widget1.setDescription("Description1");
-		widget1.setCanHasChildren(true);
 		widget1.setCreateUserId(1);
 		widget1.setCreateTime(LocalDateTime.now());
-		ApiComponent savedWidget1 = apiComponentDao.save(widget1);
+		ApiWidget savedWidget1 = apiComponentDao.save(widget1);
 		//  属性
-		ApiComponentAttr widgetProperty11 = new ApiComponentAttr();
-		widgetProperty11.setApiComponentId(savedWidget1.getId());
+		ApiWidgetProperty widgetProperty11 = new ApiWidgetProperty();
+		widgetProperty11.setApiWidgetId(savedWidget1.getId());
+		widgetProperty11.setApiRepoVersionId(savedApiRepoVersion.getId());
 		widgetProperty11.setCode("0011");
 		widgetProperty11.setDefaultValue("default_value_11");
 		widgetProperty11.setDescription("description_11");
 		widgetProperty11.setName("prop_name_11");
-		widgetProperty11.setValueType(ComponentAttrValueType.STRING);
+		widgetProperty11.setValueType(WidgetPropertyValueType.STRING);
 		apiComponentAttrDao.save(widgetProperty11);
 		
 		// 4. 创建一个 ide 组件库，实现上述的 API 仓库
@@ -2121,9 +2126,12 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		// 5. 为 ide 组件库创建一个版本号，实现上述的 API 版本
 		ComponentRepoVersion componentRepoVersion = new ComponentRepoVersion();
 		componentRepoVersion.setComponentRepoId(1); // 组件仓库 id 为 1
+		componentRepoVersion.setApiRepoVersionId(savedApiRepoVersion.getId());
+		componentRepoVersion.setName("name");
 		componentRepoVersion.setVersion("0.1.0");
 		componentRepoVersion.setGitTagName("v0.1.0");
-		componentRepoVersion.setApiRepoVersionId(savedApiRepoVersion.getId());
+		componentRepoVersion.setAppType(AppType.WEB);
+		componentRepoVersion.setBuild("dojo");
 		componentRepoVersion.setCreateUserId(1);
 		componentRepoVersion.setCreateTime(LocalDateTime.now());
 		ComponentRepoVersion savedComponentRepoVersion = componentRepoVersionDao.save(componentRepoVersion);
@@ -2152,13 +2160,12 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		attachedWidget1.setWidgetCode("0001");
 		attachedWidget1.setWidgetName("Widget1"); // 只能取 widgetName 的值
 		attachedWidget1.setWidgetId(savedWidget1.getId());
-		attachedWidget1.setCanHasChildren(true);
 		AttachedWidgetProperty attachedWidgetProperty11 = new AttachedWidgetProperty();
 		attachedWidgetProperty11.setId("11");
 		attachedWidgetProperty11.setCode("0011");
 		attachedWidgetProperty11.setName("prop_name_11"); // 注意，不会直接在页面模型中存储该值，如果 label 有值，则优先取 label 值
 		attachedWidgetProperty11.setValue("value11");
-		attachedWidgetProperty11.setValueType(ComponentAttrValueType.STRING.getKey());
+		attachedWidgetProperty11.setValueType(WidgetPropertyValueType.STRING.getKey());
 		attachedWidget1.setProperties(Collections.singletonList(attachedWidgetProperty11));
 		
 		model.setWidgets(Collections.singletonList(attachedWidget1));
@@ -2183,8 +2190,6 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		apiRepo.setGitRepoWebsite("b");
 		apiRepo.setGitRepoOwner("c");
 		apiRepo.setGitRepoName("d");
-		apiRepo.setName("e");
-		apiRepo.setVersion("f");
 		apiRepo.setCategory(RepoCategory.WIDGET);
 		apiRepo.setCreateUserId(1);
 		apiRepo.setCreateTime(LocalDateTime.now());
@@ -2192,6 +2197,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		// 2. 创建一个 API 版本号
 		ApiRepoVersion apiVersion = new ApiRepoVersion();
 		apiVersion.setApiRepoId(savedApiRepo.getId());
+		apiVersion.setName("name");
 		apiVersion.setVersion("0.1.0");
 		apiVersion.setGitTagName("v0.1.0");
 		apiVersion.setCreateUserId(1);
@@ -2199,24 +2205,24 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		ApiRepoVersion savedApiRepoVersion = apiRepoVersionDao.save(apiVersion);
 		// 3. 在对应的 API 版本下添加一个部件，并设置一个属性
 		// 3.1 部件1
-		ApiComponent widget1 = new ApiComponent();
+		ApiWidget widget1 = new ApiWidget();
 		widget1.setApiRepoVersionId(savedApiRepoVersion.getId());
 		widget1.setCode("0001");
 		widget1.setName("Widget1");
 		widget1.setLabel("Widget 1");
 		widget1.setDescription("Description1");
-		widget1.setCanHasChildren(true);
 		widget1.setCreateUserId(1);
 		widget1.setCreateTime(LocalDateTime.now());
-		ApiComponent savedWidget1 = apiComponentDao.save(widget1);
+		ApiWidget savedWidget1 = apiComponentDao.save(widget1);
 		// 3.1 属性1
-		ApiComponentAttr widgetProperty11 = new ApiComponentAttr();
-		widgetProperty11.setApiComponentId(savedWidget1.getId());
+		ApiWidgetProperty widgetProperty11 = new ApiWidgetProperty();
+		widgetProperty11.setApiWidgetId(savedWidget1.getId());
+		widgetProperty11.setApiRepoVersionId(savedApiRepoVersion.getId());
 		widgetProperty11.setCode("0011");
 		widgetProperty11.setDefaultValue("default_value_11");
 		widgetProperty11.setDescription("description_11");
 		widgetProperty11.setName("prop_name_11");
-		widgetProperty11.setValueType(ComponentAttrValueType.STRING);
+		widgetProperty11.setValueType(WidgetPropertyValueType.STRING);
 		apiComponentAttrDao.save(widgetProperty11);
 		// 4. 创建一个 ide 组件库，实现上述的 API 仓库
 		//    因为在查数据时，可直接获得 ide 组件仓库的版本信息
@@ -2225,9 +2231,12 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		// 5. 为 ide 组件库创建一个版本号，实现上述的 API 版本
 		ComponentRepoVersion componentRepoVersion = new ComponentRepoVersion();
 		componentRepoVersion.setComponentRepoId(1); // 组件仓库 id 为 1
+		componentRepoVersion.setApiRepoVersionId(savedApiRepoVersion.getId());
+		componentRepoVersion.setName("name");
 		componentRepoVersion.setVersion("0.1.0");
 		componentRepoVersion.setGitTagName("v0.1.0");
-		componentRepoVersion.setApiRepoVersionId(savedApiRepoVersion.getId());
+		componentRepoVersion.setAppType(AppType.WEB);
+		componentRepoVersion.setBuild("build");
 		componentRepoVersion.setCreateUserId(1);
 		componentRepoVersion.setCreateTime(LocalDateTime.now());
 		ComponentRepoVersion savedComponentRepoVersion = componentRepoVersionDao.save(componentRepoVersion);
@@ -2256,7 +2265,6 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		attachedWidget1.setWidgetCode("0001");
 		attachedWidget1.setWidgetName("Widget 1"); // 如果 label 有值，则用 label 的值
 		attachedWidget1.setWidgetId(savedWidget1.getId());
-		attachedWidget1.setCanHasChildren(true);
 		
 		model.setWidgets(Collections.singletonList(attachedWidget1));
 		
@@ -2285,8 +2293,6 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		apiRepo.setGitRepoWebsite("b");
 		apiRepo.setGitRepoOwner("c");
 		apiRepo.setGitRepoName("d");
-		apiRepo.setName("e");
-		apiRepo.setVersion("f");
 		apiRepo.setCategory(RepoCategory.WIDGET);
 		apiRepo.setCreateUserId(1);
 		apiRepo.setCreateTime(LocalDateTime.now());
@@ -2294,6 +2300,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		// 2. 创建一个 API 版本号
 		ApiRepoVersion apiVersion = new ApiRepoVersion();
 		apiVersion.setApiRepoId(savedApiRepo.getId());
+		apiVersion.setName("name");
 		apiVersion.setVersion("0.1.0");
 		apiVersion.setGitTagName("v0.1.0");
 		apiVersion.setCreateUserId(1);
@@ -2301,44 +2308,44 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		ApiRepoVersion savedApiRepoVersion = apiRepoVersionDao.save(apiVersion);
 		// 3. 在对应的 API 版本下添加两个部件，分别为每一个部件设置一个属性
 		// 3.1 部件1
-		ApiComponent widget1 = new ApiComponent();
+		ApiWidget widget1 = new ApiWidget();
 		widget1.setApiRepoVersionId(savedApiRepoVersion.getId());
 		widget1.setCode("0001");
 		widget1.setName("Widget1");
 		widget1.setLabel("Widget 1");
 		widget1.setDescription("Description1");
-		widget1.setCanHasChildren(true);
 		widget1.setCreateUserId(1);
 		widget1.setCreateTime(LocalDateTime.now());
-		ApiComponent savedWidget1 = apiComponentDao.save(widget1);
+		ApiWidget savedWidget1 = apiComponentDao.save(widget1);
 		// 3.1 属性1
-		ApiComponentAttr widgetProperty11 = new ApiComponentAttr();
-		widgetProperty11.setApiComponentId(savedWidget1.getId());
+		ApiWidgetProperty widgetProperty11 = new ApiWidgetProperty();
+		widgetProperty11.setApiWidgetId(savedWidget1.getId());
+		widgetProperty11.setApiRepoVersionId(savedApiRepoVersion.getId());
 		widgetProperty11.setCode("0011");
 		widgetProperty11.setDefaultValue("default_value_11");
 		widgetProperty11.setDescription("description_11");
 		widgetProperty11.setName("prop_name_11");
-		widgetProperty11.setValueType(ComponentAttrValueType.STRING);
+		widgetProperty11.setValueType(WidgetPropertyValueType.STRING);
 		apiComponentAttrDao.save(widgetProperty11);
 		// 3.2 部件2
-		ApiComponent widget2 = new ApiComponent();
+		ApiWidget widget2 = new ApiWidget();
 		widget2.setApiRepoVersionId(savedApiRepoVersion.getId());
 		widget2.setCode("0002");
 		widget2.setName("Widget2");
 		widget2.setDescription("Description2");
-		widget2.setCanHasChildren(false);
 		widget2.setCreateUserId(1);
 		widget2.setCreateTime(LocalDateTime.now());
-		ApiComponent savedWidget2 = apiComponentDao.save(widget2);
+		ApiWidget savedWidget2 = apiComponentDao.save(widget2);
 		// 3.2  属性2
-		ApiComponentAttr widgetProperty21 = new ApiComponentAttr();
-		widgetProperty21.setApiComponentId(savedWidget2.getId());
+		ApiWidgetProperty widgetProperty21 = new ApiWidgetProperty();
+		widgetProperty21.setApiWidgetId(savedWidget2.getId());
+		widgetProperty21.setApiRepoVersionId(savedApiRepoVersion.getId());
 		widgetProperty21.setCode("0021");
 		widgetProperty21.setDefaultValue("default_value_21");
 		widgetProperty21.setDescription("description_21");
 		widgetProperty21.setName("prop_name_21");
 		widgetProperty21.setLabel("prop_label_21");
-		widgetProperty21.setValueType(ComponentAttrValueType.STRING);
+		widgetProperty21.setValueType(WidgetPropertyValueType.STRING);
 		apiComponentAttrDao.save(widgetProperty21);
 		// 4. 创建一个 ide 组件库，实现上述的 API 仓库
 		//    因为在查数据时，可直接获得 ide 组件仓库的版本信息
@@ -2347,9 +2354,12 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		// 5. 为 ide 组件库创建一个版本号，实现上述的 API 版本
 		ComponentRepoVersion componentRepoVersion = new ComponentRepoVersion();
 		componentRepoVersion.setComponentRepoId(1); // 组件仓库 id 为 1
+		componentRepoVersion.setApiRepoVersionId(savedApiRepoVersion.getId());
+		componentRepoVersion.setName("name");
 		componentRepoVersion.setVersion("0.1.0");
 		componentRepoVersion.setGitTagName("v0.1.0");
-		componentRepoVersion.setApiRepoVersionId(savedApiRepoVersion.getId());
+		componentRepoVersion.setAppType(AppType.WEB);
+		componentRepoVersion.setBuild("build");
 		componentRepoVersion.setCreateUserId(1);
 		componentRepoVersion.setCreateTime(LocalDateTime.now());
 		ComponentRepoVersion savedComponentRepoVersion = componentRepoVersionDao.save(componentRepoVersion);
@@ -2378,13 +2388,12 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		attachedWidget1.setWidgetCode("0001");
 		attachedWidget1.setWidgetName("Widget 1"); // 如果 label 有值，则用 label 的值
 		attachedWidget1.setWidgetId(savedWidget1.getId());
-		attachedWidget1.setCanHasChildren(true);
 		AttachedWidgetProperty attachedWidgetProperty11 = new AttachedWidgetProperty();
 		attachedWidgetProperty11.setId("11");
 		attachedWidgetProperty11.setCode("0011");
 		attachedWidgetProperty11.setName("prop_name_11"); // 注意，不会直接在页面模型中存储该值，如果 label 有值，则优先取 label 值
 		attachedWidgetProperty11.setValue("value11");
-		attachedWidgetProperty11.setValueType(ComponentAttrValueType.STRING.getKey());
+		attachedWidgetProperty11.setValueType(WidgetPropertyValueType.STRING.getKey());
 		attachedWidget1.setProperties(Collections.singletonList(attachedWidgetProperty11));
 		
 		AttachedWidget attachedWidget2 = new AttachedWidget();
@@ -2394,13 +2403,12 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		attachedWidget2.setWidgetCode("0002");
 		attachedWidget2.setWidgetName("Widget2"); // 如果 label 有值，则用 label 的值
 		attachedWidget2.setWidgetId(savedWidget2.getId());
-		attachedWidget2.setCanHasChildren(false);
 		AttachedWidgetProperty attachedWidgetProperty21 = new AttachedWidgetProperty();
 		attachedWidgetProperty21.setId("21"); // id 是在前台生成的
 		attachedWidgetProperty21.setCode("0021");
 		attachedWidgetProperty21.setName("prop_label_21");
 		attachedWidgetProperty21.setValue("value21");
-		attachedWidgetProperty21.setValueType(ComponentAttrValueType.STRING.getKey());
+		attachedWidgetProperty21.setValueType(WidgetPropertyValueType.STRING.getKey());
 		attachedWidget2.setProperties(Collections.singletonList(attachedWidgetProperty21));
 		
 		model.setWidgets(Arrays.asList(attachedWidget1, attachedWidget2));
@@ -2470,8 +2478,8 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		assertThat(savedModel.getData())
 			.hasSize(2)
 			.usingFieldByFieldElementComparator()
-			.contains(item1, atIndex(0))
-			.contains(item2, atIndex(1));
+			.contains(item1)
+			.contains(item2);
 	}
 	
 	@Test
