@@ -80,9 +80,6 @@ public class GetRepoConfigActionTest extends AbstractActionTest {
 		
 		Path sourceDirectory = store.getRepoSourceDirectory();
 		InputStream in = getClass().getResourceAsStream("widget_ide_repo_config.json");
-		System.out.println("in = " + in);
-		URL url = getClass().getResource("widget_ide_repo_config.json");
-		System.out.println("url = " + url);
 		var jsonContent = StreamUtils.copyToString(in, Charset.defaultCharset());
 		System.out.println("jsonContent = " + jsonContent);
 		var config = JsonUtil.fromJsonObject(jsonContent, RepoConfigJson.class);
