@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -81,7 +80,6 @@ public class GetRepoConfigActionTest extends AbstractActionTest {
 		Path sourceDirectory = store.getRepoSourceDirectory();
 		InputStream in = getClass().getResourceAsStream("widget_ide_repo_config.json");
 		var jsonContent = StreamUtils.copyToString(in, Charset.defaultCharset());
-		System.out.println("jsonContent = " + jsonContent);
 		var config = JsonUtil.fromJsonObject(jsonContent, RepoConfigJson.class);
 		config.setRepo("INVALID-REPO");
 		config.setCategory("INVALID_CATEGORY");
