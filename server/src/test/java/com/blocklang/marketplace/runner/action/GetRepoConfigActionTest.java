@@ -78,7 +78,7 @@ public class GetRepoConfigActionTest extends AbstractActionTest {
 		initGitRepo();
 		
 		Path sourceDirectory = store.getRepoSourceDirectory();
-		InputStream in = this.getClass().getResourceAsStream("widget_ide_repo_config.json");
+		InputStream in = GetRepoConfigActionTest.class.getResourceAsStream("widget_ide_repo_config.json");
 		System.out.println("in = " + in);
 		var jsonContent = StreamUtils.copyToString(in, Charset.defaultCharset());
 		System.out.println("jsonContent = " + jsonContent);
