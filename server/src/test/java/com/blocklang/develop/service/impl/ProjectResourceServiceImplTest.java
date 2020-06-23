@@ -1851,7 +1851,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		
 		PageModel savedModel = projectResourceService.getPageModel(projectId, pageId);
 		
-		assertThat(savedModel).usingRecursiveComparison().isEqualTo(model);
+		assertThat(savedModel).usingRecursiveComparison().ignoringCollectionOrder().isEqualTo(model);
 	}
 	
 	@Test
@@ -2071,7 +2071,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		
 		PageModel savedModel = projectResourceService.getPageModel(projectId, pageId);
 		
-		assertThat(savedModel).usingRecursiveComparison().isEqualTo(model);
+		assertThat(savedModel).usingRecursiveComparison().ignoringCollectionOrder().isEqualTo(model);
 	}
 	
 	// 更新页面模型
@@ -2478,8 +2478,8 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		assertThat(savedModel.getData())
 			.hasSize(2)
 			.usingFieldByFieldElementComparator()
-			.contains(item1, atIndex(0))
-			.contains(item2, atIndex(1));
+			.contains(item1)
+			.contains(item2);
 	}
 	
 	@Test
