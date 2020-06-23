@@ -143,13 +143,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<!-- FIXME: junit 升级到 5.0 之后可能不再需要此配置 -->
 				<configuration>
-					<excludes>
-						<exclude>**/AbstractControllerTest.java</exclude>
-						<exclude>**/AbstractServiceTest.java</exclude>
-						<exclude>**/AbstractDaoTest.java</exclude>
-					</excludes>
 					<argLine>-Dfile.encoding=UTF-8</argLine>
 				</configuration>
 			</plugin>
