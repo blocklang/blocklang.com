@@ -78,7 +78,9 @@ public class GetRepoConfigActionTest extends AbstractActionTest {
 		
 		Path sourceDirectory = store.getRepoSourceDirectory();
 		var jsonContent = StreamUtils.copyToString(this.getClass().getResourceAsStream("widget_ide_repo_config.json"), Charset.defaultCharset());
+		System.out.println("jsonContent = " + jsonContent);
 		var config = JsonUtil.fromJsonObject(jsonContent, RepoConfigJson.class);
+		System.out.println("config = " + config);
 		config.setRepo("INVALID-REPO");
 		config.setCategory("INVALID_CATEGORY");
 		Files.writeString(sourceDirectory.resolve(MarketplaceStore.BLOCKLANG_JSON), JsonUtil.stringify(config));
