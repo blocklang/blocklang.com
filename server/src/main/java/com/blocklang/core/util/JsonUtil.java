@@ -42,7 +42,6 @@ public abstract class JsonUtil {
 	}
 
 	public static <T> T fromJsonObject(String jsonString, Class<T> clazz) throws JsonProcessingException {
-		System.out.println("mapper = " + mapper);
 		return mapper.readValue(jsonString, clazz);
 	}
 
