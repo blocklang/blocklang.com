@@ -1659,7 +1659,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		
 		PageModel savedModel = projectResourceService.getPageModel(projectId, pageId);
 		
-		assertThat(savedModel).usingRecursiveComparison().isEqualTo(model);
+		assertThat(savedModel).usingRecursiveComparison().ignoringCollectionOrder().isEqualTo(model);
 	}
 	
 	@Test
