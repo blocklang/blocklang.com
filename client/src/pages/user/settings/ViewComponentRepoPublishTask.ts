@@ -9,7 +9,7 @@ import { v, w } from '@dojo/framework/core/vdom';
 import Link from '@dojo/framework/routing/Link';
 import { ComponentRepoPublishTask, WsMessage } from '../../../interfaces';
 import Exception from '../../error/Exception';
-import FontAwesomeIcon from 'dojo-fontawesome/FontAwesomeIcon';
+import FontAwesomeIcon from '@blocklang/dojo-fontawesome/FontAwesomeIcon';
 import Moment from '../../../widgets/moment';
 import { PublishType, ReleaseResult } from '../../../constant';
 import { IconName } from '@fortawesome/fontawesome-svg-core';

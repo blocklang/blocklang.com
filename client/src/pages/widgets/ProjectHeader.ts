@@ -5,7 +5,7 @@ import { ThemedMixin, theme, ThemedProperties } from '@dojo/framework/core/mixin
 import * as c from '../../className';
 import * as css from './ProjectHeader.m.css';
 import { Project } from '../../interfaces';
-import FontAwesomeIcon from 'dojo-fontawesome/FontAwesomeIcon';
+import FontAwesomeIcon from '@blocklang/dojo-fontawesome/FontAwesomeIcon';
 import Link from '@dojo/framework/routing/Link';
 
 export interface ProjectHeaderProperties extends ThemedProperties {

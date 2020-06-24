@@ -8,7 +8,7 @@ import messageBundle from '../../nls/main';
 import Link from '@dojo/framework/routing/Link';
 import { Project, ProjectResource, CommitInfo, DeployInfo, UncommittedFile, WithTarget } from '../../interfaces';
 import Moment from '../../widgets/moment';
-import FontAwesomeIcon from 'dojo-fontawesome/FontAwesomeIcon';
+import FontAwesomeIcon from '@blocklang/dojo-fontawesome/FontAwesomeIcon';
 import { IconName, IconPrefix } from '@fortawesome/fontawesome-svg-core';
 import MarkdownPreview from '../../widgets/markdown-preview';
 

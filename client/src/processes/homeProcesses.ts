@@ -1,6 +1,6 @@
 import { commandFactory, getHeaders } from './utils';
 import { createProcess } from '@dojo/framework/stores/process';
-import { replace } from '@dojo/framework/stores/state/operations';
+import { replace, remove } from '@dojo/framework/stores/state/operations';
 import { baseUrl } from '../config';
 import { getCurrentUserCommand } from './userProcesses';
 
@@ -16,7 +16,7 @@ const initCanAccessProjectsCommand = commandFactory(async ({ get, path }) => {
 	});
 	const json = await response.json();
 	if (!response.ok) {
-		return [replace(path('canAccessProjects'), {})];
+		return [remove(path('canAccessProjects'))];
 	}
 
 	return [replace(path('canAccessProjects'), json)];

@@ -33,7 +33,7 @@ import {
 import LatestCommitInfo from './widgets/LatestCommitInfo';
 import ProjectResourceBreadcrumb from './widgets/ProjectResourceBreadcrumb';
 import watch from '@dojo/framework/core/decorators/watch';
-import FontAwesomeIcon from 'dojo-fontawesome/FontAwesomeIcon';
+import FontAwesomeIcon from '@blocklang/dojo-fontawesome/FontAwesomeIcon';
 import Pagination from '../../widgets/pagination';
 import Moment from '../../widgets/moment';
 import { findIndex, find } from '@dojo/framework/shim/array';

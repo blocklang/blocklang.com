@@ -1,6 +1,6 @@
 import global from '@dojo/framework/shim/global';
 import { createProcess } from '@dojo/framework/stores/process';
-import { replace } from '@dojo/framework/stores/state/operations';
+import { replace, remove } from '@dojo/framework/stores/state/operations';
 import { commandFactory, getHeaders, linkTo } from './utils';
 import { baseUrl } from '../config';
 import {
@@ -24,7 +24,7 @@ export const getCurrentUserCommand = commandFactory(async ({ get, path }) => {
 	if (!response.ok) {
 		// 没有获取到登录用户信息，则清空缓存的用户信息
 		global.sessionStorage.removeItem('blocklang-session');
-		return [replace(path('user'), {})];
+		return [remove(path('user'))];
 	}
 
 	// 如果发现是第一次登录，则存到 thirdPartyUser 中；否则存到 user 中。
@@ -51,7 +51,7 @@ const getProfileCommand = commandFactory(async ({ path }) => {
 	});
 	const json = await response.json();
 	if (!response.ok) {
-		return [replace(path('profile'), {})];
+		return [remove(path('profile'))];
 	}
 
 	return [replace(path('profile'), json)];

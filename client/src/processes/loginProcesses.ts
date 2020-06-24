@@ -2,7 +2,7 @@ import global from '@dojo/framework/shim/global';
 import { createProcess } from '@dojo/framework/stores/process';
 import { commandFactory } from './utils';
 import { SetSessionPayload } from './interfaces';
-import { replace } from '@dojo/framework/stores/state/operations';
+import { replace, remove } from '@dojo/framework/stores/state/operations';
 
 const setSessionCommand = commandFactory<SetSessionPayload>(({ path, payload: { session } }) => {
 	return [replace(path('user'), session)];
@@ -10,7 +10,7 @@ const setSessionCommand = commandFactory<SetSessionPayload>(({ path, payload: { 
 
 const logoutCommand = commandFactory(({ path }) => {
 	global.sessionStorage.removeItem('blocklang-session');
-	return [replace(path('user'), {})];
+	return [remove(path('user'))];
 });
 
 export const setSessionProcess = createProcess('set-session', [setSessionCommand]);

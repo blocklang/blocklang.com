@@ -5,7 +5,7 @@ import { createProcess, ProcessCallback } from '@dojo/framework/stores/process';
 import { ValidateStatus, GitFileStatus } from '../constant';
 import { baseUrl } from '../config';
 import { isEmpty } from '../util';
-import { UncommittedFile } from '../interfaces';
+import { UncommittedFile, ProjectResource } from '../interfaces';
 
 // TODO: 一个字段一个 process vs 一个对象一个 process，哪个更合理？
 /************************* new project ****************************/
@@ -131,7 +131,7 @@ export const getProjectGroupInfoCommand = commandFactory(
 		}
 
 		return [
-			replace(path('projectResource'), { id: json.id, fullPath: parentPath }),
+			replace(path('projectResource'), { id: json.id, fullPath: parentPath } as ProjectResource),
 			replace(path('parentGroups'), json.parentGroups),
 			replace(path('childResources'), json.childResources),
 		];

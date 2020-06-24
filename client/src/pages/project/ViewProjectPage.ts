@@ -3,7 +3,7 @@ import ThemedMixin, { theme } from '@dojo/framework/core/mixins/Themed';
 import I18nMixin from '@dojo/framework/core/mixins/I18n';
 import WidgetBase from '@dojo/framework/core/WidgetBase';
 import { w } from '@dojo/framework/core/vdom';
-import PageDesigner from 'page-designer/PageDesigner';
+import PageDesigner from '@blocklang/page-designer';
 import { User, Project, ProjectResource, ProjectResourceGroup } from '../../interfaces';
 import { canReadPage, canEditPage } from '../../permission';
 import Spinner from '../../widgets/spinner';
@@ -21,8 +21,6 @@ export interface ViewProjectPageProperties {
 
 @theme(css)
 export default class ViewProjectPage extends ThemedMixin(I18nMixin(WidgetBase))<ViewProjectPageProperties> {
-	//private _localizedMessages = this.localizeBundle(messageBundle);
-
 	protected render() {
 		const { project, loginUser, resource, groups, onGotoGroup } = this.properties;
 		if (!project || !resource) {
@@ -44,6 +42,8 @@ export default class ViewProjectPage extends ThemedMixin(I18nMixin(WidgetBase))<
 				savePageModel: `/designer/pages/${pageId}/model`,
 				fetchIdeDependenceInfos: `/designer/projects/${projectId}/dependences?category=dev`,
 				externalScriptAndCssWebsite: '', // 不能为 "/"
+				fetchApiRepoServices: '',
+				fetchApiRepoFunctions: '',
 				customFetchHeaders: () => {
 					return getHeaders();
 				},

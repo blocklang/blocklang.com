@@ -7,7 +7,7 @@ import WidgetBase from '@dojo/framework/core/WidgetBase';
 import { v, w } from '@dojo/framework/core/vdom';
 import Link from '@dojo/framework/routing/Link';
 import Spinner from '../../../widgets/spinner';
-import FontAwesomeIcon from 'dojo-fontawesome/FontAwesomeIcon';
+import FontAwesomeIcon from '@blocklang/dojo-fontawesome/FontAwesomeIcon';
 import { WithTarget, ComponentRepoPublishTask, ComponentRepoInfo, WsMessage } from '../../../interfaces';
 import { ValidateStatus, PublishType, ReleaseResult } from '../../../constant';
 import { UrlPayload } from '../../../processes/interfaces';

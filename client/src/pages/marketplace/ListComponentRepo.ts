@@ -6,7 +6,7 @@ import WidgetBase from '@dojo/framework/core/WidgetBase';
 import messageBundle from '../../nls/main';
 import * as c from '../../className';
 import * as css from './ListComponentRepo.m.css';
-import FontAwesomeIcon from 'dojo-fontawesome/FontAwesomeIcon';
+import FontAwesomeIcon from '@blocklang/dojo-fontawesome/FontAwesomeIcon';
 import Link from '@dojo/framework/routing/Link';
 import { PagedComponentRepos, ComponentRepoInfo, WithTarget } from '../../interfaces';
 import Spinner from '../../widgets/spinner';

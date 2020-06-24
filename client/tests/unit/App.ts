@@ -1,5 +1,5 @@
 const { describe, it } = intern.getInterface('bdd');
-import harness from '@dojo/framework/testing/harness';
+import harness from '@dojo/framework/testing/harness/harness';
 import { w } from '@dojo/framework/core/vdom';
 //import Outlet from '@dojo/framework/routing/Outlet';
 

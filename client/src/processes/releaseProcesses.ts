@@ -1,7 +1,7 @@
 import { createProcess } from '@dojo/framework/stores/process';
 import { commandFactory, getHeaders, linkTo } from './utils';
 import { baseUrl } from '../config';
-import { replace } from '@dojo/framework/stores/state/operations';
+import { replace, remove } from '@dojo/framework/stores/state/operations';
 import { getProjectCommand } from './projectProcesses';
 import { ValidateStatus } from '../constant';
 import * as semver from 'semver';
@@ -53,7 +53,7 @@ const getJdksCommand = commandFactory(async ({ path }) => {
 	});
 	const json = await response.json();
 	if (!response.ok) {
-		return [replace(path('jdks'), {})];
+		return [remove(path('jdks'))];
 	}
 
 	// 如果列表的大小不为 0， 则将第一项的值设置为 jdkReleaseId 的值

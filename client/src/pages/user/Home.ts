@@ -10,7 +10,7 @@ import * as css from './Home.m.css';
 import Link from '@dojo/framework/routing/Link';
 import messageBundle from '../../nls/main';
 import { Project } from '../../interfaces';
-import FontAwesomeIcon from 'dojo-fontawesome/FontAwesomeIcon';
+import FontAwesomeIcon from '@blocklang/dojo-fontawesome/FontAwesomeIcon';
 
 /**
  * 个人首页

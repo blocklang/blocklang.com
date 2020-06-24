@@ -3,13 +3,9 @@ import { w } from '@dojo/framework/core/vdom';
 import { Store } from '@dojo/framework/stores/Store';
 import { StateHistory } from '@dojo/framework/routing/history/StateHistory';
 import { registerRouterInjector } from '@dojo/framework/routing/RouterInjector';
-import { registerThemeInjector } from '@dojo/framework/core/mixins/Themed';
 import { registerStoreInjector } from '@dojo/framework/stores/StoreInjector';
 
 import global from '@dojo/framework/shim/global';
-
-import dojo from '@dojo/themes/dojo';
-import '@dojo/themes/dojo/index.css';
 
 import routes from './routes';
 import App from './App';
@@ -52,7 +48,6 @@ if (userSession) {
 
 const registry = registerStoreInjector(store);
 const router = registerRouterInjector(routes, registry, { HistoryManager: StateHistory, autostart: false });
-registerThemeInjector(dojo, registry);
 
 // 当在 outlet 之间切换时，触发该事件
 // 可在此处设置 outlet 级别的初始化数据
