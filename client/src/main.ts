@@ -34,6 +34,7 @@ import {
 	initForComponentRepoPublishTask,
 } from './processes/componentRepoProcess';
 import { initForViewProjectDependenceProcess } from './processes/projectDependenceProcesses';
+import { DocumentTitleOptions } from '@dojo/framework/routing/interfaces';
 
 const store = new Store<State>();
 
@@ -47,7 +48,73 @@ if (userSession) {
 }
 
 const registry = registerStoreInjector(store);
-const router = registerRouterInjector(routes, registry, { HistoryManager: StateHistory, autostart: false });
+const router = registerRouterInjector(routes, registry, {
+	HistoryManager: StateHistory,
+	autostart: false,
+	setDocumentTitle,
+});
+
+function setDocumentTitle(titleOptions: DocumentTitleOptions): string | undefined {
+	const { title, id } = titleOptions;
+	const { get, path } = store;
+	if (id === 'profile') {
+		// TODO: 不能使用登录信息，使用当前访问的用户信息
+		const user = get(path('user'));
+		if (user) {
+			let result = user.loginName;
+			if (user.nickname) {
+				result += ` (${user.nickname})`;
+			}
+			return result;
+		}
+	}
+	if (id === 'view-component-repo-public-task') {
+		const { website, owner, repoName } = get(path('componentRepoPublishTask'));
+		return `发布组件 · ${website}/${owner}/${repoName}`;
+	}
+	let project = get(path('project'));
+	if (!project) {
+		return title;
+	}
+	if (id === 'view-project') {
+		let result = `${project.createUserName}/${project.name}`;
+		if (project.description) {
+			result += `: ${project.description}`;
+		}
+		return result;
+	}
+	if (id === 'view-project-readme') {
+		return `${project.createUserName}/${project.name}/README`;
+	}
+	if (id === 'view-project-dependence') {
+		const projectResource = get(path('projectResource'));
+		return `${project.createUserName}/${project.name}/${projectResource.fullPath}DEPENDENCE`;
+	}
+	if (id === 'view-project-page') {
+		const projectResource = get(path('projectResource'));
+		return `${project.createUserName}/${project.name}/${projectResource.fullPath}`;
+	}
+	if (id === 'view-project-templet') {
+	}
+	if (id === 'view-project-service') {
+	}
+	if (id === 'view-project-group') {
+		const projectResource = get(path('projectResource'));
+		return `${project.createUserName}/${project.name}/${projectResource.fullPath}`;
+	}
+	if (id === 'list-release') {
+		return `发行版 · ${project.createUserName}/${project.name}`;
+	}
+	if (id === 'new-release') {
+		return `创建发行版 · ${project.createUserName}/${project.name}`;
+	}
+	if (id === 'view-release') {
+		const projectRelease = get(path('projectRelease'));
+		return `${projectRelease.version} · ${project.createUserName}/${project.name}`;
+	}
+
+	return title;
+}
 
 // 当在 outlet 之间切换时，触发该事件
 // 可在此处设置 outlet 级别的初始化数据
