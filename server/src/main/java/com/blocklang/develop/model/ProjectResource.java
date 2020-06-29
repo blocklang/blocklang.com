@@ -247,8 +247,7 @@ public class ProjectResource extends PartialOperateFields{
 			return IconClass.DEPENDENCE;
 		}
 		if(isBuildConfig()) {
-			// TODO: 为 build 选择图标
-			return null;
+			return IconClass.BUILD;
 		}
 		return null;
 

@@ -30,6 +30,7 @@ import ViewProjectDependenceContainer from './containers/project/ViewProjectDepe
 import ViewProjectPageContainer from './containers/project/ViewProjectPageContainer';
 import ViewProjectTempletContainer from './containers/project/ViewProjectTempletContainer';
 import ViewProjectServiceContainer from './containers/project/ViewProjectServiceContainer';
+import FooterContainer from './containers/FooterContainer';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 
@@ -69,7 +70,7 @@ import { faSearch } from '@fortawesome/free-solid-svg-icons/faSearch';
 import { faLightbulb } from '@fortawesome/free-solid-svg-icons/faLightbulb';
 import { faPuzzlePiece } from '@fortawesome/free-solid-svg-icons/faPuzzlePiece';
 import { faCube } from '@fortawesome/free-solid-svg-icons/faCube';
-import FooterContainer from './containers/FooterContainer';
+import { faPlayCircle } from '@fortawesome/free-solid-svg-icons/faPlayCircle';
 
 library.add(
 	faGithub,
@@ -107,7 +108,8 @@ library.add(
 	faSearch,
 	faLightbulb,
 	faPuzzlePiece,
-	faCube
+	faCube,
+	faPlayCircle
 );
 
 export default class App extends WidgetBase {

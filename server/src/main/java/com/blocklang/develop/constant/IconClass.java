@@ -74,5 +74,10 @@ public abstract class IconClass {
 	 * 项目依赖文件图标
 	 */
 	public static final String DEPENDENCE = "fas cube";
+	
+	/**
+	 * 构建定义文件
+	 */
+	public static final String BUILD = "fas play-circle";
 
 }
