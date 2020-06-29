@@ -97,6 +97,34 @@
 			<column name="data_type" value="01" />
 			<column name="is_valid" valueBoolean="true" />
 		</insert>
+		<insert tableName="cm_property">
+			<column name="dbid" valueNumeric="210" />
+			<column name="prop_key" value="10" />
+			<column name="prop_value" value="new" />
+			<column name="prop_desc" value="servlet:new" />
+			<column name="parent_id" valueNumeric="200" />
+			<column name="data_type" value="01" />
+			<column name="is_valid" valueBoolean="true" />
+		</insert>
+		<insert tableName="cm_property">
+			<column name="dbid" valueNumeric="211" />
+			<column name="prop_key" value="11" />
+			<column name="prop_value" value="edit" />
+			<column name="prop_desc" value="servlet:edit" />
+			<column name="parent_id" valueNumeric="200" />
+			<column name="data_type" value="01" />
+			<column name="is_valid" valueBoolean="true" />
+		</insert>
+		<insert tableName="cm_property">
+			<column name="dbid" valueNumeric="212" />
+			<column name="prop_key" value="12" />
+			<column name="prop_value" value="repositories" />
+			<column name="prop_desc" value="servlet:repositories" />
+			<column name="parent_id" valueNumeric="200" />
+			<column name="data_type" value="01" />
+			<column name="is_valid" valueBoolean="true" />
+		</insert>
+		
 		<!-- 以下是系统预留的用户名，从 300 开始 -->
 		<insert tableName="cm_property">
 			<column name="dbid" valueNumeric="300" />
@@ -148,6 +176,15 @@
 			<column name="prop_key" value="05" />
 			<column name="prop_value" value="main" />
 			<column name="prop_desc" value="user:main" />
+			<column name="parent_id" valueNumeric="300" />
+			<column name="data_type" value="01" />
+			<column name="is_valid" valueBoolean="true" />
+		</insert>
+		<insert tableName="cm_property">
+			<column name="dbid" valueNumeric="306" />
+			<column name="prop_key" value="06" />
+			<column name="prop_value" value="master" />
+			<column name="prop_desc" value="user:master" />
 			<column name="parent_id" valueNumeric="300" />
 			<column name="data_type" value="01" />
 			<column name="is_valid" valueBoolean="true" />

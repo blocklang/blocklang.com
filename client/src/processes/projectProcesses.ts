@@ -26,7 +26,7 @@ const nameInputCommand = commandFactory<NamePayload>(async ({ path, get, payload
 	// 校验是否已填写项目名称
 	if (trimedName === '') {
 		result.push(replace(path('projectInputValidation', 'nameValidateStatus'), ValidateStatus.INVALID));
-		result.push(replace(path('projectInputValidation', 'nameErrorMessage'), '项目名称不能为空'));
+		result.push(replace(path('projectInputValidation', 'nameErrorMessage'), '仓库名称不能为空'));
 		return result;
 	}
 

@@ -32,7 +32,6 @@ export class MarkdownPreviewBase<P extends MarkdownPreviewProperties = MarkdownP
 			tables: true,
 			breaks: false,
 			pedantic: false,
-			sanitize: true,
 			smartLists: true,
 			smartypants: false,
 			highlight: function (code: string, lang: string) {

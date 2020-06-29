@@ -7,6 +7,10 @@ import Link from '@dojo/framework/routing/Link';
 import * as c from '../className';
 import * as css from './Header.m.css';
 
+import messageBundle from '../nls/main';
+import { baseUrl } from '../config';
+import FontAwesomeIcon from '@blocklang/dojo-fontawesome/FontAwesomeIcon';
+
 export interface HeaderProperties {
 	routing: string;
 	isAuthenticated: boolean;
@@ -14,10 +18,6 @@ export interface HeaderProperties {
 	loggedAvatarUrl?: string;
 	onLogout: (opts: object) => void;
 }
-
-import messageBundle from '../nls/main';
-import { baseUrl } from '../config';
-import FontAwesomeIcon from '@blocklang/dojo-fontawesome/FontAwesomeIcon';
 
 @theme(css)
 export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderProperties> {
@@ -105,12 +105,7 @@ export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderPro
 
 		const { messages } = this._localizedMessages;
 
-		const rootClasses = [css.root, c.navbar, c.navbar_expand_lg];
-		if (isAuthenticated) {
-			rootClasses.push(c.navbar_dark, c.bg_dark);
-		} else {
-			rootClasses.push(c.navbar_light, c.bg_light);
-		}
+		const rootClasses = [css.root, c.navbar, c.navbar_expand_lg, c.navbar_dark, c.bg_dark];
 
 		let docsMenuActive = false;
 		let marketplaceMenuActive = false;

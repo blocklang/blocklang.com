@@ -168,8 +168,12 @@ public class RouterFilter implements Filter{
 	/**
 	 * 判断是否需要在 servletPath 前追加 servlet 名
 	 * 
-	 * 为了设计用户友好，可读性高的 url，我们将 /projects/{owner}/{project_name} 简写为 /{owner}/{project_name}；
-	 * 将 /users/{userName} 简写为 /{userName}，因此当请求发过来类似 /{owner}/{project_name} 或 /{userName} 的 url 后，
+	 * 为了设计用户友好，可读性高的 url，我们
+	 * 将 /projects/{owner}/{project_name} 简写为 /{owner}/{project_name}；
+	 * 将 /projects/new 简写为 /new
+	 * 将 /users/{userName} 简写为 /{userName}。
+	 * 
+	 * 因此当请求发过来类似 /{owner}/{project_name} 或 /{userName} 的 url 后，
 	 * 我们需要在前面补上 /projects 或 /users
 	 * 
 	 * @param servletPath

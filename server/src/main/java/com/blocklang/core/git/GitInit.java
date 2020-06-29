@@ -45,6 +45,11 @@ public class GitInit {
 		return this;
 	}
 	
+	public GitInit addFiles(Map<String, String> addedFiles) {
+		files.putAll(addedFiles);
+		return this;
+	}
+	
 	public String commit(String commitMessage) {
 		
 		InitCommand command = new InitCommand();

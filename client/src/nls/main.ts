@@ -8,19 +8,19 @@ export default {
 		blockLang: 'Block Lang',
 		loginGithub: 'Github 登录',
 		loginQq: 'QQ 登录',
-		newProject: '创建项目',
+		newProject: '创建仓库',
 		userSetting: '个人设置',
 		userHome: '个人主页',
 		logout: '退出',
 		// home
 		blockLangIntro: '软件拼装工厂',
 		// private home
-		canAccessProjectsCardTitle: '项目',
-		noProjectMessage: '请创建您的第一个项目',
-		privateProjectTitle: '私有项目',
+		canAccessProjectsCardTitle: '仓库',
+		noProjectMessage: '请创建您的第一个仓库',
+		privateProjectTitle: '私有仓库',
 		noActivityMessageHeader: '没有动态',
 		noActivityMessageHelpTitle: '如何才会出现动态？',
-		noActivityMessageHelp1: '1. 收藏项目后，会显示项目动态；',
+		noActivityMessageHelp1: '1. 收藏仓库后，会显示仓库动态；',
 		noActivityMessageHelp2: '2. 关注好友后，会显示好友动态。',
 
 		// marketplace
@@ -34,9 +34,9 @@ export default {
 		noComponentTipLine3: '在组件市场中按版本发布组件。',
 
 		// new project
-		newProjectHelp: '项目包含页面、页面分组、页面模板以及变更历史等。',
+		newProjectHelp: '一个仓库中可包含多个项目，如 web 项目、小程序项目等。',
 		projectNameLabel: '名称',
-		projectNameHelp: '项目名要简短易记。只允许字母、数字、中划线(-)、下划线(_)、点(.)等。如 ',
+		projectNameHelp: '仓库名要简短易记。只允许字母、数字、中划线(-)、下划线(_)、点(.)等。如 ',
 		projectDescLabel: '描述',
 		projectPublicLabel: '公开',
 		projectPublicHelp: '所有访客均可浏览，可邀请用户维护。',

@@ -49,7 +49,7 @@ export default class NewProject extends ThemedMixin(I18nMixin(WidgetBase))<NewPr
 	private _renderTitle() {
 		const { messages } = this._localizedMessages;
 		return v('div', [
-			v('h2', [messages.newProject]),
+			v('h3', [messages.newProject]),
 			v('small', { classes: [c.form_text, c.text_muted] }, [messages.newProjectHelp]),
 			v('hr'),
 		]);

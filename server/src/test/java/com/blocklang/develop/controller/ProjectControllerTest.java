@@ -105,7 +105,7 @@ public class ProjectControllerTest extends AbstractControllerTest{
 			.post("/projects/check-name")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
-			.body("errors.name", hasItem("项目名称不能为空"),
+			.body("errors.name", hasItem("仓库名不能为空"),
 					"errors.name.size()", is(1));
 	}
 	
@@ -147,7 +147,7 @@ public class ProjectControllerTest extends AbstractControllerTest{
 			.post("/projects/check-name")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
-			.body("errors.name", hasItem("owner下已存在<strong>good-name</strong>项目"),
+			.body("errors.name", hasItem("owner下已存在<strong>good-name</strong>仓库"),
 					"errors.name.size()", is(1));
 	}
 	
@@ -192,7 +192,7 @@ public class ProjectControllerTest extends AbstractControllerTest{
 			.post("/projects")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
-			.body("errors.name", hasItem("owner下已存在<strong>good-name</strong>项目"),
+			.body("errors.name", hasItem("owner下已存在<strong>good-name</strong>仓库"),
 					"errors.name.size()", is(1));
 	}
 	
@@ -215,7 +215,7 @@ public class ProjectControllerTest extends AbstractControllerTest{
 		Project savedProject = new Project();
 		savedProject.setId(1);
 		savedProject.setName("good-name");
-		when(projectService.create(any(), any())).thenReturn(savedProject);
+		when(projectService.createRepository(any(), any())).thenReturn(savedProject);
 		
 		given()
 			.contentType(ContentType.JSON)

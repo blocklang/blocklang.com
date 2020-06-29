@@ -306,6 +306,19 @@ public class RouterFilterTest {
 	}
 	
 	@Test
+	public void filter_owner_project_new_project() throws IOException, ServletException {
+		RouterFilter routerFilter = new RouterFilter();
+		
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/new");
+		request.setServletPath("/new");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockFilterChain chain = new MockFilterChain();
+		routerFilter.doFilter(request, response, chain);
+
+		assertThat(response.getForwardedUrl()).isEqualTo("/");
+	}
+	
+	@Test
 	public void filter_users_to_home() throws IOException, ServletException {
 		RouterFilter routerFilter = new RouterFilter();
 		

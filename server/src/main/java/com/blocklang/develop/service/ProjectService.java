@@ -18,15 +18,24 @@ public interface ProjectService {
 	 */
 	Optional<Project> find(String loginName, String projectName);
 
+	
+//	  <ol>
+//	  <li>在数据库中保存项目基本信息
+//	  <li>在数据库中保存 APP 基本信息
+//	  <li>为项目生成默认模块：Main 页面
+//	  <li>为项目生成 README.md 文件
+//	  <li>创建一个 git 仓库
+//	  </ol>
+
 	/**
-	 * 创建一个项目
+	 * 创建一个仓库，一个仓库下可包含多个软件项目。
 	 * 
 	 * 包括以下步骤：
+	 * 
 	 * <ol>
-	 * <li>在数据库中保存项目基本信息
-	 * <li>在数据库中保存 APP 基本信息
-	 * <li>为项目生成默认模块：Main 页面
-	 * <li>为项目生成 README.md 文件
+	 * <li>在数据库中保存仓库基本信息
+	 * <li>为仓库生成 README.md 文件
+	 * <li>为仓库生成 BUILD.json 文件
 	 * <li>创建一个 git 仓库
 	 * </ol>
 	 * 
@@ -34,10 +43,10 @@ public interface ProjectService {
 	 * 然后启动项目检查服务，根据已保存的项目信息重新生成
 	 * 
 	 * @param userInfo
-	 * @param project
+	 * @param repository
 	 * @return 已持久化的 project
 	 */
-	Project create(UserInfo userInfo, Project project);
+	Project createRepository(UserInfo userInfo, Project repository);
 
 	/**
 	 * 获取用户有权访问的项目

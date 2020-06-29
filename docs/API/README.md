@@ -14,22 +14,27 @@
 4. [获取一个组件库发布任务的日志](./marketplace/get-a-publish-task-log.md)
 5. [获取一个组件仓库的版本列表](./marketplace/list-component-repo-versions.md)
 
-## 项目
+## 仓库
 
-1. [校验项目名称](./projects/project/check-name.md)
-2. [创建项目](./projects/project/create-a-project.md)
-3. [获取资源的父分组列表](./projects/project/list-parent-group.md)
-4. [查看项目的目录结构](./projects/project/get-a-group.md)
-5. [查看项目中的一个页面](./projects/project/get-a-page.md)
-6. [查看项目依赖](./projects/project/list-dependences.md)
-7. [获取项目的 README 文件](./projects/project/get-the-readme.md)
-8. [查看一个项目](./projects/project/get-a-project.md)
-9. [获取最近提交信息](./projects/project/get-latest-commit.md)
-10. [为项目添加一个依赖](./projects/project/add-a-dependence.md)
-11. [删除项目的一个依赖](./projects/project/delete-a-dependence.md)
-12. [获取项目的依赖列表](./projects/project/list-project-dependences.md)
-13. [更新项目依赖的版本信息](./projects/project/update-dependence-version.md)
-14. [获取部署配置信息](./projects/deploy/get-deploy-setting.md)
+一个仓库中可存放多个软件项目
+
+1. [校验仓库名称](./projects/project/check-name.md)
+2. [创建仓库](./projects/project/create-a-project.md)
+
+## 软件项目
+
+1. [获取资源的父分组列表](./projects/project/list-parent-group.md)
+2. [查看项目的目录结构](./projects/project/get-a-group.md)
+3. [查看项目中的一个页面](./projects/project/get-a-page.md)
+4. [查看项目依赖](./projects/project/list-dependences.md)
+5. [获取项目的 README 文件](./projects/project/get-the-readme.md)
+6. [查看一个项目](./projects/project/get-a-project.md)
+7. [获取最近提交信息](./projects/project/get-latest-commit.md)
+8.  [为项目添加一个依赖](./projects/project/add-a-dependence.md)
+9.  [删除项目的一个依赖](./projects/project/delete-a-dependence.md)
+10. [获取项目的依赖列表](./projects/project/list-project-dependences.md)
+11. [更新项目依赖的版本信息](./projects/project/update-dependence-version.md)
+12. [获取部署配置信息](./projects/deploy/get-deploy-setting.md)
 
 ## 资源
 

@@ -39,9 +39,16 @@ public class ProjectResource extends PartialOperateFields{
 	 */
 	public static final String MAIN_KEY = "main";
 	public static final String MAIN_NAME = "首页";
+	
 	// 约定：系统自带的文件名，一律使用大写字母
 	public static final String README_KEY = "README";
 	public static final String README_NAME = "README.md";
+	public static final Integer README_SEQ = 1;
+	
+	public static final String BUILD_KEY = "BUILD";
+	public static final String BUILD_NAME = "BUILD.json";
+	public static final Integer BUILD_SEQ = 2;
+	
 	public static final String DEPENDENCE_KEY = "DEPENDENCE";
 	public static final String DEPENDENCE_NAME = "DEPENDENCE.json";
 
@@ -211,6 +218,10 @@ public class ProjectResource extends PartialOperateFields{
 	public Boolean isDependence() {
 		return ProjectResourceType.DEPENDENCE.equals(this.resourceType);
 	}
+	
+	public Boolean isBuildConfig() {
+		return ProjectResourceType.BUILD.equals(this.resourceType);
+	}
 
 	public String getIcon() {
 		if(isPage()) {
@@ -234,6 +245,10 @@ public class ProjectResource extends PartialOperateFields{
 		}
 		if(isDependence()) {
 			return IconClass.DEPENDENCE;
+		}
+		if(isBuildConfig()) {
+			// TODO: 为 build 选择图标
+			return null;
 		}
 		return null;
 
@@ -263,6 +278,8 @@ public class ProjectResource extends PartialOperateFields{
 			i18nKey = "resourceTitle.readme";
 		}else if(isService()) {
 			i18nKey = "resourceTitle.service";
+		}else if(isBuildConfig()) {
+			i18nKey = "resourceTitle.build";
 		}
 		
 		if(StringUtils.isBlank(i18nKey)) {
@@ -280,7 +297,7 @@ public class ProjectResource extends PartialOperateFields{
 		if(isTemplet()) {
 			return this.key + ".page.tmpl.json";
 		}
-		if(isFile() || isDependence()) {
+		if(isFile() || isDependence() || isBuildConfig()) {
 			return this.name;
 		}
 		if(isService()) {

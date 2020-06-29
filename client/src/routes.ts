@@ -35,10 +35,10 @@ export default [
 		title: '组件市场',
 	},
 	{
-		path: 'projects/new',
+		path: 'new',
 		outlet: 'new-project',
 		id: 'new-project',
-		title: '创建一个项目',
+		title: '创建一个仓库',
 	},
 	{
 		path: '{owner}/{project}',

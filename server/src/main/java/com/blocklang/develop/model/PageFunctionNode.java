@@ -8,10 +8,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.blocklang.develop.constant.BindSource;
 import com.blocklang.develop.constant.NodeCategory;
 import com.blocklang.develop.constant.NodeLayout;
-import com.blocklang.develop.constant.converter.BindSourceConverter;
 import com.blocklang.develop.constant.converter.NodeCategoryConverter;
 import com.blocklang.develop.constant.converter.NodeLayoutConverter;
 

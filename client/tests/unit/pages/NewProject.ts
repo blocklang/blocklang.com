@@ -22,9 +22,9 @@ describe('NewProject', () => {
 		h.expect(() =>
 			v('div', { classes: [css.root, 'container mt-5'] }, [
 				v('div', [
-					v('h2', ['创建项目']),
+					v('h2', ['创建仓库']),
 					v('small', { classes: ['form-text text-muted'] }, [
-						'项目包含页面、页面分组、页面模板以及变更历史等。',
+						'一个仓库中可包含多个项目，如 web 项目、小程序项目等。',
 					]),
 					v('hr'),
 				]),
@@ -55,7 +55,7 @@ describe('NewProject', () => {
 							}),
 						]),
 						v('small', { classes: ['form-text text-muted'] }, [
-							'项目名要简短易记。只允许字母、数字、中划线(-)、下划线(_)、点(.)等。如 ',
+							'仓库名要简短易记。只允许字母、数字、中划线(-)、下划线(_)、点(.)等。如 ',
 							v('strong', { classes: ['text-info'] }, ['hello-world']),
 							'。',
 						]),

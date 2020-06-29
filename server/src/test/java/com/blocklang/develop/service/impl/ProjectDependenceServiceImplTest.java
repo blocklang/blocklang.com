@@ -284,7 +284,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		ProjectContext context = new ProjectContext("user_name", "project_name", rootFolder.toString());
 		
-		Project savedProject = projectService.create(userInfo, project);
+		Project savedProject = projectService.createRepository(userInfo, project);
 		
 		// 依赖一个 dev 仓库
 		ComponentRepo devRepo = new ComponentRepo();
@@ -695,7 +695,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		ProjectContext context = new ProjectContext("user_name", "project_name", rootFolder.toString());
 		
-		Project savedProject = projectService.create(userInfo, project);
+		Project savedProject = projectService.createRepository(userInfo, project);
 		
 		// 二、添加一个依赖
 		// 依赖一个 dev 仓库
@@ -772,7 +772,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		ProjectContext context = new ProjectContext("user_name", "project_name", rootFolder.toString());
 		
-		Project savedProject = projectService.create(userInfo, project);
+		Project savedProject = projectService.createRepository(userInfo, project);
 		
 		// 二、添加一个依赖
 		// 依赖一个 dev 仓库

@@ -37,7 +37,7 @@ describe('Header', () => {
 						v('li', { classes: ['nav-item'] }, [
 							w(Link, { to: 'new-project', classes: ['nav-link'] }, [
 								w(FontAwesomeIcon, { icon: 'plus' }),
-								' 创建项目',
+								' 创建仓库',
 							]),
 						]),
 						v('li', { classes: ['nav-item'] }, [

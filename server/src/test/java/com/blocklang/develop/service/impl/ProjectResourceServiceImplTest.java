@@ -730,7 +730,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		Project savedProject = projectService.create(userInfo, project);
+		Project savedProject = projectService.createRepository(userInfo, project);
 		
 		ProjectResource resource = new ProjectResource();
 		resource.setKey("page1");
@@ -776,7 +776,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		Project savedProject = projectService.create(userInfo, project);
+		Project savedProject = projectService.createRepository(userInfo, project);
 		
 		// 有一个未跟踪的文件夹。
 		ProjectResource resource = new ProjectResource();
@@ -816,7 +816,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		Project savedProject = projectService.create(userInfo, project);
+		Project savedProject = projectService.createRepository(userInfo, project);
 		
 		// 有一个未跟踪的文件夹。
 		ProjectResource group1 = new ProjectResource();
@@ -884,7 +884,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		Project savedProject = projectService.create(userInfo, project);
+		Project savedProject = projectService.createRepository(userInfo, project);
 		
 		ProjectResource resource = new ProjectResource();
 		resource.setKey("page1");
@@ -932,7 +932,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		Project savedProject = projectService.create(userInfo, project);
+		Project savedProject = projectService.createRepository(userInfo, project);
 		
 		ProjectResource resource = new ProjectResource();
 		resource.setKey("page1");
@@ -981,7 +981,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		Project savedProject = projectService.create(userInfo, project);
+		Project savedProject = projectService.createRepository(userInfo, project);
 		
 		List<UncommittedFile> changes = projectResourceService.findChanges(savedProject);
 		assertThat(changes).isEmpty();
@@ -1010,7 +1010,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		Project savedProject = projectService.create(userInfo, project);
+		Project savedProject = projectService.createRepository(userInfo, project);
 		
 		ProjectResource resource = new ProjectResource();
 		resource.setKey("page1");

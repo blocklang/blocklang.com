@@ -20,9 +20,7 @@ public class ProjectContext extends AppGlobalContext{
 	protected String projectName;
 	protected String description;
 	
-	protected ProjectContext() {
-		
-	}
+	protected ProjectContext() { }
 	
 	public ProjectContext(String projectName, String dataRootPath) {
 		super(dataRootPath);

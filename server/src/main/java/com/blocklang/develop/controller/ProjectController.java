@@ -95,7 +95,7 @@ public class ProjectController extends AbstractProjectController{
 			
 			project.setCreateUserName(user.getLoginName());
 			
-			return projectService.create(user, project);
+			return projectService.createRepository(user, project);
 		}).orElse(null);
 		
 		return new ResponseEntity<Project>(savedProject, HttpStatus.CREATED);
@@ -109,12 +109,12 @@ public class ProjectController extends AbstractProjectController{
 	
 	private void validateProjectName(BindingResult bindingResult, CheckProjectNameParam param) {
 		if(bindingResult.hasErrors()) {
-			logger.error("项目名称校验未通过。");
+			logger.error("仓库名校验未通过。");
 			throw new InvalidRequestException(bindingResult);
 		}
 		
 		projectService.find(param.getOwner(), param.getName()).ifPresent((project) -> {
-			logger.error("项目名 {} 已被占用", param.getName());
+			logger.error("仓库名 {} 已被占用", param.getName());
 			bindingResult.rejectValue("name", "Duplicated.projectName", new Object[] {
 				param.getOwner(), param.getName()
 			}, null);

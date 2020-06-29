@@ -55,7 +55,7 @@ const router = registerRouterInjector(routes, registry, {
 });
 
 function setDocumentTitle(titleOptions: DocumentTitleOptions): string | undefined {
-	const { title, id } = titleOptions;
+	const { title, id, params } = titleOptions;
 	const { get, path } = store;
 	if (id === 'profile') {
 		// TODO: 不能使用登录信息，使用当前访问的用户信息
@@ -73,6 +73,12 @@ function setDocumentTitle(titleOptions: DocumentTitleOptions): string | undefine
 		return `发布组件 · ${website}/${owner}/${repoName}`;
 	}
 	let project = get(path('project'));
+	if (!project) {
+		if (params.owner && params.project) {
+			initForViewProjectProcess(store)({ owner: params.owner, project: params.project });
+			project = get(path('project'));
+		}
+	}
 	if (!project) {
 		return title;
 	}
