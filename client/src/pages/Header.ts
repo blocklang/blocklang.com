@@ -4,7 +4,7 @@ import I18nMixin from '@dojo/framework/core/mixins/I18n';
 import { theme, ThemedMixin } from '@dojo/framework/core/mixins/Themed';
 import Link from '@dojo/framework/routing/Link';
 
-import * as c from '../className';
+import * as c from '@blocklang/bootstrap-classes';
 import * as css from './Header.m.css';
 
 import messageBundle from '../nls/main';

@@ -2,7 +2,7 @@ import WidgetBase from '@dojo/framework/core/WidgetBase';
 import { v, w } from '@dojo/framework/core/vdom';
 
 import messageBundle from '../../nls/main';
-import * as c from '../../className';
+import * as c from '@blocklang/bootstrap-classes';
 import * as css from './settings/Profile.m.css';
 import ThemedMixin, { theme } from '@dojo/framework/core/mixins/Themed';
 import I18nMixin from '@dojo/framework/core/mixins/I18n';

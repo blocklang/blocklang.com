@@ -4,7 +4,7 @@ import I18nMixin from '@dojo/framework/core/mixins/I18n';
 import WidgetBase from '@dojo/framework/core/WidgetBase';
 
 import messageBundle from '../../nls/main';
-import * as c from '../../className';
+import * as c from '@blocklang/bootstrap-classes';
 import * as css from './ListComponentRepo.m.css';
 import FontAwesomeIcon from '@blocklang/dojo-fontawesome/FontAwesomeIcon';
 import Link from '@dojo/framework/routing/Link';

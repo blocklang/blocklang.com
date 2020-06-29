@@ -9,7 +9,7 @@ import * as SockJS from 'sockjs-client';
 import { Client, IFrame } from '@stomp/stompjs';
 import { v, w } from '@dojo/framework/core/vdom';
 
-import * as c from '../../className';
+import * as c from '@blocklang/bootstrap-classes';
 import * as css from './ViewRelease.m.css';
 import { ProjectRelease, Project, WsMessage } from '../../interfaces';
 import { baseUrl } from '../../config';

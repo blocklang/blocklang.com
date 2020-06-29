@@ -3,7 +3,7 @@ import WidgetBase from '@dojo/framework/core/WidgetBase';
 import I18nMixin from '@dojo/framework/core/mixins/I18n';
 import { theme, ThemedMixin } from '@dojo/framework/core/mixins/Themed';
 
-import * as c from '../../className';
+import * as c from '@blocklang/bootstrap-classes';
 import * as css from './NewRelease.m.css';
 import messageBundle from '../../nls/main';
 import ProjectHeader from '../widgets/ProjectHeader';

@@ -3,7 +3,7 @@ import { v } from '@dojo/framework/core/vdom';
 import { ThemedMixin, theme, ThemedProperties } from '@dojo/framework/core/mixins/Themed';
 import { customElement } from '@dojo/framework/core/decorators/customElement';
 
-import * as c from '../../className';
+import * as c from '@blocklang/bootstrap-classes';
 import * as css from './styles/spinner.m.css';
 
 type SpinnerType = 'border' | 'grow';

@@ -5,7 +5,7 @@ import { HomeProperties } from '../Home';
 import I18nMixin from '@dojo/framework/core/mixins/I18n';
 import { theme, ThemedMixin } from '@dojo/framework/core/mixins/Themed';
 
-import * as c from '../../className';
+import * as c from '@blocklang/bootstrap-classes';
 import * as css from './Home.m.css';
 import Link from '@dojo/framework/routing/Link';
 import messageBundle from '../../nls/main';

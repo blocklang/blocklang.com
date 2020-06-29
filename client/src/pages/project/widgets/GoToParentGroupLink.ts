@@ -7,7 +7,7 @@ import { w, v } from '@dojo/framework/core/vdom';
 import Link from '@dojo/framework/routing/Link';
 import global from '@dojo/framework/shim/global';
 
-import * as c from '../../../className';
+import * as c from '@blocklang/bootstrap-classes';
 import * as css from './GoToParentGroupLink.m.css';
 
 interface GoToParentGroupLinkProperties {

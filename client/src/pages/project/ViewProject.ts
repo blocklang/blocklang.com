@@ -2,7 +2,7 @@ import ThemedMixin, { theme } from '@dojo/framework/core/mixins/Themed';
 import I18nMixin from '@dojo/framework/core/mixins/I18n';
 import WidgetBase from '@dojo/framework/core/WidgetBase';
 
-import { v, w, dom } from '@dojo/framework/core/vdom';
+import { v, w } from '@dojo/framework/core/vdom';
 
 import messageBundle from '../../nls/main';
 import Link from '@dojo/framework/routing/Link';
@@ -15,7 +15,7 @@ import MarkdownPreview from '../../widgets/markdown-preview';
 import 'github-markdown-css/github-markdown.css';
 import 'highlight.js/styles/github.css';
 
-import * as c from '../../className';
+import * as c from '@blocklang/bootstrap-classes';
 import * as css from './ViewProject.m.css';
 import {
 	ProjectPathPayload,
@@ -24,7 +24,6 @@ import {
 	CommitMessagePayload,
 } from '../../processes/interfaces';
 
-import * as $ from 'jquery';
 import Spinner from '../../widgets/spinner';
 import ProjectHeader from '../widgets/ProjectHeader';
 import { isEmpty } from '../../util';
@@ -226,11 +225,7 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 		return v('div', { classes: [c.d_flex, c.justify_content_between, c.mb_2] }, [
 			v('div', [this._renderCommitButtonGroup()]),
 			v('div', { classes: [] }, [
-				this._viewStatus === ViewStatus.Edit ? this._renderNewResourceButtonGroup() : undefined,
-				// 发布按钮，后面显示发布次数
-				this._renderReleaseButton(),
-				// 部署按钮，显示部署步骤
-				this._renderDeployButton(),
+				this._viewStatus === ViewStatus.Edit ? this._renderCreateProjectButtonGroup() : undefined,
 			]),
 		]);
 	}
@@ -305,8 +300,8 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 		}
 	}
 
-	// 没有 write 权限，则不显示新建按钮
-	private _renderNewResourceButtonGroup() {
+	// 如果没有 write 权限，则让新建按钮失效
+	private _renderCreateProjectButtonGroup() {
 		const { project } = this.properties;
 		let disabled = false;
 		if (!this._isLogined()) {
@@ -330,7 +325,7 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 								tabIndex: -1,
 								'aria-disabled': 'true',
 							},
-							[`${messages.newPage}`]
+							[`${messages.createWebProject}`]
 						),
 						v(
 							'a',
@@ -339,7 +334,7 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 								tabIndex: -1,
 								'aria-disabled': 'true',
 							},
-							[`${messages.newGroup}`]
+							[`${messages.createMiniProgram}`]
 						),
 				  ]
 				: [
@@ -350,7 +345,7 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 								to: 'new-page-root',
 								params: { owner: project.createUserName, project: project.name },
 							},
-							[`${messages.newPage}`]
+							[`${messages.createWebProject}`]
 						),
 						w(
 							Link,
@@ -359,237 +354,10 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 								to: 'new-group-root',
 								params: { owner: project.createUserName, project: project.name },
 							},
-							[`${messages.newGroup}`]
+							[`${messages.createMiniProgram}`]
 						),
 				  ]
 		);
-	}
-
-	// 只要对项目有读的权限，就可跳转到发布列表页面
-	private _renderReleaseButton() {
-		const { messages } = this._localizedMessages;
-		const { releaseCount = 0 } = this.properties;
-
-		// 这里没有设置 params，却依然起作用，因为当前页面的 url 中已包含 {owner}/{project}
-		return w(Link, { to: 'list-release', classes: [c.btn, c.btn_outline_secondary, c.btn_sm, c.mr_2] }, [
-			`${messages.releaseLabel} `,
-			v('span', { classes: [c.badge, c.badge_light] }, [`${releaseCount}`]),
-		]);
-	}
-
-	/**
-	 * 用户登录后，才能激活部署按钮
-	 * 渲染部署按钮
-	 */
-	private _renderDeployButton() {
-		const { messages } = this._localizedMessages;
-		let isAuth: boolean = this._isLogined();
-
-		if (isAuth) {
-			return v('div', { classes: [c.btn_group] }, [
-				v(
-					'button',
-					{
-						classes: [c.btn, c.btn_outline_secondary, c.dropdown_toggle, c.btn_sm],
-						type: 'button',
-						'data-toggle': 'dropdown',
-						'aria-haspopup': 'true',
-						'aria-expanded': 'false',
-						id: 'dropdownDeployButton',
-						onclick: this._onDeployButtonClick,
-					},
-					[`${messages.deployLabel}`]
-				),
-
-				this._renderDeployDropdownMenu(),
-			]);
-		} else {
-			const node = document.createElement('span');
-			const vnode = dom(
-				{
-					node,
-					props: {
-						classes: [c.d_inline_block],
-						tabIndex: 0,
-						title: messages.deployNotLoginTip,
-					},
-					attrs: {
-						'data-toggle': 'tooltip',
-					},
-					onAttach: () => {
-						// 使用 dom 函数，就是为了调用 tooltip 方法
-						// 因为 jQuery 的 $ 中没有 bootstrap 的 tooltip 方法
-						// 因为 bootstrap 默认没有初始化 tooltip
-						($(node) as any).tooltip();
-					},
-				},
-				[
-					v(
-						'button',
-						{
-							classes: [c.btn, c.btn_outline_secondary, c.dropdown_toggle, c.btn_sm],
-							type: 'button',
-							styles: { pointerEvents: 'none' },
-							disabled: true,
-						},
-						[`${messages.deployLabel}`]
-					),
-				]
-			);
-			return v('div', { classes: [c.btn_group, c.ml_2] }, [vnode]);
-		}
-	}
-
-	private _onDeployButtonClick() {
-		const { project } = this.properties;
-		this.properties.onGetDeployInfo &&
-			this.properties.onGetDeployInfo({ owner: project.createUserName, project: project.name });
-	}
-
-	private _renderDeployDropdownMenu() {
-		const { userDeployInfo } = this.properties;
-
-		return v(
-			'div',
-			{
-				classes: [c.dropdown_menu, c.dropdown_menu_right, c.p_2, css.deployMenu],
-				'aria-labelledby': 'dropdownDeployButton',
-				styles: { width: '365px' },
-				onclick: this._onClickMenuInside,
-			},
-			userDeployInfo
-				? this._activeOs === 'linux'
-					? this._renderDeployDropdownMenuForLinux(userDeployInfo)
-					: this._renderDeployDropdownMenuForWindows(userDeployInfo)
-				: this._renderEmptyDeployDropdownMenu()
-		);
-	}
-
-	private _renderDeployDropdownMenuForLinux(userDeployInfo: DeployInfo) {
-		return [
-			v('h6', [
-				'部署到您的主机',
-				v(
-					'div',
-					{
-						classes: [c.btn_group, c.btn_group_toggle, c.btn_group_sm, c.ml_2],
-						role: 'group',
-					},
-					[
-						v(
-							'button',
-							{
-								type: 'button',
-								classes: [c.btn, c.btn_outline_primary, c.active, css.btnSmall],
-								onclick: this._onSelectLinux,
-							},
-							['Linux']
-						),
-						v(
-							'button',
-							{
-								type: 'button',
-								classes: [c.btn, c.btn_outline_primary, css.btnSmall],
-								onclick: this._onSelectWindows,
-							},
-							['Windows']
-						),
-					]
-				),
-			]),
-			v('ol', { classes: [c.pl_3, c.mb_0] }, [
-				v('li', [
-					'下载并安装 ',
-					v('a', { href: `${userDeployInfo.installerLinuxUrl}` }, ['Blocklang-installer']),
-				]),
-				v('li', [
-					'执行',
-					v('code', ['./blocklang-installer register']),
-					'命令注册主机',
-					v('ol', { classes: [c.pl_3] }, [
-						v('li', ['指定 URL 为', v('code', [`${userDeployInfo.url}`])]),
-						v('li', ['指定注册 Token 为', v('code', [`${userDeployInfo.registrationToken}`])]),
-						v('li', ['设置运行端口 <port>']),
-					]),
-				]),
-				v('li', ['执行', v('code', ['./blocklang-installer run --port <port>']), '命令启动服务']),
-				v('li', ['在浏览器中访问', v('code', ['http://<ip>:<port>'])]),
-			]),
-		];
-	}
-
-	private _activeOs: string = 'linux'; // linux/windows
-	// TODO: 国际化
-	private _renderDeployDropdownMenuForWindows(userDeployInfo: DeployInfo) {
-		return [
-			v('h6', [
-				'部署到您的主机',
-				v(
-					'div',
-					{
-						classes: [c.btn_group, c.btn_group_toggle, c.btn_group_sm, c.ml_2],
-						role: 'group',
-					},
-					[
-						v(
-							'button',
-							{
-								type: 'button',
-								classes: [c.btn, c.btn_outline_primary, css.btnSmall],
-								onclick: this._onSelectLinux,
-							},
-							['Linux']
-						),
-						v(
-							'button',
-							{
-								type: 'button',
-								classes: [c.btn, c.btn_outline_primary, c.active, css.btnSmall],
-								onclick: this._onSelectWindows,
-							},
-							['Windows']
-						),
-					]
-				),
-			]),
-			v('ol', { classes: [c.pl_3, c.mb_0] }, [
-				v('li', [
-					'下载并安装 ',
-					v('a', { href: `${userDeployInfo.installerWindowsUrl}` }, ['Blocklang-installer']),
-				]),
-				v('li', [
-					'执行',
-					v('code', ['blocklang-installer.exe register']),
-					'命令注册主机',
-					v('ol', { classes: [c.pl_3] }, [
-						v('li', ['指定 URL 为', v('code', [`${userDeployInfo.url}`])]),
-						v('li', ['指定注册 Token 为', v('code', [`${userDeployInfo.registrationToken}`])]),
-						v('li', ['设置运行端口 <port>']),
-					]),
-				]),
-				v('li', ['执行', v('code', ['blocklang-installer.exe run --port <port>']), '命令启动服务']),
-				v('li', ['在浏览器中访问', v('code', ['http://<ip>:<port>'])]),
-			]),
-		];
-	}
-
-	private _renderEmptyDeployDropdownMenu() {
-		return [w(Spinner, {})];
-	}
-
-	private _onSelectLinux() {
-		this._activeOs = 'linux';
-		this.invalidate();
-	}
-
-	private _onSelectWindows() {
-		this._activeOs = 'windows';
-		this.invalidate();
-	}
-
-	// 当点击菜单内部时，不自动关闭此菜单
-	private _onClickMenuInside(event: any) {
-		event.stopPropagation();
 	}
 
 	private _renderTable() {

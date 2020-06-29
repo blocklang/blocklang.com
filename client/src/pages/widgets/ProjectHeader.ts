@@ -2,7 +2,7 @@ import WidgetBase from '@dojo/framework/core/WidgetBase';
 import { v, w } from '@dojo/framework/core/vdom';
 import { ThemedMixin, theme, ThemedProperties } from '@dojo/framework/core/mixins/Themed';
 
-import * as c from '../../className';
+import * as c from '@blocklang/bootstrap-classes';
 import * as css from './ProjectHeader.m.css';
 import { Project } from '../../interfaces';
 import FontAwesomeIcon from '@blocklang/dojo-fontawesome/FontAwesomeIcon';

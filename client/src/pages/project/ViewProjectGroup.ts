@@ -15,7 +15,7 @@ import { IconName, IconPrefix } from '@fortawesome/fontawesome-svg-core';
 import 'github-markdown-css/github-markdown.css';
 import 'highlight.js/styles/github.css';
 
-import * as c from '../../className';
+import * as c from '@blocklang/bootstrap-classes';
 import * as css from './ViewProject.m.css';
 
 import Spinner from '../../widgets/spinner';

@@ -4,7 +4,7 @@ import WidgetBase from '@dojo/framework/core/WidgetBase';
 
 import messageBundle from '../../../nls/main';
 
-import * as c from '../../../className';
+import * as c from '@blocklang/bootstrap-classes';
 import * as css from './NewPage.m.css';
 import { v, w } from '@dojo/framework/core/vdom';
 import Exception from '../../error/Exception';

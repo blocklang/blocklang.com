@@ -15,7 +15,7 @@ import { find } from '@dojo/framework/shim/array';
 
 import 'github-markdown-css/github-markdown.css';
 import 'highlight.js/styles/github.css';
-import * as c from '../../className';
+import * as c from '@blocklang/bootstrap-classes';
 import * as css from './ListRelease.m.css';
 import SockJS = require('sockjs-client');
 import { Client, IFrame } from '@stomp/stompjs';

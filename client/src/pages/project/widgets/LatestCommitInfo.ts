@@ -6,7 +6,7 @@ import * as css from './LatestCommitInfo.m.css';
 import { v, w } from '@dojo/framework/core/vdom';
 import Link from '@dojo/framework/routing/Link';
 import Moment from '../../../widgets/moment';
-import * as c from '../../../className';
+import * as c from '@blocklang/bootstrap-classes';
 import messageBundle from '../../../nls/main';
 
 export interface LatestCommitInfoProperties {

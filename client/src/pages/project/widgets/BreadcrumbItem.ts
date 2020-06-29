@@ -5,7 +5,7 @@ import I18nMixin from '@dojo/framework/core/mixins/I18n';
 import WidgetBase from '@dojo/framework/core/WidgetBase';
 import global from '@dojo/framework/shim/global';
 import { v } from '@dojo/framework/core/vdom';
-import * as c from '../../../className';
+import * as c from '@blocklang/bootstrap-classes';
 import * as css from './BreadcrumbItem.m.css';
 
 interface BreadcrumbItemProperties {

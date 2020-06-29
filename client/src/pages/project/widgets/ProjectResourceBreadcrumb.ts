@@ -5,7 +5,7 @@ import { Project, ProjectResourceGroup } from '../../../interfaces';
 import * as css from './ProjectResourceBreadcrumb.m.css';
 import { v, w } from '@dojo/framework/core/vdom';
 import Link from '@dojo/framework/routing/Link';
-import * as c from '../../../className';
+import * as c from '@blocklang/bootstrap-classes';
 import BreadcrumbItem from './BreadcrumbItem';
 import { ProjectResourcePathPayload } from '../../../processes/interfaces';
 

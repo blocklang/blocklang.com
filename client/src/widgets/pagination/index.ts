@@ -4,7 +4,7 @@ import * as css from './styles/pagination.m.css';
 import I18nMixin from '@dojo/framework/core/mixins/I18n';
 import WidgetBase from '@dojo/framework/core/WidgetBase';
 
-import * as c from '../../className';
+import * as c from '@blocklang/bootstrap-classes';
 import { v, w } from '@dojo/framework/core/vdom';
 import Link from '@dojo/framework/routing/Link';
 

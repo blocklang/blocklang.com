@@ -8,7 +8,7 @@ import Link from '@dojo/framework/routing/Link';
 import config from './config';
 
 import * as css from './Exception.m.css';
-import * as c from '../../className';
+import * as c from '@blocklang/bootstrap-classes';
 
 export interface ExceptionProperties {
 	type: PageType;

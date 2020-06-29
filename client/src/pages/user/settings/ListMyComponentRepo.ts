@@ -1,5 +1,5 @@
 import messageBundle from '../../../nls/main';
-import * as c from '../../../className';
+import * as c from '@blocklang/bootstrap-classes';
 import * as css from './ListMyComponentRepo.m.css';
 import ThemedMixin, { theme } from '@dojo/framework/core/mixins/Themed';
 import I18nMixin from '@dojo/framework/core/mixins/I18n';
