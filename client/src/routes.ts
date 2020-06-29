@@ -36,8 +36,8 @@ export default [
 	},
 	{
 		path: 'new',
-		outlet: 'new-project',
-		id: 'new-project',
+		outlet: 'new-repository',
+		id: 'new-repository',
 		title: '创建一个仓库',
 	},
 	{

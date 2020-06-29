@@ -4,14 +4,14 @@ import I18nMixin from '@dojo/framework/core/mixins/I18n';
 import { theme, ThemedMixin } from '@dojo/framework/core/mixins/Themed';
 
 import * as c from '../../className';
-import * as css from './NewProject.m.css';
+import * as css from './NewRepository.m.css';
 import messageBundle from '../../nls/main';
 import { WithTarget } from '../../interfaces';
 import { NamePayload, DescriptionPayload, IsPublicPayload } from '../../processes/interfaces';
 import { ValidateStatus } from '../../constant';
 import Exception from '../error/Exception';
 
-export interface NewProjectProperties {
+export interface NewRepositoryProperties {
 	// user
 	loggedUsername: string;
 	loggedAvatarUrl: string;
@@ -27,11 +27,11 @@ export interface NewProjectProperties {
 	onNameInput: (opts: NamePayload) => void;
 	onDescriptionInput: (opts: DescriptionPayload) => void;
 	onIsPublicInput: (opts: IsPublicPayload) => void;
-	onSaveProject: (opts: object) => void;
+	onSaveRepository: (opts: object) => void;
 }
 
 @theme(css)
-export default class NewProject extends ThemedMixin(I18nMixin(WidgetBase))<NewProjectProperties> {
+export default class NewRepository extends ThemedMixin(I18nMixin(WidgetBase))<NewRepositoryProperties> {
 	private _localizedMessages = this.localizeBundle(messageBundle);
 
 	protected render() {
@@ -49,8 +49,8 @@ export default class NewProject extends ThemedMixin(I18nMixin(WidgetBase))<NewPr
 	private _renderTitle() {
 		const { messages } = this._localizedMessages;
 		return v('div', [
-			v('h3', [messages.newProject]),
-			v('small', { classes: [c.form_text, c.text_muted] }, [messages.newProjectHelp]),
+			v('h3', [messages.newRepository]),
+			v('small', { classes: [c.form_text, c.text_muted] }, [messages.newRepositoryHelp]),
 			v('hr'),
 		]);
 	}
@@ -78,8 +78,8 @@ export default class NewProject extends ThemedMixin(I18nMixin(WidgetBase))<NewPr
 		}
 
 		return v('div', { classes: [c.form_group] }, [
-			v('label', { for: 'projectName' }, [
-				messages.projectNameLabel,
+			v('label', { for: 'repositoryName' }, [
+				messages.repositoryNameLabel,
 				v('small', { classes: [c.text_muted] }, [` ${messages.requiredLabel}`]),
 			]),
 			v('div', { classes: [c.input_group] }, [
@@ -100,7 +100,7 @@ export default class NewProject extends ThemedMixin(I18nMixin(WidgetBase))<NewPr
 				]),
 				v('input', {
 					type: 'text',
-					id: 'projectName',
+					id: 'repositoryName',
 					classes: inputClasses,
 					required: 'required',
 					maxlength: '32',
@@ -112,7 +112,7 @@ export default class NewProject extends ThemedMixin(I18nMixin(WidgetBase))<NewPr
 					: null,
 			]),
 			v('small', { classes: [c.form_text, c.text_muted] }, [
-				messages.projectNameHelp,
+				messages.repositoryNameHelp,
 				v('strong', { classes: [c.text_info] }, ['hello-world']),
 				messages.dot,
 			]),
@@ -128,11 +128,11 @@ export default class NewProject extends ThemedMixin(I18nMixin(WidgetBase))<NewPr
 				classes: [c.form_group],
 			},
 			[
-				v('label', { for: 'projectDesc' }, [messages.projectDescLabel]),
+				v('label', { for: 'repositoryDesc' }, [messages.repositoryDescLabel]),
 				v('input', {
 					type: 'text',
 					classes: [c.form_control],
-					id: 'projectDesc',
+					id: 'repositoryDesc',
 					maxlength: '64',
 					oninput: this._onDescriptionInput,
 				}),
@@ -154,8 +154,8 @@ export default class NewProject extends ThemedMixin(I18nMixin(WidgetBase))<NewPr
 				name: 'isPublic',
 				onclick: this._onIsPublicInput,
 			}),
-			v('label', { classes: [c.form_check_label], for: 'isPublic' }, [messages.projectPublicLabel]),
-			v('small', { classes: [c.form_text, c.text_muted] }, [messages.projectPublicHelp]),
+			v('label', { classes: [c.form_check_label], for: 'isPublic' }, [messages.repositoryPublicLabel]),
+			v('small', { classes: [c.form_text, c.text_muted] }, [messages.repositoryPublicHelp]),
 		]);
 	}
 
@@ -173,8 +173,8 @@ export default class NewProject extends ThemedMixin(I18nMixin(WidgetBase))<NewPr
 				name: 'isPublic',
 				onclick: this._onIsPublicInput,
 			}),
-			v('label', { classes: [c.form_check_label], for: 'isPrivate' }, [messages.projectPrivateLabel]),
-			v('small', { classes: [c.form_text, c.text_muted] }, [messages.projectPrivateHelp]),
+			v('label', { classes: [c.form_check_label], for: 'isPrivate' }, [messages.repositoryPrivateLabel]),
+			v('small', { classes: [c.form_text, c.text_muted] }, [messages.repositoryPrivateHelp]),
 		]);
 	}
 
@@ -190,9 +190,9 @@ export default class NewProject extends ThemedMixin(I18nMixin(WidgetBase))<NewPr
 				type: 'button',
 				classes: [c.btn, c.btn_primary],
 				disabled,
-				onclick: disabled ? undefined : this._onSaveProject,
+				onclick: disabled ? undefined : this._onSaveRepository,
 			},
-			[messages.projectSaveLabel]
+			[messages.repositorySaveLabel]
 		);
 	}
 
@@ -204,8 +204,8 @@ export default class NewProject extends ThemedMixin(I18nMixin(WidgetBase))<NewPr
 		this.properties.onDescriptionInput({ description });
 	}
 
-	private _onSaveProject() {
-		this.properties.onSaveProject({});
+	private _onSaveRepository() {
+		this.properties.onSaveRepository({});
 	}
 
 	private _onIsPublicInput(event: MouseEvent) {

@@ -2,13 +2,13 @@ const { describe, it } = intern.getInterface('bdd');
 import harness from '@dojo/framework/testing/harness/harness';
 import { w, v } from '@dojo/framework/core/vdom';
 
-import * as css from '../../../src/pages/project/NewProject.m.css';
-import NewProject from '../../../src/pages/project/NewProject';
+import * as css from '../../../src/pages/project/NewRepository.m.css';
+import NewRepository from '../../../src/pages/project/NewRepository';
 
-describe('NewProject', () => {
+describe('NewRepository', () => {
 	it('default renders correctly', () => {
 		const h = harness(() =>
-			w(NewProject, {
+			w(NewRepository, {
 				loggedUsername: 'user',
 				loggedAvatarUrl: 'avatar',
 				name: 'name',
@@ -16,7 +16,7 @@ describe('NewProject', () => {
 				onNameInput: () => {},
 				onDescriptionInput: () => {},
 				onIsPublicInput: () => {},
-				onSaveProject: () => {},
+				onSaveRepository: () => {},
 			})
 		);
 		h.expect(() =>

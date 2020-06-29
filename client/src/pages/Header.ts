@@ -50,9 +50,9 @@ export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderPro
 
 		return [
 			v('li', { key: 'li-0', classes: [c.nav_item] }, [
-				w(Link, { to: 'new-project', classes: [c.nav_link] }, [
+				w(Link, { to: 'new-repository', classes: [c.nav_link] }, [
 					w(FontAwesomeIcon, { icon: 'plus' }),
-					` ${messages.newProject}`,
+					` ${messages.newRepository}`,
 				]),
 			]),
 			v('li', { key: 'li-1', classes: [c.nav_item, c.dropdown] }, [

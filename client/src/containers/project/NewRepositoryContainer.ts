@@ -1,15 +1,15 @@
 import { Store } from '@dojo/framework/stores/Store';
 import { StoreContainer } from '@dojo/framework/stores/StoreInjector';
-import NewProject, { NewProjectProperties } from '../../pages/project/NewProject';
+import NewRepository, { NewRepositoryProperties } from '../../pages/project/NewRepository';
 import { State } from '../../interfaces';
 import {
 	nameInputProcess,
 	descriptionInputProcess,
-	saveProjectProcess,
+	saveRepositoryProcess,
 	isPublicInputProcess,
-} from '../../processes/projectProcesses';
+} from '../../processes/repositoryProcesses';
 
-function getProperties(store: Store<State>): NewProjectProperties {
+function getProperties(store: Store<State>): NewRepositoryProperties {
 	const { get, path } = store;
 	const projectParam = get(path('projectParam'));
 	return {
@@ -22,11 +22,11 @@ function getProperties(store: Store<State>): NewProjectProperties {
 		onNameInput: nameInputProcess(store),
 		onDescriptionInput: descriptionInputProcess(store),
 		onIsPublicInput: isPublicInputProcess(store),
-		onSaveProject: saveProjectProcess(store),
+		onSaveRepository: saveRepositoryProcess(store),
 	};
 }
 
-export default StoreContainer(NewProject, 'state', {
+export default StoreContainer(NewRepository, 'state', {
 	paths: [['user'], ['project'], ['projectInputValidation']],
 	getProperties,
 });

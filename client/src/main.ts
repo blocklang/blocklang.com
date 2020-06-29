@@ -11,8 +11,8 @@ import routes from './routes';
 import App from './App';
 import { State } from './interfaces';
 import { getCurrentUserProcess, initForUserProfileProcess } from './processes/userProcesses';
+import { initForNewRepositoryProcess } from './processes/repositoryProcesses';
 import {
-	initForNewProjectProcess,
 	initForViewProjectProcess,
 	initForViewProjectGroupProcess,
 	initForViewCommitChangesProcess,
@@ -133,8 +133,8 @@ router.on('outlet', ({ outlet, action }) => {
 				// 页面初始化数据
 				initHomeProcess(store)({});
 				break;
-			case 'new-project':
-				initForNewProjectProcess(store)({});
+			case 'new-repository':
+				initForNewRepositoryProcess(store)({});
 				break;
 			case 'view-project':
 				initForViewProjectProcess(store)({ owner: outlet.params.owner, project: outlet.params.project });

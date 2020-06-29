@@ -35,7 +35,7 @@ describe('Header', () => {
 					w(Link, { to: 'home', classes: ['navbar-brand'] }, ['Block Lang']),
 					v('ul', { classes: ['navbar-nav ml-auto'] }, [
 						v('li', { classes: ['nav-item'] }, [
-							w(Link, { to: 'new-project', classes: ['nav-link'] }, [
+							w(Link, { to: 'new-repository', classes: ['nav-link'] }, [
 								w(FontAwesomeIcon, { icon: 'plus' }),
 								' 创建仓库',
 							]),

@@ -11,7 +11,7 @@ import Exception from './pages/error/Exception';
 
 import HeaderContainer from './containers/HeaderContainer';
 import HomeContainer from './containers/HomeContainer';
-import NewProjectContainer from './containers/project/NewProjectContainer';
+import NewRepositoryContainer from './containers/project/NewRepositoryContainer';
 import ViewProjectContainer from './containers/project/ViewProjectContainer';
 import ListReleaseContainer from './containers/release/ListReleaseContainer';
 import NewReleaseContainer from './containers/release/NewReleaseContainer';
@@ -124,9 +124,9 @@ export default class App extends WidgetBase {
 					renderer: () => w(CompleteUserInfoContainer, {}),
 				}),
 				w(Route, {
-					key: 'new-project',
-					id: 'new-project',
-					renderer: () => w(NewProjectContainer, {}),
+					key: 'new-repository',
+					id: 'new-repository',
+					renderer: () => w(NewRepositoryContainer, {}),
 				}),
 				w(Route, { key: 'view-project', id: 'view-project', renderer: () => w(ViewProjectContainer, {}) }),
 				w(Route, {

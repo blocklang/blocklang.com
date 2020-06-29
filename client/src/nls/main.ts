@@ -8,7 +8,7 @@ export default {
 		blockLang: 'Block Lang',
 		loginGithub: 'Github 登录',
 		loginQq: 'QQ 登录',
-		newProject: '创建仓库',
+		newRepository: '创建仓库',
 		userSetting: '个人设置',
 		userHome: '个人主页',
 		logout: '退出',
@@ -33,16 +33,17 @@ export default {
 		noComponentTipLine2: '创建组件仓库，创建组件并实现选择的 API 规范；',
 		noComponentTipLine3: '在组件市场中按版本发布组件。',
 
-		// new project
-		newProjectHelp: '一个仓库中可包含多个项目，如 web 项目、小程序项目等。',
-		projectNameLabel: '名称',
-		projectNameHelp: '仓库名要简短易记。只允许字母、数字、中划线(-)、下划线(_)、点(.)等。如 ',
-		projectDescLabel: '描述',
-		projectPublicLabel: '公开',
-		projectPublicHelp: '所有访客均可浏览，可邀请用户维护。',
-		projectPrivateLabel: '私有',
-		projectPrivateHelp: '仅成员可浏览，可邀请用户浏览和维护。',
-		projectSaveLabel: '创建',
+		// new repository
+		newRepositoryHelp: '一个仓库中可包含多个项目，如 web 项目、小程序项目等。',
+		repositoryNameLabel: '名称',
+		repositoryNameHelp: '仓库名要简短易记。只允许字母、数字、中划线(-)、下划线(_)、点(.)等。如 ',
+		repositoryDescLabel: '描述',
+		repositoryPublicLabel: '公开',
+		repositoryPublicHelp: '所有访客均可浏览，可邀请用户维护。',
+		repositoryPrivateLabel: '私有',
+		repositoryPrivateHelp: '仅成员可浏览，可邀请用户浏览和维护。',
+		repositorySaveLabel: '创建',
+
 		// new page
 		pageKeyLabel: '名称',
 		pageKeyHelp: '在 url 中使用，要简短易记。只允许字母、数字、中划线(-)、下划线(_)等。',
@@ -64,6 +65,8 @@ export default {
 		groupCancelSaveLabel: '取消',
 
 		// view project
+		createWebProject: '创建 Web 项目',
+		createMiniProgram: '创建小程序',
 		latestCommitLabel: '最近提交于',
 		releaseLabel: '发布',
 		deployLabel: '部署',
