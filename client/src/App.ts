@@ -71,6 +71,8 @@ import { faLightbulb } from '@fortawesome/free-solid-svg-icons/faLightbulb';
 import { faPuzzlePiece } from '@fortawesome/free-solid-svg-icons/faPuzzlePiece';
 import { faCube } from '@fortawesome/free-solid-svg-icons/faCube';
 import { faPlayCircle } from '@fortawesome/free-solid-svg-icons/faPlayCircle';
+import NewWebProject from './pages/project/NewWebProject';
+import NewMiniProgram from './pages/project/NewMiniProgram';
 
 library.add(
 	faGithub,
@@ -128,7 +130,23 @@ export default class App extends WidgetBase {
 					id: 'new-repository',
 					renderer: () => w(NewRepositoryContainer, {}),
 				}),
-				w(Route, { key: 'view-project', id: 'view-project', renderer: () => w(ViewProjectContainer, {}) }),
+				w(Route, {
+					key: 'new-project',
+					id: 'new-project',
+					renderer: (matchDetails) => {
+						const { queryParams } = matchDetails;
+						if (queryParams.type === 'web') {
+							return w(NewWebProject, {});
+						} else if (queryParams.type === 'miniprogram') {
+							return w(NewMiniProgram, {});
+						}
+					},
+				}),
+				w(Route, {
+					key: 'view-project',
+					id: 'view-project',
+					renderer: () => w(ViewProjectContainer, {}),
+				}),
 				w(Route, {
 					key: 'view-project-group',
 					id: 'view-project-group',

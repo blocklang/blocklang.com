@@ -41,6 +41,11 @@ export default [
 		title: '创建一个仓库',
 	},
 	{
+		path: '{owner}/{project}/projects/new?{type}',
+		outlet: 'new-project',
+		id: 'new-project',
+	},
+	{
 		path: '{owner}/{project}',
 		outlet: 'view-project',
 		id: 'view-project',

@@ -315,12 +315,13 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 
 		return v(
 			'div',
-			{ classes: [c.btn_group, c.btn_group_sm, c.mr_2], role: 'group' },
+			{ classes: [c.btn_group, c.btn_group_sm], role: 'group' },
 			disabled
 				? [
 						v(
 							'a',
 							{
+								key: 'web',
 								classes: [c.btn, c.btn_outline_secondary, c.disabled],
 								tabIndex: -1,
 								'aria-disabled': 'true',
@@ -330,6 +331,7 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 						v(
 							'a',
 							{
+								key: 'mini-program',
 								classes: [c.btn, c.btn_outline_secondary, c.disabled],
 								tabIndex: -1,
 								'aria-disabled': 'true',
@@ -341,18 +343,20 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 						w(
 							Link,
 							{
+								key: 'web',
 								classes: [c.btn, c.btn_outline_secondary],
-								to: 'new-page-root',
-								params: { owner: project.createUserName, project: project.name },
+								to: 'new-project',
+								params: { owner: project.createUserName, project: project.name, type: 'web' },
 							},
 							[`${messages.createWebProject}`]
 						),
 						w(
 							Link,
 							{
+								key: 'mini-program',
 								classes: [c.btn, c.btn_outline_secondary],
-								to: 'new-group-root',
-								params: { owner: project.createUserName, project: project.name },
+								to: 'new-project',
+								params: { owner: project.createUserName, project: project.name, type: 'miniprogram' },
 							},
 							[`${messages.createMiniProgram}`]
 						),

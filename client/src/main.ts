@@ -55,7 +55,7 @@ const router = registerRouterInjector(routes, registry, {
 });
 
 function setDocumentTitle(titleOptions: DocumentTitleOptions): string | undefined {
-	const { title, id, params } = titleOptions;
+	const { title, id, params, queryParams } = titleOptions;
 	const { get, path } = store;
 	if (id === 'profile') {
 		// TODO: 不能使用登录信息，使用当前访问的用户信息
@@ -81,6 +81,14 @@ function setDocumentTitle(titleOptions: DocumentTitleOptions): string | undefine
 	}
 	if (!project) {
 		return title;
+	}
+	if (id === 'new-project') {
+		if (queryParams.type === 'web') {
+			return '创建 Web 项目';
+		}
+		if (queryParams.type === 'miniprogram') {
+			return '创建小程序';
+		}
 	}
 	if (id === 'view-project') {
 		let result = `${project.createUserName}/${project.name}`;
