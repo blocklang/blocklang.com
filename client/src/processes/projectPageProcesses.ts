@@ -1,6 +1,6 @@
 import { createProcess } from '@dojo/framework/stores/process';
 import { commandFactory, getHeaders, linkTo } from './utils';
-import { replace } from '@dojo/framework/stores/state/operations';
+import { replace, remove } from '@dojo/framework/stores/state/operations';
 import { baseUrl } from '../config';
 import { ValidateStatus } from '../constant';
 import { DescriptionPayload, PageKeyPayload, PageNamePayload } from './interfaces';
@@ -12,11 +12,14 @@ const startInitForNewPageCommand = commandFactory(({ path }) => {
 		replace(path('pageInputValidation', 'keyErrorMessage'), ''),
 		replace(path('pageInputValidation', 'nameValidateStatus'), ValidateStatus.UNVALIDATED),
 		replace(path('pageInputValidation', 'nameErrorMessage'), ''),
+		remove(path('projectResource')),
+		replace(path('projectResource', 'isLoading'), true),
+		replace(path('projectResource', 'isLoaded'), false),
 	];
 });
 
 const startInitForViewPageCommand = commandFactory(({ path }) => {
-	return [replace(path('projectResource'), undefined), replace(path('parentGroups'), undefined)];
+	return [remove(path('projectResource')), remove(path('parentGroups'))];
 });
 
 export const getResourceParentPathCommand = commandFactory(
@@ -26,12 +29,14 @@ export const getResourceParentPathCommand = commandFactory(
 		});
 		const json = await response.json();
 		if (!response.ok) {
-			return [replace(path('projectResource'), undefined), replace(path('parentGroups'), [])];
+			return [remove(path('projectResource')), replace(path('parentGroups'), [])];
 		}
 
 		return [
 			replace(path('projectResource', 'id'), json.id),
 			replace(path('projectResource', 'fullPath'), parentPath),
+			replace(path('projectResource', 'isLoading'), false),
+			replace(path('projectResource', 'isLoaded'), true),
 			replace(path('parentGroups'), json.parentGroups),
 		];
 	}

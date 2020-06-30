@@ -54,7 +54,6 @@ export default class NewGroup extends ThemedMixin(I18nMixin(WidgetBase))<NewGrou
 				v('div', [
 					v('h4', [`${newGroup}`]),
 					this._renderBreadcrumb(),
-					// TODO: 导航栏
 					v('hr'),
 					v('form', { classes: [c.needs_validation], novalidate: 'novalidate' }, [
 						this._renderKeyInput(),

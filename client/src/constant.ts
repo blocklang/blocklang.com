@@ -5,24 +5,27 @@ export enum ValidateStatus {
 }
 
 export enum ResourceType {
-	Page = '01',
-	Group = '02',
-	Pane = '03',
-	PageTemplet = '04',
-	File = '05',
-	Service = '06',
-	Dependence = '07',
+	Project = '01',
+	Page = '02',
+	Group = '03',
+	Pane = '04',
+	PageTemplet = '05',
+	File = '06',
+	Service = '07',
+	Dependence = '08',
 }
 
 // 因为 AppType 主要用于 Page，所以在名称前加上 Page
 // 避免与 interfaces.d.ts 中的 AppType 重名
 export enum PageAppType {
 	Web = '01',
-	Android = '02',
-	iOS = '03',
-	WechatMiniApp = '04',
-	AlipayMiniApp = '05',
-	QuickApp = '06',
+	Mobile = '02',
+	MiniProgram = '03',
+	// Android = '02',
+	// iOS = '03',
+	// WechatMiniApp = '04',
+	// AlipayMiniApp = '05',
+	// QuickApp = '06',
 	Unknown = '99',
 }
 

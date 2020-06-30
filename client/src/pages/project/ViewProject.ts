@@ -346,7 +346,7 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 								key: 'web',
 								classes: [c.btn, c.btn_outline_secondary],
 								to: 'new-project',
-								params: { owner: project.createUserName, project: project.name, type: 'web' },
+								params: { owner: project.createUserName, repository: project.name, type: 'web' },
 							},
 							[`${messages.createWebProject}`]
 						),
@@ -356,7 +356,11 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 								key: 'mini-program',
 								classes: [c.btn, c.btn_outline_secondary],
 								to: 'new-project',
-								params: { owner: project.createUserName, project: project.name, type: 'miniprogram' },
+								params: {
+									owner: project.createUserName,
+									repository: project.name,
+									type: 'miniprogram',
+								},
 							},
 							[`${messages.createMiniProgram}`]
 						),

@@ -16,8 +16,8 @@ import { IconName } from '@fortawesome/fontawesome-svg-core';
 export type WithTarget<T extends Event = Event, E extends HTMLElement = HTMLInputElement> = T & { target: E };
 
 export interface ResourceBased {
-	loading: boolean;
-	loaded: boolean;
+	isLoading: boolean;
+	isLoaded: boolean;
 }
 
 /**
@@ -86,7 +86,7 @@ export interface ProjectParam {
 	isPublic: boolean;
 }
 
-export interface Project {
+export interface Project extends ResourceBased {
 	id: number;
 	name: string;
 	description?: string;
@@ -105,7 +105,7 @@ export interface ProjectInputValidation {
 	nameErrorMessage: string;
 }
 
-export interface ProjectResource {
+export interface ProjectResource extends ResourceBased {
 	id: number;
 	key: string;
 	name: string;
@@ -231,6 +231,8 @@ interface GroupParam {
 	name: string;
 	description: string;
 	parentId: number;
+	appType: PageAppType;
+	resourceType: ResourceType;
 }
 
 interface GroupInputValidation {
@@ -240,9 +242,7 @@ interface GroupInputValidation {
 	nameErrorMessage?: string;
 }
 
-interface PageParam extends GroupParam {
-	appType: string;
-}
+interface PageParam extends GroupParam {}
 
 interface PageInputValidation extends GroupInputValidation {}
 

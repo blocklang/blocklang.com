@@ -1,9 +1,9 @@
-import { OutletContext } from '@dojo/framework/routing/interfaces';
+import { RouteContext } from '@dojo/framework/routing/interfaces';
 import { User } from '../interfaces';
 
 export interface ChangeRoutePayload {
 	outlet: string;
-	context: OutletContext;
+	context: RouteContext;
 }
 
 export interface IdPayload {

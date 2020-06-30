@@ -134,11 +134,11 @@ export default class App extends WidgetBase {
 					key: 'new-project',
 					id: 'new-project',
 					renderer: (matchDetails) => {
-						const { queryParams } = matchDetails;
+						const { params, queryParams } = matchDetails;
 						if (queryParams.type === 'web') {
-							return w(NewWebProject, {});
+							return w(NewWebProject, { owner: params.owner, repository: params.repository });
 						} else if (queryParams.type === 'miniprogram') {
-							return w(NewMiniProgram, {});
+							return w(NewMiniProgram, { owner: params.owner, repository: params.repository });
 						}
 					},
 				}),

@@ -1,7 +1,7 @@
 import { createProcess } from '@dojo/framework/stores/process';
 import { commandFactory, getHeaders, linkTo } from './utils';
 import { replace } from '@dojo/framework/stores/state/operations';
-import { ValidateStatus } from '../constant';
+import { ValidateStatus, ResourceType } from '../constant';
 import { GroupKeyPayload, GroupNamePayload, DescriptionPayload } from './interfaces';
 import { baseUrl } from '../config';
 import { getProjectCommand } from './projectProcesses';
@@ -13,6 +13,8 @@ const startInitForNewGroupCommand = commandFactory(({ path }) => {
 		replace(path('groupInputValidation', 'keyErrorMessage'), ''),
 		replace(path('groupInputValidation', 'nameValidateStatus'), ValidateStatus.UNVALIDATED),
 		replace(path('groupInputValidation', 'nameErrorMessage'), ''),
+		replace(path('projectResource', 'isLoading'), true),
+		replace(path('projectResource', 'isLoaded'), false),
 	];
 });
 
@@ -100,31 +102,39 @@ const groupDescriptionInputCommand = commandFactory<DescriptionPayload>(({ path,
 	return [replace(path('groupParam', 'description'), description.trim())];
 });
 
-const saveGroupCommand = commandFactory(async ({ path, get, payload: { owner, project, parentPath = '' } }) => {
-	const groupParam = get(path('groupParam'));
-	const projectResource = get(path('projectResource'));
-	groupParam.parentId = projectResource.id;
+const saveGroupCommand = commandFactory(
+	async ({ path, get, payload: { owner, project, parentPath = '', appType, resourceType = ResourceType.Group } }) => {
+		const groupParam = get(path('groupParam'));
+		const projectResource = get(path('projectResource'));
+		groupParam.parentId = projectResource.id;
+		groupParam.appType = appType;
+		groupParam.resourceType = resourceType;
 
-	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/groups`, {
-		method: 'POST',
-		headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
-		body: JSON.stringify({
-			...groupParam,
-		}),
-	});
+		const response = await fetch(`${baseUrl}/projects/${owner}/${project}/groups`, {
+			method: 'POST',
+			headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
+			body: JSON.stringify({
+				...groupParam,
+			}),
+		});
 
-	const json = await response.json();
-	if (!response.ok) {
-		// TODO: 在页面上提示保存出错
-		return [replace(path('errors'), json.errors)];
+		const json = await response.json();
+		if (!response.ok) {
+			// TODO: 在页面上提示保存出错
+			return [replace(path('errors'), json.errors)];
+		}
+
+		return [
+			// 清空输入参数
+			replace(path('groupParam'), undefined),
+			...linkTo(path, parentPath.length > 0 ? 'view-project-group' : 'view-project', {
+				owner,
+				project,
+				parentPath,
+			}),
+		];
 	}
-
-	return [
-		// 清空输入参数
-		replace(path('groupParam'), undefined),
-		...linkTo(path, parentPath.length > 0 ? 'view-project-group' : 'view-project', { owner, project, parentPath }),
-	];
-});
+);
 
 export const initForNewGroupProcess = createProcess('init-for-new-group', [
 	startInitForNewGroupCommand,
