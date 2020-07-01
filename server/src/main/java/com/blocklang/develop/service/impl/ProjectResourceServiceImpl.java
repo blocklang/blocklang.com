@@ -1236,6 +1236,24 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 		return projectResourceDao.save(main);
 	}
 	
+	private ProjectResource createAppForMiniProgram(Project repository, ProjectResource project) {
+		ProjectResource app = new ProjectResource();
+		
+		// TODO: 定义一个 APP 组件，跟 Page 组件类似，但是不能包含子部件
+		app.setProjectId(repository.getId());
+		app.setKey(ProjectResource.APP_KEY);
+		app.setName(ProjectResource.APP_NAME);
+		app.setResourceType(ProjectResourceType.MAIN);
+		app.setParentId(project.getId());
+		app.setAppType(project.getAppType());
+		app.setSeq(1);
+		app.setCreateUserId(project.getCreateUserId());
+		app.setCreateTime(LocalDateTime.now());
+		
+		return projectResourceDao.save(app);
+	}
+	
+	
 	private ProjectResource createDependenceFile(Project repository, ProjectResource project) {
 		ProjectResource dependence = new ProjectResource();
 		dependence.setProjectId(repository.getId());
@@ -1255,14 +1273,124 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 	 * 初始化以下资源：
 	 * <ul>
 	 * <li>app (入口)
-	 * <li>index/index 页面
+	 * <li>pages/index 页面
 	 * <li>DEPENDENCE.json
 	 * </ul>
 	 */
 	@Override
-	public ProjectResource createMiniProgram(Project project, ProjectResource resource) {
-		// TODO Auto-generated method stub
-		return null;
+	public ProjectResource createMiniProgram(Project repository, ProjectResource project) {
+		// 创建项目资源
+		if(project.getSeq() == null) {
+			Integer nextSeq = projectResourceDao
+					.findFirstByProjectIdAndParentIdOrderBySeqDesc(project.getProjectId(), project.getParentId())
+					.map(item -> item.getSeq() + 1)
+					.orElse(1);
+			project.setSeq(nextSeq);
+		}
+		ProjectResource savedProject = projectResourceDao.save(project);
+		
+		// 生成入口模块：app
+		ProjectResource app = createAppForMiniProgram(repository, savedProject);
+		// 有一个特殊的资源，没有 ui，只需要配置属性。
+		// 创建空页面，默认为空页面添加根节点，包括 Page 部件及其属性。
+		PageModel appModel = new PageModel();//createPageModelWithStdPage(app.getId());
+		
+		// 生成 DEPENDENCE.json 文件
+		ProjectResource dependence = createDependenceFile(repository, savedProject);
+
+		// 添加 pages/index 页面
+		// 1. 先创建 pages 分组
+		ProjectResource pagesDir = new ProjectResource();
+		pagesDir.setProjectId(repository.getId());
+		pagesDir.setKey("pages");
+		pagesDir.setName("pages");
+		pagesDir.setResourceType(ProjectResourceType.GROUP);
+		pagesDir.setParentId(savedProject.getId());
+		pagesDir.setAppType(project.getAppType());
+		pagesDir.setSeq(3);
+		pagesDir.setCreateUserId(project.getCreateUserId());
+		pagesDir.setCreateTime(LocalDateTime.now());
+		projectResourceDao.save(pagesDir);
+		// 2. 再创建 index 页面
+		ProjectResource indexPage = new ProjectResource();
+		indexPage.setProjectId(repository.getId());
+		indexPage.setKey("index");
+		indexPage.setName("index");
+		indexPage.setResourceType(ProjectResourceType.PAGE);
+		indexPage.setParentId(pagesDir.getId());
+		indexPage.setAppType(project.getAppType());
+		indexPage.setSeq(4);
+		indexPage.setCreateUserId(project.getCreateUserId());
+		indexPage.setCreateTime(LocalDateTime.now());
+		projectResourceDao.save(indexPage);
+		
+		PageModel indexPageModel = new PageModel();//createPageModelWithStdPage(app.getId());
+
+		// 在 git 仓库中添加文件
+		propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).ifPresent(rootDir -> {
+			ProjectContext context = new ProjectContext(repository.getCreateUserName(), repository.getName(), rootDir);
+			
+			Path projectDir = context
+					.getGitRepositoryDirectory()
+					.resolve(savedProject.getKey());
+			
+			String appJson = "{}";
+			try {
+				appJson = JsonUtil.stringify(appModel);
+			} catch (JsonProcessingException e) {
+				logger.error("转换 json 失败", e);
+			}
+			try {
+				Files.createDirectory(projectDir);
+				Path mainPageFile = projectDir.resolve(app.getFileName());
+				Files.writeString(mainPageFile, appJson, StandardOpenOption.CREATE);
+			} catch (IOException e) {
+				logger.error("为 app 生成 json 文件时出错", e);
+			}
+			
+			// 存储 DEPENDENCE.json 文件，TODO: 保存默认依赖的组件库
+			try {
+				String dependenceJson = "{}";
+				Path dependenceFile = projectDir.resolve(dependence.getFileName());
+				Files.writeString(dependenceFile, dependenceJson, StandardOpenOption.CREATE);
+			} catch (IOException e) {
+				logger.error("生成 DEPENDENCE.json 文件时出错", e);
+			}
+			
+			// 生成 pages/index 页面
+			String indexPageJson = "{}";
+			try {
+				indexPageJson = JsonUtil.stringify(indexPageModel);
+			} catch (JsonProcessingException e) {
+				logger.error("转换 json 失败", e);
+			}
+			try {
+				Path pagesDirPath = projectDir.resolve("pages");
+				Files.createDirectory(pagesDirPath);
+				Path indexPageFile = pagesDirPath.resolve(indexPage.getFileName());
+				Files.writeString(indexPageFile, indexPageJson, StandardOpenOption.CREATE);
+			} catch (IOException e) {
+				logger.error("为 pages/index 生成 json 文件时出错", e);
+			}
+			
+			userService.findById(savedProject.getCreateUserId()).ifPresent(user -> {
+				String commitMessage = "Init Mini Program";
+				String commitId = GitUtils
+					.addAllAndCommit(context.getGitRepositoryDirectory(), user.getLoginName(), user.getEmail(), commitMessage);
+				
+				ProjectCommit commit = new ProjectCommit();
+				commit.setCommitId(commitId);
+				commit.setCommitUserId(user.getId());
+				commit.setCommitTime(LocalDateTime.now());
+				commit.setProjectId(repository.getId());
+				commit.setBranch(Constants.MASTER);
+				commit.setShortMessage(commitMessage);
+				commit.setCreateUserId(user.getId());
+				commit.setCreateTime(LocalDateTime.now());
+				projectCommitDao.save(commit);
+			});
+		});
+		return savedProject;
 	}
 
 }

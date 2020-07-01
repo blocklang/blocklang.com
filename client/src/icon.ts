@@ -37,6 +37,7 @@ import { faLightbulb } from '@fortawesome/free-solid-svg-icons/faLightbulb';
 import { faPuzzlePiece } from '@fortawesome/free-solid-svg-icons/faPuzzlePiece';
 import { faCube } from '@fortawesome/free-solid-svg-icons/faCube';
 import { faPlayCircle } from '@fortawesome/free-solid-svg-icons/faPlayCircle';
+import { faFolderOpen } from '@fortawesome/free-solid-svg-icons/faFolderOpen';
 
 export function init(): void {
 	library.add(
@@ -76,6 +77,7 @@ export function init(): void {
 		faLightbulb,
 		faPuzzlePiece,
 		faCube,
-		faPlayCircle
+		faPlayCircle,
+		faFolderOpen
 	);
 }

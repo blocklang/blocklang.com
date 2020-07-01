@@ -11,6 +11,11 @@ package com.blocklang.develop.constant;
 public abstract class IconClass {
 	
 	/**
+	 * 项目图标
+	 */
+	public static final String PROJECT = "fas folder-open";
+	
+	/**
 	 * 分组图标
 	 */
 	public static final String GROUP = "fas folder";

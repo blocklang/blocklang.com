@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public enum ProjectResourceType {
 	
 	PROJECT("01", "项目"),
+	// 项目入口，支持配置属性和定义事件，但没有 ui
 	MAIN("02", "项目入口"),
 	// 在命名上，页面比程序模块更准确，因为页面中并没有包含后台服务，仅仅是前台页面。
 	PAGE("03", "页面"),

@@ -40,6 +40,9 @@ public class ProjectResource extends PartialOperateFields{
 	public static final String MAIN_KEY = "main";
 	public static final String MAIN_NAME = "首页";
 	
+	public static final String APP_KEY = "app";
+	public static final String APP_NAME = "app";
+	
 	// 约定：系统自带的文件名，一律使用大写字母
 	public static final String README_KEY = "README";
 	public static final String README_NAME = "README.md";
@@ -187,8 +190,7 @@ public class ProjectResource extends PartialOperateFields{
 	}
 
 	public Boolean isMain() {
-		// 约定根目录下的 main 模块为入口模块
-		return Constant.TREE_ROOT_ID.equals(this.parentId) && isPage() && MAIN_KEY.equals(this.key);
+		return isPage() && MAIN_KEY.equals(this.key);
 	}
 	
 	public Boolean isProject() {
@@ -226,6 +228,10 @@ public class ProjectResource extends PartialOperateFields{
 	public Boolean isBuildConfig() {
 		return ProjectResourceType.BUILD.equals(this.resourceType);
 	}
+	
+	public Boolean isAppMain() {
+		return ProjectResourceType.MAIN.equals(this.resourceType);
+	}
 
 	public String getIcon() {
 		if(isPage()) {
@@ -235,16 +241,12 @@ public class ProjectResource extends PartialOperateFields{
 			return this.appType.getIcon();
 		}
 		
+		if(isAppMain()) {
+			return IconClass.HOME;
+		}
+		
 		if(isProject()) {
-			if(appType.equals(AppType.WEB)) {
-				return IconClass.WEB;
-			}
-			if(appType.equals(AppType.MOBILE)) {
-				return IconClass.MOBILE;
-			}
-			if(appType.equals(AppType.MINI_PROGRAM)) {
-				return IconClass.WECHAT; // TODO: 找一个更合适的小程序图标
-			}
+			return IconClass.PROJECT;
 		}
 		
 		if(isGroup()) {
