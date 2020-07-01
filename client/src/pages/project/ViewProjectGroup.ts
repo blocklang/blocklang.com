@@ -173,7 +173,7 @@ export default class ViewProjectGroup extends ThemedMixin(I18nMixin(WidgetBase))
 	}
 
 	private _renderNoResourceAlert() {
-		const { childResources } = this.properties;
+		const { childResources = [] } = this.properties;
 		if (childResources.length === 0) {
 			return v('div', { classes: [c.alert, c.alert_info, c.text_center, c.mt_3], role: 'alert' }, [
 				'此分组下无内容',

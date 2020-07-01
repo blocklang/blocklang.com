@@ -190,6 +190,10 @@ public class ProjectResource extends PartialOperateFields{
 		// 约定根目录下的 main 模块为入口模块
 		return Constant.TREE_ROOT_ID.equals(this.parentId) && isPage() && MAIN_KEY.equals(this.key);
 	}
+	
+	public Boolean isProject() {
+		return ProjectResourceType.PROJECT.equals(this.resourceType);
+	}
 
 	public Boolean isTemplet() {
 		return ProjectResourceType.PAGE_TEMPLET.equals(this.resourceType);
@@ -229,6 +233,18 @@ public class ProjectResource extends PartialOperateFields{
 				return IconClass.HOME;
 			}
 			return this.appType.getIcon();
+		}
+		
+		if(isProject()) {
+			if(appType.equals(AppType.WEB)) {
+				return IconClass.WEB;
+			}
+			if(appType.equals(AppType.MOBILE)) {
+				return IconClass.MOBILE;
+			}
+			if(appType.equals(AppType.MINI_PROGRAM)) {
+				return IconClass.WECHAT; // TODO: 找一个更合适的小程序图标
+			}
 		}
 		
 		if(isGroup()) {

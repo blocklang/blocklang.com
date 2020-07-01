@@ -32,6 +32,7 @@ import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.PropertyService;
 import com.blocklang.core.service.UserService;
 import com.blocklang.core.util.IdGenerator;
+import com.blocklang.core.util.JsonUtil;
 import com.blocklang.core.util.StreamUtil;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.constant.FlowType;
@@ -92,6 +93,7 @@ import com.blocklang.marketplace.model.ApiWidget;
 import com.blocklang.marketplace.model.ApiWidgetEventArg;
 import com.blocklang.marketplace.model.ApiRepo;
 import com.blocklang.marketplace.service.ApiRepoVersionService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
@@ -188,6 +190,8 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 					logger.error("为页面生成 json文件时出错！", e);
 				}
 			}
+			
+			// TODO: 是不是需要增加保存 ProjectCommit 功能
 			
 		});
 		
@@ -373,8 +377,22 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 		String[] keys = parentPath.trim().split("/");
 		Integer parentId = Constant.TREE_ROOT_ID;
 		boolean allMatched = true;
-		for(String key : keys) {
-			Optional<ProjectResource> resourceOption = findByKey(projectId, parentId, ProjectResourceType.GROUP, AppType.UNKNOWN, key);
+		for(int i = 0; i < keys.length; i++) {
+			String key = keys[i];
+			Optional<ProjectResource> resourceOption;
+			if(i == 0) {
+				resourceOption = projectResourceDao.findByProjectIdAndParentIdAndResourceTypeAndKeyIgnoreCase(
+						projectId, 
+						parentId, 
+						ProjectResourceType.PROJECT, 
+						key);
+			} else {
+				resourceOption = projectResourceDao.findByProjectIdAndParentIdAndResourceTypeAndKeyIgnoreCase(
+						projectId, 
+						parentId, 
+						ProjectResourceType.GROUP, 
+						key);
+			}
 			if(resourceOption.isEmpty()) {
 				allMatched = false;
 				break;
@@ -1111,6 +1129,140 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 			pageModel.setWidgets(Collections.emptyList());
 		});
 		return pageModel;
+	}
+
+	/**
+	 * 初始化以下资源：
+	 * <ul>
+	 * <li>Main 页面
+	 * <li>DEPENDENCE.json
+	 * </ul>
+	 */
+	@Override
+	public ProjectResource createWebProject(Project repository, ProjectResource project) {
+		// 创建项目资源
+		if(project.getSeq() == null) {
+			Integer nextSeq = projectResourceDao
+					.findFirstByProjectIdAndParentIdOrderBySeqDesc(project.getProjectId(), project.getParentId())
+					.map(item -> item.getSeq() + 1)
+					.orElse(1);
+			project.setSeq(nextSeq);
+		}
+		ProjectResource savedProject = projectResourceDao.save(project);
+		
+		// 生成入口模块：Main 页面
+		ProjectResource mainPage = createMainPageForWebProject(repository, savedProject);
+		// 创建空页面，默认为空页面添加根节点，包括 Page 部件及其属性。
+		PageModel pageModel = createPageModelWithStdPage(mainPage.getId());
+		// 生成 DEPENDENCE.json 文件
+		ProjectResource dependence = createDependenceFile(repository, savedProject);
+
+		// 在 git 仓库中添加文件
+		propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).ifPresent(rootDir -> {
+			ProjectContext context = new ProjectContext(repository.getCreateUserName(), repository.getName(), rootDir);
+			
+			Path projectDir = context
+					.getGitRepositoryDirectory()
+					.resolve(savedProject.getKey());
+			
+			String mainPageJson = "{}";
+			try {
+				mainPageJson = JsonUtil.stringify(pageModel);
+			} catch (JsonProcessingException e) {
+				logger.error("转换 json 失败", e);
+			}
+			try {
+				Files.createDirectory(projectDir);
+				Path mainPageFile = projectDir.resolve(mainPage.getFileName());
+				Files.writeString(mainPageFile, mainPageJson, StandardOpenOption.CREATE);
+			} catch (IOException e) {
+				logger.error("为 main 页面生成 json 文件时出错", e);
+			}
+			
+			// 存储 DEPENDENCE.json 文件，TODO: 保存默认依赖的组件库
+			try {
+				String dependenceJson = "{}";
+				Path dependenceFile = projectDir.resolve(dependence.getFileName());
+				Files.writeString(dependenceFile, dependenceJson, StandardOpenOption.CREATE);
+			} catch (IOException e) {
+				logger.error("生成 DEPENDENCE.json 文件时出错", e);
+			}
+			
+			userService.findById(savedProject.getCreateUserId()).ifPresent(user -> {
+				String commitMessage = "Init Web Project";
+				String commitId = GitUtils
+					.addAllAndCommit(context.getGitRepositoryDirectory(), user.getLoginName(), user.getEmail(), commitMessage);
+				
+				ProjectCommit commit = new ProjectCommit();
+				commit.setCommitId(commitId);
+				commit.setCommitUserId(user.getId());
+				commit.setCommitTime(LocalDateTime.now());
+				commit.setProjectId(repository.getId());
+				commit.setBranch(Constants.MASTER);
+				commit.setShortMessage(commitMessage);
+				commit.setCreateUserId(user.getId());
+				commit.setCreateTime(LocalDateTime.now());
+				projectCommitDao.save(commit);
+			});
+		});
+		return savedProject;
+	}
+	
+	/**
+	 * 生成默认模块: Main 页面
+	 */
+	private ProjectResource createMainPageForWebProject(Project repository, ProjectResource project) {
+		ProjectResource main = new ProjectResource();
+		main.setProjectId(repository.getId());
+		main.setKey(ProjectResource.MAIN_KEY);
+		main.setName(ProjectResource.MAIN_NAME);
+		main.setResourceType(ProjectResourceType.PAGE);
+		main.setParentId(project.getId());
+		main.setAppType(project.getAppType());
+		main.setSeq(1);
+		main.setCreateUserId(project.getCreateUserId());
+		main.setCreateTime(LocalDateTime.now());
+		
+		// 因为是空模板，所以这里只引用模板，但没有应用模板
+		// 但是因为没有保存，所以此行代码是多余的。
+		// 注意，在项目资源表中，不需要保存 templateId
+		// 如果不是空模板，则后面直接在页面中应用模板即可
+		// TODO: 空模板，也可称为默认模板，空模板中也可能有内容，如只显示“Hello World”，
+		// 因此，后续要添加应用模板功能，不要再注释掉此行代码
+		// resource.setTempletId(projectResourceService.getEmptyTemplet().getId());
+		
+		// 此方法中实现了应用模板功能
+		// TODO: 是否需要将应用模板逻辑，单独提取出来？
+		return projectResourceDao.save(main);
+	}
+	
+	private ProjectResource createDependenceFile(Project repository, ProjectResource project) {
+		ProjectResource dependence = new ProjectResource();
+		dependence.setProjectId(repository.getId());
+		dependence.setKey(ProjectResource.DEPENDENCE_KEY);
+		dependence.setName(ProjectResource.DEPENDENCE_NAME);
+		dependence.setResourceType(ProjectResourceType.DEPENDENCE);
+		dependence.setAppType(project.getAppType());
+		dependence.setParentId(project.getId());
+		dependence.setSeq(2); // 排在 Main 页面之后
+		dependence.setCreateUserId(project.getCreateUserId());
+		dependence.setCreateTime(LocalDateTime.now());
+		
+		return projectResourceDao.save(dependence);
+	}
+
+	/**
+	 * 初始化以下资源：
+	 * <ul>
+	 * <li>app (入口)
+	 * <li>index/index 页面
+	 * <li>DEPENDENCE.json
+	 * </ul>
+	 */
+	@Override
+	public ProjectResource createMiniProgram(Project project, ProjectResource resource) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

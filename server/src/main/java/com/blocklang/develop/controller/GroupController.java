@@ -242,24 +242,53 @@ public class GroupController extends AbstractProjectController{
 			throw new InvalidRequestException(bindingResult);
 		}
 		
-		ProjectResource resource = new ProjectResource();
-		resource.setProjectId(project.getId());
-		resource.setParentId(param.getParentId());
-		resource.setAppType(AppType.UNKNOWN);
-		resource.setKey(key);
-		resource.setName(param.getName() == null ? null : param.getName().trim());
-		if(param.getDescription() != null) {
-			resource.setDescription(param.getDescription().trim());
+		if(param.getResourceType().equals(ProjectResourceType.GROUP.getKey())) {
+			ProjectResource resource = new ProjectResource();
+			resource.setProjectId(project.getId());
+			resource.setParentId(param.getParentId());
+			resource.setAppType(AppType.UNKNOWN); // TODO: 集成父资源的 AppType
+			resource.setKey(key);
+			resource.setName(param.getName() == null ? null : param.getName().trim());
+			if(param.getDescription() != null) {
+				resource.setDescription(param.getDescription().trim());
+			}
+			resource.setResourceType(ProjectResourceType.GROUP);
+			
+			UserInfo currentUser = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
+			resource.setCreateUserId(currentUser.getId());
+			resource.setCreateTime(LocalDateTime.now());
+			
+			ProjectResource savedProjectResource = projectResourceService.insert(project, resource);
+			savedProjectResource.setMessageSource(messageSource);
+			return new ResponseEntity<ProjectResource>(savedProjectResource, HttpStatus.CREATED);
 		}
-		resource.setResourceType(ProjectResourceType.GROUP);
 		
-		UserInfo currentUser = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
-		resource.setCreateUserId(currentUser.getId());
-		resource.setCreateTime(LocalDateTime.now());
+		if(param.getResourceType().equals(ProjectResourceType.PROJECT.getKey())) {
+			ProjectResource resource = new ProjectResource();
+			resource.setProjectId(project.getId());
+			resource.setParentId(param.getParentId());
+			resource.setAppType(AppType.fromKey(param.getAppType()));
+			resource.setKey(key);
+			resource.setName(param.getName() == null ? null : param.getName().trim());
+			resource.setResourceType(ProjectResourceType.fromKey(param.getResourceType()));
+			
+			UserInfo currentUser = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
+			resource.setCreateUserId(currentUser.getId());
+			resource.setCreateTime(LocalDateTime.now());
+			
+			ProjectResource savedProjectResource = null;
+			if(param.getAppType().equals(AppType.WEB.getKey())) { // 创建 web 项目
+				savedProjectResource = projectResourceService.createWebProject(project, resource);
+			} else if(param.getAppType().equals(AppType.MINI_PROGRAM.getKey())) { // 创建小程序
+				savedProjectResource = projectResourceService.createMiniProgram(project, resource);
+			}
+			
+			savedProjectResource.setMessageSource(messageSource);
+			return new ResponseEntity<ProjectResource>(savedProjectResource, HttpStatus.CREATED);
+		}
 		
-		ProjectResource savedProjectResource = projectResourceService.insert(project, resource);
-		savedProjectResource.setMessageSource(messageSource);
-		return new ResponseEntity<ProjectResource>(savedProjectResource, HttpStatus.CREATED);
+		// 此方法仅支持 resourceType 的值为项目或分组
+		throw new ResourceNotFoundException();
 	}
 	
 	@GetMapping("/projects/{owner}/{projectName}/groups/**")

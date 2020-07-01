@@ -8,6 +8,9 @@ public class NewGroupParam {
 	private String name;
 	private String description;
 	private Integer parentId;
+	private String appType;
+	private String resourceType;
+	
 	public String getKey() {
 		return key;
 	}
@@ -32,4 +35,17 @@ public class NewGroupParam {
 	public void setParentId(Integer parentId) {
 		this.parentId = parentId;
 	}
+	public String getAppType() {
+		return appType;
+	}
+	public void setAppType(String appType) {
+		this.appType = appType;
+	}
+	public String getResourceType() {
+		return resourceType;
+	}
+	public void setResourceType(String resourceType) {
+		this.resourceType = resourceType;
+	}
+	
 }

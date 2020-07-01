@@ -97,6 +97,11 @@ public class GitUtils {
 		return gitCommit.execute(gitRootPath, relativePath, fileName, fileContent, authorName, authorMail, commitMessage);
 	}
 	
+	public static String addAllAndCommit(Path gitRepoPath, String authorName, String authorMail, String commitMessage) {
+		GitCommit gitCommit = new GitCommit();
+		return gitCommit.addAllAndCommit(gitRepoPath, authorName, authorMail, commitMessage);
+	}
+	
 	public static String commit(
 			Path gitRepoPath, 
 			String authorName, 
@@ -393,4 +398,5 @@ public class GitUtils {
 		GitDescribe describe = new GitDescribe();
 		return describe.execute(gitRepoPath);
 	}
+
 }

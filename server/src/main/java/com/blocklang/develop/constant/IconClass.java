@@ -26,6 +26,11 @@ public abstract class IconClass {
 	public static final String WEB = "fab firefox";
 	
 	/**
+	 * 移动端 APP 或小程序
+	 */
+	public static final String MOBILE = "fab mobile-alt";
+	
+	/**
 	 * android应用程序
 	 */
 	public static final String ANDROID = "fab android";

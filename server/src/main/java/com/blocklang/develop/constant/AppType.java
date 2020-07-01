@@ -4,14 +4,19 @@ import java.util.Arrays;
 
 import org.apache.commons.lang3.StringUtils;
 
+//ANDROID("02", "android", IconClass.ANDROID, "Android"),
+//IOS("03", "ios", IconClass.IOS, "ios"),
+//WECHAT_MINI_APP("04", "wechat", IconClass.WECHAT, "微信小程序"),
+//ALIPAY_MINI_APP("05", "alipay", IconClass.ALIPAY, "支付宝小程序"),
+//QUICK_APP("06", "quickapp", IconClass.QUICK_APP, "快应用"),
+
 public enum AppType {
 	
 	WEB("01", "web", IconClass.WEB, "Web"),
-	ANDROID("02", "android", IconClass.ANDROID, "Android"),
-	IOS("03", "ios", IconClass.IOS, "ios"),
-	WECHAT_MINI_APP("04", "wechat", IconClass.WECHAT, "微信小程序"),
-	ALIPAY_MINI_APP("05", "alipay", IconClass.ALIPAY, "支付宝小程序"),
-	QUICK_APP("06", "quickapp", IconClass.QUICK_APP, "快应用"),
+	// mobile 支持 native 和小程序等
+	MOBILE("02", "mobile", IconClass.MOBILE, "手机端"),
+	MINI_PROGRAM("03", "miniProgram", IconClass.WECHAT, "小程序"),
+
 	UNKNOWN("99", "", "", "Unknown");
 
 	private final String key;

@@ -8,16 +8,17 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum ProjectResourceType {
 	
-	// 在命名上，页面比程序模块更准确，因为页面中并没有包含后台服务，仅仅是前台页面。
 	PROJECT("01", "项目"),
-	PAGE("02", "页面"),
-	GROUP("03", "分组"),
-	PANE("04", "面板"),
-	PAGE_TEMPLET("05", "页面模板"),
-	FILE("06", "文件"),
-	SERVICE("07", "服务"), // REST API
-	DEPENDENCE("08", "依赖"),
-	BUILD("09", "Build配置信息");
+	MAIN("02", "项目入口"),
+	// 在命名上，页面比程序模块更准确，因为页面中并没有包含后台服务，仅仅是前台页面。
+	PAGE("03", "页面"),
+	GROUP("04", "分组"),
+	PANE("05", "面板"),
+	PAGE_TEMPLET("06", "页面模板"),
+	FILE("07", "文件"),
+	SERVICE("08", "服务"), // REST API
+	DEPENDENCE("09", "依赖"),
+	BUILD("10", "Build配置信息");
 
 	private final String key;
 	private final String value;

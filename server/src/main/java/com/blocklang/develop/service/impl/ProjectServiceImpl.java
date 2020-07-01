@@ -226,7 +226,7 @@ public class ProjectServiceImpl implements ProjectService {
 //	// 生成 README.md 文件
 //	String readmeContent = "# "+ project.getName() + "\r\n" + "\r\n" + "**TODO: 在这里添加项目介绍，帮助感兴趣的人快速了解您的项目。**";
 //	ProjectResource readme = createReadmeFile(project.getId(), readmeContent, createTime, createUserId);
-//	// 生成 DEPENDENCE.md 文件
+//	// 生成 DEPENDENCE.json 文件
 //	ProjectResource dependence = createDependeceFile(project.getId(), createTime, createUserId);
 //	
 //	// 创建 git 仓库
@@ -297,24 +297,6 @@ public class ProjectServiceImpl implements ProjectService {
 		// 此方法中实现了应用模板功能
 		// TODO: 是否需要将应用模板逻辑，单独提取出来？
 		return projectResourceDao.save(resource);
-	}
-	
-	
-	
-	private ProjectResource createDependeceFile(Integer projectId, LocalDateTime createTime, Integer createUserId) {
-		ProjectResource resource = new ProjectResource();
-		resource.setProjectId(projectId);
-		resource.setKey(ProjectResource.DEPENDENCE_KEY);
-		resource.setName(ProjectResource.DEPENDENCE_NAME);
-		resource.setResourceType(ProjectResourceType.DEPENDENCE);
-		resource.setAppType(AppType.UNKNOWN);
-		resource.setParentId(Constant.TREE_ROOT_ID);
-		resource.setSeq(3); // 排在 README.md 页面之后
-		resource.setCreateUserId(createUserId);
-		resource.setCreateTime(createTime);
-		
-		ProjectResource savedProjectResource = projectResourceDao.save(resource);
-		return savedProjectResource;
 	}
 
 	@Override

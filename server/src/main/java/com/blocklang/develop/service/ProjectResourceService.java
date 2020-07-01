@@ -14,6 +14,10 @@ import com.blocklang.develop.model.ProjectResource;
 public interface ProjectResourceService {
 
 	ProjectResource insert(Project project, ProjectResource resource);
+	
+	ProjectResource createWebProject(Project project, ProjectResource resource);
+	
+	ProjectResource createMiniProgram(Project project, ProjectResource resource);
 
 	/**
 	 * 获取项目结构，其中包含模块的提交信息

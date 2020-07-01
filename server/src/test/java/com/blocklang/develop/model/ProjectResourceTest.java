@@ -137,51 +137,51 @@ public class ProjectResourceTest {
 		assertThat(resource.getIcon()).isEqualTo("fab firefox");
 	}
 	
-	@Test
-	public void get_icon_page_android() {
-		ProjectResource resource = new ProjectResource();
-		resource.setResourceType(ProjectResourceType.PAGE);
-		resource.setAppType(AppType.ANDROID);
-		
-		assertThat(resource.getIcon()).isEqualTo("fab android");
-	}
-	
-	@Test
-	public void get_icon_page_ios() {
-		ProjectResource resource = new ProjectResource();
-		resource.setResourceType(ProjectResourceType.PAGE);
-		resource.setAppType(AppType.IOS);
-		
-		assertThat(resource.getIcon()).isEqualTo("fab apple");
-	}
-	
-	@Test
-	public void get_icon_page_wechat() {
-		ProjectResource resource = new ProjectResource();
-		resource.setResourceType(ProjectResourceType.PAGE);
-		resource.setAppType(AppType.WECHAT_MINI_APP);
-		
-		assertThat(resource.getIcon()).isEqualTo("fab weixin");
-	}
-	
-	@Test
-	public void get_icon_page_alipay() {
-		ProjectResource resource = new ProjectResource();
-		resource.setResourceType(ProjectResourceType.PAGE);
-		resource.setAppType(AppType.ALIPAY_MINI_APP);
-		
-		assertThat(resource.getIcon()).isEqualTo("fab alipay");
-	}
-	
-	@Test
-	public void get_icon_page_quickapp() {
-		ProjectResource resource = new ProjectResource();
-		resource.setResourceType(ProjectResourceType.PAGE);
-		resource.setAppType(AppType.QUICK_APP);
-		
-		// 目前没有找到合适的图标，先返回空字符串
-		assertThat(resource.getIcon()).isEqualTo("");
-	}
+//	@Test
+//	public void get_icon_page_android() {
+//		ProjectResource resource = new ProjectResource();
+//		resource.setResourceType(ProjectResourceType.PAGE);
+//		resource.setAppType(AppType.ANDROID);
+//		
+//		assertThat(resource.getIcon()).isEqualTo("fab android");
+//	}
+//	
+//	@Test
+//	public void get_icon_page_ios() {
+//		ProjectResource resource = new ProjectResource();
+//		resource.setResourceType(ProjectResourceType.PAGE);
+//		resource.setAppType(AppType.IOS);
+//		
+//		assertThat(resource.getIcon()).isEqualTo("fab apple");
+//	}
+//	
+//	@Test
+//	public void get_icon_page_wechat() {
+//		ProjectResource resource = new ProjectResource();
+//		resource.setResourceType(ProjectResourceType.PAGE);
+//		resource.setAppType(AppType.WECHAT_MINI_APP);
+//		
+//		assertThat(resource.getIcon()).isEqualTo("fab weixin");
+//	}
+//	
+//	@Test
+//	public void get_icon_page_alipay() {
+//		ProjectResource resource = new ProjectResource();
+//		resource.setResourceType(ProjectResourceType.PAGE);
+//		resource.setAppType(AppType.ALIPAY_MINI_APP);
+//		
+//		assertThat(resource.getIcon()).isEqualTo("fab alipay");
+//	}
+//	
+//	@Test
+//	public void get_icon_page_quickapp() {
+//		ProjectResource resource = new ProjectResource();
+//		resource.setResourceType(ProjectResourceType.PAGE);
+//		resource.setAppType(AppType.QUICK_APP);
+//		
+//		// 目前没有找到合适的图标，先返回空字符串
+//		assertThat(resource.getIcon()).isEqualTo("");
+//	}
 	
 	@Test
 	public void get_icon_group() {

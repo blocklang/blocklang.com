@@ -512,7 +512,7 @@ class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResou
 		const { projectResource } = this.properties;
 		const { resourceType, key } = projectResource;
 
-		if (resourceType === ResourceType.Group) {
+		if (resourceType === ResourceType.Group || resourceType === ResourceType.Project) {
 			return 'view-project-group';
 		}
 
@@ -545,7 +545,7 @@ class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResou
 		const { project, parentPath, projectResource } = this.properties;
 		const { resourceType } = projectResource;
 
-		if (resourceType === ResourceType.Group) {
+		if (resourceType === ResourceType.Group || resourceType === ResourceType.Project) {
 			const fullPath = parentPath === '' ? projectResource.key : parentPath + '/' + projectResource.key;
 			return { owner: project.createUserName, project: project.name, parentPath: fullPath };
 		}

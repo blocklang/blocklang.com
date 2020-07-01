@@ -6,13 +6,15 @@ export enum ValidateStatus {
 
 export enum ResourceType {
 	Project = '01',
-	Page = '02',
-	Group = '03',
-	Pane = '04',
-	PageTemplet = '05',
-	File = '06',
-	Service = '07',
-	Dependence = '08',
+	Main = '02',
+	Page = '03',
+	Group = '04',
+	Pane = '05',
+	PageTemplet = '06',
+	File = '07',
+	Service = '08',
+	Dependence = '09',
+	Build = '10',
 }
 
 // 因为 AppType 主要用于 Page，所以在名称前加上 Page

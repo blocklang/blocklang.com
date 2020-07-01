@@ -26,10 +26,19 @@
 
 1. `resource_key` 由英文字母或拼音等组成，在 url 中使用，同一个功能模块下不能有同名的资源标识
 2. `resource_name` 在界面中显示，同一个功能模块下不能有同名的模块名称
-3. `resource_type` 的值为：`01` 表示项目，`02` 表示 `分组`，`03` 表示 `页面`，`04` 表示 `面板`，`05` 表示 `页面模板`，`06` 表示 `文件`，`07` 表示 `服务`，`08` 表示 `依赖`，`09` 表示 `Build 配置信息`
+3. `resource_type` 的值为：`01` 表示项目，`02` 表示 `项目入口`，`03` 表示 `分组`，`04` 表示 `页面`，`05` 表示 `面板`，`06` 表示 `页面模板`，`07` 表示 `文件`，`08` 表示 `服务`，`09` 表示 `依赖`，`10` 表示 `Build 配置信息`
 4. `resource_type` 的值为 `面板` 时，表示可供多个 `程序模块` 重用的内容
-5. `app_type` 仅适用于当 `resource_type` 的值为 `02` 时，其他情况，`app_type` 的值都为 `99` 即 `unknown`
-6. `app_type` 的值为：`01` 表示 `web`，`02` 表示 `android`，`03` 表示 `ios`，`04` 表示 `微信小程序(wechatMiniApp)`，`05` 表示 `支付宝小程序(alipayMiniApp)`，`06` 表示 `快应用(quickApp)`，`99` 表示 `unknown(不属于任何 APP，如 README.md 文件)`
+5. `app_type` 适用于所有 `resource_type`
+6. `app_type` 的值为：`01` 表示 `web`，`02` 表示 `mobile`，`03` 表示 `miniProgram`，`99` 表示 `unknown(不属于任何 APP，如 README.md 文件)`
 7. `parent_id` 其中的值为 `-1` 时，表示顶级节点
 8. `seq` 是在同一层级排序，不是全表范围内排序，从 1 开始排
-9. 唯一索引 `UK_PROJECT_ID_RES_KEY_TYPE_APP_PARENT` 中包含 `app_type`，是为了当支持多平台时，可以使用相同的名称
+9. 唯一索引 `UK_PROJECT_ID_RES_KEY_TYPE_APP_PARENT` 中包含 `app_type`，是为了当支持多平台时，可以使用相同的名称(FIXME: 需详细描述唯一索引中为什么要包含 `app_type`)
+
+<!--
+因为最顶层是项目，所以不允许一个目录下，`app_type` 不同，但 `resource_key` 相同的情况出现
+ -->
+
+<!-- 
+将较具体的类型改为发布时使用的 target
+，`04` 表示 `微信小程序(wechatMiniApp)`，`05` 表示 `支付宝小程序(alipayMiniApp)`，`06` 表示 `快应用(quickApp)`
+-->

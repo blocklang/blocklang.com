@@ -163,4 +163,18 @@ public class GitCommit {
 			throw new GitRepoNotFoundException(gitRepoPath.toString(), e);
 		}
 	}
+
+	public String addAllAndCommit(Path gitRepoPath, String authorName, String authorMail, String commitMessage) {
+		File folder = gitRepoPath.resolve(Constants.DOT_GIT).toFile();
+		try(Repository repo = FileRepositoryBuilder.create(folder);
+				Git git = new Git(repo)){
+			git.add().addFilepattern(".").call();
+			RevCommit commit = git.commit().setAuthor(authorName, authorMail).setMessage(commitMessage).call();
+			return commit.getName();
+		} catch (GitAPIException e) {
+			throw new GitCommitFailedException(e);
+		}catch (IOException e) {
+			throw new GitRepoNotFoundException(gitRepoPath.toString(), e);
+		}
+	}
 }
