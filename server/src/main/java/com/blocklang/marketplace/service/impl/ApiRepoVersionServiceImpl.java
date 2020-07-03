@@ -26,7 +26,7 @@ public class ApiRepoVersionServiceImpl implements ApiRepoVersionService {
 	}
 
 	@Override
-	public Optional<ApiRepoVersion> findLatestVersion(Integer apiRepoId) {
+	public Optional<ApiRepoVersion> findLatestStableVersion(Integer apiRepoId) {
 		List<ApiRepoVersion> allVersions = apiRepoVersionDao.findAllByApiRepoId(apiRepoId);
 		if(allVersions.isEmpty()) {
 			return Optional.empty();

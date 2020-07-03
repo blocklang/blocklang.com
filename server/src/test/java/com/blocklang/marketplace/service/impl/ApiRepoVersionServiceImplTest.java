@@ -40,7 +40,7 @@ public class ApiRepoVersionServiceImplTest extends AbstractServiceTest {
 	
 	@Test
 	public void findLatestVersion_empty_versions() {
-		assertThat(apiRepoVersionService.findLatestVersion(Integer.MAX_VALUE)).isEmpty();
+		assertThat(apiRepoVersionService.findLatestStableVersion(Integer.MAX_VALUE)).isEmpty();
 	}
 	
 	@Test
@@ -56,7 +56,7 @@ public class ApiRepoVersionServiceImplTest extends AbstractServiceTest {
 		master.setCreateTime(LocalDateTime.now());
 		apiRepoVersionDao.save(master);
 		
-		assertThat(apiRepoVersionService.findLatestVersion(apiRepoId)).isEmpty();
+		assertThat(apiRepoVersionService.findLatestStableVersion(apiRepoId)).isEmpty();
 	}
 	
 	@Test
@@ -91,6 +91,6 @@ public class ApiRepoVersionServiceImplTest extends AbstractServiceTest {
 		master.setCreateTime(LocalDateTime.now());
 		apiRepoVersionDao.save(master);
 		
-		assertThat(apiRepoVersionService.findLatestVersion(apiRepoId).get().getVersion()).isEqualTo("0.2.0");
+		assertThat(apiRepoVersionService.findLatestStableVersion(apiRepoId).get().getVersion()).isEqualTo("0.2.0");
 	}
 }

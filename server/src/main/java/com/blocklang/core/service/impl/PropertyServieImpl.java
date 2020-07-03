@@ -13,6 +13,12 @@ import com.blocklang.core.dao.PropertyDao;
 import com.blocklang.core.model.CmProperty;
 import com.blocklang.core.service.PropertyService;
 
+/**
+ * 系统参数的业务逻辑实现类
+ * 
+ * @author Zhengwei Jin
+ *
+ */
 @Service
 public class PropertyServieImpl implements PropertyService {
 	
@@ -46,6 +52,11 @@ public class PropertyServieImpl implements PropertyService {
 	@Cacheable(value = "cm_properties", key = "#key")
 	public Integer findIntegerValue(String key, Integer defaultValue) {
 		return this.findStringValue(key).map(str -> Integer.valueOf(str)).orElse(defaultValue);
+	}
+
+	@Override
+	public Optional<Integer> findIntegerValue(String key) {
+		return this.findStringValue(key).map(str -> Integer.valueOf(str));
 	}
 
 }

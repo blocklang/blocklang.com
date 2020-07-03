@@ -96,6 +96,12 @@ import com.blocklang.marketplace.service.ApiRepoVersionService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+/**
+ * 项目资源管理的业务逻辑接口
+ * 
+ * @author Zhengwei Jin
+ *
+ */
 @Service
 public class ProjectResourceServiceImpl implements ProjectResourceService {
 
@@ -140,7 +146,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 	@Autowired
 	private ComponentRepoVersionDao componentRepoVersionDao;
 	@Autowired
-	private ApiWidgetDao apiComponentDao;
+	private ApiWidgetDao apiWidgetDao;
 	@Autowired
 	private ApiRepoVersionService apiRepoVersionService;
 	@Autowired
@@ -148,9 +154,9 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 	@Autowired
 	private ApiRepoDao apiRepoDao;
 	@Autowired
-	private ApiWidgetPropertyDao apiComponentAttrDao;
+	private ApiWidgetPropertyDao apiWidgetPropertyDao;
 	@Autowired
-	private ApiWidgetEventArgDao apiComponentAttrFunArgDao;
+	private ApiWidgetEventArgDao apiWidgetEventArgDao;
 	
 	//@Transactional
 	@Override
@@ -860,7 +866,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 			.filter(apiVersionInfo -> apiVersionInfo.getCategory() == RepoCategory.WIDGET)
 			.forEach(apiVersionInfo -> {
 				// 4. 获取到该版本下的所有部件
-				List<ApiWidget> widgets = apiComponentDao.findAllByApiRepoVersionId(apiVersionInfo.getApiRepoVersionId());
+				List<ApiWidget> widgets = apiWidgetDao.findAllByApiRepoVersionId(apiVersionInfo.getApiRepoVersionId());
 				cachedAndGroupedWidgets.put(apiVersionInfo.getApiRepoId(), widgets);
 			});
 		
@@ -885,7 +891,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 
 					List<PageWidgetAttrValue> attachedProperties = pageWidgetAttrValueDao.findAllByPageWidgetId(item.getId());
 					
-					List<AttachedWidgetProperty> properties = apiComponentAttrDao
+					List<AttachedWidgetProperty> properties = apiWidgetPropertyDao
 							.findAllByApiWidgetIdOrderByCode(component.getId())
 							.stream()
 							.map(componentAttr -> {
@@ -900,7 +906,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 								// 如果属性为事件，则添加事件参数
 								if(componentAttr.getValueType() == WidgetPropertyValueType.FUNCTION) {
 									// 加载参数的定义
-									List<ApiWidgetEventArg> args = apiComponentAttrFunArgDao.findAllByApiWidgetPropertyId(componentAttr.getId());
+									List<ApiWidgetEventArg> args = apiWidgetEventArgDao.findAllByApiWidgetPropertyId(componentAttr.getId());
 									List<EventArgument> eventArgs = args.stream().map(arg -> {
 										EventArgument ea = new EventArgument();
 										ea.setCode(arg.getCode());
@@ -1084,7 +1090,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 		
 		// 标准库所实现的 API 仓库的地址
 		String stdApiRepoUrl = propertyService.findStringValue(CmPropKey.STD_WIDGET_API_GIT_URL, "");
-		Integer stdApiRepoPublishUserId = propertyService.findIntegerValue(CmPropKey.STD_WIDGET_REGISTER_USERID, 1);
+		Integer stdApiRepoPublishUserId = propertyService.findIntegerValue(CmPropKey.STD_REPO_REGISTER_USER_ID, 1);
 		String rootWidgetName = propertyService.findStringValue(CmPropKey.STD_WIDGET_ROOT_NAME, "Page");
 		
 		apiRepoDao.findByGitRepoUrlAndCreateUserId(stdApiRepoUrl, stdApiRepoPublishUserId).map(apiRepo -> {
@@ -1092,8 +1098,8 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 			rootWidget.setApiRepoId(apiRepo.getId());
 			return rootWidget;
 		}).map(rootWidget -> {
-			apiRepoVersionService.findLatestVersion(rootWidget.getApiRepoId()).ifPresent(apiVersion -> {
-				apiComponentDao.findByApiRepoVersionIdAndNameIgnoreCase(apiVersion.getId(), rootWidgetName).ifPresent(apiComponent -> {
+			apiRepoVersionService.findLatestStableVersion(rootWidget.getApiRepoId()).ifPresent(apiVersion -> {
+				apiWidgetDao.findByApiRepoVersionIdAndNameIgnoreCase(apiVersion.getId(), rootWidgetName).ifPresent(apiComponent -> {
 					rootWidget.setWidgetCode(apiComponent.getCode());
 					rootWidget.setWidgetId(apiComponent.getId());
 					rootWidget.setWidgetName(apiComponent.getName());
@@ -1104,7 +1110,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 			rootWidget.setId(IdGenerator.uuid());
 			rootWidget.setParentId(Constant.TREE_ROOT_ID.toString());
 			
-			List<AttachedWidgetProperty> rootWidgetProperties = apiComponentAttrDao
+			List<AttachedWidgetProperty> rootWidgetProperties = apiWidgetPropertyDao
 					.findAllByApiWidgetIdOrderByCode(rootWidget.getWidgetId())
 					.stream()
 					.map(apiComponentAttr -> {
@@ -1278,13 +1284,18 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 	 * </ul>
 	 */
 	@Override
-	public ProjectResource createMiniProgram(Project repository, ProjectResource project) {
+	public ProjectResource createMiniProgram(
+			Project repository, 
+			ProjectResource project,
+			ApiRepo apiRepo, 
+			ApiWidget appWidget, 
+			ApiWidget pageWidget) {
 		// 创建项目资源
 		if(project.getSeq() == null) {
 			Integer nextSeq = projectResourceDao
-					.findFirstByProjectIdAndParentIdOrderBySeqDesc(project.getProjectId(), project.getParentId())
-					.map(item -> item.getSeq() + 1)
-					.orElse(1);
+				.findFirstByProjectIdAndParentIdOrderBySeqDesc(project.getProjectId(), project.getParentId())
+				.map(item -> item.getSeq() + 1)
+				.orElse(1);
 			project.setSeq(nextSeq);
 		}
 		ProjectResource savedProject = projectResourceDao.save(project);
@@ -1293,7 +1304,8 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 		ProjectResource app = createAppForMiniProgram(repository, savedProject);
 		// 有一个特殊的资源，没有 ui，只需要配置属性。
 		// 创建空页面，默认为空页面添加根节点，包括 Page 部件及其属性。
-		PageModel appModel = new PageModel();//createPageModelWithStdPage(app.getId());
+		PageModel appModel = createAppModel(app.getId(), apiRepo, appWidget);
+		this.updatePageModel(appModel);
 		
 		// 生成 DEPENDENCE.json 文件
 		ProjectResource dependence = createDependenceFile(repository, savedProject);
@@ -1324,7 +1336,8 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 		indexPage.setCreateTime(LocalDateTime.now());
 		projectResourceDao.save(indexPage);
 		
-		PageModel indexPageModel = new PageModel();//createPageModelWithStdPage(app.getId());
+		PageModel indexPageModel = createAppModel(app.getId(), apiRepo, pageWidget);
+		this.updatePageModel(indexPageModel);
 
 		// 在 git 仓库中添加文件
 		propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).ifPresent(rootDir -> {
@@ -1348,7 +1361,8 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 				logger.error("为 app 生成 json 文件时出错", e);
 			}
 			
-			// 存储 DEPENDENCE.json 文件，TODO: 保存默认依赖的组件库
+			// 存储 DEPENDENCE.json 文件，
+			// TODO: 保存默认依赖的组件库
 			try {
 				String dependenceJson = "{}";
 				Path dependenceFile = projectDir.resolve(dependence.getFileName());
@@ -1391,6 +1405,39 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 			});
 		});
 		return savedProject;
+	}
+
+	private PageModel createAppModel(Integer pageId, ApiRepo apiRepo, ApiWidget widget) {
+		PageModel pageModel = new PageModel();
+		pageModel.setPageId(pageId);
+
+		AttachedWidget rootWidget = new AttachedWidget();
+		rootWidget.setId(IdGenerator.uuid());
+		rootWidget.setParentId(Constant.TREE_ROOT_ID.toString());
+		rootWidget.setApiRepoId(apiRepo.getId());
+		rootWidget.setWidgetCode(widget.getCode());
+		rootWidget.setWidgetId(widget.getId());
+		rootWidget.setWidgetName(widget.getName());
+
+		List<AttachedWidgetProperty> properties = apiWidgetPropertyDao
+			.findAllByApiWidgetIdOrderByCode(widget.getId())
+			.stream()
+			.map(apiWidgetProperty -> {
+				AttachedWidgetProperty result = new AttachedWidgetProperty();
+				result.setId(IdGenerator.uuid());
+				result.setValue(apiWidgetProperty.getDefaultValue());
+				result.setCode(apiWidgetProperty.getCode());
+				result.setName(apiWidgetProperty.getName());
+				result.setValueType(apiWidgetProperty.getValueType().getKey());
+				result.setExpr(false);
+				return result;
+			})
+			.collect(Collectors.toList());
+		rootWidget.setProperties(properties);
+
+		pageModel.setWidgets(Collections.singletonList(rootWidget));
+
+		return pageModel;
 	}
 
 }

@@ -27,13 +27,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.blocklang.core.constant.CmPropKey;
 import com.blocklang.core.constant.Constant;
 import com.blocklang.core.controller.SpringMvcUtil;
 import com.blocklang.core.exception.InvalidRequestException;
 import com.blocklang.core.exception.NoAuthorizationException;
 import com.blocklang.core.exception.ResourceNotFoundException;
 import com.blocklang.core.model.UserInfo;
-import com.blocklang.core.service.UserService;
+import com.blocklang.core.service.PropertyService;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.constant.ProjectResourceType;
 import com.blocklang.develop.data.CheckGroupKeyParam;
@@ -42,7 +43,19 @@ import com.blocklang.develop.data.NewGroupParam;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectResource;
 import com.blocklang.develop.service.ProjectResourceService;
+import com.blocklang.marketplace.model.ApiWidget;
+import com.blocklang.marketplace.service.ApiRepoService;
+import com.blocklang.marketplace.service.ApiRepoVersionService;
+import com.blocklang.marketplace.service.ApiWidgetService;
 
+/**
+ * 维护仓库中的目录结构的控制器。
+ * 
+ * <p>目录结构包含两种：第一层目录称为项目；第二层及后续目录称为分组。
+ * 
+ * @author Zhengwei Jin
+ *
+ */
 @RestController
 public class GroupController extends AbstractProjectController{
 
@@ -51,9 +64,15 @@ public class GroupController extends AbstractProjectController{
 	@Autowired
 	private ProjectResourceService projectResourceService;
 	@Autowired
-	private UserService userService;
-	@Autowired
 	private MessageSource messageSource;
+	@Autowired
+	private PropertyService propertyService;
+	@Autowired
+	private ApiRepoService apiRepoService;
+	@Autowired
+	private ApiRepoVersionService apiRepoVersionService;
+	@Autowired
+	private ApiWidgetService apiWidgetService;
 	
 	@PostMapping("/projects/{owner}/{projectName}/groups/check-key")
 	public ResponseEntity<Map<String, String>> checkKey(
@@ -109,7 +128,7 @@ public class GroupController extends AbstractProjectController{
 			throw new InvalidRequestException(bindingResult);
 		});
 		
-		return ResponseEntity.ok(new HashMap<String, String>());
+		return ResponseEntity.ok(Collections.emptyMap());
 	}
 	
 	@PostMapping("/projects/{owner}/{projectName}/groups/check-name")
@@ -155,7 +174,7 @@ public class GroupController extends AbstractProjectController{
 			});
 		}
 		
-		return ResponseEntity.ok(new HashMap<String, String>());
+		return ResponseEntity.ok(Collections.emptyMap());
 	}
 
 	@PostMapping("/projects/{owner}/{projectName}/groups")
@@ -168,8 +187,12 @@ public class GroupController extends AbstractProjectController{
 		if(principal == null) {
 			throw new NoAuthorizationException();
 		}
-		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-		projectPermissionService.canWrite(principal, project).orElseThrow(NoAuthorizationException::new);
+		Project project = projectService
+			.find(owner, projectName)
+			.orElseThrow(ResourceNotFoundException::new);
+		projectPermissionService
+			.canWrite(principal, project)
+			.orElseThrow(NoAuthorizationException::new);
 		
 		//校验 key: 
 		boolean keyIsValid = true;
@@ -207,9 +230,14 @@ public class GroupController extends AbstractProjectController{
 				}
 				
 				// 这里不需要做是否存在判断，因为肯定存在。
-				return new Object[] {projectResourceService.findById(parentId).get().getName(), key};
+				String parentResourceName = projectResourceService
+					.findById(parentId)
+					.get()
+					.getName();
+				return new Object[] {parentResourceName, key};
 			}).ifPresent(args -> {
-				bindingResult.rejectValue("key", "Duplicated.groupKey", args, null);
+				bindingResult.rejectValue("key", 
+						"Duplicated.groupKey", args, null);
 			});
 		}
 		
@@ -232,7 +260,11 @@ public class GroupController extends AbstractProjectController{
 				}
 				
 				// 这里不需要做是否存在判断，因为肯定存在。
-				return new Object[] {projectResourceService.findById(parentId).get().getName(), name};
+				String parentResourceName = projectResourceService
+						.findById(parentId)
+						.get()
+						.getName();
+				return new Object[] {parentResourceName, name};
 			}).ifPresent(args -> {
 				bindingResult.rejectValue("name", "Duplicated.pageName", args, null);
 			});
@@ -246,7 +278,8 @@ public class GroupController extends AbstractProjectController{
 			ProjectResource resource = new ProjectResource();
 			resource.setProjectId(project.getId());
 			resource.setParentId(param.getParentId());
-			resource.setAppType(AppType.UNKNOWN); // TODO: 集成父资源的 AppType
+			// TODO: 集成父资源的 AppType
+			resource.setAppType(AppType.UNKNOWN);
 			resource.setKey(key);
 			resource.setName(param.getName() == null ? null : param.getName().trim());
 			if(param.getDescription() != null) {
@@ -254,7 +287,9 @@ public class GroupController extends AbstractProjectController{
 			}
 			resource.setResourceType(ProjectResourceType.GROUP);
 			
-			UserInfo currentUser = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
+			UserInfo currentUser = userService
+				.findByLoginName(principal.getName())
+				.orElseThrow(NoAuthorizationException::new);
 			resource.setCreateUserId(currentUser.getId());
 			resource.setCreateTime(LocalDateTime.now());
 			
@@ -277,10 +312,43 @@ public class GroupController extends AbstractProjectController{
 			resource.setCreateTime(LocalDateTime.now());
 			
 			ProjectResource savedProjectResource = null;
-			if(param.getAppType().equals(AppType.WEB.getKey())) { // 创建 web 项目
+			if(param.getAppType().equals(AppType.WEB.getKey())) {
+				// 创建 web 项目
+				// 是否注册 web 的 API 库
+				// web 的 API 库中是否存在 Page 组件
 				savedProjectResource = projectResourceService.createWebProject(project, resource);
-			} else if(param.getAppType().equals(AppType.MINI_PROGRAM.getKey())) { // 创建小程序
-				savedProjectResource = projectResourceService.createMiniProgram(project, resource);
+			} else if(param.getAppType().equals(AppType.MINI_PROGRAM.getKey())) {
+				// 创建小程序
+				String apiGitUrl = propertyService
+					.findStringValue(CmPropKey.STD_MINI_PROGRAM_COMPONENT_API_GIT_URL)
+					.orElseThrow(ResourceNotFoundException::new);
+				Integer userId = propertyService
+					.findIntegerValue(CmPropKey.STD_REPO_REGISTER_USER_ID)
+					.orElseThrow(ResourceNotFoundException::new);
+				// 是否注册小程序的 API 库
+				var apiRepo = apiRepoService
+					.findByGitUrlAndCreateUserId(apiGitUrl, userId)
+					.orElseThrow(ResourceNotFoundException::new);
+				var apiRepoVersion = apiRepoVersionService
+						.findMasterVersion(apiRepo.getId())
+						.orElseThrow(ResourceNotFoundException::new);
+				// 小程序的 API 库中是否存在 APP 组件
+				String appWidgetName = propertyService
+					.findStringValue(CmPropKey.STD_MINI_PROGRAM_COMPONENT_APP_NAME)
+					.orElseThrow(ResourceNotFoundException::new);
+				ApiWidget appWidget = apiWidgetService
+					.findByApiRepoVersionIdAndNameIgnoreCase(apiRepoVersion.getId(), appWidgetName)
+					.orElseThrow(ResourceNotFoundException::new);
+				// 小程序的 API 库中是否存在 Page 组件
+				String pageWidgetName = propertyService
+					.findStringValue(CmPropKey.STD_MINI_PROGRAM_COMPONENT_PAGE_NAME)
+					.orElseThrow(ResourceNotFoundException::new);
+				ApiWidget pageWidget = apiWidgetService
+					.findByApiRepoVersionIdAndNameIgnoreCase(apiRepoVersion.getId(), pageWidgetName)
+					.orElseThrow(ResourceNotFoundException::new);
+				
+				// 在 service 中默认依赖小程序的 API 库的 master，且不允许删除该依赖
+				savedProjectResource = projectResourceService.createMiniProgram(project, resource, apiRepo, appWidget, pageWidget);
 			}
 			
 			savedProjectResource.setMessageSource(messageSource);
@@ -350,7 +418,7 @@ public class GroupController extends AbstractProjectController{
 			id = parentGroups.get(parentGroups.size() - 1).getId();
 		}
 		
-		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> result = new HashMap<String, Object>(2);
 		result.put("id", id);
 		result.put("parentGroups", stripedParentGroups);
 		return result;

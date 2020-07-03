@@ -1,7 +1,7 @@
 package com.blocklang.develop.controller;
 
 import java.security.Principal;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -26,14 +26,25 @@ import com.blocklang.develop.data.UncommittedFile;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.service.ProjectResourceService;
 
+/**
+ * 
+ * @author Zhengwei Jin
+ *
+ */
 @RestController
 public class CommitController extends AbstractProjectController{
 
 	@Autowired
 	private ProjectResourceService projectResourceService;
 	
-	// 如果是公开项目，则任何人都能访问
-	// 如果是私有项目，则有读的权限就能访问
+	/**
+	 * 如果是公开项目，则任何人都能访问；如果是私有项目，则有读的权限就能访问。
+	 * 
+	 * @param principal
+	 * @param owner
+	 * @param projectName
+	 * @return
+	 */
 	@GetMapping("/projects/{owner}/{projectName}/changes")
 	public ResponseEntity<List<UncommittedFile>> listChanges(
 			Principal principal,
@@ -59,7 +70,7 @@ public class CommitController extends AbstractProjectController{
 		
 		projectResourceService.stageChanges(project, param);
 		
-		return ResponseEntity.ok(new HashMap<String, Object>());
+		return ResponseEntity.ok(Collections.emptyMap());
 	}
 	
 	@PostMapping("/projects/{owner}/{projectName}/unstage-changes")
@@ -76,7 +87,7 @@ public class CommitController extends AbstractProjectController{
 		
 		projectResourceService.unstageChanges(project, param);
 		
-		return ResponseEntity.ok(new HashMap<String, Object>());
+		return ResponseEntity.ok(Collections.emptyMap());
 	}
 	
 	@PostMapping("/projects/{owner}/{projectName}/commits")
@@ -108,6 +119,6 @@ public class CommitController extends AbstractProjectController{
 			throw new InvalidRequestException(bindingResult);
 		}
 		
-		return ResponseEntity.ok(new HashMap<String, Object>());
+		return ResponseEntity.ok(Collections.emptyMap());
 	}
 }

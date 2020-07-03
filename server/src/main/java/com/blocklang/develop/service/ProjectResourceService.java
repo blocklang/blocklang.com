@@ -10,14 +10,37 @@ import com.blocklang.develop.data.UncommittedFile;
 import com.blocklang.develop.designer.data.PageModel;
 import com.blocklang.develop.model.Project;
 import com.blocklang.develop.model.ProjectResource;
+import com.blocklang.marketplace.model.ApiRepo;
+import com.blocklang.marketplace.model.ApiWidget;
 
+/**
+ * 管理项目资源的业务逻辑接口
+ * 
+ * @author Zhengwei Jin
+ *
+ */
 public interface ProjectResourceService {
 
 	ProjectResource insert(Project project, ProjectResource resource);
 	
 	ProjectResource createWebProject(Project project, ProjectResource resource);
 	
-	ProjectResource createMiniProgram(Project project, ProjectResource resource);
+	/**
+	 * 在仓库中创建小程序项目
+	 * 
+	 * @param repository 仓库信息
+	 * @param project 小程序项目的基本信息
+	 * @param apiRepo Api 仓库
+	 * @param appWidget Api 仓库中的 App 部件
+	 * @param pageWidget Api 仓库中的 Page 部件
+	 * @return 小程序项目的基本信息
+	 */
+	ProjectResource createMiniProgram(
+			Project repository, 
+			ProjectResource project, 
+			ApiRepo apiRepo, 
+			ApiWidget appWidget, 
+			ApiWidget pageWidget);
 
 	/**
 	 * 获取项目结构，其中包含模块的提交信息

@@ -9,6 +9,12 @@ import com.blocklang.marketplace.dao.ApiRepoDao;
 import com.blocklang.marketplace.model.ApiRepo;
 import com.blocklang.marketplace.service.ApiRepoService;
 
+/**
+ * Api 仓库业务逻辑实现类
+ * 
+ * @author Zhengwei Jin
+ *
+ */
 @Service
 public class ApiRepoServiceImpl implements ApiRepoService{
 
@@ -18,6 +24,11 @@ public class ApiRepoServiceImpl implements ApiRepoService{
 	@Override
 	public Optional<ApiRepo> findById(Integer apiRepoId) {
 		return apiRepoDao.findById(apiRepoId);
+	}
+
+	@Override
+	public Optional<ApiRepo> findByGitUrlAndCreateUserId(String apiGitUrl, Integer userId) {
+		return apiRepoDao.findByGitRepoUrlAndCreateUserId(apiGitUrl, userId);
 	}
 
 }
