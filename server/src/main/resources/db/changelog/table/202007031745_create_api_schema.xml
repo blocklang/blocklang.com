@@ -6,10 +6,10 @@
 	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-	<changeSet author="Zhengwei Jin" id="202006100746">
-		<createTable tableName="api_service_schema" remarks="描述数据结构">
+	<changeSet author="Zhengwei Jin" id="202007031745">
+		<createTable tableName="api_schema" remarks="定义复杂数据类型">
 			<column name="dbid" type="int" autoIncrement="true">
-				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_API_SERVICE_SCHEMA" />
+				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_API_SCHEMA" />
 			</column>
 			<column name="api_repo_version_id" remarks="API 仓库版本标识" type="int">
 				<constraints nullable="false" />
@@ -33,8 +33,8 @@
 		</createTable>
 
 		<addUniqueConstraint columnNames="api_repo_version_id,parent_id,name"
-			constraintName="UK_API_SERVICE_SCHEMA_ON_REPO_VERSION_PARENT_NAME"
-			tableName="api_service_schema" />
+			constraintName="UK_API_SCHEMA_ON_REPO_VERSION_PARENT_NAME"
+			tableName="api_schema" />
 	</changeSet>
 
 </databaseChangeLog>

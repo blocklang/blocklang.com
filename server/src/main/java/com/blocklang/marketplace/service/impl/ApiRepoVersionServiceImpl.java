@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.eclipse.jgit.lib.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +34,10 @@ public class ApiRepoVersionServiceImpl implements ApiRepoVersionService {
 		}
 
 		// 要先过滤掉 master 版本
-		List<ApiRepoVersion> filtered = allVersions.stream().filter(apiRepoVersion -> !apiRepoVersion.getVersion().equals("master")).collect(Collectors.toList());
+		List<ApiRepoVersion> filtered = allVersions
+			.stream()
+			.filter(apiRepoVersion -> !apiRepoVersion.getVersion().equals(Constants.MASTER))
+			.collect(Collectors.toList());
 		if(filtered.isEmpty()) {
 			return Optional.empty();
 		}
@@ -45,6 +49,11 @@ public class ApiRepoVersionServiceImpl implements ApiRepoVersionService {
 			}
 		});
 		return Optional.of(filtered.get(0));
+	}
+
+	@Override
+	public Optional<ApiRepoVersion> findMasterVersion(Integer apiRepoId) {
+		return apiRepoVersionDao.findByApiRepoIdAndVersion(apiRepoId, Constants.MASTER);
 	}
 
 }

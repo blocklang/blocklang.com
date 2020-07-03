@@ -1,8 +1,9 @@
-# `API_SERVICE_SCHEMA` -  描述数据结构
+# `API_SCHEMA` -  定义复杂数据类型
 
-描述 `requestBody` 和 `responses` 中的数据结构。现在此表中定义结构信息，然后其他表中引用。
+在各种 API 定义中的 `valueType` 或 `type` 除了是 `string`、`number` 等基本数据类型外，还需要自定义的复杂数据类型。
+在本表中就是存储自定义的复杂数据类型的结构。
 
-页面或服务中引用的的是 `code`，而不是 `dbid`。目的是当部件升级时，不用修改页面或服务中的配置，而是直接修改项目依赖的版本号即可。
+Widget、Service 和 WebApi 的 Schema 都存在此表中。
 
 ## 字段
 
@@ -13,13 +14,13 @@
 | name                | 属性名           | varchar | 64   |        |      | 是   |
 | type                | 数据类型         | varchar | 32   |        |      | 否   |
 | description         | 属性的详细说明   | varchar | 512  |        |      | 是   |
-| parent_id           | 父属性标识       | int     |      | -1       |      | 否   |
+| parent_id           | 父属性标识       | int     |      | -1     |      | 否   |
 
 ## 约束
 
-* 主键：`PK_API_SERVICE`
-* 外键：(*未设置*)`FK_API_SERVICE_REPO_VERSION`，`API_REPO_VERSION_ID` 对应 `API_REPO_VERSION` 表的 `dbid`
-* 索引：`UK_API_SERVICE_SCHEMA_ON_REPO_VERSION_PARENT_NAME`，对应字段 `api_repo_version_id`、 `parent_id`、`name`
+* 主键：`PK_API_SCHEMA`
+* 外键：(*未设置*)`FK_API_SCHEMA_REPO_VERSION`，`API_REPO_VERSION_ID` 对应 `API_REPO_VERSION` 表的 `dbid`
+* 索引：`UK_API_SCHEMA_ON_REPO_VERSION_PARENT_NAME`，对应字段 `api_repo_version_id`、 `parent_id`、`name`
 
 ## 说明
 
