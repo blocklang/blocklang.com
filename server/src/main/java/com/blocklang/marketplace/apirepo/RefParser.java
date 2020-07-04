@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -16,6 +17,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.treewalk.filter.PathSuffixFilter;
+import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.springframework.util.Assert;
 
 import com.blocklang.core.git.GitBlobInfo;
@@ -105,15 +107,17 @@ public abstract class RefParser {
 	/**
 	 * 读取某 tag 或 master 分支下所有 changelog 文件，并按照 API Object 分组。
 	 * 并将结果存到 {@link #allApiObjectChangelogFiles} 变量下
+	 * 
+	 * 读取 changelog/ 下除 schemas 目录外的所有 json 文件。
 	 */
 	protected void readAllChangelogFiles() {
 		PathSuffixFilter pathSuffixFilter = PathSuffixFilter.create(".json");
 		PathFilter pathFilter = PathFilter.create("changelog");
+		TreeFilter excludeFilter = PathFilter.create("changelog/schemas").negate();
+		TreeFilter filter = AndTreeFilter.create(Arrays.asList(pathFilter, excludeFilter, pathSuffixFilter));
+		
 		this.allApiObjectChangelogFiles = GitUtils
-			.readAllFileContent(
-				store.getRepoSourceDirectory(), 
-				fullRefName, 
-				AndTreeFilter.create(pathFilter, pathSuffixFilter))
+			.readAllFileContent(store.getRepoSourceDirectory(), fullRefName, filter)
 			.stream()
 			.collect(Collectors.groupingBy(
 				// path 中 0 是 changelog，1 是 分组名
@@ -127,14 +131,15 @@ public abstract class RefParser {
 	 * 
 	 * @return 如果包含 changelog 文件则返回 <code>true</code>，否则返回 <code>false</code>
 	 */
-	protected boolean containChangelogFiles() {
+	protected boolean notFoundAnyChangelogFiles() {
 		if(this.allApiObjectChangelogFiles.isEmpty()) {
-			return false;
+			return true;
 		}
 		
-		return this.allApiObjectChangelogFiles.entrySet()
+		return this.allApiObjectChangelogFiles
+				.entrySet()
 				.stream()
-				.anyMatch(entry -> !entry.getValue().isEmpty());
+				.allMatch(entry -> entry.getValue().isEmpty());
 	}
 
 	/**
@@ -172,67 +177,9 @@ public abstract class RefParser {
 		return allValid;
 	}
 
-	/**
-	 * 校验存放 changelog 文件的文件夹名称和 changelog 文件名称是否遵循约定。
-	 * 要将所有文件夹和 changelog 文件名都校验一遍，而不是遇到一个错误就退出。
-	 * <p>
-	 * 格式为 {order}_{description}，或者 {order}__，或者 {order}，
-	 * order 必须为 yyyyMMddHHmm 时间戳，并且一个文件夹下不会重复，
-	 * 同一层的目录名中的 order 不能重复，同一层的文件名中的 order 不能重复
-	 * </p>
-	 * 
-	 * @return 如果校验时出错，则返回 <code>false<code>；如果校验全部通过，则返回 <code>true</code>
-	 */
 	protected boolean validateDirAndFileName() {
-		boolean allValid = true;
-		List<ApiRepoPathInfo> dirs = new ArrayList<ApiRepoPathInfo>();
-		for(Map.Entry<String, List<GitBlobInfo>> entry : this.allApiObjectChangelogFiles.entrySet()) {
-			String dirName = entry.getKey();
-			List<String> errors = pathReader.validate(dirName);
-			if(!errors.isEmpty()) {
-				allValid = false;
-				for(String error : errors) {
-					logger.error("文件夹名称 {0} 不符合规范 {1}", dirName, error);
-				}
-			}
-			dirs.add(pathReader.read(dirName));
-		
-			// 校验分组下的 changelog 文件名
-			List<ApiRepoPathInfo> files = new ArrayList<ApiRepoPathInfo>();
-			for(GitBlobInfo fileInfo : entry.getValue()) {
-				String fileName = fileInfo.getName();
-				List<String> fileErrors = pathReader.validate(fileName);
-				if(!fileErrors.isEmpty()) {
-					allValid = false;
-					for(String error : fileErrors) {
-						logger.error("changelog 文件名称 {0} 不符合规范 {1}", fileName, error);
-					}
-				}
-				files.add(pathReader.read(fileName));
-			}
-			
-			Map<String, Long> duplicatedFileNames = files
-				.stream()
-				.collect(Collectors.groupingBy(path -> path.getOrder(), Collectors.counting()));
-			for(Map.Entry<String, Long> item : duplicatedFileNames.entrySet()) {
-				if(item.getValue() > 1) {
-					allValid = false;
-					logger.error("{0} 被用了 {1} 次", item.getKey(), item.getValue());
-				}
-			}
-		}
-		
-		Map<String, Long> duplicatedDirNames = dirs
-			.stream()
-			.collect(Collectors.groupingBy(path -> path.getOrder(), Collectors.counting()));
-		for(Map.Entry<String, Long> item : duplicatedDirNames.entrySet()) {
-			if(item.getValue() > 1) {
-				allValid = false;
-				logger.error("{0} 被用了 {1} 次", item.getKey(), item.getValue());
-			}
-		}
-		
-		return allValid;
+		ChangelogNameValidator validator = new ChangelogNameValidator(logger);
+		return validator.isValid(allApiObjectChangelogFiles);
 	}
 	
 	/**

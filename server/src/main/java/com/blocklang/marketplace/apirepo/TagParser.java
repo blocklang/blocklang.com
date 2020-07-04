@@ -32,7 +32,7 @@ public class TagParser extends RefParser{
 		
 		readAllChangelogFiles();
 		
-		if(!containChangelogFiles()) {
+		if(notFoundAnyChangelogFiles()) {
 			logger.info("没有找到 changelog 文件，不解析");
 			return ParseResult.ABORT;
 		}
