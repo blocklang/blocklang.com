@@ -10,16 +10,16 @@ import com.blocklang.core.git.GitBlobInfo;
 import com.blocklang.core.runner.common.CliLogger;
 
 /**
- * changelog 名称规则校验器
+ * 对 Ref 中所有的 changelog 名称进行规则校验
  * 
  * @author Zhengwei Jin
  *
  */
-public class ChangelogNameValidator {
+public class RefChangelogNameValidator {
 
 	private CliLogger logger;
 	
-	public ChangelogNameValidator(CliLogger logger) {
+	public RefChangelogNameValidator(CliLogger logger) {
 		this.logger = logger;
 	}
 	

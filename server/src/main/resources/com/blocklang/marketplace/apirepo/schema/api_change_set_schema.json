@@ -1,0 +1,65 @@
+{
+	"$schema": "https://json-schema.org/draft/2019-09/schema",
+	"title": "API schema change set config",
+	"type": "object",
+	"required": [
+		"id",
+		"author",
+		"changes"
+	],
+	"properties": {
+		"id": {
+			"type": "string",
+			"description": "change set 唯一标识"
+		},
+		"author": {
+			"type": "string",
+			"description": "change set 作者"
+		},
+		"changes": {
+			"type": "array",
+			"description": "变更操作列表",
+			"minItems": 1,
+			"items": {
+				"type": "object",
+				"oneOf": [
+					{
+						"required": ["createSchema"],
+						"properties": {
+							"createSchema": {
+								"$ref": "#/definitions/schema"
+							}
+						}
+					}
+				]
+			}
+		}
+	},
+	"definitions": {
+		"schema": {
+			"type": "object",
+			"description": "创建一个 Schema",
+			"required": [
+				"name"
+			],
+			"properties": {
+				"type": {
+					"type": "string",
+					"description": "数据类型",
+					"enum": ["array", "object", "boolean", "number", "string"]
+				},
+				"name": {
+					"type": "string",
+					"description": "属性名"
+				},
+				"description": {
+					"type": "string",
+					"description": "详细说明"
+				},
+				"properties": {
+					"$ref": "#/definitions/schema"
+				}
+			}
+		}
+	}
+}
