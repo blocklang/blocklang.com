@@ -3,6 +3,7 @@ package com.blocklang.marketplace.apirepo;
 import java.util.List;
 
 import com.blocklang.core.runner.common.CliLogger;
+import com.blocklang.marketplace.apirepo.schema.RefSchemaParser;
 import com.blocklang.marketplace.data.MarketplaceStore;
 
 import de.skuzzle.semantic.Version;
@@ -30,6 +31,18 @@ public class TagParser extends RefParser{
 			return ParseResult.ABORT;
 		}
 		
+		// 解析 schema
+		var refSchemaParser = new RefSchemaParser(store, logger, fullRefName, shortRefName);
+		var result = refSchemaParser.run();
+		if(result == ParseResult.FAILED) {
+			return ParseResult.FAILED;
+		}
+		
+		// TODO: 解析 apiObject 中 引用的 schema 在上面是否已定义
+		// TODO: 当解析 schema 和 apiObject 到生成文件时出错，则都有可能导致 tagParsed 判断逻辑不准确
+		// TODO: 秉承一次解析过程中暴露出所有可能问题的原则，当 schema 解析出错后，依然解析 apiObject
+		
+		// 解析 apiObject
 		readAllChangelogFiles();
 		
 		if(notFoundAnyChangelogFiles()) {

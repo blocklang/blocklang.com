@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.blocklang.core.git.GitBlobInfo;
 import com.blocklang.core.util.JsonUtil;
-import com.blocklang.marketplace.apirepo.apiobject.ApiObjectContext;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -17,7 +16,7 @@ public class ChangelogFileParser {
 		this.changeParserFactory = factory;
 	}
 
-	public boolean run(ApiObjectContext context, GitBlobInfo jsonFile) {
+	public boolean run(ChangedObjectContext context, GitBlobInfo jsonFile) {
 		List<Change> changeParses = readChanges(jsonFile);
 		return applyChanges(context, changeParses);
 	}
@@ -41,7 +40,7 @@ public class ChangelogFileParser {
 		return changeParses;
 	}
 
-	private boolean applyChanges(ApiObjectContext context, List<Change> changeParses) {
+	private boolean applyChanges(ChangedObjectContext context, List<Change> changeParses) {
 		boolean allOperatorValid = true;
 		for(Change parser : changeParses) {
 			if(!parser.apply(context)) {

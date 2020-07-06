@@ -40,7 +40,6 @@ public abstract class RefParser {
 	protected MarketplaceStore store;
 	protected CliLogger logger;
 	
-	private ApiObjectParser apiObjectParser;
 	private List<String> tags;
 	
 	private ApiObjectContext apiObjectContext;
@@ -221,7 +220,7 @@ public abstract class RefParser {
 
 	protected boolean parseAllApiObject() {
 		boolean success = true;
-		this.apiObjectParser = new ApiObjectParser(changeParserFactory);
+		var apiObjectParser = new ApiObjectParser(changeParserFactory);
 		
 		for (Map.Entry<String, List<GitBlobInfo>> entry : allApiObjectChangelogFiles.entrySet()) {
 			List<GitBlobInfo> changelogFiles = entry.getValue();

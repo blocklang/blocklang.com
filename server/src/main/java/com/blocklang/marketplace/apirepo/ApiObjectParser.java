@@ -3,7 +3,6 @@ package com.blocklang.marketplace.apirepo;
 import java.util.List;
 
 import com.blocklang.core.git.GitBlobInfo;
-import com.blocklang.marketplace.apirepo.apiobject.ApiObjectContext;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -24,18 +23,18 @@ public class ApiObjectParser {
 		this.changelogFileParser = new ChangelogFileParser(changeParserFactory);
 	}
 
-	public boolean run(ApiObjectContext apiObjectContext, 
+	public boolean run(ChangedObjectContext changedObjectContext, 
 			List<GitBlobInfo> changelogFiles) {
 
 		boolean parserApiObjectSuccess = true;
 		for (GitBlobInfo jsonFile : changelogFiles) {
 			// 如果 changelog 文件已执行过，则忽略
 			String fileId = pathReader.read(jsonFile.getName()).getOrder();
-			if(apiObjectContext.changelogFileParsed(fileId)) {
+			if(changedObjectContext.changelogFileParsed(fileId)) {
 				break;
 			}
 
-			if(!changelogFileParser.run(apiObjectContext, jsonFile)) {
+			if(!changelogFileParser.run(changedObjectContext, jsonFile)) {
 				parserApiObjectSuccess = false;
 				break;
 			}
@@ -43,9 +42,9 @@ public class ApiObjectParser {
 			PublishedFileInfo parsedFile = new PublishedFileInfo();
 			parsedFile.setFileId(fileId);
 			parsedFile.setMd5sum(DigestUtils.md5Hex(jsonFile.getContent()));
-			parsedFile.setVersion(apiObjectContext.getShortRefName());
+			parsedFile.setVersion(changedObjectContext.getShortRefName());
 			
-			apiObjectContext.addParsedChangelogFile(parsedFile);
+			changedObjectContext.addParsedChangelogFile(parsedFile);
 		}
 
 		return parserApiObjectSuccess;

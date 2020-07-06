@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,28 +21,31 @@ import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.runner.common.CliLogger;
 import com.blocklang.core.runner.common.JsonSchemaValidator;
 import com.blocklang.core.util.JsonUtil;
-import com.blocklang.marketplace.apirepo.RefChangelogNameValidator;
-import com.blocklang.marketplace.apirepo.RefChangelogSchemaValidator;
+import com.blocklang.marketplace.apirepo.ApiObjectParser;
 import com.blocklang.marketplace.apirepo.ApiRepoPathReader;
 import com.blocklang.marketplace.apirepo.ParseResult;
 import com.blocklang.marketplace.apirepo.PublishedFileInfo;
+import com.blocklang.marketplace.apirepo.RefChangelogNameValidator;
+import com.blocklang.marketplace.apirepo.RefChangelogSchemaValidator;
 import com.blocklang.marketplace.data.MarketplaceStore;
 
 public class RefSchemaParser {
 	
 	private MarketplaceStore store;
 	private String fullRefName;
+	private String shortRefName;
 	private CliLogger logger;
 	
 	private LinkedHashMap<String, List<GitBlobInfo>> allChangelogFiles;
 	private JsonSchemaValidator jsonSchemaValidator = new SchemaChangeSetSchemaValidator();
-	
+	private ApiRepoPathReader pathReader = new ApiRepoPathReader();
 	private SchemaContext schemaContext;
 	
-	public RefSchemaParser(MarketplaceStore store, CliLogger logger, String fullRefName) {
+	public RefSchemaParser(MarketplaceStore store, CliLogger logger, String fullRefName, String shortRefName) {
 		this.store = store;
 		this.logger = logger;
 		this.fullRefName = fullRefName;
+		this.shortRefName = shortRefName;
 		this.schemaContext = new SchemaContext(store, logger);
 	}
 
@@ -72,6 +74,9 @@ public class RefSchemaParser {
 			return ParseResult.FAILED;
 		}
 		
+		if(!saveAllSchemas()) {
+			return ParseResult.FAILED;
+		}
 		
 		return ParseResult.SUCCESS;
 	}
@@ -124,9 +129,7 @@ public class RefSchemaParser {
 	
 	private boolean publishedChangelogFileUpdated() {
 		boolean hasPublishedChangeLogFileUpdated = false;
-		
-		ApiRepoPathReader pathReader = new ApiRepoPathReader();
-		
+
 		for(Map.Entry<String, List<GitBlobInfo>> entry : allChangelogFiles.entrySet()) {
 			String directoryName = entry.getKey();
 			List<GitBlobInfo> changelogFiles = entry.getValue();
@@ -179,10 +182,22 @@ public class RefSchemaParser {
 		return result;
 	}
 	
-
 	private boolean parseAllSchemes() {
-		boolean success = false;
+		boolean success = true;
+		var changeParserFactory = new SchemaChangeParserFactory(logger);
+		var apiObjectParser = new ApiObjectParser(changeParserFactory);
 		
+		for(Map.Entry<String, List<GitBlobInfo>> entry : allChangelogFiles.entrySet()) {
+			List<GitBlobInfo> changelogFiles = entry.getValue();
+			String schemaId = pathReader.read(entry.getKey()).getOrder();
+			schemaContext.setObjectId(schemaId);
+			schemaContext.loadPreviousVersionObject();
+			success = apiObjectParser.run(schemaContext, changelogFiles);
+		}
 		return success;
+	}
+
+	private boolean saveAllSchemas() {
+		return schemaContext.saveAllChangedObjects(shortRefName);
 	}
 }

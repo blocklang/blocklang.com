@@ -3,6 +3,7 @@ package com.blocklang.marketplace.apirepo;
 import java.util.List;
 
 import com.blocklang.core.runner.common.CliLogger;
+import com.blocklang.marketplace.apirepo.schema.RefSchemaParser;
 import com.blocklang.marketplace.data.MarketplaceStore;
 
 public class MasterParser extends RefParser {
@@ -24,6 +25,14 @@ public class MasterParser extends RefParser {
 		
 		logger.info("开始解析 master 分支");
 		
+		// 解析 schema
+		var refSchemaParser = new RefSchemaParser(store, logger, fullRefName, shortRefName);
+		var result = refSchemaParser.run();
+		if(result == ParseResult.FAILED) {
+			return ParseResult.FAILED;
+		}
+		
+		// 解析 apiObject
 		readAllChangelogFiles();
 		
 		if(notFoundAnyChangelogFiles()) {

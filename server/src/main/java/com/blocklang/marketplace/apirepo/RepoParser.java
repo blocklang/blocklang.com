@@ -80,6 +80,8 @@ public class RepoParser {
 			}
 		}
 		
+		// TODO: 如果一个分支解析错误，则要清除为本分支生成的所有文件
+		
 		if(success) {
 			ParseResult parseResult = this.masterParser.run();
 			if(parseResult == ParseResult.FAILED) {
