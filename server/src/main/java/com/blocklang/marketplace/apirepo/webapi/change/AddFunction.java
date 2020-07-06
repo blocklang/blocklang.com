@@ -42,7 +42,7 @@ public class AddFunction extends Change{
 		CliLogger logger = context.getLogger();
 		JsObjectData jsObject = (JsObjectData) context.getSelectedApiObject();
 		if(jsObject == null) {
-			context.getLogger().error("无法执行 addFunction 操作，因为尚未创建 JavaScript 对象");
+			logger.error("无法执行 addFunction 操作，因为尚未创建 JavaScript 对象");
 			return false;
 		}
 		

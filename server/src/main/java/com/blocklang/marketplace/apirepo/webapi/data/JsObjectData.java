@@ -4,10 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.blocklang.marketplace.apirepo.ApiObject;
-import com.blocklang.marketplace.apirepo.ChangeData;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public class JsObjectData implements ApiObject, ChangeData {
+public class JsObjectData implements ApiObject {
 
 	private String id;
 	private String code;

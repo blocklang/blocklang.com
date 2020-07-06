@@ -3,9 +3,8 @@ package com.blocklang.marketplace.apirepo.service.data;
 import java.util.List;
 
 import com.blocklang.marketplace.apirepo.ApiObject;
-import com.blocklang.marketplace.apirepo.ChangeData;
 
-public class ServiceData implements ApiObject, ChangeData {
+public class ServiceData implements ApiObject {
 
 	private String id;
 	private String name;

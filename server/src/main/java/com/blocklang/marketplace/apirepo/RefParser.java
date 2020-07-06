@@ -5,12 +5,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -21,15 +19,11 @@ import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.springframework.util.Assert;
 
 import com.blocklang.core.git.GitBlobInfo;
-import com.blocklang.core.git.GitFileInfo;
 import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.runner.common.CliLogger;
 import com.blocklang.core.runner.common.JsonSchemaValidator;
 import com.blocklang.core.util.JsonUtil;
 import com.blocklang.marketplace.data.MarketplaceStore;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.ValidationMessage;
 
 public abstract class RefParser {
 	/**
@@ -142,43 +136,13 @@ public abstract class RefParser {
 				.allMatch(entry -> entry.getValue().isEmpty());
 	}
 
-	/**
-	 * 校验 changelog 文件的中的内容是否有效的 json 格式，以及是否遵循指定的 JSON Schema。
-	 * 
-	 * <p>不是遇见错误就退出，而是所有文件都要校验一遍</p>
-	 * 
-	 * @return 如果校验时出错，则返回 <code>false<code>；如果校验全部通过，则返回 <code>true</code>
-	 */
-	protected boolean validateJsonSchema() {
-		boolean allValid = true;
-		for(Map.Entry<String, List<GitBlobInfo>> entry : allApiObjectChangelogFiles.entrySet()) {
-			List<GitBlobInfo> changelogFiles = entry.getValue();
-			changelogFiles.sort(Comparator.comparing(GitFileInfo::getName));
-
-			for(GitBlobInfo fileInfo : changelogFiles) {
-				JsonNode jsonContent = null;
-				try {
-					jsonContent = JsonUtil.readTree(fileInfo.getContent());
-				} catch (JsonProcessingException e) {
-					allValid = false;
-					logger.error("{0} 文件中的 json 无效", fileInfo.getName());
-					logger.error(e);
-				}
-				
-				if (jsonContent != null) {
-					Set<ValidationMessage> errors = schemaValidator.run(jsonContent);
-					if (!errors.isEmpty()) {
-						allValid = false;
-						errors.forEach(error -> logger.error(error.getMessage()));
-					}
-				}
-			}	
-		}
-		return allValid;
-	}
-
 	protected boolean validateDirAndFileName() {
-		ChangelogNameValidator validator = new ChangelogNameValidator(logger);
+		var validator = new RefChangelogNameValidator(logger);
+		return validator.isValid(allApiObjectChangelogFiles);
+	}
+	
+	protected boolean validateJsonSchema() {
+		var validator = new RefChangelogSchemaValidator(logger, schemaValidator);
 		return validator.isValid(allApiObjectChangelogFiles);
 	}
 	
@@ -229,6 +193,7 @@ public abstract class RefParser {
 				}
 			}
 
+			// 如果有一个 apiObject 校验失败，则就不需要再保存后续的信息
 			if(!hasPublishedChangeLogUpdated) {
 				// 只缓存校验成功后的 ApiObject 的已发布文件信息
 				apiObjectContext.addPublishedChangelogFiles(publishedFiles);
@@ -248,7 +213,7 @@ public abstract class RefParser {
 			published.removeIf(fileInfo -> fileInfo.getVersion().equals("master"));
 			result.addAll(published);
 		} catch (IOException e1) {
-			// 如果文件不存在，则模式使用空 List
+			// 如果文件不存在，则使用空 List
 		}
 		return result;
 	}

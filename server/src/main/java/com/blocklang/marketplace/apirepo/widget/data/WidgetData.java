@@ -4,13 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.blocklang.marketplace.apirepo.ApiObject;
-import com.blocklang.marketplace.apirepo.ChangeData;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 //Widget changelog 生成的结果结构
 // 通常 CreateXXX 的属性与 XXX 的属性完全一致
 //ChangeData, Codeable
-public class WidgetData implements ApiObject, ChangeData {
+public class WidgetData implements ApiObject {
 	private String id; // widget 的唯一标识，对应目录名中的时间戳
 	private String code;
 	private String name;
@@ -18,6 +17,7 @@ public class WidgetData implements ApiObject, ChangeData {
 	private String description;
 	private List<WidgetProperty> properties = new ArrayList<WidgetProperty>();
 	private List<WidgetEvent> events = new ArrayList<WidgetEvent>();
+	// TODO: 支持 slots
 	
 	public String getId() {
 		return id;

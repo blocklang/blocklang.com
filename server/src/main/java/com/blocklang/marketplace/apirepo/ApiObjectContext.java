@@ -14,7 +14,7 @@ import com.blocklang.core.runner.common.CliLogger;
 import com.blocklang.core.util.JsonUtil;
 import com.blocklang.marketplace.data.MarketplaceStore;
 
-public class ApiObjectContext {
+public class ApiObjectContext extends ChangedObjectContext{
 
 	private static final String MASTER_REF = "refs/heads/master";
 	private List<String> tags;

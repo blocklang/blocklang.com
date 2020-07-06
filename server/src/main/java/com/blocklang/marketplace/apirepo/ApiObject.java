@@ -1,8 +1,6 @@
 package com.blocklang.marketplace.apirepo;
 
-public interface ApiObject {
+public interface ApiObject extends ChangedObject{
 
-	String getId();
-	String getName();
-	String getCode();
+	
 }
