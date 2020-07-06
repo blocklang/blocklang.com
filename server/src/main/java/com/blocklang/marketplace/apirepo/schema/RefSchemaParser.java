@@ -21,7 +21,7 @@ import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.runner.common.CliLogger;
 import com.blocklang.core.runner.common.JsonSchemaValidator;
 import com.blocklang.core.util.JsonUtil;
-import com.blocklang.marketplace.apirepo.ApiObjectParser;
+import com.blocklang.marketplace.apirepo.ChangedObjectParser;
 import com.blocklang.marketplace.apirepo.ApiRepoPathReader;
 import com.blocklang.marketplace.apirepo.ParseResult;
 import com.blocklang.marketplace.apirepo.PublishedFileInfo;
@@ -185,7 +185,7 @@ public class RefSchemaParser {
 	private boolean parseAllSchemes() {
 		boolean success = true;
 		var changeParserFactory = new SchemaChangeParserFactory(logger);
-		var apiObjectParser = new ApiObjectParser(changeParserFactory);
+		var apiObjectParser = new ChangedObjectParser(changeParserFactory);
 		
 		for(Map.Entry<String, List<GitBlobInfo>> entry : allChangelogFiles.entrySet()) {
 			List<GitBlobInfo> changelogFiles = entry.getValue();

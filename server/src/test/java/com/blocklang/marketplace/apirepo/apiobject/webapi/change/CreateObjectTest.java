@@ -12,7 +12,6 @@ import com.blocklang.core.runner.common.CliLogger;
 import com.blocklang.marketplace.apirepo.Change;
 import com.blocklang.marketplace.apirepo.apiobject.ApiObjectContext;
 import com.blocklang.marketplace.apirepo.apiobject.webapi.JsObjectContext;
-import com.blocklang.marketplace.apirepo.apiobject.webapi.change.CreateObject;
 import com.blocklang.marketplace.apirepo.apiobject.webapi.data.JsFunction;
 import com.blocklang.marketplace.apirepo.apiobject.webapi.data.JsObjectData;
 import com.blocklang.marketplace.apirepo.apiobject.webapi.data.Parameter;

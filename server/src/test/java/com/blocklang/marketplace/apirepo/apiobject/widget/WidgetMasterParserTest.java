@@ -27,9 +27,6 @@ import com.blocklang.marketplace.apirepo.PublishedFileInfo;
 import com.blocklang.marketplace.apirepo.RefParser;
 import com.blocklang.marketplace.apirepo.TagParser;
 import com.blocklang.marketplace.apirepo.apiobject.ApiObjectContext;
-import com.blocklang.marketplace.apirepo.apiobject.widget.WidgetChangeParserFactory;
-import com.blocklang.marketplace.apirepo.apiobject.widget.WidgetChangeSetSchemaValidator;
-import com.blocklang.marketplace.apirepo.apiobject.widget.WidgetContext;
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class WidgetMasterParserTest extends AbstractWidgetParserTest{

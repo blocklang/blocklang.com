@@ -12,7 +12,6 @@ import com.blocklang.core.runner.common.CliLogger;
 import com.blocklang.marketplace.apirepo.Change;
 import com.blocklang.marketplace.apirepo.apiobject.ApiObjectContext;
 import com.blocklang.marketplace.apirepo.apiobject.widget.WidgetContext;
-import com.blocklang.marketplace.apirepo.apiobject.widget.change.AddWidgetEvent;
 import com.blocklang.marketplace.apirepo.apiobject.widget.data.AddWidgetEventData;
 import com.blocklang.marketplace.apirepo.apiobject.widget.data.WidgetData;
 import com.blocklang.marketplace.apirepo.apiobject.widget.data.WidgetEvent;

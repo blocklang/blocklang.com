@@ -220,7 +220,7 @@ public abstract class RefParser {
 
 	protected boolean parseAllApiObject() {
 		boolean success = true;
-		var apiObjectParser = new ApiObjectParser(changeParserFactory);
+		var apiObjectParser = new ChangedObjectParser(changeParserFactory);
 		
 		for (Map.Entry<String, List<GitBlobInfo>> entry : allApiObjectChangelogFiles.entrySet()) {
 			List<GitBlobInfo> changelogFiles = entry.getValue();

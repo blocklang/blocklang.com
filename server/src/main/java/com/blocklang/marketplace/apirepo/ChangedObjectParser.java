@@ -14,12 +14,12 @@ import org.apache.commons.codec.digest.DigestUtils;
  * @author Zhengwei Jin
  *
  */
-public class ApiObjectParser {
+public class ChangedObjectParser {
 
 	private ApiRepoPathReader pathReader = new ApiRepoPathReader();
 	private ChangelogFileParser changelogFileParser;
 	
-	public ApiObjectParser(ChangeParserFactory changeParserFactory) {
+	public ChangedObjectParser(ChangeParserFactory changeParserFactory) {
 		this.changelogFileParser = new ChangelogFileParser(changeParserFactory);
 	}
 

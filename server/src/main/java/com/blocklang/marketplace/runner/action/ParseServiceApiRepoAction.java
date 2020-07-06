@@ -1,8 +1,8 @@
 package com.blocklang.marketplace.runner.action;
 
 import com.blocklang.core.runner.common.ExecutionContext;
-import com.blocklang.marketplace.apirepo.ApiObjectFactory;
 import com.blocklang.marketplace.apirepo.RepoParser;
+import com.blocklang.marketplace.apirepo.apiobject.ApiObjectFactory;
 import com.blocklang.marketplace.apirepo.apiobject.service.ServiceFactory;
 
 public class ParseServiceApiRepoAction extends AbstractParseApiRepoAction {

@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import com.blocklang.core.runner.common.CliLogger;
 import com.blocklang.core.runner.common.DefaultExecutionContext;
 import com.blocklang.core.runner.common.ExecutionContext;
+import com.blocklang.marketplace.apirepo.apiobject.ApiObjectFactory;
 
 public class RepoParserTest {
 	
