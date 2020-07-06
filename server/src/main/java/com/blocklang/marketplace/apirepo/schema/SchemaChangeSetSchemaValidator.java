@@ -1,4 +1,4 @@
-package com.blocklang.marketplace.apirepo.apiobject.schema;
+package com.blocklang.marketplace.apirepo.schema;
 
 import java.io.InputStream;
 import java.util.Set;

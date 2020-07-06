@@ -1,4 +1,4 @@
-package com.blocklang.marketplace.apirepo.apiobject.schema;
+package com.blocklang.marketplace.apirepo.schema;
 
 import java.nio.file.Path;
 

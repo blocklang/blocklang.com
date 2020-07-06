@@ -1,9 +1,9 @@
-package com.blocklang.marketplace.apirepo.apiobject.schema.change;
+package com.blocklang.marketplace.apirepo.schema.change;
 
 import com.blocklang.marketplace.apirepo.Change;
 import com.blocklang.marketplace.apirepo.ChangeData;
 import com.blocklang.marketplace.apirepo.ChangedObjectContext;
-import com.blocklang.marketplace.apirepo.apiobject.schema.ApiSchemaData;
+import com.blocklang.marketplace.apirepo.schema.ApiSchemaData;
 
 public class CreateSchema extends Change{
 

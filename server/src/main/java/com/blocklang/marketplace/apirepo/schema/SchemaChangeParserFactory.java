@@ -1,4 +1,4 @@
-package com.blocklang.marketplace.apirepo.apiobject.schema;
+package com.blocklang.marketplace.apirepo.schema;
 
 import com.blocklang.core.runner.common.CliLogger;
 import com.blocklang.marketplace.apirepo.Change;
