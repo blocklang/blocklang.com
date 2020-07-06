@@ -12,11 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.blocklang.core.test.AbstractServiceTest;
 import com.blocklang.marketplace.apirepo.RefData;
-import com.blocklang.marketplace.apirepo.widget.data.WidgetData;
-import com.blocklang.marketplace.apirepo.widget.data.WidgetEvent;
-import com.blocklang.marketplace.apirepo.widget.data.WidgetEventArgument;
-import com.blocklang.marketplace.apirepo.widget.data.WidgetProperty;
-import com.blocklang.marketplace.apirepo.widget.data.WidgetPropertyOption;
+import com.blocklang.marketplace.apirepo.apiobject.widget.data.WidgetData;
+import com.blocklang.marketplace.apirepo.apiobject.widget.data.WidgetEvent;
+import com.blocklang.marketplace.apirepo.apiobject.widget.data.WidgetEventArgument;
+import com.blocklang.marketplace.apirepo.apiobject.widget.data.WidgetProperty;
+import com.blocklang.marketplace.apirepo.apiobject.widget.data.WidgetPropertyOption;
 import com.blocklang.marketplace.dao.ApiRepoVersionDao;
 import com.blocklang.marketplace.dao.ApiWidgetDao;
 import com.blocklang.marketplace.dao.ApiWidgetEventArgDao;

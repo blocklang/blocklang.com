@@ -6,8 +6,8 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.blocklang.core.util.GitUrlSegment;
-import com.blocklang.marketplace.apirepo.ApiObject;
 import com.blocklang.marketplace.apirepo.RefData;
+import com.blocklang.marketplace.apirepo.apiobject.ApiObject;
 import com.blocklang.marketplace.constant.RepoCategory;
 import com.blocklang.marketplace.dao.ApiRepoDao;
 import com.blocklang.marketplace.model.ApiRepo;

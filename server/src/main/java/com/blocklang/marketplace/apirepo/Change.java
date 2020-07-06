@@ -10,8 +10,8 @@ public abstract class Change {
 	 * @param context
 	 * @return 如果应用成功，返回 <code>true</code>；否则返回 <code>false</code>
 	 */
-	public boolean apply(ApiObjectContext context) {
-		return false;
+	public boolean apply(ChangedObjectContext context) {
+		return true;
 	}
 
 }

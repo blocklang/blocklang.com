@@ -7,7 +7,7 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import com.blocklang.marketplace.apirepo.service.ServiceChangeSetSchemaValidator;
+import com.blocklang.marketplace.apirepo.apiobject.service.ServiceChangeSetSchemaValidator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.ValidationMessage;

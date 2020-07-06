@@ -23,6 +23,7 @@ import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.runner.common.CliLogger;
 import com.blocklang.core.runner.common.JsonSchemaValidator;
 import com.blocklang.core.util.JsonUtil;
+import com.blocklang.marketplace.apirepo.apiobject.ApiObjectContext;
 import com.blocklang.marketplace.data.MarketplaceStore;
 
 public abstract class RefParser {
@@ -166,7 +167,7 @@ public abstract class RefParser {
 			
 			// 注意，在每次获取已发布 change 时都要设置 apiObjectId
 			String apiObjectId = pathReader.read(directoryName).getOrder();
-			apiObjectContext.setApiObjectId(apiObjectId);
+			apiObjectContext.setObjectId(apiObjectId);
 			List<PublishedFileInfo> publishedFiles = getPublishedFiles(apiObjectId);
 
 			// 校验已发布的文件是否被修改过
@@ -204,7 +205,7 @@ public abstract class RefParser {
 
 	protected List<PublishedFileInfo> getPublishedFiles(String apiObjectId) {
 		List<PublishedFileInfo> result = new ArrayList<>();
-		Path changelogPath = store.getPackageChangeLogDirectory().resolve(apiObjectId).resolve("index.json");
+		Path changelogPath = store.getPackageChangelogDirectory().resolve(apiObjectId).resolve("index.json");
 		try {
 			String changelogJson = Files.readString(changelogPath);
 			List<PublishedFileInfo> published = JsonUtil.fromJsonArray(changelogJson, PublishedFileInfo.class);
@@ -226,9 +227,9 @@ public abstract class RefParser {
 			List<GitBlobInfo> changelogFiles = entry.getValue();
 			String apiObjectId = pathReader.read(entry.getKey()).getOrder();
 			// 注意，在每次解析时都要设置当前的 apiObjectId
-			apiObjectContext.setApiObjectId(apiObjectId);
+			apiObjectContext.setObjectId(apiObjectId);
 			
-			apiObjectContext.loadPreviousVersionApiObject();
+			apiObjectContext.loadPreviousVersionObject();
 			
 			success = apiObjectParser.run(apiObjectContext, changelogFiles);
 		}
@@ -236,6 +237,6 @@ public abstract class RefParser {
 	}
 
 	protected boolean saveAllApiObject() {
-		return apiObjectContext.saveAllApiObject(shortRefName);
+		return apiObjectContext.saveAllChangedObjects(shortRefName);
 	}
 }

@@ -3,6 +3,7 @@ package com.blocklang.marketplace.apirepo;
 import java.util.List;
 
 import com.blocklang.core.git.GitBlobInfo;
+import com.blocklang.marketplace.apirepo.apiobject.ApiObjectContext;
 
 import org.apache.commons.codec.digest.DigestUtils;
 

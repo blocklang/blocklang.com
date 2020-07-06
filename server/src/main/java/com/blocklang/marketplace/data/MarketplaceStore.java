@@ -7,6 +7,8 @@ import java.time.format.DateTimeFormatter;
 import com.blocklang.core.util.GitUrlSegment;
 
 /**
+ * TODO: 在注释中准确的描述目录结构
+ * 
  * 在往组件市场注册组件时，会生成一个文件。该类用于描述目录结构
  * 
  * IDE 版组件仓库的结构
@@ -41,9 +43,15 @@ import com.blocklang.core.util.GitUrlSegment;
  *                     {version}
  *                         {widget_timestamp}
  *                             index.json
+ *                         __schemas__
+ *                             {schema}
+ *                                 index.json
  *                     __changelog__
  *                         {widget_timestamp}
  *                             index.json
+ *                         __schemas__
+ *                             {schema_timestamp}
+ *                                     index.json
  *                         
  * </pre>
  * 
@@ -123,8 +131,12 @@ public class MarketplaceStore {
 		return this.getRepoBuildDirectory().resolve("output").resolve("dist");
 	}
 	
-	public Path getPackageChangeLogDirectory() {
+	public Path getPackageChangelogDirectory() {
 		return this.getRepoPackageDirectory().resolve("__changelog__");
+	}
+	
+	public Path getPackageSchemaChangelogDirectory() {
+		return this.getPackageChangelogDirectory().resolve("__schemas__");
 	}
 
 	private Path getRepoRootDirectory() {
@@ -137,6 +149,10 @@ public class MarketplaceStore {
 	public Path getPackageVersionDirectory(String version) {
 		return this.getRepoPackageDirectory()
 				.resolve(version);
+	}
+	
+	public Path getPackageSchemaDirectory(String version) {
+		return getPackageVersionDirectory(version).resolve("__schemas__");
 	}
 
 	/**

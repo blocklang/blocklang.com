@@ -2,6 +2,7 @@ package com.blocklang.marketplace.apirepo;
 
 import java.util.List;
 
+import com.blocklang.marketplace.apirepo.apiobject.ApiObject;
 import com.blocklang.marketplace.data.RepoConfigJson;
 
 public class RefData<T extends ApiObject> {

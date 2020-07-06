@@ -14,6 +14,7 @@ import com.blocklang.core.git.GitBlobInfo;
 import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.runner.common.CliLogger;
 import com.blocklang.core.util.JsonUtil;
+import com.blocklang.marketplace.apirepo.apiobject.ApiObject;
 import com.blocklang.marketplace.data.MarketplaceStore;
 import com.blocklang.marketplace.data.RepoConfigJson;
 import com.fasterxml.jackson.core.JsonProcessingException;

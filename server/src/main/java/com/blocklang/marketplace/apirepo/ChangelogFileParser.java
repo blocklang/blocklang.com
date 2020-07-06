@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.blocklang.core.git.GitBlobInfo;
 import com.blocklang.core.util.JsonUtil;
+import com.blocklang.marketplace.apirepo.apiobject.ApiObjectContext;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 

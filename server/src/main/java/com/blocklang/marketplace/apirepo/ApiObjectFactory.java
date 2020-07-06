@@ -2,6 +2,7 @@ package com.blocklang.marketplace.apirepo;
 
 import com.blocklang.core.runner.common.CliLogger;
 import com.blocklang.core.runner.common.JsonSchemaValidator;
+import com.blocklang.marketplace.apirepo.apiobject.ApiObjectContext;
 import com.blocklang.marketplace.data.MarketplaceStore;
 
 /**

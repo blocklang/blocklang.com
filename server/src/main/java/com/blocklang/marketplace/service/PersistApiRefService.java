@@ -1,7 +1,7 @@
 package com.blocklang.marketplace.service;
 
-import com.blocklang.marketplace.apirepo.ApiObject;
 import com.blocklang.marketplace.apirepo.RefData;
+import com.blocklang.marketplace.apirepo.apiobject.ApiObject;
 
 public interface PersistApiRefService {
 

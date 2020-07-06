@@ -8,11 +8,11 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.blocklang.marketplace.apirepo.ApiObject;
 import com.blocklang.marketplace.apirepo.RefData;
-import com.blocklang.marketplace.apirepo.webapi.data.JsFunction;
-import com.blocklang.marketplace.apirepo.webapi.data.JsObjectData;
-import com.blocklang.marketplace.apirepo.webapi.data.Parameter;
+import com.blocklang.marketplace.apirepo.apiobject.ApiObject;
+import com.blocklang.marketplace.apirepo.apiobject.webapi.data.JsFunction;
+import com.blocklang.marketplace.apirepo.apiobject.webapi.data.JsObjectData;
+import com.blocklang.marketplace.apirepo.apiobject.webapi.data.Parameter;
 import com.blocklang.marketplace.dao.ApiJsFunctionArgumentDao;
 import com.blocklang.marketplace.dao.ApiJsFunctionDao;
 import com.blocklang.marketplace.dao.ApiJsObjectDao;

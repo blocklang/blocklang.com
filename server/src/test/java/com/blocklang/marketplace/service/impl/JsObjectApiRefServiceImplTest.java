@@ -12,9 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.blocklang.core.test.AbstractServiceTest;
 import com.blocklang.marketplace.apirepo.RefData;
-import com.blocklang.marketplace.apirepo.webapi.data.JsFunction;
-import com.blocklang.marketplace.apirepo.webapi.data.JsObjectData;
-import com.blocklang.marketplace.apirepo.webapi.data.Parameter;
+import com.blocklang.marketplace.apirepo.apiobject.webapi.data.JsFunction;
+import com.blocklang.marketplace.apirepo.apiobject.webapi.data.JsObjectData;
+import com.blocklang.marketplace.apirepo.apiobject.webapi.data.Parameter;
 import com.blocklang.marketplace.dao.ApiJsFunctionArgumentDao;
 import com.blocklang.marketplace.dao.ApiJsFunctionDao;
 import com.blocklang.marketplace.dao.ApiJsObjectDao;
