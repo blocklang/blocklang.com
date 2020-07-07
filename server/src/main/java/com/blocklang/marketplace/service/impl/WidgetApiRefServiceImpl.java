@@ -44,11 +44,21 @@ public class WidgetApiRefServiceImpl extends AbstractApiRefService implements Wi
 	public <T extends ApiObject> void save(Integer apiRepoId, RefData<T> refData) {
 		ApiRepoVersion apiRepoVersion = saveApiRepoVersion(apiRepoId, refData);
 		if(refData.getShortRefName().equals("master")) {
+			clearRefSchemas(apiRepoVersion.getId());
 			clearRefApis(apiRepoVersion.getId());
 		}
+		saveSchemas(apiRepoVersion, refData.getSchemas(), refData.getCreateUserId());
 		saveApiWidgets(apiRepoVersion, refData);
 	}
-
+	
+	@Override
+	public void clearRefApis(Integer apiRepoVersionId) {
+		apiWidgetEventArgDao.deleteByApiRepoVersionId(apiRepoVersionId);
+		apiWidgetPropertyValueOptionDao.deleteByApiRepoVersionId(apiRepoVersionId);
+		apiWidgetPropertyDao.deleteByApiRepoVersionId(apiRepoVersionId);
+		apiWidgetDao.deleteByApiRepoVersionId(apiRepoVersionId);
+	}
+	
 	private <T extends ApiObject> void saveApiWidgets(ApiRepoVersion apiRepoVersion, RefData<T> refData) {
 		List<T> widgets = refData.getApiObjects();
 		for(T widget : widgets) {
@@ -139,14 +149,6 @@ public class WidgetApiRefServiceImpl extends AbstractApiRefService implements Wi
 			arg.setSeq(i + 1);
 			apiWidgetEventArgDao.save(arg);
 		}
-	}
-
-	@Override
-	public void clearRefApis(Integer apiRepoVersionId) {
-		apiWidgetEventArgDao.deleteByApiRepoVersionId(apiRepoVersionId);
-		apiWidgetPropertyValueOptionDao.deleteByApiRepoVersionId(apiRepoVersionId);
-		apiWidgetPropertyDao.deleteByApiRepoVersionId(apiRepoVersionId);
-		apiWidgetDao.deleteByApiRepoVersionId(apiRepoVersionId);
 	}
 	
 }

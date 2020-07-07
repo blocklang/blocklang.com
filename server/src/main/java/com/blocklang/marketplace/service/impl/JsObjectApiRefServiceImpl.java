@@ -43,8 +43,10 @@ public class JsObjectApiRefServiceImpl extends AbstractApiRefService implements 
 		ApiRepoVersion apiRepoVersion = saveApiRepoVersion(apiRepoId, refData);
 		
 		if(refData.getShortRefName().equals("master")) {
+			clearRefSchemas(apiRepoVersion.getId());
 			clearRefApis(apiRepoVersion.getId());
 		}
+		saveSchemas(apiRepoVersion, refData.getSchemas(), refData.getCreateUserId());
 		saveApiJsObjects(apiRepoVersion, refData);
 	}
 

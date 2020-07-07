@@ -49,8 +49,10 @@ public class ServiceApiRefServiceImpl extends AbstractApiRefService implements S
 		ApiRepoVersion apiRepoVersion = saveApiRepoVersion(apiRepoId, refData);
 		
 		if(refData.getShortRefName().equals("master")) {
+			clearRefSchemas(apiRepoVersion.getId());
 			clearRefApis(apiRepoVersion.getId());
 		}
+		saveSchemas(apiRepoVersion, refData.getSchemas(), refData.getCreateUserId());
 		saveApiServices(apiRepoVersion, refData);
 	}
 
