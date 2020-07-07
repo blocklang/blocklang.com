@@ -3,6 +3,7 @@ package com.blocklang.marketplace.apirepo;
 import java.util.List;
 
 import com.blocklang.marketplace.apirepo.apiobject.ApiObject;
+import com.blocklang.marketplace.apirepo.schema.ApiSchemaData;
 import com.blocklang.marketplace.data.RepoConfigJson;
 
 public class RefData<T extends ApiObject> {
@@ -12,6 +13,7 @@ public class RefData<T extends ApiObject> {
 	private String shortRefName;
 	private RepoConfigJson repoConfig;
 	private List<T> apiObjects;
+	private List<ApiSchemaData> schemas;
 	private Integer createUserId;
 	
 	private boolean invalidData = false;
@@ -70,6 +72,14 @@ public class RefData<T extends ApiObject> {
 
 	public boolean isInvalidData() {
 		return invalidData;
+	}
+
+	public List<ApiSchemaData> getSchemas() {
+		return schemas;
+	}
+
+	public void setSchemas(List<ApiSchemaData> schemas) {
+		this.schemas = schemas;
 	}
 
 }

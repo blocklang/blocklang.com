@@ -15,6 +15,7 @@ import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.runner.common.CliLogger;
 import com.blocklang.core.util.JsonUtil;
 import com.blocklang.marketplace.apirepo.apiobject.ApiObject;
+import com.blocklang.marketplace.apirepo.schema.ApiSchemaData;
 import com.blocklang.marketplace.data.MarketplaceStore;
 import com.blocklang.marketplace.data.RepoConfigJson;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -57,6 +58,7 @@ public class RefReader<T extends ApiObject> {
 		
 		try {
 			result.setRepoConfig(this.readRepoConfig());
+			result.setSchemas(this.readSchemas());
 			result.setApiObjects(this.readApiObjects());
 		} catch (IOException e) {
 			// 如果读这两项数据中的任一项出错了，就结束后面的保存操作。
@@ -65,7 +67,7 @@ public class RefReader<T extends ApiObject> {
 
 		return result;
 	}
-	
+
 	private RepoConfigJson readRepoConfig() throws JsonProcessingException {
 		Optional<GitBlobInfo> fileOption = GitUtils.getBlob(store.getRepoSourceDirectory(), fullRefName, MarketplaceStore.BLOCKLANG_JSON);
 		if(fileOption.isEmpty()) {
@@ -81,6 +83,26 @@ public class RefReader<T extends ApiObject> {
 		}
 	}
 	
+	private List<ApiSchemaData> readSchemas() throws IOException {
+		try {
+			List<ApiSchemaData> result = new ArrayList<>();
+			Files.walkFileTree(store.getPackageSchemaDirectory(shortRefName), new SimpleFileVisitor<Path>() {
+				@Override
+				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+					if(attrs.isRegularFile() && "index.json".equals(file.getFileName().toString())) {
+						String content = Files.readString(file);
+						result.add(JsonUtil.fromJsonObject(content, ApiSchemaData.class));
+					}
+					return super.visitFile(file, attrs);
+				}
+			});
+			return result;
+		} catch(IOException e) {
+			logger.error(e);
+			throw e;
+		}
+	}
+	
 	private List<T> readApiObjects() throws IOException {
 		try {
 			List<T> result = new ArrayList<>();
@@ -88,6 +110,10 @@ public class RefReader<T extends ApiObject> {
 
 				@Override
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+					// 忽略 __schemas__ 目录下的内容
+					if(attrs.isDirectory() && file.getFileName().toString().equals("__schemas__")) {
+						return FileVisitResult.SKIP_SUBTREE;
+					}
 					if(attrs.isRegularFile() && "index.json".equals(file.getFileName().toString())) {
 						String content = Files.readString(file);
 						result.add(JsonUtil.fromJsonObject(content, getApiObjectClass()));
