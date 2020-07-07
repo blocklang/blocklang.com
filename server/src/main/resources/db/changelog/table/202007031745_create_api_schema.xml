@@ -14,6 +14,9 @@
 			<column name="api_repo_version_id" remarks="API 仓库版本标识" type="int">
 				<constraints nullable="false" />
 			</column>
+			<column name="code" remarks="Schema 的编码" type="char(4)">
+				<constraints nullable="false" />
+			</column>
 			<column name="name" remarks="属性名" type="varchar(64)" />
 			<column name="type" remarks="数据类型" type="varchar(32)">
 				<constraints nullable="false" />
@@ -34,6 +37,9 @@
 
 		<addUniqueConstraint columnNames="api_repo_version_id,parent_id,name"
 			constraintName="UK_API_SCHEMA_ON_REPO_VERSION_PARENT_NAME"
+			tableName="api_schema" />
+		<addUniqueConstraint columnNames="api_repo_version_id,parent_id,code"
+			constraintName="UK_API_SCHEMA_ON_REPO_VERSION_PARENT_CODE"
 			tableName="api_schema" />
 	</changeSet>
 

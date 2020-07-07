@@ -10,7 +10,8 @@ import com.blocklang.core.model.PartialOperateFields;
 
 @Entity
 @Table(name = "api_schema", uniqueConstraints = {
-		@UniqueConstraint(columnNames = { "api_repo_version_id", "parent_id", "name" }) })
+		@UniqueConstraint(columnNames = { "api_repo_version_id", "parent_id", "name" }),
+		@UniqueConstraint(columnNames = { "api_repo_version_id", "parent_id", "code" })})
 public class ApiSchema extends PartialOperateFields {
 
 	private static final long serialVersionUID = -6145790673297157010L;
@@ -18,6 +19,9 @@ public class ApiSchema extends PartialOperateFields {
 	@Column(name = "api_repo_version_id", nullable = false)
 	private Integer apiRepoVersionId;
 
+	@Column(name = "code", nullable = false, length = 4)
+	private String code;
+	
 	@Column(name = "name", length = 64)
 	private String name;
 
@@ -44,6 +48,14 @@ public class ApiSchema extends PartialOperateFields {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
 	}
 
 	public String getDescription() {
