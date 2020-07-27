@@ -66,6 +66,7 @@ public class RepoPublishServiceImpl implements RepoPublishService {
 		gitRepoPublishTaskDao.save(publishTask);
 		
 		ExecutionContext context = new DefaultExecutionContext();
+		context.setLogger(logger);
 		context.putValue(ExecutionContext.MARKETPLACE_STORE, store);
 		context.putValue(ExecutionContext.PUBLISH_TASK, publishTask);
 		context.putValue(ExecutionContext.DATA_ROOT_PATH, dataRootPath);
@@ -79,6 +80,7 @@ public class RepoPublishServiceImpl implements RepoPublishService {
 		
 		watch.stop();
 		long seconds = watch.getTime(TimeUnit.SECONDS);
+		logger.info("成功注册到组件市场");
 		logger.info("共耗时 {0} 秒", seconds);
 		
 		logger.finished(releaseResult);
@@ -197,6 +199,12 @@ public class RepoPublishServiceImpl implements RepoPublishService {
 			String dataRootPath = context.getStringValue(ExecutionContext.DATA_ROOT_PATH);
 			MarketplaceStore store = new MarketplaceStore(dataRootPath, apiGitUrl);
 			context.putValue(ExecutionContext.MARKETPLACE_STORE, store);
+			context.putValue(ExecutionContext.GIT_URL, apiGitUrl);
+			
+			CheckoutAction checkoutApiRepo = new CheckoutAction(context);
+			if (!checkoutApiRepo.run()) {
+				return false;
+			}
 			
 			// 在此 action 中要确认是否有效的 api 仓库
 			GetRepoConfigAction apiRepoGetRepoConfig = new GetRepoConfigAction(context);

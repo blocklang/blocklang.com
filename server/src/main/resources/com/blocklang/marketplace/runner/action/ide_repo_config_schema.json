@@ -39,7 +39,7 @@
 		"appType": {
 			"type": "string",
 			"description": "App 类型",
-			"enum": ["web", "android", "ios", "wechat", "alipay", "quickapp"]
+			"enum": ["web", "miniProgram", "android", "ios", "wechat", "alipay", "quickapp"]
 		},
 		"build": {
 			"type": "string",

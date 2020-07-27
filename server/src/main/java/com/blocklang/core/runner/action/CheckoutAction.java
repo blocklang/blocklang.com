@@ -2,6 +2,8 @@ package com.blocklang.core.runner.action;
 
 import java.nio.file.Path;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.runner.common.AbstractAction;
 import com.blocklang.core.runner.common.CliLogger;
@@ -38,8 +40,14 @@ public class CheckoutAction extends AbstractAction{
 		
 		var task = context.getValue(ExecutionContext.PUBLISH_TASK, GitRepoPublishTask.class);
 		var store = context.getValue(ExecutionContext.MARKETPLACE_STORE, MarketplaceStore.class);
+		var gitUrl = context.getStringValue(ExecutionContext.GIT_URL);
 		
-		this.gitUrl = task.getGitUrl();
+		if(!StringUtils.isBlank(gitUrl)) {
+			this.gitUrl = gitUrl;
+		} else {
+			this.gitUrl = task.getGitUrl();
+		}
+		
 		this.localSourceDirectory = store.getRepoSourceDirectory();
 	}
 

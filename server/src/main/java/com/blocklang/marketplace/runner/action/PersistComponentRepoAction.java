@@ -20,11 +20,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 public class PersistComponentRepoAction extends AbstractAction{
 
 	private GitRepoPublishTask publishTask;
-	
 	private MarketplaceStore store;
+	
 	public PersistComponentRepoAction(ExecutionContext context) {
 		super(context);
-		publishTask = context.getValue(ExecutionContext.PUBLISH_TASK, GitRepoPublishTask.class);
+		this.publishTask = context.getValue(ExecutionContext.PUBLISH_TASK, GitRepoPublishTask.class);
+		this.store = context.getValue(ExecutionContext.MARKETPLACE_STORE, MarketplaceStore.class);
 	}
 
 	@Override
@@ -40,7 +41,6 @@ public class PersistComponentRepoAction extends AbstractAction{
 					data.setShortRefName(GitUtils.getVersionFromRefName(fullRefName).get());
 					data.setCreateUserId(publishTask.getCreateUserId());
 					data.setGitUrl(publishTask.getGitUrl());
-					
 					
 					RepoConfigJson repoConfig;
 					try {

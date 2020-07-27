@@ -16,7 +16,7 @@ public class CliCommand {
 	}
 	
 	public boolean run(Path workingDirectory, String... commands) {
-		Assert.isTrue(commands.length > 1, "至少要包含一个命令");
+		Assert.isTrue(commands.length > 0, "至少要包含一个命令");
 		// 兼容 windows 和 linux
 		// 处理第一个命令，在 windows 中增加 .cmd 后缀
 		commands[0] = getCommandName(commands[0]);

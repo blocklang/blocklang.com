@@ -83,6 +83,7 @@ public interface PersistApiRepoService {
 			RefData<? extends ApiObject> refData = reader.read();
 			if (refData.isInvalidData()) {
 				logger.error("{0} 读取 API 数据失败", "refs/heads/master");
+				success = false;
 			} else {
 				ApiRepo apiRepo = saveApoRepo(refData);
 				this.getPersistApiRefService().save(apiRepo.getId(), refData);
