@@ -133,6 +133,12 @@ export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBas
 						'aria-label': 'git 仓库地址',
 						'aria-describedby': 'btn-addon',
 						oninput: this._onComponentRepoUrlInput,
+						onkeydown: (event: KeyboardEvent<HTMLInputElement>) => {
+							if (event.keyCode === 13 /* 敲回车 */) {
+								event.preventDefault();
+								this._publishComponentRepo();
+							}
+						},
 					}),
 					v('div', { classes: [c.input_group_append] }, [
 						v(
