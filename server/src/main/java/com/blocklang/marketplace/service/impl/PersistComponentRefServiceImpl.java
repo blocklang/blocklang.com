@@ -45,13 +45,13 @@ public class PersistComponentRefServiceImpl implements PersistComponentRepoServi
 		}
 		ComponentRepo repo = saveComponentRepo(refDatas.get(0));
 		for(RefData refData : refDatas) {
-			saveComponentVersion(repo.getId(), refData);
+			saveOrUpdateComponentVersion(repo.getId(), refData);
 		}
 	}
 
 	// 如果是 tag，如果已存在，则不再修改
 	// 如果是 master，如果已存在，则依然修改
-	private void saveComponentVersion(Integer repoId, RefData refData) {
+	private void saveOrUpdateComponentVersion(Integer repoId, RefData refData) {
 		Integer apiRepoVersionId = getApiRepoVersionId(refData);
 		if(apiRepoVersionId == null) {
 			return;
@@ -61,50 +61,46 @@ public class PersistComponentRefServiceImpl implements PersistComponentRepoServi
 		if(refData.getShortRefName().equals("master")) {
 			if(repoVersionOption.isPresent()) {
 				ComponentRepoVersion repoVersion = repoVersionOption.get();
-				repoVersion.setAppType(AppType.fromValue(refData.getRepoConfig().getAppType()));
-				repoVersion.setName(refData.getRepoConfig().getName());
-				repoVersion.setDisplayName(refData.getRepoConfig().getDisplayName());
-				repoVersion.setDescription(refData.getRepoConfig().getDescription());
-				repoVersion.setLanguage(Language.fromValue(refData.getRepoConfig().getLanguage()));
-				repoVersion.setLastPublishTime(LocalDateTime.now());
-				// 未设置 logo_path
-				componentRepoVersionDao.save(repoVersion);
+				updateComponentVersion(repoVersion, refData);
 			} else {
-				ComponentRepoVersion repoVersion = new ComponentRepoVersion();
-				repoVersion.setApiRepoVersionId(apiRepoVersionId);
-				repoVersion.setComponentRepoId(repoId);
-				repoVersion.setCreateTime(LocalDateTime.now());
-				repoVersion.setCreateUserId(refData.getCreateUserId());
-				repoVersion.setGitTagName(refData.getFullRefName());
-				repoVersion.setVersion(refData.getShortRefName());
-				repoVersion.setAppType(AppType.fromValue(refData.getRepoConfig().getAppType()));
-				repoVersion.setName(refData.getRepoConfig().getName());
-				repoVersion.setDisplayName(refData.getRepoConfig().getDisplayName());
-				repoVersion.setDescription(refData.getRepoConfig().getDescription());
-				repoVersion.setLanguage(Language.fromValue(refData.getRepoConfig().getLanguage()));
-				repoVersion.setLastPublishTime(LocalDateTime.now());
-				// 未设置 logo_path
-				componentRepoVersionDao.save(repoVersion);
+				newComponentVersion(repoId, refData, apiRepoVersionId);
 			}
 		} else {
 			if(repoVersionOption.isEmpty()) {
-				ComponentRepoVersion repoVersion = new ComponentRepoVersion();
-				repoVersion.setApiRepoVersionId(apiRepoVersionId);
-				repoVersion.setComponentRepoId(repoId);
-				repoVersion.setCreateTime(LocalDateTime.now());
-				repoVersion.setCreateUserId(refData.getCreateUserId());
-				repoVersion.setGitTagName(refData.getFullRefName());
-				repoVersion.setVersion(refData.getShortRefName());
-				repoVersion.setAppType(AppType.fromValue(refData.getRepoConfig().getAppType()));
-				repoVersion.setName(refData.getRepoConfig().getName());
-				repoVersion.setDisplayName(refData.getRepoConfig().getDisplayName());
-				repoVersion.setDescription(refData.getRepoConfig().getDescription());
-				repoVersion.setLanguage(Language.fromValue(refData.getRepoConfig().getLanguage()));
-				repoVersion.setLastPublishTime(LocalDateTime.now());
-				// 未设置 logo_path
-				componentRepoVersionDao.save(repoVersion);
+				newComponentVersion(repoId, refData, apiRepoVersionId);
 			}
 		}
+	}
+	
+	private void updateComponentVersion(ComponentRepoVersion repoVersion, RefData refData) {
+		repoVersion.setAppType(AppType.fromValue(refData.getRepoConfig().getAppType()));
+		repoVersion.setName(refData.getRepoConfig().getName());
+		repoVersion.setDisplayName(refData.getRepoConfig().getDisplayName());
+		repoVersion.setBuild(refData.getRepoConfig().getBuild());
+		repoVersion.setDescription(refData.getRepoConfig().getDescription());
+		repoVersion.setLanguage(Language.fromValue(refData.getRepoConfig().getLanguage()));
+		repoVersion.setLastPublishTime(LocalDateTime.now());
+		// 未设置 logo_path
+		componentRepoVersionDao.save(repoVersion);
+	}
+
+	private void newComponentVersion(Integer repoId, RefData refData, Integer apiRepoVersionId) {
+		ComponentRepoVersion repoVersion = new ComponentRepoVersion();
+		repoVersion.setApiRepoVersionId(apiRepoVersionId);
+		repoVersion.setComponentRepoId(repoId);
+		repoVersion.setCreateTime(LocalDateTime.now());
+		repoVersion.setCreateUserId(refData.getCreateUserId());
+		repoVersion.setGitTagName(refData.getFullRefName());
+		repoVersion.setVersion(refData.getShortRefName());
+		repoVersion.setAppType(AppType.fromValue(refData.getRepoConfig().getAppType()));
+		repoVersion.setName(refData.getRepoConfig().getName());
+		repoVersion.setDisplayName(refData.getRepoConfig().getDisplayName());
+		repoVersion.setBuild(refData.getRepoConfig().getBuild());
+		repoVersion.setDescription(refData.getRepoConfig().getDescription());
+		repoVersion.setLanguage(Language.fromValue(refData.getRepoConfig().getLanguage()));
+		repoVersion.setLastPublishTime(LocalDateTime.now());
+		// 未设置 logo_path
+		componentRepoVersionDao.save(repoVersion);
 	}
 
 	private Integer getApiRepoVersionId(RefData refData) {
