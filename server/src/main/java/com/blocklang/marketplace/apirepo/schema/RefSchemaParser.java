@@ -50,6 +50,7 @@ public class RefSchemaParser {
 	}
 
 	public ParseResult run() {
+		createSchemaDirectory();
 		
 		this.allChangelogFiles = readAllChangelogFiles();
 		
@@ -78,6 +79,20 @@ public class RefSchemaParser {
 			return ParseResult.FAILED;
 		}
 		
+		return ParseResult.SUCCESS;
+	}
+
+	// 创建 __schemas__ 文件夹
+	private ParseResult createSchemaDirectory() {
+		Path schemasPath = schemaContext.getChangedObjectPath(shortRefName);
+		if(Files.notExists(schemasPath)) {
+			try {
+				Files.createDirectories(schemasPath);
+			} catch (IOException e) {
+				logger.error(e);
+				return ParseResult.FAILED;
+			}
+		}
 		return ParseResult.SUCCESS;
 	}
 
