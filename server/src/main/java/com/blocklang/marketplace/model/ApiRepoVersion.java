@@ -37,7 +37,7 @@ public class ApiRepoVersion extends PartialIdField{
 	@Column(name = "description", length = 512)
 	private String description;
 	
-	@Column(name = "last_publish_time" )
+	@Column(name = "last_publish_time", nullable = false)
 	private LocalDateTime lastPublishTime;
 
 	@Column(name = "create_user_id", insertable = true, updatable = false, nullable = false)

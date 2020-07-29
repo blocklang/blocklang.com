@@ -12,6 +12,7 @@
 | git_repo_owner   | git 仓库拥有者 | varchar | 64   |        |      | 否   |
 | git_repo_name    | git 仓库名称   | varchar | 64   |        |      | 否   |
 | category         | 组件库分类     | char    | 2    |        |      | 否   |
+| last_publish_time | 最近发布时间       | datetime |      |        |      | 是   |
 
 ## 约束
 

@@ -6,15 +6,16 @@
 
 ## 字段
 
-| 字段名           | 注释           | 类型    | 长度 | 默认值 | 主键 | 可空 |
-| ---------------- | -------------- | ------- | ---- | ------ | ---- | ---- |
-| dbid             | 主键           | int     |      |        | 是   | 否   |
-| git_repo_url     | git 仓库地址   | varchar | 128  |        |      | 否   |
-| git_repo_website | git 仓库网站   | varchar | 32   |        |      | 否   |
-| git_repo_owner   | git 仓库拥有者 | varchar | 64   |        |      | 否   |
-| git_repo_name    | git 仓库名称   | varchar | 64   |        |      | 否   |
-| category         | 组件库分类     | char    | 2    |        |      | 否   |
-| repo_type        | 仓库类型       | char    | 2    |        |      | 否   |
+| 字段名            | 注释           | 类型     | 长度 | 默认值 | 主键 | 可空 |
+| ----------------- | -------------- | -------- | ---- | ------ | ---- | ---- |
+| dbid              | 主键           | int      |      |        | 是   | 否   |
+| git_repo_url      | git 仓库地址   | varchar  | 128  |        |      | 否   |
+| git_repo_website  | git 仓库网站   | varchar  | 32   |        |      | 否   |
+| git_repo_owner    | git 仓库拥有者 | varchar  | 64   |        |      | 否   |
+| git_repo_name     | git 仓库名称   | varchar  | 64   |        |      | 否   |
+| category          | 组件库分类     | char     | 2    |        |      | 否   |
+| repo_type         | 仓库类型       | char     | 2    |        |      | 否   |
+| last_publish_time | 最近发布时间   | datetime |      |        |      | 否   |
 
 ## 约束
 

@@ -90,4 +90,10 @@
 	<include file="db/changelog/table/202006181731_rename_component_repo_publish_task_to_git_repo_publish_task.xml" />
 	
 	<include file="db/changelog/table/202007031745_create_api_schema.xml" />
+	
+	<include file="db/changelog/table/202007300629_alter_api_repo.xml" />
+	<include file="db/changelog/table/202007300630_alter_api_repo_version.xml" />
+	<include file="db/changelog/table/202007300630_alter_component_repo.xml" />
+	<include file="db/changelog/table/202007300631_alter_component_repo_version.xml" />
+	
 </databaseChangeLog>

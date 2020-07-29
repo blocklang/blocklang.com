@@ -20,7 +20,11 @@ public class AbstractApiRepoService {
 	public <T extends ApiObject> ApiRepo saveApoRepo(RefData<T> refData) {
 		Optional<ApiRepo> optional = apiRepoDao.findByGitRepoUrlAndCreateUserId(refData.getGitUrl(), refData.getCreateUserId());
 		if(optional.isPresent()) {
-			return optional.get();
+			ApiRepo repo = optional.get();
+			repo.setLastUpdateTime(LocalDateTime.now());
+			repo.setLastUpdateUserId(refData.getCreateUserId());
+			repo.setLastPublishTime(LocalDateTime.now());
+			return apiRepoDao.save(repo);
 		}
 		
 		String gitUrl = refData.getGitUrl();
@@ -32,6 +36,7 @@ public class AbstractApiRepoService {
 		apiRepo.setGitRepoOwner(urlSegment.getOwner());
 		apiRepo.setGitRepoName(urlSegment.getRepoName());
 		apiRepo.setCategory(RepoCategory.fromValue(refData.getRepoConfig().getCategory()));
+		apiRepo.setLastPublishTime(LocalDateTime.now());
 		apiRepo.setCreateTime(LocalDateTime.now());
 		apiRepo.setCreateUserId(refData.getCreateUserId());
 		

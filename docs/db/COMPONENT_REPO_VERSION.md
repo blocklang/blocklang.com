@@ -18,7 +18,7 @@
 | logo_path           | 项目 Logo 存储路径 | varchar  | 64   |        |      | 是   |
 | language            | 主编程语言         | varchar  | 32   |        |      | 是   |
 | build               | cli build 工具     | varchar  | 32   |        |      | 否   |
-| last_publish_time   | 最近发布时间       | datetime |      |        |      | 是   |
+| last_publish_time   | 最近发布时间       | datetime |      |        |      | 否   |
 | create_user_id      | 创建人标识         | int      |      |        |      | 否   |
 | create_time         | 创建时间           | datetime |      |        |      | 否   |
 

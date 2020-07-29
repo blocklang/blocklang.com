@@ -55,7 +55,7 @@ public class ComponentRepoVersion extends PartialIdField {
 	@Column(name = "build", nullable = false, length = 32)
 	private String build;
 	
-	@Column(name = "last_publish_time" )
+	@Column(name = "last_publish_time", nullable = false)
 	private LocalDateTime lastPublishTime;
 
 	@Convert(converter = AppTypeConverter.class)

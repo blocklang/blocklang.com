@@ -5,7 +5,6 @@ import com.blocklang.marketplace.apirepo.Change;
 import com.blocklang.marketplace.apirepo.ChangeData;
 import com.blocklang.marketplace.apirepo.ChangedObjectContext;
 import com.blocklang.marketplace.apirepo.CodeGenerator;
-import com.blocklang.marketplace.apirepo.apiobject.ApiObjectContext;
 import com.blocklang.marketplace.apirepo.apiobject.webapi.data.AddFunctionData;
 import com.blocklang.marketplace.apirepo.apiobject.webapi.data.JsObjectData;
 

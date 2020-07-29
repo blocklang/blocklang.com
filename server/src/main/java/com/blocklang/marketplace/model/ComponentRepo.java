@@ -1,5 +1,7 @@
 package com.blocklang.marketplace.model;
 
+import java.time.LocalDateTime;
+
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
@@ -42,6 +44,9 @@ public class ComponentRepo extends PartialOperateFields {
 	@Convert(converter = RepoTypeConverter.class)
 	@Column(name = "repo_type", nullable = false)
 	private RepoType repoType;
+	
+	@Column(name = "last_publish_time", nullable = false)
+	private LocalDateTime lastPublishTime;
 
 	@Transient
 	private String createUserName;
@@ -111,6 +116,14 @@ public class ComponentRepo extends PartialOperateFields {
 
 	public void setRepoType(RepoType repoType) {
 		this.repoType = repoType;
+	}
+
+	public LocalDateTime getLastPublishTime() {
+		return lastPublishTime;
+	}
+
+	public void setLastPublishTime(LocalDateTime lastPublishTime) {
+		this.lastPublishTime = lastPublishTime;
 	}
 
 }

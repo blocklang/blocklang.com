@@ -127,6 +127,7 @@ public class PersistComponentRefServiceImpl implements PersistComponentRepoServi
 			ComponentRepo repo = repoOption.get();
 			repo.setLastUpdateTime(LocalDateTime.now());
 			repo.setLastUpdateUserId(userId);
+			repo.setLastPublishTime(LocalDateTime.now());
 			return componentRepoDao.save(repo);
 		} else {
 			GitUrlSegment segment = GitUrlSegment.of(gitUrl);
@@ -137,6 +138,7 @@ public class PersistComponentRefServiceImpl implements PersistComponentRepoServi
 			repo.setGitRepoWebsite(segment.getWebsite());
 			repo.setCategory(RepoCategory.fromValue(refData.getRepoConfig().getCategory()));
 			repo.setRepoType(RepoType.fromValue(refData.getRepoConfig().getRepo()));
+			repo.setLastPublishTime(LocalDateTime.now());
 			repo.setCreateUserId(userId);
 			repo.setCreateTime(LocalDateTime.now());
 			return componentRepoDao.save(repo);

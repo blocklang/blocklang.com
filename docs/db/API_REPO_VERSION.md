@@ -15,7 +15,7 @@ API 仓库的版本信息，其中存储 git 仓库的所有 tag 信息和 maste
 | description       | 组件库的详细说明   | varchar  | 512  |        |      | 是   |
 | create_user_id    | 创建人标识         | int      |      |        |      | 否   |
 | create_time       | 创建时间           | datetime |      |        |      | 否   |
-| last_publish_time | 发布时间           | datetime |      |        |      | 是   |
+| last_publish_time | 最近发布时间       | datetime |      |        |      | 否   |
 
 ## 约束
 
