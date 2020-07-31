@@ -51,7 +51,7 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 	@Test
 	public void list_component_repos_q_is_null_and_page_is_null() {
 		Page<ComponentRepoInfo> result = new PageImpl<ComponentRepoInfo>(Collections.emptyList());
-		when(componentRepoService.findAllByGitRepoNameAndExcludeStd(any(), any())).thenReturn(result);
+		when(componentRepoService.findAllByGitRepoName(any(), any())).thenReturn(result);
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -65,7 +65,7 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 	@Test
 	public void list_component_repos_q_is_empty_and_page_is_1() {
 		Page<ComponentRepoInfo> result = new PageImpl<ComponentRepoInfo>(Collections.emptyList());
-		when(componentRepoService.findAllByGitRepoNameAndExcludeStd(any(), any())).thenReturn(result);
+		when(componentRepoService.findAllByGitRepoName(any(), any())).thenReturn(result);
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -105,7 +105,7 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 	@Test
 	public void list_component_repos_q_is_null_and_page_greater_than_total() {
 		Page<ComponentRepoInfo> result = new PageImpl<ComponentRepoInfo>(Collections.emptyList(), PageRequest.of(100, 6000), 1);
-		when(componentRepoService.findAllByGitRepoNameAndExcludeStd(any(), any())).thenReturn(result);
+		when(componentRepoService.findAllByGitRepoName(any(), any())).thenReturn(result);
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -119,9 +119,9 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 	
 	@Test
 	public void list_component_repos_success() {
-		ComponentRepoInfo registry = new ComponentRepoInfo(null, null);
+		ComponentRepoInfo registry = new ComponentRepoInfo(null, null, null, null);
 		Page<ComponentRepoInfo> result = new PageImpl<ComponentRepoInfo>(Collections.singletonList(registry));
-		when(componentRepoService.findAllByGitRepoNameAndExcludeStd(any(), any())).thenReturn(result);
+		when(componentRepoService.findAllByGitRepoName(any(), any())).thenReturn(result);
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -151,7 +151,7 @@ public class ComponentRepoControllerTest extends AbstractControllerTest{
 		userInfo.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(userInfo));
 		
-		ComponentRepoInfo repo = new ComponentRepoInfo(null, null);
+		ComponentRepoInfo repo = new ComponentRepoInfo(null, null, null, null);
 		when(componentRepoService.findUserComponentRepos(anyInt())).thenReturn(Collections.singletonList(repo));
 		
 		given()

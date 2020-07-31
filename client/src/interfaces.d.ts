@@ -8,6 +8,7 @@ import {
 	ProgrammingLanguage,
 	RepoCategory,
 	PageAppType,
+	RepoType,
 } from './constant';
 import { IconName } from '@fortawesome/fontawesome-svg-core';
 
@@ -300,43 +301,48 @@ interface ApiRepo {
 	gitRepoWebsite: string;
 	gitRepoOwner: string;
 	gitRepoName: string;
-	name: string;
-	version: string; // 必须存在组件市场登记的最新版本号
-	label?: string;
-	description?: string;
 	category: RepoCategory;
 	lastPublishTime: string;
-	createUserName: string;
-	createUserAvatarUrl: string;
+	std: boolean;
 }
 
 interface ComponentRepo extends ApiRepo {
-	apiRepoId: number;
-	logoPath: string;
-	language: ProgrammingLanguage;
-	isIdeExtension: boolean;
-	std: boolean;
-	appType: string;
-	icon: string;
-	title: string;
+	repoType: RepoType;
+	createUserName: string;
+	createUserAvatarUrl: string;
 }
 
 interface ApiRepoVersion {
 	id: number;
 	apiRepoId: number;
 	version: string;
+	gitTagName: string;
+	name: string;
+	displayName: string;
+	description?: string;
 }
 
 interface ComponentRepoVersion {
 	id: number;
 	componentRepoId: number;
 	version: string;
+	gitTagName: string;
 	apiRepoVersionId: number;
+	name: string;
+	displayName: string;
+	description?: string;
+	logoPath: string;
+	language: ProgrammingLanguage;
+	appType: PageAppType;
+	icon: string;
+	title: string;
 }
 
 interface ComponentRepoInfo {
 	componentRepo: ComponentRepo;
+	componentRepoVersion: ComponentRepoVersion;
 	apiRepo: ApiRepo;
+	apiRepoVersion: ApiRepoVersion;
 }
 
 interface PagedComponentRepos extends Page {

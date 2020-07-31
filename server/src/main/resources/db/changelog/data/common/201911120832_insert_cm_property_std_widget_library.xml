@@ -26,7 +26,7 @@
 		</insert>
 		<insert tableName="cm_property">
 			<column name="dbid" valueNumeric="7" />
-			<column name="prop_key" value="std.widget.register.userid" />
+			<column name="prop_key" value="std.repo.register.user.id" />
 			<!-- 默认为系统的第一个用户 -->
 			<column name="prop_value" value="1" />
 			<column name="prop_desc" value="注册标准库的用户标识" />

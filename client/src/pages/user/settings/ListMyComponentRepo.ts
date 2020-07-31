@@ -15,7 +15,12 @@ import Moment from '../../../widgets/moment';
 import Exception from '../../error/Exception';
 import { Client, IFrame } from '@stomp/stompjs';
 import SockJS = require('sockjs-client');
-import { getRepoCategoryName, getProgramingLanguageName, getProgramingLanguageColor } from '../../../util';
+import {
+	getRepoCategoryName,
+	getProgramingLanguageName,
+	getProgramingLanguageColor,
+	getRepoTypeName,
+} from '../../../util';
 import { IconPrefix, IconName } from '@fortawesome/fontawesome-svg-core';
 
 export interface ListMyComponentRepoProperties {
@@ -295,39 +300,35 @@ export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBas
 				'ul',
 				{ classes: [c.list_group, c.mt_2] },
 				componentRepoInfos.map((repo) => {
-					const { componentRepo, apiRepo } = repo;
+					const { componentRepo, componentRepoVersion, apiRepo } = repo;
 
 					return v('li', { classes: [c.list_group_item] }, [
 						v('div', {}, [
 							v('div', {}, [
-								v('span', { classes: [c.font_weight_bold, c.mr_2] }, [`${componentRepo.name}`]),
-								componentRepo.label
-									? v('span', { classes: [c.text_muted] }, [`${componentRepo.label}`])
-									: undefined,
+								v('span', { classes: [c.font_weight_bold, c.mr_3] }, [`${componentRepoVersion.name}`]),
 								componentRepo.std
 									? v(
 											'span',
 											{
-												classes: [c.badge, c.badge_info, c.ml_3],
-												title: '可成为项目的默认依赖',
+												classes: [c.badge, c.badge_info, c.ml_1],
+												title: '项目的默认依赖',
 											},
 											['标准库']
 									  )
 									: undefined,
-								componentRepo.isIdeExtension
-									? v(
-											'span',
-											{
-												classes: [c.badge, c.badge_info, c.ml_1],
-												title: '与 BlockLang 设计器集成',
-											},
-											['设计器扩展']
-									  )
-									: undefined,
+								v(
+									'span',
+									{
+										classes: [c.badge, c.badge_info, c.ml_1],
+										title: '与 BlockLang 设计器集成',
+									},
+									[`${getRepoTypeName(componentRepo.repoType)}`]
+								),
 							]),
-							v('p', { itemprop: 'description', classes: [c.text_muted, c.mb_0] }, [
-								`${componentRepo.description}`,
-							]),
+							componentRepoVersion.description &&
+								v('p', { itemprop: 'description', classes: [c.text_muted, c.mb_0] }, [
+									`${componentRepoVersion.description}`,
+								]),
 							v('div', { classes: [c.my_2] }, [
 								v('span', { classes: [c.border, c.rounded, c.px_1] }, [
 									v('span', {}, ['API: ']),
@@ -341,12 +342,10 @@ export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBas
 										},
 										[`${apiRepo.gitRepoOwner}/${apiRepo.gitRepoName}`]
 									),
-									// 必须确保此版本号正是最新版组件库实现的 API 版本
-									v('span', {}, [`${apiRepo.version}`]),
 								]),
 								' -> ',
 								v('span', { classes: [c.border, c.rounded, c.px_1] }, [
-									v('span', {}, ['实现: ']),
+									v('span', {}, [`${getRepoTypeName(componentRepo.repoType)}: `]),
 									v(
 										'a',
 										{
@@ -357,27 +356,27 @@ export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBas
 										},
 										[`${componentRepo.gitRepoOwner}/${componentRepo.gitRepoName}`]
 									),
-									// 组件库的最新版本
-									v('span', {}, [`${componentRepo.version}`]),
 								]),
 							]),
 							v('small', { classes: [c.text_muted] }, [
 								v('span', { classes: [c.mr_3] }, [
 									w(FontAwesomeIcon, {
-										icon: componentRepo.icon.split(' ') as [IconPrefix, IconName],
+										icon: componentRepoVersion.icon.split(' ') as [IconPrefix, IconName],
 										classes: [c.mr_1],
 									}),
-									`${componentRepo.title}`,
+									`${componentRepoVersion.title}`,
 								]),
 								v('span', { classes: [c.mr_3] }, [
 									v('span', {
 										classes: [css.repoLanguageColor, c.mr_1],
 										styles: {
-											backgroundColor: `${getProgramingLanguageColor(componentRepo.language)}`,
+											backgroundColor: `${getProgramingLanguageColor(
+												componentRepoVersion.language
+											)}`,
 										},
 									}),
 									v('span', { itemprop: 'programmingLanguage' }, [
-										`${getProgramingLanguageName(componentRepo.language)}`,
+										`${getProgramingLanguageName(componentRepoVersion.language)}`,
 									]),
 								]),
 								v('span', { classes: [c.mr_3] }, [`${getRepoCategoryName(componentRepo.category)}`]),

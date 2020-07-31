@@ -6,6 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import com.blocklang.core.model.PartialOperateFields;
@@ -36,6 +37,9 @@ public class ApiRepo extends PartialOperateFields {
 	
 	@Column(name = "last_publish_time", nullable = false)
 	private LocalDateTime lastPublishTime;
+	
+	@Transient
+	private Boolean std;
 
 	public String getGitRepoUrl() {
 		return gitRepoUrl;
@@ -83,6 +87,14 @@ public class ApiRepo extends PartialOperateFields {
 
 	public void setLastPublishTime(LocalDateTime lastPublishTime) {
 		this.lastPublishTime = lastPublishTime;
+	}
+
+	public Boolean getStd() {
+		return std;
+	}
+
+	public void setStd(Boolean std) {
+		this.std = std;
 	}
 
 }

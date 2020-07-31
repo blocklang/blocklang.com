@@ -5,17 +5,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaBuilder.In;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.blocklang.core.constant.CmPropKey;
@@ -26,10 +18,7 @@ import com.blocklang.marketplace.dao.ApiRepoVersionDao;
 import com.blocklang.marketplace.dao.ComponentRepoDao;
 import com.blocklang.marketplace.dao.ComponentRepoVersionDao;
 import com.blocklang.marketplace.data.ComponentRepoInfo;
-import com.blocklang.marketplace.model.ApiRepo;
-import com.blocklang.marketplace.model.ApiRepoVersion;
 import com.blocklang.marketplace.model.ComponentRepo;
-import com.blocklang.marketplace.model.ComponentRepoVersion;
 import com.blocklang.marketplace.service.ComponentRepoService;
 
 @Service
@@ -48,87 +37,70 @@ public class ComponentRepoServiceImpl implements ComponentRepoService {
 	@Autowired
 	private PropertyService propertyService;
 	
-	// Page<ComponentRepo> findAllByGitRepoNameContainingIgnoreCase(String queryForName, Pageable page);
 	@Override
-	public Page<ComponentRepoInfo> findAllByGitRepoNameAndExcludeStd(String queryGitRepoName, Pageable page) {
-		Specification<ComponentRepo> spec = createSpecification(queryGitRepoName);
-		
-		return componentRepoDao.findAll(spec, page).map(componentRepo -> {
+	public Page<ComponentRepoInfo> findAllByGitRepoName(String queryGitRepoName, Pageable page) {
+		String version = "master";
+		List<String> stdRepos = findAllStdGitRepo();
+		return componentRepoDao.findAllByGitRepoNameContainingIgnoreCase(queryGitRepoName, page).map(componentRepo -> {
 			userService.findById(componentRepo.getCreateUserId()).ifPresent(user -> {
 				componentRepo.setCreateUserName(user.getLoginName());
 				componentRepo.setCreateUserAvatarUrl(user.getAvatarUrl());
 			});
-			// 为了支持调整 API
-			// 以 master 中的 API 为准
-			ApiRepo apiRepo = getApiRepo(componentRepo, "master");
-			return new ComponentRepoInfo(componentRepo, apiRepo);
+			
+			componentRepo.setStd(stdRepos.stream().anyMatch(gitUrl -> gitUrl.equals(componentRepo.getGitRepoUrl())));
+			return getComponentRepoVersionAndApiRepoVersion(version, componentRepo, stdRepos);
 		});
 	}
 
-	private Specification<ComponentRepo> createSpecification(String queryGitRepoName) {
-		List<String> stdRepos = getStdGitRepo();
-
-		Specification<ComponentRepo> spec = new Specification<ComponentRepo>() {
-			private static final long serialVersionUID = 7373138023698470751L;
-
-			@Override
-			public Predicate toPredicate(Root<ComponentRepo> root, CriteriaQuery<?> query,
-					CriteriaBuilder criteriaBuilder) {
-				Predicate result = criteriaBuilder.conjunction();
-				
-				if(!StringUtils.isBlank(queryGitRepoName)) {
-					result = criteriaBuilder.and(result, criteriaBuilder.like(
-							criteriaBuilder.lower(root.get("gitRepoName")), 
-							"%" + queryGitRepoName.toLowerCase() + "%"));
-				}
-				if(!stdRepos.isEmpty()) {
-					In<String> in = criteriaBuilder.in(root.get("gitRepoUrl"));
-					stdRepos.forEach(repoUrl -> in.value(repoUrl));
-					result = criteriaBuilder.and(result, in.not());
-				}
-				
-				return result;
-			}
-		};
-		return spec;
-	}
-
 	/**
-	 * 获取标准库
+	 * 获取所有系统内置的标准库。
 	 * 
-	 * @return 标准库的 gitUrl 列表
+	 * @return 标准库的 gitUrl 列表，gitUrl 是一个完整的 https url。
 	 */
-	private List<String> getStdGitRepo() {
-		String stdWidgetApiGitUrl = propertyService.findStringValue(CmPropKey.STD_WIDGET_API_GIT_URL, null);
-		String stdWidgetIdeGitUrl = propertyService.findStringValue(CmPropKey.STD_WIDGET_IDE_GIT_URL, null);
-		String stdWidgetProdDojoGitUrl = propertyService.findStringValue(CmPropKey.STD_WIDGET_BUILD_DOJO_GIT_URL, null);
-		
-		return Arrays.asList(stdWidgetApiGitUrl, stdWidgetIdeGitUrl, stdWidgetProdDojoGitUrl)
-				.stream()
+	private List<String> findAllStdGitRepo() {
+		String[] stdRepos = {CmPropKey.STD_WIDGET_API_GIT_URL, 
+				CmPropKey.STD_WIDGET_IDE_GIT_URL, 
+				CmPropKey.STD_WIDGET_BUILD_DOJO_GIT_URL,
+				CmPropKey.STD_MINI_PROGRAM_COMPONENT_API_GIT_URL,
+				CmPropKey.STD_MINI_PROGRAM_COMPONENT_IDE_GIT_URL,
+				CmPropKey.STD_MINI_PROGRAM_COMPONENT_PROD_GIT_URL};
+		return Arrays.stream(stdRepos)
+				.map(repoKey -> propertyService.findStringValue(repoKey, null))
 				.filter(repoUrl -> repoUrl != null)
 				.collect(Collectors.toList());
 	}
 
-	private ApiRepo getApiRepo(ComponentRepo componentRepo, String version) {
-		ComponentRepoVersion componentRepoVersion = componentRepoVersionDao.findByComponentRepoIdAndVersion(componentRepo.getId(), version).orElse(null);
-		if (componentRepoVersion == null) {
-			return null;
-		}
-		
-		ApiRepoVersion apiRepoVersion = apiRepoVersionDao.findById(componentRepoVersion.getApiRepoVersionId()).orElse(null);
-		if (apiRepoVersion == null) {
-			return null;
-		}
-		return apiRepoDao.findById(apiRepoVersion.getApiRepoId()).orElse(null);
-	}
-
 	@Override
 	public List<ComponentRepoInfo> findUserComponentRepos(Integer userId) {
-		List<ComponentRepo> repos = componentRepoDao.findAllByCreateUserIdOrderByGitRepoName(userId);
-		return repos.stream().map(componentRepo -> {
-			ApiRepo apiRepo = getApiRepo(componentRepo, "master");
-			return new ComponentRepoInfo(componentRepo, apiRepo);
-		}).collect(Collectors.toList());
+		var version = "master";
+		List<String> stdRepos = findAllStdGitRepo();
+		return componentRepoDao
+				.findAllByCreateUserIdOrderByGitRepoName(userId)
+				.stream()
+				.map(componentRepo -> {
+					componentRepo.setStd(stdRepos.stream().anyMatch(gitUrl -> gitUrl.equals(componentRepo.getGitRepoUrl())));
+					return getComponentRepoVersionAndApiRepoVersion(version, componentRepo, stdRepos);
+				})
+				.collect(Collectors.toList());
+	}
+
+	private ComponentRepoInfo getComponentRepoVersionAndApiRepoVersion(String version, ComponentRepo componentRepo, List<String> stdRepos) {
+		ComponentRepoInfo componentRepoInfo = new ComponentRepoInfo();
+		componentRepoInfo.setComponentRepo(componentRepo);
+		componentRepoVersionDao.findByComponentRepoIdAndVersion(componentRepo.getId(), version)
+			.ifPresent(componentRepoVersion -> {
+				componentRepoInfo.setComponentRepoVersion(componentRepoVersion);
+				apiRepoVersionDao.findById(componentRepoVersion.getApiRepoVersionId())
+					.ifPresent(apiRepoVersion -> {
+						componentRepoInfo.setApiRepoVersion(apiRepoVersion);
+						apiRepoDao.findById(apiRepoVersion.getApiRepoId())
+							.ifPresent(apiRepo -> {
+								apiRepo.setStd(stdRepos.stream().anyMatch(gitUrl -> gitUrl.equals(apiRepo.getGitRepoUrl())));
+								componentRepoInfo.setApiRepo(apiRepo);
+							});
+					});
+			});
+		return componentRepoInfo;
 	}
 
 	@Override

@@ -12,14 +12,16 @@ import com.blocklang.marketplace.model.ComponentRepo;
 public interface ComponentRepoService {
 
 	/**
-	 * 只查找已发布的组件库，如果组件库已登记，但是没有发布，则不返回。
+	 * 根据 git url 过滤组件库。
+	 * 
+	 * 本方法会查出标准库，并且会将标准库的 std 设置为 true。
 	 * 
 	 * 
-	 * @param query
-	 * @param page
-	 * @return
+	 * @param queryGitRepoName git url 的过滤条件
+	 * @param page 分页信息
+	 * @return 组件库列表
 	 */
-	Page<ComponentRepoInfo> findAllByGitRepoNameAndExcludeStd(String query, Pageable page);
+	Page<ComponentRepoInfo> findAllByGitRepoName(String queryGitRepoName, Pageable page);
 
 	/**
 	 * 返回用户发布的组件库

@@ -1,5 +1,5 @@
 import * as object from '@dojo/framework/shim/object';
-import { ProgrammingLanguage, RepoCategory } from './constant';
+import { ProgrammingLanguage, RepoCategory, RepoType } from './constant';
 
 /**
  * 确认 json 对象是否为空，即等于 `{}`
@@ -35,4 +35,16 @@ export function getRepoCategoryName(category: RepoCategory) {
 		return 'UI 部件';
 	}
 	return '';
+}
+
+export function getRepoTypeName(repoType: RepoType) {
+	if (repoType === RepoType.API) {
+		return 'API';
+	}
+	if (repoType === RepoType.PROD) {
+		return 'PROD';
+	}
+	if (repoType === RepoType.IDE) {
+		return 'IDE';
+	}
 }

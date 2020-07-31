@@ -72,3 +72,9 @@ export enum RepoCategory {
 	ClientApi = '02',
 	ServerApi = '03',
 }
+
+export enum RepoType {
+	API = '01',
+	IDE = '02',
+	PROD = '03',
+}

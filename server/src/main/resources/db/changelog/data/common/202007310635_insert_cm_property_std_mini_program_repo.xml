@@ -1,0 +1,37 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+	
+	<changeSet author="Zhengwei Jin" id="202007310635">
+		<insert tableName="cm_property">
+			<column name="dbid" valueNumeric="10" />
+			<column name="prop_key" value="std.mini.program.component.api.git.url" />
+			<column name="prop_value" value="https://github.com/blocklang/api-mini-program-component.git" />
+			<column name="prop_desc" value="小程序组件标准库的 api 仓库的 URL" />
+			<column name="parent_id" valueNumeric="-1" />
+			<column name="data_type" value="01" />
+			<column name="is_valid" valueBoolean="true" />
+		</insert>
+		<insert tableName="cm_property">
+			<column name="dbid" valueNumeric="11" />
+			<column name="prop_key" value="std.mini.program.component.ide.git.url" />
+			<column name="prop_value" value="https://github.com/blocklang/ide-mini-program-component.git" />
+			<column name="prop_desc" value="小程序组件标准库的 ide 仓库的 URL" />
+			<column name="parent_id" valueNumeric="-1" />
+			<column name="data_type" value="01" />
+			<column name="is_valid" valueBoolean="true" />
+		</insert>
+		<insert tableName="cm_property">
+			<column name="dbid" valueNumeric="12" />
+			<column name="prop_key" value="std.mini.program.component.prod.git.url" />
+			<column name="prop_value" value="https://github.com/blocklang/mini-program-component.git" />
+			<column name="prop_desc" value="小程序组件标准库的 prod 仓库的 URL" />
+			<column name="parent_id" valueNumeric="-1" />
+			<column name="data_type" value="01" />
+			<column name="is_valid" valueBoolean="true" />
+		</insert>
+	</changeSet>
+</databaseChangeLog>

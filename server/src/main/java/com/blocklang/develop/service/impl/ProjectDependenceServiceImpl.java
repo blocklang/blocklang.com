@@ -516,7 +516,7 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 		// 将系统使用的标准库依赖添加到最前面
 		// 获取最新的依赖版本号
 		String stdIdeRepoUrl = propertyService.findStringValue(CmPropKey.STD_WIDGET_IDE_GIT_URL, "");
-		Integer createUserId = propertyService.findIntegerValue(CmPropKey.STD_WIDGET_REGISTER_USERID, 1);
+		Integer createUserId = propertyService.findIntegerValue(CmPropKey.STD_REPO_REGISTER_USER_ID, 1);
 
 		componentRepoDao.findByGitRepoUrlAndCreateUserId(stdIdeRepoUrl, createUserId).flatMap(componentRepo -> {
 			return componentRepoVersionService.findLatestVersion(componentRepo.getId());
@@ -541,7 +541,7 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 	 */
 	private Optional<ProjectDependence> findProjectBuildDependenceByStandardAndDefaultProfile() {
 		String stdBuildRepoUrl = propertyService.findStringValue(CmPropKey.STD_WIDGET_BUILD_DOJO_GIT_URL, "");
-		Integer createUserId = propertyService.findIntegerValue(CmPropKey.STD_WIDGET_REGISTER_USERID, 1);
+		Integer createUserId = propertyService.findIntegerValue(CmPropKey.STD_REPO_REGISTER_USER_ID, 1);
 		// 事先要在组件仓库中注册 std-widget-web。
 		// 标准库，永远只使用最新版。
 		

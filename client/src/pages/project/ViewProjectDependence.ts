@@ -40,6 +40,7 @@ import { findIndex, find } from '@dojo/framework/shim/array';
 import * as lodash from 'lodash';
 import { DNode } from '@dojo/framework/core/interfaces';
 import { IconPrefix, IconName } from '@fortawesome/fontawesome-svg-core';
+import { RepoType } from '../../constant';
 
 export interface ViewProjectDependenceProperties {
 	loggedUsername: string;
@@ -324,9 +325,6 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 							},
 							[`${item.apiRepo.gitRepoOwner}/${item.apiRepo.gitRepoName}`]
 						),
-						item.apiRepo.label
-							? v('span', { classes: [c.text_muted, c.ml_1] }, [`${item.apiRepo.label}`])
-							: undefined,
 						v(
 							'span',
 							{ classes: [c.ml_3] },
@@ -343,7 +341,7 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 	private _renderDevComponentRepos(): DNode[] {
 		const { dependences = [] } = this.properties;
 
-		const devDependences = dependences.filter((dependence) => dependence.componentRepo.isIdeExtension === true);
+		const devDependences = dependences.filter((dependence) => dependence.componentRepo.repoType === RepoType.IDE);
 
 		if (devDependences.length === 0) {
 			return [];
@@ -355,7 +353,9 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 	private _renderBuildComponentRepos(): DNode[] {
 		const { dependences = [] } = this.properties;
 
-		const buildDependences = dependences.filter((dependence) => dependence.componentRepo.isIdeExtension === false);
+		const buildDependences = dependences.filter(
+			(dependence) => dependence.componentRepo.repoType === RepoType.PROD
+		);
 
 		if (buildDependences.length === 0) {
 			return [];
@@ -368,7 +368,7 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 		const { project, onDeleteDependence, onShowDependenceVersions, onUpdateDependenceVersion } = this.properties;
 
 		// 按照 appType 分组
-		const groupedDependences = lodash.groupBy(dependences, (dependence) => dependence.componentRepo.appType);
+		const groupedDependences = lodash.groupBy(dependences, (dependence) => dependence.componentRepoVersion.appType);
 		const vnodes: DNode[] = [];
 		for (const key in groupedDependences) {
 			const values = groupedDependences[key];
@@ -414,7 +414,7 @@ interface ComponentRepoItemProperties {
 class ComponentRepoItem extends ThemedMixin(I18nMixin(WidgetBase))<ComponentRepoItemProperties> {
 	protected render() {
 		const {
-			componentRepoInfo: { componentRepo, apiRepo },
+			componentRepoInfo: { componentRepo, componentRepoVersion, apiRepo },
 			used = false,
 		} = this.properties;
 
@@ -428,14 +428,11 @@ class ComponentRepoItem extends ThemedMixin(I18nMixin(WidgetBase))<ComponentRepo
 						classes: [c.avatar, c.mr_1],
 						src: `${componentRepo.createUserAvatarUrl}`,
 					}),
-					`${componentRepo.createUserName} / ${componentRepo.name}`,
+					`${componentRepo.createUserName} / ${componentRepoVersion.name}`,
 				]),
-				componentRepo.label ? v('span', { classes: [c.text_muted] }, [`${componentRepo.label}`]) : undefined,
-				componentRepo.isIdeExtension
-					? v('span', { classes: [c.badge, c.badge_info, c.ml_3], title: '与 BlockLang 设计器集成' }, [
-							'设计器扩展',
-					  ])
-					: undefined,
+				v('span', { classes: [c.badge, c.badge_info, c.ml_3], title: '与 BlockLang 设计器集成' }, [
+					`${componentRepo.repoType}`,
+				]),
 				used
 					? v('span', { classes: [c.float_right, c.text_info] }, ['已用'])
 					: v(
@@ -447,7 +444,9 @@ class ComponentRepoItem extends ThemedMixin(I18nMixin(WidgetBase))<ComponentRepo
 							['使用']
 					  ),
 			]),
-			v('p', { itemprop: 'description', classes: [c.text_muted, c.mb_0] }, [`${componentRepo.description}`]),
+			v('p', { itemprop: 'description', classes: [c.text_muted, c.mb_0] }, [
+				`${componentRepoVersion.description}`,
+			]),
 			v('div', { classes: [c.my_2] }, [
 				v('span', { classes: [c.border, c.rounded, c.px_1] }, [
 					v('span', {}, ['API: ']),
@@ -461,8 +460,6 @@ class ComponentRepoItem extends ThemedMixin(I18nMixin(WidgetBase))<ComponentRepo
 						},
 						[`${apiRepo.gitRepoOwner}/${apiRepo.gitRepoName}`]
 					),
-					// 必须确保此版本号正是最新版组件库实现的 API 版本
-					v('span', {}, [`${apiRepo.version}`]),
 				]),
 				' -> ',
 				v('span', { classes: [c.border, c.rounded, c.px_1] }, [
@@ -477,27 +474,25 @@ class ComponentRepoItem extends ThemedMixin(I18nMixin(WidgetBase))<ComponentRepo
 						},
 						[`${componentRepo.gitRepoOwner}/${componentRepo.gitRepoName}`]
 					),
-					// 组件库的最新版本
-					v('span', {}, [`${componentRepo.version}`]),
 				]),
 			]),
 			v('small', { classes: [c.text_muted] }, [
 				v('span', { classes: [c.mr_3] }, [
 					w(FontAwesomeIcon, {
-						icon: componentRepo.icon.split(' ') as [IconPrefix, IconName],
+						icon: componentRepoVersion.icon.split(' ') as [IconPrefix, IconName],
 						classes: [c.mr_1],
 					}),
-					`${componentRepo.title}`,
+					`${componentRepoVersion.title}`,
 				]),
 				v('span', { classes: [c.mr_3] }, [
 					v('span', {
 						classes: [css.repoLanguageColor, c.mr_1],
 						styles: {
-							backgroundColor: `${getProgramingLanguageColor(componentRepo.language)}`,
+							backgroundColor: `${getProgramingLanguageColor(componentRepoVersion.language)}`,
 						},
 					}),
 					v('span', { itemprop: 'programmingLanguage' }, [
-						`${getProgramingLanguageName(componentRepo.language)}`,
+						`${getProgramingLanguageName(componentRepoVersion.language)}`,
 					]),
 				]),
 				v('span', { classes: [c.mr_3] }, [`${getRepoCategoryName(componentRepo.category)}`]),
@@ -554,9 +549,6 @@ class DependenceRow extends ThemedMixin(I18nMixin(WidgetBase))<DependenceRowProp
 				},
 				[`${dependence.componentRepo.gitRepoOwner}/${dependence.componentRepo.gitRepoName}`]
 			),
-			dependence.componentRepo.label
-				? v('span', { classes: [c.text_muted, c.ml_1] }, [`${dependence.componentRepo.label}`])
-				: undefined,
 			v('span', { classes: [c.ml_3] }, [
 				v('span', { classes: [c.dropdown] }, [
 					v(

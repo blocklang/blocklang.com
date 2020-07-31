@@ -11,13 +11,13 @@
 			<column name="dbid" type="int">
 				<constraints primaryKey="true" nullable="false" primaryKeyName="PK_CM_PROPERTY" />
 			</column>
-			<column name="prop_key" remarks="属性名称" type="varchar(32)" >
+			<column name="prop_key" remarks="属性名称" type="varchar(64)" >
 				<constraints nullable="false"/>
 			</column>
 			<column name="prop_value" remarks="属性值" type="varchar(128)" >
 				<constraints nullable="false"/>
 			</column>
-			<column name="prop_desc" remarks="属性描述" type="varchar(32)" />
+			<column name="prop_desc" remarks="属性描述" type="varchar(512)" />
 			<column name="parent_id" remarks="父属性标识" type="int" >
 				<constraints nullable="false"/>
 			</column>

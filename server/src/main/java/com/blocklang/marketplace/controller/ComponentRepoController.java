@@ -78,8 +78,11 @@ public class ComponentRepoController {
 		}
 		
 		// 默认一页显示 60 项组件仓库
-		Pageable pageable = PageRequest.of(iPage, 60, Sort.by(Direction.ASC, "gitRepoOwner", "gitRepoName"));
-		Page<ComponentRepoInfo> result = componentRepoService.findAllByGitRepoNameAndExcludeStd(query, pageable);
+		// 根据最近发布时间倒排
+		Pageable pageable = PageRequest.of(iPage, 60, Sort.by(Direction.DESC, "lastPublishTime"));
+		
+		// TODO: 支持显示标准库，单不能在项目中重复添加标准库。
+		Page<ComponentRepoInfo> result = componentRepoService.findAllByGitRepoName(query, pageable);
 		
 		if(iPage > result.getTotalPages()) {
 			throw new ResourceNotFoundException();

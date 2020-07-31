@@ -39,7 +39,7 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void findAllByGitRepoName_query_is_empty_no_data() {
-		Page<ComponentRepoInfo> result = componentRepoService.findAllByGitRepoNameAndExcludeStd("", PageRequest.of(0, 10));
+		Page<ComponentRepoInfo> result = componentRepoService.findAllByGitRepoName("", PageRequest.of(0, 10));
 		assertThat(result.getContent()).isEmpty();
 		assertThat(result.getTotalPages()).isEqualTo(0);
 		assertThat(result.getSize()).isEqualTo(10);
@@ -60,7 +60,7 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		repo.setCreateTime(LocalDateTime.now());
 		componentRepoDao.save(repo);
 		
-		Page<ComponentRepoInfo> result = componentRepoService.findAllByGitRepoNameAndExcludeStd("YOU-REPO", PageRequest.of(0, 10));
+		Page<ComponentRepoInfo> result = componentRepoService.findAllByGitRepoName("YOU-REPO", PageRequest.of(0, 10));
 		assertThat(result.getContent()).hasSize(1);
 		assertThat(result.getTotalPages()).isEqualTo(1);
 		assertThat(result.getSize()).isEqualTo(10);
@@ -81,7 +81,7 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		repo.setCreateTime(LocalDateTime.now());
 		componentRepoDao.save(repo);
 		
-		Page<ComponentRepoInfo> result = componentRepoService.findAllByGitRepoNameAndExcludeStd("re", PageRequest.of(0, 10));
+		Page<ComponentRepoInfo> result = componentRepoService.findAllByGitRepoName("re", PageRequest.of(0, 10));
 		assertThat(result.getContent()).hasSize(1);
 		assertThat(result.getTotalPages()).isEqualTo(1);
 		assertThat(result.getSize()).isEqualTo(10);
@@ -105,14 +105,14 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		
 		when(propertyService.findStringValue(eq(CmPropKey.STD_WIDGET_IDE_GIT_URL), any())).thenReturn(gitRepoUrl);
 		
-		Page<ComponentRepoInfo> result = componentRepoService.findAllByGitRepoNameAndExcludeStd("you-repo", PageRequest.of(0, 10));
+		Page<ComponentRepoInfo> result = componentRepoService.findAllByGitRepoName("you-repo", PageRequest.of(0, 10));
 		assertThat(result.getContent()).hasSize(0);
 		assertThat(result.getTotalPages()).isEqualTo(0);
 		assertThat(result.getSize()).isEqualTo(10);
 		assertThat(result.hasPrevious()).isFalse();
 		assertThat(result.hasNext()).isFalse();
 		
-		result = componentRepoService.findAllByGitRepoNameAndExcludeStd("", PageRequest.of(0, 10));
+		result = componentRepoService.findAllByGitRepoName("", PageRequest.of(0, 10));
 		assertThat(result.getContent()).hasSize(0);
 		assertThat(result.getTotalPages()).isEqualTo(0);
 		assertThat(result.getSize()).isEqualTo(10);
@@ -147,7 +147,7 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		componentRepoDao.save(repo);
 		
 		Pageable pageable = PageRequest.of(0, 10, Sort.by(Direction.ASC, "gitRepoOwner", "gitRepoName"));
-		Page<ComponentRepoInfo> result = componentRepoService.findAllByGitRepoNameAndExcludeStd("repo", pageable);
+		Page<ComponentRepoInfo> result = componentRepoService.findAllByGitRepoName("repo", pageable);
 		assertThat(result.getContent()).hasSize(2);
 		assertThat(result.getTotalPages()).isEqualTo(1);
 		assertThat(result.getSize()).isEqualTo(10);

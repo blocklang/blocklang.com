@@ -7,9 +7,9 @@
 | 字段名     | 注释           | 类型    | 长度 | 默认值 | 主键 | 可空 |
 | ---------- | -------------- | ------- | ---- | ------ | ---- | ---- |
 | dbid       | 主键           | int     |      |        | 是   | 否   |
-| prop_key   | 属性名称       | varchar | 32   |        |      | 否   |
+| prop_key   | 属性名称       | varchar | 64   |        |      | 否   |
 | prop_value | 属性值         | varchar | 128  |        |      | 否   |
-| prop_desc  | 属性描述       | varchar | 32   |        |      | 是   |
+| prop_desc  | 属性描述       | varchar | 512   |        |      | 是   |
 | parent_id  | 父属性标识     | int     |      |        |      | 否   |
 | data_type  | 属性值数据类型 | char    | 2    | 01     |      | 否   |
 | is_valid   | 是否有效       | boolean |      | true   |      | 否   |

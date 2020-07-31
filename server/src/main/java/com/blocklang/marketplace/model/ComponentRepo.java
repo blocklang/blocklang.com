@@ -52,6 +52,8 @@ public class ComponentRepo extends PartialOperateFields {
 	private String createUserName;
 	@Transient
 	private String createUserAvatarUrl;
+	@Transient
+	private Boolean std;
 
 	public String getGitRepoUrl() {
 		return gitRepoUrl;
@@ -126,4 +128,12 @@ public class ComponentRepo extends PartialOperateFields {
 		this.lastPublishTime = lastPublishTime;
 	}
 
+	public Boolean isStd() {
+		return std;
+	}
+
+	public void setStd(Boolean std) {
+		this.std = std;
+	}
+	
 }

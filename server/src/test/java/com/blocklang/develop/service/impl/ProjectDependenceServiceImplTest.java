@@ -537,7 +537,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		componentRepoVersionDao.save(version);
 		
 		when(propertyService.findStringValue(CmPropKey.STD_WIDGET_IDE_GIT_URL, "")).thenReturn("valid_git_url");
-		when(propertyService.findIntegerValue(CmPropKey.STD_WIDGET_REGISTER_USERID, 1)).thenReturn(1);
+		when(propertyService.findIntegerValue(CmPropKey.STD_REPO_REGISTER_USER_ID, 1)).thenReturn(1);
 		// 注意，所有项目都会默认包含标准库
 		List<ProjectDependenceData> dependences = projectDependenceService.findProjectDependences(Integer.MAX_VALUE, true);
 		

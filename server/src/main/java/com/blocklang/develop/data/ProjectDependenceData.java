@@ -12,8 +12,6 @@ import com.blocklang.marketplace.model.ComponentRepoVersion;
 public class ProjectDependenceData extends ComponentRepoInfo{
 
 	private ProjectDependence dependence;
-	private ComponentRepoVersion componentRepoVersion;
-	private ApiRepoVersion apiRepoVersion;
 	private ProjectBuildProfile profile;
 
 	public ProjectDependenceData(ProjectDependence dependence,
@@ -21,30 +19,12 @@ public class ProjectDependenceData extends ComponentRepoInfo{
 			ComponentRepoVersion componentRepoVersion, 
 			ApiRepo apiRepo, 
 			ApiRepoVersion apiRepoVersion) {
-		super(componentRepo, apiRepo);
+		super(componentRepo, componentRepoVersion, apiRepo, apiRepoVersion);
 		this.dependence = dependence;
-		this.componentRepoVersion = componentRepoVersion;
-		this.apiRepoVersion = apiRepoVersion;
 	}
 	
 	public ProjectDependence getDependence() {
 		return dependence;
-	}
-
-	public ComponentRepoVersion getComponentRepoVersion() {
-		return componentRepoVersion;
-	}
-
-	public void setComponentRepoVersion(ComponentRepoVersion componentRepoVersion) {
-		this.componentRepoVersion = componentRepoVersion;
-	}
-
-	public ApiRepoVersion getApiRepoVersion() {
-		return apiRepoVersion;
-	}
-
-	public void setApiRepoVersion(ApiRepoVersion apiRepoVersion) {
-		this.apiRepoVersion = apiRepoVersion;
 	}
 
 	public ProjectBuildProfile getProfile() {

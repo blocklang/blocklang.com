@@ -31,10 +31,6 @@ public abstract class CmPropKey {
 	// git 标准库常量
 	public static final String STD_WIDGET_API_GIT_URL = "std.widget.api.git.url";
 	public static final String STD_WIDGET_IDE_GIT_URL = "std.widget.ide.git.url";
-	/**
-	 * @deprecated 改为使用 {@link #STD_REPO_REGISTER_USER_ID}
-	 */
-	public static final String STD_WIDGET_REGISTER_USERID = "std.widget.register.userid";
 	public static final String STD_WIDGET_ROOT_NAME = "std.widget.root.name";
 	
 	// 各种标准库通用的注册用户标识
@@ -42,6 +38,7 @@ public abstract class CmPropKey {
 	// 小程序的标准库常量
 	public static final String STD_MINI_PROGRAM_COMPONENT_API_GIT_URL = "std.mini.program.component.api.git.url";
 	public static final String STD_MINI_PROGRAM_COMPONENT_IDE_GIT_URL = "std.mini.program.component.ide.git.url";
+	public static final String STD_MINI_PROGRAM_COMPONENT_PROD_GIT_URL = "std.mini.program.component.prod.git.url";
 	public static final String STD_MINI_PROGRAM_COMPONENT_APP_NAME = "std.mini.program.app.name";
 	public static final String STD_MINI_PROGRAM_COMPONENT_PAGE_NAME = "std.mini.program.page.name";
 	

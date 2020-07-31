@@ -14,4 +14,6 @@
 	<include file="db/changelog/data/common/201911120832_insert_cm_property_std_widget_library.xml" />
 	<include file="db/changelog/data/common/201912061032_insert_cm_property_std_widget_build_dojo_library.xml" />
 	
+	<include file="db/changelog/data/common/202007310635_insert_cm_property_std_mini_program_repo.xml" />
+	
 </databaseChangeLog>

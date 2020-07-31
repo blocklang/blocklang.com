@@ -43,39 +43,70 @@ Status: 200 OK
 ```json
 {
     "componentRepo": {},
-    "apiRepo": {}
+    "componentRepoVersion": {},
+    "apiRepo": {},
+    "apiRepoVersion": {}
 }
 ```
 
 componentRepo 中的字段为：
 
-| Name              | Type     | Description        |
-| ----------------- | -------- | ------------------ |
-| `id`              | `int`    | 发行版标识         |
-| `gitRepoUrl`      | `string` | git 仓库地址       |
-| `gitRepoWebsite`  | `string` | git 仓库网站       |
-| `gitRepoOwner`    | `string` | git 仓库拥有者     |
-| `gitRepoName`     | `string` | git 仓库名称       |
-| `name`            | `string` | 组件库的名称       |
-| `version`         | `string` | 组件库的版本号     |
-| `label`           | `string` | 组件库的显示名     |
-| `description`     | `string` | 组件库的详细说明   |
-| `logoPath`        | `string` | 项目 Logo 访问路径 |
-| `category`        | `string` | 组件库分类         |
-| `lastPublishTime` | `string` | 最近发布时间       |
+| Name                  | Type      | Description        |
+| --------------------- | --------- | ------------------ |
+| `id`                  | `int`     | 组件库标识         |
+| `gitRepoUrl`          | `string`  | git 仓库地址       |
+| `gitRepoWebsite`      | `string`  | git 仓库网站       |
+| `gitRepoOwner`        | `string`  | git 仓库拥有者     |
+| `gitRepoName`         | `string`  | git 仓库名称       |
+| `category`            | `string`  | 组件库类型         |
+| `repoType`            | `string`  | 仓库类型           |
+| `lastPublishTime`     | `string`  | 最近发布时间       |
+| `std`                 | `boolean` | 是否标准库         |
+| `createUserName`      | `string`  | 创建用户的名称     |
+| `createUserAvatarUrl` | `string`  | 创建用户的头像链接 |
+
+componentRepoVersion 中的字段为：
+
+| Name               | Type     | Description                    |
+| ------------------ | -------- | ------------------------------ |
+| `id`               | `int`    | 组件库版本标识                 |
+| `componentRepoId`  | `int`    | 组件库标识                     |
+| `version`          | `string` | 组件库的版本号                 |
+| `gitTagName`       | `string` | tag 全称                       |
+| `apiRepoVersionId` | `string` | API 库的版本标识               |
+| `name`             | `string` | 组件库的名称                   |
+| `displayName`      | `string` | 组件库的显示名                 |
+| `description`      | `string` | 组件库的详细说明               |
+| `logoPath`         | `string` | 项目 Logo 访问路径             |
+| `language`         | `string` | 组件库使用的编程语言           |
+| `build`            | `string` | 组件库的构建工具               |
+| `appType`          | `string` | 组件库适用的 app 类型          |
+| `icon`             | `string` | 组件库的图标                   |
+| `title`            | `string` | 鼠标悬停在 icon 上时显示的内容 |
 
 apiRepo 中的字段为：
 
-| Name              | Type     | Description        |
-| ----------------- | -------- | ------------------ |
-| `id`              | `int`    | 发行版标识         |
-| `gitRepoUrl`      | `string` | git 仓库地址       |
-| `gitRepoWebsite`  | `string` | git 仓库网站       |
-| `gitRepoOwner`    | `string` | git 仓库拥有者     |
-| `gitRepoName`     | `string` | git 仓库名称       |
-| `name`            | `string` | 组件库的名称       |
-| `version`         | `string` | 组件库的版本号     |
-| `label`           | `string` | 组件库的显示名     |
-| `description`     | `string` | 组件库的详细说明   |
-| `category`        | `string` | 组件库分类         |
-| `lastPublishTime` | `string` | 最近发布时间       |
+repoType 的值只能是 `API`
+
+| Name              | Type      | Description    |
+| ----------------- | --------- | -------------- |
+| `id`              | `int`     | API 库标识     |
+| `gitRepoUrl`      | `string`  | git 仓库地址   |
+| `gitRepoWebsite`  | `string`  | git 仓库网站   |
+| `gitRepoOwner`    | `string`  | git 仓库拥有者 |
+| `gitRepoName`     | `string`  | git 仓库名称   |
+| `category`        | `string`  | 组件库分类     |
+| `lastPublishTime` | `string`  | 最近发布时间   |
+| `std`             | `boolean` | 是否标准库     |
+
+apiRepoVersion 中的字段为：
+
+| Name          | Type     | Description      |
+| ------------- | -------- | ---------------- |
+| `id`          | `int`    | API 库版本标识   |
+| `apiRepoId`   | `int`    | API 库标识       |
+| `version`     | `string` | API 库的版本号   |
+| `gitTagName`  | `string` | tag 全称         |
+| `name`        | `string` | API 库的名称     |
+| `displayName` | `string` | API 库的显示名   |
+| `description` | `string` | API 库的详细说明 |

@@ -12,7 +12,12 @@ import { PagedComponentRepos, ComponentRepoInfo, WithTarget } from '../../interf
 import Spinner from '../../widgets/spinner';
 import Exception from '../error/Exception';
 import Moment from '../../widgets/moment';
-import { getRepoCategoryName, getProgramingLanguageName, getProgramingLanguageColor } from '../../util';
+import {
+	getRepoCategoryName,
+	getProgramingLanguageName,
+	getProgramingLanguageColor,
+	getRepoTypeName,
+} from '../../util';
 import { QueryPayload } from '../../processes/interfaces';
 import Pagination from '../../widgets/pagination';
 import { IconPrefix, IconName } from '@fortawesome/fontawesome-svg-core';
@@ -138,26 +143,35 @@ export default class ListComponentRepo extends ThemedMixin(I18nMixin(WidgetBase)
 	}
 
 	private _renderComponentRepoItem(item: ComponentRepoInfo) {
-		const { componentRepo, apiRepo } = item;
+		const { componentRepo, componentRepoVersion, apiRepo } = item;
+
 		return v('li', { classes: [c.list_group_item] }, [
 			v('div', {}, [
-				v('span', { classes: [c.font_weight_bold, c.mr_2] }, [
+				v('span', { classes: [c.font_weight_bold, c.mr_3] }, [
 					v('img', {
 						width: 20,
 						height: 20,
 						classes: [c.avatar, c.mr_1],
 						src: `${componentRepo.createUserAvatarUrl}`,
 					}),
-					`${componentRepo.createUserName} / ${componentRepo.name}`,
+					`${componentRepo.createUserName} / ${componentRepoVersion.name}`,
 				]),
-				componentRepo.label ? v('span', { classes: [c.text_muted] }, [`${componentRepo.label}`]) : undefined,
-				componentRepo.isIdeExtension
-					? v('span', { classes: [c.badge, c.badge_info, c.ml_3], title: '与 BlockLang 设计器集成' }, [
-							'设计器扩展',
-					  ])
+				componentRepo.std
+					? v(
+							'span',
+							{
+								classes: [c.badge, c.badge_info, c.ml_1],
+								title: '项目的默认依赖',
+							},
+							['标准库']
+					  )
 					: undefined,
+				v('span', { classes: [c.badge, c.badge_info, c.ml_1] }, [`${getRepoTypeName(componentRepo.repoType)}`]),
 			]),
-			v('p', { itemprop: 'description', classes: [c.text_muted, c.mb_0] }, [`${componentRepo.description}`]),
+			componentRepoVersion.description &&
+				v('p', { itemprop: 'description', classes: [c.text_muted, c.mb_0] }, [
+					`${componentRepoVersion.description}`,
+				]),
 			v('div', { classes: [c.my_2] }, [
 				v('span', { classes: [c.border, c.rounded, c.px_1] }, [
 					v('span', {}, ['API: ']),
@@ -171,12 +185,10 @@ export default class ListComponentRepo extends ThemedMixin(I18nMixin(WidgetBase)
 						},
 						[`${apiRepo.gitRepoOwner}/${apiRepo.gitRepoName}`]
 					),
-					// 必须确保此版本号正是最新版组件库实现的 API 版本
-					v('span', {}, [`${apiRepo.version}`]),
 				]),
 				' -> ',
 				v('span', { classes: [c.border, c.rounded, c.px_1] }, [
-					v('span', {}, ['实现: ']),
+					v('span', {}, [`${getRepoTypeName(componentRepo.repoType)}: `]),
 					v(
 						'a',
 						{
@@ -187,27 +199,25 @@ export default class ListComponentRepo extends ThemedMixin(I18nMixin(WidgetBase)
 						},
 						[`${componentRepo.gitRepoOwner}/${componentRepo.gitRepoName}`]
 					),
-					// 组件库的最新版本
-					v('span', {}, [`${componentRepo.version}`]),
 				]),
 			]),
 			v('small', { classes: [c.text_muted] }, [
 				v('span', { classes: [c.mr_3] }, [
 					w(FontAwesomeIcon, {
-						icon: componentRepo.icon.split(' ') as [IconPrefix, IconName],
+						icon: componentRepoVersion.icon.split(' ') as [IconPrefix, IconName],
 						classes: [c.mr_1],
 					}),
-					`${componentRepo.title}`,
+					`${componentRepoVersion.title}`,
 				]),
 				v('span', { classes: [c.mr_3] }, [
 					v('span', {
 						classes: [css.repoLanguageColor, c.mr_1],
 						styles: {
-							backgroundColor: `${getProgramingLanguageColor(componentRepo.language)}`,
+							backgroundColor: `${getProgramingLanguageColor(componentRepoVersion.language)}`,
 						},
 					}),
 					v('span', { itemprop: 'programmingLanguage' }, [
-						`${getProgramingLanguageName(componentRepo.language)}`,
+						`${getProgramingLanguageName(componentRepoVersion.language)}`,
 					]),
 				]),
 				v('span', { classes: [c.mr_3] }, [`${getRepoCategoryName(componentRepo.category)}`]),
