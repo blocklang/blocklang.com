@@ -29,6 +29,12 @@ public interface PersistApiRepoService {
 	default boolean save(ExecutionContext context) {
 		MarketplaceStore store = context.getValue(ExecutionContext.MARKETPLACE_STORE, MarketplaceStore.class);
 		GitRepoPublishTask publishTask = context.getValue(ExecutionContext.PUBLISH_TASK, GitRepoPublishTask.class);
+		// gitUrl 要优先获取从 context 中获取 GIT_URL，取不到，再从 publishTask 中获取
+		// 只所以这样，是因为会出现一个 context 跨先发布组件库，再发布 API 库，这是就需要先存组件库 Url，然后再存 Api 库的 Url。
+		String gitUrl = context.getStringValue(ExecutionContext.GIT_URL);
+		if(gitUrl == null) {
+			gitUrl = publishTask.getGitUrl();
+		}
 		CliLogger logger = context.getLogger();
 		
 		RefReader<? extends ApiObject> reader = new RefReader<>(store, logger);
@@ -51,13 +57,13 @@ public interface PersistApiRepoService {
 				}
 				
 				// 判断是否已发布过，如果已发布过，则不重复发布
-				if(this.getPersistApiRefService().isPublished(publishTask.getGitUrl(), 
+				if(this.getPersistApiRefService().isPublished(gitUrl, 
 						publishTask.getCreateUserId(), shortRefName)) {
 					logger.info("{0} 已发布过，不重复发布", tag);
 					continue;
 				}
 				
-				reader.setup(publishTask.getGitUrl(), shortRefName, tag, 
+				reader.setup(gitUrl, shortRefName, tag, 
 						publishTask.getCreateUserId());
 				RefData<? extends ApiObject> refData = reader.read();
 				if(refData.isInvalidData()) {
@@ -78,7 +84,7 @@ public interface PersistApiRepoService {
 		
 		// 存储 master 分支，每次发布时都要全部更新 master 分支
 		try {
-			reader.setup(publishTask.getGitUrl(), "master", "refs/heads/master", 
+			reader.setup(gitUrl, "master", "refs/heads/master", 
 					publishTask.getCreateUserId());
 			RefData<? extends ApiObject> refData = reader.read();
 			if (refData.isInvalidData()) {
