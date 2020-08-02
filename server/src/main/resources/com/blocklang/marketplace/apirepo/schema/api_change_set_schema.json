@@ -43,21 +43,36 @@
 				"name"
 			],
 			"properties": {
+				"name": {
+					"type": "string",
+					"description": "属性名"
+				},
 				"type": {
 					"type": "string",
 					"description": "数据类型",
 					"enum": ["array", "object", "boolean", "number", "string"]
 				},
-				"name": {
+				"default": {
 					"type": "string",
-					"description": "属性名"
+					"description": "默认值"
+				},
+				"enum": {
+					"type": "array",
+					"description": "可选值",
+					"items": {
+						"type": "string"
+					}
 				},
 				"description": {
 					"type": "string",
 					"description": "详细说明"
 				},
 				"properties": {
-					"$ref": "#/definitions/schema"
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/schema"
+					}
+					
 				}
 			}
 		}
