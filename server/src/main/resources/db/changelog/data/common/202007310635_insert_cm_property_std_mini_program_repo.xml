@@ -33,5 +33,23 @@
 			<column name="data_type" value="01" />
 			<column name="is_valid" valueBoolean="true" />
 		</insert>
+		<insert tableName="cm_property">
+			<column name="dbid" valueNumeric="13" />
+			<column name="prop_key" value="std.mini.program.app.name" />
+			<column name="prop_value" value="App" />
+			<column name="prop_desc" value="App 组件" />
+			<column name="parent_id" valueNumeric="-1" />
+			<column name="data_type" value="01" />
+			<column name="is_valid" valueBoolean="true" />
+		</insert>
+		<insert tableName="cm_property">
+			<column name="dbid" valueNumeric="14" />
+			<column name="prop_key" value="std.mini.program.page.name" />
+			<column name="prop_value" value="Page" />
+			<column name="prop_desc" value="Page 组件" />
+			<column name="parent_id" valueNumeric="-1" />
+			<column name="data_type" value="01" />
+			<column name="is_valid" valueBoolean="true" />
+		</insert>
 	</changeSet>
 </databaseChangeLog>
