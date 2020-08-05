@@ -40,7 +40,7 @@ public abstract class RefParser {
 	protected MarketplaceStore store;
 	protected CliLogger logger;
 	
-	private List<String> tags;
+	protected List<String> tags;
 	
 	private ApiObjectContext apiObjectContext;
 	private ChangeParserFactory changeParserFactory;

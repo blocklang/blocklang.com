@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.blocklang.marketplace.apirepo.ChangedObject;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * 自定义数据类型
@@ -17,6 +18,11 @@ public class ApiSchemaData implements ChangedObject{
 	private String code;
 	private String type;
 	private String name;
+	// 因为 default 和 enum 是关键字，不能作为属性名
+	@JsonProperty("default")
+	private String defaultValue;
+	@JsonProperty("enum")
+	private List<String> options;
 	private String description;
 	private List<ApiSchemaData> properties = new ArrayList<ApiSchemaData>();
 

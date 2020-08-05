@@ -68,12 +68,7 @@
 												},
 												"valueType": {
 													"type": "string",
-													"description": "属性值的数据类型",
-													"enum": [
-														"string",
-														"number",
-														"boolean"
-													]
+													"description": "属性值的数据类型"
 												}
 											}
 										}
@@ -96,9 +91,7 @@
 													"type": "string",
 													"description": "事件的数据类型，只能为 function",
 													"default": "function",
-													"enum": [
-														"function"
-													]
+													"const": "function"
 												},
 												"arguments": {
 													"type": "array",
@@ -120,12 +113,7 @@
 															},
 															"valueType": {
 																"type": "string",
-																"description": "参数的数据类型",
-																"enum": [
-																	"string",
-																	"number",
-																	"boolean"
-																]
+																"description": "参数的数据类型"
 															}
 														}
 													}
@@ -167,12 +155,7 @@
 												},
 												"valueType": {
 													"type": "string",
-													"description": "属性值的数据类型",
-													"enum": [
-														"string",
-														"number",
-														"boolean"
-													]
+													"description": "属性值的数据类型"
 												}
 											}
 										}
@@ -230,12 +213,7 @@
 															},
 															"valueType": {
 																"type": "string",
-																"description": "参数的数据类型",
-																"enum": [
-																	"string",
-																	"number",
-																	"boolean"
-																]
+																"description": "参数的数据类型"
 															}
 														}
 													}

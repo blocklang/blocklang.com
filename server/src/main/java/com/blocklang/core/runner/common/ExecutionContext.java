@@ -10,6 +10,8 @@ public interface ExecutionContext {
 	public static final String DATA_ROOT_PATH = "dataRootPath";
 	// 如果 gitUrl 有值，则优先使用此值；否则使用 publishTask 中的 gitUrl
 	public static final String GIT_URL = "gitUrl";
+	
+	public String getGitUrl();
 
 	void setLogger(CliLogger logger);
 	

@@ -1,7 +1,6 @@
 package com.blocklang.develop.service.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.data.Index.atIndex;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
@@ -179,7 +178,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		widgetProperty.setCode("0011");
 		widgetProperty.setName("prop_name");
 		widgetProperty.setDefaultValue("default_value");
-		widgetProperty.setValueType(WidgetPropertyValueType.STRING);
+		widgetProperty.setValueType(WidgetPropertyValueType.STRING.getKey());
 		apiComponentAttrDao.save(widgetProperty);
 		
 		// 创建一个 ide 版的组件库
@@ -1084,7 +1083,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		widgetProperty11.setDefaultValue("default_value_11");
 		widgetProperty11.setDescription("description_11");
 		widgetProperty11.setName("prop_name_11");
-		widgetProperty11.setValueType(WidgetPropertyValueType.STRING);
+		widgetProperty11.setValueType(WidgetPropertyValueType.STRING.getKey());
 		apiComponentAttrDao.save(widgetProperty11);
 		// 3.2 部件2
 		ApiWidget widget2 = new ApiWidget();
@@ -1104,7 +1103,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		widgetProperty21.setDescription("description_21");
 		widgetProperty21.setName("prop_name_21");
 		widgetProperty21.setLabel("prop_label_21");
-		widgetProperty21.setValueType(WidgetPropertyValueType.STRING);
+		widgetProperty21.setValueType(WidgetPropertyValueType.STRING.getKey());
 		apiComponentAttrDao.save(widgetProperty21);
 		// 4. 创建一个 ide 组件库，实现上述的 API 仓库
 		//    因为在查数据时，可直接获得 ide 组件仓库的版本信息
@@ -1223,7 +1222,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		widgetEvent1.setDescription("description_2");
 		widgetEvent1.setName("prop_name_2");
 		widgetEvent1.setLabel("prop_label_2");
-		widgetEvent1.setValueType(WidgetPropertyValueType.FUNCTION);
+		widgetEvent1.setValueType(WidgetPropertyValueType.FUNCTION.getKey());
 		ApiWidgetProperty savedWidgetEvent1 = apiComponentAttrDao.save(widgetEvent1);
 		// 3.2 事件的输入参数
 		ApiWidgetEventArg arg = new ApiWidgetEventArg();
@@ -1231,7 +1230,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		arg.setApiRepoVersionId(savedApiRepoVersion.getId());
 		arg.setCode("0003");
 		arg.setName("arg1");
-		arg.setValueType(WidgetPropertyValueType.STRING);
+		arg.setValueType(WidgetPropertyValueType.STRING.getKey());
 		arg.setSeq(1);
 		apiComponentAttrFunArgDao.save(arg);
 		
@@ -1347,7 +1346,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		widgetEvent1.setDescription("description_2");
 		widgetEvent1.setName("onValue");
 		widgetEvent1.setLabel("prop_label_2");
-		widgetEvent1.setValueType(WidgetPropertyValueType.FUNCTION);
+		widgetEvent1.setValueType(WidgetPropertyValueType.FUNCTION.getKey());
 		ApiWidgetProperty savedWidgetEvent1 = apiComponentAttrDao.save(widgetEvent1);
 		// 3.2 事件的输入参数
 		ApiWidgetEventArg arg = new ApiWidgetEventArg();
@@ -1355,7 +1354,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		arg.setApiRepoVersionId(savedApiRepoVersion.getId());
 		arg.setCode("0003");
 		arg.setName("value");
-		arg.setValueType(WidgetPropertyValueType.STRING);
+		arg.setValueType(WidgetPropertyValueType.STRING.getKey());
 		arg.setSeq(1);
 		apiComponentAttrFunArgDao.save(arg);
 		
@@ -1502,7 +1501,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		widgetEvent1.setDescription("description_2");
 		widgetEvent1.setName("onValue");
 		widgetEvent1.setLabel("prop_label_2");
-		widgetEvent1.setValueType(WidgetPropertyValueType.FUNCTION);
+		widgetEvent1.setValueType(WidgetPropertyValueType.FUNCTION.getKey());
 		ApiWidgetProperty savedWidgetEvent1 = apiComponentAttrDao.save(widgetEvent1);
 		// 3.2 事件的输入参数
 		ApiWidgetEventArg arg = new ApiWidgetEventArg();
@@ -1510,7 +1509,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		arg.setApiRepoVersionId(savedApiRepoVersion.getId());
 		arg.setCode("0003");
 		arg.setName("value");
-		arg.setValueType(WidgetPropertyValueType.STRING);
+		arg.setValueType(WidgetPropertyValueType.STRING.getKey());
 		arg.setSeq(1);
 		apiComponentAttrFunArgDao.save(arg);
 		
@@ -1703,7 +1702,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		widgetEvent1.setDescription("description_2");
 		widgetEvent1.setName("onValue");
 		widgetEvent1.setLabel("prop_label_2");
-		widgetEvent1.setValueType(WidgetPropertyValueType.FUNCTION);
+		widgetEvent1.setValueType(WidgetPropertyValueType.FUNCTION.getKey());
 		ApiWidgetProperty savedWidgetEvent1 = apiComponentAttrDao.save(widgetEvent1);
 		// 3.2 事件的输入参数
 		ApiWidgetEventArg arg = new ApiWidgetEventArg();
@@ -1711,7 +1710,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		arg.setApiWidgetPropertyId(savedWidgetEvent1.getId());
 		arg.setCode("0003");
 		arg.setName("value");
-		arg.setValueType(WidgetPropertyValueType.STRING);
+		arg.setValueType(WidgetPropertyValueType.STRING.getKey());
 		arg.setSeq(1);
 		apiComponentAttrFunArgDao.save(arg);
 		
@@ -1895,7 +1894,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		widgetEvent1.setDescription("description_2");
 		widgetEvent1.setName("onValue");
 		widgetEvent1.setLabel("prop_label_2");
-		widgetEvent1.setValueType(WidgetPropertyValueType.FUNCTION);
+		widgetEvent1.setValueType(WidgetPropertyValueType.FUNCTION.getKey());
 		ApiWidgetProperty savedWidgetEvent1 = apiComponentAttrDao.save(widgetEvent1);
 		// 3.2 事件的输入参数
 		ApiWidgetEventArg arg = new ApiWidgetEventArg();
@@ -1903,7 +1902,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		arg.setApiRepoVersionId(savedApiRepoVersion.getId());
 		arg.setCode("0003");
 		arg.setName("value");
-		arg.setValueType(WidgetPropertyValueType.STRING);
+		arg.setValueType(WidgetPropertyValueType.STRING.getKey());
 		arg.setSeq(1);
 		apiComponentAttrFunArgDao.save(arg);
 		
@@ -2116,7 +2115,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		widgetProperty11.setDefaultValue("default_value_11");
 		widgetProperty11.setDescription("description_11");
 		widgetProperty11.setName("prop_name_11");
-		widgetProperty11.setValueType(WidgetPropertyValueType.STRING);
+		widgetProperty11.setValueType(WidgetPropertyValueType.STRING.getKey());
 		apiComponentAttrDao.save(widgetProperty11);
 		
 		// 4. 创建一个 ide 组件库，实现上述的 API 仓库
@@ -2222,7 +2221,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		widgetProperty11.setDefaultValue("default_value_11");
 		widgetProperty11.setDescription("description_11");
 		widgetProperty11.setName("prop_name_11");
-		widgetProperty11.setValueType(WidgetPropertyValueType.STRING);
+		widgetProperty11.setValueType(WidgetPropertyValueType.STRING.getKey());
 		apiComponentAttrDao.save(widgetProperty11);
 		// 4. 创建一个 ide 组件库，实现上述的 API 仓库
 		//    因为在查数据时，可直接获得 ide 组件仓库的版本信息
@@ -2325,7 +2324,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		widgetProperty11.setDefaultValue("default_value_11");
 		widgetProperty11.setDescription("description_11");
 		widgetProperty11.setName("prop_name_11");
-		widgetProperty11.setValueType(WidgetPropertyValueType.STRING);
+		widgetProperty11.setValueType(WidgetPropertyValueType.STRING.getKey());
 		apiComponentAttrDao.save(widgetProperty11);
 		// 3.2 部件2
 		ApiWidget widget2 = new ApiWidget();
@@ -2345,7 +2344,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		widgetProperty21.setDescription("description_21");
 		widgetProperty21.setName("prop_name_21");
 		widgetProperty21.setLabel("prop_label_21");
-		widgetProperty21.setValueType(WidgetPropertyValueType.STRING);
+		widgetProperty21.setValueType(WidgetPropertyValueType.STRING.getKey());
 		apiComponentAttrDao.save(widgetProperty21);
 		// 4. 创建一个 ide 组件库，实现上述的 API 仓库
 		//    因为在查数据时，可直接获得 ide 组件仓库的版本信息

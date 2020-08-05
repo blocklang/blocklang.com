@@ -28,7 +28,11 @@ public class AddWidgetProperty extends Change{
 		String seed = widget.getMaxPropertyCode();
 		CodeGenerator codeGen = new CodeGenerator(seed);
 		
-		data.getProperties().forEach(prop -> prop.setCode(codeGen.next()));
+		data.getProperties().forEach(prop -> {
+			prop.setCode(codeGen.next());
+			CodeGenerator optionsCodeGen = new CodeGenerator(null);
+			prop.getOptions().forEach(option -> option.setCode(optionsCodeGen.next()));
+		});
 		widget.getProperties().addAll(data.getProperties());
 		return true;
 	}

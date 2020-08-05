@@ -35,10 +35,12 @@ public class RefReader<T extends ApiObject> {
 	private String shortRefName;
 	private String fullRefName;
 	private Integer createUserId;
+	private Class<T> apiObjectClass;
 	
-	public RefReader(MarketplaceStore store, CliLogger logger) {
+	public RefReader(MarketplaceStore store, CliLogger logger, Class<T> apiObjectClass) {
 		this.store = store;
 		this.logger = logger;
+		this.apiObjectClass = apiObjectClass;
 	}
 	
 	public void setup(String gitUrl, String shortRefName, String fullRefName, Integer createUserId) {
@@ -107,16 +109,22 @@ public class RefReader<T extends ApiObject> {
 		try {
 			List<T> result = new ArrayList<>();
 			Files.walkFileTree(store.getPackageVersionDirectory(shortRefName), new SimpleFileVisitor<Path>() {
+				
+				@Override
+				public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+					// 忽略 __schemas__ 目录下的内容
+					if(dir.getFileName().toString().equals("__schemas__")) {
+						return FileVisitResult.SKIP_SUBTREE;
+					}
+					
+					return super.preVisitDirectory(dir, attrs);
+				}
 
 				@Override
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-					// 忽略 __schemas__ 目录下的内容
-					if(attrs.isDirectory() && file.getFileName().toString().equals("__schemas__")) {
-						return FileVisitResult.SKIP_SUBTREE;
-					}
 					if(attrs.isRegularFile() && "index.json".equals(file.getFileName().toString())) {
 						String content = Files.readString(file);
-						result.add(JsonUtil.fromJsonObject(content, getApiObjectClass()));
+						result.add(JsonUtil.fromJsonObject(content, apiObjectClass));
 					}
 					return super.visitFile(file, attrs);
 				}
@@ -127,8 +135,5 @@ public class RefReader<T extends ApiObject> {
 			throw e;
 		}
 	}
-	
-	protected Class<T> getApiObjectClass() {
-		return null;
-	}
+
 }

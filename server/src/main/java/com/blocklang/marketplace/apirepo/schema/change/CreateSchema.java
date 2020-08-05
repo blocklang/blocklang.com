@@ -3,6 +3,7 @@ package com.blocklang.marketplace.apirepo.schema.change;
 import com.blocklang.marketplace.apirepo.Change;
 import com.blocklang.marketplace.apirepo.ChangeData;
 import com.blocklang.marketplace.apirepo.ChangedObjectContext;
+import com.blocklang.marketplace.apirepo.CodeGenerator;
 import com.blocklang.marketplace.apirepo.schema.ApiSchemaData;
 
 public class CreateSchema extends Change{
@@ -25,6 +26,8 @@ public class CreateSchema extends Change{
 		// 补充数据
 		data.setId(context.getObjectId());
 		data.setCode(context.nextObjectCode());
+		CodeGenerator propertiesCodeGen = new CodeGenerator(null);
+		data.getProperties().forEach(prop -> prop.setCode(propertiesCodeGen.next()));
 		
 		context.addObject(data);
 		

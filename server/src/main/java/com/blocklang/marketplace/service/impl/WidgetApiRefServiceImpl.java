@@ -15,7 +15,6 @@ import com.blocklang.marketplace.apirepo.apiobject.widget.data.WidgetEvent;
 import com.blocklang.marketplace.apirepo.apiobject.widget.data.WidgetEventArgument;
 import com.blocklang.marketplace.apirepo.apiobject.widget.data.WidgetProperty;
 import com.blocklang.marketplace.apirepo.apiobject.widget.data.WidgetPropertyOption;
-import com.blocklang.marketplace.constant.WidgetPropertyValueType;
 import com.blocklang.marketplace.dao.ApiWidgetDao;
 import com.blocklang.marketplace.dao.ApiWidgetEventArgDao;
 import com.blocklang.marketplace.dao.ApiWidgetPropertyDao;
@@ -96,7 +95,7 @@ public class WidgetApiRefServiceImpl extends AbstractApiRefService implements Wi
 		apiWidgetProperty.setName(property.getName());
 		apiWidgetProperty.setLabel(property.getLabel());
 		apiWidgetProperty.setDescription(property.getDescription());
-		apiWidgetProperty.setValueType(WidgetPropertyValueType.fromKey(property.getValueType()));
+		apiWidgetProperty.setValueType(property.getValueType());
 		apiWidgetProperty.setDefaultValue(property.getDefaultValue());
 		apiWidgetProperty.setRequired(property.getRequired());
 		
@@ -130,7 +129,7 @@ public class WidgetApiRefServiceImpl extends AbstractApiRefService implements Wi
 		apiWidgetProperty.setName(event.getName());
 		apiWidgetProperty.setLabel(event.getLabel());
 		apiWidgetProperty.setDescription(event.getDescription());
-		apiWidgetProperty.setValueType(WidgetPropertyValueType.fromKey(event.getValueType()));
+		apiWidgetProperty.setValueType(event.getValueType());
 		
 		apiWidgetProperty = apiWidgetPropertyDao.save(apiWidgetProperty);
 
@@ -143,7 +142,7 @@ public class WidgetApiRefServiceImpl extends AbstractApiRefService implements Wi
 			arg.setCode(each.getCode());
 			arg.setName(each.getName());
 			arg.setLabel(each.getLabel());
-			arg.setValueType(WidgetPropertyValueType.fromKey(each.getValueType()));
+			arg.setValueType(each.getValueType());
 			arg.setDefaultValue(each.getDefaultValue());
 			arg.setDescription(each.getDescription());
 			arg.setSeq(i + 1);

@@ -1,14 +1,11 @@
 package com.blocklang.marketplace.model;
 
 import javax.persistence.Column;
-import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import com.blocklang.core.model.PartialIdField;
-import com.blocklang.marketplace.constant.WidgetPropertyValueType;
-import com.blocklang.marketplace.constant.converter.WidgetPropertyValueTypeConverter;
 
 @Entity
 @Table(name = "api_widget_prop", 
@@ -39,9 +36,10 @@ public class ApiWidgetProperty extends PartialIdField{
 	@Column(name = "description", length = 512)
 	private String description;
 	
-	@Convert(converter = WidgetPropertyValueTypeConverter.class)
+	// 注意，此类型不再使用 WidgetPropertyValueType，因为现在支持自定义数据类型
+	// 自定义数据类型的值，用户可以任意命名
 	@Column(name = "value_type", nullable = false, length = 32)
-	private WidgetPropertyValueType valueType;
+	private String valueType;
 
 	@Column(name = "default_value", length = 32)
 	private String defaultValue;
@@ -97,11 +95,11 @@ public class ApiWidgetProperty extends PartialIdField{
 		this.description = description;
 	}
 
-	public WidgetPropertyValueType getValueType() {
+	public String getValueType() {
 		return valueType;
 	}
 
-	public void setValueType(WidgetPropertyValueType valueType) {
+	public void setValueType(String valueType) {
 		this.valueType = valueType;
 	}
 

@@ -41,15 +41,18 @@ public class RefSchemaParser {
 	private ApiRepoPathReader pathReader = new ApiRepoPathReader();
 	private SchemaContext schemaContext;
 	
-	public RefSchemaParser(MarketplaceStore store, CliLogger logger, String fullRefName, String shortRefName) {
+	public RefSchemaParser(MarketplaceStore store, CliLogger logger, String fullRefName, String shortRefName, List<String> tags) {
 		this.store = store;
 		this.logger = logger;
 		this.fullRefName = fullRefName;
 		this.shortRefName = shortRefName;
 		this.schemaContext = new SchemaContext(store, logger);
+		this.schemaContext.setTags(tags);
 	}
 
 	public ParseResult run() {
+		this.schemaContext.init(fullRefName, shortRefName);
+		
 		createSchemaDirectory();
 		
 		this.allChangelogFiles = readAllChangelogFiles();

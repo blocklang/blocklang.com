@@ -32,7 +32,7 @@ public class TagParser extends RefParser{
 		}
 		
 		// 解析 schema
-		var refSchemaParser = new RefSchemaParser(store, logger, fullRefName, shortRefName);
+		var refSchemaParser = new RefSchemaParser(store, logger, fullRefName, shortRefName, tags);
 		var result = refSchemaParser.run();
 		if(result == ParseResult.FAILED) {
 			return ParseResult.FAILED;

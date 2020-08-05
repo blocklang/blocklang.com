@@ -25,8 +25,18 @@ public class CreateWidget extends Change {
 		data.setId(context.getObjectId());
 		data.setCode(context.nextObjectCode());
 		CodeGenerator propertiesCodeGen = new CodeGenerator(null);
-		data.getProperties().forEach(prop -> prop.setCode(propertiesCodeGen.next()));
-		data.getEvents().forEach(event -> event.setCode(propertiesCodeGen.next()));
+		data.getProperties().forEach(prop -> {
+			prop.setCode(propertiesCodeGen.next());
+			
+			CodeGenerator optionsCodeGen = new CodeGenerator(null);
+			prop.getOptions().forEach(option -> option.setCode(optionsCodeGen.next()));
+		});
+		data.getEvents().forEach(event -> {
+			event.setCode(propertiesCodeGen.next());
+			
+			CodeGenerator argumentsCodeGen = new CodeGenerator(null);
+			event.getArguments().forEach(arg -> arg.setCode(argumentsCodeGen.next()));
+		});
 
 		context.addObject(data);
 		return true;

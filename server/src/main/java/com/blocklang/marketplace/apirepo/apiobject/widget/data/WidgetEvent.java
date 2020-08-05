@@ -1,5 +1,6 @@
 package com.blocklang.marketplace.apirepo.apiobject.widget.data;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.blocklang.marketplace.constant.WidgetPropertyValueType;
@@ -54,7 +55,7 @@ public class WidgetEvent {
 	}
 
 	public List<WidgetEventArgument> getArguments() {
-		return arguments;
+		return arguments == null ? Collections.emptyList() : arguments;
 	}
 
 	public void setArguments(List<WidgetEventArgument> arguments) {

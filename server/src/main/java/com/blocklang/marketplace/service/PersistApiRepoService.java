@@ -16,6 +16,8 @@ import com.blocklang.marketplace.model.ApiRepo;
 import com.blocklang.marketplace.model.GitRepoPublishTask;
 
 public interface PersistApiRepoService {
+	
+	Class<? extends ApiObject> getApiObjectClass();
 
 	/**
 	 * 尝试保存 git 仓库中所有 tag 和 master 分支的 API 对象。
@@ -31,13 +33,10 @@ public interface PersistApiRepoService {
 		GitRepoPublishTask publishTask = context.getValue(ExecutionContext.PUBLISH_TASK, GitRepoPublishTask.class);
 		// gitUrl 要优先获取从 context 中获取 GIT_URL，取不到，再从 publishTask 中获取
 		// 只所以这样，是因为会出现一个 context 跨先发布组件库，再发布 API 库，这是就需要先存组件库 Url，然后再存 Api 库的 Url。
-		String gitUrl = context.getStringValue(ExecutionContext.GIT_URL);
-		if(gitUrl == null) {
-			gitUrl = publishTask.getGitUrl();
-		}
+		String gitUrl = context.getGitUrl();
 		CliLogger logger = context.getLogger();
 		
-		RefReader<? extends ApiObject> reader = new RefReader<>(store, logger);
+		RefReader<? extends ApiObject> reader = new RefReader<>(store, logger, getApiObjectClass());
 		
 		List<String> tags = GitUtils.getTags(store.getRepoSourceDirectory())
 				.stream()

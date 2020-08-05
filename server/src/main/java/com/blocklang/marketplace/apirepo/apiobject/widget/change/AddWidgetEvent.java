@@ -26,7 +26,12 @@ public class AddWidgetEvent extends Change{
 		String seed = widget.getMaxPropertyCode();
 		CodeGenerator codeGen = new CodeGenerator(seed);
 		
-		data.getEvents().forEach(event -> event.setCode(codeGen.next()));
+		data.getEvents().forEach(event -> {
+			event.setCode(codeGen.next());
+			
+			CodeGenerator argumentsCodeGen = new CodeGenerator(null);
+			event.getArguments().forEach(arg -> arg.setCode(argumentsCodeGen.next()));
+		});
 		
 		widget.getEvents().addAll(data.getEvents());
 		return true;

@@ -508,7 +508,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		widgetProperty.setCode("0011");
 		widgetProperty.setName("prop_name");
 		widgetProperty.setDefaultValue("default_value");
-		widgetProperty.setValueType(WidgetPropertyValueType.STRING);
+		widgetProperty.setValueType(WidgetPropertyValueType.STRING.getKey());
 		apiComponentAttrDao.save(widgetProperty);
 		
 		// 创建一个 ide 版的组件库
@@ -898,7 +898,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		widgetProperty.setApiWidgetId(savedWidget.getId());
 		widgetProperty.setCode("0011");
 		widgetProperty.setName("prop_name");
-		widgetProperty.setValueType(WidgetPropertyValueType.STRING);
+		widgetProperty.setValueType(WidgetPropertyValueType.STRING.getKey());
 		apiComponentAttrDao.save(widgetProperty);
 		
 		// 在组件仓库版本信息中创建一条记录，引用 api 版本信息

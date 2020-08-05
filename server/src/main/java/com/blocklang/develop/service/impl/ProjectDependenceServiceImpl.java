@@ -475,16 +475,16 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 								WidgetProperty each = new WidgetProperty();
 								each.setCode(property.getCode());
 								each.setName(property.getName());
-								each.setValueType(property.getValueType().getKey());
+								each.setValueType(property.getValueType());
 								each.setDefaultValue(property.getDefaultValue());
 								
 								// 添加事件参数列表
-								if(property.getValueType() == WidgetPropertyValueType.FUNCTION) {
+								if(property.getValueType().equals(WidgetPropertyValueType.FUNCTION.getKey())) {
 									List<EventArgument> eventArgs = apiComponentAttrFunArgDao.findAllByApiWidgetPropertyId(property.getId()).stream().map(eventArg -> {
 										EventArgument ea = new EventArgument();
 										ea.setCode(eventArg.getCode());
 										ea.setName(eventArg.getName());
-										ea.setValueType(eventArg.getValueType().getKey());
+										ea.setValueType(eventArg.getValueType());
 										ea.setDefaultValue(eventArg.getDefaultValue());
 										return ea;
 									}).collect(Collectors.toList());

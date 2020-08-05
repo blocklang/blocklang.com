@@ -2,14 +2,11 @@ package com.blocklang.core.runner.action;
 
 import java.nio.file.Path;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.runner.common.AbstractAction;
 import com.blocklang.core.runner.common.CliLogger;
 import com.blocklang.core.runner.common.ExecutionContext;
 import com.blocklang.marketplace.data.MarketplaceStore;
-import com.blocklang.marketplace.model.GitRepoPublishTask;
 
 /**
  * 从远程 git 仓库 clone 或 pull 源码。
@@ -37,17 +34,9 @@ public class CheckoutAction extends AbstractAction{
 	
 	public CheckoutAction(ExecutionContext context) {
 		super(context);
-		
-		var task = context.getValue(ExecutionContext.PUBLISH_TASK, GitRepoPublishTask.class);
+
 		var store = context.getValue(ExecutionContext.MARKETPLACE_STORE, MarketplaceStore.class);
-		var gitUrl = context.getStringValue(ExecutionContext.GIT_URL);
-		
-		if(!StringUtils.isBlank(gitUrl)) {
-			this.gitUrl = gitUrl;
-		} else {
-			this.gitUrl = task.getGitUrl();
-		}
-		
+		this.gitUrl = context.getGitUrl();
 		this.localSourceDirectory = store.getRepoSourceDirectory();
 	}
 

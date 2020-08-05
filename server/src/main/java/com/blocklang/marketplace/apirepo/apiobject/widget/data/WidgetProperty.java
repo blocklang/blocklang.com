@@ -1,5 +1,6 @@
 package com.blocklang.marketplace.apirepo.apiobject.widget.data;
 
+import java.util.Collections;
 import java.util.List;
 
 public class WidgetProperty {
@@ -64,7 +65,7 @@ public class WidgetProperty {
 	}
 
 	public List<WidgetPropertyOption> getOptions() {
-		return options;
+		return options == null ? Collections.emptyList() : options;
 	}
 
 	public void setOptions(List<WidgetPropertyOption> options) {

@@ -80,7 +80,7 @@ public class RepoPublishServiceImpl implements RepoPublishService {
 		
 		watch.stop();
 		long seconds = watch.getTime(TimeUnit.SECONDS);
-		logger.info("成功注册到组件市场");
+		logger.info(success ? "组件库成功注册到组件市场" : "组件库往组件市场注册失败");
 		logger.info("共耗时 {0} 秒", seconds);
 		
 		logger.finished(releaseResult);

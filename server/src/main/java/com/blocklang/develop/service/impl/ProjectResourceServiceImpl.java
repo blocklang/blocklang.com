@@ -902,9 +902,9 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 								
 								// name 只能取 name，不能取 label
 								property.setName(componentAttr.getName());
-								property.setValueType(componentAttr.getValueType().getKey());
+								property.setValueType(componentAttr.getValueType());
 								// 如果属性为事件，则添加事件参数
-								if(componentAttr.getValueType() == WidgetPropertyValueType.FUNCTION) {
+								if(componentAttr.getValueType().equals(WidgetPropertyValueType.FUNCTION.getKey())) {
 									// 加载参数的定义
 									List<ApiWidgetEventArg> args = apiWidgetEventArgDao.findAllByApiWidgetPropertyId(componentAttr.getId());
 									List<EventArgument> eventArgs = args.stream().map(arg -> {
@@ -912,7 +912,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 										ea.setCode(arg.getCode());
 										ea.setName(arg.getName());
 										ea.setLabel(arg.getLabel());
-										ea.setValueType(arg.getValueType().getKey());
+										ea.setValueType(arg.getValueType());
 										ea.setDefaultValue(arg.getDefaultValue());
 										ea.setDescription(arg.getDescription());
 										return ea;
@@ -1120,7 +1120,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 						
 						p.setCode(apiComponentAttr.getCode());
 						p.setName(apiComponentAttr.getName());
-						p.setValueType(apiComponentAttr.getValueType().getKey());
+						p.setValueType(apiComponentAttr.getValueType());
 						p.setExpr(false);
 						return p;
 					})
@@ -1428,7 +1428,7 @@ public class ProjectResourceServiceImpl implements ProjectResourceService {
 				result.setValue(apiWidgetProperty.getDefaultValue());
 				result.setCode(apiWidgetProperty.getCode());
 				result.setName(apiWidgetProperty.getName());
-				result.setValueType(apiWidgetProperty.getValueType().getKey());
+				result.setValueType(apiWidgetProperty.getValueType());
 				result.setExpr(false);
 				return result;
 			})
