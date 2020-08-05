@@ -307,7 +307,7 @@ class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResou
 			return 'view-project-group';
 		}
 
-		if (resourceType === ResourceType.Page) {
+		if (resourceType === ResourceType.Page || resourceType === ResourceType.Main) {
 			return 'view-project-page';
 		}
 
