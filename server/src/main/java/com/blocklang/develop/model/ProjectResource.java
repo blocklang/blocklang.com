@@ -308,6 +308,10 @@ public class ProjectResource extends PartialOperateFields{
 	}
 
 	public String getFileName() {
+		// app main 也可归为普通页面
+		if(isAppMain()) {
+			return this.key + ".page." + this.appType.getValue() + ".json";
+		}
 		if(isPage()) {
 			return this.key + ".page." + this.appType.getValue() + ".json";
 		}
