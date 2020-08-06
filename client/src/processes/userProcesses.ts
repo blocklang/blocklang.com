@@ -11,7 +11,7 @@ import {
 	BioPayload,
 	LoginNamePayload,
 } from './interfaces';
-import { ValidateStatus } from '../constant';
+import { ValidateStatus, LoginStatus } from '../constant';
 
 /**
  * 获取登录用户信息
@@ -27,22 +27,24 @@ export const getCurrentUserCommand = commandFactory(async ({ get, path }) => {
 		return [remove(path('user'))];
 	}
 
+	const status = json.status;
+
 	// 如果发现是第一次登录，则存到 thirdPartyUser 中；否则存到 user 中。
-	if (json.needCompleteUserInfo) {
+	if (LoginStatus.NEED_COMPLETE_USER_INFO === status) {
 		// 此时用户并未成功登录，清空缓存的用户信息
 		global.sessionStorage.removeItem('blocklang-session');
 		return [replace(path('thirdPartyUser'), json), ...linkTo(path, 'complete-user-info')];
 	}
 
-	// 如果用户未登录，也会返回 json 对象
-	if (json.loginName) {
+	if (LoginStatus.LOGINED === status) {
 		global.sessionStorage.setItem('blocklang-session', JSON.stringify(json));
-	} else {
-		// 说明用户未登录，所以清空登录信息
-		global.sessionStorage.removeItem('blocklang-session');
+		return [replace(path('user'), json)];
 	}
 
-	return [replace(path('user'), json)];
+	if (LoginStatus.NOT_LOGIN === status || LoginStatus.FAILED === status) {
+		global.sessionStorage.removeItem('blocklang-session');
+		return [replace(path('user'), json)];
+	}
 });
 
 const getProfileCommand = commandFactory(async ({ path }) => {

@@ -1,7 +1,5 @@
 package com.blocklang.config;
 
-import java.io.PrintWriter;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -16,6 +14,7 @@ import org.springframework.security.web.authentication.AnonymousAuthenticationFi
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 
 import com.blocklang.core.constant.WebSite;
+import com.blocklang.core.controller.UserSession;
 import com.blocklang.core.filter.AutoLoginFilter;
 import com.blocklang.core.filter.RouterFilter;
 import com.blocklang.core.oauth2.CustomOAuth2AccessTokenResponseClient;
@@ -46,6 +45,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	// 支持 oauth2 client
 	@Override
 	protected void configure(HttpSecurity http) throws Exception{
+		SimpleUrlAuthenticationFailureHandler handler = new SimpleUrlAuthenticationFailureHandler("/");
 		// We recommend disabling CSRF protection completely only if you are creating a
 		// service that is used by non-browser clients
 		// TODO: 考虑通过将服务拆分到单独项目中，然后打开此功能
@@ -68,12 +68,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 					.accessTokenResponseClient(new CustomOAuth2AccessTokenResponseClient())
 				.and()
 				.failureHandler((HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) -> {
-					response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-					response.setContentType("application/json;charset=utf-8");
-					PrintWriter out = response.getWriter();
-					out.write(exception.getMessage());
-					out.flush();
-					out.close();
+					// 先将错误信息存在 session 中，然后当跳转到另一个页面时读取
+					UserSession.loginFailure(exception.getMessage());
+					handler.onAuthenticationFailure(request, response, exception);
 				})
 				.userInfoEndpoint()
 					.userService(new CustomOAuth2UserService(

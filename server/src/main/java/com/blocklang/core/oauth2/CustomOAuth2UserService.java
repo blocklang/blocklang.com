@@ -79,12 +79,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 		String loginName = null;
 		AccountInfo accountInfo = null;
 		if(registrationId.equalsIgnoreCase(OauthSite.GITHUB.getValue())) {
-			try {
-				oauthUser = defaultOAuth2UserService.loadUser(userRequest);
-			} catch (OAuth2AuthenticationException e) {
-				e.printStackTrace();
-				throw e;
-			}
+			oauthUser = defaultOAuth2UserService.loadUser(userRequest);
 			site = OauthSite.GITHUB;
 			loginName = Objects.toString(oauthUser.getAttributes().get("login"), null);
 			accountInfo = githubLoginService.getThirdPartyUser(oauthUser);

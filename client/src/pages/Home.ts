@@ -17,6 +17,8 @@ export interface HomeProperties {
 	loggedUsername?: string;
 	loggedAvatarUrl?: string;
 	canAccessProjects: Project[];
+	loginFailure: boolean;
+	loginFailureMessage: string;
 }
 
 /**
@@ -35,32 +37,46 @@ export default class Home extends ThemedMixin(I18nMixin(WidgetBase))<HomePropert
 	}
 
 	private _renderPublicHome() {
+		const { loginFailure, loginFailureMessage } = this.properties;
 		const { messages } = this._localizedMessages;
 
-		return v('div', { classes: [css.jumbotron, c.jumbotron, c.mt_5] }, [
-			v('div', { classes: [c.container, css.jumbotronContent] }, [
-				v('h1', { classes: [] }, [messages.blockLangIntro]),
-				v('p', { classes: [c.my_5] }, [
-					v(
-						'a',
-						{
-							classes: [c.btn, c.btn_lg, c.btn_outline_primary, css.loginButton, c.mb_2],
-							href: `${baseUrl}/oauth2/authorization/github`,
-						},
-						[w(FontAwesomeIcon, { icon: ['fab', 'github'], size: 'lg' }), ` ${messages.loginGithub}`]
-					),
-					' ', // 加一个空格，两个按钮水平摆放时，会有完美间隔。
-					v(
-						'a',
-						{
-							classes: [c.btn, c.btn_lg, c.btn_outline_primary, css.loginButton, c.mb_2],
-							href: `${baseUrl}/oauth2/authorization/qq`,
-						},
-						[w(FontAwesomeIcon, { icon: ['fab', 'qq'], size: 'lg' }), ` ${messages.loginQq}`]
-					),
+		return [
+			loginFailure
+				? v('div', { classes: [c.alert, c.alert_danger, c.alert_dismissible], role: 'alert' }, [
+						v('h4', { classes: [c.alert_heading] }, ['登录失败！']),
+						v('p', {}, [`${loginFailureMessage}`]),
+						v(
+							'button',
+							{ type: 'button', classes: [c.close], 'data-dismiss': 'alert', 'aria-label': 'Close' },
+							[v('span', { 'aria-hidden': 'true', innerHTML: '&times;' }, [])]
+						),
+				  ])
+				: undefined,
+			v('div', { classes: [css.jumbotron, c.jumbotron, c.mt_5] }, [
+				v('div', { classes: [c.container, css.jumbotronContent] }, [
+					v('h1', { classes: [] }, [messages.blockLangIntro]),
+					v('p', { classes: [c.my_5] }, [
+						v(
+							'a',
+							{
+								classes: [c.btn, c.btn_lg, c.btn_outline_primary, css.loginButton, c.mb_2],
+								href: `${baseUrl}/oauth2/authorization/github`,
+							},
+							[w(FontAwesomeIcon, { icon: ['fab', 'github'], size: 'lg' }), ` ${messages.loginGithub}`]
+						),
+						' ', // 加一个空格，两个按钮水平摆放时，会有完美间隔。
+						v(
+							'a',
+							{
+								classes: [c.btn, c.btn_lg, c.btn_outline_primary, css.loginButton, c.mb_2],
+								href: `${baseUrl}/oauth2/authorization/qq`,
+							},
+							[w(FontAwesomeIcon, { icon: ['fab', 'qq'], size: 'lg' }), ` ${messages.loginQq}`]
+						),
+					]),
 				]),
 			]),
-		]);
+		];
 	}
 
 	private _renderPrivateHome() {

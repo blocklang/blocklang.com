@@ -10,7 +10,7 @@ import global from '@dojo/framework/shim/global';
 import routes from './routes';
 import App from './App';
 import { State } from './interfaces';
-import { getCurrentUserProcess, initForUserProfileProcess } from './processes/userProcesses';
+import { initForUserProfileProcess } from './processes/userProcesses';
 import { initForNewRepositoryProcess } from './processes/repositoryProcesses';
 import {
 	initForViewProjectProcess,
@@ -44,7 +44,9 @@ const userSession = global.sessionStorage.getItem('blocklang-session');
 if (userSession) {
 	setSessionProcess(store)({ session: JSON.parse(userSession) });
 } else {
-	getCurrentUserProcess(store)({});
+	// 因为在 homeProcesses 中也调用了获取登录用户信息的方法，出现了在 home 页面都请求两次的情况
+	// 所以先注释掉此方法。
+	//getCurrentUserProcess(store)({});
 }
 
 const registry = registerStoreInjector(store);

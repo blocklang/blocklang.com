@@ -78,3 +78,10 @@ export enum RepoType {
 	IDE = '02',
 	PROD = '03',
 }
+
+export enum LoginStatus {
+	NOT_LOGIN = 'NotLogin',
+	FAILED = 'Failed',
+	LOGINED = 'Logined',
+	NEED_COMPLETE_USER_INFO = 'NeedCompleteUserInfo',
+}

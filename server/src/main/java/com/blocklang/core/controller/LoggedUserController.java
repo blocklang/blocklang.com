@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.blocklang.core.constant.LoginStatus;
 import com.blocklang.core.constant.OauthSite;
 import com.blocklang.core.data.AccountInfo;
 import com.blocklang.core.data.CheckLoginNameParam;
@@ -43,16 +44,33 @@ import com.blocklang.core.service.UserService;
 public class LoggedUserController {
 	
 	private static final Logger logger = LoggerFactory.getLogger(LoggedUserController.class);
+	private static final String KEY_LOGIN_STATUS = "status";
 	
 	@Autowired
 	private UserService userService;
 	@Autowired
 	private PropertyService propertyService;
 
+	/**
+	 * 本方法中包含以下逻辑：
+	 * 
+	 * <ul>
+	 * <li> 1. 如果用户登录成功
+	 * <li> 2. 如果用户登录成功，但还需要用户补充必填信息
+	 * <li> 3. 用户登录失败
+	 * <li> 4. 用户没有登录
+	 * </ul>
+	 * 
+	 * 通过 status 来标识登录状态。
+	 * 
+	 * @param principal 登录用户的信息
+	 * @return 登录用户相关信息
+	 */
 	@GetMapping("/user")
 	public ResponseEntity<Map<String, Object>> index(Principal principal) {
 		Map<String, Object> user = new HashMap<String, Object>();
-		if (principal != null) {
+		if (loginSuccess(principal)) {
+			user.put(KEY_LOGIN_STATUS, LoginStatus.LOGINED.getStatus());
 			if(OAuth2AuthenticationToken.class.isInstance(principal)) {
 				OAuth2AuthenticationToken token = (OAuth2AuthenticationToken)principal;
 				Map<String, Object> userAttributes = token.getPrincipal().getAttributes();
@@ -66,24 +84,38 @@ public class LoggedUserController {
 				// 因为客户端并不需要显示登录用户的登录标识，所以不返回 userId
 				user.put("loginName", securityUser.getUsername());
 			}
-		} else {
-			// 用户未登录
+		} else if(loginSuccessButNeedCompleteUserInfo()) {
+			user.put(KEY_LOGIN_STATUS, LoginStatus.NEED_COMPLETE_USER_INFO.getStatus());
 			// 判断 session 中是否存储第三方用户信息，如果存在的话，则需要完善用户信息
 			Map<String, Object> thirdPartyUser = UserSession.getThirdPartyUser();
-			if(thirdPartyUser != null) {
-				user.put("needCompleteUserInfo", true);
-				
-				AccountInfo accountInfo = (AccountInfo) thirdPartyUser.get("accountInfo");
-				
-				UserInfo userInfo = accountInfo.getUserInfo();
-				user.put("loginName", userInfo.getLoginName());
-				user.put("nickname", userInfo.getNickname());
-				user.put("avatarUrl", userInfo.getAvatarUrl());
-				user.put("loginNameErrorMessage", thirdPartyUser.get("loginNameErrorMessage"));				
-			}
+			AccountInfo accountInfo = (AccountInfo) thirdPartyUser.get("accountInfo");
+			
+			UserInfo userInfo = accountInfo.getUserInfo();
+			user.put("loginName", userInfo.getLoginName());
+			user.put("nickname", userInfo.getNickname());
+			user.put("avatarUrl", userInfo.getAvatarUrl());
+			user.put("loginNameErrorMessage", thirdPartyUser.get("loginNameErrorMessage"));				
+		} else if(loginFailure()) {
+			user.put(KEY_LOGIN_STATUS, LoginStatus.FAILED.getStatus());
+			user.put("loginFailureMessage", UserSession.removeLoginFailureMessage());
+		} else {
+			// 用户未登录
+			user.put(KEY_LOGIN_STATUS, LoginStatus.NOT_LOGIN.getStatus());
 		}
-
+		
 		return new ResponseEntity<Map<String, Object>>(user, HttpStatus.OK);
+	}
+
+	private boolean loginSuccess(Principal principal) {
+		return principal != null;
+	}
+	
+	private boolean loginSuccessButNeedCompleteUserInfo() {
+		return UserSession.getThirdPartyUser() != null;
+	}
+	
+	private boolean loginFailure() {
+		return UserSession.loginFailure();
 	}
 	
 	@PostMapping("/user/check-login-name")

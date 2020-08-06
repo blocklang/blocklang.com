@@ -9,6 +9,7 @@ import {
 	RepoCategory,
 	PageAppType,
 	RepoType,
+	LoginStatus,
 } from './constant';
 import { IconName } from '@fortawesome/fontawesome-svg-core';
 
@@ -46,6 +47,8 @@ export interface User {
 	loginName: string;
 	nickname: string;
 	avatarUrl: string;
+	status: LoginStatus;
+	loginFailureMessage?: string;
 }
 
 export interface ThirdPartyUser {

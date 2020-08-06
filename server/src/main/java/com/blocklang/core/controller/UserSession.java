@@ -13,6 +13,7 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
+import org.springframework.util.Assert;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -21,6 +22,11 @@ import com.blocklang.core.model.UserInfo;
 public abstract class UserSession {
 
 	private static final String THIRD_PARTY_SESSION_KEY = "x-third-party-user";
+	
+	/**
+	 * 使用 github 等帐号登录出错时，需要将错误信息缓存到 session 中，此时使用此值作为 session 的 key
+	 */
+	private static final String LOGIN_ERROR_MESSAGE = "login.error.message";
 	
 	public static void setThirdPartyUser(Map<String, Object> thirdPartyUser) {
 		HttpSession httpSession = getSession();
@@ -53,6 +59,25 @@ public abstract class UserSession {
 		OAuth2User oauth2User = new DefaultOAuth2User(authorities, userAttributes, "loginName");
 		OAuth2AuthenticationToken authentication = new OAuth2AuthenticationToken(oauth2User, authorities, registrationId);
 		SecurityContextHolder.getContext().setAuthentication(authentication);
+	}
+	
+	/**
+	 * 用户登录失败时，将错误信息缓存在 Session 中
+	 * @param errorMessage 错误信息
+	 */
+	public static void loginFailure(String errorMessage) {
+		Assert.notNull(errorMessage, "必须要传入错误信息");
+		getSession().setAttribute(LOGIN_ERROR_MESSAGE, errorMessage);
+	}
+	
+	public static boolean loginFailure() {
+		return getSession().getAttribute(LOGIN_ERROR_MESSAGE) != null;
+	}
+	
+	public static String removeLoginFailureMessage() {
+		String loginFailureMessage = (String) getSession().getAttribute(LOGIN_ERROR_MESSAGE);
+		getSession().removeAttribute(LOGIN_ERROR_MESSAGE);
+		return loginFailureMessage;
 	}
 	
 }
