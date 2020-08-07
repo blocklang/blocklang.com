@@ -276,12 +276,46 @@ public class PageController extends AbstractProjectController {
 		// 这个列表中不包含页面信息
 		List<ProjectResource> parentGroups = projectResourceService.findParentGroupsByParentPath(project.getId(), groupPath);
 		
+		// 约定一个仓库的目录结构为
+		// repo
+		//     project1
+		//         resource
+		//     project2
+		//         resource
+		//     mini-program
+		//         app
+		//         pages/
+		//             index
+		//     BUILD.json
+		//     README.md
+		// 所有 resource 的 AppType 都取 project 的 AppType 的值
 		String pageKey = pathes[pathes.length - 1];
 		Integer parentGroupId = Constant.TREE_ROOT_ID;
 		if(!parentGroups.isEmpty()) {
 			parentGroupId = parentGroups.get(parentGroups.size() - 1).getId();
+			
+			AppType appType = parentGroups.get(0).getAppType();
+			ProjectResourceType resourceType = ProjectResourceType.PAGE;
+			// 小程序项目根目录下的 app 的资源类型为 MAIN
+			if(appType == AppType.MINI_PROGRAM && parentGroups.size() == 1 && pageKey.equals("app")) {
+				resourceType = ProjectResourceType.MAIN;
+			}
+			
+			ProjectResource projectResource = projectResourceService.findByKey(project.getId(), parentGroupId, resourceType, appType, pageKey).orElseThrow(ResourceNotFoundException::new);
+			projectResource.setMessageSource(messageSource); // 不加这行代码，在生成 json 时会出错
+			
+			parentGroups.add(projectResource);
+			List<Map<String, String>> stripedParentGroups = ProjectResourcePathUtil.combinePathes(parentGroups);
+			
+			Map<String, Object> result = new HashMap<>();
+			result.put("projectResource", projectResource);
+			result.put("parentGroups", stripedParentGroups);
+			
+			return ResponseEntity.ok(result);
 		}
-		ProjectResource projectResource = projectResourceService.findByKey(project.getId(), parentGroupId, ProjectResourceType.PAGE, AppType.WEB, pageKey).orElseThrow(ResourceNotFoundException::new);
+		
+		// 获取仓库根目录下的文件，位于仓库根目录下的文件的 AppType 的值必须为 UNKNOWN
+		ProjectResource projectResource = projectResourceService.findByKey(project.getId(), parentGroupId, ProjectResourceType.PAGE, AppType.UNKNOWN, pageKey).orElseThrow(ResourceNotFoundException::new);
 		projectResource.setMessageSource(messageSource); // 不加这行代码，在生成 json 时会出错
 		
 		parentGroups.add(projectResource);

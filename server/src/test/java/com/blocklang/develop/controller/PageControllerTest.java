@@ -9,6 +9,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -876,19 +877,23 @@ public class PageControllerTest extends AbstractControllerTest{
 		String owner = "owner";
 		String projectName = "project";
 		
+		int repoId = 1;
 		Project project = new Project();
-		project.setId(1);
+		project.setId(repoId);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
 		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
 		
 		when(projectResourceService.findParentGroupsByParentPath(anyInt(), anyString())).thenReturn(new ArrayList<>());
 
+		String pageKey = "a";
 		ProjectResource projectResource = new ProjectResource();
 		projectResource.setId(11);
-		projectResource.setKey("a");
+		projectResource.setKey(pageKey);
 		projectResource.setName("A");
-		when(projectResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(projectResource));
+		projectResource.setAppType(AppType.UNKNOWN);
+		projectResource.setResourceType(ProjectResourceType.PAGE);
+		when(projectResourceService.findByKey(eq(repoId), eq(Constant.TREE_ROOT_ID), eq(ProjectResourceType.PAGE), eq(AppType.UNKNOWN), eq(pageKey))).thenReturn(Optional.of(projectResource));
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -938,5 +943,111 @@ public class PageControllerTest extends AbstractControllerTest{
 					  "parentGroups[0].path", equalTo("/groupA"),
 					  "parentGroups[1].name", equalTo("PAGE_B"),
 					  "parentGroups[1].path", equalTo("/groupA/page_b"));
+	}
+
+	/**
+	 * 获取小程序的 app 页面
+	 */
+	@Test
+	public void getPage_mini_program_app() {
+		String owner = "owner";
+		String repoName = "project";
+		int repoId = 1;
+		Project repo = new Project();
+		repo.setId(repoId);
+		when(projectService.find(eq(owner), eq(repoName))).thenReturn(Optional.of(repo));
+		
+		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
+		
+		int miniProjectId = 11;
+		ProjectResource groupA = new ProjectResource();
+		groupA.setId(miniProjectId);
+		groupA.setKey("miniProgram1");
+		groupA.setAppType(AppType.MINI_PROGRAM);
+		groupA.setResourceType(ProjectResourceType.PROJECT);
+		List<ProjectResource> parents = new ArrayList<>();
+		parents.add(groupA);
+		when(projectResourceService.findParentGroupsByParentPath(anyInt(), anyString())).thenReturn(parents);
+
+		int appId = 111;
+		String mainPageKey = "app";
+		ProjectResource projectResource = new ProjectResource();
+		projectResource.setId(appId);
+		projectResource.setKey(mainPageKey);
+		projectResource.setParentId(miniProjectId);
+		projectResource.setAppType(AppType.MINI_PROGRAM);
+		projectResource.setResourceType(ProjectResourceType.MAIN);
+		when(projectResourceService.findByKey(eq(repoId), eq(miniProjectId), eq(ProjectResourceType.MAIN), eq(AppType.MINI_PROGRAM), eq(mainPageKey))).thenReturn(Optional.of(projectResource));
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/pages/{pagePath}", owner, repoName, "miniProgram1/app")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body("projectResource.id", equalTo(appId),
+					  "parentGroups.size", equalTo(2),
+					  "parentGroups[0].name", equalTo("miniProgram1"),
+					  "parentGroups[0].path", equalTo("/miniProgram1"),
+					  "parentGroups[1].name", equalTo("app"),
+					  "parentGroups[1].path", equalTo("/miniProgram1/app"));
+	}
+	
+	@Test
+	public void getPage_mini_program_index_page() {
+		String owner = "owner";
+		String repoName = "project";
+		int repoId = 1;
+		Project repo = new Project();
+		repo.setId(repoId);
+		when(projectService.find(eq(owner), eq(repoName))).thenReturn(Optional.of(repo));
+		
+		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
+		
+		int miniProjectId = 11;
+		ProjectResource groupA = new ProjectResource();
+		groupA.setId(miniProjectId);
+		groupA.setKey("miniProgram1");
+		groupA.setAppType(AppType.MINI_PROGRAM);
+		groupA.setResourceType(ProjectResourceType.PROJECT);
+		groupA.setParentId(Constant.TREE_ROOT_ID);
+		
+		int pagesGroupId = 111;
+		ProjectResource groupAA = new ProjectResource();
+		groupAA.setId(pagesGroupId);
+		groupAA.setKey("pages");
+		groupAA.setAppType(AppType.MINI_PROGRAM);
+		groupAA.setResourceType(ProjectResourceType.GROUP);
+		groupAA.setParentId(miniProjectId);
+		
+		List<ProjectResource> parents = new ArrayList<>();
+		parents.add(groupA);
+		parents.add(groupAA);
+		when(projectResourceService.findParentGroupsByParentPath(anyInt(), anyString())).thenReturn(parents);
+		
+		int indexPageId = 1111;
+		String indexPageKey = "index";
+		ProjectResource indexPage = new ProjectResource();
+		indexPage.setId(indexPageId);
+		indexPage.setKey(indexPageKey);
+		indexPage.setAppType(AppType.MINI_PROGRAM);
+		indexPage.setResourceType(ProjectResourceType.MAIN);
+		indexPage.setParentId(pagesGroupId);
+		when(projectResourceService.findByKey(eq(repoId), eq(pagesGroupId), eq(ProjectResourceType.PAGE), eq(AppType.MINI_PROGRAM), eq(indexPageKey))).thenReturn(Optional.of(indexPage));
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/projects/{owner}/{projectName}/pages/{pagePath}", owner, repoName, "miniProgram1/pages/index")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.body("projectResource.id", equalTo(indexPageId),
+					  "parentGroups.size", equalTo(3),
+					  "parentGroups[0].name", equalTo("miniProgram1"),
+					  "parentGroups[0].path", equalTo("/miniProgram1"),
+					  "parentGroups[1].name", equalTo("pages"),
+					  "parentGroups[1].path", equalTo("/miniProgram1/pages"),
+					  "parentGroups[2].name", equalTo("index"),
+					  "parentGroups[2].path", equalTo("/miniProgram1/pages/index"));
 	}
 }
