@@ -285,7 +285,7 @@ public class GroupController extends AbstractProjectController{
 			if(param.getDescription() != null) {
 				resource.setDescription(param.getDescription().trim());
 			}
-			resource.setResourceType(ProjectResourceType.GROUP);
+			resource.setResourceType(ProjectResourceType.fromKey(param.getResourceType()));
 			
 			UserInfo currentUser = userService
 				.findByLoginName(principal.getName())
@@ -321,31 +321,59 @@ public class GroupController extends AbstractProjectController{
 				// 创建小程序
 				String apiGitUrl = propertyService
 					.findStringValue(CmPropKey.STD_MINI_PROGRAM_COMPONENT_API_GIT_URL)
-					.orElseThrow(ResourceNotFoundException::new);
+					.orElseGet(() -> {
+						bindingResult.reject("NotExist.std.repo.url");
+						return null;
+					});
 				Integer userId = propertyService
 					.findIntegerValue(CmPropKey.STD_REPO_REGISTER_USER_ID)
-					.orElseThrow(ResourceNotFoundException::new);
+					.orElseGet(() -> {
+						bindingResult.reject("NotExist.std.register.user.id");
+						return null;
+					});
 				// 是否注册小程序的 API 库
 				var apiRepo = apiRepoService
 					.findByGitUrlAndCreateUserId(apiGitUrl, userId)
-					.orElseThrow(ResourceNotFoundException::new);
+					.orElseGet(() -> {
+						bindingResult.reject("NotExist.std.api.repo", new Object[] {apiGitUrl}, null);
+						return null;
+					});
+				if(bindingResult.hasErrors()) {
+					throw new InvalidRequestException(bindingResult);
+				}
 				var apiRepoVersion = apiRepoVersionService
 						.findMasterVersion(apiRepo.getId())
-						.orElseThrow(ResourceNotFoundException::new);
+						.orElseGet(() -> {
+							bindingResult.reject("NotExist.std.api.repo.master");
+							return null;
+						});
+				if(bindingResult.hasErrors()) {
+					throw new InvalidRequestException(bindingResult);
+				}
 				// 小程序的 API 库中是否存在 APP 组件
 				String appWidgetName = propertyService
 					.findStringValue(CmPropKey.STD_MINI_PROGRAM_COMPONENT_APP_NAME)
-					.orElseThrow(ResourceNotFoundException::new);
+					.orElseGet(() -> {
+						bindingResult.reject("NotExist.std.app.name");
+						return null;
+					});
 				ApiWidget appWidget = apiWidgetService
 					.findByApiRepoVersionIdAndNameIgnoreCase(apiRepoVersion.getId(), appWidgetName)
 					.orElseThrow(ResourceNotFoundException::new);
 				// 小程序的 API 库中是否存在 Page 组件
 				String pageWidgetName = propertyService
 					.findStringValue(CmPropKey.STD_MINI_PROGRAM_COMPONENT_PAGE_NAME)
-					.orElseThrow(ResourceNotFoundException::new);
+					.orElseGet(() -> {
+						bindingResult.reject("NotExist.std.page.name");
+						return null;
+					});
 				ApiWidget pageWidget = apiWidgetService
 					.findByApiRepoVersionIdAndNameIgnoreCase(apiRepoVersion.getId(), pageWidgetName)
 					.orElseThrow(ResourceNotFoundException::new);
+				
+				if(bindingResult.hasErrors()) {
+					throw new InvalidRequestException(bindingResult);
+				}
 				
 				// 在 service 中默认依赖小程序的 API 库的 master，且不允许删除该依赖
 				savedProjectResource = projectResourceService.createMiniProgram(project, resource, apiRepo, appWidget, pageWidget);

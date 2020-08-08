@@ -1,6 +1,6 @@
 import { createProcess } from '@dojo/framework/stores/process';
 import { commandFactory, getHeaders, linkTo } from './utils';
-import { replace } from '@dojo/framework/stores/state/operations';
+import { replace, remove } from '@dojo/framework/stores/state/operations';
 import { ValidateStatus, ResourceType } from '../constant';
 import { GroupKeyPayload, GroupNamePayload, DescriptionPayload } from './interfaces';
 import { baseUrl } from '../config';
@@ -126,6 +126,7 @@ const saveGroupCommand = commandFactory(
 
 		return [
 			// 清空输入参数
+			remove(path('errors')),
 			replace(path('groupParam'), undefined),
 			...linkTo(path, parentPath.length > 0 ? 'view-project-group' : 'view-project', {
 				owner,

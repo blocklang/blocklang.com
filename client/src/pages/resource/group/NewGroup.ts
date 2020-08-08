@@ -8,7 +8,7 @@ import * as c from '@blocklang/bootstrap-classes';
 import * as css from './NewGroup.m.css';
 import { v, w } from '@dojo/framework/core/vdom';
 import Exception from '../../error/Exception';
-import { Project, WithTarget, ProjectResourceGroup } from '../../../interfaces';
+import { Project, WithTarget, ProjectResourceGroup, Errors } from '../../../interfaces';
 import ProjectHeader from '../../widgets/ProjectHeader';
 import Link from '@dojo/framework/routing/Link';
 import { ValidateStatus } from '../../../constant';
@@ -27,6 +27,7 @@ export interface NewGroupProperties {
 	keyErrorMessage?: string;
 	nameValidateStatus?: ValidateStatus;
 	nameErrorMessage?: string;
+	saveFailedErrors: Errors;
 	// event
 	onKeyInput: (opts: GroupKeyPayload) => void;
 	onNameInput: (opts: GroupNamePayload) => void;
@@ -48,7 +49,20 @@ export default class NewGroup extends ThemedMixin(I18nMixin(WidgetBase))<NewGrou
 			messages: { newGroup },
 		} = this._localizedMessages;
 
+		const { saveFailedErrors } = this.properties;
+
 		return v('div', { classes: [css.root, c.container] }, [
+			saveFailedErrors
+				? v('div', { classes: [c.alert, c.alert_danger, c.alert_dismissible], role: 'alert' }, [
+						v('h4', { classes: [c.alert_heading] }, ['保存失败！']),
+						v('p', {}, [`${saveFailedErrors.global}`]),
+						v(
+							'button',
+							{ type: 'button', classes: [c.close], 'data-dismiss': 'alert', 'aria-label': 'Close' },
+							[v('span', { 'aria-hidden': 'true', innerHTML: '&times;' }, [])]
+						),
+				  ])
+				: undefined,
 			this._renderHeader(),
 			v('div', { classes: [c.container], styles: { maxWidth: '700px' } }, [
 				v('div', [

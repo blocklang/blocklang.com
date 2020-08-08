@@ -36,6 +36,9 @@ import com.blocklang.develop.model.ProjectResource;
 import com.blocklang.develop.service.ProjectPermissionService;
 import com.blocklang.develop.service.ProjectResourceService;
 import com.blocklang.develop.service.ProjectService;
+import com.blocklang.marketplace.service.ApiRepoService;
+import com.blocklang.marketplace.service.ApiRepoVersionService;
+import com.blocklang.marketplace.service.ApiWidgetService;
 
 import io.restassured.http.ContentType;
 
@@ -48,6 +51,12 @@ public class GroupControllerTest extends AbstractControllerTest{
 	private ProjectResourceService projectResourceService;
 	@MockBean
 	private ProjectPermissionService projectPermissionService;
+	@MockBean
+	private ApiRepoService apiRepoService;
+	@MockBean
+	private ApiRepoVersionService apiRepoVersionService;
+	@MockBean
+	private ApiWidgetService apiWidgetService;
 	
 	@Test
 	public void check_key_anonymous_can_not_check() {
@@ -692,6 +701,7 @@ public class GroupControllerTest extends AbstractControllerTest{
 		param.setParentId(Constant.TREE_ROOT_ID);
 		param.setKey("key");
 		param.setName("name");
+		param.setResourceType(ProjectResourceType.GROUP.getKey());
 		
 		Project project = new Project();
 		project.setId(1);
@@ -715,7 +725,7 @@ public class GroupControllerTest extends AbstractControllerTest{
 		savedResource.setId(1);
 		savedResource.setSeq(1);
 		savedResource.setAppType(AppType.WEB);
-		savedResource.setResourceType(ProjectResourceType.PAGE);
+		savedResource.setResourceType(ProjectResourceType.GROUP);
 		when(projectResourceService.insert(any(), any())).thenReturn(savedResource);
 		
 		given()

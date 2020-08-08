@@ -21,6 +21,7 @@ function getProperties(store: Store<State>): NewGroupProperties {
 		keyErrorMessage: get(path('groupInputValidation', 'keyErrorMessage')),
 		nameValidateStatus: get(path('groupInputValidation', 'nameValidateStatus')),
 		nameErrorMessage: get(path('groupInputValidation', 'nameErrorMessage')),
+		saveFailedErrors: get(path('errors')),
 		onKeyInput: groupKeyInputProcess(store),
 		onNameInput: groupNameInputProcess(store),
 		onDescriptionInput: groupDescriptionInputProcess(store),

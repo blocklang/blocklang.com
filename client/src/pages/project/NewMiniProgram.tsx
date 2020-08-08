@@ -38,6 +38,7 @@ export default factory(function NewMiniProgram({ properties, middleware: { store
 	const projectResource = get(path('projectResource'));
 	const isLoading = get(path('projectResource', 'isLoading'));
 	const isLoaded = get(path('projectResource', 'isLoaded'));
+	const saveFailedErrors = get(path('errors'));
 
 	if (!projectResource && !isLoading) {
 		executor(initForNewGroupProcess)({
@@ -202,6 +203,12 @@ export default factory(function NewMiniProgram({ properties, middleware: { store
 				<h4>{messages.newMiniProgram}</h4>
 				{renderBreadcrumb()}
 				<hr />
+				{saveFailedErrors && (
+					<div classes={[c.alert, c.alert_danger, c.alert_dismissible]} role="alert">
+						<h4 classes={[c.alert_heading]}>保存失败！</h4>
+						<p>{saveFailedErrors.globalErrors[0]}</p>
+					</div>
+				)}
 				<form classes={[c.needs_validation]} novalidate="novalidate">
 					{renderKeyInput()}
 					{renderNameInput()}
