@@ -23,8 +23,8 @@ import com.blocklang.core.git.exception.GitEmptyCommitException;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.develop.data.CommitMessage;
 import com.blocklang.develop.data.UncommittedFile;
-import com.blocklang.develop.model.Project;
-import com.blocklang.develop.service.ProjectResourceService;
+import com.blocklang.develop.model.Repository;
+import com.blocklang.develop.service.RepositoryResourceService;
 
 /**
  * 
@@ -32,69 +32,69 @@ import com.blocklang.develop.service.ProjectResourceService;
  *
  */
 @RestController
-public class CommitController extends AbstractProjectController{
+public class CommitController extends AbstractRepositoryController{
 
 	@Autowired
-	private ProjectResourceService projectResourceService;
+	private RepositoryResourceService repositoryResourceService;
 	
 	/**
-	 * 如果是公开项目，则任何人都能访问；如果是私有项目，则有读的权限就能访问。
+	 * 如果是公开仓库，则任何人都能访问；如果是私有仓库，则有读的权限就能访问。
 	 * 
 	 * @param principal
-	 * @param owner
-	 * @param projectName
+	 * @param owner 仓库拥有者（用户登录名）
+	 * @param repoName 仓库名称
 	 * @return
 	 */
-	@GetMapping("/projects/{owner}/{projectName}/changes")
+	@GetMapping("/repos/{owner}/{repoName}/changes")
 	public ResponseEntity<List<UncommittedFile>> listChanges(
 			Principal principal,
 			@PathVariable("owner") String owner,
-			@PathVariable("projectName") String projectName) {
-		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-		projectPermissionService.canRead(principal, project).orElseThrow(NoAuthorizationException::new);
-		return ResponseEntity.ok(projectResourceService.findChanges(project));
+			@PathVariable("repoName") String repoName) {
+		Repository repository = repositoryService.find(owner, repoName).orElseThrow(ResourceNotFoundException::new);
+		repositoryPermissionService.canRead(principal, repository).orElseThrow(NoAuthorizationException::new);
+		return ResponseEntity.ok(repositoryResourceService.findChanges(repository));
 	}
 	
-	@PostMapping("/projects/{owner}/{projectName}/stage-changes")
+	@PostMapping("/repos/{owner}/{repoName}/stage-changes")
 	public ResponseEntity<Map<String, Object>> stageChanges(
 			Principal principal,
 			@PathVariable("owner") String owner,
-			@PathVariable("projectName") String projectName,
+			@PathVariable("repoName") String repoName,
 			@RequestBody String[] param) {
 		// 必须要先登录
 		if(principal == null) {
 			throw new NoAuthorizationException();
 		}
-		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-		projectPermissionService.canWrite(principal, project).orElseThrow(NoAuthorizationException::new);
+		Repository repository = repositoryService.find(owner, repoName).orElseThrow(ResourceNotFoundException::new);
+		repositoryPermissionService.canWrite(principal, repository).orElseThrow(NoAuthorizationException::new);
 		
-		projectResourceService.stageChanges(project, param);
+		repositoryResourceService.stageChanges(repository, param);
 		
 		return ResponseEntity.ok(Collections.emptyMap());
 	}
 	
-	@PostMapping("/projects/{owner}/{projectName}/unstage-changes")
+	@PostMapping("/repos/{owner}/{repoName}/unstage-changes")
 	public ResponseEntity<Map<String, Object>> unstageChanges(
 			Principal principal,
 			@PathVariable("owner") String owner,
-			@PathVariable("projectName") String projectName,
+			@PathVariable("repoName") String repoName,
 			@RequestBody String[] param) {
 		if(principal == null) {
 			throw new NoAuthorizationException();
 		}
-		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-		projectPermissionService.canWrite(principal, project).orElseThrow(NoAuthorizationException::new);
+		Repository repository = repositoryService.find(owner, repoName).orElseThrow(ResourceNotFoundException::new);
+		repositoryPermissionService.canWrite(principal, repository).orElseThrow(NoAuthorizationException::new);
 		
-		projectResourceService.unstageChanges(project, param);
+		repositoryResourceService.unstageChanges(repository, param);
 		
 		return ResponseEntity.ok(Collections.emptyMap());
 	}
 	
-	@PostMapping("/projects/{owner}/{projectName}/commits")
+	@PostMapping("/repos/{owner}/{repoName}/commits")
 	public ResponseEntity<Map<String, Object>> commit(
 			Principal principal,
 			@PathVariable("owner") String owner,
-			@PathVariable("projectName") String projectName,
+			@PathVariable("repoName") String repoName,
 			@Valid @RequestBody CommitMessage param,
 			BindingResult bindingResult) {
 		if(principal == null) {
@@ -105,12 +105,12 @@ public class CommitController extends AbstractProjectController{
 			throw new InvalidRequestException(bindingResult);
 		}
 		
-		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-		projectPermissionService.canWrite(principal, project).orElseThrow(NoAuthorizationException::new);
+		Repository repository = repositoryService.find(owner, repoName).orElseThrow(ResourceNotFoundException::new);
+		repositoryPermissionService.canWrite(principal, repository).orElseThrow(NoAuthorizationException::new);
 		
 		UserInfo user = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
 		try {
-			projectResourceService.commit(user, project, param.getValue());
+			repositoryResourceService.commit(user, repository, param.getValue());
 		} catch(GitEmptyCommitException e) {
 			bindingResult.reject("NotEmpty.gitCommit");
 		}

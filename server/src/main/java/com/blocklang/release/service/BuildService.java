@@ -2,7 +2,7 @@ package com.blocklang.release.service;
 
 import java.io.IOException;
 
-import com.blocklang.develop.model.Project;
+import com.blocklang.develop.model.Repository;
 import com.blocklang.release.model.ProjectReleaseTask;
 
 /**
@@ -21,7 +21,7 @@ public interface BuildService {
 	 * @param releaseTask
 	 * @throws IOException
 	 */
-	void build(Project project, ProjectReleaseTask releaseTask);
+	void build(Repository project, ProjectReleaseTask releaseTask);
 
 	/**
 	 * 构建 block lang 项目，该方法属于异步方法。
@@ -29,6 +29,6 @@ public interface BuildService {
 	 * @param project
 	 * @param releaseTask
 	 */
-	void asyncBuild(Project project, ProjectReleaseTask releaseTask);
+	void asyncBuild(Repository project, ProjectReleaseTask releaseTask);
 	
 }

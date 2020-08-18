@@ -28,14 +28,14 @@ import com.blocklang.core.constant.CmPropKey;
 import com.blocklang.core.exception.NoAuthorizationException;
 import com.blocklang.core.exception.ResourceNotFoundException;
 import com.blocklang.core.service.PropertyService;
+import com.blocklang.develop.data.ProjectDependenceData;
 import com.blocklang.develop.designer.data.Dependence;
 import com.blocklang.develop.designer.data.PageModel;
 import com.blocklang.develop.designer.data.RepoWidgetList;
-import com.blocklang.develop.model.Project;
-import com.blocklang.develop.model.ProjectResource;
+import com.blocklang.develop.model.Repository;
+import com.blocklang.develop.model.RepositoryResource;
 import com.blocklang.develop.service.ProjectDependenceService;
-import com.blocklang.develop.service.ProjectResourceService;
-import com.blocklang.marketplace.constant.RepoType;
+import com.blocklang.develop.service.RepositoryResourceService;
 import com.blocklang.marketplace.data.MarketplaceStore;
 import com.blocklang.marketplace.model.ComponentRepo;
 
@@ -46,60 +46,84 @@ import com.blocklang.marketplace.model.ComponentRepo;
  *
  */
 @RestController
-public class PageDesignerController extends AbstractProjectController {
+public class PageDesignerController extends AbstractRepositoryController {
 	
 	@Autowired
 	private ProjectDependenceService projectDependenceService;
 	@Autowired
-	private ProjectResourceService projectResourceService;
+	private RepositoryResourceService repositoryResourceService;
 	@Autowired
 	private PropertyService propertyService;
 	
 	/**
 	 * 与 {@link ProjectDependenceController#getDependence(Principal, String, String)}} 功能类似，
-	 * 但是一个是在项目依赖的维护页面中使用的，一个是在页面设计器中使用的。
+	 * 但一个是在项目依赖的维护页面中使用的，一个是在页面设计器中使用的。
 	 * 
 	 * @param principal
-	 * @param owner
-	 * @param projectName
+	 * @param projectId
+	 * @param repo
 	 * @return
 	 */
 	@GetMapping("/designer/projects/{projectId}/dependences")
 	public ResponseEntity<List<Dependence>> listProjectDependences(
 			Principal principal,
-			@PathVariable Integer projectId,
+			@PathVariable Integer projectId, // 此处的 projectId 就是仓库中的分组 id
 			@RequestParam String repo) {
 		
 		if(!repo.equalsIgnoreCase("ide")) {
 			throw new UnsupportedOperationException("当前仅支持获取 ide 依赖。");
 		}
-		Project project = projectService.findById(projectId).orElseThrow(ResourceNotFoundException::new);
-		projectPermissionService.canRead(principal, project).orElseThrow(NoAuthorizationException::new);
-
-		String stdIdeWidgetGitUrl = propertyService.findStringValue(CmPropKey.STD_WIDGET_IDE_GIT_URL)
-				.orElseThrow(ResourceNotFoundException::new);
+		RepositoryResource project = repositoryResourceService.findById(projectId).orElseThrow(ResourceNotFoundException::new);
+		Repository repository = repositoryService.findById(project.getRepositoryId()).orElseThrow(ResourceNotFoundException::new);
+		repositoryPermissionService.canRead(principal, repository).orElseThrow(NoAuthorizationException::new);
 		
-		List<Dependence> result = projectDependenceService
-				.findProjectDependences(project.getId(), true)
-				.stream()
-				.filter(item -> item.getComponentRepo().getRepoType().equals(RepoType.IDE))
-				.map(item -> {
-					Dependence dependence = new Dependence();
+		// 分开读取标准库和普通库
+		List<ProjectDependenceData> dependences= projectDependenceService.findIdeDependences(project);
+		dependences.addAll(projectDependenceService.findStdIdeDependences(project));
+		List<Dependence> result = dependences.stream().map(item -> {
+			Dependence dependence = new Dependence();
 
-					ComponentRepo componentRepo = item.getComponentRepo();
-					dependence.setId(componentRepo.getId());
-					dependence.setGitRepoWebsite(componentRepo.getGitRepoWebsite());
-					dependence.setGitRepoOwner(componentRepo.getGitRepoOwner());
-					dependence.setGitRepoName(componentRepo.getGitRepoName());
-					dependence.setCategory(componentRepo.getCategory().getValue());
-					dependence.setStd(stdIdeWidgetGitUrl.equals(componentRepo.getGitRepoUrl()));
-					dependence.setVersion(item.getComponentRepoVersion().getVersion());
-					dependence.setApiRepoId(item.getApiRepo().getId());
-					
-					return dependence;
-				})
-				.collect(Collectors.toList());
+			ComponentRepo componentRepo = item.getComponentRepo();
+			dependence.setId(componentRepo.getId());
+			dependence.setGitRepoWebsite(componentRepo.getGitRepoWebsite());
+			dependence.setGitRepoOwner(componentRepo.getGitRepoOwner());
+			dependence.setGitRepoName(componentRepo.getGitRepoName());
+			dependence.setCategory(componentRepo.getCategory().getValue());
+			dependence.setStd(componentRepo.isStd());
+			dependence.setVersion(item.getComponentRepoVersion().getVersion());
+			dependence.setApiRepoId(item.getApiRepo().getId());
+			
+			return dependence;
+		}).collect(Collectors.toList());
 		return ResponseEntity.ok(result);
+		
+//		Repository project = repositoryService.findById(projectId).orElseThrow(ResourceNotFoundException::new);
+//		repositoryPermissionService.canRead(principal, project).orElseThrow(NoAuthorizationException::new);
+//
+//		String stdIdeWidgetGitUrl = propertyService.findStringValue(CmPropKey.STD_WIDGET_IDE_GIT_URL)
+//				.orElseThrow(ResourceNotFoundException::new);
+//		
+//		List<Dependence> result = projectDependenceService
+//				.findProjectDependences(project.getId(), true)
+//				.stream()
+//				.filter(item -> item.getComponentRepo().getRepoType().equals(RepoType.IDE))
+//				.map(item -> {
+//					Dependence dependence = new Dependence();
+//
+//					ComponentRepo componentRepo = item.getComponentRepo();
+//					dependence.setId(componentRepo.getId());
+//					dependence.setGitRepoWebsite(componentRepo.getGitRepoWebsite());
+//					dependence.setGitRepoOwner(componentRepo.getGitRepoOwner());
+//					dependence.setGitRepoName(componentRepo.getGitRepoName());
+//					dependence.setCategory(componentRepo.getCategory().getValue());
+//					dependence.setStd(stdIdeWidgetGitUrl.equals(componentRepo.getGitRepoUrl()));
+//					dependence.setVersion(item.getComponentRepoVersion().getVersion());
+//					dependence.setApiRepoId(item.getApiRepo().getId());
+//					
+//					return dependence;
+//				})
+//				.collect(Collectors.toList());
+//		return ResponseEntity.ok(result);
 	}
 	
 	/**
@@ -112,8 +136,8 @@ public class PageDesignerController extends AbstractProjectController {
 	public ResponseEntity<List<RepoWidgetList>> getProjectDependenceWidgets(
 			Principal principal,
 			@PathVariable Integer projectId) {
-		Project project = projectService.findById(projectId).orElseThrow(ResourceNotFoundException::new);
-		projectPermissionService.canRead(principal, project).orElseThrow(NoAuthorizationException::new);
+		Repository project = repositoryService.findById(projectId).orElseThrow(ResourceNotFoundException::new);
+		repositoryPermissionService.canRead(principal, project).orElseThrow(NoAuthorizationException::new);
 		
 		List<RepoWidgetList> result = projectDependenceService.findAllWidgets(project.getId());
 		return ResponseEntity.ok(result);
@@ -123,14 +147,16 @@ public class PageDesignerController extends AbstractProjectController {
 	public ResponseEntity<PageModel> getPageModel(
 			Principal principal, 
 			@PathVariable Integer pageId) {
-		ProjectResource page = projectResourceService.findById(pageId).orElseThrow(ResourceNotFoundException::new);
+		RepositoryResource page = repositoryResourceService.findById(pageId).orElseThrow(ResourceNotFoundException::new);
 		if(!page.isPage()) {
 			throw new ResourceNotFoundException();
 		}
-		Project project = projectService.findById(page.getProjectId()).orElseThrow(ResourceNotFoundException::new);
-		projectPermissionService.canRead(principal, project).orElseThrow(NoAuthorizationException::new);
 		
-		PageModel result = projectResourceService.getPageModel(project.getId(), page.getId());
+		// TODO: 重新设计项目依赖
+		Repository repository = repositoryService.findById(page.getRepositoryId()).orElseThrow(ResourceNotFoundException::new);
+		repositoryPermissionService.canRead(principal, repository).orElseThrow(NoAuthorizationException::new);
+		
+		PageModel result = repositoryResourceService.getPageModel(repository.getId(), page);
 		return ResponseEntity.ok(result);
 	}
 	
@@ -144,14 +170,14 @@ public class PageDesignerController extends AbstractProjectController {
 			throw new NoAuthorizationException();
 		}
 
-		ProjectResource page = projectResourceService.findById(pageId).orElseThrow(ResourceNotFoundException::new);
-		if(!page.isPage()) {
+		RepositoryResource page = repositoryResourceService.findById(pageId).orElseThrow(ResourceNotFoundException::new);
+		if(!(page.isPage())) {
 			throw new ResourceNotFoundException();
 		}
-		Project project = projectService.findById(page.getProjectId()).orElseThrow(ResourceNotFoundException::new);
-		projectPermissionService.canWrite(principal, project).orElseThrow(NoAuthorizationException::new);
+		Repository project = repositoryService.findById(page.getRepositoryId()).orElseThrow(ResourceNotFoundException::new);
+		repositoryPermissionService.canWrite(principal, project).orElseThrow(NoAuthorizationException::new);
 		
-		projectResourceService.updatePageModel(project, page, model);
+		repositoryResourceService.updatePageModel(project, page, model);
 		
 		return ResponseEntity.noContent().build();
 	}

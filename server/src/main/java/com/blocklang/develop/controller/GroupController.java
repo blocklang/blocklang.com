@@ -36,20 +36,20 @@ import com.blocklang.core.exception.ResourceNotFoundException;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.PropertyService;
 import com.blocklang.develop.constant.AppType;
-import com.blocklang.develop.constant.ProjectResourceType;
+import com.blocklang.develop.constant.RepositoryResourceType;
 import com.blocklang.develop.data.CheckGroupKeyParam;
 import com.blocklang.develop.data.CheckGroupNameParam;
 import com.blocklang.develop.data.NewGroupParam;
-import com.blocklang.develop.model.Project;
-import com.blocklang.develop.model.ProjectResource;
-import com.blocklang.develop.service.ProjectResourceService;
+import com.blocklang.develop.model.Repository;
+import com.blocklang.develop.model.RepositoryResource;
+import com.blocklang.develop.service.RepositoryResourceService;
 import com.blocklang.marketplace.model.ApiWidget;
 import com.blocklang.marketplace.service.ApiRepoService;
 import com.blocklang.marketplace.service.ApiRepoVersionService;
 import com.blocklang.marketplace.service.ApiWidgetService;
 
 /**
- * 维护仓库中的目录结构的控制器。
+ * 维护仓库中目录结构的控制器。
  * 
  * <p>目录结构包含两种：第一层目录称为项目；第二层及后续目录称为分组。
  * 
@@ -57,12 +57,12 @@ import com.blocklang.marketplace.service.ApiWidgetService;
  *
  */
 @RestController
-public class GroupController extends AbstractProjectController{
+public class GroupController extends AbstractRepositoryController{
 
 	private static final Logger logger = LoggerFactory.getLogger(GroupController.class);
 
 	@Autowired
-	private ProjectResourceService projectResourceService;
+	private RepositoryResourceService repositoryResourceService;
 	@Autowired
 	private MessageSource messageSource;
 	@Autowired
@@ -74,19 +74,19 @@ public class GroupController extends AbstractProjectController{
 	@Autowired
 	private ApiWidgetService apiWidgetService;
 	
-	@PostMapping("/projects/{owner}/{projectName}/groups/check-key")
+	@PostMapping("/repos/{owner}/{repoName}/groups/check-key")
 	public ResponseEntity<Map<String, String>> checkKey(
 			Principal principal,
 			@PathVariable("owner") String owner,
-			@PathVariable("projectName") String projectName,
+			@PathVariable("repoName") String repoName,
 			@Valid @RequestBody CheckGroupKeyParam param, 
 			BindingResult bindingResult){
 		
 		if(principal == null) {
 			throw new NoAuthorizationException();
 		}
-		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-		projectPermissionService.canWrite(principal, project).orElseThrow(NoAuthorizationException::new);
+		Repository repository = repositoryService.find(owner, repoName).orElseThrow(ResourceNotFoundException::new);
+		repositoryPermissionService.canWrite(principal, repository).orElseThrow(NoAuthorizationException::new);
 		
 		//校验 key: 是否为空
 		if(bindingResult.hasErrors()) {
@@ -107,10 +107,10 @@ public class GroupController extends AbstractProjectController{
 		
 		// FIXME: 进一步梳理
 		Integer parentId = param.getParentId();
-		projectResourceService.findByKey(
-				project.getId(), 
+		repositoryResourceService.findByKey(
+				repository.getId(), 
 				parentId, 
-				ProjectResourceType.GROUP, 
+				RepositoryResourceType.GROUP, 
 				AppType.UNKNOWN,
 				key).map(resource -> {
 			logger.error("key 已被占用");
@@ -120,7 +120,7 @@ public class GroupController extends AbstractProjectController{
 			}
 			
 			// 这里不需要做是否存在判断，因为肯定存在。
-			ProjectResource parentResource = projectResourceService.findById(parentId).get();
+			RepositoryResource parentResource = repositoryResourceService.findById(parentId).get();
 			String parentResourceName = StringUtils.isBlank(parentResource.getName()) ? parentResource.getKey() : parentResource.getName();
 			return new Object[] {parentResourceName, key};
 		}).ifPresent(args -> {
@@ -131,19 +131,19 @@ public class GroupController extends AbstractProjectController{
 		return ResponseEntity.ok(Collections.emptyMap());
 	}
 	
-	@PostMapping("/projects/{owner}/{projectName}/groups/check-name")
+	@PostMapping("/repos/{owner}/{repoName}/groups/check-name")
 	public ResponseEntity<Map<String, String>> checkName(
 			Principal principal,
 			@PathVariable("owner") String owner,
-			@PathVariable("projectName") String projectName,
+			@PathVariable("repoName") String repoName,
 			@Valid @RequestBody CheckGroupNameParam param, 
 			BindingResult bindingResult){
 
 		if(principal == null) {
 			throw new NoAuthorizationException();
 		}
-		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-		projectPermissionService.canWrite(principal, project).orElseThrow(NoAuthorizationException::new);
+		Repository repository = repositoryService.find(owner, repoName).orElseThrow(ResourceNotFoundException::new);
+		repositoryPermissionService.canWrite(principal, repository).orElseThrow(NoAuthorizationException::new);
 		
 		// FIXME: 进一步梳理以下代码
 		// name 的值可以为空
@@ -151,10 +151,10 @@ public class GroupController extends AbstractProjectController{
 			String name = param.getName().trim();
 			
 			Integer parentId = param.getParentId();
-			projectResourceService.findByName(
-					project.getId(), 
+			repositoryResourceService.findByName(
+					repository.getId(), 
 					parentId, 
-					ProjectResourceType.GROUP, 
+					RepositoryResourceType.GROUP, 
 					AppType.UNKNOWN,
 					name).map(resource -> {
 				logger.error("name 已被占用");
@@ -164,7 +164,7 @@ public class GroupController extends AbstractProjectController{
 				}
 				
 				// 这里不需要做是否存在判断，因为肯定存在。
-				ProjectResource parentResource = projectResourceService.findById(parentId).get();
+				RepositoryResource parentResource = repositoryResourceService.findById(parentId).get();
 				String parentResourceName = StringUtils.isBlank(parentResource.getName()) ? parentResource.getKey() : parentResource.getName();
 				
 				return new Object[] {parentResourceName, name};
@@ -177,21 +177,21 @@ public class GroupController extends AbstractProjectController{
 		return ResponseEntity.ok(Collections.emptyMap());
 	}
 
-	@PostMapping("/projects/{owner}/{projectName}/groups")
-	public ResponseEntity<ProjectResource> newGroup(
+	@PostMapping("/repos/{owner}/{repoName}/groups")
+	public ResponseEntity<RepositoryResource> newGroup(
 			Principal principal, 
 			@PathVariable("owner") String owner,
-			@PathVariable("projectName") String projectName,
+			@PathVariable("repoName") String repoName,
 			@Valid @RequestBody NewGroupParam param, 
 			BindingResult bindingResult) {
 		if(principal == null) {
 			throw new NoAuthorizationException();
 		}
-		Project project = projectService
-			.find(owner, projectName)
+		Repository repository = repositoryService
+			.find(owner, repoName)
 			.orElseThrow(ResourceNotFoundException::new);
-		projectPermissionService
-			.canWrite(principal, project)
+		repositoryPermissionService
+			.canWrite(principal, repository)
 			.orElseThrow(NoAuthorizationException::new);
 		
 		//校验 key: 
@@ -217,10 +217,10 @@ public class GroupController extends AbstractProjectController{
 		
 		if(keyIsValid) {
 			Integer parentId = param.getParentId();
-			projectResourceService.findByKey(
-					project.getId(), 
+			repositoryResourceService.findByKey(
+					repository.getId(), 
 					parentId, 
-					ProjectResourceType.GROUP, 
+					RepositoryResourceType.GROUP, 
 					AppType.UNKNOWN,
 					key).map(resource -> {
 				logger.error("key 已被占用");
@@ -230,7 +230,7 @@ public class GroupController extends AbstractProjectController{
 				}
 				
 				// 这里不需要做是否存在判断，因为肯定存在。
-				String parentResourceName = projectResourceService
+				String parentResourceName = repositoryResourceService
 					.findById(parentId)
 					.get()
 					.getName();
@@ -247,10 +247,10 @@ public class GroupController extends AbstractProjectController{
 			String name = param.getName().trim();
 			
 			Integer parentId = param.getParentId();
-			projectResourceService.findByName(
-					project.getId(), 
+			repositoryResourceService.findByName(
+					repository.getId(), 
 					parentId, 
-					ProjectResourceType.GROUP, 
+					RepositoryResourceType.GROUP, 
 					AppType.UNKNOWN,
 					name).map(resource -> {
 				logger.error("name 已被占用");
@@ -260,7 +260,7 @@ public class GroupController extends AbstractProjectController{
 				}
 				
 				// 这里不需要做是否存在判断，因为肯定存在。
-				String parentResourceName = projectResourceService
+				String parentResourceName = repositoryResourceService
 						.findById(parentId)
 						.get()
 						.getName();
@@ -274,18 +274,17 @@ public class GroupController extends AbstractProjectController{
 			throw new InvalidRequestException(bindingResult);
 		}
 		
-		if(param.getResourceType().equals(ProjectResourceType.GROUP.getKey())) {
-			ProjectResource resource = new ProjectResource();
-			resource.setProjectId(project.getId());
+		if(param.getResourceType().equals(RepositoryResourceType.GROUP.getKey())) {
+			RepositoryResource resource = new RepositoryResource();
+			resource.setRepositoryId(repository.getId());
 			resource.setParentId(param.getParentId());
-			// TODO: 集成父资源的 AppType
-			resource.setAppType(AppType.UNKNOWN);
+			resource.setAppType(AppType.fromKey(param.getAppType()));
 			resource.setKey(key);
 			resource.setName(param.getName() == null ? null : param.getName().trim());
 			if(param.getDescription() != null) {
 				resource.setDescription(param.getDescription().trim());
 			}
-			resource.setResourceType(ProjectResourceType.fromKey(param.getResourceType()));
+			resource.setResourceType(RepositoryResourceType.fromKey(param.getResourceType()));
 			
 			UserInfo currentUser = userService
 				.findByLoginName(principal.getName())
@@ -293,30 +292,30 @@ public class GroupController extends AbstractProjectController{
 			resource.setCreateUserId(currentUser.getId());
 			resource.setCreateTime(LocalDateTime.now());
 			
-			ProjectResource savedProjectResource = projectResourceService.insert(project, resource);
+			RepositoryResource savedProjectResource = repositoryResourceService.insert(repository, resource);
 			savedProjectResource.setMessageSource(messageSource);
-			return new ResponseEntity<ProjectResource>(savedProjectResource, HttpStatus.CREATED);
+			return new ResponseEntity<RepositoryResource>(savedProjectResource, HttpStatus.CREATED);
 		}
 		
-		if(param.getResourceType().equals(ProjectResourceType.PROJECT.getKey())) {
-			ProjectResource resource = new ProjectResource();
-			resource.setProjectId(project.getId());
+		if(param.getResourceType().equals(RepositoryResourceType.PROJECT.getKey())) {
+			RepositoryResource resource = new RepositoryResource();
+			resource.setRepositoryId(repository.getId());
 			resource.setParentId(param.getParentId());
 			resource.setAppType(AppType.fromKey(param.getAppType()));
 			resource.setKey(key);
 			resource.setName(param.getName() == null ? null : param.getName().trim());
-			resource.setResourceType(ProjectResourceType.fromKey(param.getResourceType()));
+			resource.setResourceType(RepositoryResourceType.fromKey(param.getResourceType()));
 			
 			UserInfo currentUser = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
 			resource.setCreateUserId(currentUser.getId());
 			resource.setCreateTime(LocalDateTime.now());
 			
-			ProjectResource savedProjectResource = null;
+			RepositoryResource savedProjectResource = null;
 			if(param.getAppType().equals(AppType.WEB.getKey())) {
 				// 创建 web 项目
 				// 是否注册 web 的 API 库
 				// web 的 API 库中是否存在 Page 组件
-				savedProjectResource = projectResourceService.createWebProject(project, resource);
+				savedProjectResource = repositoryResourceService.createWebProject(repository, resource);
 			} else if(param.getAppType().equals(AppType.MINI_PROGRAM.getKey())) {
 				// 创建小程序
 				String apiGitUrl = propertyService
@@ -376,32 +375,32 @@ public class GroupController extends AbstractProjectController{
 				}
 				
 				// 在 service 中默认依赖小程序的 API 库的 master，且不允许删除该依赖
-				savedProjectResource = projectResourceService.createMiniProgram(project, resource, apiRepo, appWidget, pageWidget);
+				savedProjectResource = repositoryResourceService.createMiniProgram(repository, resource, apiRepo, appWidget, pageWidget);
 			}
 			
 			savedProjectResource.setMessageSource(messageSource);
-			return new ResponseEntity<ProjectResource>(savedProjectResource, HttpStatus.CREATED);
+			return new ResponseEntity<RepositoryResource>(savedProjectResource, HttpStatus.CREATED);
 		}
 		
 		// 此方法仅支持 resourceType 的值为项目或分组
 		throw new ResourceNotFoundException();
 	}
 	
-	@GetMapping("/projects/{owner}/{projectName}/groups/**")
+	@GetMapping("/repos/{owner}/{repoName}/groups/**")
 	public ResponseEntity<Map<String, Object>> getGroupTree(
 			Principal user,
 			@PathVariable String owner,
-			@PathVariable String projectName,
+			@PathVariable String repoName,
 			HttpServletRequest req) {
 		
-		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-		projectPermissionService.canRead(user, project).orElseThrow(NoAuthorizationException::new);
+		Repository repository = repositoryService.find(owner, repoName).orElseThrow(ResourceNotFoundException::new);
+		repositoryPermissionService.canRead(user, repository).orElseThrow(NoAuthorizationException::new);
 		
 		String groupPath = SpringMvcUtil.getRestUrl(req, 4);
-		Map<String, Object> result = getGroupIdAndParentPath(project.getId(), groupPath);
+		Map<String, Object> result = getGroupIdAndParentPath(repository.getId(), groupPath);
 		Integer groupId = (Integer) result.get("id");
 		
-		List<ProjectResource> children = projectResourceService.findChildren(project, groupId);
+		List<RepositoryResource> children = repositoryResourceService.findChildren(repository, groupId);
 		children.forEach(projectResource -> {
 			projectResource.setMessageSource(messageSource);
 		});
@@ -410,23 +409,23 @@ public class GroupController extends AbstractProjectController{
 		return ResponseEntity.ok(result);
 	}
 
-	@GetMapping("/projects/{owner}/{projectName}/group-path/**")
+	@GetMapping("/repos/{owner}/{repoName}/group-path/**")
 	public ResponseEntity<Map<String, Object>> getGroupPath(
 			Principal user,
 			@PathVariable String owner,
-			@PathVariable String projectName,
+			@PathVariable String repoName,
 			HttpServletRequest req) {
 		
-		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-		projectPermissionService.canRead(user, project).orElseThrow(NoAuthorizationException::new);
+		Repository repository = repositoryService.find(owner, repoName).orElseThrow(ResourceNotFoundException::new);
+		repositoryPermissionService.canRead(user, repository).orElseThrow(NoAuthorizationException::new);
 		
 		String groupPath = SpringMvcUtil.getRestUrl(req, 4);
 		
-		Map<String, Object> result = getGroupIdAndParentPath(project.getId(), groupPath);
+		Map<String, Object> result = getGroupIdAndParentPath(repository.getId(), groupPath);
 		return ResponseEntity.ok(result);
 	}
 
-	private Map<String, Object> getGroupIdAndParentPath(Integer projectId, String groupPath) {
+	private Map<String, Object> getGroupIdAndParentPath(Integer repositoryId, String groupPath) {
 		Integer id = null;
 		List<Map<String, String>> stripedParentGroups;
 		
@@ -436,13 +435,13 @@ public class GroupController extends AbstractProjectController{
 			stripedParentGroups = Collections.emptyList();
 		} else {
 			// 要校验根据 parentPath 中的所有节点都能准确匹配
-			List<ProjectResource> parentGroups = projectResourceService.findParentGroupsByParentPath(projectId, groupPath);
+			List<RepositoryResource> parentGroups = repositoryResourceService.findParentGroupsByParentPath(repositoryId, groupPath);
 			// 因为 parentPath 有值，所以理应能查到记录
 			if(parentGroups.isEmpty()) {
 				logger.error("根据传入的 parent path 没有找到对应的标识");
 				throw new ResourceNotFoundException();
 			}
-			stripedParentGroups = ProjectResourcePathUtil.combinePathes(parentGroups);
+			stripedParentGroups = RepositoryResourcePathUtil.combinePathes(parentGroups);
 			id = parentGroups.get(parentGroups.size() - 1).getId();
 		}
 		

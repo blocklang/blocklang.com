@@ -28,15 +28,15 @@ import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.test.AbstractControllerTest;
 import com.blocklang.develop.constant.AccessLevel;
 import com.blocklang.develop.constant.AppType;
-import com.blocklang.develop.constant.ProjectResourceType;
+import com.blocklang.develop.constant.RepositoryResourceType;
 import com.blocklang.develop.data.CheckPageKeyParam;
 import com.blocklang.develop.data.CheckPageNameParam;
 import com.blocklang.develop.data.NewPageParam;
-import com.blocklang.develop.model.Project;
-import com.blocklang.develop.model.ProjectResource;
-import com.blocklang.develop.service.ProjectPermissionService;
-import com.blocklang.develop.service.ProjectResourceService;
-import com.blocklang.develop.service.ProjectService;
+import com.blocklang.develop.model.Repository;
+import com.blocklang.develop.model.RepositoryResource;
+import com.blocklang.develop.service.RepositoryPermissionService;
+import com.blocklang.develop.service.RepositoryResourceService;
+import com.blocklang.develop.service.RepositoryService;
 
 import io.restassured.http.ContentType;
 
@@ -44,14 +44,14 @@ import io.restassured.http.ContentType;
 public class PageControllerTest extends AbstractControllerTest{
 	
 	@MockBean
-	private ProjectService projectService;
+	private RepositoryService repositoryService;
 	@MockBean
-	private ProjectResourceService projectResourceService;
+	private RepositoryResourceService repositoryResourceService;
 	@MockBean
-	private ProjectPermissionService projectPermissionService;
+	private RepositoryPermissionService repositoryPermissionService;
 
 	@Test
-	public void check_key_anonymous_can_not_check() {
+	public void checkKeyAnonymousCanNotCheck() {
 		CheckPageKeyParam param = new CheckPageKeyParam();
 		param.setKey("key");
 		
@@ -59,7 +59,7 @@ public class PageControllerTest extends AbstractControllerTest{
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages/check-key", "jack", "project")
+			.post("/repos/{owner}/{repoName}/pages/check-key", "jack", "repo")
 		.then()
 			.statusCode(HttpStatus.SC_FORBIDDEN)
 			.body(equalTo(""));
@@ -67,17 +67,17 @@ public class PageControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void check_key_user_login_but_project_not_exist() {
+	public void checkKeyUserLoginButProjectNotExist() {
 		CheckPageKeyParam param = new CheckPageKeyParam();
 		param.setKey("key");
 		
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages/check-key", "jack", "project")
+			.post("/repos/{owner}/{repoName}/pages/check-key", "jack", "repo")
 		.then()
 			.statusCode(HttpStatus.SC_NOT_FOUND)
 			.body(equalTo(""));
@@ -85,21 +85,21 @@ public class PageControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void check_key_user_can_not_write_project() {
+	public void checkKeyUserCanNotWriteRepo() {
 		CheckPageKeyParam param = new CheckPageKeyParam();
 		param.setKey("key");
 		
-		Project project = new Project();
-		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		Repository repository = new Repository();
+		repository.setId(1);
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.of(repository));
 		
-		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.empty());
+		when(repositoryPermissionService.canWrite(any(), any())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages/check-key", "jack", "project")
+			.post("/repos/{owner}/{repoName}/pages/check-key", "jack", "repo")
 		.then()
 			.statusCode(HttpStatus.SC_FORBIDDEN)
 			.body(equalTo(""));
@@ -107,12 +107,12 @@ public class PageControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void check_key_is_blank() {
-		Project project = new Project();
-		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+	public void checkKeyIsBlank() {
+		Repository repository = new Repository();
+		repository.setId(1);
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.of(repository));
 		
-		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
+		when(repositoryPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		CheckPageKeyParam param = new CheckPageKeyParam();
 		param.setKey(" ");
@@ -121,7 +121,7 @@ public class PageControllerTest extends AbstractControllerTest{
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages/check-key", "jack", "project")
+			.post("/repos/{owner}/{repoName}/pages/check-key", "jack", "repo")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
 			.body("errors.key", hasItem("名称不能为空"),
@@ -130,12 +130,12 @@ public class PageControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void check_key_is_invalid() {
-		Project project = new Project();
-		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+	public void checkKeyIsInvalid() {
+		Repository repository = new Repository();
+		repository.setId(1);
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.of(repository));
 		
-		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
+		when(repositoryPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		CheckPageKeyParam param = new CheckPageKeyParam();
 		param.setKey("中文");
@@ -144,7 +144,7 @@ public class PageControllerTest extends AbstractControllerTest{
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages/check-key", "jack", "project")
+			.post("/repos/{owner}/{repoName}/pages/check-key", "jack", "repo")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
 			.body("errors.key", hasItem("只允许字母、数字、中划线(-)、下划线(_)"),
@@ -153,17 +153,17 @@ public class PageControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void check_key_is_used_at_root() {
-		Project project = new Project();
-		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+	public void checkKeyIsUsedAtRoot() {
+		Repository repository = new Repository();
+		repository.setId(1);
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.of(repository));
 		
-		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
+		when(repositoryPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
-		ProjectResource resource = new ProjectResource();
-		when(projectResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource));
+		RepositoryResource resource = new RepositoryResource();
+		when(repositoryResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource));
 		
-		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(new ProjectResource()));
+		when(repositoryResourceService.findById(anyInt())).thenReturn(Optional.of(new RepositoryResource()));
 		
 		CheckPageKeyParam param = new CheckPageKeyParam();
 		param.setKey("a-used-key");
@@ -173,7 +173,7 @@ public class PageControllerTest extends AbstractControllerTest{
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages/check-key", "jack", "project")
+			.post("/repos/{owner}/{repoName}/pages/check-key", "jack", "repo")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
 			.body("errors.key", hasItem("根目录下已存在名称<strong>a-used-key</strong>"),
@@ -182,22 +182,22 @@ public class PageControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void check_key_is_used_at_sub_and_name_is_not_blank() {
-		Project project = new Project();
-		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+	public void checkKeyIsUsedAtSubAndNameIsNotBlank() {
+		Repository repository = new Repository();
+		repository.setId(1);
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.of(repository));
 		
-		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
+		when(repositoryPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		Integer parentId = 1;
-		ProjectResource resource = new ProjectResource();
+		RepositoryResource resource = new RepositoryResource();
 		resource.setParentId(parentId);
-		when(projectResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource));
+		when(repositoryResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource));
 		
-		ProjectResource parentResource = new ProjectResource();
+		RepositoryResource parentResource = new RepositoryResource();
 		parentResource.setId(parentId);
 		parentResource.setName("二级目录");
-		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(parentResource));
+		when(repositoryResourceService.findById(anyInt())).thenReturn(Optional.of(parentResource));
 		
 		CheckPageKeyParam param = new CheckPageKeyParam();
 		param.setKey("a-used-key");
@@ -208,7 +208,7 @@ public class PageControllerTest extends AbstractControllerTest{
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages/check-key", "jack", "project")
+			.post("/repos/{owner}/{repoName}/pages/check-key", "jack", "repo")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
 			.body("errors.key", hasItem("二级目录下已存在名称<strong>a-used-key</strong>"),
@@ -217,22 +217,22 @@ public class PageControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void check_key_is_used_at_sub_and_name_is_blank() {
-		Project project = new Project();
-		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+	public void checkKeyIsUsedAtSubAndNameIsBlank() {
+		Repository repository = new Repository();
+		repository.setId(1);
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.of(repository));
 		
-		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
+		when(repositoryPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		Integer parentId = 1;
-		ProjectResource resource = new ProjectResource();
+		RepositoryResource resource = new RepositoryResource();
 		resource.setParentId(parentId);
-		when(projectResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource));
+		when(repositoryResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource));
 		
-		ProjectResource parentResource = new ProjectResource();
+		RepositoryResource parentResource = new RepositoryResource();
 		parentResource.setId(parentId);
 		parentResource.setKey("two level");
-		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(parentResource));
+		when(repositoryResourceService.findById(anyInt())).thenReturn(Optional.of(parentResource));
 		
 		CheckPageKeyParam param = new CheckPageKeyParam();
 		param.setKey("a-used-key");
@@ -243,7 +243,7 @@ public class PageControllerTest extends AbstractControllerTest{
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages/check-key", "jack", "project")
+			.post("/repos/{owner}/{repoName}/pages/check-key", "jack", "repo")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
 			.body("errors.key", hasItem("two level下已存在名称<strong>a-used-key</strong>"),
@@ -252,14 +252,14 @@ public class PageControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void check_key_from_root_is_passed() {
-		Project project = new Project();
-		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+	public void checkKeyFromRootIsPassed() {
+		Repository repository = new Repository();
+		repository.setId(1);
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.of(repository));
 		
-		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
+		when(repositoryPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
-		when(projectResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
+		when(repositoryResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
 		
 		CheckPageKeyParam param = new CheckPageKeyParam();
 		param.setKey("key");
@@ -268,14 +268,14 @@ public class PageControllerTest extends AbstractControllerTest{
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages/check-key", "jack", "project")
+			.post("/repos/{owner}/{repoName}/pages/check-key", "jack", "repo")
 		.then()
 			.statusCode(HttpStatus.SC_OK)
 			.body(equalTo("{}"));
 	}
 	
 	@Test
-	public void check_name_anonymous_can_not_check() {
+	public void checkNameAnonymousCanNotCheck() {
 		CheckPageNameParam param = new CheckPageNameParam();
 		param.setName("name");
 		
@@ -283,7 +283,7 @@ public class PageControllerTest extends AbstractControllerTest{
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages/check-name", "jack", "project")
+			.post("/repos/{owner}/{repoName}/pages/check-name", "jack", "repo")
 		.then()
 			.statusCode(HttpStatus.SC_FORBIDDEN)
 			.body(equalTo(""));
@@ -291,17 +291,17 @@ public class PageControllerTest extends AbstractControllerTest{
 
 	@WithMockUser(username = "jack")
 	@Test
-	public void check_name_user_login_but_project_not_exist() {
+	public void checkNameUserLoginButRepoNotExist() {
 		CheckPageNameParam param = new CheckPageNameParam();
 		param.setName("name");
 		
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages/check-name", "jack", "project")
+			.post("/repos/{owner}/{repoName}/pages/check-name", "jack", "repo")
 		.then()
 			.statusCode(HttpStatus.SC_NOT_FOUND)
 			.body(equalTo(""));
@@ -309,21 +309,21 @@ public class PageControllerTest extends AbstractControllerTest{
 
 	@WithMockUser(username = "jack")
 	@Test
-	public void check_name_can_not_write_project() {
+	public void checkNameCanNotWriteRepo() {
 		CheckPageNameParam param = new CheckPageNameParam();
 		param.setName("name");
 		
-		Project project = new Project();
-		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		Repository repository = new Repository();
+		repository.setId(1);
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.of(repository));
 		
-		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.empty());
+		when(repositoryPermissionService.canWrite(any(), any())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages/check-name", "jack", "project")
+			.post("/repos/{owner}/{repoName}/pages/check-name", "jack", "repo")
 		.then()
 			.statusCode(HttpStatus.SC_FORBIDDEN)
 			.body(equalTo(""));
@@ -331,17 +331,17 @@ public class PageControllerTest extends AbstractControllerTest{
 
 	@WithMockUser(username = "jack")
 	@Test
-	public void check_name_can_be_null() {
-		Project project = new Project();
-		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+	public void checkNameCanBeNull() {
+		Repository repository = new Repository();
+		repository.setId(1);
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.of(repository));
 		
-		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
+		when(repositoryPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
-		ProjectResource resource = new ProjectResource();
-		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource));
+		RepositoryResource resource = new RepositoryResource();
+		when(repositoryResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource));
 		
-		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(new ProjectResource()));
+		when(repositoryResourceService.findById(anyInt())).thenReturn(Optional.of(new RepositoryResource()));
 		
 		CheckPageNameParam param = new CheckPageNameParam();
 		param.setName(null);
@@ -352,24 +352,24 @@ public class PageControllerTest extends AbstractControllerTest{
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages/check-name", "jack", "project")
+			.post("/repos/{owner}/{repoName}/pages/check-name", "jack", "repo")
 		.then()
 			.statusCode(HttpStatus.SC_OK);
 	}
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void check_name_is_used_at_root() {
-		Project project = new Project();
-		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+	public void checkNameIsUsedAtRoot() {
+		Repository repository = new Repository();
+		repository.setId(1);
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.of(repository));
 		
-		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
+		when(repositoryPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
-		ProjectResource resource = new ProjectResource();
-		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource));
+		RepositoryResource resource = new RepositoryResource();
+		when(repositoryResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource));
 		
-		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(new ProjectResource()));
+		when(repositoryResourceService.findById(anyInt())).thenReturn(Optional.of(new RepositoryResource()));
 		
 		CheckPageNameParam param = new CheckPageNameParam();
 		param.setName("a-used-name");
@@ -380,7 +380,7 @@ public class PageControllerTest extends AbstractControllerTest{
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages/check-name", "jack", "project")
+			.post("/repos/{owner}/{repoName}/pages/check-name", "jack", "repo")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
 			.body("errors.name", hasItem("根目录下已存在备注<strong>a-used-name</strong>"),
@@ -389,22 +389,22 @@ public class PageControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void check_name_is_used_at_sub_and_name_is_not_blank() {
-		Project project = new Project();
-		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+	public void checkNameIsUsedAtSubAndNameIsNotBlank() {
+		Repository repository = new Repository();
+		repository.setId(1);
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.of(repository));
 		
-		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
+		when(repositoryPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		Integer groupId = 1;
-		ProjectResource resource = new ProjectResource();
+		RepositoryResource resource = new RepositoryResource();
 		resource.setParentId(groupId);
-		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource));
+		when(repositoryResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource));
 		
-		ProjectResource parentResource = new ProjectResource();
+		RepositoryResource parentResource = new RepositoryResource();
 		parentResource.setId(groupId);
 		parentResource.setName("二级目录");
-		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(parentResource));
+		when(repositoryResourceService.findById(anyInt())).thenReturn(Optional.of(parentResource));
 		
 		CheckPageNameParam param = new CheckPageNameParam();
 		param.setName("a-used-name");
@@ -415,7 +415,7 @@ public class PageControllerTest extends AbstractControllerTest{
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages/check-name", "jack", "project")
+			.post("/repos/{owner}/{repoName}/pages/check-name", "jack", "repo")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
 			.body("errors.name", hasItem("二级目录下已存在备注<strong>a-used-name</strong>"),
@@ -424,22 +424,22 @@ public class PageControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void check_name_is_used_at_sub_and_name_is_blank() {
-		Project project = new Project();
-		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+	public void checkNameIsUsedAtSubAndNameIsBlank() {
+		Repository repository = new Repository();
+		repository.setId(1);
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.of(repository));
 		
-		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
+		when(repositoryPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		Integer groupId = 1;
-		ProjectResource resource = new ProjectResource();
+		RepositoryResource resource = new RepositoryResource();
 		resource.setParentId(groupId);
-		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource));
+		when(repositoryResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource));
 		
-		ProjectResource parentResource = new ProjectResource();
+		RepositoryResource parentResource = new RepositoryResource();
 		parentResource.setId(groupId);
 		parentResource.setKey("Two Level");
-		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(parentResource));
+		when(repositoryResourceService.findById(anyInt())).thenReturn(Optional.of(parentResource));
 		
 		CheckPageNameParam param = new CheckPageNameParam();
 		param.setName("a-used-name");
@@ -450,7 +450,7 @@ public class PageControllerTest extends AbstractControllerTest{
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages/check-name", "jack", "project")
+			.post("/repos/{owner}/{repoName}/pages/check-name", "jack", "repo")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
 			.body("errors.name", hasItem("Two Level下已存在备注<strong>a-used-name</strong>"),
@@ -459,14 +459,14 @@ public class PageControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void check_name_is_passed() {
-		Project project = new Project();
-		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+	public void checkNameIsPassed() {
+		Repository repository = new Repository();
+		repository.setId(1);
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.of(repository));
 		
-		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
+		when(repositoryPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
-		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
+		when(repositoryResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
 		
 		CheckPageNameParam param = new CheckPageNameParam();
 		param.setName("name");
@@ -477,14 +477,14 @@ public class PageControllerTest extends AbstractControllerTest{
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages/check-name", "jack", "project")
+			.post("/repos/{owner}/{repoName}/pages/check-name", "jack", "repo")
 		.then()
 			.statusCode(HttpStatus.SC_OK)
 			.body(equalTo("{}"));
 	}
 	
 	@Test
-	public void new_page_anonymous_can_not_new() {
+	public void newPageAnonymousCanNotNew() {
 		NewPageParam param = new NewPageParam();
 		param.setParentId(Constant.TREE_ROOT_ID);
 		param.setAppType(AppType.WEB.getKey());
@@ -495,7 +495,7 @@ public class PageControllerTest extends AbstractControllerTest{
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages", "jack", "project")
+			.post("/repos/{owner}/{repoName}/pages", "jack", "repo")
 		.then()
 			.statusCode(HttpStatus.SC_FORBIDDEN)
 			.body(equalTo(""));
@@ -503,20 +503,20 @@ public class PageControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void new_page_user_login_but_project_not_exist() {
+	public void newPageUserLoginButRepoNotExist() {
 		NewPageParam param = new NewPageParam();
 		param.setParentId(Constant.TREE_ROOT_ID);
 		param.setAppType(AppType.WEB.getKey());
 		param.setKey("key");
 		param.setName("name");
 		
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages", "jack", "project")
+			.post("/repos/{owner}/{repoName}/pages", "jack", "repo")
 		.then()
 			.statusCode(HttpStatus.SC_NOT_FOUND)
 			.body(equalTo(""));
@@ -524,24 +524,24 @@ public class PageControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void new_page_user_can_not_write_project() {
+	public void newPageUserCanNotWriteRepo() {
 		NewPageParam param = new NewPageParam();
 		param.setParentId(Constant.TREE_ROOT_ID);
 		param.setAppType(AppType.WEB.getKey());
 		param.setKey("key");
 		param.setName("name");
 		
-		Project project = new Project();
-		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		Repository repository = new Repository();
+		repository.setId(1);
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.of(repository));
 		
-		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.empty());
+		when(repositoryPermissionService.canWrite(any(), any())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages", "jack", "project")
+			.post("/repos/{owner}/{repoName}/pages", "jack", "repo")
 		.then()
 			.statusCode(HttpStatus.SC_FORBIDDEN)
 			.body(equalTo(""));
@@ -549,26 +549,26 @@ public class PageControllerTest extends AbstractControllerTest{
 
 	@WithMockUser(username = "jack")
 	@Test
-	public void new_page_check_key_is_null_and_name_is_null() {
+	public void newPageCheckKeyIsNullAndNameIsNull() {
 		NewPageParam param = new NewPageParam();
 		param.setParentId(Constant.TREE_ROOT_ID);
 		param.setAppType(AppType.WEB.getKey());
 		param.setKey(null);
 		param.setName(null);
 		
-		Project project = new Project();
-		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		Repository repository = new Repository();
+		repository.setId(1);
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.of(repository));
 		
-		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
+		when(repositoryPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
-		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
+		when(repositoryResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages", "jack", "project")
+			.post("/repos/{owner}/{repoName}/pages", "jack", "repo")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
 			.body("errors.key", hasItem("名称不能为空"),
@@ -578,26 +578,26 @@ public class PageControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void new_page_check_key_is_blank_and_name_passed() {
+	public void newPageCheckKeyIsBlankAndNamePassed() {
 		NewPageParam param = new NewPageParam();
 		param.setParentId(Constant.TREE_ROOT_ID);
 		param.setAppType(AppType.WEB.getKey());
 		param.setKey(" ");
 		param.setName("name");
 		
-		Project project = new Project();
-		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		Repository repository = new Repository();
+		repository.setId(1);
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.of(repository));
 		
-		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
+		when(repositoryPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
-		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
+		when(repositoryResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages", "jack", "project")
+			.post("/repos/{owner}/{repoName}/pages", "jack", "repo")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
 			.body("errors.key", hasItem("名称不能为空"),
@@ -607,29 +607,29 @@ public class PageControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void new_page_check_key_is_blank_and_name_is_used() {
+	public void newPageCheckKeyIsBlankAndNameIsUsed() {
 		NewPageParam param = new NewPageParam();
 		param.setParentId(Constant.TREE_ROOT_ID);
 		param.setAppType(AppType.WEB.getKey());
 		param.setKey(" ");
 		param.setName("a-used-name");
 		
-		Project project = new Project();
-		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		Repository repository = new Repository();
+		repository.setId(1);
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.of(repository));
 		
-		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
+		when(repositoryPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
-		ProjectResource resource = new ProjectResource();
-		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource));
+		RepositoryResource resource = new RepositoryResource();
+		when(repositoryResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource));
 		
-		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(new ProjectResource()));
+		when(repositoryResourceService.findById(anyInt())).thenReturn(Optional.of(new RepositoryResource()));
 		
 		given()
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages", "jack", "project")
+			.post("/repos/{owner}/{repoName}/pages", "jack", "repo")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
 			.body("errors.key", hasItem("名称不能为空"),
@@ -640,26 +640,26 @@ public class PageControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void new_page_check_key_is_invalid_and_name_is_passed() {
+	public void newPageCheckKeyIsInvalidAndNameIsPassed() {
 		NewPageParam param = new NewPageParam();
 		param.setParentId(Constant.TREE_ROOT_ID);
 		param.setAppType(AppType.WEB.getKey());
 		param.setKey("中文");
 		param.setName("name");
 		
-		Project project = new Project();
-		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		Repository repository = new Repository();
+		repository.setId(1);
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.of(repository));
 		
-		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
+		when(repositoryPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
-		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
+		when(repositoryResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages", "jack", "project")
+			.post("/repos/{owner}/{repoName}/pages", "jack", "repo")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
 			.body("errors.key", hasItem("只允许字母、数字、中划线(-)、下划线(_)"),
@@ -669,29 +669,29 @@ public class PageControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void new_page_check_key_is_invalid_and_name_is_used() {
+	public void newPageCheckKeyIsInvalidAndNameIsUsed() {
 		NewPageParam param = new NewPageParam();
 		param.setParentId(Constant.TREE_ROOT_ID);
 		param.setAppType(AppType.WEB.getKey());
 		param.setKey("中文");
 		param.setName("a-used-name");
 		
-		Project project = new Project();
-		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		Repository repository = new Repository();
+		repository.setId(1);
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.of(repository));
 		
-		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
+		when(repositoryPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
-		ProjectResource resource = new ProjectResource();
-		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource));
+		RepositoryResource resource = new RepositoryResource();
+		when(repositoryResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource));
 		
-		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(new ProjectResource()));
+		when(repositoryResourceService.findById(anyInt())).thenReturn(Optional.of(new RepositoryResource()));
 		
 		given()
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages", "jack", "project")
+			.post("/repos/{owner}/{repoName}/pages", "jack", "repo")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
 			.body("errors.key", hasItem("只允许字母、数字、中划线(-)、下划线(_)"),
@@ -702,32 +702,32 @@ public class PageControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void new_page_check_key_is_used_and_name_is_used() {
+	public void newPageCheckKeyIsUsedAndNameIsUsed() {
 		NewPageParam param = new NewPageParam();
 		param.setParentId(Constant.TREE_ROOT_ID);
 		param.setAppType(AppType.WEB.getKey());
 		param.setKey("a-used-key");
 		param.setName("a-used-name");
 		
-		Project project = new Project();
-		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		Repository repository = new Repository();
+		repository.setId(1);
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.of(repository));
 		
-		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
+		when(repositoryPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
-		ProjectResource resource1 = new ProjectResource();
-		when(projectResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource1));
+		RepositoryResource resource1 = new RepositoryResource();
+		when(repositoryResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource1));
 		
-		ProjectResource resource2 = new ProjectResource();
-		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource2));
+		RepositoryResource resource2 = new RepositoryResource();
+		when(repositoryResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource2));
 		
-		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(new ProjectResource()));
+		when(repositoryResourceService.findById(anyInt())).thenReturn(Optional.of(new RepositoryResource()));
 		
 		given()
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages", "jack", "project")
+			.post("/repos/{owner}/{repoName}/pages", "jack", "repo")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
 			.body("errors.key", hasItem("根目录下已存在名称<strong>a-used-key</strong>"),
@@ -738,31 +738,31 @@ public class PageControllerTest extends AbstractControllerTest{
 	
 	@WithMockUser(username = "jack")
 	@Test
-	public void new_page_check_key_is_used_and_name_is_pass() {
+	public void newPageCheckKeyIsUsedAndNameIsPass() {
 		NewPageParam param = new NewPageParam();
 		param.setParentId(Constant.TREE_ROOT_ID);
 		param.setAppType(AppType.WEB.getKey());
 		param.setKey("a-used-key");
 		param.setName("name");
 		
-		Project project = new Project();
-		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		Repository repository = new Repository();
+		repository.setId(1);
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.of(repository));
 		
-		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
+		when(repositoryPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
-		ProjectResource resource1 = new ProjectResource();
-		when(projectResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource1));
+		RepositoryResource resource1 = new RepositoryResource();
+		when(repositoryResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource1));
 		
-		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
+		when(repositoryResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
 		
-		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(new ProjectResource()));
+		when(repositoryResourceService.findById(anyInt())).thenReturn(Optional.of(new RepositoryResource()));
 		
 		given()
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages", "jack", "project")
+			.post("/repos/{owner}/{repoName}/pages", "jack", "project")
 		.then()
 			.statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY)
 			.body("errors.key", hasItem("根目录下已存在名称<strong>a-used-key</strong>"),
@@ -770,46 +770,45 @@ public class PageControllerTest extends AbstractControllerTest{
 					"errors.name", is(nullValue()));
 	}
 	
-	// 校验都通过后，才保存。
 	@WithMockUser(username = "jack")
 	@Test
-	public void new_page_success() {
+	public void newPageSuccess() {
 		NewPageParam param = new NewPageParam();
 		param.setParentId(Constant.TREE_ROOT_ID);
 		param.setAppType(AppType.WEB.getKey());
 		param.setKey("key");
 		param.setName("name");
 		
-		Project project = new Project();
-		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		Repository repository = new Repository();
+		repository.setId(1);
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.of(repository));
 		
-		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
+		when(repositoryPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
-		when(projectResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
-		when(projectResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
+		when(repositoryResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
+		when(repositoryResourceService.findByName(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.empty());
 		
 		UserInfo currentUser = new UserInfo();
 		currentUser.setLoginName("jack");
 		currentUser.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(currentUser));
 		
-		ProjectResource savedResource = new ProjectResource();
-		savedResource.setProjectId(project.getId());
+		RepositoryResource savedResource = new RepositoryResource();
+		savedResource.setRepositoryId(repository.getId());
 		savedResource.setParentId(param.getParentId());
 		savedResource.setKey("key");
 		savedResource.setName("name");
 		savedResource.setId(1);
 		savedResource.setSeq(1);
 		savedResource.setAppType(AppType.WEB);
-		savedResource.setResourceType(ProjectResourceType.PAGE);
-		when(projectResourceService.insert(any(), any())).thenReturn(savedResource);
+		savedResource.setResourceType(RepositoryResourceType.PAGE);
+		when(repositoryResourceService.insert(any(), any())).thenReturn(savedResource);
 		
 		given()
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/projects/{owner}/{projectName}/pages", "jack", "project")
+			.post("/repos/{owner}/{repoName}/pages", "jack", "repo")
 		.then()
 			.statusCode(HttpStatus.SC_CREATED)
 			.body("key", equalTo("key"),
@@ -818,126 +817,130 @@ public class PageControllerTest extends AbstractControllerTest{
 	}
 
 	@Test
-	public void get_page_project_not_found() {
+	public void getPageRepoNotFound() {
 		String owner = "owner";
-		String projectName = "not-exist-project";
+		String repositoryName = "not-exist-repository";
 		
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.empty());
 
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/projects/{owner}/{projectName}/pages/{pagePath}", owner, projectName, "a")
+			.get("/repos/{owner}/{repoName}/pages/{pagePath}", owner, repositoryName, "a")
 		.then()
 			.statusCode(HttpStatus.SC_NOT_FOUND);
 	}
 	
 	@Test
-	public void get_page_can_not_read_project() {
+	public void getPageCanNotReadRepo() {
 		String owner = "owner";
-		String projectName = "private-project";
+		String repositoryName = "private-repository";
 		
-		Project project = new Project();
-		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		Repository repository = new Repository();
+		repository.setId(1);
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.of(repository));
 		
-		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.empty());
+		when(repositoryPermissionService.canRead(any(), any())).thenReturn(Optional.empty());
 
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/projects/{owner}/{projectName}/pages/{pagePath}", owner, projectName, "a")
+			.get("/repos/{owner}/{repoName}/pages/{pagePath}", owner, repositoryName, "a")
 		.then()
 			.statusCode(HttpStatus.SC_FORBIDDEN);
 	}
 	
 	@Test
-	public void get_page_page_not_exist() {
+	public void getPagePageNotExist() {
 		String owner = "owner";
-		String projectName = "project";
+		String repositoryName = "repository";
 		
-		Project project = new Project();
-		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		Repository repository = new Repository();
+		repository.setId(1);
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.of(repository));
 		
-		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
+		when(repositoryPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
 		
-		when(projectResourceService.findParentGroupsByParentPath(anyInt(), anyString())).thenReturn(Collections.emptyList());
+		when(repositoryResourceService.findParentGroupsByParentPath(anyInt(), anyString())).thenReturn(Collections.emptyList());
 
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/projects/{owner}/{projectName}/pages/{pagePath}", owner, projectName, "a")
+			.get("/repos/{owner}/{repoName}/pages/{pagePath}", owner, repositoryName, "a")
 		.then()
 			.statusCode(HttpStatus.SC_NOT_FOUND);
 	}
 	
 	@Test
-	public void get_page_at_root_success() {
+	public void getPageAtRootSuccess() {
 		String owner = "owner";
-		String projectName = "project";
+		String repositoryName = "repo";
 		
 		int repoId = 1;
-		Project project = new Project();
-		project.setId(repoId);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		Repository repository = new Repository();
+		repository.setId(repoId);
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.of(repository));
 		
-		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
+		when(repositoryPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
 		
-		when(projectResourceService.findParentGroupsByParentPath(anyInt(), anyString())).thenReturn(new ArrayList<>());
+		when(repositoryResourceService.findParentGroupsByParentPath(anyInt(), anyString())).thenReturn(new ArrayList<>());
 
 		String pageKey = "a";
-		ProjectResource projectResource = new ProjectResource();
-		projectResource.setId(11);
-		projectResource.setKey(pageKey);
-		projectResource.setName("A");
-		projectResource.setAppType(AppType.UNKNOWN);
-		projectResource.setResourceType(ProjectResourceType.PAGE);
-		when(projectResourceService.findByKey(eq(repoId), eq(Constant.TREE_ROOT_ID), eq(ProjectResourceType.PAGE), eq(AppType.UNKNOWN), eq(pageKey))).thenReturn(Optional.of(projectResource));
+		RepositoryResource repositoryResource = new RepositoryResource();
+		repositoryResource.setId(11);
+		repositoryResource.setKey(pageKey);
+		repositoryResource.setName("A");
+		repositoryResource.setAppType(AppType.UNKNOWN);
+		repositoryResource.setResourceType(RepositoryResourceType.PAGE);
+		when(repositoryResourceService.findByKey(eq(repoId), 
+				eq(Constant.TREE_ROOT_ID), 
+				eq(RepositoryResourceType.PAGE), 
+				eq(AppType.UNKNOWN), 
+				eq(pageKey))).thenReturn(Optional.of(repositoryResource));
 		
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/projects/{owner}/{projectName}/pages/{pagePath}", owner, projectName, "a")
+			.get("/repos/{owner}/{repoName}/pages/{pagePath}", owner, repositoryName, "a")
 		.then()
 			.statusCode(HttpStatus.SC_OK)
-			.body("projectResource.id", equalTo(11),
+			.body("repositoryResource.id", equalTo(11),
 					  "parentGroups.size", equalTo(1),
 					  "parentGroups[0].name", equalTo("A"),
 					  "parentGroups[0].path", equalTo("/a"));
 	}
 	
 	@Test
-	public void get_page_at_sub_group_success() {
+	public void getPageAtSubGroupSuccess() {
 		String owner = "owner";
-		String projectName = "project";
+		String repositoryName = "repo";
 		
-		Project project = new Project();
-		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		Repository repository = new Repository();
+		repository.setId(1);
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.of(repository));
 		
-		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
+		when(repositoryPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
 		
-		ProjectResource groupA = new ProjectResource();
+		RepositoryResource groupA = new RepositoryResource();
 		groupA.setId(1);
 		groupA.setKey("groupA");
-		List<ProjectResource> parents = new ArrayList<>();
+		List<RepositoryResource> parents = new ArrayList<>();
 		parents.add(groupA);
-		when(projectResourceService.findParentGroupsByParentPath(anyInt(), anyString())).thenReturn(parents);
+		when(repositoryResourceService.findParentGroupsByParentPath(anyInt(), anyString())).thenReturn(parents);
 
-		ProjectResource projectResource = new ProjectResource();
-		projectResource.setId(11);
-		projectResource.setKey("page_b");
-		projectResource.setName("PAGE_B");
-		when(projectResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(projectResource));
+		RepositoryResource repositoryResource = new RepositoryResource();
+		repositoryResource.setId(11);
+		repositoryResource.setKey("page_b");
+		repositoryResource.setName("PAGE_B");
+		when(repositoryResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(repositoryResource));
 		
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/projects/{owner}/{projectName}/pages/{pagePath}", owner, projectName, "groupA/PAGE_B")
+			.get("/repos/{owner}/{repoName}/pages/{pagePath}", owner, repositoryName, "groupA/PAGE_B")
 		.then()
 			.statusCode(HttpStatus.SC_OK)
-			.body("projectResource.id", equalTo(11),
+			.body("repositoryResource.id", equalTo(11),
 					  "parentGroups.size", equalTo(2),
 					  "parentGroups[0].name", equalTo("groupA"),
 					  "parentGroups[0].path", equalTo("/groupA"),
@@ -949,43 +952,48 @@ public class PageControllerTest extends AbstractControllerTest{
 	 * 获取小程序的 app 页面
 	 */
 	@Test
-	public void getPage_mini_program_app() {
+	public void getPageMiniProgramApp() {
 		String owner = "owner";
-		String repoName = "project";
+		String repoName = "repo";
 		int repoId = 1;
-		Project repo = new Project();
+		Repository repo = new Repository();
 		repo.setId(repoId);
-		when(projectService.find(eq(owner), eq(repoName))).thenReturn(Optional.of(repo));
+		when(repositoryService.find(eq(owner), eq(repoName))).thenReturn(Optional.of(repo));
 		
-		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
+		when(repositoryPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
 		
 		int miniProjectId = 11;
-		ProjectResource groupA = new ProjectResource();
+		RepositoryResource groupA = new RepositoryResource();
 		groupA.setId(miniProjectId);
 		groupA.setKey("miniProgram1");
 		groupA.setAppType(AppType.MINI_PROGRAM);
-		groupA.setResourceType(ProjectResourceType.PROJECT);
-		List<ProjectResource> parents = new ArrayList<>();
+		groupA.setResourceType(RepositoryResourceType.PROJECT);
+		List<RepositoryResource> parents = new ArrayList<>();
 		parents.add(groupA);
-		when(projectResourceService.findParentGroupsByParentPath(anyInt(), anyString())).thenReturn(parents);
+		when(repositoryResourceService.findParentGroupsByParentPath(anyInt(), anyString())).thenReturn(parents);
 
 		int appId = 111;
 		String mainPageKey = "app";
-		ProjectResource projectResource = new ProjectResource();
-		projectResource.setId(appId);
-		projectResource.setKey(mainPageKey);
-		projectResource.setParentId(miniProjectId);
-		projectResource.setAppType(AppType.MINI_PROGRAM);
-		projectResource.setResourceType(ProjectResourceType.MAIN);
-		when(projectResourceService.findByKey(eq(repoId), eq(miniProjectId), eq(ProjectResourceType.MAIN), eq(AppType.MINI_PROGRAM), eq(mainPageKey))).thenReturn(Optional.of(projectResource));
+		RepositoryResource repositoryResource = new RepositoryResource();
+		repositoryResource.setId(appId);
+		repositoryResource.setKey(mainPageKey);
+		repositoryResource.setParentId(miniProjectId);
+		repositoryResource.setAppType(AppType.MINI_PROGRAM);
+		repositoryResource.setResourceType(RepositoryResourceType.PAGE);
+		when(repositoryResourceService.findByKey(eq(repoId), 
+				eq(miniProjectId), 
+				eq(RepositoryResourceType.PAGE), 
+				eq(AppType.MINI_PROGRAM), 
+				eq(mainPageKey)))
+			.thenReturn(Optional.of(repositoryResource));
 		
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/projects/{owner}/{projectName}/pages/{pagePath}", owner, repoName, "miniProgram1/app")
+			.get("/repos/{owner}/{repoName}/pages/{pagePath}", owner, repoName, "miniProgram1/app")
 		.then()
 			.statusCode(HttpStatus.SC_OK)
-			.body("projectResource.id", equalTo(appId),
+			.body("repositoryResource.id", equalTo(appId),
 					  "parentGroups.size", equalTo(2),
 					  "parentGroups[0].name", equalTo("miniProgram1"),
 					  "parentGroups[0].path", equalTo("/miniProgram1"),
@@ -994,54 +1002,60 @@ public class PageControllerTest extends AbstractControllerTest{
 	}
 	
 	@Test
-	public void getPage_mini_program_index_page() {
+	public void getPageMiniProgramIndexPage() {
 		String owner = "owner";
-		String repoName = "project";
+		String repoName = "repo";
 		int repoId = 1;
-		Project repo = new Project();
+		Repository repo = new Repository();
 		repo.setId(repoId);
-		when(projectService.find(eq(owner), eq(repoName))).thenReturn(Optional.of(repo));
+		when(repositoryService.find(eq(owner), eq(repoName))).thenReturn(Optional.of(repo));
 		
-		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
+		when(repositoryPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
 		
 		int miniProjectId = 11;
-		ProjectResource groupA = new ProjectResource();
+		RepositoryResource groupA = new RepositoryResource();
 		groupA.setId(miniProjectId);
 		groupA.setKey("miniProgram1");
 		groupA.setAppType(AppType.MINI_PROGRAM);
-		groupA.setResourceType(ProjectResourceType.PROJECT);
+		groupA.setResourceType(RepositoryResourceType.PROJECT);
 		groupA.setParentId(Constant.TREE_ROOT_ID);
 		
 		int pagesGroupId = 111;
-		ProjectResource groupAA = new ProjectResource();
+		RepositoryResource groupAA = new RepositoryResource();
 		groupAA.setId(pagesGroupId);
 		groupAA.setKey("pages");
 		groupAA.setAppType(AppType.MINI_PROGRAM);
-		groupAA.setResourceType(ProjectResourceType.GROUP);
+		groupAA.setResourceType(RepositoryResourceType.GROUP);
 		groupAA.setParentId(miniProjectId);
 		
-		List<ProjectResource> parents = new ArrayList<>();
+		List<RepositoryResource> parents = new ArrayList<>();
 		parents.add(groupA);
 		parents.add(groupAA);
-		when(projectResourceService.findParentGroupsByParentPath(anyInt(), anyString())).thenReturn(parents);
+		when(repositoryResourceService.findParentGroupsByParentPath(anyInt(), anyString())).thenReturn(parents);
 		
 		int indexPageId = 1111;
 		String indexPageKey = "index";
-		ProjectResource indexPage = new ProjectResource();
+		RepositoryResource indexPage = new RepositoryResource();
 		indexPage.setId(indexPageId);
 		indexPage.setKey(indexPageKey);
 		indexPage.setAppType(AppType.MINI_PROGRAM);
-		indexPage.setResourceType(ProjectResourceType.MAIN);
+		indexPage.setResourceType(RepositoryResourceType.PAGE);
 		indexPage.setParentId(pagesGroupId);
-		when(projectResourceService.findByKey(eq(repoId), eq(pagesGroupId), eq(ProjectResourceType.PAGE), eq(AppType.MINI_PROGRAM), eq(indexPageKey))).thenReturn(Optional.of(indexPage));
+		when(repositoryResourceService.findByKey(
+				eq(repoId), 
+				eq(pagesGroupId), 
+				eq(RepositoryResourceType.PAGE), 
+				eq(AppType.MINI_PROGRAM), 
+				eq(indexPageKey)))
+			.thenReturn(Optional.of(indexPage));
 		
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/projects/{owner}/{projectName}/pages/{pagePath}", owner, repoName, "miniProgram1/pages/index")
+			.get("/repos/{owner}/{repoName}/pages/{pagePath}", owner, repoName, "miniProgram1/pages/index")
 		.then()
 			.statusCode(HttpStatus.SC_OK)
-			.body("projectResource.id", equalTo(indexPageId),
+			.body("repositoryResource.id", equalTo(indexPageId),
 					  "parentGroups.size", equalTo(3),
 					  "parentGroups[0].name", equalTo("miniProgram1"),
 					  "parentGroups[0].path", equalTo("/miniProgram1"),

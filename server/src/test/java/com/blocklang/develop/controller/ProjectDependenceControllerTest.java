@@ -27,13 +27,13 @@ import com.blocklang.develop.constant.AccessLevel;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.data.AddDependenceParam;
 import com.blocklang.develop.data.UpdateDependenceParam;
-import com.blocklang.develop.model.Project;
+import com.blocklang.develop.model.Repository;
 import com.blocklang.develop.model.ProjectDependence;
-import com.blocklang.develop.model.ProjectResource;
+import com.blocklang.develop.model.RepositoryResource;
 import com.blocklang.develop.service.ProjectDependenceService;
-import com.blocklang.develop.service.ProjectPermissionService;
-import com.blocklang.develop.service.ProjectResourceService;
-import com.blocklang.develop.service.ProjectService;
+import com.blocklang.develop.service.RepositoryPermissionService;
+import com.blocklang.develop.service.RepositoryResourceService;
+import com.blocklang.develop.service.RepositoryService;
 import com.blocklang.marketplace.constant.RepoType;
 import com.blocklang.marketplace.model.ApiRepo;
 import com.blocklang.marketplace.model.ApiRepoVersion;
@@ -50,11 +50,11 @@ import io.restassured.http.ContentType;
 public class ProjectDependenceControllerTest extends AbstractControllerTest{
 	
 	@MockBean
-	private ProjectService projectService;
+	private RepositoryService repositoryService;
 	@MockBean
-	private ProjectPermissionService projectPermissionService;
+	private RepositoryPermissionService repositoryPermissionService;
 	@MockBean
-	private ProjectResourceService projectResourceService;
+	private RepositoryResourceService repositoryResourceService;
 	@MockBean
 	private ProjectDependenceService projectDependenceService;
 	@MockBean
@@ -65,54 +65,92 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 	private ApiRepoService apiRepoService;
 	@MockBean
 	private ApiRepoVersionService apiRepoVersionService;
-
+	
 	@Test
-	public void get_dependence_project_not_exist() {
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
+	public void getDependencyRepoNotExist() {
+		String owner = "jack";
+		String repoName = "repo1";
+		String projectName = "project1";
 		
+		when(repositoryService.find(eq(owner), eq(repoName))).thenReturn(Optional.empty());
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/projects/{owner}/{projectName}/dependence", "jack", "project")
+			.get("/repos/{owner}/{repoName}/{projectName}/dependency", owner, repoName, projectName)
 		.then()
 			.statusCode(HttpStatus.SC_NOT_FOUND)
 			.body(equalTo(""));
 	}
 	
 	@Test
-	public void get_dependence_can_not_read_project() {
-		Project project = new Project();
-		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+	public void getDependencyCanNotReadRepo() {
+		String owner = "jack";
+		String repoName = "repo1";
+		String projectName = "project1";
 		
-		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.empty());
+		Integer repoId = 1;
+		Repository repository = new Repository();
+		repository.setId(repoId);
+		when(repositoryService.find(eq(owner), eq(repoName))).thenReturn(Optional.of(repository));
+		
+		when(repositoryPermissionService.canRead(any(), any())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/projects/{owner}/{projectName}/dependence", "jack", "project")
+			.get("/repos/{owner}/{repoName}/{projectName}/dependency", owner, repoName, projectName)
 		.then()
 			.statusCode(HttpStatus.SC_FORBIDDEN)
 			.body(equalTo(""));
 	}
-	
+
 	@Test
-	public void get_dependence_success() {
-		Project project = new Project();
-		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+	public void getDependencyProjectNotExist() {
+		String owner = "jack";
+		String repoName = "repo1";
+		String projectName = "project1";
 		
-		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
-		
-		ProjectResource resource = new ProjectResource();
-		resource.setId(10);
-		resource.setKey("a");
-		when(projectResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource));
+		Integer repoId = 1;
+		Repository repository = new Repository();
+		repository.setId(repoId);
+		when(repositoryService.find(eq(owner), eq(repoName))).thenReturn(Optional.of(repository));
+		when(repositoryPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
+		when(repositoryResourceService.findProject(eq(repoId), eq(projectName))).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/projects/{owner}/{projectName}/dependence", "jack", "project")
+			.get("/repos/{owner}/{repoName}/{projectName}/dependency", owner, repoName, projectName)
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND)
+			.body(equalTo(""));
+	}
+	
+	@Test
+	public void getDependencySuccess() {
+		String owner = "jack";
+		String repoName = "repo1";
+		String projectName = "project1";
+		
+		Integer repoId = 1;
+		Repository repository = new Repository();
+		repository.setId(repoId);
+		when(repositoryService.find(eq(owner), eq(repoName))).thenReturn(Optional.of(repository));
+		when(repositoryPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
+		RepositoryResource project = new RepositoryResource();
+		project.setId(11);
+		project.setAppType(AppType.WEB);
+		when(repositoryResourceService.findProject(eq(repoId), eq(projectName))).thenReturn(Optional.of(project));
+		
+		RepositoryResource resource = new RepositoryResource();
+		resource.setId(10);
+		resource.setKey("a");
+		when(repositoryResourceService.findByKey(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(Optional.of(resource));
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/repos/{owner}/{repoName}/{projectName}/dependency", owner, repoName, projectName)
 		.then()
 			.statusCode(HttpStatus.SC_OK)
 			.body("resourceId", is(10),
@@ -121,6 +159,8 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 					"pathes[0].path", equalTo("/a"));
 	}
 
+	// FIXME: 新增依赖需进一步优化，等重构完成后再优化。
+	
 	@Test
 	public void add_dependence_anonymous_can_not_add() {
 		AddDependenceParam param = new AddDependenceParam();
@@ -138,7 +178,7 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 	@Test
 	public void add_dependence_project_not_exist() {
 		AddDependenceParam param = new AddDependenceParam();
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -152,11 +192,11 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 	@WithMockUser("jack")
 	@Test
 	public void add_dependence_can_not_write_project() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.empty());
+		when(repositoryPermissionService.canWrite(any(), any())).thenReturn(Optional.empty());
 
 		AddDependenceParam param = new AddDependenceParam();
 		param.setComponentRepoId(1);
@@ -172,11 +212,11 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 	@WithMockUser("jack")
 	@Test
 	public void add_dependence_will_add_dependence_not_exist() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
+		when(repositoryPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		when(componentRepoService.findById(anyInt())).thenReturn(Optional.empty());
 
@@ -205,11 +245,11 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 	@WithMockUser("jack")
 	@Test
 	public void add_dependence_when_is_build_dependence_but_the_dependence_has_added() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
+		when(repositoryPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		ComponentRepo repo = new ComponentRepo();
 		repo.setRepoType(RepoType.PROD);
@@ -239,11 +279,11 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 	@WithMockUser("jack")
 	@Test
 	public void add_dependence_when_is_dev_dependence_but_the_dependence_has_added() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 
-		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
+		when(repositoryPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		ComponentRepo repo = new ComponentRepo();
 		repo.setRepoType(RepoType.IDE);
@@ -267,11 +307,11 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 	@WithMockUser("jack")
 	@Test
 	public void add_dependence_success() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
+		when(repositoryPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		ComponentRepo componentRepo = new ComponentRepo();
 		componentRepo.setId(1);
@@ -327,7 +367,7 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 	
 	@Test
 	public void list_dependences_project_not_exist() {
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -340,11 +380,11 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 	
 	@Test
 	public void list_dependences_can_not_read_project() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.empty());
+		when(repositoryPermissionService.canRead(any(), any())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -357,11 +397,11 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 
 	@Test
 	public void list_dependences_success() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
+		when(repositoryPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
 		
 		when(projectDependenceService.findProjectDependences(anyInt())).thenReturn(Collections.emptyList());
 		
@@ -377,7 +417,7 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 	@Test
 	public void delete_dependence_anonymous_can_not_delete() {
 		AddDependenceParam param = new AddDependenceParam();
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -393,7 +433,7 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 	@Test
 	public void delete_dependence_project_not_exist() {
 		AddDependenceParam param = new AddDependenceParam();
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -407,11 +447,11 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 	@WithMockUser("jack")
 	@Test
 	public void delete_dependence_can_not_write_project() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.empty());
+		when(repositoryPermissionService.canWrite(any(), any())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -424,11 +464,11 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 	@WithMockUser("jack")
 	@Test
 	public void delete_dependence_success() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
+		when(repositoryPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -456,7 +496,7 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 	@WithMockUser("jack")
 	@Test
 	public void update_dependence_project_not_exist() {
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.empty());
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.empty());
 		
 		UpdateDependenceParam param = new UpdateDependenceParam();
 		given()
@@ -471,11 +511,11 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 	@WithMockUser("jack")
 	@Test
 	public void update_dependence_can_not_write_project() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.empty());
+		when(repositoryPermissionService.canWrite(any(), any())).thenReturn(Optional.empty());
 
 		UpdateDependenceParam param = new UpdateDependenceParam();
 		given()
@@ -490,11 +530,11 @@ public class ProjectDependenceControllerTest extends AbstractControllerTest{
 	@WithMockUser("jack")
 	@Test
 	public void update_dependence_success() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
-		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
+		when(repositoryService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
+		when(repositoryPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		UserInfo user = new UserInfo();
 		user.setId(1);

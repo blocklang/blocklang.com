@@ -10,7 +10,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import com.blocklang.core.service.PropertyService;
 import com.blocklang.core.test.AbstractServiceTest;
-import com.blocklang.develop.model.Project;
+import com.blocklang.develop.model.Repository;
 import com.blocklang.release.constant.ReleaseResult;
 import com.blocklang.release.dao.AppDao;
 import com.blocklang.release.dao.ProjectReleaseTaskDao;
@@ -35,7 +35,7 @@ public class BuildServiceImplTest extends AbstractServiceTest{
 	@Test
 	public void build_success() throws IOException {
 		Integer projectId = Integer.MAX_VALUE;
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(projectId);
 		project.setName("demo_project");
 		project.setCreateUserName("jack");

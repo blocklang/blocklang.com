@@ -19,17 +19,17 @@ import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.UserService;
 import com.blocklang.core.test.AbstractServiceTest;
 import com.blocklang.develop.constant.AccessLevel;
-import com.blocklang.develop.dao.ProjectAuthorizationDao;
-import com.blocklang.develop.model.Project;
-import com.blocklang.develop.model.ProjectAuthorization;
-import com.blocklang.develop.service.ProjectPermissionService;
+import com.blocklang.develop.dao.RepositoryAuthorizationDao;
+import com.blocklang.develop.model.Repository;
+import com.blocklang.develop.model.RepositoryAuthorization;
+import com.blocklang.develop.service.RepositoryPermissionService;
 
 public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 
 	@Autowired
-	private ProjectPermissionService projectPermissionService;
+	private RepositoryPermissionService projectPermissionService;
 	@MockBean
-	private ProjectAuthorizationDao projectAuthorizationDao;
+	private RepositoryAuthorizationDao projectAuthorizationDao;
 	@MockBean
 	private UserService userService;
 	
@@ -47,28 +47,28 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void ensure_can_read_anonymous_can_read_all_public_project() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setIsPublic(true);
 		assertThat(projectPermissionService.canRead(null, project)).isPresent();
 	}
 	
 	@Test
 	public void ensure_can_read_anonymous_can_not_read_all_private_project() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setIsPublic(false);
 		assertThat(projectPermissionService.canRead(null, project)).isEmpty();
 	}
 	
 	@Test
 	public void ensure_can_read_login_user_can_read_all_public_project() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setIsPublic(true);
 		assertThat(projectPermissionService.canRead(loginUser, project)).isPresent();
 	}
 	
 	@Test
 	public void ensure_can_read_login_user_can_not_read_private_project_when_user_not_exist() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(false);
 		
@@ -78,7 +78,7 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void ensure_can_read_login_user_can_not_read_private_project_not_config_permission() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(false);
 		
@@ -86,13 +86,13 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 		user.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
-		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
+		when(projectAuthorizationDao.findAllByUserIdAndRepositoryId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
 		assertThat(projectPermissionService.canRead(loginUser, project)).isEmpty();
 	}
 	
 	@Test
 	public void ensure_can_read_login_user_can_not_read_private_project_that_has_forbidden_permission() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(false);
 		
@@ -100,16 +100,16 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 		user.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
+		RepositoryAuthorization auth = new RepositoryAuthorization();
 		auth.setAccessLevel(AccessLevel.FORBIDDEN);
-		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectAuthorizationDao.findAllByUserIdAndRepositoryId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
 		assertThat(projectPermissionService.canRead(loginUser, project)).isEmpty();
 	}
 	
 	@Test
 	public void ensure_can_read_login_user_can_read_private_project_that_has_read_permission() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(false);
 		
@@ -117,16 +117,16 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 		user.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
+		RepositoryAuthorization auth = new RepositoryAuthorization();
 		auth.setAccessLevel(AccessLevel.READ);
-		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectAuthorizationDao.findAllByUserIdAndRepositoryId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
 		assertThat(projectPermissionService.canRead(loginUser, project)).isPresent();
 	}
 	
 	@Test
 	public void ensure_can_read_login_user_can_read_private_project_that_has_write_permission() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(false);
 		
@@ -134,16 +134,16 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 		user.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
+		RepositoryAuthorization auth = new RepositoryAuthorization();
 		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectAuthorizationDao.findAllByUserIdAndRepositoryId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
 		assertThat(projectPermissionService.canRead(loginUser, project)).isPresent();
 	}
 	
 	@Test
 	public void ensure_can_read_login_user_can_read_private_project_that_has_admin_permission() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(false);
 		
@@ -151,16 +151,16 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 		user.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
+		RepositoryAuthorization auth = new RepositoryAuthorization();
 		auth.setAccessLevel(AccessLevel.ADMIN);
-		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectAuthorizationDao.findAllByUserIdAndRepositoryId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
 		assertThat(projectPermissionService.canRead(loginUser, project)).isPresent();
 	}
 	
 	@Test
 	public void ensure_can_read_login_user_can_read_private_project_that_has_forbidden_and_read_permission() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(false);
 		
@@ -168,12 +168,12 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 		user.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
-		ProjectAuthorization auth1 = new ProjectAuthorization();
+		RepositoryAuthorization auth1 = new RepositoryAuthorization();
 		auth1.setAccessLevel(AccessLevel.FORBIDDEN);
 		
-		ProjectAuthorization auth2 = new ProjectAuthorization();
+		RepositoryAuthorization auth2 = new RepositoryAuthorization();
 		auth2.setAccessLevel(AccessLevel.READ);
-		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Arrays.asList(auth1, auth2));
+		when(projectAuthorizationDao.findAllByUserIdAndRepositoryId(anyInt(), anyInt())).thenReturn(Arrays.asList(auth1, auth2));
 		
 		assertThat(projectPermissionService.canRead(loginUser, project)).isPresent();
 	}
@@ -181,21 +181,21 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void ensure_can_write_anonymous_can_not_write_all_public_project() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setIsPublic(true);
 		assertThat(projectPermissionService.canWrite(null, project)).isEmpty();
 	}
 	
 	@Test
 	public void ensure_can_write_anonymous_can_not_write_all_private_project() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setIsPublic(false);
 		assertThat(projectPermissionService.canWrite(null, project)).isEmpty();
 	}
 	
 	@Test
 	public void ensure_can_write_login_user_can_not_write_public_project_when_user_not_exist() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(true);
 		
@@ -205,7 +205,7 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void ensure_can_write_login_user_can_not_write_public_project_that_not_config_permission() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(true);
 		
@@ -213,13 +213,13 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 		user.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
-		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
+		when(projectAuthorizationDao.findAllByUserIdAndRepositoryId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
 		assertThat(projectPermissionService.canWrite(loginUser, project)).isEmpty();
 	}
 	
 	@Test
 	public void ensure_can_write_login_user_can_not_write_public_project_that_has_forbidden_permission() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(true);
 		
@@ -227,16 +227,16 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 		user.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
+		RepositoryAuthorization auth = new RepositoryAuthorization();
 		auth.setAccessLevel(AccessLevel.FORBIDDEN);
-		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectAuthorizationDao.findAllByUserIdAndRepositoryId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
 		assertThat(projectPermissionService.canWrite(loginUser, project)).isEmpty();
 	}
 	
 	@Test
 	public void ensure_can_write_login_user_can_not_write_public_project_that_has_read_permission() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(true);
 		
@@ -244,16 +244,16 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 		user.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
+		RepositoryAuthorization auth = new RepositoryAuthorization();
 		auth.setAccessLevel(AccessLevel.READ);
-		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectAuthorizationDao.findAllByUserIdAndRepositoryId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
 		assertThat(projectPermissionService.canWrite(loginUser, project)).isEmpty();
 	}
 	
 	@Test
 	public void ensure_can_write_login_user_can_write_public_project_that_has_write_permission() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(true);
 		
@@ -261,16 +261,16 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 		user.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
+		RepositoryAuthorization auth = new RepositoryAuthorization();
 		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectAuthorizationDao.findAllByUserIdAndRepositoryId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
 		assertThat(projectPermissionService.canWrite(loginUser, project)).isPresent();
 	}
 	
 	@Test
 	public void ensure_can_write_login_user_can_write_public_project_that_has_admin_permission() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(true);
 		
@@ -278,15 +278,15 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 		user.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
+		RepositoryAuthorization auth = new RepositoryAuthorization();
 		auth.setAccessLevel(AccessLevel.ADMIN);
-		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectAuthorizationDao.findAllByUserIdAndRepositoryId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
 		assertThat(projectPermissionService.canWrite(loginUser, project)).isPresent();
 	}
 
 	public void ensure_can_write_login_user_can_not_write_private_project_when_user_not_exist() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(false);
 		
@@ -296,7 +296,7 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void ensure_can_write_login_user_can_not_write_private_project_that_not_config_permission() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(false);
 		
@@ -304,13 +304,13 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 		user.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
-		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
+		when(projectAuthorizationDao.findAllByUserIdAndRepositoryId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
 		assertThat(projectPermissionService.canWrite(loginUser, project)).isEmpty();
 	}
 	
 	@Test
 	public void ensure_can_write_login_user_can_not_write_private_project_that_has_forbidden_permission() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(false);
 		
@@ -318,16 +318,16 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 		user.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
+		RepositoryAuthorization auth = new RepositoryAuthorization();
 		auth.setAccessLevel(AccessLevel.FORBIDDEN);
-		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectAuthorizationDao.findAllByUserIdAndRepositoryId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
 		assertThat(projectPermissionService.canWrite(loginUser, project)).isEmpty();
 	}
 	
 	@Test
 	public void ensure_can_write_login_user_can_not_write_private_project_that_has_read_permission() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(false);
 		
@@ -335,16 +335,16 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 		user.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
+		RepositoryAuthorization auth = new RepositoryAuthorization();
 		auth.setAccessLevel(AccessLevel.READ);
-		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectAuthorizationDao.findAllByUserIdAndRepositoryId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
 		assertThat(projectPermissionService.canWrite(loginUser, project)).isEmpty();
 	}
 	
 	@Test
 	public void ensure_can_write_login_user_can_write_private_project_that_has_write_permission() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(false);
 		
@@ -352,16 +352,16 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 		user.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
+		RepositoryAuthorization auth = new RepositoryAuthorization();
 		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectAuthorizationDao.findAllByUserIdAndRepositoryId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
 		assertThat(projectPermissionService.canWrite(loginUser, project)).isPresent();
 	}
 	
 	@Test
 	public void ensure_can_write_login_user_can_write_private_project_that_has_admin_permission() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(false);
 		
@@ -369,9 +369,9 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 		user.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
+		RepositoryAuthorization auth = new RepositoryAuthorization();
 		auth.setAccessLevel(AccessLevel.ADMIN);
-		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectAuthorizationDao.findAllByUserIdAndRepositoryId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
 		assertThat(projectPermissionService.canWrite(loginUser, project)).isPresent();
 	}
@@ -382,21 +382,21 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 	
 	
 	public void ensure_can_admin_anonymous_can_not_admin_all_public_project() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setIsPublic(true);
 		assertThat(projectPermissionService.canAdmin(null, project)).isEmpty();
 	}
 	
 	@Test
 	public void ensure_can_admin_anonymous_can_not_admin_all_private_project() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setIsPublic(false);
 		assertThat(projectPermissionService.canAdmin(null, project)).isEmpty();
 	}
 	
 	@Test
 	public void ensure_can_admin_login_user_can_not_admin_public_project_when_user_not_exist() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(true);
 		
@@ -406,7 +406,7 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void ensure_can_admin_login_user_can_not_admin_public_project_that_not_config_permission() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(true);
 		
@@ -414,13 +414,13 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 		user.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
-		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
+		when(projectAuthorizationDao.findAllByUserIdAndRepositoryId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
 		assertThat(projectPermissionService.canAdmin(loginUser, project)).isEmpty();
 	}
 	
 	@Test
 	public void ensure_can_admin_login_user_can_not_admin_public_project_that_has_forbidden_permission() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(true);
 		
@@ -428,16 +428,16 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 		user.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
+		RepositoryAuthorization auth = new RepositoryAuthorization();
 		auth.setAccessLevel(AccessLevel.FORBIDDEN);
-		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectAuthorizationDao.findAllByUserIdAndRepositoryId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
 		assertThat(projectPermissionService.canAdmin(loginUser, project)).isEmpty();
 	}
 	
 	@Test
 	public void ensure_can_admin_login_user_can_not_admin_public_project_that_has_read_permission() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(true);
 		
@@ -445,16 +445,16 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 		user.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
+		RepositoryAuthorization auth = new RepositoryAuthorization();
 		auth.setAccessLevel(AccessLevel.READ);
-		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectAuthorizationDao.findAllByUserIdAndRepositoryId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
 		assertThat(projectPermissionService.canAdmin(loginUser, project)).isEmpty();
 	}
 	
 	@Test
 	public void ensure_can_admin_login_user_can_admin_public_project_that_has_write_permission() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(true);
 		
@@ -462,16 +462,16 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 		user.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
+		RepositoryAuthorization auth = new RepositoryAuthorization();
 		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectAuthorizationDao.findAllByUserIdAndRepositoryId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
 		assertThat(projectPermissionService.canAdmin(loginUser, project)).isEmpty();
 	}
 	
 	@Test
 	public void ensure_can_admin_login_user_can_admin_public_project_that_has_admin_permission() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(true);
 		
@@ -479,15 +479,15 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 		user.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
+		RepositoryAuthorization auth = new RepositoryAuthorization();
 		auth.setAccessLevel(AccessLevel.ADMIN);
-		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectAuthorizationDao.findAllByUserIdAndRepositoryId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
 		assertThat(projectPermissionService.canAdmin(loginUser, project)).isPresent();
 	}
 
 	public void ensure_can_admin_login_user_can_not_admin_private_project_when_user_not_exist() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(false);
 		
@@ -497,7 +497,7 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void ensure_can_admin_login_user_can_not_admin_private_project_that_not_config_permission() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(false);
 		
@@ -505,13 +505,13 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 		user.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
-		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
+		when(projectAuthorizationDao.findAllByUserIdAndRepositoryId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
 		assertThat(projectPermissionService.canAdmin(loginUser, project)).isEmpty();
 	}
 	
 	@Test
 	public void ensure_can_admin_login_user_can_not_admin_private_project_that_has_forbidden_permission() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(false);
 		
@@ -519,16 +519,16 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 		user.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
+		RepositoryAuthorization auth = new RepositoryAuthorization();
 		auth.setAccessLevel(AccessLevel.FORBIDDEN);
-		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectAuthorizationDao.findAllByUserIdAndRepositoryId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
 		assertThat(projectPermissionService.canAdmin(loginUser, project)).isEmpty();
 	}
 	
 	@Test
 	public void ensure_can_admin_login_user_can_not_admin_private_project_that_has_read_permission() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(false);
 		
@@ -536,16 +536,16 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 		user.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
+		RepositoryAuthorization auth = new RepositoryAuthorization();
 		auth.setAccessLevel(AccessLevel.READ);
-		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectAuthorizationDao.findAllByUserIdAndRepositoryId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
 		assertThat(projectPermissionService.canAdmin(loginUser, project)).isEmpty();
 	}
 	
 	@Test
 	public void ensure_can_admin_login_user_can_admin_private_project_that_has_write_permission() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(false);
 		
@@ -553,16 +553,16 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 		user.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
+		RepositoryAuthorization auth = new RepositoryAuthorization();
 		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectAuthorizationDao.findAllByUserIdAndRepositoryId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
 		assertThat(projectPermissionService.canAdmin(loginUser, project)).isEmpty();
 	}
 	
 	@Test
 	public void ensure_can_admin_login_user_can_admin_private_project_that_has_admin_permission() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(false);
 		
@@ -570,30 +570,30 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 		user.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
+		RepositoryAuthorization auth = new RepositoryAuthorization();
 		auth.setAccessLevel(AccessLevel.ADMIN);
-		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectAuthorizationDao.findAllByUserIdAndRepositoryId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
 		assertThat(projectPermissionService.canAdmin(loginUser, project)).isPresent();
 	}
 	
 	@Test
 	public void find_topest_permission_anonymous_can_read_public_project() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setIsPublic(true);
 		assertThat(projectPermissionService.findTopestPermission(null, project)).isEqualTo(AccessLevel.READ);
 	}
 	
 	@Test
 	public void find_topest_permission_anonymous_can_not_read_private_project() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setIsPublic(false);
 		assertThat(projectPermissionService.findTopestPermission(null, project)).isEqualTo(AccessLevel.FORBIDDEN);
 	}
 
 	@Test
 	public void find_topest_permission_login_can_read_public_project_that_config_no_permission() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(true);
 		
@@ -601,14 +601,14 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 		user.setId(2);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
-		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
+		when(projectAuthorizationDao.findAllByUserIdAndRepositoryId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
 		
 		assertThat(projectPermissionService.findTopestPermission(loginUser, project)).isEqualTo(AccessLevel.READ);
 	}
 	
 	@Test
 	public void find_topest_permission_login_can_read_public_project_that_has_read_permission() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(true);
 		
@@ -616,16 +616,16 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 		user.setId(2);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
+		RepositoryAuthorization auth = new RepositoryAuthorization();
 		auth.setAccessLevel(AccessLevel.READ);
-		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectAuthorizationDao.findAllByUserIdAndRepositoryId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
 		assertThat(projectPermissionService.findTopestPermission(loginUser, project)).isEqualTo(AccessLevel.READ);
 	}
 	
 	@Test
 	public void find_topest_permission_login_can_read_public_project_that_has_write_permission() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(true);
 		
@@ -633,16 +633,16 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 		user.setId(2);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
+		RepositoryAuthorization auth = new RepositoryAuthorization();
 		auth.setAccessLevel(AccessLevel.WRITE);
-		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectAuthorizationDao.findAllByUserIdAndRepositoryId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
 		assertThat(projectPermissionService.findTopestPermission(loginUser, project)).isEqualTo(AccessLevel.WRITE);
 	}
 	
 	@Test
 	public void find_topest_permission_login_can_read_public_project_that_has_admin_permission() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(true);
 		
@@ -650,16 +650,16 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 		user.setId(2);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
+		RepositoryAuthorization auth = new RepositoryAuthorization();
 		auth.setAccessLevel(AccessLevel.ADMIN);
-		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
+		when(projectAuthorizationDao.findAllByUserIdAndRepositoryId(anyInt(), anyInt())).thenReturn(Collections.singletonList(auth));
 		
 		assertThat(projectPermissionService.findTopestPermission(loginUser, project)).isEqualTo(AccessLevel.ADMIN);
 	}
 	
 	@Test
 	public void find_topest_permission_login_can_read_public_project_that_has_two_permissions() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(true);
 		
@@ -667,18 +667,18 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 		user.setId(2);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
-		ProjectAuthorization auth1 = new ProjectAuthorization();
+		RepositoryAuthorization auth1 = new RepositoryAuthorization();
 		auth1.setAccessLevel(AccessLevel.READ);
-		ProjectAuthorization auth2 = new ProjectAuthorization();
+		RepositoryAuthorization auth2 = new RepositoryAuthorization();
 		auth2.setAccessLevel(AccessLevel.ADMIN);
 		
-		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Arrays.asList(auth1, auth2));
+		when(projectAuthorizationDao.findAllByUserIdAndRepositoryId(anyInt(), anyInt())).thenReturn(Arrays.asList(auth1, auth2));
 		assertThat(projectPermissionService.findTopestPermission(loginUser, project)).isEqualTo(AccessLevel.ADMIN);
 	}
 	
 	@Test
 	public void find_topest_permission_login_can_not_read_private_project_that_config_no_permission() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(false);
 		
@@ -686,7 +686,7 @@ public class ProjectPermissionServiceImplTest extends AbstractServiceTest{
 		user.setId(2);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
-		when(projectAuthorizationDao.findAllByUserIdAndProjectId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
+		when(projectAuthorizationDao.findAllByUserIdAndRepositoryId(anyInt(), anyInt())).thenReturn(Collections.emptyList());
 		
 		assertThat(projectPermissionService.findTopestPermission(loginUser, project)).isEqualTo(AccessLevel.FORBIDDEN);
 	}

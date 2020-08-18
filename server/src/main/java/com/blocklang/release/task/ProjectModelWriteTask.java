@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.designer.data.AttachedWidget;
 import com.blocklang.develop.service.ProjectDependenceService;
-import com.blocklang.develop.service.ProjectResourceService;
+import com.blocklang.develop.service.RepositoryResourceService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -25,9 +25,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class ProjectModelWriteTask extends AbstractTask {
 	
 	private ProjectDependenceService projectDependenceService;
-	private ProjectResourceService projectResourceService;
+	private RepositoryResourceService projectResourceService;
 	
-	public ProjectModelWriteTask(AppBuildContext appBuildContext, ProjectDependenceService projectDependenceService, ProjectResourceService projectResourceService) {
+	public ProjectModelWriteTask(AppBuildContext appBuildContext, ProjectDependenceService projectDependenceService, RepositoryResourceService projectResourceService) {
 		super(appBuildContext);
 		this.projectDependenceService = projectDependenceService;
 		this.projectResourceService = projectResourceService;
@@ -107,7 +107,7 @@ public class ProjectModelWriteTask extends AbstractTask {
 			// 4. widgetName
 			// 5. canHasChildren
 			// 6. properties
-			List<AttachedWidget> widgets = projectResourceService.getPageModel(projectResource.getProjectId(), projectResource.getId()).getWidgets();
+			List<AttachedWidget> widgets = projectResourceService.getPageModel(projectResource.getRepositoryId(), projectResource.getId()).getWidgets();
 			
 			result.put("pageInfo", pageInfo);
 			result.put("widgets", widgets);

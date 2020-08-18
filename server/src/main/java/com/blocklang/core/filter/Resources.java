@@ -18,11 +18,11 @@ public abstract class Resources {
 	
 	/**
 	 * 在 dojo route 中登记的 route，这些 url 会显示在浏览器地址栏，然后按下浏览器的 F5 键刷新。
-	 * 注意 /users/{login_name}, /projects/{owner}/{project_name} 这两类路由不需要在这里配置，
+	 * 注意 /users/{login_name}, /repos/{owner}/{repo_name} 这两类路由不需要在这里配置，
 	 * 因为已经有专门的代码处理了。
 	 */
 	public static final String[] ROUTES = new String[] {
-		"/projects/new",
+		"/repos/new",
 		"/docs/{fileName}",
 		"/settings/profile",
 		"/user/completeUserInfo",
@@ -48,7 +48,7 @@ public abstract class Resources {
 		"/index.html",
 		"/errors**", // Spring boot 错误页面
 		// 自动安装 APP 的服务接口
-		"/projects/**",
+		"/projects/**", // TODO: 是否需要调整此 projects 为 repos?
 		"/installers/**",
 		"/apps/**",
 		// 信息分类编码
@@ -67,7 +67,7 @@ public abstract class Resources {
 		"installers",                      // APP 安装服务
 		"apps",                            // APP 下载服务
 		// 以下是本项目内专用的 Controller
-		"projects",                        // 项目管理
+		"repos",                        // 项目管理
 		"users",                           // 用户管理
 		"user",                            // 登录用户信息
 		"docs",                            // 帮助文档

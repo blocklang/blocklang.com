@@ -32,13 +32,13 @@ import com.blocklang.develop.designer.data.Widget;
 import com.blocklang.develop.designer.data.WidgetCategory;
 import com.blocklang.develop.designer.data.WidgetProperty;
 import com.blocklang.develop.designer.data.RepoWidgetList;
-import com.blocklang.develop.model.Project;
+import com.blocklang.develop.model.Repository;
 import com.blocklang.develop.model.ProjectBuildProfile;
 import com.blocklang.develop.model.ProjectContext;
 import com.blocklang.develop.model.ProjectDependence;
-import com.blocklang.develop.model.ProjectResource;
+import com.blocklang.develop.model.RepositoryResource;
 import com.blocklang.develop.service.ProjectDependenceService;
-import com.blocklang.develop.service.ProjectService;
+import com.blocklang.develop.service.RepositoryService;
 import com.blocklang.marketplace.constant.WidgetPropertyValueType;
 import com.blocklang.marketplace.constant.RepoCategory;
 import com.blocklang.marketplace.constant.RepoType;
@@ -78,7 +78,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 	@Autowired
 	private UserDao userDao;
 	@Autowired
-	private ProjectService projectService;
+	private RepositoryService projectService;
 	@Autowired
 	private ApiWidgetDao apiComponentDao;
 	@Autowired
@@ -272,7 +272,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		userInfo.setCreateTime(LocalDateTime.now());
 		Integer userId = userDao.save(userInfo).getId();
 		
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setName("project_name");
 		project.setIsPublic(true);
 		project.setDescription("description");
@@ -284,7 +284,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		ProjectContext context = new ProjectContext("user_name", "project_name", rootFolder.toString());
 		
-		Project savedProject = projectService.createRepository(userInfo, project);
+		Repository savedProject = projectService.createRepository(userInfo, project);
 		
 		// 依赖一个 dev 仓库
 		ComponentRepo devRepo = new ComponentRepo();
@@ -339,7 +339,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		projectDependenceService.save(savedProject.getId(), buildRepo, userId);
 		
 		// 在 git 仓库中获取 DEPENDENCE.json 文件
-		String dependenceFileContent = Files.readString(context.getGitRepositoryDirectory().resolve(ProjectResource.DEPENDENCE_NAME));
+		String dependenceFileContent = Files.readString(context.getGitRepositoryDirectory().resolve(RepositoryResource.DEPENDENCE_NAME));
 		ObjectMapper objectMapper = new ObjectMapper();
 		Map jsonObject = objectMapper.readValue(dependenceFileContent, Map.class);
 		assertThat(jsonObject).isNotEmpty();
@@ -683,7 +683,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		userInfo.setCreateTime(LocalDateTime.now());
 		Integer userId = userDao.save(userInfo).getId();
 		
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setName("project_name");
 		project.setIsPublic(true);
 		project.setDescription("description");
@@ -695,7 +695,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		ProjectContext context = new ProjectContext("user_name", "project_name", rootFolder.toString());
 		
-		Project savedProject = projectService.createRepository(userInfo, project);
+		Repository savedProject = projectService.createRepository(userInfo, project);
 		
 		// 二、添加一个依赖
 		// 依赖一个 dev 仓库
@@ -730,7 +730,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		// 四、断言 DEPENDENCE.json 文件的内容为 “{ }”
 		// 不直接转换为 java 对象判断，而是判断文本，这样可以断言美化后的 json
 		// 在 git 仓库中获取 DEPENDENCE.json 文件
-		String dependenceFileContent = Files.readString(context.getGitRepositoryDirectory().resolve(ProjectResource.DEPENDENCE_NAME));
+		String dependenceFileContent = Files.readString(context.getGitRepositoryDirectory().resolve(RepositoryResource.DEPENDENCE_NAME));
 		assertThat(dependenceFileContent).isEqualTo("{ }");
 	}
 	
@@ -760,7 +760,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		userInfo.setCreateTime(LocalDateTime.now());
 		Integer userId = userDao.save(userInfo).getId();
 		
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setName("project_name");
 		project.setIsPublic(true);
 		project.setDescription("description");
@@ -772,7 +772,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		ProjectContext context = new ProjectContext("user_name", "project_name", rootFolder.toString());
 		
-		Project savedProject = projectService.createRepository(userInfo, project);
+		Repository savedProject = projectService.createRepository(userInfo, project);
 		
 		// 二、添加一个依赖
 		// 依赖一个 dev 仓库
@@ -820,7 +820,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		
 		// 四、断言 DEPENDENCE.json 文件的内容
 		// 在 git 仓库中获取 DEPENDENCE.json 文件
-		String dependenceFileContent = Files.readString(context.getGitRepositoryDirectory().resolve(ProjectResource.DEPENDENCE_NAME));
+		String dependenceFileContent = Files.readString(context.getGitRepositoryDirectory().resolve(RepositoryResource.DEPENDENCE_NAME));
 		ObjectMapper objectMapper = new ObjectMapper();
 		Map jsonObject = objectMapper.readValue(dependenceFileContent, Map.class);
 		assertThat(jsonObject).isNotEmpty();

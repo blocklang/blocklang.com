@@ -31,13 +31,13 @@ import org.springframework.security.test.context.support.WithMockUser;
 
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.test.AbstractControllerTest;
-import com.blocklang.develop.model.Project;
-import com.blocklang.develop.service.ProjectService;
+import com.blocklang.develop.model.Repository;
+import com.blocklang.develop.service.RepositoryService;
 import com.blocklang.release.constant.ReleaseResult;
 import com.blocklang.release.data.CheckReleaseVersionParam;
 import com.blocklang.release.data.NewReleaseTaskParam;
 import com.blocklang.release.model.ProjectReleaseTask;
-import com.blocklang.release.model.ProjectTag;
+import com.blocklang.release.model.RepositoryTag;
 import com.blocklang.release.service.BuildService;
 import com.blocklang.release.service.ProjectReleaseTaskService;
 import com.blocklang.release.service.ProjectTagService;
@@ -49,7 +49,7 @@ import io.restassured.http.ContentType;
 public class ReleaseControllerTest extends AbstractControllerTest{
 	
 	@MockBean
-	private ProjectService projectService;
+	private RepositoryService projectService;
 	@MockBean
 	private ProjectReleaseTaskService projectReleaseTaskService;
 	@MockBean
@@ -110,16 +110,16 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 	public void post_release_version_is_used() {
 		NewReleaseTaskParam release = prepareNewParam();
 		
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setCreateUserName("jack");
 		project.setName("demo_project");
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectTag projectTag = new ProjectTag();
+		RepositoryTag projectTag = new RepositoryTag();
 		when(projectTagService.find(anyInt(), anyString())).thenReturn(Optional.of(projectTag));
 		
-		ProjectTag latestTag = new ProjectTag();
+		RepositoryTag latestTag = new RepositoryTag();
 		latestTag.setVersion("0.1.1");
 		when(projectTagService.findLatestTag(anyInt())).thenReturn(Optional.of(latestTag));
 		
@@ -138,7 +138,7 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 	public void post_release_version_not_greater_than_previous() {
 		NewReleaseTaskParam release = prepareNewParam();
 		
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setCreateUserName("jack");
 		project.setName("demo_project");
@@ -146,7 +146,7 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 		
 		when(projectTagService.find(anyInt(), anyString())).thenReturn(Optional.empty());
 		
-		ProjectTag tag = new ProjectTag();
+		RepositoryTag tag = new RepositoryTag();
 		tag.setId(1);
 		tag.setVersion("0.1.1");
 		when(projectTagService.findLatestTag(anyInt())).thenReturn(Optional.of(tag));
@@ -166,7 +166,7 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 	public void post_release_started() throws IOException {
 		NewReleaseTaskParam release = prepareNewParam();
 		
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(2);
 		project.setCreateUserName("jack");
 		project.setName("demo_project");
@@ -324,7 +324,7 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 
 	@Test
 	public void list_release_success() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
@@ -393,16 +393,16 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 		CheckReleaseVersionParam param = new CheckReleaseVersionParam();
 		param.setVersion("0.1.0");
 		
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setCreateUserName("jack");
 		project.setName("demo_project");
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
-		ProjectTag projectTag = new ProjectTag();
+		RepositoryTag projectTag = new RepositoryTag();
 		when(projectTagService.find(anyInt(), anyString())).thenReturn(Optional.of(projectTag));
 		
-		ProjectTag latestTag = new ProjectTag();
+		RepositoryTag latestTag = new RepositoryTag();
 		latestTag.setVersion("0.1.1");
 		when(projectTagService.findLatestTag(anyInt())).thenReturn(Optional.of(latestTag));
 		
@@ -422,7 +422,7 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 		CheckReleaseVersionParam param = new CheckReleaseVersionParam();
 		param.setVersion("0.1.0");
 		
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setCreateUserName("jack");
 		project.setName("demo_project");
@@ -432,7 +432,7 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 		when(projectTagService.find(anyInt(), anyString())).thenReturn(Optional.empty());
 		
 		// 但版本号没有大于最新版本号
-		ProjectTag tag = new ProjectTag();
+		RepositoryTag tag = new RepositoryTag();
 		tag.setId(1);
 		tag.setVersion("0.1.1");
 		when(projectTagService.findLatestTag(anyInt())).thenReturn(Optional.of(tag));
@@ -453,7 +453,7 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 		CheckReleaseVersionParam param = new CheckReleaseVersionParam();
 		param.setVersion("0.1.0");
 
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setCreateUserName("jack");
 		project.setName("demo_project");
@@ -463,7 +463,7 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 		when(projectTagService.find(anyInt(), anyString())).thenReturn(Optional.empty());
 		
 		// 但版本号没有大于最新版本号
-		ProjectTag tag = new ProjectTag();
+		RepositoryTag tag = new RepositoryTag();
 		tag.setId(1);
 		tag.setVersion("0.0.1");
 		when(projectTagService.findLatestTag(anyInt())).thenReturn(Optional.of(tag));
@@ -494,7 +494,7 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 	// 如某些私有项目
 	@Test
 	public void get_release_count_success() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		when(projectReleaseTaskService.count(anyInt())).thenReturn(1l);
@@ -522,7 +522,7 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 	
 	@Test
 	public void get_a_release_task_not_found() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
@@ -538,7 +538,7 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 	
 	@Test
 	public void get_a_release_success() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
@@ -572,7 +572,7 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 	
 	@Test
 	public void get_a_release_log_then_task_not_found() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		when(projectService.find(anyString(), anyString())).thenReturn(Optional.of(project));
 		
@@ -588,7 +588,7 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 	
 	@Test
 	public void get_a_release_log_then_log_file_not_found(@TempDir Path dataRootDirectory) throws IOException {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setCreateUserName("jack");
 		project.setName("demo_project");
@@ -614,7 +614,7 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 	
 	@Test
 	public void get_a_release_log_success(@TempDir Path dataRootDirectory) throws IOException {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setCreateUserName("jack");
 		project.setName("demo_project");

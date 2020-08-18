@@ -12,50 +12,50 @@ import com.blocklang.core.constant.Constant;
 import com.blocklang.core.test.AbstractServiceTest;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.constant.FileType;
-import com.blocklang.develop.constant.ProjectResourceType;
-import com.blocklang.develop.dao.ProjectFileDao;
-import com.blocklang.develop.dao.ProjectResourceDao;
-import com.blocklang.develop.model.ProjectFile;
-import com.blocklang.develop.model.ProjectResource;
-import com.blocklang.develop.service.ProjectFileService;
+import com.blocklang.develop.constant.RepositoryResourceType;
+import com.blocklang.develop.dao.RepositoryFileDao;
+import com.blocklang.develop.dao.RepositoryResourceDao;
+import com.blocklang.develop.model.RepositoryFile;
+import com.blocklang.develop.model.RepositoryResource;
+import com.blocklang.develop.service.RepositoryFileService;
 
 public class ProjectFileServiceImplTest extends AbstractServiceTest{
 
 	@Autowired
-	private ProjectFileService projectFileService;
+	private RepositoryFileService projectFileService;
 	
 	@Autowired
-	private ProjectResourceDao projectResourceDao;
+	private RepositoryResourceDao projectResourceDao;
 	@Autowired
-	private ProjectFileDao projectFileDao;
+	private RepositoryFileDao projectFileDao;
 	
 	@Test
 	public void find_readme_no_data() {
-		Optional<ProjectFile> fileOption = projectFileService.findReadme(9999);
+		Optional<RepositoryFile> fileOption = projectFileService.findReadme(9999);
 		assertThat(fileOption).isEmpty();
 	}
 	
 	@Test
 	public void find_readme_success() {
-		ProjectResource resource = new ProjectResource();
-		resource.setProjectId(9999);
-		resource.setKey(ProjectResource.README_KEY);
-		resource.setName(ProjectResource.README_NAME);
+		RepositoryResource resource = new RepositoryResource();
+		resource.setRepositoryId(9999);
+		resource.setKey(RepositoryResource.README_KEY);
+		resource.setName(RepositoryResource.README_NAME);
 		resource.setAppType(AppType.UNKNOWN);
-		resource.setResourceType(ProjectResourceType.FILE);
+		resource.setResourceType(RepositoryResourceType.FILE);
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
 		Integer savedProjectResourceId = projectResourceDao.save(resource).getId();
 		
-		ProjectFile file = new ProjectFile();
-		file.setProjectResourceId(savedProjectResourceId);
+		RepositoryFile file = new RepositoryFile();
+		file.setRepositoryResourceId(savedProjectResourceId);
 		file.setContent("# Readme");
 		file.setFileType(FileType.MARKDOWN);
 		projectFileDao.save(file);
 		
-		Optional<ProjectFile> fileOption = projectFileService.findReadme(9999);
+		Optional<RepositoryFile> fileOption = projectFileService.findReadme(9999);
 		assertThat(fileOption).isPresent();
 	}
 }

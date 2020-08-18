@@ -30,16 +30,16 @@ import com.blocklang.core.exception.NoAuthorizationException;
 import com.blocklang.core.exception.ResourceNotFoundException;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.develop.constant.AppType;
-import com.blocklang.develop.constant.ProjectResourceType;
+import com.blocklang.develop.constant.RepositoryResourceType;
 import com.blocklang.develop.data.AddDependenceParam;
 import com.blocklang.develop.data.ProjectDependenceData;
 import com.blocklang.develop.data.UpdateDependenceParam;
-import com.blocklang.develop.model.Project;
+import com.blocklang.develop.model.Repository;
 import com.blocklang.develop.model.ProjectBuildProfile;
 import com.blocklang.develop.model.ProjectDependence;
-import com.blocklang.develop.model.ProjectResource;
+import com.blocklang.develop.model.RepositoryResource;
 import com.blocklang.develop.service.ProjectDependenceService;
-import com.blocklang.develop.service.ProjectResourceService;
+import com.blocklang.develop.service.RepositoryResourceService;
 import com.blocklang.marketplace.constant.RepoType;
 import com.blocklang.marketplace.model.ApiRepo;
 import com.blocklang.marketplace.model.ApiRepoVersion;
@@ -57,12 +57,12 @@ import com.blocklang.marketplace.service.ComponentRepoVersionService;
  *
  */
 @RestController
-public class ProjectDependenceController extends AbstractProjectController{
+public class ProjectDependenceController extends AbstractRepositoryController{
 
 	private static final Logger logger = LoggerFactory.getLogger(ProjectDependenceController.class);
 	
 	@Autowired
-	private ProjectResourceService projectResourceService;
+	private RepositoryResourceService repositoryResourceService;
 	@Autowired
 	private ProjectDependenceService projectDependenceService;
 	@Autowired
@@ -75,7 +75,7 @@ public class ProjectDependenceController extends AbstractProjectController{
 	private ApiRepoVersionService apiRepoVersionService;
 
 	/**
-	 * 获取 dependence 资源信息。
+	 * 获取项目的 dependence 资源信息。一个仓库中可存放多个项目，每个项目包含一个依赖配置。
 	 * 
 	 * 注意，这里重点是资源信息，不是依赖详情。
 	 * 
@@ -88,28 +88,31 @@ public class ProjectDependenceController extends AbstractProjectController{
 	 * </p>
 	 * 
 	 * @param principal
-	 * @param owner
-	 * @param projectName
-	 * @return
+	 * @param owner 用户名
+	 * @param repoName 仓库名
+	 * @param projectName 项目名
+	 * @return 依赖资源的基本信息
 	 */
-	@GetMapping("/projects/{owner}/{projectName}/dependence")
+	@GetMapping("/repos/{owner}/{repoName}/{projectName}/dependency")
 	public ResponseEntity<Map<String, Object>> getDependence(
 			Principal principal,
 			@PathVariable String owner,
+			@PathVariable String repoName,
 			@PathVariable String projectName) {
-		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-		projectPermissionService.canRead(principal, project).orElseThrow(NoAuthorizationException::new);
+		Repository repository = repositoryService.find(owner, repoName).orElseThrow(ResourceNotFoundException::new);
+		repositoryPermissionService.canRead(principal, repository).orElseThrow(NoAuthorizationException::new);
+		RepositoryResource project = repositoryResourceService.findProject(repository.getId(), projectName).orElseThrow(ResourceNotFoundException::new);
 		
-		ProjectResource resource = projectResourceService.findByKey(
+		RepositoryResource resource = repositoryResourceService.findByKey(
+				repository.getId(), 
 				project.getId(), 
-				Constant.TREE_ROOT_ID, 
-				ProjectResourceType.DEPENDENCE, 
-				AppType.UNKNOWN, 
-				ProjectResource.DEPENDENCE_KEY).orElseThrow(ResourceNotFoundException::new);
+				RepositoryResourceType.DEPENDENCE, 
+				project.getAppType(),
+				RepositoryResource.DEPENDENCE_KEY).orElseThrow(ResourceNotFoundException::new);
 		
 		Map<String, Object> result = new HashMap<String, Object>();
 		result.put("resourceId", resource.getId());
-		result.put("pathes", ProjectResourcePathUtil.combinePathes(Collections.singletonList(resource)));
+		result.put("pathes", RepositoryResourcePathUtil.combinePathes(Collections.singletonList(resource)));
 		return ResponseEntity.ok(result);
 	}
 
@@ -125,8 +128,8 @@ public class ProjectDependenceController extends AbstractProjectController{
 		if(principal == null) {
 			throw new NoAuthorizationException();
 		}
-		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-		projectPermissionService.canWrite(principal, project).orElseThrow(NoAuthorizationException::new);
+		Repository project = repositoryService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
+		repositoryPermissionService.canWrite(principal, project).orElseThrow(NoAuthorizationException::new);
 		ComponentRepo componentRepo = componentRepoService.findById(param.getComponentRepoId())
 				.orElseThrow(ResourceNotFoundException::new);
 		ComponentRepoVersion componentRepoVersion = componentRepoVersionService
@@ -185,8 +188,8 @@ public class ProjectDependenceController extends AbstractProjectController{
 			Principal principal,
 			@PathVariable String owner,
 			@PathVariable String projectName) {
-		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-		projectPermissionService.canRead(principal, project).orElseThrow(NoAuthorizationException::new);
+		Repository project = repositoryService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
+		repositoryPermissionService.canRead(principal, project).orElseThrow(NoAuthorizationException::new);
 		
 		List<ProjectDependenceData> result = projectDependenceService.findProjectDependences(project.getId());
 		return ResponseEntity.ok(result);
@@ -201,8 +204,8 @@ public class ProjectDependenceController extends AbstractProjectController{
 		if(principal == null) {
 			throw new NoAuthorizationException();
 		}
-		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-		projectPermissionService.canWrite(principal, project).orElseThrow(NoAuthorizationException::new);
+		Repository project = repositoryService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
+		repositoryPermissionService.canWrite(principal, project).orElseThrow(NoAuthorizationException::new);
 		
 		// FIXME: 是否有必要添加 try，如果需要，则用测试用例确认。
 		try {
@@ -223,8 +226,8 @@ public class ProjectDependenceController extends AbstractProjectController{
 		if(principal == null) {
 			throw new NoAuthorizationException();
 		}
-		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-		projectPermissionService.canWrite(principal, project).orElseThrow(NoAuthorizationException::new);
+		Repository project = repositoryService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
+		repositoryPermissionService.canWrite(principal, project).orElseThrow(NoAuthorizationException::new);
 		
 		UserInfo user = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
 		ProjectDependence dependence = projectDependenceService.findById(dependenceId).orElseThrow(ResourceNotFoundException::new);

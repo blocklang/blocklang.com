@@ -6,23 +6,23 @@ import org.junit.jupiter.api.Test;
 
 import com.blocklang.core.constant.Constant;
 import com.blocklang.develop.constant.AppType;
-import com.blocklang.develop.constant.ProjectResourceType;
+import com.blocklang.develop.constant.RepositoryResourceType;
 
 public class ProjectResourceTest {
 
 	@Test
 	public void is_main_program_success() {
-		ProjectResource resource = new ProjectResource();
-		resource.setResourceType(ProjectResourceType.PAGE);
+		RepositoryResource resource = new RepositoryResource();
+		resource.setResourceType(RepositoryResourceType.PAGE);
 		resource.setParentId(Constant.TREE_ROOT_ID);
-		resource.setKey(ProjectResource.MAIN_KEY);
+		resource.setKey(RepositoryResource.MAIN_KEY);
 		
 		assertThat(resource.isMain()).isTrue();
 	}
 	
 	@Test
 	public void is_main_program_at_root_not_main_key() {
-		ProjectResource resource = new ProjectResource();
+		RepositoryResource resource = new RepositoryResource();
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		resource.setKey("a");
 		
@@ -31,98 +31,98 @@ public class ProjectResourceTest {
 	
 	@Test
 	public void is_main_program_not_at_root_not_main_key() {
-		ProjectResource resource = new ProjectResource();
+		RepositoryResource resource = new RepositoryResource();
 		resource.setParentId(1);
-		resource.setKey(ProjectResource.MAIN_KEY);
+		resource.setKey(RepositoryResource.MAIN_KEY);
 		
 		assertThat(resource.isMain()).isFalse();
 	}
 	
 	@Test
 	public void is_templet() {
-		ProjectResource resource = new ProjectResource();
-		resource.setResourceType(ProjectResourceType.PAGE_TEMPLET);
+		RepositoryResource resource = new RepositoryResource();
+		resource.setResourceType(RepositoryResourceType.PAGE_TEMPLET);
 		
 		assertThat(resource.isTemplet()).isTrue();
 	}
 	
 	@Test
 	public void is_group() {
-		ProjectResource resource = new ProjectResource();
-		resource.setResourceType(ProjectResourceType.GROUP);
+		RepositoryResource resource = new RepositoryResource();
+		resource.setResourceType(RepositoryResourceType.GROUP);
 		
 		assertThat(resource.isGroup()).isTrue();
 	}
 	
 	@Test
 	public void is_page() {
-		ProjectResource resource = new ProjectResource();
-		resource.setResourceType(ProjectResourceType.PAGE);
+		RepositoryResource resource = new RepositoryResource();
+		resource.setResourceType(RepositoryResourceType.PAGE);
 		
 		assertThat(resource.isPage()).isTrue();
 	}
 	
 	@Test
 	public void is_file() {
-		ProjectResource resource = new ProjectResource();
-		resource.setResourceType(ProjectResourceType.FILE);
+		RepositoryResource resource = new RepositoryResource();
+		resource.setResourceType(RepositoryResourceType.FILE);
 		
 		assertThat(resource.isFile()).isTrue();
 	}
 	
 	@Test
 	public void is_readme() {
-		ProjectResource resource = new ProjectResource();
-		resource.setResourceType(ProjectResourceType.FILE);
-		resource.setKey(ProjectResource.README_KEY);
+		RepositoryResource resource = new RepositoryResource();
+		resource.setResourceType(RepositoryResourceType.FILE);
+		resource.setKey(RepositoryResource.README_KEY);
 		
 		assertThat(resource.isReadme()).isTrue();
 	}
 	
 	@Test
 	public void is_service() {
-		ProjectResource resource = new ProjectResource();
-		resource.setResourceType(ProjectResourceType.SERVICE);
+		RepositoryResource resource = new RepositoryResource();
+		resource.setResourceType(RepositoryResourceType.SERVICE);
 		
 		assertThat(resource.isService()).isTrue();
 	}
 	
 	@Test
 	public void get_icon_home_success() {
-		ProjectResource resource = new ProjectResource();
+		RepositoryResource resource = new RepositoryResource();
 		resource.setParentId(Constant.TREE_ROOT_ID);
-		resource.setResourceType(ProjectResourceType.PAGE);
-		resource.setKey(ProjectResource.MAIN_KEY);
+		resource.setResourceType(RepositoryResourceType.PAGE);
+		resource.setKey(RepositoryResource.MAIN_KEY);
 		
 		assertThat(resource.getIcon()).isEqualTo("fas home");
 	}
 	
 	@Test
 	public void get_icon_home_not_at_root() {
-		ProjectResource resource = new ProjectResource();
+		RepositoryResource resource = new RepositoryResource();
 		resource.setParentId(1);
-		resource.setResourceType(ProjectResourceType.PAGE);
+		resource.setResourceType(RepositoryResourceType.PAGE);
 		resource.setAppType(AppType.WEB);
-		resource.setKey(ProjectResource.MAIN_KEY);
+		resource.setKey(RepositoryResource.MAIN_KEY);
 		
 		assertThat(resource.getIcon()).isNotEqualTo("fas home");
 	}
 	
 	@Test
 	public void get_icon_home_not_page() {
-		ProjectResource resource = new ProjectResource();
+		RepositoryResource resource = new RepositoryResource();
 		resource.setParentId(Constant.TREE_ROOT_ID);
-		resource.setResourceType(ProjectResourceType.GROUP);
-		resource.setKey(ProjectResource.MAIN_KEY);
+		resource.setResourceType(RepositoryResourceType.GROUP);
+		resource.setKey(RepositoryResource.MAIN_KEY);
 		
 		assertThat(resource.getIcon()).isNotEqualTo("fas home");
 	}
 	
 	@Test
 	public void get_icon_home_name_is_not_readme() {
-		ProjectResource resource = new ProjectResource();
+		RepositoryResource resource = new RepositoryResource();
 		resource.setParentId(Constant.TREE_ROOT_ID);
-		resource.setResourceType(ProjectResourceType.GROUP);
+		resource.setResourceType(RepositoryResourceType.GROUP);
 		resource.setKey("a");
 		
 		assertThat(resource.getIcon()).isNotEqualTo("home");
@@ -130,8 +130,8 @@ public class ProjectResourceTest {
 	
 	@Test
 	public void get_icon_page_web() {
-		ProjectResource resource = new ProjectResource();
-		resource.setResourceType(ProjectResourceType.PAGE);
+		RepositoryResource resource = new RepositoryResource();
+		resource.setResourceType(RepositoryResourceType.PAGE);
 		resource.setAppType(AppType.WEB);
 		
 		assertThat(resource.getIcon()).isEqualTo("fab firefox");
@@ -185,42 +185,42 @@ public class ProjectResourceTest {
 	
 	@Test
 	public void get_icon_group() {
-		ProjectResource resource = new ProjectResource();
-		resource.setResourceType(ProjectResourceType.GROUP);
+		RepositoryResource resource = new RepositoryResource();
+		resource.setResourceType(RepositoryResourceType.GROUP);
 		
 		assertThat(resource.getIcon()).isEqualTo("fas folder");
 	}
 	
 	@Test
 	public void get_icon_page_templet() {
-		ProjectResource resource = new ProjectResource();
-		resource.setResourceType(ProjectResourceType.PAGE_TEMPLET);
+		RepositoryResource resource = new RepositoryResource();
+		resource.setResourceType(RepositoryResourceType.PAGE_TEMPLET);
 		
 		assertThat(resource.getIcon()).isEqualTo("far newspaper");
 	}
 	
 	@Test
 	public void get_icon_readme() {
-		ProjectResource resource = new ProjectResource();
-		resource.setResourceType(ProjectResourceType.FILE);
-		resource.setKey(ProjectResource.README_KEY);
+		RepositoryResource resource = new RepositoryResource();
+		resource.setResourceType(RepositoryResourceType.FILE);
+		resource.setKey(RepositoryResource.README_KEY);
 		
 		assertThat(resource.getIcon()).isEqualTo("fas book-open");
 	}
 	
 	@Test
 	public void get_icon_service() {
-		ProjectResource resource = new ProjectResource();
-		resource.setResourceType(ProjectResourceType.SERVICE);
+		RepositoryResource resource = new RepositoryResource();
+		resource.setResourceType(RepositoryResourceType.SERVICE);
 		
 		assertThat(resource.getIcon()).isEqualTo("fas plug");
 	}
 	
 	@Test
 	public void get_file_name_page() {
-		ProjectResource resource = new ProjectResource();
+		RepositoryResource resource = new RepositoryResource();
 		resource.setKey("key");
-		resource.setResourceType(ProjectResourceType.PAGE);
+		resource.setResourceType(RepositoryResourceType.PAGE);
 		resource.setAppType(AppType.WEB);
 		
 		assertThat(resource.getFileName()).isEqualTo("key.page.web.json");
@@ -228,27 +228,27 @@ public class ProjectResourceTest {
 	
 	@Test
 	public void get_file_name_page_template() {
-		ProjectResource resource = new ProjectResource();
+		RepositoryResource resource = new RepositoryResource();
 		resource.setKey("key");
-		resource.setResourceType(ProjectResourceType.PAGE_TEMPLET);
+		resource.setResourceType(RepositoryResourceType.PAGE_TEMPLET);
 		
 		assertThat(resource.getFileName()).isEqualTo("key.page.tmpl.json");
 	}
 	
 	@Test
 	public void get_file_name_service() {
-		ProjectResource resource = new ProjectResource();
+		RepositoryResource resource = new RepositoryResource();
 		resource.setKey("key");
-		resource.setResourceType(ProjectResourceType.SERVICE);
+		resource.setResourceType(RepositoryResourceType.SERVICE);
 		
 		assertThat(resource.getFileName()).isEqualTo("key.api.json");
 	}
 	
 	@Test
 	public void get_file_name_file() {
-		ProjectResource resource = new ProjectResource();
+		RepositoryResource resource = new RepositoryResource();
 		resource.setName("name.x");
-		resource.setResourceType(ProjectResourceType.FILE);
+		resource.setResourceType(RepositoryResourceType.FILE);
 		
 		assertThat(resource.getFileName()).isEqualTo("name.x");
 	}

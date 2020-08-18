@@ -22,7 +22,7 @@ import com.blocklang.core.constant.CmPropKey;
 import com.blocklang.core.service.PropertyService;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.dao.ProjectBuildProfileDao;
-import com.blocklang.develop.dao.ProjectDao;
+import com.blocklang.develop.dao.RepositoryDao;
 import com.blocklang.develop.dao.ProjectDependenceDao;
 import com.blocklang.develop.data.ProjectDependenceData;
 import com.blocklang.develop.designer.data.ApiRepoVersionInfo;
@@ -31,11 +31,11 @@ import com.blocklang.develop.designer.data.Widget;
 import com.blocklang.develop.designer.data.WidgetCategory;
 import com.blocklang.develop.designer.data.WidgetProperty;
 import com.blocklang.develop.designer.data.RepoWidgetList;
-import com.blocklang.develop.model.Project;
+import com.blocklang.develop.model.Repository;
 import com.blocklang.develop.model.ProjectBuildProfile;
 import com.blocklang.develop.model.ProjectContext;
 import com.blocklang.develop.model.ProjectDependence;
-import com.blocklang.develop.model.ProjectResource;
+import com.blocklang.develop.model.RepositoryResource;
 import com.blocklang.develop.service.ProjectDependenceService;
 import com.blocklang.marketplace.constant.WidgetPropertyValueType;
 import com.blocklang.marketplace.constant.RepoCategory;
@@ -61,7 +61,7 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 	private static final Logger logger = LoggerFactory.getLogger(ProjectDependenceServiceImpl.class);
 	
 	@Autowired
-	private ProjectDao projectDao;
+	private RepositoryDao projectDao;
 	@Autowired
 	private ProjectDependenceDao projectDependenceDao;
 	@Autowired
@@ -142,7 +142,7 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 	
 	@Transactional
 	@Override
-	public ProjectDependence save(Integer projectId, ComponentRepo componentRepo, Integer createUserId) {
+	public ProjectDependence save(Integer repoId, Integer projectId, ComponentRepo componentRepo, Integer createUserId) {
 		// 获取组件库的最新版本信息
 		List<ComponentRepoVersion> componentRepoVersions = componentRepoVersionDao.findAllByComponentRepoId(componentRepo.getId());
 		if(componentRepoVersions.isEmpty()) {
@@ -185,7 +185,7 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 		ProjectDependence savedDependence = projectDependenceDao.save(dependence);
 		
 		// 在 git 仓库中更新 DEPENDENCE.json 文件
-		updateProjectDependenceFile(projectId);
+		updateProjectDependenceFile(repoId, projectId);
 		return savedDependence;
 	}
 
@@ -218,20 +218,20 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 	//    }
 	//}
 	//```
-	private void updateProjectDependenceFile(Integer projectId) {
-		Optional<Project> projectOption = projectDao.findById(projectId);
+	private void updateProjectDependenceFile(Integer repoId, Integer projectId) {
+		Optional<Repository> projectOption = projectDao.findById(projectId);
 		if(projectOption.isEmpty()) {
 			return;
 		}
-		Project project = projectOption.get();
+		Repository project = projectOption.get();
 		
 		// 在依赖中补充 profile 详情
-		List<ProjectDependenceData> dependences = appendBuildProfile(projectId);
+		List<ProjectDependenceData> dependences = appendBuildProfile(repoId, projectId);
 		
 		// 转换为 DEPENDENCE.json 期望的个数
 		Map<String, Object> result = convertToDependenceJsonFile(dependences);
 		
-		String fileName = ProjectResource.DEPENDENCE_NAME;
+		String fileName = RepositoryResource.DEPENDENCE_NAME;
 		ObjectMapper objectMapper = new ObjectMapper();
 		try {
 			String jsonContent = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
@@ -241,7 +241,7 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 		}
 	}
 
-	private void updateGitFile(Project project, String fileName, String content) {
+	private void updateGitFile(Repository project, String fileName, String content) {
 		propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).map(rootDir -> {
 			return new ProjectContext(project.getCreateUserName(), project.getName(), rootDir).getGitRepositoryDirectory();
 		}).ifPresent(rootPath -> {
@@ -334,9 +334,9 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 		return result;
 	}
 
-	private List<ProjectDependenceData> appendBuildProfile(Integer projectId) {
+	private List<ProjectDependenceData> appendBuildProfile(Integer repoId, Integer projectId) {
 		// 获取项目的所有依赖
-		List<ProjectDependenceData> dependences = findProjectDependences(projectId);
+		List<ProjectDependenceData> dependences = findProjectDependences(repoId, projectId);
 		// 补充 profile 信息
 		for(ProjectDependenceData data : dependences) {
 			// 先获取依赖信息
@@ -350,10 +350,10 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 	}
 
 	@Override
-	public List<ProjectDependenceData> findProjectDependences(Integer projectId, boolean includeStd) {
+	public List<ProjectDependenceData> findProjectDependences(Integer repoId, Integer projectId, boolean includeStd) {
 		List<ProjectDependence> dependences;
 		if(includeStd) {
-			dependences = this.findAllByProjectId(projectId);
+			dependences = this.findAllByProjectId(repoId, projectId);
 		} else {
 			dependences = projectDependenceDao.findAllByProjectId(projectId);
 		}
@@ -383,8 +383,8 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 	}
 	
 	@Override
-	public List<ProjectDependenceData> findProjectDependences(Integer projectId) {
-		return this.findProjectDependences(projectId, false);
+	public List<ProjectDependenceData> findProjectDependences(Integer repoId, Integer projectId) {
+		return this.findProjectDependences(repoId, projectId, false);
 	}
 	
 	@Override
@@ -415,7 +415,8 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 	public void delete(Integer dependenceId) {
 		projectDependenceDao.findById(dependenceId).ifPresent(dependence -> {
 			projectDependenceDao.delete(dependence);
-			updateProjectDependenceFile(dependence.getProjectId());
+			Integer repoId = 
+			updateProjectDependenceFile(dependence.getRepoId(), dependence.getProjectId());
 		});
 	}
 
@@ -510,12 +511,22 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 	}
 
 	@Override
-	public List<ProjectDependence> findAllByProjectId(Integer projectId) {
-		List<ProjectDependence> result = projectDependenceDao.findAllByProjectId(projectId);
+	public List<ProjectDependence> findAllByProjectId(Integer repoId, RepositoryResource project) {
+		// 之前一个仓库中只能创建一个项目，所以直接使用仓库标识获取
+		// 现在一个仓库中能创建多个项目，所以需要联合使用仓库标识和项目标识获取
+		List<ProjectDependence> result = projectDependenceDao.findAllByProjectId(repoId); // TODO: 改为根据 repoId 和 projectId 查询
 		
 		// 将系统使用的标准库依赖添加到最前面
 		// 获取最新的依赖版本号
-		String stdIdeRepoUrl = propertyService.findStringValue(CmPropKey.STD_WIDGET_IDE_GIT_URL, "");
+		
+		String stdIdeRepoUrl = null;
+		
+		if(project.getAppType() == AppType.MINI_PROGRAM) {
+			stdIdeRepoUrl = CmPropKey.STD_MINI_PROGRAM_COMPONENT_IDE_GIT_URL;
+		} else if(project.getAppType() == AppType.WEB) {
+			stdIdeRepoUrl = CmPropKey.STD_WIDGET_IDE_GIT_URL;
+		}
+		
 		Integer createUserId = propertyService.findIntegerValue(CmPropKey.STD_REPO_REGISTER_USER_ID, 1);
 
 		componentRepoDao.findByGitRepoUrlAndCreateUserId(stdIdeRepoUrl, createUserId).flatMap(componentRepo -> {
@@ -523,7 +534,8 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 		}).ifPresent(componentRepoVersion -> {
 			ProjectDependence stdIdeWidgetRepo = new ProjectDependence();
 			stdIdeWidgetRepo.setComponentRepoVersionId(componentRepoVersion.getId());
-			stdIdeWidgetRepo.setProjectId(projectId);
+			// TODO: 联合使用 repoId 和 projectId
+			stdIdeWidgetRepo.setProjectId(repoId);
 			result.add(0, stdIdeWidgetRepo);
 		});
 		

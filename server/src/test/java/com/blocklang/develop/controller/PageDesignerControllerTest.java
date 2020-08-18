@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -15,6 +14,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,20 +30,19 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.web.util.NestedServletException;
 
-import com.blocklang.core.constant.CmPropKey;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.test.AbstractControllerTest;
 import com.blocklang.develop.constant.AccessLevel;
-import com.blocklang.develop.constant.ProjectResourceType;
+import com.blocklang.develop.constant.RepositoryResourceType;
 import com.blocklang.develop.data.ProjectDependenceData;
 import com.blocklang.develop.designer.data.PageModel;
-import com.blocklang.develop.model.Project;
+import com.blocklang.develop.model.Repository;
 import com.blocklang.develop.model.ProjectDependence;
-import com.blocklang.develop.model.ProjectResource;
+import com.blocklang.develop.model.RepositoryResource;
 import com.blocklang.develop.service.ProjectDependenceService;
-import com.blocklang.develop.service.ProjectPermissionService;
-import com.blocklang.develop.service.ProjectResourceService;
-import com.blocklang.develop.service.ProjectService;
+import com.blocklang.develop.service.RepositoryPermissionService;
+import com.blocklang.develop.service.RepositoryResourceService;
+import com.blocklang.develop.service.RepositoryService;
 import com.blocklang.marketplace.constant.RepoCategory;
 import com.blocklang.marketplace.constant.RepoType;
 import com.blocklang.marketplace.model.ApiRepo;
@@ -57,16 +56,16 @@ import io.restassured.http.ContentType;
 public class PageDesignerControllerTest extends AbstractControllerTest {
 
 	@MockBean
-	private ProjectService projectService;
+	private RepositoryService repositoryService;
 	@MockBean
 	private ProjectDependenceService projectDependenceService;
 	@MockBean
-	private ProjectResourceService projectResourceService;
+	private RepositoryResourceService repositoryResourceService;
 	@MockBean
-	private ProjectPermissionService projectPermissionService;
+	private RepositoryPermissionService repositoryPermissionService;
 	
 	@Test
-	public void listProjectDependences_only_support_repo_is_ide() {
+	public void listProjectDependencesOnlySupportIdeRepo() {
 		Exception exception = Assertions.assertThrows(NestedServletException.class, () -> given()
 				.contentType(ContentType.JSON)
 				.when()
@@ -76,8 +75,8 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 	}
 	
 	@Test
-	public void listProjectDependences_project_not_exist() {
-		when(projectService.findById(anyInt())).thenReturn(Optional.empty());
+	public void listProjectDependencesProjectNotExist() {
+		when(repositoryResourceService.findById(anyInt())).thenReturn(Optional.empty());
 
 		given()
 			.contentType(ContentType.JSON)
@@ -88,65 +87,47 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 	}
 	
 	@Test
-	public void listProjectDependences_project_exist_but_can_not_read() {
-		Project project = new Project();
-		project.setId(1);
-		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
+	public void listProjectDependencesProjectExistButCanNotRead() {
+		Integer repositoryId = 1;
+		Integer projectId = 2;
 		
-		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.empty());
+		RepositoryResource project = new RepositoryResource();
+		project.setId(projectId);
+		project.setRepositoryId(repositoryId);
+		when(repositoryResourceService.findById(eq(projectId))).thenReturn(Optional.of(project));
+		
+		Repository repository = new Repository();
+		repository.setId(repositoryId);
+		when(repositoryService.findById(eq(repositoryId))).thenReturn(Optional.of(repository));
+		
+		when(repositoryPermissionService.canRead(any(), any())).thenReturn(Optional.empty());
 
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/designer/projects/{projectId}/dependences?repo=ide", 1)
+			.get("/designer/projects/{projectId}/dependences?repo=ide", projectId)
 		.then()
 			.statusCode(HttpStatus.SC_FORBIDDEN);
 	}
 	
-	@DisplayName("只过滤出 IDE 版仓库，即排除掉 PROD 版仓库")
-	@Test
-	public void listProjectDependences_only_filter_ide_repo() {
-		Project project = new Project();
-		project.setId(1);
-		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
-		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
-		when(propertyService.findStringValue(eq(CmPropKey.STD_WIDGET_IDE_GIT_URL))).thenReturn(Optional.of("url"));
-		
-		ProjectDependence dependence = new ProjectDependence();
-		ComponentRepo componentRepo = new ComponentRepo();
-		componentRepo.setId(1);
-		componentRepo.setGitRepoUrl("url2");
-		componentRepo.setGitRepoWebsite("website1");
-		componentRepo.setGitRepoOwner("owner1");
-		componentRepo.setGitRepoName("repoName1");
-		componentRepo.setCategory(RepoCategory.WIDGET);
-		componentRepo.setRepoType(RepoType.PROD);
-
-		ComponentRepoVersion componentRepoVersion = new ComponentRepoVersion();
-		componentRepoVersion.setVersion("0.0.1");
-		ApiRepo apiRepo = new ApiRepo();
-		apiRepo.setId(2);
-		ApiRepoVersion apiRepoVersion = new ApiRepoVersion();
-		ProjectDependenceData data = new ProjectDependenceData(dependence, componentRepo, componentRepoVersion, apiRepo, apiRepoVersion);
-		when(projectDependenceService.findProjectDependences(anyInt(), anyBoolean())).thenReturn(Collections.singletonList(data));
-
-		given()
-			.contentType(ContentType.JSON)
-		.when()
-			.get("/designer/projects/{projectId}/dependences?repo=ide", 1)
-		.then()
-			.statusCode(HttpStatus.SC_OK)
-			.body("size()", equalTo(0));
-	}
-	
 	@DisplayName("成功过滤出 IDE 版仓库")
 	@Test
-	public void listProjectDependences_success() {
-		Project project = new Project();
-		project.setId(1);
-		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
-		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
-		when(propertyService.findStringValue(eq(CmPropKey.STD_WIDGET_IDE_GIT_URL))).thenReturn(Optional.of("url"));
+	public void listProjectDependencesSuccess() {
+		Integer repositoryId = 1;
+		Integer projectId = 2;
+		
+		RepositoryResource project = new RepositoryResource();
+		project.setId(projectId);
+		project.setRepositoryId(repositoryId);
+		when(repositoryResourceService.findById(eq(projectId))).thenReturn(Optional.of(project));
+		
+		Repository repository = new Repository();
+		repository.setId(repositoryId);
+		when(repositoryService.findById(eq(repositoryId))).thenReturn(Optional.of(repository));
+		
+		when(repositoryPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
+		
+		when(projectDependenceService.findIdeDependences(any())).thenReturn(new ArrayList<ProjectDependenceData>());
 		
 		ProjectDependence dependence = new ProjectDependence();
 		ComponentRepo componentRepo = new ComponentRepo();
@@ -157,18 +138,19 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		componentRepo.setGitRepoName("repoName1");
 		componentRepo.setCategory(RepoCategory.WIDGET);
 		componentRepo.setRepoType(RepoType.IDE);
+		componentRepo.setStd(true);
 		ComponentRepoVersion componentRepoVersion = new ComponentRepoVersion();
 		componentRepoVersion.setVersion("0.0.1");
 		ApiRepo apiRepo = new ApiRepo();
 		apiRepo.setId(2);
 		ApiRepoVersion apiRepoVersion = new ApiRepoVersion();
 		ProjectDependenceData data = new ProjectDependenceData(dependence, componentRepo, componentRepoVersion, apiRepo, apiRepoVersion);
-		when(projectDependenceService.findProjectDependences(anyInt(), anyBoolean())).thenReturn(Collections.singletonList(data));
+		when(projectDependenceService.findStdIdeDependences(any())).thenReturn(Collections.singletonList(data));
 
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/designer/projects/{projectId}/dependences?repo=ide", 1)
+			.get("/designer/projects/{projectId}/dependences?repo=ide", projectId)
 		.then()
 			.statusCode(HttpStatus.SC_OK)
 			.body("size()", equalTo(1),
@@ -183,7 +165,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 	
 	@Test
 	public void get_project_dependeces_widgets_project_not_exist() {
-		when(projectService.findById(anyInt())).thenReturn(Optional.empty());
+		when(repositoryService.findById(anyInt())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -196,11 +178,11 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 	
 	@Test
 	public void get_project_dependeces_widgets_can_not_read_project() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
-		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
+		when(repositoryService.findById(anyInt())).thenReturn(Optional.of(project));
 		
-		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.empty());
+		when(repositoryPermissionService.canRead(any(), any())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -213,11 +195,11 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 	
 	@Test
 	public void get_project_dependeces_widgets_success() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
-		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
+		when(repositoryService.findById(anyInt())).thenReturn(Optional.of(project));
 		
-		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
+		when(repositoryPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
 		when(projectDependenceService.findAllWidgets(anyInt())).thenReturn(Collections.emptyList());
 		
 		given()
@@ -231,7 +213,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 
 	@Test
 	public void get_page_model_page_not_found() {
-		when(projectResourceService.findById(anyInt())).thenReturn(Optional.empty());
+		when(repositoryResourceService.findById(anyInt())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -243,11 +225,11 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 	
 	@Test
 	public void get_page_model_page_invalid_page() {
-		ProjectResource page = new ProjectResource();
+		RepositoryResource page = new RepositoryResource();
 		page.setId(1);
-		page.setResourceType(ProjectResourceType.GROUP/*not PAGE*/);
+		page.setResourceType(RepositoryResourceType.GROUP/*not PAGE*/);
 		
-		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(page));
+		when(repositoryResourceService.findById(anyInt())).thenReturn(Optional.of(page));
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -259,11 +241,11 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 	
 	@Test
 	public void get_page_model_project_not_exist() {
-		ProjectResource page = new ProjectResource();
+		RepositoryResource page = new RepositoryResource();
 		page.setId(1);
-		page.setProjectId(11);
-		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(page));
-		when(projectService.findById(anyInt())).thenReturn(Optional.empty());
+		page.setRepositoryId(11);
+		when(repositoryResourceService.findById(anyInt())).thenReturn(Optional.of(page));
+		when(repositoryService.findById(anyInt())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -279,17 +261,17 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		user.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
-		ProjectResource page = new ProjectResource();
+		RepositoryResource page = new RepositoryResource();
 		page.setId(1);
-		page.setProjectId(1);
-		page.setResourceType(ProjectResourceType.PAGE);
-		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(page));
+		page.setRepositoryId(1);
+		page.setResourceType(RepositoryResourceType.PAGE);
+		when(repositoryResourceService.findById(anyInt())).thenReturn(Optional.of(page));
 		
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
-		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
+		when(repositoryService.findById(anyInt())).thenReturn(Optional.of(project));
 		
-		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.empty());
+		when(repositoryPermissionService.canRead(any(), any())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -305,20 +287,20 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		user.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
-		ProjectResource page = new ProjectResource();
+		RepositoryResource page = new RepositoryResource();
 		page.setId(1);
-		page.setProjectId(1);
-		page.setResourceType(ProjectResourceType.PAGE);
-		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(page));
+		page.setRepositoryId(1);
+		page.setResourceType(RepositoryResourceType.PAGE);
+		when(repositoryResourceService.findById(anyInt())).thenReturn(Optional.of(page));
 		
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
 		project.setIsPublic(true);
-		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
+		when(repositoryService.findById(anyInt())).thenReturn(Optional.of(project));
 		
-		when(projectPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
+		when(repositoryPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
 		
-		when(projectResourceService.getPageModel(anyInt(), anyInt())).thenReturn(new PageModel());
+		when(repositoryResourceService.getPageModel(anyInt(), any())).thenReturn(new PageModel());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -350,7 +332,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		PageModel model = new PageModel();
 		model.setPageId(1);
 		
-		when(projectResourceService.findById(anyInt())).thenReturn(Optional.empty());
+		when(repositoryResourceService.findById(anyInt())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -366,11 +348,11 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 	public void update_page_model_invalid_page() {
 		PageModel model = new PageModel();
 		
-		ProjectResource page = new ProjectResource();
+		RepositoryResource page = new RepositoryResource();
 		page.setId(1);
-		page.setProjectId(1);
-		page.setResourceType(ProjectResourceType.GROUP);
-		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(page));
+		page.setRepositoryId(1);
+		page.setResourceType(RepositoryResourceType.GROUP);
+		when(repositoryResourceService.findById(anyInt())).thenReturn(Optional.of(page));
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -386,13 +368,13 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 	public void update_page_model_project_not_exist() {
 		PageModel model = new PageModel();
 		
-		ProjectResource page = new ProjectResource();
+		RepositoryResource page = new RepositoryResource();
 		page.setId(1);
-		page.setProjectId(1);
-		page.setResourceType(ProjectResourceType.PAGE);
-		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(page));
+		page.setRepositoryId(1);
+		page.setResourceType(RepositoryResourceType.PAGE);
+		when(repositoryResourceService.findById(anyInt())).thenReturn(Optional.of(page));
 		
-		when(projectService.findById(anyInt())).thenReturn(Optional.empty());
+		when(repositoryService.findById(anyInt())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -412,16 +394,16 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		user.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
-		ProjectResource page = new ProjectResource();
-		page.setProjectId(1);
-		page.setResourceType(ProjectResourceType.PAGE);
-		when(projectResourceService.findById(anyInt())).thenReturn(Optional.of(page));
+		RepositoryResource page = new RepositoryResource();
+		page.setRepositoryId(1);
+		page.setResourceType(RepositoryResourceType.PAGE);
+		when(repositoryResourceService.findById(anyInt())).thenReturn(Optional.of(page));
 		
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setId(1);
-		when(projectService.findById(anyInt())).thenReturn(Optional.of(project));
+		when(repositoryService.findById(anyInt())).thenReturn(Optional.of(project));
 		
-		when(projectPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
+		when(repositoryPermissionService.canWrite(any(), any())).thenReturn(Optional.of(AccessLevel.WRITE));
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -432,7 +414,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 			.statusCode(HttpStatus.SC_NO_CONTENT)
 			.body(equalTo(""));
 		
-		verify(projectResourceService).updatePageModel(any(), any(), any());
+		verify(repositoryResourceService).updatePageModel(any(), any(), any());
 	}
 
 	@Test

@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.blocklang.core.test.AbstractServiceTest;
 import com.blocklang.release.dao.ProjectTagDao;
-import com.blocklang.release.model.ProjectTag;
+import com.blocklang.release.model.RepositoryTag;
 import com.blocklang.release.service.ProjectTagService;
 
 public class ProjectTagServiceImplTest extends AbstractServiceTest {
@@ -22,36 +22,36 @@ public class ProjectTagServiceImplTest extends AbstractServiceTest {
 	
 	@Test
 	public void find_no_data() {
-		Optional<ProjectTag> projectTagOption = projectTagService.find(1, "0.1.0");
+		Optional<RepositoryTag> projectTagOption = projectTagService.find(1, "0.1.0");
 		assertThat(projectTagOption).isEmpty();
 	}
 	
 	@Test
 	public void find_success() {
-		ProjectTag projectTag = new ProjectTag();
+		RepositoryTag projectTag = new RepositoryTag();
 		
-		projectTag.setProjectId(1);
+		projectTag.setRepositoryId(1);
 		projectTag.setVersion("0.1.0");
 		projectTag.setGitTagId("i-am-a-git-tag");
 		projectTag.setCreateUserId(2);
 		projectTag.setCreateTime(LocalDateTime.now());
 		
 		projectTagDao.save(projectTag);
-		Optional<ProjectTag> projectTagOption = projectTagService.find(1, "0.1.0");
+		Optional<RepositoryTag> projectTagOption = projectTagService.find(1, "0.1.0");
 		assertThat(projectTagOption).isPresent();
 	}
 	
 	@Test
 	public void find_latest_no_data() {
-		Optional<ProjectTag> projectTagOption = projectTagService.findLatestTag(1);
+		Optional<RepositoryTag> projectTagOption = projectTagService.findLatestTag(1);
 		assertThat(projectTagOption).isEmpty();
 	}
 	
 	@Test
 	public void find_latest_success_one_project_two_version() {
-		ProjectTag projectTag = new ProjectTag();
+		RepositoryTag projectTag = new RepositoryTag();
 		
-		projectTag.setProjectId(1);
+		projectTag.setRepositoryId(1);
 		projectTag.setVersion("0.1.0");
 		projectTag.setGitTagId("i-am-a-git-tag-1");
 		projectTag.setCreateUserId(2);
@@ -59,8 +59,8 @@ public class ProjectTagServiceImplTest extends AbstractServiceTest {
 		
 		projectTagDao.save(projectTag);
 		
-		projectTag = new ProjectTag();
-		projectTag.setProjectId(1);
+		projectTag = new RepositoryTag();
+		projectTag.setRepositoryId(1);
 		projectTag.setVersion("0.1.1");
 		projectTag.setGitTagId("i-am-a-git-tag-2");
 		projectTag.setCreateUserId(2);
@@ -68,15 +68,15 @@ public class ProjectTagServiceImplTest extends AbstractServiceTest {
 		
 		projectTagDao.save(projectTag);
 		
-		Optional<ProjectTag> projectTagOption = projectTagService.findLatestTag(1);
+		Optional<RepositoryTag> projectTagOption = projectTagService.findLatestTag(1);
 		assertThat(projectTagOption.get().getVersion()).isEqualTo("0.1.1");
 	}
 	
 	@Test
 	public void find_latest_success_two_project_one_version() {
-		ProjectTag projectTag = new ProjectTag();
+		RepositoryTag projectTag = new RepositoryTag();
 		
-		projectTag.setProjectId(1);
+		projectTag.setRepositoryId(1);
 		projectTag.setVersion("0.1.0");
 		projectTag.setGitTagId("i-am-a-git-tag-1");
 		projectTag.setCreateUserId(2);
@@ -84,8 +84,8 @@ public class ProjectTagServiceImplTest extends AbstractServiceTest {
 		
 		projectTagDao.save(projectTag);
 		
-		projectTag = new ProjectTag();
-		projectTag.setProjectId(2);
+		projectTag = new RepositoryTag();
+		projectTag.setRepositoryId(2);
 		projectTag.setVersion("0.1.1");
 		projectTag.setGitTagId("i-am-a-git-tag-2");
 		projectTag.setCreateUserId(2);
@@ -93,7 +93,7 @@ public class ProjectTagServiceImplTest extends AbstractServiceTest {
 		
 		projectTagDao.save(projectTag);
 		
-		Optional<ProjectTag> projectTagOption = projectTagService.findLatestTag(1);
+		Optional<RepositoryTag> projectTagOption = projectTagService.findLatestTag(1);
 		assertThat(projectTagOption.get().getVersion()).isEqualTo("0.1.0");
 	}
 }

@@ -32,13 +32,13 @@ import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.PropertyService;
 import com.blocklang.core.service.UserService;
 import com.blocklang.core.util.LogFileReader;
-import com.blocklang.develop.model.Project;
-import com.blocklang.develop.service.ProjectService;
+import com.blocklang.develop.model.Repository;
+import com.blocklang.develop.service.RepositoryService;
 import com.blocklang.release.constant.ReleaseResult;
 import com.blocklang.release.data.CheckReleaseVersionParam;
 import com.blocklang.release.data.NewReleaseTaskParam;
 import com.blocklang.release.model.ProjectReleaseTask;
-import com.blocklang.release.model.ProjectTag;
+import com.blocklang.release.model.RepositoryTag;
 import com.blocklang.release.service.BuildService;
 import com.blocklang.release.service.ProjectReleaseTaskService;
 import com.blocklang.release.service.ProjectTagService;
@@ -53,7 +53,7 @@ public class ReleaseController {
 	private static final Logger logger = LoggerFactory.getLogger(ReleaseController.class);
 	
 	@Autowired
-	private ProjectService projectService;
+	private RepositoryService projectService;
 	@Autowired
 	private ProjectTagService projectTagService;
 	@Autowired
@@ -78,7 +78,7 @@ public class ReleaseController {
 		Validator validator = new Validator();
 		validator.validateReleaseVersion(principal, owner, projectName, version, bindingResult);
 
-		Project project = validator.project;
+		Repository project = validator.project;
 		
 		UserInfo currentUser = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
 		Integer currentUserId = currentUser.getId();
@@ -116,7 +116,7 @@ public class ReleaseController {
 	}
 
 	private class Validator {
-		private Project project;
+		private Repository project;
 		private void validateReleaseVersion(
 				Principal principal, 
 				String owner, 
@@ -141,12 +141,12 @@ public class ReleaseController {
 			// 获取项目基本信息
 			project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
 			
-			Optional<ProjectTag> latestTagOption = projectTagService.findLatestTag(project.getId());
+			Optional<RepositoryTag> latestTagOption = projectTagService.findLatestTag(project.getId());
 			// 获取项目的 git 标签信息
 			projectTagService.find(project.getId(), version).ifPresent(projectTag -> {
 				logger.error("版本号 {} 已被占用", version);
 				// 如果发现版本号已被占用，则肯定有最新版本号，所以不需要做是否为空判断
-				ProjectTag latestTag = latestTagOption.get();
+				RepositoryTag latestTag = latestTagOption.get();
 				bindingResult.rejectValue("version", "Duplicated.version", new Object[] {
 						version,
 						latestTag.getVersion()
@@ -173,7 +173,7 @@ public class ReleaseController {
 			@PathVariable("owner") String owner,
 			@PathVariable("projectName") String projectName) {
 		
-		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
+		Repository project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
 		
 		List<ProjectReleaseTask> releases = projectReleaseTaskService.findAllByProjectId(project.getId());
 		return ResponseEntity.ok(releases);
@@ -184,7 +184,7 @@ public class ReleaseController {
 			@PathVariable("owner") String owner,
 			@PathVariable("projectName") String projectName) {
 		
-		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
+		Repository project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
 		
 		Long count = projectReleaseTaskService.count(project.getId());
 		Map<String, Long> result = new HashMap<String, Long>();
@@ -198,7 +198,7 @@ public class ReleaseController {
 			@PathVariable("projectName") String projectName,
 			@PathVariable("version") String version) {
 
-		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
+		Repository project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
 		
 		return projectReleaseTaskService.findByProjectIdAndVersion(project.getId(), version).map((task) -> {
 			return ResponseEntity.ok(task);
@@ -212,7 +212,7 @@ public class ReleaseController {
 			@PathVariable("projectName") String projectName,
 			@PathVariable("version") String version) {
 
-		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
+		Repository project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
 		ProjectReleaseTask task = projectReleaseTaskService.findByProjectIdAndVersion(project.getId(), version).orElseThrow(ResourceNotFoundException::new);
 		
 		Path logFilePath = null;

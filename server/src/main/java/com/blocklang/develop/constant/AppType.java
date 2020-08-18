@@ -4,6 +4,8 @@ import java.util.Arrays;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 //ANDROID("02", "android", IconClass.ANDROID, "Android"),
 //IOS("03", "ios", IconClass.IOS, "ios"),
 //WECHAT_MINI_APP("04", "wechat", IconClass.WECHAT, "微信小程序"),
@@ -31,6 +33,7 @@ public enum AppType {
 		this.label = label;
 	}
 
+	@JsonValue
 	public String getKey() {
 		return this.key;
 	}

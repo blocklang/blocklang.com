@@ -96,4 +96,12 @@
 	<include file="db/changelog/table/202007300630_alter_component_repo.xml" />
 	<include file="db/changelog/table/202007300631_alter_component_repo_version.xml" />
 	
+	<include file="db/changelog/table/202008110624_rename_project_to_repository.xml" />
+	<include file="db/changelog/table/202008110636_rename_project_resource_to_repository_resource.xml" />
+	<include file="db/changelog/table/202008120703_rename_project_authorization_to_repository_authorization.xml" />
+	<include file="db/changelog/table/202008120709_rename_project_commit_to_repository_commit.xml" />
+	
+	<include file="db/changelog/table/202008140844_rename_project_file_to_repository_file.xml" />
+	<include file="db/changelog/table/202008140856_rename_project_tag_to_repository_tag.xml" />
+	
 </databaseChangeLog>

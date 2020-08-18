@@ -25,26 +25,26 @@ import com.blocklang.core.service.PropertyService;
 import com.blocklang.core.test.AbstractServiceTest;
 import com.blocklang.develop.constant.AccessLevel;
 import com.blocklang.develop.constant.AppType;
-import com.blocklang.develop.constant.ProjectResourceType;
+import com.blocklang.develop.constant.RepositoryResourceType;
 import com.blocklang.develop.dao.PageWidgetAttrValueDao;
 import com.blocklang.develop.dao.PageWidgetDao;
-import com.blocklang.develop.dao.ProjectAuthorizationDao;
-import com.blocklang.develop.dao.ProjectCommitDao;
-import com.blocklang.develop.dao.ProjectDao;
-import com.blocklang.develop.dao.ProjectFileDao;
-import com.blocklang.develop.dao.ProjectResourceDao;
+import com.blocklang.develop.dao.RepositoryAuthorizationDao;
+import com.blocklang.develop.dao.RepositoryCommitDao;
+import com.blocklang.develop.dao.RepositoryDao;
+import com.blocklang.develop.dao.RepositoryFileDao;
+import com.blocklang.develop.dao.RepositoryResourceDao;
 import com.blocklang.develop.data.GitCommitInfo;
 import com.blocklang.develop.designer.data.AttachedWidget;
 import com.blocklang.develop.designer.data.AttachedWidgetProperty;
 import com.blocklang.develop.designer.data.PageModel;
 import com.blocklang.develop.model.PageWidget;
 import com.blocklang.develop.model.PageWidgetAttrValue;
-import com.blocklang.develop.model.Project;
-import com.blocklang.develop.model.ProjectAuthorization;
+import com.blocklang.develop.model.Repository;
+import com.blocklang.develop.model.RepositoryAuthorization;
 import com.blocklang.develop.model.ProjectContext;
-import com.blocklang.develop.model.ProjectResource;
-import com.blocklang.develop.service.ProjectResourceService;
-import com.blocklang.develop.service.ProjectService;
+import com.blocklang.develop.model.RepositoryResource;
+import com.blocklang.develop.service.RepositoryResourceService;
+import com.blocklang.develop.service.RepositoryService;
 import com.blocklang.marketplace.constant.WidgetPropertyValueType;
 import com.blocklang.marketplace.constant.RepoCategory;
 import com.blocklang.marketplace.dao.ApiWidgetPropertyDao;
@@ -61,27 +61,27 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class ProjectServiceImplTest extends AbstractServiceTest{
 	
 	@Autowired
-	private ProjectService projectService;
+	private RepositoryService projectService;
 	@Autowired
-	private ProjectDao projectDao;
+	private RepositoryDao projectDao;
 	@Autowired
 	private UserDao userDao;
 	@Autowired
 	private AppDao appDao;
 	@Autowired
-	private ProjectResourceService projectResourceService;
+	private RepositoryResourceService projectResourceService;
 	@Autowired
-	private ProjectResourceDao projectResourceDao;
+	private RepositoryResourceDao projectResourceDao;
 	@Autowired
 	private PageWidgetDao pageWidgetDao;
 	@Autowired
 	private PageWidgetAttrValueDao pageWidgetAttrValueDao;
 	@Autowired
-	private ProjectFileDao projectFileDao;
+	private RepositoryFileDao projectFileDao;
 	@Autowired
-	private ProjectAuthorizationDao projectAuthorizationDao;
+	private RepositoryAuthorizationDao projectAuthorizationDao;
 	@Autowired
-	private ProjectCommitDao projectCommitDao;
+	private RepositoryCommitDao projectCommitDao;
 	@MockBean
 	private PropertyService propertyService;
 	@Autowired
@@ -95,7 +95,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void find_no_data() {
-		Optional<Project> projectOption = projectService.find("not-exist-owner", "not-exist-name");
+		Optional<Repository> projectOption = projectService.find("not-exist-owner", "not-exist-name");
 		assertThat(projectOption).isEmpty();
 	}
 	
@@ -109,7 +109,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		userInfo.setCreateTime(LocalDateTime.now());
 		Integer userId = userDao.save(userInfo).getId();
 		
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setName("project_name");
 		project.setIsPublic(true);
 		project.setLastActiveTime(LocalDateTime.now());
@@ -118,7 +118,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		
 		projectDao.save(project);
 		
-		Optional<Project> projectOption = projectService.find("user_name", "project_name");
+		Optional<Repository> projectOption = projectService.find("user_name", "project_name");
 		assertThat(projectOption).isPresent();
 		assertThat(projectOption.get().getCreateUserName()).isEqualTo("user_name");
 	}
@@ -133,7 +133,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		userInfo.setCreateTime(LocalDateTime.now());
 		Integer userId = userDao.save(userInfo).getId();
 		
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setName("project_name");
 		project.setIsPublic(true);
 		project.setDescription("description");
@@ -156,10 +156,10 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		});
 		
 		// 已在项目资源表中登记 README.md 文件
-		ProjectResource readmeResource = projectResourceDao.findByProjectIdAndParentIdAndResourceTypeAndAppTypeAndKeyIgnoreCase(
+		RepositoryResource readmeResource = projectResourceDao.findByRepositoryIdAndParentIdAndResourceTypeAndAppTypeAndKeyIgnoreCase(
 				projectId, 
 				Constant.TREE_ROOT_ID, 
-				ProjectResourceType.FILE,
+				RepositoryResourceType.FILE,
 				AppType.UNKNOWN,
 				"ReAdMe").get();
 		assertThat(readmeResource).hasNoNullFieldsOrPropertiesExcept(
@@ -174,13 +174,13 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 				"gitStatus");
 		
 		// 已在项目文件表中保存 README.md 文件
-		assertThat(projectFileDao.findByProjectResourceId(readmeResource.getId()).get()).hasNoNullFieldsOrProperties();
+		assertThat(projectFileDao.findByRepositoryResourceId(readmeResource.getId()).get()).hasNoNullFieldsOrProperties();
 		
 		// 已在项目资源表中登记 BUILD.json 文件
-		ProjectResource buildConfigResource = projectResourceDao.findByProjectIdAndParentIdAndResourceTypeAndAppTypeAndKeyIgnoreCase(
+		RepositoryResource buildConfigResource = projectResourceDao.findByRepositoryIdAndParentIdAndResourceTypeAndAppTypeAndKeyIgnoreCase(
 				projectId, 
 				Constant.TREE_ROOT_ID, 
-				ProjectResourceType.BUILD,
+				RepositoryResourceType.BUILD,
 				AppType.UNKNOWN,
 				"Build").get();
 		assertThat(buildConfigResource).hasNoNullFieldsOrPropertiesExcept(
@@ -200,7 +200,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		assertThat(GitUtils.isGitRepo(context.getGitRepositoryDirectory())).isTrue();
 		
 		// 在创建一个仓库时，会执行一个 git commit，此操作也保存在 project_commit 中
-		assertThat(projectCommitDao.findAllByProjectIdAndBranchOrderByCommitTimeDesc(projectId, "master").get(0)).hasNoNullFieldsOrPropertiesExcept("fullMessage");
+		assertThat(projectCommitDao.findAllByRepositoryIdAndBranchOrderByCommitTimeDesc(projectId, "master").get(0)).hasNoNullFieldsOrPropertiesExcept("fullMessage");
 		
 		// 确认 git 仓库中有 README.md 文件，并比较其内容
 		String expectedReadmeContext = "# project_name\r\n\r\n**TODO: 在这里添加详细介绍，帮助感兴趣的人快速了解您的仓库。**";
@@ -418,7 +418,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void find_can_access_projects_created_no_data() {
-		List<Project> projects = projectService.findCanAccessProjectsByUserId(1);
+		List<Repository> projects = projectService.findCanAccessRepositoriesByUserId(1);
 		assertThat(projects).isEmpty();
 	}
 	
@@ -432,7 +432,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		userInfo.setCreateTime(LocalDateTime.now());
 		Integer userId = userDao.save(userInfo).getId();
 		
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setName("project_name");
 		project.setIsPublic(true);
 		project.setDescription("description");
@@ -442,25 +442,25 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		
 		Integer savedProjectId = projectDao.save(project).getId();
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setProjectId(savedProjectId);
+		RepositoryAuthorization auth = new RepositoryAuthorization();
+		auth.setRepositoryId(savedProjectId);
 		auth.setUserId(userId);
 		auth.setAccessLevel(AccessLevel.ADMIN); // 项目创建者具有管理员权限
 		auth.setCreateTime(LocalDateTime.now());
 		auth.setCreateUserId(userId);
 		projectAuthorizationDao.save(auth);
 		
-		List<Project> projects = projectService.findCanAccessProjectsByUserId(userId);
+		List<Repository> projects = projectService.findCanAccessRepositoriesByUserId(userId);
 		assertThat(projects).hasSize(1).allMatch(each -> each.getCreateUserName().equals("user_name"));
 		
-		projects = projectService.findCanAccessProjectsByUserId(userId + 1);
+		projects = projectService.findCanAccessRepositoriesByUserId(userId + 1);
 		assertThat(projects).isEmpty();
 	}
 	
 	@Test
 	public void find_can_access_projects_order_by_last_active_time_desc() {
 		// 第一条记录
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setName("project_name");
 		project.setIsPublic(true);
 		project.setDescription("description");
@@ -471,8 +471,8 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		
 		Integer savedProjectId = projectDao.save(project).getId();
 		
-		ProjectAuthorization auth = new ProjectAuthorization();
-		auth.setProjectId(savedProjectId);
+		RepositoryAuthorization auth = new RepositoryAuthorization();
+		auth.setRepositoryId(savedProjectId);
 		auth.setUserId(1);
 		auth.setAccessLevel(AccessLevel.ADMIN);
 		auth.setCreateTime(LocalDateTime.now());
@@ -480,7 +480,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		projectAuthorizationDao.save(auth);
 		
 		// 第二条记录
-		project = new Project();
+		project = new Repository();
 		project.setName("project_name_2");
 		project.setIsPublic(true);
 		project.setDescription("description");
@@ -491,16 +491,16 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		
 		savedProjectId = projectDao.save(project).getId();
 		
-		auth = new ProjectAuthorization();
-		auth.setProjectId(savedProjectId);
+		auth = new RepositoryAuthorization();
+		auth.setRepositoryId(savedProjectId);
 		auth.setUserId(1);
 		auth.setAccessLevel(AccessLevel.ADMIN);
 		auth.setCreateTime(LocalDateTime.now());
 		auth.setCreateUserId(1);
 		projectAuthorizationDao.save(auth);
 	
-		List<Project> projects = projectService.findCanAccessProjectsByUserId(1);
-		assertThat(projects).hasSize(2).isSortedAccordingTo(Comparator.comparing(Project::getLastActiveTime).reversed());
+		List<Repository> projects = projectService.findCanAccessRepositoriesByUserId(1);
+		assertThat(projects).hasSize(2).isSortedAccordingTo(Comparator.comparing(Repository::getLastActiveTime).reversed());
 	}
 
 	@Test
@@ -513,7 +513,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		userInfo.setCreateTime(LocalDateTime.now());
 		Integer userId = userDao.save(userInfo).getId();
 		
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setName("project_name");
 		project.setIsPublic(true);
 		project.setDescription("description");
@@ -524,7 +524,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		Project savedProject = projectService.createRepository(userInfo, project);
+		Repository savedProject = projectService.createRepository(userInfo, project);
 		
 		GitCommitInfo commitInfo = projectService.findLatestCommitInfo(savedProject, null).get();
 		assertThat(commitInfo.getShortMessage()).isEqualTo("First Commit");
@@ -541,7 +541,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		userInfo.setCreateTime(LocalDateTime.now());
 		Integer userId = userDao.save(userInfo).getId();
 		
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setName("project_name");
 		project.setIsPublic(true);
 		project.setDescription("description");
@@ -552,15 +552,15 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		Project savedProject = projectService.createRepository(userInfo, project);
+		Repository savedProject = projectService.createRepository(userInfo, project);
 		
-		ProjectResource resource = new ProjectResource();
+		RepositoryResource resource = new RepositoryResource();
 		resource.setKey("group1");
-		resource.setResourceType(ProjectResourceType.GROUP);
+		resource.setResourceType(RepositoryResourceType.GROUP);
 		resource.setAppType(AppType.UNKNOWN);
 		resource.setCreateTime(LocalDateTime.now());
 		resource.setCreateUserId(userId);
-		resource.setProjectId(savedProject.getId());
+		resource.setRepositoryId(savedProject.getId());
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		projectResourceService.insert(savedProject, resource);
 		
@@ -569,22 +569,22 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 
 	@Test
 	public void find_by_id_no_data() {
-		Optional<Project> projectOption = projectService.findById(1);
+		Optional<Repository> projectOption = projectService.findById(1);
 		assertThat(projectOption).isEmpty();
 	}
 	
 	@Test
 	public void find_by_id_success() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setName("project_name");
 		project.setIsPublic(true);
 		project.setLastActiveTime(LocalDateTime.now());
 		project.setCreateUserId(1);
 		project.setCreateTime(LocalDateTime.now());
 		
-		Project savedProject = projectDao.save(project);
+		Repository savedProject = projectDao.save(project);
 		
-		Optional<Project> projectOption = projectService.findById(savedProject.getId());
+		Optional<Repository> projectOption = projectService.findById(savedProject.getId());
 		assertThat(projectOption).isPresent();
 	}
 }

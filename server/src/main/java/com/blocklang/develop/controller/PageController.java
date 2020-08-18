@@ -34,41 +34,41 @@ import com.blocklang.core.exception.ResourceNotFoundException;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.UserService;
 import com.blocklang.develop.constant.AppType;
-import com.blocklang.develop.constant.ProjectResourceType;
+import com.blocklang.develop.constant.RepositoryResourceType;
 import com.blocklang.develop.data.CheckPageKeyParam;
 import com.blocklang.develop.data.CheckPageNameParam;
 import com.blocklang.develop.data.NewPageParam;
-import com.blocklang.develop.model.Project;
-import com.blocklang.develop.model.ProjectResource;
-import com.blocklang.develop.service.ProjectResourceService;
-import com.blocklang.develop.service.ProjectService;
+import com.blocklang.develop.model.Repository;
+import com.blocklang.develop.model.RepositoryResource;
+import com.blocklang.develop.service.RepositoryResourceService;
+import com.blocklang.develop.service.RepositoryService;
 
 @RestController
-public class PageController extends AbstractProjectController {
+public class PageController extends AbstractRepositoryController {
 	private static final Logger logger = LoggerFactory.getLogger(PageController.class);
 	
 	@Autowired
-	private ProjectService projectService;
+	private RepositoryService repositoryService;
 	@Autowired
-	private ProjectResourceService projectResourceService;
+	private RepositoryResourceService repositoryResourceService;
 	@Autowired
 	private UserService userService;
 	@Autowired
 	private MessageSource messageSource;
 
-	@PostMapping("/projects/{owner}/{projectName}/pages/check-key")
+	@PostMapping("/repos/{owner}/{repoName}/pages/check-key")
 	public ResponseEntity<Map<String, String>> checkKey(
 			Principal principal,
 			@PathVariable("owner") String owner,
-			@PathVariable("projectName") String projectName,
+			@PathVariable("repoName") String repoName,
 			@Valid @RequestBody CheckPageKeyParam param, 
 			BindingResult bindingResult){
 		
 		if(principal == null) {
 			throw new NoAuthorizationException();
 		}
-		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-		projectPermissionService.canWrite(principal, project).orElseThrow(NoAuthorizationException::new);
+		Repository repository = repositoryService.find(owner, repoName).orElseThrow(ResourceNotFoundException::new);
+		repositoryPermissionService.canWrite(principal, repository).orElseThrow(NoAuthorizationException::new);
 		
 		//校验 key: 是否为空
 		if(bindingResult.hasErrors()) {
@@ -88,10 +88,10 @@ public class PageController extends AbstractProjectController {
 		}
 		
 		Integer parentId = param.getParentId();
-		projectResourceService.findByKey(
-				project.getId(), 
+		repositoryResourceService.findByKey(
+				repository.getId(), 
 				parentId, 
-				ProjectResourceType.PAGE, 
+				RepositoryResourceType.PAGE, 
 				param.getAppType(),
 				key).map(resource -> {
 			logger.error("key 已被占用");
@@ -101,7 +101,7 @@ public class PageController extends AbstractProjectController {
 			}
 			
 			// 这里不需要做是否存在判断，因为肯定存在。
-			ProjectResource parentResource = projectResourceService.findById(parentId).get();
+			RepositoryResource parentResource = repositoryResourceService.findById(parentId).get();
 			String parentResourceName = StringUtils.isBlank(parentResource.getName()) ? parentResource.getKey() : parentResource.getName();
 			return new Object[] {parentResourceName, key};
 		}).ifPresent(args -> {
@@ -112,29 +112,29 @@ public class PageController extends AbstractProjectController {
 		return ResponseEntity.ok(new HashMap<String, String>());
 	}
 	
-	@PostMapping("/projects/{owner}/{projectName}/pages/check-name")
+	@PostMapping("/repos/{owner}/{repoName}/pages/check-name")
 	public ResponseEntity<Map<String, String>> checkName(
 			Principal principal,
 			@PathVariable("owner") String owner,
-			@PathVariable("projectName") String projectName,
+			@PathVariable("repoName") String repoName,
 			@Valid @RequestBody CheckPageNameParam param, 
 			BindingResult bindingResult){
 
 		if(principal == null) {
 			throw new NoAuthorizationException();
 		}
-		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-		projectPermissionService.canWrite(principal, project).orElseThrow(NoAuthorizationException::new);
+		Repository repository = repositoryService.find(owner, repoName).orElseThrow(ResourceNotFoundException::new);
+		repositoryPermissionService.canWrite(principal, repository).orElseThrow(NoAuthorizationException::new);
 		
 		// name 的值可以为空
 		if(StringUtils.isNotBlank(param.getName())) {
 			String name = param.getName().trim();
 			
 			Integer parentId = param.getParentId();
-			projectResourceService.findByName(
-					project.getId(), 
+			repositoryResourceService.findByName(
+					repository.getId(), 
 					parentId, 
-					ProjectResourceType.PAGE, 
+					RepositoryResourceType.PAGE, 
 					param.getAppType(),
 					name).map(resource -> {
 				logger.error("name 已被占用");
@@ -144,7 +144,7 @@ public class PageController extends AbstractProjectController {
 				}
 				
 				// 这里不需要做是否存在判断，因为肯定存在。
-				ProjectResource parentResource = projectResourceService.findById(parentId).get();
+				RepositoryResource parentResource = repositoryResourceService.findById(parentId).get();
 				String parentResourceName = StringUtils.isBlank(parentResource.getName()) ? parentResource.getKey() : parentResource.getName();
 				return new Object[] {parentResourceName, name};
 			}).ifPresent(args -> {
@@ -155,18 +155,18 @@ public class PageController extends AbstractProjectController {
 		return ResponseEntity.ok(new HashMap<String, String>());
 	}
 
-	@PostMapping("/projects/{owner}/{projectName}/pages")
-	public ResponseEntity<ProjectResource> newPage(
+	@PostMapping("/repos/{owner}/{repoName}/pages")
+	public ResponseEntity<RepositoryResource> newPage(
 			Principal principal, 
 			@PathVariable("owner") String owner,
-			@PathVariable("projectName") String projectName,
+			@PathVariable("repoName") String repoName,
 			@Valid @RequestBody NewPageParam param, 
 			BindingResult bindingResult) {
 		if(principal == null) {
 			throw new NoAuthorizationException();
 		}
-		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-		projectPermissionService.canWrite(principal, project).orElseThrow(NoAuthorizationException::new);
+		Repository repository = repositoryService.find(owner, repoName).orElseThrow(ResourceNotFoundException::new);
+		repositoryPermissionService.canWrite(principal, repository).orElseThrow(NoAuthorizationException::new);
 		
 		//校验 key: 
 		boolean keyIsValid = true;
@@ -191,10 +191,10 @@ public class PageController extends AbstractProjectController {
 		
 		if(keyIsValid) {
 			Integer parentId = param.getParentId();
-			projectResourceService.findByKey(
-					project.getId(), 
+			repositoryResourceService.findByKey(
+					repository.getId(), 
 					parentId, 
-					ProjectResourceType.PAGE, 
+					RepositoryResourceType.PAGE, 
 					param.getAppType(),
 					key).map(resource -> {
 				logger.error("key 已被占用");
@@ -204,7 +204,7 @@ public class PageController extends AbstractProjectController {
 				}
 				
 				// 这里不需要做是否存在判断，因为肯定存在。
-				return new Object[] {projectResourceService.findById(parentId).get().getName(), key};
+				return new Object[] {repositoryResourceService.findById(parentId).get().getName(), key};
 			}).ifPresent(args -> {
 				bindingResult.rejectValue("key", "Duplicated.pageKey", args, null);
 			});
@@ -215,10 +215,10 @@ public class PageController extends AbstractProjectController {
 		// name 可以为空
 		if(StringUtils.isNotBlank(param.getName())) {
 			String name = param.getName().trim();
-			projectResourceService.findByName(
-					project.getId(), 
+			repositoryResourceService.findByName(
+					repository.getId(), 
 					parentId, 
-					ProjectResourceType.PAGE, 
+					RepositoryResourceType.PAGE, 
 					param.getAppType(),
 					name).map(resource -> {
 				logger.error("name 已被占用");
@@ -228,7 +228,7 @@ public class PageController extends AbstractProjectController {
 				}
 				
 				// 这里不需要做是否存在判断，因为肯定存在。
-				return new Object[] {projectResourceService.findById(parentId).get().getName(), name};
+				return new Object[] {repositoryResourceService.findById(parentId).get().getName(), name};
 			}).ifPresent(args -> {
 				bindingResult.rejectValue("name", "Duplicated.pageName", args, null);
 			});
@@ -239,8 +239,8 @@ public class PageController extends AbstractProjectController {
 			throw new InvalidRequestException(bindingResult);
 		}
 		
-		ProjectResource resource = new ProjectResource();
-		resource.setProjectId(project.getId());
+		RepositoryResource resource = new RepositoryResource();
+		resource.setRepositoryId(repository.getId());
 		resource.setParentId(parentId);
 		resource.setAppType(param.getAppType());
 		resource.setKey(key);
@@ -248,25 +248,25 @@ public class PageController extends AbstractProjectController {
 		if(param.getDescription() != null) {
 			resource.setDescription(param.getDescription().trim());
 		}
-		resource.setResourceType(ProjectResourceType.PAGE);
+		resource.setResourceType(RepositoryResourceType.PAGE);
 		
 		UserInfo currentUser = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
 		resource.setCreateUserId(currentUser.getId());
 		resource.setCreateTime(LocalDateTime.now());
 		
-		ProjectResource savedProjectResource = projectResourceService.insert(project, resource);
+		RepositoryResource savedProjectResource = repositoryResourceService.insert(repository, resource);
 		savedProjectResource.setMessageSource(messageSource);
-		return new ResponseEntity<ProjectResource>(savedProjectResource, HttpStatus.CREATED);
+		return new ResponseEntity<RepositoryResource>(savedProjectResource, HttpStatus.CREATED);
 	}
 	
-	@GetMapping("/projects/{owner}/{projectName}/pages/**")
+	@GetMapping("/repos/{owner}/{repoName}/pages/**")
 	public ResponseEntity<Map<String, Object>> getPage(Principal user,
 			@PathVariable String owner,
-			@PathVariable String projectName,
+			@PathVariable String repoName,
 			HttpServletRequest req) {
 		// 先校验用户对项目是否有读取权限
-		Project project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-		projectPermissionService.canRead(user, project).orElseThrow(NoAuthorizationException::new);
+		Repository repository = repositoryService.find(owner, repoName).orElseThrow(ResourceNotFoundException::new);
+		repositoryPermissionService.canRead(user, repository).orElseThrow(NoAuthorizationException::new);
 		
 		String pagePath = SpringMvcUtil.getRestUrl(req, 4);
 		// 获取表示页面的 key
@@ -274,7 +274,7 @@ public class PageController extends AbstractProjectController {
 		String groupPath = StringUtils.join(pathes, "/", 0, pathes.length - 1);
 		// 要校验根据 parentPath 中的所有节点都能准确匹配
 		// 这个列表中不包含页面信息
-		List<ProjectResource> parentGroups = projectResourceService.findParentGroupsByParentPath(project.getId(), groupPath);
+		List<RepositoryResource> parentGroups = repositoryResourceService.findParentGroupsByParentPath(repository.getId(), groupPath);
 		
 		// 约定一个仓库的目录结构为
 		// repo
@@ -295,34 +295,41 @@ public class PageController extends AbstractProjectController {
 			parentGroupId = parentGroups.get(parentGroups.size() - 1).getId();
 			
 			AppType appType = parentGroups.get(0).getAppType();
-			ProjectResourceType resourceType = ProjectResourceType.PAGE;
-			// 小程序项目根目录下的 app 的资源类型为 MAIN
-			if(appType == AppType.MINI_PROGRAM && parentGroups.size() == 1 && pageKey.equals("app")) {
-				resourceType = ProjectResourceType.MAIN;
-			}
+			RepositoryResourceType resourceType = RepositoryResourceType.PAGE;
+			RepositoryResource repositoryResource = repositoryResourceService.findByKey(
+					repository.getId(), 
+					parentGroupId, 
+					resourceType, 
+					appType, 
+					pageKey)
+				.orElseThrow(ResourceNotFoundException::new);
+			repositoryResource.setMessageSource(messageSource); // 不加这行代码，在生成 json 时会出错
 			
-			ProjectResource projectResource = projectResourceService.findByKey(project.getId(), parentGroupId, resourceType, appType, pageKey).orElseThrow(ResourceNotFoundException::new);
-			projectResource.setMessageSource(messageSource); // 不加这行代码，在生成 json 时会出错
-			
-			parentGroups.add(projectResource);
-			List<Map<String, String>> stripedParentGroups = ProjectResourcePathUtil.combinePathes(parentGroups);
+			parentGroups.add(repositoryResource);
+			List<Map<String, String>> stripedParentGroups = RepositoryResourcePathUtil.combinePathes(parentGroups);
 			
 			Map<String, Object> result = new HashMap<>();
-			result.put("projectResource", projectResource);
+			result.put("repositoryResource", repositoryResource);
 			result.put("parentGroups", stripedParentGroups);
 			
 			return ResponseEntity.ok(result);
 		}
 		
 		// 获取仓库根目录下的文件，位于仓库根目录下的文件的 AppType 的值必须为 UNKNOWN
-		ProjectResource projectResource = projectResourceService.findByKey(project.getId(), parentGroupId, ProjectResourceType.PAGE, AppType.UNKNOWN, pageKey).orElseThrow(ResourceNotFoundException::new);
-		projectResource.setMessageSource(messageSource); // 不加这行代码，在生成 json 时会出错
+		RepositoryResource repositoryResource = repositoryResourceService.findByKey(
+				repository.getId(), 
+				parentGroupId, 
+				RepositoryResourceType.PAGE, 
+				AppType.UNKNOWN, 
+				pageKey)
+			.orElseThrow(ResourceNotFoundException::new);
+		repositoryResource.setMessageSource(messageSource); // 不加这行代码，在生成 json 时会出错
 		
-		parentGroups.add(projectResource);
-		List<Map<String, String>> stripedParentGroups = ProjectResourcePathUtil.combinePathes(parentGroups);
+		parentGroups.add(repositoryResource);
+		List<Map<String, String>> stripedParentGroups = RepositoryResourcePathUtil.combinePathes(parentGroups);
 		
 		Map<String, Object> result = new HashMap<>();
-		result.put("projectResource", projectResource);
+		result.put("repositoryResource", repositoryResource);
 		result.put("parentGroups", stripedParentGroups);
 		
 		return ResponseEntity.ok(result);

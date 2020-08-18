@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+	<changeSet author="Zhengwei Jin" id="202008110636">
+		<dropPrimaryKey tableName="project_resource"/>
+		<dropUniqueConstraint tableName="project_resource" constraintName="uk_project_resource_on_project_parent_resource_app_key"/>
+		<dropUniqueConstraint tableName="project_resource" constraintName="uk_project_resource_on_project_parent_resource_app_name"/>
+		<renameTable newTableName="repository_resource" oldTableName="project_resource"/>
+		<setTableRemarks tableName="repository_resource" remarks="仓库资源"/>
+		<addPrimaryKey columnNames="dbid" tableName="repository_resource" constraintName="pk_repository_resource" />
+		<renameColumn tableName="repository_resource" oldColumnName="project_id" newColumnName="repository_id"/>
+		<setColumnRemarks tableName="repository_resource" columnName="repository_id" remarks="仓库标识"/>
+		<addUniqueConstraint
+			columnNames="repository_id,parent_id,resource_type,app_type,resource_key" 
+			constraintName="uk_repo_resource_on_project_parent_resource_app_key"
+			tableName="repository_resource"/>
+		<addUniqueConstraint
+			columnNames="repository_id,parent_id,resource_type,app_type,resource_name" 
+			constraintName="uk_repo_resource_on_project_parent_resource_app_name"
+			tableName="repository_resource"/>
+	</changeSet>
+
+</databaseChangeLog>

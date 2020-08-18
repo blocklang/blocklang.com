@@ -2,12 +2,12 @@ package com.blocklang.release.service;
 
 import java.util.Optional;
 
-import com.blocklang.release.model.ProjectTag;
+import com.blocklang.release.model.RepositoryTag;
 
 public interface ProjectTagService {
 
-	Optional<ProjectTag> find(Integer projectId, String version);
+	Optional<RepositoryTag> find(Integer projectId, String version);
 
-	Optional<ProjectTag> findLatestTag(Integer projectId);
+	Optional<RepositoryTag> findLatestTag(Integer projectId);
 
 }

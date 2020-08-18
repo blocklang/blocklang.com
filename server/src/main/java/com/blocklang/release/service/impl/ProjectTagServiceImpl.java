@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.blocklang.release.dao.ProjectTagDao;
-import com.blocklang.release.model.ProjectTag;
+import com.blocklang.release.model.RepositoryTag;
 import com.blocklang.release.service.ProjectTagService;
 
 @Service
@@ -16,12 +16,12 @@ public class ProjectTagServiceImpl implements ProjectTagService {
 	private ProjectTagDao projectTagDao;
 	
 	@Override
-	public Optional<ProjectTag> find(Integer projectId, String version) {
+	public Optional<RepositoryTag> find(Integer projectId, String version) {
 		return projectTagDao.findByProjectIdAndVersion(projectId, version);
 	}
 
 	@Override
-	public Optional<ProjectTag> findLatestTag(Integer projectId) {
+	public Optional<RepositoryTag> findLatestTag(Integer projectId) {
 		return projectTagDao.findFirstByProjectIdOrderByIdDesc(projectId);
 	}
 

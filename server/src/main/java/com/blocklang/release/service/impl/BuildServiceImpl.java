@@ -16,9 +16,9 @@ import org.springframework.stereotype.Service;
 import com.blocklang.core.constant.CmPropKey;
 import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.service.PropertyService;
-import com.blocklang.develop.model.Project;
+import com.blocklang.develop.model.Repository;
 import com.blocklang.develop.service.ProjectDependenceService;
-import com.blocklang.develop.service.ProjectResourceService;
+import com.blocklang.develop.service.RepositoryResourceService;
 import com.blocklang.release.constant.Arch;
 import com.blocklang.release.constant.BuildResult;
 import com.blocklang.release.constant.ReleaseMethod;
@@ -36,7 +36,7 @@ import com.blocklang.release.model.AppReleaseFile;
 import com.blocklang.release.model.AppReleaseRelation;
 import com.blocklang.release.model.ProjectBuild;
 import com.blocklang.release.model.ProjectReleaseTask;
-import com.blocklang.release.model.ProjectTag;
+import com.blocklang.release.model.RepositoryTag;
 import com.blocklang.release.service.BuildService;
 import com.blocklang.release.task.AppBuildContext;
 import com.blocklang.release.task.ClientDistCopyTask;
@@ -74,10 +74,10 @@ public class BuildServiceImpl implements BuildService {
 	@Autowired
 	private ProjectDependenceService projectDependenceService;
 	@Autowired
-	private ProjectResourceService projectResourceService;
+	private RepositoryResourceService projectResourceService;
 	
 	@Override
-	public void build(Project project, ProjectReleaseTask releaseTask) {
+	public void build(Repository project, ProjectReleaseTask releaseTask) {
 		StopWatch stopWatch = StopWatch.createStarted();
 
 		// 默认从 11.0.2 开始"
@@ -182,8 +182,8 @@ public class BuildServiceImpl implements BuildService {
 						}).orElseGet(() -> {
 							context.info("往数据库表中新增 {0} 标签信息", context.getTagName());
 							
-							ProjectTag projectTag = new ProjectTag();
-							projectTag.setProjectId(project.getId());
+							RepositoryTag projectTag = new RepositoryTag();
+							projectTag.setRepositoryId(project.getId());
 							projectTag.setVersion(releaseTask.getVersion());
 							projectTag.setGitTagId(tagId);
 							projectTag.setCreateUserId(releaseTask.getCreateUserId());
@@ -365,7 +365,7 @@ public class BuildServiceImpl implements BuildService {
 
 	// FIXME: 注意，在此处增加 @Transactional 不会生效，提取到另一个 service 中
 	@Transactional
-	private void saveAppReleaseInfo(Project project, ProjectReleaseTask releaseTask, AppBuildContext context) {
+	private void saveAppReleaseInfo(Repository project, ProjectReleaseTask releaseTask, AppBuildContext context) {
 		// 1. 获取 APP 信息
 		appDao.findByProjectId(project.getId()).map(app -> {
 			// 2. 存储 APP_RELEASE
@@ -418,7 +418,7 @@ public class BuildServiceImpl implements BuildService {
 
 	@Async
 	@Override
-	public void asyncBuild(Project project, ProjectReleaseTask releaseTask) {
+	public void asyncBuild(Repository project, ProjectReleaseTask releaseTask) {
 		this.build(project, releaseTask);
 	}
 	

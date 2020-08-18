@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+	<changeSet author="Zhengwei Jin" id="202008120703">
+		<dropPrimaryKey tableName="project_authorization"/>
+		<dropUniqueConstraint tableName="project_resource" constraintName="uk_project_authorization_on_user_id_project_id_access_level"/>
+		<renameTable newTableName="repository_authorization" oldTableName="project_authorization"/>
+		<setTableRemarks tableName="repository_authorization" remarks="仓库授权信息" />
+		<addPrimaryKey columnNames="dbid" tableName="repository_authorization" constraintName="pk_repository_authorization" />
+		<renameColumn tableName="repository_authorization" oldColumnName="project_id" newColumnName="repository_id"/>
+		<setColumnRemarks tableName="repository_authorization" columnName="repository_id" remarks="仓库标识"/>
+		<addUniqueConstraint
+			columnNames="user_id,repository_id,access_level" 
+			constraintName="uk_repo_authorization_on_user_id_repo_id_access_level"
+			tableName="repository_authorization"/>
+	</changeSet>
+
+</databaseChangeLog>

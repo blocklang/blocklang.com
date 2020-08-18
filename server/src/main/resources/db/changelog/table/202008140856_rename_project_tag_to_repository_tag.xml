@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+	<changeSet author="Zhengwei Jin" id="202008140856">
+		<dropPrimaryKey tableName="project_tag"/>
+		<dropUniqueConstraint tableName="project_tag" constraintName="uk_tag_project_id_version"/>
+		<renameTable newTableName="repository_tag" oldTableName="project_tag"/>
+		<addPrimaryKey columnNames="dbid" tableName="repository_tag" constraintName="pk_repository_tag" />
+		<renameColumn tableName="repository_tag" oldColumnName="project_id" newColumnName="repository_id"/>
+		<setColumnRemarks tableName="repository_tag" columnName="repository_id" remarks="仓库标识"/>
+		<addUniqueConstraint
+			columnNames="repository_id,version"
+			constraintName="uk_tag_repo_id_version" tableName="repository_tag" />
+	</changeSet>
+
+</databaseChangeLog>

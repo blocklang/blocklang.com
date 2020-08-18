@@ -7,6 +7,7 @@ import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.data.ProjectDependenceData;
 import com.blocklang.develop.designer.data.RepoWidgetList;
 import com.blocklang.develop.model.ProjectDependence;
+import com.blocklang.develop.model.RepositoryResource;
 import com.blocklang.marketplace.model.ComponentRepo;
 
 public interface ProjectDependenceService {
@@ -30,14 +31,16 @@ public interface ProjectDependenceService {
 	 * @param user
 	 * @return 如果保存失败则返回 <code>null</code>；否则返回保存后的项目依赖信息
 	 */
-	ProjectDependence save(Integer projectId, ComponentRepo componentRepo, Integer createUserId);
+	ProjectDependence save(Integer repoId, Integer projectId, ComponentRepo componentRepo, Integer createUserId);
 
 	/**
 	 * 补充上系统使用的标准库的依赖
-	 * @param projectId
-	 * @return
+	 * 
+	 * @param repoId 仓库标识
+	 * @param project 仓库中的项目信息
+	 * @return 指定项目的所有依赖，包括标准库
 	 */
-	List<ProjectDependence> findAllByProjectId(Integer projectId);
+	List<ProjectDependence> findAllByProjectId(Integer repoId, RepositoryResource project);
 	
 	/**
 	 * 注意：返回的依赖中不包含标准库，相当于 {@code this.findProjectDependences(projectId, false)}
@@ -45,17 +48,33 @@ public interface ProjectDependenceService {
 	 * @param projectId
 	 * @return
 	 */
-	List<ProjectDependenceData> findProjectDependences(Integer projectId);
+	List<ProjectDependenceData> findProjectDependences(Integer repoId, Integer projectId);
 	
 	List<ProjectDependenceData> findProjectBuildDependences(Integer projectId);
 
 	/**
+	 * 返回子项目的依赖列表，不包含标准库依赖
 	 * 
-	 * @param projectId
+	 * @param projectId 仓库中的子项目标识
 	 * @param includeStd 如果值为 <code>true</code>，则返回标准库
-	 * @return
+	 * @return 子项目的依赖列表
 	 */
-	List<ProjectDependenceData> findProjectDependences(Integer projectId, boolean includeStd);
+	List<ProjectDependenceData> findProjectDependences(Integer projectId);
+	
+	/**
+	 * 获取项目的 IDE 依赖，不包含标准库依赖。
+	 * 
+	 * @param project 项目信息
+	 * @return 子项目的依赖列表
+	 */
+	List<ProjectDependenceData> findIdeDependences(RepositoryResource project);
+	
+	/**
+	 * 获取项目的 IDE 版标准库依赖
+	 * @param project 项目信息
+	 * @return 子项目的依赖列表
+	 */
+	List<ProjectDependenceData> findStdIdeDependences(RepositoryResource project);
 
 	void delete(Integer dependenceId);
 

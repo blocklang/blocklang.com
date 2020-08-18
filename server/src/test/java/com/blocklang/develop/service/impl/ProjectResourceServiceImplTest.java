@@ -33,10 +33,10 @@ import com.blocklang.core.test.AbstractServiceTest;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.constant.NodeCategory;
 import com.blocklang.develop.constant.NodeLayout;
-import com.blocklang.develop.constant.ProjectResourceType;
-import com.blocklang.develop.dao.ProjectCommitDao;
+import com.blocklang.develop.constant.RepositoryResourceType;
+import com.blocklang.develop.dao.RepositoryCommitDao;
 import com.blocklang.develop.dao.ProjectDependenceDao;
-import com.blocklang.develop.dao.ProjectResourceDao;
+import com.blocklang.develop.dao.RepositoryResourceDao;
 import com.blocklang.develop.data.UncommittedFile;
 import com.blocklang.develop.designer.data.AttachedWidget;
 import com.blocklang.develop.designer.data.AttachedWidgetProperty;
@@ -50,13 +50,13 @@ import com.blocklang.develop.designer.data.PageEventHandler;
 import com.blocklang.develop.designer.data.PageModel;
 import com.blocklang.develop.designer.data.VisualNode;
 import com.blocklang.develop.model.PageDataItem;
-import com.blocklang.develop.model.Project;
-import com.blocklang.develop.model.ProjectCommit;
+import com.blocklang.develop.model.Repository;
+import com.blocklang.develop.model.RepositoryCommit;
 import com.blocklang.develop.model.ProjectContext;
 import com.blocklang.develop.model.ProjectDependence;
-import com.blocklang.develop.model.ProjectResource;
-import com.blocklang.develop.service.ProjectResourceService;
-import com.blocklang.develop.service.ProjectService;
+import com.blocklang.develop.model.RepositoryResource;
+import com.blocklang.develop.service.RepositoryResourceService;
+import com.blocklang.develop.service.RepositoryService;
 import com.blocklang.marketplace.constant.RepoCategory;
 import com.blocklang.marketplace.constant.RepoType;
 import com.blocklang.marketplace.constant.WidgetPropertyValueType;
@@ -79,19 +79,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 
 	@Autowired
-	private ProjectResourceService projectResourceService;
+	private RepositoryResourceService projectResourceService;
 	@Autowired
-	private ProjectResourceDao projectResourceDao;
+	private RepositoryResourceDao projectResourceDao;
 	@Autowired
 	private MessageSource messageSource;
 	@Autowired
-	private ProjectService projectService;
+	private RepositoryService projectService;
 	@Autowired
 	private UserDao userDao;
 	@MockBean
 	private UserService userService;
 	@Autowired
-	private ProjectCommitDao projectCommitDao;
+	private RepositoryCommitDao projectCommitDao;
 	@MockBean
 	private PropertyService propertyService;
 	@Autowired
@@ -115,23 +115,23 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	public void insert_if_not_set_seq() {
 		Integer projectId = Integer.MAX_VALUE;
 		
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setName("project");
 		project.setCreateUserName("jack");
 		
-		ProjectResource resource = new ProjectResource();
-		resource.setProjectId(projectId);
+		RepositoryResource resource = new RepositoryResource();
+		resource.setRepositoryId(projectId);
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		resource.setAppType(AppType.WEB);
 		resource.setKey("key");
 		resource.setName("name");
-		resource.setResourceType(ProjectResourceType.PAGE);
+		resource.setResourceType(RepositoryResourceType.PAGE);
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
 		
 		Integer id = projectResourceService.insert(project, resource).getId();
 		
-		Optional<ProjectResource> resourceOption = projectResourceDao.findById(id);
+		Optional<RepositoryResource> resourceOption = projectResourceDao.findById(id);
 		assertThat(resourceOption).isPresent();
 		assertThat(resourceOption.get().getSeq()).isEqualTo(1);
 	}
@@ -208,18 +208,18 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 				
 		Integer projectId = Integer.MAX_VALUE;
 		
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setName("project");
 		project.setCreateUserName("jack");
 		
-		ProjectResource resource = new ProjectResource();
+		RepositoryResource resource = new RepositoryResource();
 		String pageKey = "key1";
-		resource.setProjectId(projectId);
+		resource.setRepositoryId(projectId);
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		resource.setAppType(AppType.WEB);
 		resource.setKey(pageKey);
 		resource.setName("name");
-		resource.setResourceType(ProjectResourceType.PAGE);
+		resource.setResourceType(RepositoryResourceType.PAGE);
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
 		
@@ -263,77 +263,77 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void find_children_no_data() {
-		List<ProjectResource> resources = projectResourceService.findChildren(null, 9999);
+		List<RepositoryResource> resources = projectResourceService.findChildren(null, 9999);
 		assertThat(resources).isEmpty();
 	}
 	
 	@Test
 	public void find_children_at_root_has_two_project_success() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setCreateUserName("jack");
 		project.setName("my-project");
 		project.setId(1);
 		
-		ProjectResource resource = new ProjectResource();
-		resource.setProjectId(1);
+		RepositoryResource resource = new RepositoryResource();
+		resource.setRepositoryId(1);
 		resource.setKey("key1");
 		resource.setName("name1");
 		resource.setAppType(AppType.WEB);
-		resource.setResourceType(ProjectResourceType.GROUP);
+		resource.setResourceType(RepositoryResourceType.GROUP);
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
 		projectResourceDao.save(resource);
 		
-		resource = new ProjectResource();
-		resource.setProjectId(2);
+		resource = new RepositoryResource();
+		resource.setRepositoryId(2);
 		resource.setKey("key2");
 		resource.setName("name2");
 		resource.setAppType(AppType.WEB);
-		resource.setResourceType(ProjectResourceType.GROUP);
+		resource.setResourceType(RepositoryResourceType.GROUP);
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
 		projectResourceDao.save(resource);
 		
-		List<ProjectResource> resources = projectResourceService.findChildren(project, Constant.TREE_ROOT_ID);
+		List<RepositoryResource> resources = projectResourceService.findChildren(project, Constant.TREE_ROOT_ID);
 		assertThat(resources).hasSize(1);
 	}
 	
 	@Test
 	public void find_children_at_root_has_one_project_success() {
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setCreateUserName("jack");
 		project.setName("my-project");
 		project.setId(1);
 		
-		ProjectResource resource = new ProjectResource();
-		resource.setProjectId(1);
+		RepositoryResource resource = new RepositoryResource();
+		resource.setRepositoryId(1);
 		resource.setKey("key1");
 		resource.setName("name1");
 		resource.setAppType(AppType.WEB);
-		resource.setResourceType(ProjectResourceType.GROUP);
+		resource.setResourceType(RepositoryResourceType.GROUP);
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
 		Integer savedResourceId = projectResourceDao.save(resource).getId();
 		
-		resource = new ProjectResource();
-		resource.setProjectId(1);
+		resource = new RepositoryResource();
+		resource.setRepositoryId(1);
 		resource.setKey("key2");
 		resource.setName("name2");
 		resource.setAppType(AppType.WEB);
-		resource.setResourceType(ProjectResourceType.GROUP);
+		resource.setResourceType(RepositoryResourceType.GROUP);
 		resource.setParentId(savedResourceId);
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
 		projectResourceDao.save(resource);
 		
-		List<ProjectResource> resources = projectResourceService.findChildren(project, Constant.TREE_ROOT_ID);
+		List<RepositoryResource> resources = projectResourceService.findChildren(project, Constant.TREE_ROOT_ID);
 		assertThat(resources).hasSize(1);
 	}
 	
@@ -341,24 +341,24 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	public void find_children_name_is_null_then_set_name_with_key() {
 		Integer projectId = Integer.MAX_VALUE;
 		
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setCreateUserName("jack");
 		project.setName("my-project");
 		project.setId(projectId);
 		
-		ProjectResource resource = new ProjectResource();
-		resource.setProjectId(projectId);
+		RepositoryResource resource = new RepositoryResource();
+		resource.setRepositoryId(projectId);
 		resource.setKey("key1");
 		resource.setName(null);
 		resource.setAppType(AppType.WEB);
-		resource.setResourceType(ProjectResourceType.GROUP);
+		resource.setResourceType(RepositoryResourceType.GROUP);
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
 		projectResourceDao.save(resource).getId();
 		
-		List<ProjectResource> resources = projectResourceService.findChildren(project, Constant.TREE_ROOT_ID);
+		List<RepositoryResource> resources = projectResourceService.findChildren(project, Constant.TREE_ROOT_ID);
 		assertThat(resources).hasSize(1);
 		assertThat(resources.get(0).getName()).isEqualTo("key1");
 	}
@@ -367,36 +367,36 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	public void find_children_at_sub_group() {
 		Integer projectId = Integer.MAX_VALUE;
 		
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setCreateUserName("jack");
 		project.setName("my-project");
 		project.setId(projectId);
 		
-		ProjectResource resource = new ProjectResource();
-		resource.setProjectId(projectId);
+		RepositoryResource resource = new RepositoryResource();
+		resource.setRepositoryId(projectId);
 		resource.setKey("key1");
 		resource.setName("name1");
 		resource.setAppType(AppType.WEB);
-		resource.setResourceType(ProjectResourceType.GROUP);
+		resource.setResourceType(RepositoryResourceType.GROUP);
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
 		Integer savedResourceId = projectResourceDao.save(resource).getId();
 		
-		resource = new ProjectResource();
-		resource.setProjectId(projectId);
+		resource = new RepositoryResource();
+		resource.setRepositoryId(projectId);
 		resource.setKey("key2");
 		resource.setName("name2");
 		resource.setAppType(AppType.WEB);
-		resource.setResourceType(ProjectResourceType.GROUP);
+		resource.setResourceType(RepositoryResourceType.GROUP);
 		resource.setParentId(savedResourceId);
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
 		projectResourceDao.save(resource);
 		
-		List<ProjectResource> resources = projectResourceService.findChildren(project, savedResourceId);
+		List<RepositoryResource> resources = projectResourceService.findChildren(project, savedResourceId);
 		assertThat(resources).hasSize(1);
 		assertThat(resources.get(0).getKey()).isEqualTo("key2");
 	}
@@ -409,36 +409,36 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void find_parent_path_success() {
-		ProjectResource resource = new ProjectResource();
-		resource.setProjectId(1);
+		RepositoryResource resource = new RepositoryResource();
+		resource.setRepositoryId(1);
 		resource.setKey("key1");
 		resource.setName("name1");
 		resource.setAppType(AppType.WEB);
-		resource.setResourceType(ProjectResourceType.GROUP);
+		resource.setResourceType(RepositoryResourceType.GROUP);
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
 		Integer savedResourceId = projectResourceDao.save(resource).getId();
 		
-		resource = new ProjectResource();
-		resource.setProjectId(1);
+		resource = new RepositoryResource();
+		resource.setRepositoryId(1);
 		resource.setKey("key2");
 		resource.setName("name2");
 		resource.setAppType(AppType.WEB);
-		resource.setResourceType(ProjectResourceType.GROUP);
+		resource.setResourceType(RepositoryResourceType.GROUP);
 		resource.setParentId(savedResourceId);
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
 		savedResourceId = projectResourceDao.save(resource).getId();
 		
-		resource = new ProjectResource();
-		resource.setProjectId(1);
+		resource = new RepositoryResource();
+		resource.setRepositoryId(1);
 		resource.setKey("key3");
 		resource.setName("name3");
 		resource.setAppType(AppType.WEB);
-		resource.setResourceType(ProjectResourceType.GROUP);
+		resource.setResourceType(RepositoryResourceType.GROUP);
 		resource.setParentId(savedResourceId);
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
@@ -452,10 +452,10 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	// 因为 getTitle 方法用到了 spring 的国际化帮助类，因为需要注入，所以将测试类放在 service 中
 	@Test
 	public void get_title_main() {
-		ProjectResource resource = new ProjectResource();
+		RepositoryResource resource = new RepositoryResource();
 		resource.setParentId(Constant.TREE_ROOT_ID);
-		resource.setResourceType(ProjectResourceType.PAGE);
-		resource.setKey(ProjectResource.MAIN_KEY);
+		resource.setResourceType(RepositoryResourceType.PAGE);
+		resource.setKey(RepositoryResource.MAIN_KEY);
 		resource.setMessageSource(messageSource);
 		
 		assertThat(resource.getTitle()).isEqualTo("首页");
@@ -463,8 +463,8 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void get_title_page() {
-		ProjectResource resource = new ProjectResource();
-		resource.setResourceType(ProjectResourceType.PAGE);
+		RepositoryResource resource = new RepositoryResource();
+		resource.setResourceType(RepositoryResourceType.PAGE);
 		resource.setMessageSource(messageSource);
 		
 		assertThat(resource.getTitle()).isEqualTo("页面");
@@ -472,8 +472,8 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void get_title_group() {
-		ProjectResource resource = new ProjectResource();
-		resource.setResourceType(ProjectResourceType.GROUP);
+		RepositoryResource resource = new RepositoryResource();
+		resource.setResourceType(RepositoryResourceType.GROUP);
 		resource.setMessageSource(messageSource);
 		
 		assertThat(resource.getTitle()).isEqualTo("分组");
@@ -481,8 +481,8 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void get_title_templet() {
-		ProjectResource resource = new ProjectResource();
-		resource.setResourceType(ProjectResourceType.PAGE_TEMPLET);
+		RepositoryResource resource = new RepositoryResource();
+		resource.setResourceType(RepositoryResourceType.PAGE_TEMPLET);
 		resource.setMessageSource(messageSource);
 		
 		assertThat(resource.getTitle()).isEqualTo("模板");
@@ -490,9 +490,9 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void get_title_readme() {
-		ProjectResource resource = new ProjectResource();
-		resource.setResourceType(ProjectResourceType.FILE);
-		resource.setKey(ProjectResource.README_KEY);
+		RepositoryResource resource = new RepositoryResource();
+		resource.setResourceType(RepositoryResourceType.FILE);
+		resource.setKey(RepositoryResource.README_KEY);
 		resource.setMessageSource(messageSource);
 		
 		assertThat(resource.getTitle()).isEqualTo("README");
@@ -500,8 +500,8 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void get_title_service() {
-		ProjectResource resource = new ProjectResource();
-		resource.setResourceType(ProjectResourceType.SERVICE);
+		RepositoryResource resource = new RepositoryResource();
+		resource.setResourceType(RepositoryResourceType.SERVICE);
 		resource.setMessageSource(messageSource);
 		
 		assertThat(resource.getTitle()).isEqualTo("服务");
@@ -514,12 +514,12 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void find_by_id_success() {
-		ProjectResource resource = new ProjectResource();
-		resource.setProjectId(1);
+		RepositoryResource resource = new RepositoryResource();
+		resource.setRepositoryId(1);
 		resource.setKey("key1");
 		resource.setName("name1");
 		resource.setAppType(AppType.WEB);
-		resource.setResourceType(ProjectResourceType.GROUP);
+		resource.setResourceType(RepositoryResourceType.GROUP);
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
@@ -534,7 +534,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		assertThat(projectResourceService.findByKey(
 				Integer.MAX_VALUE, 
 				Constant.TREE_ROOT_ID, 
-				ProjectResourceType.PAGE, 
+				RepositoryResourceType.PAGE, 
 				AppType.WEB,
 				"not-exist-key")).isEmpty();
 	}
@@ -543,12 +543,12 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	public void find_by_key_at_root_success() {
 		Integer projectId = Integer.MAX_VALUE;
 		
-		ProjectResource resource = new ProjectResource();
-		resource.setProjectId(projectId);
+		RepositoryResource resource = new RepositoryResource();
+		resource.setRepositoryId(projectId);
 		resource.setKey("key1");
 		resource.setName("name1");
 		resource.setAppType(AppType.WEB);
-		resource.setResourceType(ProjectResourceType.PAGE);
+		resource.setResourceType(RepositoryResourceType.PAGE);
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
@@ -558,7 +558,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		assertThat(projectResourceService.findByKey(
 				projectId, 
 				Constant.TREE_ROOT_ID, 
-				ProjectResourceType.PAGE, 
+				RepositoryResourceType.PAGE, 
 				AppType.WEB,
 				"key1")).isPresent();
 	}
@@ -568,7 +568,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		assertThat(projectResourceService.findByName(
 				Integer.MAX_VALUE, 
 				Constant.TREE_ROOT_ID, 
-				ProjectResourceType.PAGE, 
+				RepositoryResourceType.PAGE, 
 				AppType.WEB,
 				"not-exist-name")).isEmpty();
 	}
@@ -577,12 +577,12 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	public void find_by_name_at_root_success() {
 		Integer projectId = Integer.MAX_VALUE;
 		
-		ProjectResource resource = new ProjectResource();
-		resource.setProjectId(projectId);
+		RepositoryResource resource = new RepositoryResource();
+		resource.setRepositoryId(projectId);
 		resource.setKey("key1");
 		resource.setName("name1");
 		resource.setAppType(AppType.WEB);
-		resource.setResourceType(ProjectResourceType.PAGE);
+		resource.setResourceType(RepositoryResourceType.PAGE);
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
@@ -592,7 +592,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		assertThat(projectResourceService.findByName(
 				projectId, 
 				Constant.TREE_ROOT_ID, 
-				ProjectResourceType.PAGE, 
+				RepositoryResourceType.PAGE, 
 				AppType.WEB,
 				"name1")).isPresent();
 	}
@@ -607,12 +607,12 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	public void find_all_pages_web_type_success() {
 		Integer projectId = Integer.MAX_VALUE;
 		
-		ProjectResource resource = new ProjectResource();
-		resource.setProjectId(projectId);
+		RepositoryResource resource = new RepositoryResource();
+		resource.setRepositoryId(projectId);
 		resource.setKey("key1");
 		resource.setName("name1");
 		resource.setAppType(AppType.WEB);
-		resource.setResourceType(ProjectResourceType.PAGE);
+		resource.setResourceType(RepositoryResourceType.PAGE);
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
@@ -638,19 +638,19 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	public void find_parent_id_by_parent_path_is_one_level() {
 		Integer projectId = Integer.MAX_VALUE;
 		
-		ProjectResource resource = new ProjectResource();
-		resource.setProjectId(projectId);
+		RepositoryResource resource = new RepositoryResource();
+		resource.setRepositoryId(projectId);
 		resource.setKey("key1");
 		resource.setName("name1");
 		resource.setAppType(AppType.UNKNOWN);
-		resource.setResourceType(ProjectResourceType.GROUP);
+		resource.setResourceType(RepositoryResourceType.GROUP);
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
 		Integer resourceId = projectResourceDao.save(resource).getId();
 		
-		List<ProjectResource> groups = projectResourceService.findParentGroupsByParentPath(projectId, "key1");
+		List<RepositoryResource> groups = projectResourceService.findParentGroupsByParentPath(projectId, "key1");
 		assertThat(groups).hasSize(1);
 		assertThat(groups.get(0).getId()).isEqualTo(resourceId);
 	}
@@ -659,31 +659,31 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	public void find_parent_id_by_parent_path_is_two_level_success() {
 		Integer projectId = Integer.MAX_VALUE;
 		
-		ProjectResource resource = new ProjectResource();
-		resource.setProjectId(projectId);
+		RepositoryResource resource = new RepositoryResource();
+		resource.setRepositoryId(projectId);
 		resource.setKey("key1");
 		resource.setName("name1");
 		resource.setAppType(AppType.UNKNOWN);
-		resource.setResourceType(ProjectResourceType.GROUP);
+		resource.setResourceType(RepositoryResourceType.GROUP);
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
 		Integer resourceId = projectResourceDao.save(resource).getId();
 		
-		resource = new ProjectResource();
-		resource.setProjectId(projectId);
+		resource = new RepositoryResource();
+		resource.setRepositoryId(projectId);
 		resource.setKey("key2");
 		resource.setName("name2");
 		resource.setAppType(AppType.UNKNOWN);
-		resource.setResourceType(ProjectResourceType.GROUP);
+		resource.setResourceType(RepositoryResourceType.GROUP);
 		resource.setParentId(resourceId);
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
 		Integer resourceId2 = projectResourceDao.save(resource).getId();
 		
-		List<ProjectResource> groups = projectResourceService.findParentGroupsByParentPath(projectId, "key1/key2");
+		List<RepositoryResource> groups = projectResourceService.findParentGroupsByParentPath(projectId, "key1/key2");
 		assertThat(groups).hasSize(2);
 		assertThat(groups.get(0).getId()).isEqualTo(resourceId);
 		assertThat(groups.get(1).getId()).isEqualTo(resourceId2);
@@ -693,12 +693,12 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	public void find_parent_id_by_parent_path_is_two_level_not_exist() {
 		Integer projectId = Integer.MAX_VALUE;
 		
-		ProjectResource resource = new ProjectResource();
-		resource.setProjectId(projectId);
+		RepositoryResource resource = new RepositoryResource();
+		resource.setRepositoryId(projectId);
 		resource.setKey("key1");
 		resource.setName("name1");
 		resource.setAppType(AppType.UNKNOWN);
-		resource.setResourceType(ProjectResourceType.GROUP);
+		resource.setResourceType(RepositoryResourceType.GROUP);
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
@@ -718,7 +718,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		userInfo.setCreateTime(LocalDateTime.now());
 		Integer userId = userDao.save(userInfo).getId();
 		
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setName("project_name");
 		project.setIsPublic(true);
 		project.setDescription("description");
@@ -729,16 +729,16 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		Project savedProject = projectService.createRepository(userInfo, project);
+		Repository savedProject = projectService.createRepository(userInfo, project);
 		
-		ProjectResource resource = new ProjectResource();
+		RepositoryResource resource = new RepositoryResource();
 		resource.setKey("page1");
 		resource.setName("name1");
-		resource.setResourceType(ProjectResourceType.PAGE);
+		resource.setResourceType(RepositoryResourceType.PAGE);
 		resource.setAppType(AppType.WEB);
 		resource.setCreateTime(LocalDateTime.now());
 		resource.setCreateUserId(userId);
-		resource.setProjectId(savedProject.getId());
+		resource.setRepositoryId(savedProject.getId());
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		projectResourceService.insert(savedProject, resource);
 		
@@ -764,7 +764,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		userInfo.setCreateTime(LocalDateTime.now());
 		Integer userId = userDao.save(userInfo).getId();
 		
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setName("project_name");
 		project.setIsPublic(true);
 		project.setDescription("description");
@@ -775,17 +775,17 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		Project savedProject = projectService.createRepository(userInfo, project);
+		Repository savedProject = projectService.createRepository(userInfo, project);
 		
 		// 有一个未跟踪的文件夹。
-		ProjectResource resource = new ProjectResource();
+		RepositoryResource resource = new RepositoryResource();
 		resource.setKey("group1");
 		resource.setName("name1");
-		resource.setResourceType(ProjectResourceType.GROUP);
+		resource.setResourceType(RepositoryResourceType.GROUP);
 		resource.setAppType(AppType.UNKNOWN);
 		resource.setCreateTime(LocalDateTime.now());
 		resource.setCreateUserId(userId);
-		resource.setProjectId(savedProject.getId());
+		resource.setRepositoryId(savedProject.getId());
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		projectResourceService.insert(savedProject, resource);
 		
@@ -804,7 +804,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		userInfo.setCreateTime(LocalDateTime.now());
 		Integer userId = userDao.save(userInfo).getId();
 		
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setName("project_name");
 		project.setIsPublic(true);
 		project.setDescription("description");
@@ -815,36 +815,36 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		Project savedProject = projectService.createRepository(userInfo, project);
+		Repository savedProject = projectService.createRepository(userInfo, project);
 		
 		// 有一个未跟踪的文件夹。
-		ProjectResource group1 = new ProjectResource();
+		RepositoryResource group1 = new RepositoryResource();
 		group1.setKey("group1");
-		group1.setResourceType(ProjectResourceType.GROUP);
+		group1.setResourceType(RepositoryResourceType.GROUP);
 		group1.setAppType(AppType.UNKNOWN);
 		group1.setCreateTime(LocalDateTime.now());
 		group1.setCreateUserId(userId);
-		group1.setProjectId(savedProject.getId());
+		group1.setRepositoryId(savedProject.getId());
 		group1.setParentId(Constant.TREE_ROOT_ID);
 		Integer group1Id = projectResourceService.insert(savedProject, group1).getId();
 		
-		ProjectResource group11 = new ProjectResource();
+		RepositoryResource group11 = new RepositoryResource();
 		group11.setKey("group11");
-		group11.setResourceType(ProjectResourceType.GROUP);
+		group11.setResourceType(RepositoryResourceType.GROUP);
 		group11.setAppType(AppType.UNKNOWN);
 		group11.setCreateTime(LocalDateTime.now());
 		group11.setCreateUserId(userId);
-		group11.setProjectId(savedProject.getId());
+		group11.setRepositoryId(savedProject.getId());
 		group11.setParentId(group1Id);
 		Integer group11Id = projectResourceService.insert(savedProject, group11).getId();
 				
-		ProjectResource page1 = new ProjectResource();
+		RepositoryResource page1 = new RepositoryResource();
 		page1.setKey("page111");
-		page1.setResourceType(ProjectResourceType.PAGE);
+		page1.setResourceType(RepositoryResourceType.PAGE);
 		page1.setAppType(AppType.WEB);
 		page1.setCreateTime(LocalDateTime.now());
 		page1.setCreateUserId(userId);
-		page1.setProjectId(savedProject.getId());
+		page1.setRepositoryId(savedProject.getId());
 		page1.setParentId(group11Id);
 		projectResourceService.insert(savedProject, page1);
 		
@@ -872,7 +872,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		userInfo.setCreateTime(LocalDateTime.now());
 		Integer userId = userDao.save(userInfo).getId();
 		
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setName("project_name");
 		project.setIsPublic(true);
 		project.setDescription("description");
@@ -883,16 +883,16 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		Project savedProject = projectService.createRepository(userInfo, project);
+		Repository savedProject = projectService.createRepository(userInfo, project);
 		
-		ProjectResource resource = new ProjectResource();
+		RepositoryResource resource = new RepositoryResource();
 		resource.setKey("page1");
 		resource.setName("name1");
-		resource.setResourceType(ProjectResourceType.PAGE);
+		resource.setResourceType(RepositoryResourceType.PAGE);
 		resource.setAppType(AppType.WEB);
 		resource.setCreateTime(LocalDateTime.now());
 		resource.setCreateUserId(userId);
-		resource.setProjectId(savedProject.getId());
+		resource.setRepositoryId(savedProject.getId());
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		projectResourceService.insert(savedProject, resource);
 		
@@ -920,7 +920,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		userInfo.setCreateTime(LocalDateTime.now());
 		Integer userId = userDao.save(userInfo).getId();
 		
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setName("project_name");
 		project.setIsPublic(true);
 		project.setDescription("description");
@@ -931,16 +931,16 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		Project savedProject = projectService.createRepository(userInfo, project);
+		Repository savedProject = projectService.createRepository(userInfo, project);
 		
-		ProjectResource resource = new ProjectResource();
+		RepositoryResource resource = new RepositoryResource();
 		resource.setKey("page1");
 		resource.setName("name1");
-		resource.setResourceType(ProjectResourceType.PAGE);
+		resource.setResourceType(RepositoryResourceType.PAGE);
 		resource.setAppType(AppType.WEB);
 		resource.setCreateTime(LocalDateTime.now());
 		resource.setCreateUserId(userId);
-		resource.setProjectId(savedProject.getId());
+		resource.setRepositoryId(savedProject.getId());
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		projectResourceService.insert(savedProject, resource);
 		
@@ -969,7 +969,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		userInfo.setCreateTime(LocalDateTime.now());
 		Integer userId = userDao.save(userInfo).getId();
 		
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setName("project_name");
 		project.setIsPublic(true);
 		project.setDescription("description");
@@ -980,7 +980,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		Project savedProject = projectService.createRepository(userInfo, project);
+		Repository savedProject = projectService.createRepository(userInfo, project);
 		
 		List<UncommittedFile> changes = projectResourceService.findChanges(savedProject);
 		assertThat(changes).isEmpty();
@@ -998,7 +998,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		userInfo.setCreateTime(LocalDateTime.now());
 		Integer userId = userDao.save(userInfo).getId();
 		
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setName("project_name");
 		project.setIsPublic(true);
 		project.setDescription("description");
@@ -1009,16 +1009,16 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		Project savedProject = projectService.createRepository(userInfo, project);
+		Repository savedProject = projectService.createRepository(userInfo, project);
 		
-		ProjectResource resource = new ProjectResource();
+		RepositoryResource resource = new RepositoryResource();
 		resource.setKey("page1");
 		resource.setName("name1");
-		resource.setResourceType(ProjectResourceType.PAGE);
+		resource.setResourceType(RepositoryResourceType.PAGE);
 		resource.setAppType(AppType.WEB);
 		resource.setCreateTime(LocalDateTime.now());
 		resource.setCreateUserId(userId);
-		resource.setProjectId(savedProject.getId());
+		resource.setRepositoryId(savedProject.getId());
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		projectResourceService.insert(savedProject, resource);
 		
@@ -1028,7 +1028,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		List<UncommittedFile> changes = projectResourceService.findChanges(savedProject);
 		assertThat(changes).hasSize(0);
 		
-		Optional<ProjectCommit> commitOption = projectCommitDao.findByProjectIdAndBranchAndCommitId(savedProject.getId(), Constants.MASTER, commitId);
+		Optional<RepositoryCommit> commitOption = projectCommitDao.findByRepositoryIdAndBranchAndCommitId(savedProject.getId(), Constants.MASTER, commitId);
 		assertThat(commitOption).isPresent();
 	}
 
@@ -2418,18 +2418,18 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		user.setLoginName("jack");
 		when(userService.findById(anyInt())).thenReturn(Optional.of(user));
 		
-		Project project = new Project();
+		Repository project = new Repository();
 		project.setName("project");
 		project.setCreateUserId(userId);
 		
-		ProjectResource resource = new ProjectResource();
+		RepositoryResource resource = new RepositoryResource();
 		String pageKey = "key1";
-		resource.setProjectId(projectId);
+		resource.setRepositoryId(projectId);
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		resource.setAppType(AppType.WEB);
 		resource.setKey(pageKey);
 		resource.setName("name");
-		resource.setResourceType(ProjectResourceType.PAGE);
+		resource.setResourceType(RepositoryResourceType.PAGE);
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		ProjectContext context = new ProjectContext("jack", "project", rootFolder.toString());

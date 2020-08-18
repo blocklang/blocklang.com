@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+	<changeSet author="Zhengwei Jin" id="202008110624">
+		<dropPrimaryKey tableName="project"/>
+		<dropUniqueConstraint tableName="project" constraintName="uk_project_name_create_user_id"/>
+		<renameTable newTableName="repository" oldTableName="project"/>
+		<setTableRemarks tableName="repository" remarks="仓库基本信息"/>
+		<addPrimaryKey columnNames="dbid" tableName="repository" constraintName="pk_repository" />
+		<renameColumn tableName="repository" oldColumnName="project_name" newColumnName="name"/>
+		<setColumnRemarks tableName="repository" columnName="name" remarks="仓库名称"/>
+		<renameColumn tableName="repository" oldColumnName="project_desc" newColumnName="description"/>
+		<setColumnRemarks tableName="repository" columnName="description" remarks="仓库描述"/>
+		<setColumnRemarks tableName="repository" columnName="avatar_url" remarks="仓库 Logo"/>
+		<addUniqueConstraint columnNames="name,create_user_id" tableName="repository" constraintName="uk_repository_name_create_user_id"/>
+	</changeSet>
+
+</databaseChangeLog>
