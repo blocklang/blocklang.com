@@ -3,7 +3,7 @@ import WidgetBase from '@dojo/framework/core/WidgetBase';
 import I18nMixin from '@dojo/framework/core/mixins/I18n';
 import { theme, ThemedMixin } from '@dojo/framework/core/mixins/Themed';
 import messageBundle from '../../nls/main';
-import ProjectHeader from '../widgets/ProjectHeader';
+import RepositoryHeader from '../widgets/RepositoryHeader';
 import { Project, ProjectRelease, WsMessage } from '../../interfaces';
 import FontAwesomeIcon from '@blocklang/dojo-fontawesome/FontAwesomeIcon';
 import Link from '@dojo/framework/routing/Link';
@@ -85,7 +85,7 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 		} = this._localizedMessages;
 		const { project } = this.properties;
 
-		return w(ProjectHeader, { project, privateProjectTitle });
+		return w(RepositoryHeader, { project, privateProjectTitle });
 	}
 
 	private _renderEmptyReleases() {

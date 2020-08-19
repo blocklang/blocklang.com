@@ -50,7 +50,7 @@ export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderPro
 
 		return [
 			v('li', { key: 'li-0', classes: [c.nav_item] }, [
-				w(Link, { to: 'new-repository', classes: [c.nav_link] }, [
+				w(Link, { to: 'new-repo', classes: [c.nav_link] }, [
 					w(FontAwesomeIcon, { icon: 'plus' }),
 					` ${messages.newRepository}`,
 				]),
@@ -98,8 +98,8 @@ export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderPro
 	protected render() {
 		const { isAuthenticated, routing } = this.properties;
 
-		// 如果是 view-project-page 则不显示此部件
-		if (routing === 'view-project-page') {
+		// 如果是 view-repo-page 则不显示此部件
+		if (routing === 'view-repo-page') {
 			return;
 		}
 

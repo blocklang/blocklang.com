@@ -8,8 +8,8 @@ import * as c from '@blocklang/bootstrap-classes';
 import * as css from './NewPage.m.css';
 import { v, w } from '@dojo/framework/core/vdom';
 import Exception from '../../error/Exception';
-import ProjectHeader from '../../widgets/ProjectHeader';
-import { Project, AppType, WithTarget, ProjectResourceGroup } from '../../../interfaces';
+import RepositoryHeader from '../../widgets/RepositoryHeader';
+import { Repository, AppType, WithTarget, RepositoryResourceGroup } from '../../../interfaces';
 import FontAwesomeIcon from '@blocklang/dojo-fontawesome/FontAwesomeIcon';
 import { IconPrefix, IconName } from '@fortawesome/fontawesome-svg-core';
 import Link from '@dojo/framework/routing/Link';
@@ -20,11 +20,11 @@ import { canNewPage } from '../../../permission';
 export interface NewPageProperties {
 	// user
 	loggedUsername: string;
-	project: Project;
+	repository: Repository;
 	appTypes: AppType[];
 	// attr
 	parentId: number; // 所属分组标识
-	parentGroups: ProjectResourceGroup[];
+	parentGroups: RepositoryResourceGroup[];
 	appType: string;
 	// validation
 	keyValidateStatus?: ValidateStatus;
@@ -74,25 +74,25 @@ export default class NewPage extends ThemedMixin(I18nMixin(WidgetBase))<NewPageP
 	}
 
 	private _isAuthenticated() {
-		const { project, loggedUsername } = this.properties;
+		const { repository, loggedUsername } = this.properties;
 		const isLogin = !!loggedUsername;
 		if (!isLogin) {
 			return false;
 		}
-		return canNewPage(project.accessLevel);
+		return canNewPage(repository.accessLevel);
 	}
 
 	private _renderHeader() {
 		const {
-			messages: { privateProjectTitle },
+			messages: { privateRepositoryTitle },
 		} = this._localizedMessages;
-		const { project } = this.properties;
+		const { repository } = this.properties;
 
-		return w(ProjectHeader, { project, privateProjectTitle });
+		return w(RepositoryHeader, { repository, privateRepositoryTitle });
 	}
 
 	private _renderBreadcrumb() {
-		const { project, parentGroups } = this.properties;
+		const { repository, parentGroups } = this.properties;
 
 		return v('nav', { classes: [], 'aria-label': 'breadcrumb' }, [
 			v('ol', { classes: [c.breadcrumb, css.navOl] }, [
@@ -101,11 +101,11 @@ export default class NewPage extends ThemedMixin(I18nMixin(WidgetBase))<NewPageP
 					w(
 						Link,
 						{
-							to: 'view-project',
-							params: { owner: project.createUserName, project: project.name },
+							to: 'view-repo',
+							params: { owner: repository.createUserName, repo: repository.name },
 							classes: [c.font_weight_bold],
 						},
-						[`${project.name}`]
+						[`${repository.name}`]
 					),
 				]),
 				...parentGroups.map((item) => {
@@ -113,10 +113,10 @@ export default class NewPage extends ThemedMixin(I18nMixin(WidgetBase))<NewPageP
 						w(
 							Link,
 							{
-								to: 'view-project-group',
+								to: 'view-repo-group',
 								params: {
-									owner: project.createUserName,
-									project: project.name,
+									owner: repository.createUserName,
+									repo: repository.name,
 									parentPath: item.path.substring(1),
 								},
 							},
@@ -250,7 +250,7 @@ export default class NewPage extends ThemedMixin(I18nMixin(WidgetBase))<NewPageP
 		} = this._localizedMessages;
 
 		const {
-			project,
+			repository,
 			parentGroups = [],
 			keyValidateStatus = ValidateStatus.UNVALIDATED,
 			nameValidateStatus = ValidateStatus.UNVALIDATED,
@@ -276,8 +276,8 @@ export default class NewPage extends ThemedMixin(I18nMixin(WidgetBase))<NewPageP
 						Link,
 						{
 							classes: [c.btn, c.btn_secondary],
-							to: 'view-project',
-							params: { owner: project.createUserName, project: project.name },
+							to: 'view-repo',
+							params: { owner: repository.createUserName, repo: repository.name },
 						},
 						[`${pageCancelSaveLabel}`]
 				  )
@@ -285,10 +285,10 @@ export default class NewPage extends ThemedMixin(I18nMixin(WidgetBase))<NewPageP
 						Link,
 						{
 							classes: [c.btn, c.btn_secondary],
-							to: 'view-project-group',
+							to: 'view-repo-group',
 							params: {
-								owner: project.createUserName,
-								project: project.name,
+								owner: repository.createUserName,
+								repo: repository.name,
 								parentPath: parentGroups[parentGroups.length - 1].path.substring(1),
 							},
 						},
@@ -299,20 +299,20 @@ export default class NewPage extends ThemedMixin(I18nMixin(WidgetBase))<NewPageP
 
 	private _onKeyInput({ target: { value: key } }: WithTarget) {
 		const {
-			project: { createUserName, name },
+			repository: { createUserName, name },
 			parentId,
 			appType,
 		} = this.properties;
-		this.properties.onKeyInput({ key, owner: createUserName, project: name, parentId, appType });
+		this.properties.onKeyInput({ key, owner: createUserName, repo: name, parentId, appType });
 	}
 
 	private _onNameInput({ target: { value: pageName } }: WithTarget) {
 		const {
-			project: { createUserName, name },
+			repository: { createUserName, name },
 			parentId,
 			appType,
 		} = this.properties;
-		this.properties.onNameInput({ name: pageName, owner: createUserName, project: name, parentId, appType });
+		this.properties.onNameInput({ name: pageName, owner: createUserName, repo: name, parentId, appType });
 	}
 
 	private _onDescriptionInput({ target: { value: description } }: WithTarget) {
@@ -321,7 +321,7 @@ export default class NewPage extends ThemedMixin(I18nMixin(WidgetBase))<NewPageP
 
 	private _onSavePage() {
 		const {
-			project: { createUserName, name },
+			repository: { createUserName, name },
 			parentGroups,
 		} = this.properties;
 
@@ -329,6 +329,6 @@ export default class NewPage extends ThemedMixin(I18nMixin(WidgetBase))<NewPageP
 		if (parentGroups.length > 0) {
 			parentPath = parentGroups[parentGroups.length - 1].path.substring(1);
 		}
-		this.properties.onSavePage({ owner: createUserName, project: name, parentPath });
+		this.properties.onSavePage({ owner: createUserName, repository: name, parentPath });
 	}
 }

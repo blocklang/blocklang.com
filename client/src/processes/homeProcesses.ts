@@ -4,22 +4,22 @@ import { replace, remove } from '@dojo/framework/stores/state/operations';
 import { baseUrl } from '../config';
 import { getCurrentUserCommand } from './userProcesses';
 
-const initCanAccessProjectsCommand = commandFactory(async ({ get, path }) => {
+const initCanAccessReposCommand = commandFactory(async ({ get, path }) => {
 	// 如果用户未登录，则不获取项目信息
 	const isAuthenticated = !!get(path('user', 'loginName'));
 	if (!isAuthenticated) {
 		return [];
 	}
 
-	const response = await fetch(`${baseUrl}/user/projects`, {
+	const response = await fetch(`${baseUrl}/user/repos`, {
 		headers: getHeaders(),
 	});
 	const json = await response.json();
 	if (!response.ok) {
-		return [remove(path('canAccessProjects'))];
+		return [remove(path('canAccessRepos'))];
 	}
 
-	return [replace(path('canAccessProjects'), json)];
+	return [replace(path('canAccessRepos'), json)];
 });
 
-export const initHomeProcess = createProcess('init-home', [getCurrentUserCommand, initCanAccessProjectsCommand]);
+export const initHomeProcess = createProcess('init-home', [getCurrentUserCommand, initCanAccessReposCommand]);

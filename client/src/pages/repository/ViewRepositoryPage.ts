@@ -50,7 +50,7 @@ export default class ViewProjectPage extends ThemedMixin(I18nMixin(WidgetBase))<
 			},
 			routes: {
 				profile: 'profile',
-				parentGroup: 'view-project',
+				parentGroup: 'view-repo',
 				// 当 dojo 路由支持通配符后，删除此段代码
 				gotoGroup: (owner: string, project: string, parentPath: string) => {
 					onGotoGroup({ owner, project, parentPath });

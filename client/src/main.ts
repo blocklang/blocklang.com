@@ -13,10 +13,10 @@ import { State } from './interfaces';
 import { initForUserProfileProcess } from './processes/userProcesses';
 import { initForNewRepositoryProcess } from './processes/repositoryProcesses';
 import {
-	initForViewProjectProcess,
-	initForViewProjectGroupProcess,
+	initForViewRepositoryProcess,
+	initForViewRepositoryGroupProcess,
 	initForViewCommitChangesProcess,
-} from './processes/projectProcesses';
+} from './processes/repositoryProcesses';
 import { changeRouteProcess } from './processes/routeProcesses';
 import { initHomeProcess } from './processes/homeProcesses';
 import {
@@ -26,8 +26,8 @@ import {
 } from './processes/releaseProcesses';
 import { initForViewDocumentProcess } from './processes/documentProcess';
 import { setSessionProcess } from './processes/loginProcesses';
-import { initForNewPageProcess, initForViewProjectPageProcess } from './processes/projectPageProcesses';
-import { initForNewGroupProcess } from './processes/projectGroupProcesses';
+import { initForNewPageProcess, initForViewRepositoryPageProcess } from './processes/repositoryPageProcesses';
+import { initForNewGroupProcess } from './processes/repositoryGroupProcesses';
 import {
 	initForListComponentReposProcess,
 	initForListMyComponentReposProcess,
@@ -74,17 +74,17 @@ function setDocumentTitle(titleOptions: DocumentTitleOptions): string | undefine
 		const { website, owner, repoName } = get(path('componentRepoPublishTask'));
 		return `发布组件 · ${website}/${owner}/${repoName}`;
 	}
-	let project = get(path('project'));
-	if (!project) {
-		if (params.owner && params.project) {
-			initForViewProjectProcess(store)({ owner: params.owner, project: params.project });
-			project = get(path('project'));
+	let repository = get(path('repository'));
+	if (!repository) {
+		if (params.owner && params.repo) {
+			initForViewRepositoryProcess(store)({ owner: params.owner, repo: params.repo });
+			repository = get(path('repository'));
 		}
 	}
-	if (!project) {
+	if (!repository) {
 		return title;
 	}
-	if (id === 'new-project') {
+	if (id === 'new-repo') {
 		if (queryParams.type === 'web') {
 			return '创建 Web 项目';
 		}
@@ -92,41 +92,41 @@ function setDocumentTitle(titleOptions: DocumentTitleOptions): string | undefine
 			return '创建小程序';
 		}
 	}
-	if (id === 'view-project') {
-		let result = `${project.createUserName}/${project.name}`;
-		if (project.description) {
-			result += `: ${project.description}`;
+	if (id === 'view-repo') {
+		let result = `${repository.createUserName}/${repository.name}`;
+		if (repository.description) {
+			result += `: ${repository.description}`;
 		}
 		return result;
 	}
-	if (id === 'view-project-readme') {
-		return `${project.createUserName}/${project.name}/README`;
+	if (id === 'view-repo-readme') {
+		return `${repository.createUserName}/${repository.name}/README`;
 	}
 	if (id === 'view-project-dependence') {
-		const projectResource = get(path('projectResource'));
-		return `${project.createUserName}/${project.name}/${projectResource.fullPath}DEPENDENCE`;
+		const repositoryResource = get(path('repositoryResource'));
+		return `${repository.createUserName}/${repository.name}/${repositoryResource.fullPath}DEPENDENCE`;
 	}
-	if (id === 'view-project-page') {
-		const projectResource = get(path('projectResource'));
-		return `${project.createUserName}/${project.name}/${projectResource.fullPath}`;
+	if (id === 'view-repo-page') {
+		const repositoryResource = get(path('repositoryResource'));
+		return `${repository.createUserName}/${repository.name}/${repositoryResource.fullPath}`;
 	}
-	if (id === 'view-project-templet') {
+	if (id === 'view-repo-templet') {
 	}
-	if (id === 'view-project-service') {
+	if (id === 'view-repo-service') {
 	}
-	if (id === 'view-project-group') {
-		const projectResource = get(path('projectResource'));
-		return `${project.createUserName}/${project.name}/${projectResource.fullPath}`;
+	if (id === 'view-repo-group') {
+		const repositoryResource = get(path('repositoryResource'));
+		return `${repository.createUserName}/${repository.name}/${repositoryResource.fullPath}`;
 	}
 	if (id === 'list-release') {
-		return `发行版 · ${project.createUserName}/${project.name}`;
+		return `发行版 · ${repository.createUserName}/${repository.name}`;
 	}
 	if (id === 'new-release') {
-		return `创建发行版 · ${project.createUserName}/${project.name}`;
+		return `创建发行版 · ${repository.createUserName}/${repository.name}`;
 	}
 	if (id === 'view-release') {
 		const projectRelease = get(path('projectRelease'));
-		return `${projectRelease.version} · ${project.createUserName}/${project.name}`;
+		return `${projectRelease.version} · ${repository.createUserName}/${repository.name}`;
 	}
 
 	return title;
@@ -143,14 +143,14 @@ router.on('outlet', ({ outlet, action }) => {
 				// 页面初始化数据
 				initHomeProcess(store)({});
 				break;
-			case 'new-repository':
+			case 'new-repo':
 				initForNewRepositoryProcess(store)({});
 				break;
-			case 'view-project':
-				initForViewProjectProcess(store)({ owner: outlet.params.owner, project: outlet.params.project });
-				initForViewCommitChangesProcess(store)({ owner: outlet.params.owner, project: outlet.params.project });
+			case 'view-repo':
+				initForViewRepositoryProcess(store)({ owner: outlet.params.owner, repo: outlet.params.repo });
+				initForViewCommitChangesProcess(store)({ owner: outlet.params.owner, repo: outlet.params.repo });
 				break;
-			case 'view-project-group':
+			case 'view-repo-group':
 				if (outlet.isExact()) {
 					parentPath = outlet.params.parentPath;
 				} else {
@@ -160,13 +160,13 @@ router.on('outlet', ({ outlet, action }) => {
 						`/${outlet.params.owner}/${outlet.params.project}/groups/`.length
 					);
 				}
-				initForViewProjectGroupProcess(store)({
+				initForViewRepositoryGroupProcess(store)({
 					owner: outlet.params.owner,
-					project: outlet.params.project,
+					repo: outlet.params.repo,
 					parentPath,
 				});
 				break;
-			case 'view-project-page':
+			case 'view-repo-page':
 				let pagePath;
 				if (outlet.isExact()) {
 					pagePath = outlet.params.path;
@@ -177,7 +177,7 @@ router.on('outlet', ({ outlet, action }) => {
 						`/${outlet.params.owner}/${outlet.params.project}/pages/`.length
 					);
 				}
-				initForViewProjectPageProcess(store)({
+				initForViewRepositoryPageProcess(store)({
 					owner: outlet.params.owner,
 					project: outlet.params.project,
 					pagePath,

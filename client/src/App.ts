@@ -49,8 +49,8 @@ export default class App extends WidgetBase {
 					renderer: () => w(CompleteUserInfoContainer, {}),
 				}),
 				w(Route, {
-					key: 'new-repository',
-					id: 'new-repository',
+					key: 'new-repo',
+					id: 'new-repo',
 					renderer: () => w(NewRepositoryContainer, {}),
 				}),
 				w(Route, {
@@ -66,18 +66,18 @@ export default class App extends WidgetBase {
 					},
 				}),
 				w(Route, {
-					key: 'view-project',
-					id: 'view-project',
+					key: 'view-repo',
+					id: 'view-repo',
 					renderer: () => w(ViewProjectContainer, {}),
 				}),
 				w(Route, {
-					key: 'view-project-group',
-					id: 'view-project-group',
+					key: 'view-repo-group',
+					id: 'view-repo-group',
 					renderer: () => w(ViewProjectGroupContainer, {}),
 				}),
 				w(Route, {
-					key: 'view-project-readme',
-					id: 'view-project-readme',
+					key: 'view-repo-readme',
+					id: 'view-repo-readme',
 					renderer: () => w(ViewProjectReadmeContainer, {}),
 				}),
 				w(Route, {
@@ -86,18 +86,18 @@ export default class App extends WidgetBase {
 					renderer: () => w(ViewProjectDependenceContainer, {}),
 				}),
 				w(Route, {
-					key: 'view-project-page',
-					id: 'view-project-page',
+					key: 'view-repo-page',
+					id: 'view-repo-page',
 					renderer: () => w(ViewProjectPageContainer, {}),
 				}),
 				w(Route, {
-					key: 'view-project-templet',
-					id: 'view-project-templet',
+					key: 'view-repo-templet',
+					id: 'view-repo-templet',
 					renderer: () => w(ViewProjectTempletContainer, {}),
 				}),
 				w(Route, {
-					key: 'view-project-service',
-					id: 'view-project-service',
+					key: 'view-repo-service',
+					id: 'view-repo-service',
 					renderer: () => w(ViewProjectServiceContainer, {}),
 				}),
 				w(Route, { key: 'new-page-root', id: 'new-page-root', renderer: () => w(NewPageContainer, {}) }),

@@ -1,5 +1,5 @@
-import { Project, ProjectResourceGroup } from '../../../interfaces';
-import { ProjectResourcePathPayload } from '../../../processes/interfaces';
+import { Repository, RepositoryResourceGroup } from '../../../interfaces';
+import { RepositoryResourcePathPayload } from '../../../processes/interfaces';
 import ThemedMixin, { theme } from '@dojo/framework/core/mixins/Themed';
 import I18nMixin from '@dojo/framework/core/mixins/I18n';
 import WidgetBase from '@dojo/framework/core/WidgetBase';
@@ -11,16 +11,16 @@ import * as c from '@blocklang/bootstrap-classes';
 import * as css from './GoToParentGroupLink.m.css';
 
 interface GoToParentGroupLinkProperties {
-	project: Project;
-	parentGroups: ProjectResourceGroup[];
-	onGoToGroup: (opt: ProjectResourcePathPayload) => void;
+	repository: Repository;
+	parentGroups: RepositoryResourceGroup[];
+	onGoToGroup: (opt: RepositoryResourcePathPayload) => void;
 }
 
 // TODO: 确认 Link 部件，是不是本身就支持此操作
 @theme(css)
 export default class GoToParentGroupLink extends ThemedMixin(I18nMixin(WidgetBase))<GoToParentGroupLinkProperties> {
 	protected render() {
-		const { project, parentGroups = [] } = this.properties;
+		const { repository, parentGroups = [] } = this.properties;
 		if (parentGroups.length === 1) {
 			// 上一级是根目录
 			return w(
@@ -28,8 +28,8 @@ export default class GoToParentGroupLink extends ThemedMixin(I18nMixin(WidgetBas
 				{
 					classes: [c.px_2],
 					title: '到上级目录',
-					to: 'view-project',
-					params: { owner: project.createUserName, project: project.name },
+					to: 'view-repo',
+					params: { owner: repository.createUserName, repo: repository.name },
 				},
 				['..']
 			);
@@ -37,7 +37,7 @@ export default class GoToParentGroupLink extends ThemedMixin(I18nMixin(WidgetBas
 			return v(
 				'a',
 				{
-					href: `/${project.createUserName}/${project.name}/groups/${this._getParentPath()}`,
+					href: `/${repository.createUserName}/${repository.name}/groups/${this._getParentPath()}`,
 					// 因为 dojo 5.0 的 route 不支持通配符，这里尝试实现类似效果
 					onclick: this._onGoToGroup,
 				},
@@ -57,12 +57,16 @@ export default class GoToParentGroupLink extends ThemedMixin(I18nMixin(WidgetBas
 	}
 
 	private _onGoToGroup(event: any) {
-		const { project } = this.properties;
+		const { repository } = this.properties;
 		event.stopPropagation();
 		event.preventDefault();
 		const parentPath = this._getParentPath();
-		this.properties.onGoToGroup({ owner: project.createUserName, project: project.name, parentPath });
-		global.window.history.pushState({}, '', `/${project.createUserName}/${project.name}/groups/${parentPath}`);
+		this.properties.onGoToGroup({ owner: repository.createUserName, repo: repository.name, parentPath });
+		global.window.history.pushState(
+			{},
+			'',
+			`/${repository.createUserName}/${repository.name}/groups/${parentPath}`
+		);
 		return false;
 	}
 }

@@ -29,11 +29,9 @@ export default class Home extends ThemedMixin(I18nMixin(WidgetBase))<HomePropert
 					v('div', { classes: [c.card] }, [
 						v('div', { classes: [c.card_header] }, [
 							`${messages.canAccessProjectsCardTitle}`,
-							w(
-								Link,
-								{ to: 'new-repository', classes: [c.float_right], title: `${messages.newRepository}` },
-								[w(FontAwesomeIcon, { icon: 'plus' })]
-							),
+							w(Link, { to: 'new-repo', classes: [c.float_right], title: `${messages.newRepository}` }, [
+								w(FontAwesomeIcon, { icon: 'plus' }),
+							]),
 						]),
 						v(
 							'ul',
@@ -90,7 +88,7 @@ export default class Home extends ThemedMixin(I18nMixin(WidgetBase))<HomePropert
 
 		return projects.map((project) => {
 			return v('li', { classes: [c.list_group_item] }, [
-				w(Link, { to: 'view-project', params: { owner: project.createUserName, project: project.name } }, [
+				w(Link, { to: 'view-repo', params: { owner: project.createUserName, project: project.name } }, [
 					`${project.createUserName}/${project.name}`,
 				]),
 				' ',

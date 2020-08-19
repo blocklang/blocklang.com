@@ -7,17 +7,17 @@ import {
 	pageDescriptionInputProcess,
 	savePageProcess,
 	pageNameInputProcess,
-} from '../../processes/projectPageProcesses';
+} from '../../processes/repositoryPageProcesses';
 
 function getProperties(store: Store<State>): NewPageProperties {
 	const { get, path } = store;
 
 	return {
 		loggedUsername: get(path('user', 'loginName')),
-		project: get(path('project')),
+		project: get(path('repository')),
 		appTypes: get(path('appTypes')),
 		appType: get(path('pageParam', 'appType')),
-		parentId: get(path('projectResource', 'id')),
+		parentId: get(path('repositoryResource', 'id')),
 		parentGroups: get(path('parentGroups')),
 		keyValidateStatus: get(path('pageInputValidation', 'keyValidateStatus')),
 		keyErrorMessage: get(path('pageInputValidation', 'keyErrorMessage')),
@@ -33,10 +33,10 @@ function getProperties(store: Store<State>): NewPageProperties {
 export default StoreContainer(NewPage, 'state', {
 	paths: [
 		['user'],
-		['project'],
+		['repository'],
 		['appTypes'],
 		['pageParam'],
-		['projectResource'],
+		['repositoryResource'],
 		['parentGroups'],
 		['pageInputValidation'],
 	],

@@ -10,8 +10,8 @@
 | `complete-user-info` | `user/completeUserInfo`          | 完善用户信息       |
 | `profile`            | `{user}`                         | 用户档案           |
 | `settings-profile`   | `settings/profile`               | 设置用户资料       |
-| `new-repository`     | `projects/new`                   | 新建仓库           |
-| `view-project`       | `{owner}/{project}`              | 查看项目           |
+| `new-repo`           | `projects/new`                   | 新建仓库           |
+| `view-repo`          | `{owner}/{project}`              | 查看项目           |
 | `list-release`       | `{owner}/{project}/releases`     | 发布项目列表       |
 | `new-release`        | `{owner}/{project}/releases/new` | 新建发布           |
 | `docs`               | `docs/{fileName}`                | 查看帮助文档       |

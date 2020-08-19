@@ -6,11 +6,11 @@ GET /repos/{owner}/{repoName}/latest-commit/{parentId}
 
 ## Parameters
 
-| Name          | Type     | Description                   |
-| ------------- | -------- | ----------------------------- |
-| `owner`       | `string` | **Required**. 用户登录名      |
+| Name       | Type     | Description                   |
+| ---------- | -------- | ----------------------------- |
+| `owner`    | `string` | **Required**. 用户登录名      |
 | `repoName` | `string` | **Required**. 仓库名称        |
-| `parentId`    | `string` | 当前目录的标识，-1 表示根结点 |
+| `parentId` | `string` | 当前目录的标识，-1 表示根结点 |
 
 ## Response
 

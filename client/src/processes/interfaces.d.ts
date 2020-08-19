@@ -30,17 +30,17 @@ export interface IsPublicPayload {
 	isPublic: boolean;
 }
 
-export interface ProjectPathPayload {
+export interface RepositoryPathPayload {
 	owner: string;
-	project: string;
+	repo: string;
 }
 
-export interface ProjectResourcePathPayload extends ProjectPathPayload {
+export interface RepositoryResourcePathPayload extends RepositoryPathPayload {
 	// 不要以 / 开头
 	parentPath: string;
 }
 
-export interface VersionPayload extends ProjectPathPayload {
+export interface VersionPayload extends RepositoryPathPayload {
 	version: string;
 }
 
@@ -76,11 +76,11 @@ export interface BioPayload {
 	bio: string;
 }
 
-export interface GroupKeyPayload extends KeyPayload, ProjectPathPayload {
+export interface GroupKeyPayload extends KeyPayload, RepositoryPathPayload {
 	parentId: number;
 }
 
-export interface GroupNamePayload extends NamePayload, ProjectPathPayload {
+export interface GroupNamePayload extends NamePayload, RepositoryPathPayload {
 	parentId: number;
 }
 
@@ -92,7 +92,7 @@ export interface PageNamePayload extends GroupNamePayload {
 	appType: string;
 }
 
-export interface StagedChangesPayload extends ProjectPathPayload {
+export interface StagedChangesPayload extends RepositoryPathPayload {
 	files: string[];
 }
 
@@ -110,13 +110,16 @@ export interface QueryPayload {
 	query: string;
 }
 
-export interface ProjectDependenceWithProjectPathPayload extends ProjectPathPayload {
+export interface ProjectDependenceWithProjectPathPayload extends RepositoryPathPayload {
+	project: string;
 	componentRepoId: number;
 }
 
-export interface ProjectDependenceIdPayload extends ProjectPathPayload, IdPayload {}
+export interface ProjectDependenceIdPayload extends RepositoryPathPayload, IdPayload {
+	project: string;
+}
 
-export interface ProjectDependenceVersionPayload extends ProjectPathPayload {
+export interface ProjectDependenceVersionPayload extends RepositoryPathPayload {
 	dependenceId: number;
 	componentRepoVersionId: number;
 }

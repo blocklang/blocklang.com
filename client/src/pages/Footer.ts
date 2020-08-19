@@ -16,8 +16,8 @@ export default class Footer extends ThemedMixin(I18nMixin(WidgetBase))<FooterPro
 	protected render() {
 		const { routing } = this.properties;
 
-		// 如果是 view-project-page 则不显示此部件
-		if (routing === 'view-project-page') {
+		// 如果是 view-repo-page 则不显示此部件
+		if (routing === 'view-repo-page') {
 			return;
 		}
 

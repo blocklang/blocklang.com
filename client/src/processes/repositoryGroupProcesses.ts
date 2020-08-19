@@ -4,8 +4,8 @@ import { replace, remove } from '@dojo/framework/stores/state/operations';
 import { ValidateStatus, ResourceType } from '../constant';
 import { GroupKeyPayload, GroupNamePayload, DescriptionPayload } from './interfaces';
 import { baseUrl } from '../config';
-import { getProjectCommand } from './projectProcesses';
-import { getResourceParentPathCommand } from './projectPageProcesses';
+import { getRepositoryCommand } from './repositoryProcesses';
+import { getResourceParentPathCommand } from './repositoryPageProcesses';
 
 const startInitForNewGroupCommand = commandFactory(({ path }) => {
 	return [
@@ -13,13 +13,13 @@ const startInitForNewGroupCommand = commandFactory(({ path }) => {
 		replace(path('groupInputValidation', 'keyErrorMessage'), ''),
 		replace(path('groupInputValidation', 'nameValidateStatus'), ValidateStatus.UNVALIDATED),
 		replace(path('groupInputValidation', 'nameErrorMessage'), ''),
-		replace(path('projectResource', 'isLoading'), true),
-		replace(path('projectResource', 'isLoaded'), false),
+		replace(path('repositoryResource', 'isLoading'), true),
+		replace(path('repositoryResource', 'isLoaded'), false),
 	];
 });
 
 const groupKeyInputCommand = commandFactory<GroupKeyPayload>(
-	async ({ path, payload: { owner, project, parentId, key } }) => {
+	async ({ path, payload: { owner, repo, parentId, key } }) => {
 		const trimedKey = key.trim();
 		const result = [];
 
@@ -41,7 +41,7 @@ const groupKeyInputCommand = commandFactory<GroupKeyPayload>(
 		}
 
 		// 服务器端校验，所属分组下是否存在该 key
-		const response = await fetch(`${baseUrl}/projects/${owner}/${project}/groups/check-key`, {
+		const response = await fetch(`${baseUrl}/repos/${owner}/${repo}/groups/check-key`, {
 			method: 'POST',
 			headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
 			body: JSON.stringify({
@@ -68,11 +68,11 @@ const groupKeyInputCommand = commandFactory<GroupKeyPayload>(
 );
 
 const groupNameInputCommand = commandFactory<GroupNamePayload>(
-	async ({ path, payload: { owner, project, parentId, name } }) => {
+	async ({ path, payload: { owner, repo, parentId, name } }) => {
 		const trimedName = name.trim();
 		const result = [];
 		// 服务器端校验，校验所属分组下是否存在该 name
-		const response = await fetch(`${baseUrl}/projects/${owner}/${project}/groups/check-name`, {
+		const response = await fetch(`${baseUrl}/repos/${owner}/${repo}/groups/check-name`, {
 			method: 'POST',
 			headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
 			body: JSON.stringify({
@@ -103,14 +103,14 @@ const groupDescriptionInputCommand = commandFactory<DescriptionPayload>(({ path,
 });
 
 const saveGroupCommand = commandFactory(
-	async ({ path, get, payload: { owner, project, parentPath = '', appType, resourceType = ResourceType.Group } }) => {
+	async ({ path, get, payload: { owner, repo, parentPath = '', appType, resourceType = ResourceType.Group } }) => {
 		const groupParam = get(path('groupParam'));
-		const projectResource = get(path('projectResource'));
-		groupParam.parentId = projectResource.id;
+		const repositoryResource = get(path('repositoryResource'));
+		groupParam.parentId = repositoryResource.id;
 		groupParam.appType = appType;
 		groupParam.resourceType = resourceType;
 
-		const response = await fetch(`${baseUrl}/projects/${owner}/${project}/groups`, {
+		const response = await fetch(`${baseUrl}/repos/${owner}/${repo}/groups`, {
 			method: 'POST',
 			headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
 			body: JSON.stringify({
@@ -128,9 +128,9 @@ const saveGroupCommand = commandFactory(
 			// 清空输入参数
 			remove(path('errors')),
 			replace(path('groupParam'), undefined),
-			...linkTo(path, parentPath.length > 0 ? 'view-project-group' : 'view-project', {
+			...linkTo(path, parentPath.length > 0 ? 'view-repo-group' : 'view-repo', {
 				owner,
-				project,
+				repo,
 				parentPath,
 			}),
 		];
@@ -139,7 +139,7 @@ const saveGroupCommand = commandFactory(
 
 export const initForNewGroupProcess = createProcess('init-for-new-group', [
 	startInitForNewGroupCommand,
-	[getProjectCommand, getResourceParentPathCommand],
+	[getRepositoryCommand, getResourceParentPathCommand],
 ]);
 export const groupKeyInputProcess = createProcess('group-key-input', [groupKeyInputCommand]);
 export const groupNameInputProcess = createProcess('group-name-input', [groupNameInputCommand]);

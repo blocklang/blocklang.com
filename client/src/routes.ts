@@ -36,8 +36,8 @@ export default [
 	},
 	{
 		path: 'new',
-		outlet: 'new-repository',
-		id: 'new-repository',
+		outlet: 'new-repo',
+		id: 'new-repo',
 		title: '创建一个仓库',
 	},
 	{
@@ -47,13 +47,13 @@ export default [
 	},
 	{
 		path: '{owner}/{project}',
-		outlet: 'view-project',
-		id: 'view-project',
+		outlet: 'view-repo',
+		id: 'view-repo',
 	},
 	{
 		path: '{owner}/{project}/readme',
-		outlet: 'view-project-readme',
-		id: 'view-project-readme',
+		outlet: 'view-repo-readme',
+		id: 'view-repo-readme',
 	},
 	{
 		path: '{owner}/{project}/dependence',
@@ -62,23 +62,23 @@ export default [
 	},
 	{
 		path: '{owner}/{project}/pages/{path}',
-		outlet: 'view-project-page',
-		id: 'view-project-page',
+		outlet: 'view-repo-page',
+		id: 'view-repo-page',
 	},
 	{
 		path: '{owner}/{project}/templets/{path}',
-		outlet: 'view-project-templet',
-		id: 'view-project-templet',
+		outlet: 'view-repo-templet',
+		id: 'view-repo-templet',
 	},
 	{
 		path: '{owner}/{project}/services/{path}',
-		outlet: 'view-project-service',
-		id: 'view-project-service',
+		outlet: 'view-repo-service',
+		id: 'view-repo-service',
 	},
 	{
-		path: '{owner}/{project}/groups/{parentPath}',
-		outlet: 'view-project-group',
-		id: 'view-project-group',
+		path: '{owner}/{repo}/groups/{parentPath}',
+		outlet: 'view-repo-group',
+		id: 'view-repo-group',
 	},
 	{
 		path: '{owner}/{project}/pages/new',

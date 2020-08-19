@@ -5,8 +5,8 @@ import WidgetBase from '@dojo/framework/core/WidgetBase';
 import { v, w } from '@dojo/framework/core/vdom';
 import * as c from '@blocklang/bootstrap-classes';
 import {
-	Project,
-	ProjectResourceGroup,
+	Repository,
+	RepositoryResourceGroup,
 	CommitInfo,
 	WithTarget,
 	PagedComponentRepos,
@@ -19,7 +19,7 @@ import {
 import Spinner from '../../widgets/spinner';
 import { isEmpty, getProgramingLanguageName, getRepoCategoryName, getProgramingLanguageColor } from '../../util';
 import Exception from '../error/Exception';
-import ProjectHeader from '../widgets/ProjectHeader';
+import RepositoryHeader from '../widgets/RepositoryHeader';
 import messageBundle from '../../nls/main';
 
 import {
@@ -44,9 +44,9 @@ import { RepoType } from '../../constant';
 
 export interface ViewProjectDependenceProperties {
 	loggedUsername: string;
-	project: Project;
+	repository: Repository;
 	sourceId: number;
-	pathes: ProjectResourceGroup[];
+	pathes: RepositoryResourceGroup[];
 	pagedComponentRepos: PagedComponentRepos;
 	dependences: ProjectDependenceData[];
 	latestCommitInfo: CommitInfo;
@@ -71,8 +71,8 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 	private _search: string = '';
 
 	protected render() {
-		const { project } = this.properties;
-		if (!project) {
+		const { repository } = this.properties;
+		if (!repository) {
 			return v('div', { classes: [c.mt_5] }, [w(Spinner, {})]);
 		}
 
@@ -88,24 +88,24 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 	}
 
 	private _isNotFound() {
-		const { project } = this.properties;
-		return isEmpty(project);
+		const { repository } = this.properties;
+		return isEmpty(repository);
 	}
 
 	private _renderHeader() {
 		const {
-			messages: { privateProjectTitle },
+			messages: { privateRepositoryTitle },
 		} = this._localizedMessages;
-		const { project } = this.properties;
+		const { repository } = this.properties;
 
-		return w(ProjectHeader, { project, privateProjectTitle });
+		return w(RepositoryHeader, { repository, privateRepositoryTitle });
 	}
 
 	private _renderNavigation() {
-		const { project, pathes, onOpenGroup } = this.properties;
+		const { repository, pathes, onOpenGroup } = this.properties;
 
 		return v('div', { classes: [c.d_flex, c.justify_content_between, c.mb_2] }, [
-			v('div', {}, [w(ProjectResourceBreadcrumb, { project, pathes, onOpenGroup })]),
+			v('div', {}, [w(ProjectResourceBreadcrumb, { repository, pathes, onOpenGroup })]),
 		]);
 	}
 
@@ -228,7 +228,7 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 	}
 
 	private _renderComponentRepos() {
-		const { project, pagedComponentRepos, dependences = [], onAddDependence } = this.properties;
+		const { repository, pagedComponentRepos, dependences = [], onAddDependence } = this.properties;
 
 		return v(
 			'ul',
@@ -238,7 +238,7 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 					findIndex(dependences, (dependence) => item.componentRepo.id === dependence.componentRepo.id) > -1;
 
 				return w(ComponentRepoItem, {
-					project,
+					repository,
 					componentRepoInfo: item,
 					used,
 					onAddDependence,
@@ -365,7 +365,7 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 	}
 
 	private _renderComponentRepoDependences(dependences: ProjectDependenceData[]): DNode[] {
-		const { project, onDeleteDependence, onShowDependenceVersions, onUpdateDependenceVersion } = this.properties;
+		const { repository, onDeleteDependence, onShowDependenceVersions, onUpdateDependenceVersion } = this.properties;
 
 		// 按照 appType 分组
 		const groupedDependences = lodash.groupBy(dependences, (dependence) => dependence.componentRepoVersion.appType);
@@ -380,7 +380,7 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 						{ classes: [c.pl_4, c.border_left] },
 						values.map((item) =>
 							w(DependenceRow, {
-								project,
+								repository,
 								dependence: item,
 								versions: item.componentRepoVersions || [],
 								onDeleteDependence,
@@ -405,7 +405,7 @@ export default class ViewProjectDependence extends ThemedMixin(I18nMixin(WidgetB
 }
 
 interface ComponentRepoItemProperties {
-	project: Project;
+	repository: Repository;
 	componentRepoInfo: ComponentRepoInfo;
 	used: boolean;
 	onAddDependence: (opt: ProjectDependenceWithProjectPathPayload) => void;
@@ -511,20 +511,20 @@ class ComponentRepoItem extends ThemedMixin(I18nMixin(WidgetBase))<ComponentRepo
 
 	private _onAddDependence() {
 		const {
-			project,
+			repository,
 			componentRepoInfo: { componentRepo },
 		} = this.properties;
 		// componentRepoVersionId 默认使用最新版本
 		this.properties.onAddDependence({
-			owner: project.createUserName,
-			project: project.name,
+			owner: repository.createUserName,
+			repo: repository.name,
 			componentRepoId: componentRepo.id!,
 		});
 	}
 }
 
 interface DependenceRowProperties {
-	project: Project;
+	repository: Repository;
 	dependence: ProjectDependenceData;
 	// 当前选中依赖的版本列表
 	versions: ComponentRepoVersion[];
@@ -535,7 +535,7 @@ interface DependenceRowProperties {
 
 class DependenceRow extends ThemedMixin(I18nMixin(WidgetBase))<DependenceRowProperties> {
 	protected render() {
-		const { project, dependence, versions, onUpdateDependenceVersion } = this.properties;
+		const { repository, dependence, versions, onUpdateDependenceVersion } = this.properties;
 		return v('div', {}, [
 			// 当前只支持 git
 			w(FontAwesomeIcon, { icon: ['fab', 'git-alt'], classes: [c.text_muted], title: 'git 仓库' }),
@@ -565,7 +565,7 @@ class DependenceRow extends ThemedMixin(I18nMixin(WidgetBase))<DependenceRowProp
 						'div',
 						{ classes: [c.dropdown_menu, css.dropdownMenu] },
 						versions.map((version) =>
-							w(DependenceVersionMenu, { project, dependence, version, onUpdateDependenceVersion })
+							w(DependenceVersionMenu, { repository, dependence, version, onUpdateDependenceVersion })
 						)
 					),
 				]),
@@ -585,18 +585,18 @@ class DependenceRow extends ThemedMixin(I18nMixin(WidgetBase))<DependenceRowProp
 	}
 
 	private _onDeleteDependence() {
-		const { project, dependence } = this.properties;
+		const { repository, dependence } = this.properties;
 
 		this.properties.onDeleteDependence({
-			owner: project.createUserName,
-			project: project.name,
+			owner: repository.createUserName,
+			repo: repository.name,
 			id: dependence.dependence.id,
 		});
 	}
 }
 
 interface DependenceVersionMenuProperties {
-	project: Project;
+	repository: Repository;
 	dependence: ProjectDependenceData;
 	version: ComponentRepoVersion;
 	onUpdateDependenceVersion: (opt: ProjectDependenceVersionPayload) => void;
@@ -620,14 +620,14 @@ class DependenceVersionMenu extends ThemedMixin(I18nMixin(WidgetBase))<Dependenc
 
 	private _onUpdateVersion(event: MouseEvent) {
 		event.stopPropagation();
-		const { project, dependence, version } = this.properties;
+		const { repository, dependence, version } = this.properties;
 		const isSelected = version.id === dependence.componentRepoVersion.id;
 		if (isSelected) {
 			return;
 		}
 		this.properties.onUpdateDependenceVersion({
-			owner: project.createUserName,
-			project: project.name,
+			owner: repository.createUserName,
+			repo: repository.name,
 			dependenceId: dependence.dependence.id,
 			componentRepoVersionId: version.id,
 		});

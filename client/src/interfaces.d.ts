@@ -81,16 +81,16 @@ export interface ProfileInfo extends ProfileParam {
 }
 
 /**
- * 项目 form 表单输入信息
+ * 仓库 form 表单输入信息
  */
-export interface ProjectParam {
+export interface RepositoryParam {
 	id: number;
 	name: string;
 	description: string;
 	isPublic: boolean;
 }
 
-export interface Project extends ResourceBased {
+export interface Repository extends ResourceBased {
 	id: number;
 	name: string;
 	description?: string;
@@ -104,12 +104,12 @@ export interface Project extends ResourceBased {
 	accessLevel: AccessLevel;
 }
 
-export interface ProjectInputValidation {
+export interface RepositoryInputValidation {
 	nameValidateStatus: ValidateStatus;
 	nameErrorMessage: string;
 }
 
-export interface ProjectResource extends ResourceBased {
+export interface RepositoryResource extends ResourceBased {
 	id: number;
 	key: string;
 	name: string;
@@ -133,14 +133,14 @@ export interface ProjectResource extends ResourceBased {
 }
 
 /**
- * @interface ProjectResourceGroup
+ * @interface RepositoryResourceGroup
  *
  * 项目资源分组
  *
  * @property name      分组名称
  * @property path      从根分组开始的完整路径名，使用 / 分割
  */
-export interface ProjectResourceGroup {
+export interface RepositoryResourceGroup {
 	name: string;
 	path: string;
 }
@@ -359,6 +359,7 @@ interface ComponentRepoUrlInputValidation {
 
 interface ProjectDependence {
 	id: number;
+	repoId: number;
 	projectId: number;
 	componentRepoVersionId: number;
 	profileId: number;
@@ -377,7 +378,7 @@ interface ProjectDependenceData extends ComponentRepoInfo {
 
 interface ProjectDependenceResource {
 	resourceId: number;
-	pathes: ProjectResourceGroup[];
+	pathes: RepositoryResourceGroup[];
 	dependences: ProjectDependenceData[];
 }
 
@@ -392,16 +393,16 @@ export interface State {
 	profileUpdateSuccessMessage: string;
 	userInputValidation: UserInputValidation;
 
-	// project
-	projectParam: ProjectParam;
-	projectInputValidation: ProjectInputValidation;
-	project: Project;
-	canAccessProjects: Project[];
+	// repository
+	repositoryParam: RepositoryParam;
+	repositoryInputValidation: RepositoryInputValidation;
+	repository: Repository;
+	canAccessRepos: Repository[];
 
 	// resource
-	projectResource: ProjectResource; // 当前选中的项目资源，可以是分组
-	parentGroups: ProjectResourceGroup[]; // 分组中不包含当前选中的资源
-	childResources: ProjectResource[]; // 如果当期项目资源属于分组，则就拥有子资源
+	repositoryResource: RepositoryResource; // 当前选中的仓库资源，可以是分组
+	parentGroups: RepositoryResourceGroup[]; // 分组中不包含当前选中的资源
+	childResources: RepositoryResource[]; // 如果当期仓库资源属于分组，则就拥有子资源
 
 	latestCommitInfo: CommitInfo;
 	readme: string;

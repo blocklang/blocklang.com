@@ -7,15 +7,15 @@ import {
 	groupNameInputProcess,
 	groupDescriptionInputProcess,
 	saveGroupProcess,
-} from '../../processes/projectGroupProcesses';
+} from '../../processes/repositoryGroupProcesses';
 
 function getProperties(store: Store<State>): NewGroupProperties {
 	const { get, path } = store;
 
 	return {
 		loggedUsername: get(path('user', 'loginName')),
-		project: get(path('project')),
-		parentId: get(path('projectResource', 'id')),
+		project: get(path('repository')),
+		parentId: get(path('repositoryResource', 'id')),
 		parentGroups: get(path('parentGroups')),
 		keyValidateStatus: get(path('groupInputValidation', 'keyValidateStatus')),
 		keyErrorMessage: get(path('groupInputValidation', 'keyErrorMessage')),
@@ -30,6 +30,6 @@ function getProperties(store: Store<State>): NewGroupProperties {
 }
 
 export default StoreContainer(NewGroup, 'state', {
-	paths: [['user'], ['project'], ['projectResource'], ['parentGroups'], ['groupInputValidation']],
+	paths: [['user'], ['repository'], ['repositoryResource'], ['parentGroups'], ['groupInputValidation']],
 	getProperties,
 });

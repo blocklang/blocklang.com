@@ -17,7 +17,7 @@ export default {
 		// private home
 		canAccessProjectsCardTitle: '仓库',
 		noProjectMessage: '请创建您的第一个仓库',
-		privateProjectTitle: '私有仓库',
+		privateRepositoryTitle: '私有仓库',
 		noActivityMessageHeader: '没有动态',
 		noActivityMessageHelpTitle: '如何才会出现动态？',
 		noActivityMessageHelp1: '1. 收藏仓库后，会显示仓库动态；',

@@ -8,8 +8,8 @@ import * as c from '@blocklang/bootstrap-classes';
 import * as css from './NewGroup.m.css';
 import { v, w } from '@dojo/framework/core/vdom';
 import Exception from '../../error/Exception';
-import { Project, WithTarget, ProjectResourceGroup, Errors } from '../../../interfaces';
-import ProjectHeader from '../../widgets/ProjectHeader';
+import { Repository, WithTarget, RepositoryResourceGroup, Errors } from '../../../interfaces';
+import RepositoryHeader from '../../widgets/RepositoryHeader';
 import Link from '@dojo/framework/routing/Link';
 import { ValidateStatus } from '../../../constant';
 import { DescriptionPayload, GroupKeyPayload, GroupNamePayload } from '../../../processes/interfaces';
@@ -18,10 +18,10 @@ import { canNewGroup } from '../../../permission';
 export interface NewGroupProperties {
 	// user
 	loggedUsername: string;
-	project: Project;
+	repository: Repository;
 	// attr
 	parentId: number; // 所属分组标识
-	parentGroups: ProjectResourceGroup[];
+	parentGroups: RepositoryResourceGroup[];
 	// validation
 	keyValidateStatus?: ValidateStatus;
 	keyErrorMessage?: string;
@@ -82,25 +82,25 @@ export default class NewGroup extends ThemedMixin(I18nMixin(WidgetBase))<NewGrou
 	}
 
 	private _isAuthenticated() {
-		const { project, loggedUsername } = this.properties;
+		const { repository, loggedUsername } = this.properties;
 		const isLogin = !!loggedUsername;
 		if (!isLogin) {
 			return false;
 		}
-		return canNewGroup(project.accessLevel);
+		return canNewGroup(repository.accessLevel);
 	}
 
 	private _renderHeader() {
 		const {
-			messages: { privateProjectTitle },
+			messages: { privateRepositoryTitle },
 		} = this._localizedMessages;
-		const { project } = this.properties;
+		const { repository } = this.properties;
 
-		return w(ProjectHeader, { project, privateProjectTitle });
+		return w(RepositoryHeader, { repository, privateRepositoryTitle });
 	}
 
 	private _renderBreadcrumb() {
-		const { project, parentGroups = [] } = this.properties;
+		const { repository, parentGroups = [] } = this.properties;
 
 		return v('nav', { classes: [], 'aria-label': 'breadcrumb' }, [
 			v('ol', { classes: [c.breadcrumb, css.navOl] }, [
@@ -109,11 +109,11 @@ export default class NewGroup extends ThemedMixin(I18nMixin(WidgetBase))<NewGrou
 					w(
 						Link,
 						{
-							to: 'view-project',
-							params: { owner: project.createUserName, project: project.name },
+							to: 'view-repo',
+							params: { owner: repository.createUserName, repo: repository.name },
 							classes: [c.font_weight_bold],
 						},
-						[`${project.name}`]
+						[`${repository.name}`]
 					),
 				]),
 				...parentGroups.map((item) => {
@@ -121,10 +121,10 @@ export default class NewGroup extends ThemedMixin(I18nMixin(WidgetBase))<NewGrou
 						w(
 							Link,
 							{
-								to: 'view-project-group',
+								to: 'view-repo-group',
 								params: {
-									owner: project.createUserName,
-									project: project.name,
+									owner: repository.createUserName,
+									repo: repository.name,
 									parentPath: item.path.substring(1),
 								},
 							},
@@ -226,7 +226,7 @@ export default class NewGroup extends ThemedMixin(I18nMixin(WidgetBase))<NewGrou
 		} = this._localizedMessages;
 
 		const {
-			project,
+			repository,
 			parentGroups = [],
 			keyValidateStatus = ValidateStatus.UNVALIDATED,
 			nameValidateStatus = ValidateStatus.UNVALIDATED,
@@ -252,8 +252,8 @@ export default class NewGroup extends ThemedMixin(I18nMixin(WidgetBase))<NewGrou
 						Link,
 						{
 							classes: [c.btn, c.btn_secondary],
-							to: 'view-project',
-							params: { owner: project.createUserName, project: project.name },
+							to: 'view-repo',
+							params: { owner: repository.createUserName, repo: repository.name },
 						},
 						[`${groupCancelSaveLabel}`]
 				  )
@@ -261,10 +261,10 @@ export default class NewGroup extends ThemedMixin(I18nMixin(WidgetBase))<NewGrou
 						Link,
 						{
 							classes: [c.btn, c.btn_secondary],
-							to: 'view-project-group',
+							to: 'view-repo-group',
 							params: {
-								owner: project.createUserName,
-								project: project.name,
+								owner: repository.createUserName,
+								repo: repository.name,
 								parentPath: parentGroups[parentGroups.length - 1].path.substring(1),
 							},
 						},
@@ -275,18 +275,18 @@ export default class NewGroup extends ThemedMixin(I18nMixin(WidgetBase))<NewGrou
 
 	private _onKeyInput({ target: { value: key } }: WithTarget) {
 		const {
-			project: { createUserName, name },
+			repository: { createUserName, name },
 			parentId,
 		} = this.properties;
-		this.properties.onKeyInput({ key, owner: createUserName, project: name, parentId });
+		this.properties.onKeyInput({ key, owner: createUserName, repo: name, parentId });
 	}
 
 	private _onNameInput({ target: { value: pageName } }: WithTarget) {
 		const {
-			project: { createUserName, name },
+			repository: { createUserName, name },
 			parentId,
 		} = this.properties;
-		this.properties.onNameInput({ name: pageName, owner: createUserName, project: name, parentId });
+		this.properties.onNameInput({ name: pageName, owner: createUserName, repo: name, parentId });
 	}
 
 	private _onDescriptionInput({ target: { value: description } }: WithTarget) {
@@ -295,7 +295,7 @@ export default class NewGroup extends ThemedMixin(I18nMixin(WidgetBase))<NewGrou
 
 	private _onSaveGroup() {
 		const {
-			project: { createUserName, name },
+			repository: { createUserName, name },
 			parentGroups,
 		} = this.properties;
 

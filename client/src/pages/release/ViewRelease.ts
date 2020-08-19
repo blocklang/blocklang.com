@@ -11,7 +11,7 @@ import { v, w } from '@dojo/framework/core/vdom';
 
 import * as c from '@blocklang/bootstrap-classes';
 import * as css from './ViewRelease.m.css';
-import { ProjectRelease, Project, WsMessage } from '../../interfaces';
+import { ProjectRelease, Repository, WsMessage } from '../../interfaces';
 import { baseUrl } from '../../config';
 import { getHeaders } from '../../processes/utils';
 import { IconName } from '@fortawesome/fontawesome-svg-core';
@@ -19,11 +19,11 @@ import FontAwesomeIcon from '@blocklang/dojo-fontawesome/FontAwesomeIcon';
 import Link from '@dojo/framework/routing/Link';
 import Moment from '../../widgets/moment';
 import MarkdownPreview from '../../widgets/markdown-preview';
-import ProjectHeader from '../widgets/ProjectHeader';
+import RepositoryHeader from '../widgets/RepositoryHeader';
 import { ReleaseResult } from '../../constant';
 
 export interface ViewReleaseProperties {
-	project: Project;
+	repo: Repository;
 	projectRelease: ProjectRelease;
 }
 
@@ -172,11 +172,11 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 
 	private _renderHeader() {
 		const {
-			messages: { privateProjectTitle },
+			messages: { privateRepositoryTitle },
 		} = this._localizedMessages;
-		const { project } = this.properties;
+		const { repo } = this.properties;
 
-		return w(ProjectHeader, { project, privateProjectTitle });
+		return w(RepositoryHeader, { repo, privateRepositoryTitle });
 	}
 
 	private _renderReleasePart() {
@@ -191,7 +191,7 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 			messages: { releaseText, newReleaseText },
 		} = this._localizedMessages;
 		const {
-			project: { createUserName, name },
+			repo: { createUserName, name },
 		} = this.properties;
 
 		return v('div', { classes: [c.pb_4, c.d_flex, c.justify_content_between] }, [

@@ -3,29 +3,31 @@ import { v, w } from '@dojo/framework/core/vdom';
 import { ThemedMixin, theme, ThemedProperties } from '@dojo/framework/core/mixins/Themed';
 
 import * as c from '@blocklang/bootstrap-classes';
-import * as css from './ProjectHeader.m.css';
-import { Project } from '../../interfaces';
+import * as css from './RepositoryHeader.m.css';
+import { Repository } from '../../interfaces';
 import FontAwesomeIcon from '@blocklang/dojo-fontawesome/FontAwesomeIcon';
 import Link from '@dojo/framework/routing/Link';
 
-export interface ProjectHeaderProperties extends ThemedProperties {
-	project: Project;
-	privateProjectTitle: string;
+export interface RepositoryHeaderProperties extends ThemedProperties {
+	repository: Repository;
+	privateRepositoryTitle: string;
 }
 
 export const ThemedBase = ThemedMixin(WidgetBase);
 
 @theme(css)
-export class ProjectHeaderBase<P extends ProjectHeaderProperties = ProjectHeaderProperties> extends ThemedBase<P> {
+export class RepositoryHeaderBase<P extends RepositoryHeaderProperties = RepositoryHeaderProperties> extends ThemedBase<
+	P
+> {
 	protected render() {
 		const {
-			project: { name, isPublic, createUserName },
-			privateProjectTitle,
+			repository: { name, isPublic, createUserName },
+			privateRepositoryTitle,
 		} = this.properties;
 
 		return v('div', { classes: [c.mt_4, c.mb_3] }, [
 			v('nav', { classes: [c.d_inline_flex], 'aria-label': 'breadcrumb' }, [
-				v('ol', { classes: [css.projectHeader, c.breadcrumb] }, [
+				v('ol', { classes: [css.repositoryHeader, c.breadcrumb] }, [
 					v('li', { classes: [c.breadcrumb_item] }, [
 						isPublic
 							? null
@@ -33,12 +35,12 @@ export class ProjectHeaderBase<P extends ProjectHeaderProperties = ProjectHeader
 									icon: 'lock',
 									size: 'xs',
 									classes: [c.text_muted, c.mr_1],
-									title: `${privateProjectTitle}`,
+									title: `${privateRepositoryTitle}`,
 							  }),
 						w(Link, { to: 'profile', params: { user: createUserName } }, [`${createUserName}`]),
 					]),
 					v('li', { classes: [c.breadcrumb_item, c.active] }, [
-						w(Link, { to: 'view-project', params: { owner: createUserName, project: name } }, [
+						w(Link, { to: 'view-repo', params: { owner: createUserName, project: name } }, [
 							v('strong', [`${name}`]),
 						]),
 					]),
@@ -48,4 +50,4 @@ export class ProjectHeaderBase<P extends ProjectHeaderProperties = ProjectHeader
 	}
 }
 
-export default class ProjectHeader extends ProjectHeaderBase<ProjectHeaderProperties> {}
+export default class RepositoryHeader extends RepositoryHeaderBase<RepositoryHeaderProperties> {}

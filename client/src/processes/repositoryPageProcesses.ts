@@ -165,7 +165,7 @@ const savePageCommand = commandFactory(async ({ path, get, payload: { owner, pro
 	return [
 		// 清空输入参数
 		replace(path('pageParam'), undefined),
-		...linkTo(path, parentPath.length > 0 ? 'view-project-group' : 'view-project', { owner, project, parentPath }),
+		...linkTo(path, parentPath.length > 0 ? 'view-repo-group' : 'view-repo', { owner, project, parentPath }),
 	];
 });
 
@@ -186,14 +186,14 @@ const getPageBaseInfoCommand = commandFactory(async ({ path, get, payload: { own
 
 export const initForNewPageProcess = createProcess('init-for-new-page', [
 	startInitForNewPageCommand,
-	[getProjectCommand, getResourceParentPathCommand, getAppTypesCommand],
+	[getRepositoryCommand, getResourceParentPathCommand, getAppTypesCommand],
 ]);
 export const pageKeyInputProcess = createProcess('page-key-input', [pageKeyInputCommand]);
 export const pageNameInputProcess = createProcess('page-name-input', [pageNameInputCommand]);
 export const pageDescriptionInputProcess = createProcess('page-description-input', [pageDescriptionInputCommand]);
 export const savePageProcess = createProcess('save-page', [savePageCommand]);
-export const initForViewProjectPageProcess = createProcess('init-for-view-project-page', [
+export const initForViewRepositoryPageProcess = createProcess('init-for-view-repository-page', [
 	startInitForViewPageCommand,
-	getProjectCommand,
+	getRepositoryCommand,
 	getPageBaseInfoCommand,
 ]);

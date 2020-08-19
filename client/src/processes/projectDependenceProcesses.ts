@@ -1,5 +1,5 @@
 import { createProcess } from '@dojo/framework/stores/process';
-import { getProjectCommand, getLatestCommitInfoCommand } from './projectProcesses';
+import { getRepositoryCommand, getLatestCommitInfoCommand } from './repositoryProcesses';
 import { commandFactory, getHeaders } from './utils';
 import { baseUrl } from '../config';
 import { replace, add, remove } from '@dojo/framework/stores/state/operations';
@@ -8,24 +8,27 @@ import { findIndex } from '@dojo/framework/shim/array';
 
 const startInitForViewProjectDependenceCommand = commandFactory(({ path }) => {
 	return [
-		replace(path('projectResource'), undefined),
+		replace(path('repositoryResource'), undefined),
 		replace(path('pagedComponentRepoInfos'), undefined),
 		replace(path('projectDependenceResource'), undefined),
 	];
 });
 
 export const getProjectDependenceResourceCommand = commandFactory(
-	async ({ path, payload: { owner, project, parentPath = '' } }) => {
-		const response = await fetch(`${baseUrl}/projects/${owner}/${project}/dependence`, {
+	async ({ path, payload: { owner, repo, parentPath = '' } }) => {
+		const response = await fetch(`${baseUrl}/repos/${owner}/${repo}/dependence`, {
 			headers: getHeaders(),
 		});
 		const json = await response.json();
 		if (!response.ok) {
-			return [replace(path('projectDependenceResource'), undefined), replace(path('projectResource'), undefined)];
+			return [
+				replace(path('projectDependenceResource'), undefined),
+				replace(path('repositoryResource'), undefined),
+			];
 		}
 		return [
 			replace(path('projectDependenceResource'), json),
-			replace(path('projectResource', 'id'), json.resourceId),
+			replace(path('repositoryResource', 'id'), json.resourceId),
 		];
 	}
 );
@@ -55,8 +58,8 @@ const getComponentReposCommand = commandFactory(async ({ path, payload: { query 
 });
 
 const addDependenceCommand = commandFactory<ProjectDependenceWithProjectPathPayload>(
-	async ({ at, get, path, payload: { owner, project, componentRepoId } }) => {
-		const response = await fetch(`${baseUrl}/projects/${owner}/${project}/dependences`, {
+	async ({ at, get, path, payload: { owner, repo, project, componentRepoId } }) => {
+		const response = await fetch(`${baseUrl}/repos/${owner}/${repo}/${project}/dependences`, {
 			method: 'POST',
 			headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
 			body: JSON.stringify({
@@ -76,7 +79,7 @@ const addDependenceCommand = commandFactory<ProjectDependenceWithProjectPathPayl
 
 const deleteDependenceCommand = commandFactory<ProjectDependenceIdPayload>(
 	async ({ at, get, path, payload: { owner, project, id: dependenceId } }) => {
-		const response = await fetch(`${baseUrl}/projects/${owner}/${project}/dependences/${dependenceId}`, {
+		const response = await fetch(`${baseUrl}/repos/${owner}/${project}/dependences/${dependenceId}`, {
 			method: 'DELETE',
 			headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
 		});
@@ -162,7 +165,7 @@ const updateDependenceVersionCommand = commandFactory(
 
 export const initForViewProjectDependenceProcess = createProcess('init-for-view-project-dependence', [
 	startInitForViewProjectDependenceCommand,
-	[getProjectCommand, getProjectDependenceResourceCommand, getProjectDependencesCommand],
+	[getRepositoryCommand, getProjectDependenceResourceCommand, getProjectDependencesCommand],
 	getLatestCommitInfoCommand,
 ]);
 export const queryComponentReposForProjectProcess = createProcess('query-component-repos-for-project', [

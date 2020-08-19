@@ -6,8 +6,8 @@ import { theme, ThemedMixin } from '@dojo/framework/core/mixins/Themed';
 import * as c from '@blocklang/bootstrap-classes';
 import * as css from './NewRelease.m.css';
 import messageBundle from '../../nls/main';
-import ProjectHeader from '../widgets/ProjectHeader';
-import { Project, JdkInfo, WithTarget } from '../../interfaces';
+import RepositoryHeader from '../widgets/RepositoryHeader';
+import { Repository, JdkInfo, WithTarget } from '../../interfaces';
 import Link from '@dojo/framework/routing/Link';
 import { ValidateStatus } from '../../constant';
 import { VersionPayload, DescriptionPayload, JdkReleaseIdPayload, TitlePayload } from '../../processes/interfaces';
@@ -15,7 +15,7 @@ import Exception from '../error/Exception';
 
 export interface NewReleaseProperties {
 	loggedUsername: string;
-	project: Project;
+	repo: Repository;
 	jdks: JdkInfo[];
 	// attr
 	id?: number;
@@ -61,11 +61,11 @@ export default class NewRelease extends ThemedMixin(I18nMixin(WidgetBase))<NewRe
 
 	private _renderHeader() {
 		const {
-			messages: { privateProjectTitle },
+			messages: { privateRepositoryTitle },
 		} = this._localizedMessages;
-		const { project } = this.properties;
+		const { repo } = this.properties;
 
-		return w(ProjectHeader, { project, privateProjectTitle });
+		return w(RepositoryHeader, { repo, privateRepositoryTitle });
 	}
 
 	private _renderNavigate() {

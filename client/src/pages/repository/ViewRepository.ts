@@ -6,7 +6,7 @@ import { v, w } from '@dojo/framework/core/vdom';
 
 import messageBundle from '../../nls/main';
 import Link from '@dojo/framework/routing/Link';
-import { Project, ProjectResource, CommitInfo, DeployInfo, UncommittedFile, WithTarget } from '../../interfaces';
+import { Repository, RepositoryResource, CommitInfo, DeployInfo, UncommittedFile, WithTarget } from '../../interfaces';
 import Moment from '../../widgets/moment';
 import FontAwesomeIcon from '@blocklang/dojo-fontawesome/FontAwesomeIcon';
 import { IconName, IconPrefix } from '@fortawesome/fontawesome-svg-core';
@@ -16,16 +16,16 @@ import 'github-markdown-css/github-markdown.css';
 import 'highlight.js/styles/github.css';
 
 import * as c from '@blocklang/bootstrap-classes';
-import * as css from './ViewProject.m.css';
+import * as css from './ViewRepository.m.css';
 import {
-	ProjectPathPayload,
+	RepositoryPathPayload,
 	UnstagedChangesPayload,
 	StagedChangesPayload,
 	CommitMessagePayload,
 } from '../../processes/interfaces';
 
 import Spinner from '../../widgets/spinner';
-import ProjectHeader from '../widgets/ProjectHeader';
+import RepositoryHeader from '../widgets/RepositoryHeader';
 import { isEmpty } from '../../util';
 import Exception from '../error/Exception';
 import { ResourceType, GitFileStatus, ValidateStatus } from '../../constant';
@@ -34,12 +34,12 @@ import watch from '@dojo/framework/core/decorators/watch';
 import { canCommit } from '../../permission';
 import LatestCommitInfo from './widgets/LatestCommitInfo';
 
-export interface ViewProjectProperties {
+export interface ViewRepositoryProperties {
 	loggedUsername: string;
-	project: Project;
+	repository: Repository;
 	groupId: number; // 根分组的 id，默认是 -1
 	path: string; // 根分组的 path，默认为空字符串
-	childResources: ProjectResource[];
+	childResources: RepositoryResource[];
 	latestCommitInfo: CommitInfo;
 	readme?: string;
 	userDeployInfo: DeployInfo;
@@ -52,11 +52,11 @@ export interface ViewProjectProperties {
 	commitMessageErrorMessage?: string;
 	commitMessage?: string;
 
-	onGetDeployInfo: (opt: ProjectPathPayload) => void;
+	onGetDeployInfo: (opt: RepositoryPathPayload) => void;
 	onStageChanges: (opt: StagedChangesPayload) => void;
 	onUnstageChanges: (opt: UnstagedChangesPayload) => void;
 	onCommitMessageInput: (opt: CommitMessagePayload) => void;
-	onCommit: (opt: ProjectPathPayload) => void;
+	onCommit: (opt: RepositoryPathPayload) => void;
 }
 
 enum ViewStatus {
@@ -65,15 +65,15 @@ enum ViewStatus {
 }
 
 @theme(css)
-export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<ViewProjectProperties> {
+export default class ViewRepository extends ThemedMixin(I18nMixin(WidgetBase))<ViewRepositoryProperties> {
 	private _localizedMessages = this.localizeBundle(messageBundle);
 
 	@watch()
 	private _viewStatus: ViewStatus = ViewStatus.Edit;
 
 	protected render() {
-		const { project } = this.properties;
-		if (!project) {
+		const { repository } = this.properties;
+		if (!repository) {
 			return v('div', { classes: [c.mt_5] }, [w(Spinner, {})]);
 		}
 
@@ -183,28 +183,32 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 	}
 
 	private _onCommit() {
-		const { project } = this.properties;
-		this.properties.onCommit({ owner: project.createUserName, project: project.name });
+		const { repository } = this.properties;
+		this.properties.onCommit({ owner: repository.createUserName, repo: repository.name });
 	}
 
 	private _onUnstageChanges(fullKeyPath: string) {
-		const { project } = this.properties;
+		const { repository } = this.properties;
 
 		this.properties.onUnstageChanges({
-			owner: project.createUserName,
-			project: project.name,
+			owner: repository.createUserName,
+			repo: repository.name,
 			files: [fullKeyPath],
 		});
 	}
 
 	private _onStageChanges(fullKeyPath: string) {
-		const { project } = this.properties;
-		this.properties.onStageChanges({ owner: project.createUserName, project: project.name, files: [fullKeyPath] });
+		const { repository } = this.properties;
+		this.properties.onStageChanges({
+			owner: repository.createUserName,
+			repo: repository.name,
+			files: [fullKeyPath],
+		});
 	}
 
 	private _isNotFound() {
-		const { project } = this.properties;
-		return isEmpty(project);
+		const { repository } = this.properties;
+		return isEmpty(repository);
 	}
 
 	private _isLogined() {
@@ -214,11 +218,11 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 
 	private _renderHeader() {
 		const {
-			messages: { privateProjectTitle },
+			messages: { privateRepositoryTitle },
 		} = this._localizedMessages;
-		const { project } = this.properties;
+		const { repository } = this.properties;
 
-		return w(ProjectHeader, { project, privateProjectTitle });
+		return w(RepositoryHeader, { repository, privateRepositoryTitle });
 	}
 
 	private _renderNavigation() {
@@ -235,8 +239,8 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 			return;
 		}
 
-		const { project } = this.properties;
-		if (!canCommit(project.accessLevel)) {
+		const { repository } = this.properties;
+		if (!canCommit(repository.accessLevel)) {
 			return;
 		}
 
@@ -302,12 +306,12 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 
 	// 如果没有 write 权限，则让新建按钮失效
 	private _renderCreateProjectButtonGroup() {
-		const { project } = this.properties;
+		const { repository } = this.properties;
 		let disabled = false;
 		if (!this._isLogined()) {
 			disabled = true;
 		} else {
-			if (!canCommit(project.accessLevel)) {
+			if (!canCommit(repository.accessLevel)) {
 				disabled = true;
 			}
 		}
@@ -346,7 +350,11 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 								key: 'web',
 								classes: [c.btn, c.btn_outline_secondary],
 								to: 'new-project',
-								params: { owner: project.createUserName, repository: project.name, type: 'web' },
+								params: {
+									owner: repository.createUserName,
+									repository: repository.name,
+									type: 'web',
+								},
 							},
 							[`${messages.createWebProject}`]
 						),
@@ -357,8 +365,8 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 								classes: [c.btn, c.btn_outline_secondary],
 								to: 'new-project',
 								params: {
-									owner: project.createUserName,
-									repository: project.name,
+									owner: repository.createUserName,
+									repository: repository.name,
 									type: 'miniprogram',
 								},
 							},
@@ -390,13 +398,13 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 			: w(Spinner, {});
 	}
 
-	private _renderTr(projectResource: ProjectResource) {
+	private _renderTr(repositorytResource: RepositoryResource) {
 		// gitStatus 为 undefined 时，表示文件内容未变化。
 		// 未变化
 		// 未跟踪
 		// 已修改
-		const { project, path } = this.properties;
-		return w(ProjectResourceRow, { projectResource, project, parentPath: path });
+		const { repository, path } = this.properties;
+		return w(RepositoryResourceRow, { repository, repositorytResource, parentPath: path });
 	}
 
 	private _renderReadme() {
@@ -416,20 +424,20 @@ export default class ViewProject extends ThemedMixin(I18nMixin(WidgetBase))<View
 	}
 }
 
-interface ProjectResourceRowProperties {
-	project: Project;
-	projectResource: ProjectResource;
+interface RepositoryResourceRowProperties {
+	repository: Repository;
+	repositoryResource: RepositoryResource;
 	parentPath: string;
 }
 
 @theme(css)
-class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResourceRowProperties> {
+class RepositoryResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<RepositoryResourceRowProperties> {
 	protected render() {
-		const { projectResource } = this.properties;
-		const { gitStatus, resourceType } = projectResource;
+		const { repositoryResource } = this.properties;
+		const { gitStatus, resourceType } = repositoryResource;
 
 		let showCommitInfo = true;
-		if (!projectResource.latestShortMessage) {
+		if (!repositoryResource.latestShortMessage) {
 			showCommitInfo = false;
 		}
 
@@ -466,7 +474,7 @@ class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResou
 		const to = this._getUrl();
 		const params: Params = this._getParams();
 
-		let title = projectResource.name;
+		let title = repositoryResource.name;
 		if (statusTooltip !== '') {
 			title = title + ' • ' + statusTooltip;
 		}
@@ -475,14 +483,14 @@ class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResou
 			// 图标
 			v('td', { classes: [css.icon] }, [
 				w(FontAwesomeIcon, {
-					icon: projectResource.icon.split(' ') as [IconPrefix, IconName],
-					title: projectResource.title,
+					icon: repositoryResource.icon.split(' ') as [IconPrefix, IconName],
+					title: repositoryResource.title,
 				}),
 			]),
 			// 资源名称
 			v('td', { classes: [css.content, c.px_1] }, [
 				v('span', { classes: [css.truncate] }, [
-					w(Link, { to, params, title, classes: [statusColor] }, [`${projectResource.name}`]),
+					w(Link, { to, params, title, classes: [statusColor] }, [`${repositoryResource.name}`]),
 				]),
 			]),
 			v('td', { classes: [css.status, statusColor], title: `${statusTooltip}` }, [`${statusLetter}`]),
@@ -490,8 +498,8 @@ class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResou
 			v('td', { classes: [css.message, c.text_muted] }, [
 				showCommitInfo
 					? v('span', { classes: [css.truncate] }, [
-							v('a', { title: `${projectResource.latestFullMessage}` }, [
-								`${projectResource.latestShortMessage}`,
+							v('a', { title: `${repositoryResource.latestFullMessage}` }, [
+								`${repositoryResource.latestShortMessage}`,
 							]),
 					  ])
 					: undefined,
@@ -501,7 +509,7 @@ class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResou
 				// 使用 moment.js 进行格式化
 				showCommitInfo
 					? v('span', { classes: [css.truncate] }, [
-							w(Moment, { datetime: `${projectResource.latestCommitTime}` }),
+							w(Moment, { datetime: `${repositoryResource.latestCommitTime}` }),
 					  ])
 					: undefined,
 			]),
@@ -509,23 +517,23 @@ class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResou
 	}
 
 	private _getUrl(): string {
-		const { projectResource } = this.properties;
-		const { resourceType, key } = projectResource;
+		const { repositoryResource } = this.properties;
+		const { resourceType, key } = repositoryResource;
 
 		if (resourceType === ResourceType.Group || resourceType === ResourceType.Project) {
-			return 'view-project-group';
+			return 'view-repo-group';
 		}
 
 		if (resourceType === ResourceType.Page) {
-			return 'view-project-page';
+			return 'view-repo-page';
 		}
 
 		if (resourceType === ResourceType.PageTemplet) {
-			return 'view-project-templet';
+			return 'view-repo-templet';
 		}
 
 		if (resourceType === ResourceType.Service) {
-			return 'view-project-service';
+			return 'view-repo-service';
 		}
 
 		if (resourceType === ResourceType.Dependence) {
@@ -534,7 +542,7 @@ class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResou
 
 		if (resourceType === ResourceType.File) {
 			if (key === 'README') {
-				return 'view-project-readme';
+				return 'view-repo-readme';
 			}
 		}
 
@@ -542,16 +550,16 @@ class ProjectResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<ProjectResou
 	}
 
 	private _getParams(): Params {
-		const { project, parentPath, projectResource } = this.properties;
-		const { resourceType } = projectResource;
+		const { repository, parentPath, repositoryResource } = this.properties;
+		const { resourceType } = repositoryResource;
 
 		if (resourceType === ResourceType.Group || resourceType === ResourceType.Project) {
-			const fullPath = parentPath === '' ? projectResource.key : parentPath + '/' + projectResource.key;
-			return { owner: project.createUserName, project: project.name, parentPath: fullPath };
+			const fullPath = parentPath === '' ? repositoryResource.key : parentPath + '/' + repositoryResource.key;
+			return { owner: repository.createUserName, repository: repository.name, parentPath: fullPath };
 		}
 
-		const fullPath = parentPath === '' ? projectResource.key : parentPath + '/' + projectResource.key;
-		return { owner: project.createUserName, project: project.name, path: fullPath };
+		const fullPath = parentPath === '' ? repositoryResource.key : parentPath + '/' + repositoryResource.key;
+		return { owner: repository.createUserName, repository: repository.name, path: fullPath };
 	}
 }
 

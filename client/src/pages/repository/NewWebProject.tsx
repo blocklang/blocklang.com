@@ -1,30 +1,30 @@
 import { create, tsx } from '@dojo/framework/core/vdom';
 import i18n from '@dojo/framework/core/middleware/i18n';
 import store from '../../store';
-import bundle from './NewMiniProgram.nls';
 import Exception from '../error/Exception';
-import * as c from '@blocklang/bootstrap-classes';
-import * as css from './NewMiniProgram.m.css';
 import {
 	initForNewGroupProcess,
 	groupKeyInputProcess,
 	groupNameInputProcess,
 	saveGroupProcess,
-} from '../../processes/projectGroupProcesses';
+} from '../../processes/repositoryGroupProcesses';
 import Spinner from '../../widgets/spinner';
 import { canNewGroup } from '../../permission';
+import bundle from './NewWebProject.nls';
+import * as c from '@blocklang/bootstrap-classes';
+import * as css from './NewWebProject.m.css';
+import RepositoryHeader from '../widgets/RepositoryHeader';
 import Link from '@dojo/framework/routing/Link';
 import { ValidateStatus, PageAppType, ResourceType } from '../../constant';
-import ProjectHeader from '../widgets/ProjectHeader';
 
-export interface NewMiniProgramProperties {
+export interface NewWebProjectProperties {
 	owner: string;
 	repository: string;
 }
 
-const factory = create({ store, i18n }).properties<NewMiniProgramProperties>();
+const factory = create({ store, i18n }).properties<NewWebProjectProperties>();
 
-export default factory(function NewMiniProgram({ properties, middleware: { store, i18n } }) {
+export default factory(function NewWebProject({ properties, middleware: { store, i18n } }) {
 	const { messages } = i18n.localize(bundle);
 	const { owner, repository } = properties();
 	const { get, path, executor } = store;
@@ -35,25 +35,24 @@ export default factory(function NewMiniProgram({ properties, middleware: { store
 		return <Exception type="403" />;
 	}
 
-	const projectResource = get(path('projectResource'));
-	const isLoading = get(path('projectResource', 'isLoading'));
-	const isLoaded = get(path('projectResource', 'isLoaded'));
-	const saveFailedErrors = get(path('errors'));
+	const repositoryResource = get(path('repositoryResource'));
+	const isLoading = get(path('repositoryResource', 'isLoading'));
+	const isLoaded = get(path('repositoryResource', 'isLoaded'));
 
-	if (!projectResource && !isLoading) {
+	if (!repositoryResource && !isLoading) {
 		executor(initForNewGroupProcess)({
 			owner,
-			project: repository,
+			repo: repository,
 		});
 	}
 	if (!isLoaded) {
 		return <Spinner />;
 	}
 
-	const project = get(path('project'));
+	const repo = get(path('repository'));
 	const parentGroups = get(path('parentGroups')) || [];
 
-	if (!canNewGroup(project.accessLevel)) {
+	if (!canNewGroup(repo.accessLevel)) {
 		return <Exception type="403" />;
 	}
 
@@ -63,14 +62,14 @@ export default factory(function NewMiniProgram({ properties, middleware: { store
 				<ol classes={[c.breadcrumb, css.navOl]}>
 					<li classes={[c.breadcrumb_item]}>
 						<Link
-							to="view-project"
-							params={{ owner: project.createUserName, project: project.name }}
-						>{`${project.name}`}</Link>
+							to="view-repo"
+							params={{ owner: repo.createUserName, repo: repo.name }}
+						>{`${repo.name}`}</Link>
 						{parentGroups.map((item) => (
 							<li>
 								<Link
-									to="view-project-group"
-									params={{ owner: project.createUserName, project: project.name }}
+									to="view-repo-group"
+									params={{ owner: repo.createUserName, repo: repo.name }}
 									parentPath={item.path.substring(1)}
 								>{`${item.name}`}</Link>
 							</li>
@@ -106,9 +105,9 @@ export default factory(function NewMiniProgram({ properties, middleware: { store
 						oninput={(event: KeyboardEvent<HTMLInputElement>) => {
 							executor(groupKeyInputProcess)({
 								key: event.target.value,
-								owner: project.createUserName,
-								project: project.name,
-								parentId: projectResource.id,
+								owner: repo.createUserName,
+								repo: repo.name,
+								parentId: repositoryResource.id,
 							});
 						}}
 					/>
@@ -142,9 +141,9 @@ export default factory(function NewMiniProgram({ properties, middleware: { store
 						oninput={(event: KeyboardEvent<HTMLInputElement>) => {
 							executor(groupNameInputProcess)({
 								name: event.target.value,
-								owner: project.createUserName,
-								project: project.name,
-								parentId: projectResource.id,
+								owner: repo.createUserName,
+								repo: repo.name,
+								parentId: repositoryResource.id,
 							});
 						}}
 					/>
@@ -176,9 +175,9 @@ export default factory(function NewMiniProgram({ properties, middleware: { store
 							? undefined
 							: (event: MouseEvent<HTMLButtonElement>) => {
 									executor(saveGroupProcess)({
-										owner: project.createUserName,
-										project: project.name,
-										appType: PageAppType.MiniProgram,
+										owner: repo.createUserName,
+										repo: repo.name,
+										appType: PageAppType.Web,
 										resourceType: ResourceType.Project,
 									});
 							  }
@@ -186,10 +185,10 @@ export default factory(function NewMiniProgram({ properties, middleware: { store
 				>{`${messages.projectSaveLabel}`}</button>{' '}
 				<Link
 					classes={[c.btn, c.btn_secondary]}
-					to="view-project"
+					to="view-repo"
 					params={{
-						owner: project.createUserName,
-						project: project.name,
+						owner: repo.createUserName,
+						repo: repo.name,
 					}}
 				>{`${messages.projectCancelSaveLabel}`}</Link>
 			</div>
@@ -198,17 +197,11 @@ export default factory(function NewMiniProgram({ properties, middleware: { store
 
 	return (
 		<div classes={[c.container]}>
-			<ProjectHeader project={project} privateProjectTitle={messages.privateProjectTitle} />
+			<RepositoryHeader repository={repo} privateRepositoryTitle={messages.privateRepositoryTitle} />
 			<div classes={[c.container]} styles={{ maxWidth: '700px' }}>
-				<h4>{messages.newMiniProgram}</h4>
+				<h4>{messages.newWebProject}</h4>
 				{renderBreadcrumb()}
 				<hr />
-				{saveFailedErrors && (
-					<div classes={[c.alert, c.alert_danger, c.alert_dismissible]} role="alert">
-						<h4 classes={[c.alert_heading]}>保存失败！</h4>
-						<p>{saveFailedErrors.globalErrors[0]}</p>
-					</div>
-				)}
 				<form classes={[c.needs_validation]} novalidate="novalidate">
 					{renderKeyInput()}
 					{renderNameInput()}

@@ -1,9 +1,9 @@
 const messages = {
 	// common
 	requiredLabel: '(必填)',
-	privateProjectTitle: '私有仓库',
+	privateRepositoryTitle: '私有仓库',
 	// 页面专用
-	newMiniProgram: '创建小程序',
+	newWebProject: '创建 Web 项目',
 	projectKeyLabel: '名称',
 	projectKeyHelp: '在 url 中使用，要简短易记。只允许字母、数字、中划线(-)、下划线(_)等。',
 	projectNameLabel: '备注',
