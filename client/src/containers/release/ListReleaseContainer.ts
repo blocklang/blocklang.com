@@ -8,12 +8,12 @@ function getProperties(store: Store<State>): ListReleaseProperties {
 
 	return {
 		loggedUsername: get(path('user', 'loginName')),
-		project: get(path('project')),
+		repository: get(path('repository')),
 		releases: get(path('releases')),
 	};
 }
 
 export default StoreContainer(ListRelease, 'state', {
-	paths: [['user'], ['project'], ['releases']],
+	paths: [['user'], ['repository'], ['releases']],
 	getProperties,
 });

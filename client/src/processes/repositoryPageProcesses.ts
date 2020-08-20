@@ -4,7 +4,7 @@ import { replace, remove } from '@dojo/framework/stores/state/operations';
 import { baseUrl } from '../config';
 import { ValidateStatus } from '../constant';
 import { DescriptionPayload, PageKeyPayload, PageNamePayload } from './interfaces';
-import { getProjectCommand } from './projectProcesses';
+import { getRepositoryCommand } from './repositoryProcesses';
 
 const startInitForNewPageCommand = commandFactory(({ path }) => {
 	return [
@@ -12,31 +12,31 @@ const startInitForNewPageCommand = commandFactory(({ path }) => {
 		replace(path('pageInputValidation', 'keyErrorMessage'), ''),
 		replace(path('pageInputValidation', 'nameValidateStatus'), ValidateStatus.UNVALIDATED),
 		replace(path('pageInputValidation', 'nameErrorMessage'), ''),
-		remove(path('projectResource')),
-		replace(path('projectResource', 'isLoading'), true),
-		replace(path('projectResource', 'isLoaded'), false),
+		remove(path('repositoryResource')),
+		replace(path('repositoryResource', 'isLoading'), true),
+		replace(path('repositoryResource', 'isLoaded'), false),
 	];
 });
 
 const startInitForViewPageCommand = commandFactory(({ path }) => {
-	return [remove(path('projectResource')), remove(path('parentGroups'))];
+	return [remove(path('repositoryResource')), remove(path('parentGroups'))];
 });
 
 export const getResourceParentPathCommand = commandFactory(
-	async ({ path, payload: { owner, project, parentPath = '' } }) => {
-		const response = await fetch(`${baseUrl}/projects/${owner}/${project}/group-path/${parentPath}`, {
+	async ({ path, payload: { owner, repo, parentPath = '' } }) => {
+		const response = await fetch(`${baseUrl}/repos/${owner}/${repo}/group-path/${parentPath}`, {
 			headers: getHeaders(),
 		});
 		const json = await response.json();
 		if (!response.ok) {
-			return [remove(path('projectResource')), replace(path('parentGroups'), [])];
+			return [remove(path('repositoryResource')), replace(path('parentGroups'), [])];
 		}
 
 		return [
-			replace(path('projectResource', 'id'), json.id),
-			replace(path('projectResource', 'fullPath'), parentPath),
-			replace(path('projectResource', 'isLoading'), false),
-			replace(path('projectResource', 'isLoaded'), true),
+			replace(path('repositoryResource', 'id'), json.id),
+			replace(path('repositoryResource', 'fullPath'), parentPath),
+			replace(path('repositoryResource', 'isLoading'), false),
+			replace(path('repositoryResource', 'isLoaded'), true),
 			replace(path('parentGroups'), json.parentGroups),
 		];
 	}
@@ -61,7 +61,7 @@ const getAppTypesCommand = commandFactory(async ({ path, payload: { owner, proje
 });
 
 const pageKeyInputCommand = commandFactory<PageKeyPayload>(
-	async ({ path, payload: { owner, project, parentId, appType, key } }) => {
+	async ({ path, payload: { owner, repo, parentId, appType, key } }) => {
 		const trimedKey = key.trim();
 		const result = [];
 
@@ -83,7 +83,7 @@ const pageKeyInputCommand = commandFactory<PageKeyPayload>(
 		}
 
 		// 服务器端校验，所属分组下是否存在该 key
-		const response = await fetch(`${baseUrl}/projects/${owner}/${project}/pages/check-key`, {
+		const response = await fetch(`${baseUrl}/repos/${owner}/${repo}/pages/check-key`, {
 			method: 'POST',
 			headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
 			body: JSON.stringify({
@@ -109,11 +109,11 @@ const pageKeyInputCommand = commandFactory<PageKeyPayload>(
 );
 
 const pageNameInputCommand = commandFactory<PageNamePayload>(
-	async ({ path, payload: { owner, project, parentId, appType, name } }) => {
+	async ({ path, payload: { owner, repo, parentId, appType, name } }) => {
 		const trimedName = name.trim();
 		const result = [];
 		// 服务器端校验，校验所属分组下是否存在该 name
-		const response = await fetch(`${baseUrl}/projects/${owner}/${project}/pages/check-name`, {
+		const response = await fetch(`${baseUrl}/repos/${owner}/${repo}/pages/check-name`, {
 			method: 'POST',
 			headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
 			body: JSON.stringify({
@@ -142,13 +142,13 @@ const pageDescriptionInputCommand = commandFactory<DescriptionPayload>(({ path, 
 	return [replace(path('pageParam', 'description'), description.trim())];
 });
 
-const savePageCommand = commandFactory(async ({ path, get, payload: { owner, project, parentPath = '' } }) => {
+const savePageCommand = commandFactory(async ({ path, get, payload: { owner, repo, parentPath = '' } }) => {
 	const pageParam = get(path('pageParam'));
 
-	const projectResource = get(path('projectResource'));
+	const projectResource = get(path('repositoryResource'));
 	pageParam.parentId = projectResource.id;
 
-	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/pages`, {
+	const response = await fetch(`${baseUrl}/repos/${owner}/${repo}/pages`, {
 		method: 'POST',
 		headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
 		body: JSON.stringify({
@@ -165,23 +165,23 @@ const savePageCommand = commandFactory(async ({ path, get, payload: { owner, pro
 	return [
 		// 清空输入参数
 		replace(path('pageParam'), undefined),
-		...linkTo(path, parentPath.length > 0 ? 'view-repo-group' : 'view-repo', { owner, project, parentPath }),
+		...linkTo(path, parentPath.length > 0 ? 'view-repo-group' : 'view-repo', { owner, repo, parentPath }),
 	];
 });
 
-const getPageBaseInfoCommand = commandFactory(async ({ path, get, payload: { owner, project, pagePath = '' } }) => {
-	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/pages/${pagePath}`, {
+const getPageBaseInfoCommand = commandFactory(async ({ path, get, payload: { owner, repo, pagePath = '' } }) => {
+	const response = await fetch(`${baseUrl}/repos/${owner}/${repo}/pages/${pagePath}`, {
 		headers: getHeaders(),
 	});
 	const json = await response.json();
 	if (!response.ok) {
-		return [replace(path('projectResource'), undefined), replace(path('parentGroups'), [])];
+		return [replace(path('repositoryResource'), undefined), replace(path('parentGroups'), [])];
 	}
 
-	const projectResource = json.projectResource;
-	projectResource['fullPath'] = pagePath;
+	const repositoryResource = json.repositoryResource;
+	repositoryResource['fullPath'] = pagePath;
 
-	return [replace(path('projectResource'), projectResource), replace(path('parentGroups'), json.parentGroups)];
+	return [replace(path('repositoryResource'), repositoryResource), replace(path('parentGroups'), json.parentGroups)];
 });
 
 export const initForNewPageProcess = createProcess('init-for-new-page', [

@@ -176,7 +176,7 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 		} = this._localizedMessages;
 		const { repo } = this.properties;
 
-		return w(RepositoryHeader, { repo, privateRepositoryTitle });
+		return w(RepositoryHeader, { repository: repo, privateRepositoryTitle });
 	}
 
 	private _renderReleasePart() {
@@ -243,11 +243,11 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 
 	private async _fetchLog() {
 		const {
-			project: { createUserName: owner, name: project },
+			repo: { createUserName: owner, name: repoName },
 			projectRelease: { version },
 		} = this.properties;
 
-		const response = await fetch(`${baseUrl}/projects/${owner}/${project}/releases/${version}/log`, {
+		const response = await fetch(`${baseUrl}/projects/${owner}/${repoName}/releases/${version}/log`, {
 			headers: getHeaders(),
 		});
 		const json = await response.json();

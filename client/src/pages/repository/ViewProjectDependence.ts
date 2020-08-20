@@ -23,7 +23,7 @@ import RepositoryHeader from '../widgets/RepositoryHeader';
 import messageBundle from '../../nls/main';
 
 import {
-	ProjectResourcePathPayload,
+	RepositoryResourcePathPayload,
 	QueryPayload,
 	ProjectDependencePayload,
 	ProjectDependenceIdPayload,
@@ -50,7 +50,7 @@ export interface ViewProjectDependenceProperties {
 	pagedComponentRepos: PagedComponentRepos;
 	dependences: ProjectDependenceData[];
 	latestCommitInfo: CommitInfo;
-	onOpenGroup: (opt: ProjectResourcePathPayload) => void;
+	onOpenGroup: (opt: RepositoryResourcePathPayload) => void;
 	onQueryComponentRepos: (opt: QueryPayload) => void;
 	onAddDependence: (opt: ProjectDependenceWithProjectPathPayload) => void;
 	onDeleteDependence: (opt: ProjectDependenceIdPayload) => void;
@@ -519,6 +519,7 @@ class ComponentRepoItem extends ThemedMixin(I18nMixin(WidgetBase))<ComponentRepo
 			owner: repository.createUserName,
 			repo: repository.name,
 			componentRepoId: componentRepo.id!,
+			project: '', // TODO
 		});
 	}
 }
@@ -591,6 +592,7 @@ class DependenceRow extends ThemedMixin(I18nMixin(WidgetBase))<DependenceRowProp
 			owner: repository.createUserName,
 			repo: repository.name,
 			id: dependence.dependence.id,
+			project: '', // TODO
 		});
 	}
 }

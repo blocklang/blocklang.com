@@ -163,10 +163,10 @@ export default class ViewRepositoryGroup extends ThemedMixin(I18nMixin(WidgetBas
 		this.properties.onOpenGroup(opt);
 	}
 
-	private _renderTr(projectResource: RepositoryResource) {
+	private _renderTr(repositoryResource: RepositoryResource) {
 		const { repository, path } = this.properties;
 		return w(RepositoryResourceRow, {
-			projectResource,
+			repositoryResource,
 			repository,
 			parentPath: path,
 			onOpenGroup: this._onOpenGroup,

@@ -15,7 +15,7 @@ import Exception from '../error/Exception';
 
 export interface NewReleaseProperties {
 	loggedUsername: string;
-	repo: Repository;
+	repository: Repository;
 	jdks: JdkInfo[];
 	// attr
 	id?: number;
@@ -63,9 +63,9 @@ export default class NewRelease extends ThemedMixin(I18nMixin(WidgetBase))<NewRe
 		const {
 			messages: { privateRepositoryTitle },
 		} = this._localizedMessages;
-		const { repo } = this.properties;
+		const { repository } = this.properties;
 
-		return w(RepositoryHeader, { repo, privateRepositoryTitle });
+		return w(RepositoryHeader, { repository, privateRepositoryTitle });
 	}
 
 	private _renderNavigate() {
@@ -73,7 +73,7 @@ export default class NewRelease extends ThemedMixin(I18nMixin(WidgetBase))<NewRe
 			messages: { releaseText },
 		} = this._localizedMessages;
 		const {
-			project: { createUserName, name },
+			repository: { createUserName, name },
 		} = this.properties;
 		return v('div', { classes: [c.pb_4, c.mb_4, c.border_bottom] }, [
 			w(
@@ -226,9 +226,9 @@ export default class NewRelease extends ThemedMixin(I18nMixin(WidgetBase))<NewRe
 
 	private _onVersionInput({ target: { value: version } }: WithTarget) {
 		const {
-			project: { createUserName, name },
+			repository: { createUserName, name },
 		} = this.properties;
-		this.properties.onVersionInput({ version, owner: createUserName, project: name });
+		this.properties.onVersionInput({ version, owner: createUserName, repo: name });
 	}
 
 	private _onJdkSelect({ target: { value: jdkReleaseId } }: WithTarget) {
@@ -245,9 +245,9 @@ export default class NewRelease extends ThemedMixin(I18nMixin(WidgetBase))<NewRe
 
 	private _onSaveReleaseTask() {
 		const {
-			project: { createUserName, name },
+			repository: { createUserName, name },
 			version,
 		} = this.properties;
-		this.properties.onSaveReleaseTask({ owner: createUserName, project: name, version });
+		this.properties.onSaveReleaseTask({ owner: createUserName, repo: name, version });
 	}
 }

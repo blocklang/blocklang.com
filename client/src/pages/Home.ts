@@ -8,7 +8,7 @@ import * as css from './Home.m.css';
 
 import PrivateHome from './user/Home';
 import messageBundle from '../nls/main';
-import { Project } from '../interfaces';
+import { Repository } from '../interfaces';
 import { baseUrl } from '../config';
 import FontAwesomeIcon from '@blocklang/dojo-fontawesome/FontAwesomeIcon';
 
@@ -16,7 +16,7 @@ export interface HomeProperties {
 	isAuthenticated: boolean;
 	loggedUsername?: string;
 	loggedAvatarUrl?: string;
-	canAccessProjects: Project[];
+	canAccessRepos: Repository[];
 	loginFailure: boolean;
 	loginFailureMessage: string;
 }

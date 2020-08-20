@@ -10,7 +10,7 @@ const changeRouteCommand = commandFactory<ChangeRoutePayload>(({ path, payload: 
 		replace(path('routing', 'outlet'), outlet),
 		replace(path('routing', 'params'), context.params),
 		remove(path('errors')),
-		remove(path('projectResource')),
+		remove(path('repositoryResource')),
 	];
 });
 export const changeRouteProcess = createProcess('change-route', [changeRouteCommand]);

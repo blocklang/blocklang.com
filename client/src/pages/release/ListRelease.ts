@@ -4,7 +4,7 @@ import I18nMixin from '@dojo/framework/core/mixins/I18n';
 import { theme, ThemedMixin } from '@dojo/framework/core/mixins/Themed';
 import messageBundle from '../../nls/main';
 import RepositoryHeader from '../widgets/RepositoryHeader';
-import { Project, ProjectRelease, WsMessage } from '../../interfaces';
+import { Repository, ProjectRelease, WsMessage } from '../../interfaces';
 import FontAwesomeIcon from '@blocklang/dojo-fontawesome/FontAwesomeIcon';
 import Link from '@dojo/framework/routing/Link';
 import Spinner from '../../widgets/spinner';
@@ -24,7 +24,7 @@ import { canRelease } from '../../permission';
 
 export interface ListReleaseProperties {
 	loggedUsername: string;
-	project: Project;
+	repository: Repository;
 	releases: ProjectRelease[];
 }
 
@@ -60,12 +60,12 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 	}
 
 	private _isAuthenticated() {
-		const { project, loggedUsername } = this.properties;
+		const { repository, loggedUsername } = this.properties;
 		const isLogin = !!loggedUsername;
 		if (!isLogin) {
 			return false;
 		}
-		return canRelease(project.accessLevel);
+		return canRelease(repository.accessLevel);
 	}
 
 	private _renderReleasesPart() {
@@ -81,11 +81,11 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 
 	private _renderHeader() {
 		const {
-			messages: { privateProjectTitle },
+			messages: { privateRepositoryTitle },
 		} = this._localizedMessages;
-		const { project } = this.properties;
+		const { repository } = this.properties;
 
-		return w(RepositoryHeader, { project, privateProjectTitle });
+		return w(RepositoryHeader, { repository, privateRepositoryTitle });
 	}
 
 	private _renderEmptyReleases() {
@@ -93,7 +93,7 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 			messages: { releaseText, noReleaseTitle, newReleaseText, noReleaseTip },
 		} = this._localizedMessages;
 		const {
-			project: { createUserName, name },
+			repository: { createUserName, name },
 		} = this.properties;
 
 		return v('div', { key: 'empty', classes: [c.container], styles: { maxWidth: '700px' } }, [
@@ -168,7 +168,7 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 			messages: { newReleaseText },
 		} = this._localizedMessages;
 		const {
-			project: { createUserName, name },
+			repository: { createUserName, name },
 		} = this.properties;
 
 		return v('div', { classes: [c.pb_4, c.d_flex, c.justify_content_end] }, [
@@ -197,7 +197,7 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 	}
 
 	private _renderItem(release: ProjectRelease) {
-		const { project } = this.properties;
+		const { repository } = this.properties;
 		let releaseResult = release.releaseResult;
 		// 如果初始化时是处于运行状态，则监听状态是否有发生变化
 		if (releaseResult === '02') {
@@ -254,7 +254,11 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 						Link,
 						{
 							to: 'view-release',
-							params: { owner: project.createUserName, project: project.name, version: release.version },
+							params: {
+								owner: repository.createUserName,
+								project: repository.name,
+								version: release.version,
+							},
 							classes: [resultClasses],
 						},
 						[`${release.title}`]

@@ -1,5 +1,5 @@
 import Store from '@dojo/framework/stores/Store';
-import ViewProject, { ViewProjectProperties } from '../../pages/project/ViewProject';
+import ViewRepository, { ViewRepositoryProperties } from '../../pages/repository/ViewRepository';
 import { State } from '../../interfaces';
 import { StoreContainer } from '@dojo/framework/stores/StoreInjector';
 import {
@@ -8,16 +8,16 @@ import {
 	unstageChangesProcess,
 	commitChangesProcess,
 	commitMessageInputProcess,
-} from '../../processes/projectProcesses';
+} from '../../processes/repositoryProcesses';
 
-function getProperties(store: Store<State>): ViewProjectProperties {
+function getProperties(store: Store<State>): ViewRepositoryProperties {
 	const { get, path } = store;
 
 	return {
 		loggedUsername: get(path('user', 'loginName')),
-		project: get(path('project')),
-		groupId: get(path('projectResource', 'id')),
-		path: get(path('projectResource', 'fullPath')),
+		repository: get(path('repository')),
+		groupId: get(path('repositoryResource', 'id')),
+		path: get(path('repositoryResource', 'fullPath')),
 		childResources: get(path('childResources')),
 
 		latestCommitInfo: get(path('latestCommitInfo')),
@@ -37,11 +37,11 @@ function getProperties(store: Store<State>): ViewProjectProperties {
 	};
 }
 
-export default StoreContainer(ViewProject, 'state', {
+export default StoreContainer(ViewRepository, 'state', {
 	paths: [
 		['user'],
-		['project'],
-		['projectResource'],
+		['repository'],
+		['repositoryResource'],
 		['childResources'],
 		['latestCommitInfo'],
 		['readme'],

@@ -11,10 +11,10 @@ function getProperties(store: Store<State>): HomeProperties {
 		isAuthenticated: !!get(path('user', 'loginName')),
 		loggedUsername: get(path('user', 'loginName')),
 		loggedAvatarUrl: get(path('user', 'avatarUrl')),
-		canAccessProjects: get(path('canAccessProjects')),
+		canAccessRepos: get(path('canAccessRepos')),
 		loginFailure: get(path('user', 'status')) === LoginStatus.FAILED,
 		loginFailureMessage: get(path('user', 'loginFailureMessage')),
 	};
 }
 
-export default StoreContainer(Home, 'state', { paths: [['user'], ['canAccessProjects']], getProperties });
+export default StoreContainer(Home, 'state', { paths: [['user'], ['canAccessRepos']], getProperties });

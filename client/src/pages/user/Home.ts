@@ -9,7 +9,7 @@ import * as c from '@blocklang/bootstrap-classes';
 import * as css from './Home.m.css';
 import Link from '@dojo/framework/routing/Link';
 import messageBundle from '../../nls/main';
-import { Project } from '../../interfaces';
+import { Repository } from '../../interfaces';
 import FontAwesomeIcon from '@blocklang/dojo-fontawesome/FontAwesomeIcon';
 
 /**
@@ -21,7 +21,7 @@ export default class Home extends ThemedMixin(I18nMixin(WidgetBase))<HomePropert
 
 	protected render() {
 		const { messages } = this._localizedMessages;
-		const { canAccessProjects = [] } = this.properties;
+		const { canAccessRepos = [] } = this.properties;
 		return v('div', { classes: [c.container, c.mt_4] }, [
 			v('div', { classes: [c.row] }, [
 				v('div', { classes: [c.col_md_8] }, this._renderEmptyActivity()),
@@ -36,9 +36,7 @@ export default class Home extends ThemedMixin(I18nMixin(WidgetBase))<HomePropert
 						v(
 							'ul',
 							{ classes: [c.list_group, c.list_group_flush] },
-							canAccessProjects.length === 0
-								? this._renderEmptyProject()
-								: this._renderProjects(canAccessProjects)
+							canAccessRepos.length === 0 ? this._renderEmptyProject() : this._renderRepos(canAccessRepos)
 						),
 					]),
 				]),
@@ -81,12 +79,12 @@ export default class Home extends ThemedMixin(I18nMixin(WidgetBase))<HomePropert
 		];
 	}
 
-	private _renderProjects(projects: Project[]) {
+	private _renderRepos(repos: Repository[]) {
 		const {
-			messages: { privateProjectTitle },
+			messages: { privateRepositoryTitle },
 		} = this._localizedMessages;
 
-		return projects.map((project) => {
+		return repos.map((project) => {
 			return v('li', { classes: [c.list_group_item] }, [
 				w(Link, { to: 'view-repo', params: { owner: project.createUserName, project: project.name } }, [
 					`${project.createUserName}/${project.name}`,
@@ -98,7 +96,7 @@ export default class Home extends ThemedMixin(I18nMixin(WidgetBase))<HomePropert
 							icon: 'lock',
 							size: 'xs',
 							classes: [c.text_muted],
-							title: `${privateProjectTitle}`,
+							title: `${privateRepositoryTitle}`,
 					  }),
 			]);
 		});

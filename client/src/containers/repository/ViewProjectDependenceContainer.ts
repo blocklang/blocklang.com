@@ -1,8 +1,8 @@
 import Store from '@dojo/framework/stores/Store';
 import { State } from '../../interfaces';
 import { StoreContainer } from '@dojo/framework/stores/StoreInjector';
-import ViewProjectDependence, { ViewProjectDependenceProperties } from '../../pages/project/ViewProjectDependence';
-import { initForViewProjectGroupProcess } from '../../processes/projectProcesses';
+import ViewProjectDependence, { ViewProjectDependenceProperties } from '../../pages/repository/ViewProjectDependence';
+import { initForViewRepositoryGroupProcess } from '../../processes/repositoryProcesses';
 import {
 	queryComponentReposForProjectProcess,
 	addDependenceProcess,
@@ -16,14 +16,14 @@ function getProperties(store: Store<State>): ViewProjectDependenceProperties {
 
 	return {
 		loggedUsername: get(path('user', 'loginName')),
-		project: get(path('project')),
+		repository: get(path('repository')),
 		sourceId: get(path('projectDependenceResource', 'resourceId')),
 		pathes: get(path('projectDependenceResource', 'pathes')),
 		dependences: get(path('projectDependenceResource', 'dependences')),
 		latestCommitInfo: get(path('latestCommitInfo')),
 		pagedComponentRepos: get(path('pagedComponentRepoInfos')),
 		onQueryComponentRepos: queryComponentReposForProjectProcess(store),
-		onOpenGroup: initForViewProjectGroupProcess(store),
+		onOpenGroup: initForViewRepositoryGroupProcess(store),
 		onAddDependence: addDependenceProcess(store),
 		onDeleteDependence: deleteDependenceProcess(store),
 		onShowDependenceVersions: showDependenceVersionsProcess(store),
@@ -34,7 +34,7 @@ function getProperties(store: Store<State>): ViewProjectDependenceProperties {
 export default StoreContainer(ViewProjectDependence, 'state', {
 	paths: [
 		['user'],
-		['project'],
+		['repository'],
 		['projectDependenceResource'],
 		['selectedDependenceVersions'],
 		['latestCommitInfo'],

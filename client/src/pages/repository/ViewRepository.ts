@@ -398,13 +398,13 @@ export default class ViewRepository extends ThemedMixin(I18nMixin(WidgetBase))<V
 			: w(Spinner, {});
 	}
 
-	private _renderTr(repositorytResource: RepositoryResource) {
+	private _renderTr(repositoryResource: RepositoryResource) {
 		// gitStatus 为 undefined 时，表示文件内容未变化。
 		// 未变化
 		// 未跟踪
 		// 已修改
 		const { repository, path } = this.properties;
-		return w(RepositoryResourceRow, { repository, repositorytResource, parentPath: path });
+		return w(RepositoryResourceRow, { repository, repositoryResource, parentPath: path });
 	}
 
 	private _renderReadme() {

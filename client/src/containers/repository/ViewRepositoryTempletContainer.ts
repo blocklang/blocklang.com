@@ -1,15 +1,15 @@
 import Store from '@dojo/framework/stores/Store';
 import { State } from '../../interfaces';
 import { StoreContainer } from '@dojo/framework/stores/StoreInjector';
-import ViewProjectTemplet, { ViewProjectTempletProperties } from '../../pages/project/ViewProjectTemplet';
+import ViewRepositoryTemplet, { ViewRepositoryTempletProperties } from '../../pages/repository/ViewRepositoryTemplet';
 
-function getProperties(store: Store<State>): ViewProjectTempletProperties {
+function getProperties(store: Store<State>): ViewRepositoryTempletProperties {
 	// const { get, path } = store;
 
 	return {};
 }
 
-export default StoreContainer(ViewProjectTemplet, 'state', {
+export default StoreContainer(ViewRepositoryTemplet, 'state', {
 	paths: [],
 	getProperties,
 });

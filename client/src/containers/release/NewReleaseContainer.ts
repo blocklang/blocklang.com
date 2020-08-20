@@ -16,7 +16,7 @@ function getProperties(store: Store<State>): NewReleaseProperties {
 	const projectReleaseParam = get(path('projectReleaseParam'));
 	return {
 		loggedUsername: get(path('user', 'loginName')),
-		project: get(path('project')),
+		repository: get(path('repository')),
 		jdks: get(path('jdks')),
 		...projectReleaseParam,
 		versionValidateStatus: get(path('releaseInputValidation', 'versionValidateStatus')),
@@ -33,6 +33,6 @@ function getProperties(store: Store<State>): NewReleaseProperties {
 }
 
 export default StoreContainer(NewRelease, 'state', {
-	paths: [['user'], ['project'], ['jdks'], ['releaseInputValidation']],
+	paths: [['user'], ['repository'], ['jdks'], ['releaseInputValidation']],
 	getProperties,
 });

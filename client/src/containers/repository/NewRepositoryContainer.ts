@@ -1,6 +1,6 @@
 import { Store } from '@dojo/framework/stores/Store';
 import { StoreContainer } from '@dojo/framework/stores/StoreInjector';
-import NewRepository, { NewRepositoryProperties } from '../../pages/project/NewRepository';
+import NewRepository, { NewRepositoryProperties } from '../../pages/repository/NewRepository';
 import { State } from '../../interfaces';
 import {
 	nameInputProcess,
@@ -11,13 +11,13 @@ import {
 
 function getProperties(store: Store<State>): NewRepositoryProperties {
 	const { get, path } = store;
-	const projectParam = get(path('projectParam'));
+	const repositoryParam = get(path('repositoryParam'));
 	return {
 		loggedUsername: get(path('user', 'loginName')),
 		loggedAvatarUrl: get(path('user', 'avatarUrl')),
-		...projectParam,
-		nameValidateStatus: get(path('projectInputValidation', 'nameValidateStatus')),
-		nameErrorMessage: get(path('projectInputValidation', 'nameErrorMessage')),
+		...repositoryParam,
+		nameValidateStatus: get(path('repositoryInputValidation', 'nameValidateStatus')),
+		nameErrorMessage: get(path('repositoryInputValidation', 'nameErrorMessage')),
 
 		onNameInput: nameInputProcess(store),
 		onDescriptionInput: descriptionInputProcess(store),
@@ -27,6 +27,6 @@ function getProperties(store: Store<State>): NewRepositoryProperties {
 }
 
 export default StoreContainer(NewRepository, 'state', {
-	paths: [['user'], ['project'], ['projectInputValidation']],
+	paths: [['user'], ['repository'], ['repositoryInputValidation']],
 	getProperties,
 });

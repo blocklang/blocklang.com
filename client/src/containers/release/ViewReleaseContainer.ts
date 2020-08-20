@@ -7,12 +7,12 @@ function getProperties(store: Store<State>): ViewReleaseProperties {
 	const { get, path } = store;
 
 	return {
-		project: get(path('project')),
+		repo: get(path('repository')),
 		projectRelease: get(path('projectRelease')),
 	};
 }
 
 export default StoreContainer(ViewRelease, 'state', {
-	paths: [['project'], ['projectRelease']],
+	paths: [['repository'], ['projectRelease']],
 	getProperties,
 });

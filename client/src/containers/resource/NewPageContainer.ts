@@ -14,7 +14,7 @@ function getProperties(store: Store<State>): NewPageProperties {
 
 	return {
 		loggedUsername: get(path('user', 'loginName')),
-		project: get(path('repository')),
+		repository: get(path('repository')),
 		appTypes: get(path('appTypes')),
 		appType: get(path('pageParam', 'appType')),
 		parentId: get(path('repositoryResource', 'id')),

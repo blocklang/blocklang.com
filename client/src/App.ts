@@ -11,8 +11,8 @@ import Exception from './pages/error/Exception';
 
 import HeaderContainer from './containers/HeaderContainer';
 import HomeContainer from './containers/HomeContainer';
-import NewRepositoryContainer from './containers/project/NewRepositoryContainer';
-import ViewProjectContainer from './containers/project/ViewProjectContainer';
+import NewRepositoryContainer from './containers/repository/NewRepositoryContainer';
+import ViewRepositoryContainer from './containers/repository/ViewRepositoryContainer';
 import ListReleaseContainer from './containers/release/ListReleaseContainer';
 import NewReleaseContainer from './containers/release/NewReleaseContainer';
 import ViewDocumentContainer from './containers/help/ViewDocumentContainer';
@@ -21,18 +21,18 @@ import CompleteUserInfoContainer from './containers/user/CompleteUserInfoContain
 import ViewReleaseContainer from './containers/release/ViewReleaseContainer';
 import NewPageContainer from './containers/resource/NewPageContainer';
 import NewGroupContainer from './containers/resource/NewGroupContainer';
-import ViewProjectGroupContainer from './containers/project/ViewProjectGroupContainer';
+import ViewRepositoryGroupContainer from './containers/repository/ViewRepositoryGroupContainer';
 import ListComponentRepoContainer from './containers/marketplace/ListComponentRepoContainer';
 import ListMyComponentRepoContainer from './containers/user/settings/ListMyComponentRepoContainer';
 import ViewComponentRepoPublishTaskContainer from './containers/user/settings/ViewComponentRepoPublishTaskContainer';
-import ViewProjectReadmeContainer from './containers/project/ViewProjectReadmeContainer';
-import ViewProjectDependenceContainer from './containers/project/ViewProjectDependenceContainer';
-import ViewProjectPageContainer from './containers/project/ViewProjectPageContainer';
-import ViewProjectTempletContainer from './containers/project/ViewProjectTempletContainer';
-import ViewProjectServiceContainer from './containers/project/ViewProjectServiceContainer';
+import ViewRepositoryReadmeContainer from './containers/repository/ViewRepositoryReadmeContainer';
+import ViewProjectDependenceContainer from './containers/repository/ViewProjectDependenceContainer';
+import ViewRepositoryPageContainer from './containers/repository/ViewRepositoryPageContainer';
+import ViewRepositoryTempletContainer from './containers/repository/ViewRepositoryTempletContainer';
+import ViewRepositoryServiceContainer from './containers/repository/ViewRepositoryServiceContainer';
 import FooterContainer from './containers/FooterContainer';
-import NewWebProject from './pages/project/NewWebProject';
-import NewMiniProgram from './pages/project/NewMiniProgram';
+import NewWebProject from './pages/repository/NewWebProject';
+import NewMiniProgram from './pages/repository/NewMiniProgram';
 import * as icon from './icon';
 
 icon.init();
@@ -68,17 +68,17 @@ export default class App extends WidgetBase {
 				w(Route, {
 					key: 'view-repo',
 					id: 'view-repo',
-					renderer: () => w(ViewProjectContainer, {}),
+					renderer: () => w(ViewRepositoryContainer, {}),
 				}),
 				w(Route, {
 					key: 'view-repo-group',
 					id: 'view-repo-group',
-					renderer: () => w(ViewProjectGroupContainer, {}),
+					renderer: () => w(ViewRepositoryGroupContainer, {}),
 				}),
 				w(Route, {
 					key: 'view-repo-readme',
 					id: 'view-repo-readme',
-					renderer: () => w(ViewProjectReadmeContainer, {}),
+					renderer: () => w(ViewRepositoryReadmeContainer, {}),
 				}),
 				w(Route, {
 					key: 'view-project-dependence',
@@ -88,17 +88,17 @@ export default class App extends WidgetBase {
 				w(Route, {
 					key: 'view-repo-page',
 					id: 'view-repo-page',
-					renderer: () => w(ViewProjectPageContainer, {}),
+					renderer: () => w(ViewRepositoryPageContainer, {}),
 				}),
 				w(Route, {
 					key: 'view-repo-templet',
 					id: 'view-repo-templet',
-					renderer: () => w(ViewProjectTempletContainer, {}),
+					renderer: () => w(ViewRepositoryTempletContainer, {}),
 				}),
 				w(Route, {
 					key: 'view-repo-service',
 					id: 'view-repo-service',
-					renderer: () => w(ViewProjectServiceContainer, {}),
+					renderer: () => w(ViewRepositoryServiceContainer, {}),
 				}),
 				w(Route, { key: 'new-page-root', id: 'new-page-root', renderer: () => w(NewPageContainer, {}) }),
 				w(Route, { key: 'new-group-root', id: 'new-group-root', renderer: () => w(NewGroupContainer, {}) }),
