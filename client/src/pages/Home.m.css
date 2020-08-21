@@ -22,3 +22,11 @@
 	max-width: 600px;
 	text-align: center;
 }
+
+.header {
+	font-size: 4rem;
+}
+
+.lead {
+	font-size: 1.5rem;
+}

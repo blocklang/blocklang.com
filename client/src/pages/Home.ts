@@ -54,7 +54,8 @@ export default class Home extends ThemedMixin(I18nMixin(WidgetBase))<HomePropert
 				: undefined,
 			v('div', { classes: [css.jumbotron, c.jumbotron, c.mt_5] }, [
 				v('div', { classes: [c.container, css.jumbotronContent] }, [
-					v('h1', { classes: [] }, [messages.blockLangIntro]),
+					v('h1', { classes: [css.header] }, [messages.blockLangIntro]),
+					v('p', { classes: [c.font_weight_normal, css.lead], innerHTML: messages.blockLangDescription }, []),
 					v('p', { classes: [c.my_5] }, [
 						v(
 							'a',
