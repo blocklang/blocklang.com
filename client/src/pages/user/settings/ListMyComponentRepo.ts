@@ -14,7 +14,7 @@ import { UrlPayload } from '../../../processes/interfaces';
 import Moment from '../../../widgets/moment';
 import Exception from '../../error/Exception';
 import { Client, IFrame } from '@stomp/stompjs';
-import SockJS = require('sockjs-client');
+import * as SockJS from 'sockjs-client';
 import {
 	getRepoCategoryName,
 	getProgramingLanguageName,

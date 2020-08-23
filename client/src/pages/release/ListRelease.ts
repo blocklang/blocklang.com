@@ -17,7 +17,7 @@ import 'github-markdown-css/github-markdown.css';
 import 'highlight.js/styles/github.css';
 import * as c from '@blocklang/bootstrap-classes';
 import * as css from './ListRelease.m.css';
-import SockJS = require('sockjs-client');
+import * as SockJS from 'sockjs-client';
 import { Client, IFrame } from '@stomp/stompjs';
 import { ReleaseResult } from '../../constant';
 import { canRelease } from '../../permission';
