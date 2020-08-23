@@ -280,7 +280,6 @@ router.on('outlet', ({ outlet, action }) => {
 // 如果是通过 link 方式切换的，则不需要再执行 router.setPath
 // 如果是通过编程方式切换的，则要执行 router.setPath
 router.on('nav', ({ outlet, context }: any) => {
-	debugger;
 	console.log('nav');
 	changeRouteProcess(store)({ outlet, context });
 });

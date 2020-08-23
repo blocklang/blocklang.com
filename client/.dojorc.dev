@@ -1,8 +1,7 @@
 {
 	"build-app": {
-		"legacy": true,
 		"features": {
-			"production": true
+			"production": false
 		}
 	}
 }

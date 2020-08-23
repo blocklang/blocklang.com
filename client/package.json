@@ -2,7 +2,7 @@
   "name": "client",
   "version": "1.0.0",
   "scripts": {
-    "dev": "dojo build --mode dev --watch --serve",
+    "dev": "dojo build --dojorc .dojorc.dev --mode dev --watch --serve",
     "build": "dojo build --mode dist",
     "build:dev": "dojo build --mode dev",
     "test": "dojo test",
