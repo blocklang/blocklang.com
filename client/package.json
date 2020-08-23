@@ -10,7 +10,10 @@
     "test:functional": "dojo build --mode functional && dojo test --functional --config local",
     "test:all": "dojo build --mode unit && dojo build --mode functional && dojo test --all --config local",
     "prettier": "prettier --write \"{src,tests}/**/*.{ts,tsx,css}\"",
-    "json-server": "json-server --watch json-server/db.json --routes json-server/routes.json"
+    "json-server": "json-server --watch json-server/db_user_login.json --routes json-server/routes.json",
+    "json-server:not-login": "json-server --watch json-server/db_user_not_login.json --routes json-server/routes.json",
+    "json-server:login-failed": "json-server --watch json-server/db_user_login_failed.json --routes json-server/routes.json",
+    "json-server:complete-user-info": "json-server --watch json-server/db_user_login_need_complete_info.json --routes json-server/routes.json"
   },
   "dependencies": {
     "@blocklang/bootstrap-classes": "~0.0.3-alpha.8",

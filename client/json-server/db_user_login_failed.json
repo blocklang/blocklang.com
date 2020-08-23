@@ -1,0 +1,6 @@
+{
+    "user": {
+        "status": "Failed",
+        "loginFailureMessage": "登录出错原因"
+    }
+}

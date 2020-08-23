@@ -1,0 +1,9 @@
+{
+    "user": {
+        "status": "NeedCompleteUserInfo",
+        "loginName": "张三",
+        "nickname": "张三",
+        "avatarUrl": "https://portrait.gitee.com/uploads/avatars/user/166/499272_xiaohulu_1578925773.jpg!avatar30",
+        "loginNameErrorMessage": "登录名无效"
+    }
+}

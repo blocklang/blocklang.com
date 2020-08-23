@@ -1,0 +1,21 @@
+{
+    "user": {
+        "status": "Logined",
+        "loginName": "jack",
+        "avatarUrl": "https://portrait.gitee.com/uploads/avatars/user/166/499272_xiaohulu_1578925773.jpg!avatar30"
+    },
+    "userRepos": [{
+        "id": 1,
+        "name": "first-repo",
+        "description": "我的第一个 blocklang 仓库",
+        "isPublic": true,
+        "lastActiveTime": "2020-01-01 9:00",
+        "createUserName": "jack",
+        "createTime": "2020-01-01 8:00",
+        "createUserId": 1,
+        "accessLevel": "03",
+        "avatarUrl": null,
+        "lastUpdateTime": null,
+        "lastUpdateUserId": null
+    }]
+}
