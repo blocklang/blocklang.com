@@ -23,7 +23,6 @@ function getProperties(store: Store<State>): ViewRepositoryProperties {
 		latestCommitInfo: get(path('latestCommitInfo')),
 		readme: get(path('readme')),
 		userDeployInfo: get(path('userDeployInfo')),
-		releaseCount: get(path('releaseCount')),
 		stagedChanges: get(path('stagedChanges')),
 		unstagedChanges: get(path('unstagedChanges')),
 		commitMessage: get(path('commitMessageParam', 'value')),

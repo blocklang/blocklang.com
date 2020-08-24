@@ -43,7 +43,6 @@ export interface ViewRepositoryProperties {
 	latestCommitInfo: CommitInfo;
 	readme?: string;
 	userDeployInfo: DeployInfo;
-	releaseCount: number;
 	stagedChanges: UncommittedFile[];
 	unstagedChanges: UncommittedFile[];
 
@@ -235,6 +234,7 @@ export default class ViewRepository extends ThemedMixin(I18nMixin(WidgetBase))<V
 	}
 
 	private _renderCommitButtonGroup() {
+		debugger;
 		if (!this._isLogined()) {
 			return;
 		}
@@ -379,7 +379,7 @@ export default class ViewRepository extends ThemedMixin(I18nMixin(WidgetBase))<V
 	private _renderTable() {
 		const { latestCommitInfo } = this.properties;
 
-		return v('div', { classes: [c.card] }, [
+		return v('div', { key: 'table', classes: [c.card] }, [
 			w(LatestCommitInfo, { latestCommitInfo }), // 最近提交信息区
 			this._renderResources(),
 		]);

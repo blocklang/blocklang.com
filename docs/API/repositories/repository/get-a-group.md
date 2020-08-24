@@ -50,8 +50,10 @@ childResources 是数组，数据项为 ProjectResource 对象
 | `name`             | `string`   | 资源名称       |
 | `description`      | `string`   | 资源描述       |
 | `resourceType`     | `string`   | 资源类型       |
+| `appType`          | `string`   | 项目类型       |
 | `parentId`         | `int`      | 父标识         |
 | `seq`              | `int`      | 排序           |
+| `icon`             | `string`   | 资源的图标     |
 | `createTime`       | `datetime` | 创建时间       |
 | `createUserId`     | `int`      | 创建用户标识   |
 | `lastUpdateTime`   | `datetime` | 最近修改时间   |

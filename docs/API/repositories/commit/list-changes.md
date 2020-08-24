@@ -1,6 +1,6 @@
 # 获取有变动的资源
 
-获取仓库中所有变化的资源，包括新增的、修改和删除的。
+获取仓库中所有变动的资源，包括新增、修改和删除的资源。
 
 ```text
 GET /repos/{owner}/{repoName}/changes
@@ -14,6 +14,20 @@ GET /repos/{owner}/{repoName}/changes
 | `repoName` | `string` | **Required**. 仓库名称   |
 
 ## Response
+
+如果没有找到此仓库，则
+
+```text
+Status: 404 Not Found
+```
+
+如果用户没有访问权限，则
+
+```text
+Status: 403 Forbidden
+```
+
+如果访问成功，则
 
 ```text
 Status: 200 OK
@@ -30,15 +44,3 @@ Status: 200 OK
 | `gitStatus`      | `string` | 资源状态                        |
 | `resourceName`   | `string` | 资源名称                        |
 | `parentNamePath` | `string` | 完整路径的显示名，使用 `/` 分割 |
-
-如果没有找到此仓库，则
-
-```text
-Status: 404 Not Found
-```
-
-如果用户没有访问权限，则
-
-```text
-Status: 403 Forbidden
-```

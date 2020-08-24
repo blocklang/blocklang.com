@@ -84,13 +84,13 @@ export default class Home extends ThemedMixin(I18nMixin(WidgetBase))<HomePropert
 			messages: { privateRepositoryTitle },
 		} = this._localizedMessages;
 
-		return repos.map((project) => {
+		return repos.map((repository) => {
 			return v('li', { classes: [c.list_group_item] }, [
-				w(Link, { to: 'view-repo', params: { owner: project.createUserName, project: project.name } }, [
-					`${project.createUserName}/${project.name}`,
+				w(Link, { to: 'view-repo', params: { owner: repository.createUserName, repo: repository.name } }, [
+					`${repository.createUserName}/${repository.name}`,
 				]),
 				' ',
-				project.isPublic
+				repository.isPublic
 					? null
 					: w(FontAwesomeIcon, {
 							icon: 'lock',

@@ -10,7 +10,7 @@ import global from '@dojo/framework/shim/global';
 import routes from './routes';
 import App from './App';
 import { State } from './interfaces';
-import { initForUserProfileProcess } from './processes/userProcesses';
+import { initForUserProfileProcess, getCurrentUserProcess } from './processes/userProcesses';
 import { initForNewRepositoryProcess } from './processes/repositoryProcesses';
 import {
 	initForViewRepositoryProcess,
@@ -46,7 +46,7 @@ if (userSession) {
 } else {
 	// 因为在 homeProcesses 中也调用了获取登录用户信息的方法，出现了在 home 页面都请求两次的情况
 	// 所以先注释掉此方法。
-	//getCurrentUserProcess(store)({});
+	getCurrentUserProcess(store)({});
 }
 
 const registry = registerStoreInjector(store);
@@ -76,7 +76,10 @@ function setDocumentTitle(titleOptions: DocumentTitleOptions): string | undefine
 	}
 	let repository = get(path('repository'));
 	if (!repository) {
+		debugger;
 		if (params.owner && params.repo) {
+			// FIXME: 在这里触发，会导致执行两次初始化请求
+			// 这个函数中只支持静态同步设置 title 信息
 			initForViewRepositoryProcess(store)({ owner: params.owner, repo: params.repo });
 			repository = get(path('repository'));
 		}
@@ -147,6 +150,7 @@ router.on('outlet', ({ outlet, action }) => {
 				initForNewRepositoryProcess(store)({});
 				break;
 			case 'view-repo':
+				debugger;
 				initForViewRepositoryProcess(store)({ owner: outlet.params.owner, repo: outlet.params.repo });
 				initForViewCommitChangesProcess(store)({ owner: outlet.params.owner, repo: outlet.params.repo });
 				break;

@@ -1,3 +1,8 @@
 {
-    "/user/repos": "/userRepos"
+    "/user/repos": "/userRepos",
+    "/repos/:owner/:repo": "/userRepos/1",
+    "/repos/:owner/:repo/groups": "/repoRootDir",
+    "/repos/:owner/:repo/latest-commit/-1": "/repoRootDirLatestCommit",
+    "/repos/:owner/:repo/readme": "/repoReadme",
+    "/repos/:owner/:repo/changes": "/repoRootChanges"
 }

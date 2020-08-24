@@ -24,7 +24,7 @@ export class RepositoryHeaderBase<P extends RepositoryHeaderProperties = Reposit
 			repository: { name, isPublic, createUserName },
 			privateRepositoryTitle,
 		} = this.properties;
-
+		debugger;
 		return v('div', { classes: [c.mt_4, c.mb_3] }, [
 			v('nav', { classes: [c.d_inline_flex], 'aria-label': 'breadcrumb' }, [
 				v('ol', { classes: [css.repositoryHeader, c.breadcrumb] }, [
@@ -40,7 +40,7 @@ export class RepositoryHeaderBase<P extends RepositoryHeaderProperties = Reposit
 						w(Link, { to: 'profile', params: { user: createUserName } }, [`${createUserName}`]),
 					]),
 					v('li', { classes: [c.breadcrumb_item, c.active] }, [
-						w(Link, { to: 'view-repo', params: { owner: createUserName, project: name } }, [
+						w(Link, { to: 'view-repo', params: { owner: createUserName, repo: name } }, [
 							v('strong', [`${name}`]),
 						]),
 					]),

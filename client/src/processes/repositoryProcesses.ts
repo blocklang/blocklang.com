@@ -180,22 +180,22 @@ const getRepositoryReadmeCommand = commandFactory(async ({ get, path, payload: {
 	return [replace(path('readme'), readmeContent)];
 });
 
-const getReleaseCountCommand = commandFactory(async ({ get, path, payload: { owner, repo } }) => {
-	const repositoryInfo = get(path('repository'));
-	if (isEmpty(repositoryInfo)) {
-		return [remove(path('releaseCount'))];
-	}
+// const getReleaseCountCommand = commandFactory(async ({ get, path, payload: { owner, repo } }) => {
+// 	const repositoryInfo = get(path('repository'));
+// 	if (isEmpty(repositoryInfo)) {
+// 		return [remove(path('releaseCount'))];
+// 	}
 
-	const response = await fetch(`${baseUrl}/repos/${owner}/${repo}/stats/releases`, {
-		headers: getHeaders(),
-	});
-	const data = await response.json();
-	if (!response.ok) {
-		return [replace(path('releaseCount'), undefined)];
-	}
+// 	const response = await fetch(`${baseUrl}/repos/${owner}/${repo}/stats/releases`, {
+// 		headers: getHeaders(),
+// 	});
+// 	const data = await response.json();
+// 	if (!response.ok) {
+// 		return [replace(path('releaseCount'), undefined)];
+// 	}
 
-	return [replace(path('releaseCount'), data.total)];
-});
+// 	return [replace(path('releaseCount'), data.total)];
+// });
 
 const getDeployInfoCommand = commandFactory(async ({ path, payload: { owner, repo } }) => {
 	const response = await fetch(`${baseUrl}/repos/${owner}/${repo}/deploy_setting`, {
@@ -325,7 +325,7 @@ export const saveRepositoryProcess = createProcess('save-repository', [saveRepos
 
 export const initForViewRepositoryProcess = createProcess('init-for-view-repository', [
 	[getRepositoryCommand, getRepositoryGroupInfoCommand],
-	[getLatestCommitInfoCommand, getRepositoryReadmeCommand, getReleaseCountCommand, getUncommittedFilesCommand],
+	[getLatestCommitInfoCommand, getRepositoryReadmeCommand, getUncommittedFilesCommand],
 ]);
 export const getUserDeployInfoProcess = createProcess('get-user-deploy-info', [getDeployInfoCommand]);
 

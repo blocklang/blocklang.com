@@ -17,6 +17,10 @@ import { ValidateStatus, LoginStatus } from '../constant';
  * 获取登录用户信息
  */
 export const getCurrentUserCommand = commandFactory(async ({ get, path }) => {
+	if (get(path('user'))) {
+		return;
+	}
+
 	const response = await fetch(`${baseUrl}/user`, {
 		headers: getHeaders(),
 	});
