@@ -31,8 +31,9 @@ import ViewRepositoryPageContainer from './containers/repository/ViewRepositoryP
 import ViewRepositoryTempletContainer from './containers/repository/ViewRepositoryTempletContainer';
 import ViewRepositoryServiceContainer from './containers/repository/ViewRepositoryServiceContainer';
 import FooterContainer from './containers/FooterContainer';
-import NewWebProject from './pages/repository/NewWebProject';
-import NewMiniProgram from './pages/repository/NewMiniProgram';
+import NewWebProject from './pages/repository/new-web-rpoject';
+import NewMiniProgram from './pages/repository/new-mini-program';
+import ViewRepositoryBuild from './pages/repository/view-repository-build';
 import * as icon from './icon';
 
 icon.init();
@@ -79,6 +80,14 @@ export default class App extends WidgetBase {
 					key: 'view-repo-readme',
 					id: 'view-repo-readme',
 					renderer: () => w(ViewRepositoryReadmeContainer, {}),
+				}),
+				w(Route, {
+					key: 'view-repo-build',
+					id: 'view-repo-build',
+					renderer: (matchDetails) => {
+						const { params } = matchDetails;
+						return w(ViewRepositoryBuild, { owner: params.owner, repository: params.repository });
+					},
 				}),
 				w(Route, {
 					key: 'view-project-dependence',

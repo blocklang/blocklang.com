@@ -43,6 +43,16 @@
                 "parentId": -1,
                 "icon": "fas book-open",
                 "seq": 2
+            },
+            {
+                "id": 3,
+                "key": "BUILD",
+                "name": "BUILD.json",
+                "resourceType": "09",
+                "appType": "99",
+                "parentId": -1,
+                "icon": "fas tags",
+                "seq": 3
             }
         ]
     },

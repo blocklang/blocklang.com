@@ -56,6 +56,11 @@ export default [
 		id: 'view-repo-readme',
 	},
 	{
+		path: '{owner}/{repo}/build',
+		outlet: 'view-repo-build',
+		id: 'view-repo-build',
+	},
+	{
 		path: '{owner}/{repo}/{project}/dependence',
 		outlet: 'view-project-dependence',
 		id: 'view-project-dependence',

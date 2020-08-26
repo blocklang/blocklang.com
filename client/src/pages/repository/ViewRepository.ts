@@ -540,6 +540,10 @@ class RepositoryResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<Repositor
 			return 'view-project-dependence';
 		}
 
+		if (resourceType === ResourceType.Build) {
+			return 'view-repo-build';
+		}
+
 		if (resourceType === ResourceType.File) {
 			if (key === 'README') {
 				return 'view-repo-readme';

@@ -1,21 +1,21 @@
 import { create, tsx } from '@dojo/framework/core/vdom';
 import i18n from '@dojo/framework/core/middleware/i18n';
-import store from '../../store';
-import Exception from '../error/Exception';
+import store from '../../../store';
+import Exception from '../../error/Exception';
 import {
 	initForNewGroupProcess,
 	groupKeyInputProcess,
 	groupNameInputProcess,
 	saveGroupProcess,
-} from '../../processes/repositoryGroupProcesses';
-import Spinner from '../../widgets/spinner';
-import { canNewGroup } from '../../permission';
-import bundle from './NewWebProject.nls';
+} from '../../../processes/repositoryGroupProcesses';
+import Spinner from '../../../widgets/spinner';
+import { canNewGroup } from '../../../permission';
+import bundle from './nls/NewWebProject';
 import * as c from '@blocklang/bootstrap-classes';
 import * as css from './NewWebProject.m.css';
-import RepositoryHeader from '../widgets/RepositoryHeader';
+import RepositoryHeader from '../../widgets/RepositoryHeader';
 import Link from '@dojo/framework/routing/Link';
-import { ValidateStatus, PageAppType, ResourceType } from '../../constant';
+import { ValidateStatus, PageAppType, ResourceType } from '../../../constant';
 
 export interface NewWebProjectProperties {
 	owner: string;

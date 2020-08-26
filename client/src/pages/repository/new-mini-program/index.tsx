@@ -1,8 +1,8 @@
 import { create, tsx } from '@dojo/framework/core/vdom';
 import i18n from '@dojo/framework/core/middleware/i18n';
-import store from '../../store';
-import bundle from './NewMiniProgram.nls';
-import Exception from '../error/Exception';
+import store from '../../../store';
+import bundle from './nls/NewMiniProgram';
+import Exception from '../../error/Exception';
 import * as c from '@blocklang/bootstrap-classes';
 import * as css from './NewMiniProgram.m.css';
 import {
@@ -10,12 +10,12 @@ import {
 	groupKeyInputProcess,
 	groupNameInputProcess,
 	saveGroupProcess,
-} from '../../processes/repositoryGroupProcesses';
-import Spinner from '../../widgets/spinner';
-import { canNewGroup } from '../../permission';
+} from '../../../processes/repositoryGroupProcesses';
+import Spinner from '../../../widgets/spinner';
+import { canNewGroup } from '../../../permission';
 import Link from '@dojo/framework/routing/Link';
-import { ValidateStatus, PageAppType, ResourceType } from '../../constant';
-import RepositoryHeader from '../widgets/RepositoryHeader';
+import { ValidateStatus, PageAppType, ResourceType } from '../../../constant';
+import RepositoryHeader from '../../widgets/RepositoryHeader';
 
 export interface NewMiniProgramProperties {
 	owner: string;

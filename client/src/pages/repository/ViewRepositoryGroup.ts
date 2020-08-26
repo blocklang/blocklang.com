@@ -312,7 +312,7 @@ class RepositoryResourceRow extends ThemedMixin(I18nMixin(WidgetBase))<Repositor
 			return 'view-repo-group';
 		}
 
-		if (resourceType === ResourceType.Page || resourceType === ResourceType.Main) {
+		if (resourceType === ResourceType.Page) {
 			return 'view-repo-page';
 		}
 
