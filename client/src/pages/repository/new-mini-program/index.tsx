@@ -4,7 +4,7 @@ import store from '../../../store';
 import bundle from './nls/NewMiniProgram';
 import Exception from '../../error/Exception';
 import * as c from '@blocklang/bootstrap-classes';
-import * as css from './NewMiniProgram.m.css';
+import * as css from './new-mini-program.m.css';
 import {
 	initForNewGroupProcess,
 	groupKeyInputProcess,

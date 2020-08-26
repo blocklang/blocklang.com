@@ -12,7 +12,7 @@ import Spinner from '../../../widgets/spinner';
 import { canNewGroup } from '../../../permission';
 import bundle from './nls/NewWebProject';
 import * as c from '@blocklang/bootstrap-classes';
-import * as css from './NewWebProject.m.css';
+import * as css from './new-web-project.m.css';
 import RepositoryHeader from '../../widgets/RepositoryHeader';
 import Link from '@dojo/framework/routing/Link';
 import { ValidateStatus, PageAppType, ResourceType } from '../../../constant';
