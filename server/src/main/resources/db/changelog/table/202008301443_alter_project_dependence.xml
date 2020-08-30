@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+	<changeSet author="Zhengwei Jin" id="202008301443">
+		<addColumn tableName="project_dependence">
+			<column name="repository_id" remarks="仓库标识" type="int" afterColumn="dbid">
+				<constraints nullable="false" />
+			</column>
+		</addColumn>
+		<renameTable newTableName="project_dependency" oldTableName="project_dependence"/>
+		<createIndex tableName="project_dependency" indexName="idx_project_dependency_on_repo_id">
+			<column name="repository_id"></column>
+		</createIndex>
+		<dropIndex tableName="project_dependency" indexName="idx_project_dependence_on_project_id"/>
+		<createIndex tableName="project_dependency" indexName="idx_project_dependency_on_project_id">
+			<column name="project_id" />
+		</createIndex>
+	</changeSet>
+
+</databaseChangeLog>

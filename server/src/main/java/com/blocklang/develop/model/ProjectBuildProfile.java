@@ -17,6 +17,9 @@ public class ProjectBuildProfile extends PartialOperateFields{
 
 	private static final long serialVersionUID = -2081259990102810146L;
 
+	@Column(name = "repository_id", nullable = false)
+	private Integer repositoryId;
+	
 	@Column(name = "project_id", nullable = false)
 	private Integer projectId;
 	
@@ -31,6 +34,14 @@ public class ProjectBuildProfile extends PartialOperateFields{
 	 * 约定首字母小写
 	 */
 	public static final String DEFAULT_PROFILE_NAME = "default";
+
+	public Integer getRepositoryId() {
+		return repositoryId;
+	}
+
+	public void setRepositoryId(Integer repositoryId) {
+		this.repositoryId = repositoryId;
+	}
 
 	public Integer getProjectId() {
 		return projectId;

@@ -104,4 +104,7 @@
 	<include file="db/changelog/table/202008140844_rename_project_file_to_repository_file.xml" />
 	<include file="db/changelog/table/202008140856_rename_project_tag_to_repository_tag.xml" />
 	
+	<include file="db/changelog/table/202008301443_alter_project_dependence.xml" />
+	<include file="db/changelog/table/202008301452_alter_project_build_profile.xml" />
+	
 </databaseChangeLog>

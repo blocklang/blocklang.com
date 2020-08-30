@@ -29,7 +29,7 @@
 		</createTable>
 		
 		<addUniqueConstraint columnNames="user_id,project_id,access_level"
-			constraintName="UK_PROJECT_AUTHORIZATION_ON_USER_ID_PROJECT_ID_ACCESS_LEVEL" 
+			constraintName="uk_project_authorization_on_user_id_project_id_access_level" 
 			tableName="project_authorization" />
 	</changeSet>
 

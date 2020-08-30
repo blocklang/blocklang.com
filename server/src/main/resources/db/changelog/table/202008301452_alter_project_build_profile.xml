@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+	<changeSet author="Zhengwei Jin" id="202008301452">
+		<addColumn tableName="project_build_profile">
+			<column name="repository_id" remarks="仓库标识" type="int" afterColumn="dbid">
+				<constraints nullable="false" />
+			</column>
+		</addColumn>
+		<createIndex tableName="project_build_profile" indexName="idx_project_build_profile_on_repo_id">
+			<column name="repository_id"></column>
+		</createIndex>
+	</changeSet>
+
+</databaseChangeLog>

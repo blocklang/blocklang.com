@@ -1,0 +1,15 @@
+package com.blocklang.develop.data;
+
+public class AddDependencyParam {
+
+	private Integer componentRepoId;
+
+	public Integer getComponentRepoId() {
+		return componentRepoId;
+	}
+
+	public void setComponentRepoId(Integer componentRepoId) {
+		this.componentRepoId = componentRepoId;
+	}
+	
+}
