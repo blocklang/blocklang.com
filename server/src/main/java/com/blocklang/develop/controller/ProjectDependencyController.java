@@ -24,21 +24,19 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.blocklang.core.constant.Constant;
 import com.blocklang.core.exception.InvalidRequestException;
 import com.blocklang.core.exception.NoAuthorizationException;
 import com.blocklang.core.exception.ResourceNotFoundException;
 import com.blocklang.core.model.UserInfo;
-import com.blocklang.develop.constant.AppType;
+import com.blocklang.develop.constant.RepoBranchName;
 import com.blocklang.develop.constant.RepositoryResourceType;
-import com.blocklang.develop.data.AddDependenceParam;
-import com.blocklang.develop.data.ProjectDependenceData;
-import com.blocklang.develop.data.UpdateDependenceParam;
+import com.blocklang.develop.data.AddDependencyParam;
+import com.blocklang.develop.data.ProjectDependencyData;
+import com.blocklang.develop.data.UpdateDependencyParam;
+import com.blocklang.develop.model.ProjectDependency;
 import com.blocklang.develop.model.Repository;
-import com.blocklang.develop.model.ProjectBuildProfile;
-import com.blocklang.develop.model.ProjectDependence;
 import com.blocklang.develop.model.RepositoryResource;
-import com.blocklang.develop.service.ProjectDependenceService;
+import com.blocklang.develop.service.ProjectDependencyService;
 import com.blocklang.develop.service.RepositoryResourceService;
 import com.blocklang.marketplace.constant.RepoType;
 import com.blocklang.marketplace.model.ApiRepo;
@@ -57,14 +55,14 @@ import com.blocklang.marketplace.service.ComponentRepoVersionService;
  *
  */
 @RestController
-public class ProjectDependenceController extends AbstractRepositoryController{
+public class ProjectDependencyController extends AbstractRepositoryController{
 
-	private static final Logger logger = LoggerFactory.getLogger(ProjectDependenceController.class);
+	private static final Logger logger = LoggerFactory.getLogger(ProjectDependencyController.class);
 	
 	@Autowired
 	private RepositoryResourceService repositoryResourceService;
 	@Autowired
-	private ProjectDependenceService projectDependenceService;
+	private ProjectDependencyService projectDependencyService;
 	@Autowired
 	private ComponentRepoService componentRepoService;
 	@Autowired
@@ -94,7 +92,7 @@ public class ProjectDependenceController extends AbstractRepositoryController{
 	 * @return 依赖资源的基本信息
 	 */
 	@GetMapping("/repos/{owner}/{repoName}/{projectName}/dependency")
-	public ResponseEntity<Map<String, Object>> getDependence(
+	public ResponseEntity<Map<String, Object>> getDependency(
 			Principal principal,
 			@PathVariable String owner,
 			@PathVariable String repoName,
@@ -116,29 +114,34 @@ public class ProjectDependenceController extends AbstractRepositoryController{
 		return ResponseEntity.ok(result);
 	}
 
-	// 新增的依赖库，默认依赖 master
-	@PostMapping("/projects/{owner}/{projectName}/dependences")
-	public ResponseEntity<ProjectDependenceData> addDependence(
+	// 新增项目依赖的组件库库，默认依赖组件库的 master 分支
+	@PostMapping("/repos/{owner}/{repoName}/{projectName}/dependencies")
+	public ResponseEntity<ProjectDependencyData> addDependency(
 			Principal principal,
 			@PathVariable String owner,
+			@PathVariable String repoName,
 			@PathVariable String projectName,
-			@Valid @RequestBody AddDependenceParam param,
+			@Valid @RequestBody AddDependencyParam param,
 			BindingResult bindingResult) {
 		
 		if(principal == null) {
 			throw new NoAuthorizationException();
 		}
-		Repository project = repositoryService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-		repositoryPermissionService.canWrite(principal, project).orElseThrow(NoAuthorizationException::new);
-		ComponentRepo componentRepo = componentRepoService.findById(param.getComponentRepoId())
-				.orElseThrow(ResourceNotFoundException::new);
+		Repository repository = repositoryService.find(owner, repoName).orElseThrow(ResourceNotFoundException::new);
+		repositoryPermissionService.canWrite(principal, repository).orElseThrow(NoAuthorizationException::new);
+		RepositoryResource project = repositoryResourceService.findProject(repository.getId(), projectName).orElseThrow(ResourceNotFoundException::new);
+		
+		ComponentRepo componentRepo = componentRepoService.findById(param.getComponentRepoId()).orElseThrow(ResourceNotFoundException::new);
+		// 默认依赖 master 分支
 		ComponentRepoVersion componentRepoVersion = componentRepoVersionService
-				.findByComponentIdAndVersion(componentRepo.getId(), "master").orElse(null);
+				.findByComponentIdAndVersion(componentRepo.getId(), RepoBranchName.MASTER)
+				.orElseThrow(() -> {
+					logger.error("组件仓库 {0} 没有找到 {1} 分支", componentRepo.getGitRepoUrl(), RepoBranchName.MASTER);
+					throw new ResourceNotFoundException();
+				});
 		// 不能重复添加依赖
 		if(RepoType.IDE.equals(componentRepo.getRepoType())) {
-			if(projectDependenceService.devDependenceExists(
-					project.getId(), 
-					param.getComponentRepoId())){
+			if(projectDependencyService.devDependencyExists(project.getId(), param.getComponentRepoId())){
 				logger.error("项目已依赖该组件仓库");
 				bindingResult.rejectValue("componentRepoId", "Duplicated.dependence");
 				throw new InvalidRequestException(bindingResult);
@@ -148,25 +151,16 @@ public class ProjectDependenceController extends AbstractRepositoryController{
 			// 后续版本会考虑是否需要支持多个 profile
 			// 默认依赖 master 分支中的内容
 			if(componentRepoVersion != null) {
-				if(projectDependenceService.buildDependenceExists(
+				if(projectDependencyService.buildDependencyExists(
 						project.getId(), 
-						componentRepo.getId(),
-						componentRepoVersion.getAppType(),
-						// 从客户端传过来的是 profileName
-						ProjectBuildProfile.DEFAULT_PROFILE_NAME)){
+						// 默认的 profileName 为 default
+						param.getBuildProfileId(),
+						param.getComponentRepoId())){
 					logger.error("项目已依赖该组件仓库");
 					bindingResult.rejectValue("componentRepoId", "Duplicated.dependence");
 					throw new InvalidRequestException(bindingResult);
 				}
 			}
-		}
-		
-		UserInfo user = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
-		ProjectDependence savedProjectDependence = projectDependenceService.save(project.getId(), componentRepo, user.getId());
-		
-		if(componentRepoVersion == null) {
-			logger.error("组件仓库 {0} 没有找到已发布的 master", componentRepo.getGitRepoUrl());
-			throw new ResourceNotFoundException();
 		}
 		
 		ApiRepoVersion apiRepoVersion = apiRepoVersionService.findById(componentRepoVersion.getApiRepoVersionId()).orElseThrow(() -> {
@@ -179,37 +173,56 @@ public class ProjectDependenceController extends AbstractRepositoryController{
 			return new ResourceNotFoundException();
 		});
 		
-		ProjectDependenceData result = new ProjectDependenceData(savedProjectDependence, componentRepo, componentRepoVersion, apiRepo, apiRepoVersion);
-		return new ResponseEntity<ProjectDependenceData>(result, HttpStatus.CREATED);
+		UserInfo user = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
+		
+		ProjectDependency projectDependency = new ProjectDependency();
+		projectDependency.setRepositoryId(repository.getId());
+		projectDependency.setProjectId(project.getId());
+		projectDependency.setComponentRepoVersionId(componentRepoVersion.getId());
+		projectDependency.setProfileId(param.getBuildProfileId());
+		projectDependency.setCreateUserId(user.getId());
+		projectDependency.setCreateTime(LocalDateTime.now());
+		
+		ProjectDependency savedProjectDependency = projectDependencyService.save(projectDependency);
+		ProjectDependencyData result = new ProjectDependencyData(savedProjectDependency, componentRepo, componentRepoVersion, apiRepo, apiRepoVersion);
+		return new ResponseEntity<ProjectDependencyData>(result, HttpStatus.CREATED);
 	}
 	
-	@GetMapping("/projects/{owner}/{projectName}/dependences")
-	public ResponseEntity<List<ProjectDependenceData>> listDependences(
+	@GetMapping("/repos/{owner}/{repoName}/{projectName}/dependencies")
+	public ResponseEntity<List<ProjectDependencyData>> listDependencies(
 			Principal principal,
 			@PathVariable String owner,
+			@PathVariable String repoName,
 			@PathVariable String projectName) {
-		Repository project = repositoryService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-		repositoryPermissionService.canRead(principal, project).orElseThrow(NoAuthorizationException::new);
+		Repository repository = repositoryService.find(owner, repoName).orElseThrow(ResourceNotFoundException::new);
+		repositoryPermissionService.canRead(principal, repository).orElseThrow(NoAuthorizationException::new);
+		RepositoryResource project = repositoryResourceService.findProject(repository.getId(), projectName).orElseThrow(ResourceNotFoundException::new);
 		
-		List<ProjectDependenceData> result = projectDependenceService.findProjectDependences(project.getId());
+		List<ProjectDependencyData> result = projectDependencyService.findAllConfigDependencies(project.getId());
+		// 获取标准库
+		result.addAll(projectDependencyService.findStdIdeDependencies(project));
+		result.addAll(projectDependencyService.findStdBuildDependencies(project));
+		
 		return ResponseEntity.ok(result);
 	}
 	
-	@DeleteMapping("/projects/{owner}/{projectName}/dependences/{dependenceId}")
+	@DeleteMapping("/repos/{owner}/{repoName}/{projectName}/dependencies/{dependencyId}")
 	public ResponseEntity<?> deleteDependence(
 			Principal principal,
 			@PathVariable String owner,
+			@PathVariable String repoName,
 			@PathVariable String projectName,
-			@PathVariable Integer dependenceId) {
+			@PathVariable Integer dependencyId) {
 		if(principal == null) {
 			throw new NoAuthorizationException();
 		}
-		Repository project = repositoryService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-		repositoryPermissionService.canWrite(principal, project).orElseThrow(NoAuthorizationException::new);
+		Repository repository = repositoryService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
+		repositoryPermissionService.canWrite(principal, repository).orElseThrow(NoAuthorizationException::new);
+		repositoryResourceService.findProject(repository.getId(), projectName).orElseThrow(ResourceNotFoundException::new);
 		
 		// FIXME: 是否有必要添加 try，如果需要，则用测试用例确认。
 		try {
-			projectDependenceService.delete(dependenceId);
+			projectDependencyService.delete(dependencyId);
 		}catch (EmptyResultDataAccessException e) {
 			logger.warn("该依赖已不存在", e);
 		}
@@ -217,24 +230,26 @@ public class ProjectDependenceController extends AbstractRepositoryController{
 		return ResponseEntity.noContent().build();
 	}
 	
-	@PutMapping("/projects/{owner}/{projectName}/dependences/{dependenceId}")
-	public ResponseEntity<ComponentRepoVersion> updateDependence(Principal principal,
+	@PutMapping("/repos/{owner}/{repoName}/{projectName}/dependencies/{dependencyId}")
+	public ResponseEntity<ComponentRepoVersion> updateDependency(Principal principal,
 			@PathVariable String owner,
+			@PathVariable String repoName,
 			@PathVariable String projectName,
-			@PathVariable Integer dependenceId,
-			@RequestBody UpdateDependenceParam param) {
+			@PathVariable Integer dependencyId,
+			@RequestBody UpdateDependencyParam param) {
 		if(principal == null) {
 			throw new NoAuthorizationException();
 		}
-		Repository project = repositoryService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
-		repositoryPermissionService.canWrite(principal, project).orElseThrow(NoAuthorizationException::new);
+		Repository repository = repositoryService.find(owner, repoName).orElseThrow(ResourceNotFoundException::new);
+		repositoryPermissionService.canWrite(principal, repository).orElseThrow(NoAuthorizationException::new);
+		repositoryResourceService.findProject(repository.getId(), projectName).orElseThrow(ResourceNotFoundException::new);
 		
 		UserInfo user = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
-		ProjectDependence dependence = projectDependenceService.findById(dependenceId).orElseThrow(ResourceNotFoundException::new);
-		dependence.setComponentRepoVersionId(param.getComponentRepoVersionId());
-		dependence.setLastUpdateTime(LocalDateTime.now());
-		dependence.setLastUpdateUserId(user.getId());
-		projectDependenceService.update(dependence);
+		ProjectDependency dependency = projectDependencyService.findById(dependencyId).orElseThrow(ResourceNotFoundException::new);
+		dependency.setComponentRepoVersionId(param.getComponentRepoVersionId());
+		dependency.setLastUpdateTime(LocalDateTime.now());
+		dependency.setLastUpdateUserId(user.getId());
+		projectDependencyService.update(dependency);
 		ComponentRepoVersion result = componentRepoVersionService.findById(param.getComponentRepoVersionId()).orElseThrow(ResourceNotFoundException::new);
 		// 因为这里只是版本更新，所以只返回组件仓库的版本信息
 		return new ResponseEntity<ComponentRepoVersion>(result, HttpStatus.CREATED);

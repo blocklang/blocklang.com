@@ -24,7 +24,7 @@ import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.dao.ProjectBuildProfileDao;
 import com.blocklang.develop.dao.RepositoryDao;
 import com.blocklang.develop.dao.ProjectDependenceDao;
-import com.blocklang.develop.data.ProjectDependenceData;
+import com.blocklang.develop.data.ProjectDependencyData;
 import com.blocklang.develop.designer.data.ApiRepoVersionInfo;
 import com.blocklang.develop.designer.data.EventArgument;
 import com.blocklang.develop.designer.data.Widget;
@@ -34,9 +34,9 @@ import com.blocklang.develop.designer.data.RepoWidgetList;
 import com.blocklang.develop.model.Repository;
 import com.blocklang.develop.model.ProjectBuildProfile;
 import com.blocklang.develop.model.ProjectContext;
-import com.blocklang.develop.model.ProjectDependence;
+import com.blocklang.develop.model.ProjectDependency;
 import com.blocklang.develop.model.RepositoryResource;
-import com.blocklang.develop.service.ProjectDependenceService;
+import com.blocklang.develop.service.ProjectDependencyService;
 import com.blocklang.marketplace.constant.WidgetPropertyValueType;
 import com.blocklang.marketplace.constant.RepoCategory;
 import com.blocklang.marketplace.constant.RepoType;
@@ -56,7 +56,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
-public class ProjectDependenceServiceImpl implements ProjectDependenceService{
+public class ProjectDependenceServiceImpl implements ProjectDependencyService{
 	
 	private static final Logger logger = LoggerFactory.getLogger(ProjectDependenceServiceImpl.class);
 	
@@ -86,25 +86,25 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 	private PropertyService propertyService;
 	
 	@Override
-	public Boolean devDependenceExists(Integer projectId, Integer componentRepoId) {
+	public Boolean devDependencyExists(Integer projectId, Integer componentRepoId) {
 		List<ComponentRepoVersion> componentRepoVersions = componentRepoVersionDao.findAllByComponentRepoId(componentRepoId);
 		if(componentRepoVersions.isEmpty()) {
 			return false;
 		}
-		List<ProjectDependence> devDependences = projectDependenceDao.findAllByProjectIdAndProfileId(projectId, null);
-		if(devDependences.isEmpty()) {
+		List<ProjectDependency> devDependencies = projectDependenceDao.findAllByProjectIdAndProfileId(projectId, null);
+		if(devDependencies.isEmpty()) {
 			return false;
 		}
 		
 		return componentRepoVersions.stream().anyMatch(version -> {
-			return devDependences.stream().anyMatch(dependence -> {
+			return devDependencies.stream().anyMatch(dependence -> {
 				return version.getId().equals(dependence.getComponentRepoVersionId());
 			});
 		});
 	}
 	
 	@Override
-	public Boolean buildDependenceExists(Integer projectId, Integer componentRepoId, AppType appType, String profileName) {
+	public Boolean buildDependencyExists(Integer projectId, Integer componentRepoId, AppType appType, String profileName) {
 		List<ComponentRepoVersion> componentRepoVersions = componentRepoVersionDao.findAllByComponentRepoId(componentRepoId);
 		if(componentRepoVersions.isEmpty()) {
 			return false;
@@ -114,7 +114,7 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 		if(buildProfileOption.isEmpty()) {
 			return false;
 		}
-		List<ProjectDependence> devDependences = projectDependenceDao.findAllByProjectIdAndProfileId(projectId, buildProfileOption.get().getId());
+		List<ProjectDependency> devDependences = projectDependenceDao.findAllByProjectIdAndProfileId(projectId, buildProfileOption.get().getId());
 		if(devDependences.isEmpty()) {
 			return false;
 		}
@@ -142,7 +142,7 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 	
 	@Transactional
 	@Override
-	public ProjectDependence save(Integer repoId, Integer projectId, ComponentRepo componentRepo, Integer createUserId) {
+	public ProjectDependency save(Integer repoId, Integer projectId, ComponentRepo componentRepo, Integer createUserId) {
 		// 获取组件库的最新版本信息
 		List<ComponentRepoVersion> componentRepoVersions = componentRepoVersionDao.findAllByComponentRepoId(componentRepo.getId());
 		if(componentRepoVersions.isEmpty()) {
@@ -162,10 +162,11 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 		Integer masterRepoVersionId = masterRepoVersion.getId();
 
 		// 为项目添加一个依赖
-		ProjectDependence dependence = new ProjectDependence();
+		ProjectDependency dependence = new ProjectDependency();
 		dependence.setProjectId(projectId);
 		dependence.setComponentRepoVersionId(masterRepoVersionId);
 		if(!RepoType.IDE.equals(componentRepo.getRepoType())) {
+			// TODO: 根据当前项目支持的 buildTarget，在创建项目时生成一个默认的 build profile
 			// 为项目生成一个默认的 Profile（如果已存在，则不生成）
 			ProjectBuildProfile profile = projectBuildProfileDao
 				.findByProjectIdAndAppTypeAndNameIgnoreCase(projectId, masterRepoVersion.getAppType(), ProjectBuildProfile.DEFAULT_PROFILE_NAME)
@@ -182,7 +183,7 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 		}
 		dependence.setCreateUserId(createUserId);
 		dependence.setCreateTime(LocalDateTime.now());
-		ProjectDependence savedDependence = projectDependenceDao.save(dependence);
+		ProjectDependency savedDependence = projectDependenceDao.save(dependence);
 		
 		// 在 git 仓库中更新 DEPENDENCE.json 文件
 		updateProjectDependenceFile(repoId, projectId);
@@ -226,7 +227,7 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 		Repository project = projectOption.get();
 		
 		// 在依赖中补充 profile 详情
-		List<ProjectDependenceData> dependences = appendBuildProfile(repoId, projectId);
+		List<ProjectDependencyData> dependences = appendBuildProfile(repoId, projectId);
 		
 		// 转换为 DEPENDENCE.json 期望的个数
 		Map<String, Object> result = convertToDependenceJsonFile(dependences);
@@ -254,24 +255,24 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 		});
 	}
 
-	private Map<String, Object> convertToDependenceJsonFile(List<ProjectDependenceData> dependences) {
+	private Map<String, Object> convertToDependenceJsonFile(List<ProjectDependencyData> dependences) {
 		if(dependences.isEmpty()) {
 			return Collections.emptyMap();
 		}
 		
 		Map<String, Object> result = new HashMap<String, Object>();
-		List<ProjectDependenceData> devDependences = dependences
+		List<ProjectDependencyData> devDependences = dependences
 				.stream()
 				.filter(dependence -> dependence.getComponentRepo().getRepoType().equals(RepoType.IDE))
 				.collect(Collectors.toList());
-		Map<String, List<ProjectDependenceData>> groupedDevDependences = devDependences.stream()
+		Map<String, List<ProjectDependencyData>> groupedDevDependences = devDependences.stream()
 				.collect(Collectors.groupingBy(dependenceData -> dependenceData.getComponentRepoVersion().getAppType().getValue()));
 		
 		Map<String, Object> devMap = new HashMap<String, Object>();
-		for(Map.Entry<String, List<ProjectDependenceData>> entry : groupedDevDependences.entrySet()) {
+		for(Map.Entry<String, List<ProjectDependencyData>> entry : groupedDevDependences.entrySet()) {
 			String appTypeValue = entry.getKey();
 			Map<String, Object> appTypeMap = new HashMap<String, Object>();
-			for(ProjectDependenceData data : entry.getValue()) {
+			for(ProjectDependencyData data : entry.getValue()) {
 				ComponentRepo componentRepo = data.getComponentRepo();
 				String dependenceKey = componentRepo.getGitRepoWebsite() 
 						+ "/" 
@@ -288,24 +289,24 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 			devMap.put(appTypeValue, appTypeMap);
 		}
 		
-		List<ProjectDependenceData> buildDependence = dependences
+		List<ProjectDependencyData> buildDependence = dependences
 				.stream()
 				.filter(dependence -> !dependence.getComponentRepo().getRepoType().equals(RepoType.IDE))
 				.collect(Collectors.toList());
 		
-		Map<String, Map<String, List<ProjectDependenceData>>> groupedBuildDependences = buildDependence
+		Map<String, Map<String, List<ProjectDependencyData>>> groupedBuildDependences = buildDependence
 				.stream()
 				.collect(Collectors.groupingBy(dependenceData -> dependenceData.getComponentRepoVersion().getAppType().getValue(), 
 								Collectors.groupingBy(dependenceData -> dependenceData.getProfile().getName())));
 
 		Map<String, Object> buildMap = new HashMap<String, Object>();
-		for(Map.Entry<String, Map<String, List<ProjectDependenceData>>> groupedByAppType : groupedBuildDependences.entrySet()) {
+		for(Map.Entry<String, Map<String, List<ProjectDependencyData>>> groupedByAppType : groupedBuildDependences.entrySet()) {
 			String appTypeValue = groupedByAppType.getKey();
 			Map<String, Object> appTypeMap = new HashMap<String, Object>();
-			for(Map.Entry<String, List<ProjectDependenceData>> groupedByProfile : groupedByAppType.getValue().entrySet()) {
+			for(Map.Entry<String, List<ProjectDependencyData>> groupedByProfile : groupedByAppType.getValue().entrySet()) {
 				String profileValue = groupedByProfile.getKey();
 				Map<String, Object> profileMap = new HashMap<String, Object>();
-				for(ProjectDependenceData data : groupedByProfile.getValue()) {
+				for(ProjectDependencyData data : groupedByProfile.getValue()) {
 					ComponentRepo componentRepo = data.getComponentRepo();
 					String dependenceKey = componentRepo.getGitRepoWebsite() 
 							+ "/" 
@@ -334,13 +335,13 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 		return result;
 	}
 
-	private List<ProjectDependenceData> appendBuildProfile(Integer repoId, Integer projectId) {
+	private List<ProjectDependencyData> appendBuildProfile(Integer repoId, Integer projectId) {
 		// 获取项目的所有依赖
-		List<ProjectDependenceData> dependences = findProjectDependences(repoId, projectId);
+		List<ProjectDependencyData> dependences = findProjectDependencies(repoId, projectId);
 		// 补充 profile 信息
-		for(ProjectDependenceData data : dependences) {
+		for(ProjectDependencyData data : dependences) {
 			// 先获取依赖信息
-			ProjectDependence dependence = data.getDependence();
+			ProjectDependency dependence = data.getDependence();
 			// 然后根据依赖信息获取 profile 信息
 			if(dependence.getProfileId() != null) {
 				projectBuildProfileDao.findById(dependence.getProfileId()).ifPresent(profile -> data.setProfile(profile));
@@ -350,8 +351,8 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 	}
 
 	@Override
-	public List<ProjectDependenceData> findProjectDependences(Integer repoId, Integer projectId, boolean includeStd) {
-		List<ProjectDependence> dependences;
+	public List<ProjectDependencyData> findProjectDependences(Integer repoId, Integer projectId, boolean includeStd) {
+		List<ProjectDependency> dependences;
 		if(includeStd) {
 			dependences = this.findAllByProjectId(repoId, projectId);
 		} else {
@@ -361,7 +362,7 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 		return convert(dependences);
 	}
 
-	private List<ProjectDependenceData> convert(List<ProjectDependence> dependences) {
+	private List<ProjectDependencyData> convert(List<ProjectDependency> dependences) {
 		return dependences.stream().map(dependence -> {
 			ComponentRepoVersion componentRepoVersion = null;
 			ComponentRepo componentRepo = null;
@@ -377,25 +378,25 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 				apiRepo = apiRepoDao.findById(apiRepoVersion.getApiRepoId()).orElse(null);
 			}
 			
-			ProjectDependenceData data = new ProjectDependenceData(dependence, componentRepo, componentRepoVersion, apiRepo, apiRepoVersion);
+			ProjectDependencyData data = new ProjectDependencyData(dependence, componentRepo, componentRepoVersion, apiRepo, apiRepoVersion);
 			return data;
 		}).collect(Collectors.toList());
 	}
 	
 	@Override
-	public List<ProjectDependenceData> findProjectDependences(Integer repoId, Integer projectId) {
+	public List<ProjectDependencyData> findProjectDependencies(Integer repoId, Integer projectId) {
 		return this.findProjectDependences(repoId, projectId, false);
 	}
 	
 	@Override
-	public List<ProjectDependenceData> findProjectBuildDependences(Integer projectId) {
-		List<ProjectDependence> allDeps = projectDependenceDao.findAllByProjectId(projectId);
+	public List<ProjectDependencyData> findProjectBuildDependencies(Integer projectId) {
+		List<ProjectDependency> allDeps = projectDependenceDao.findAllByProjectId(projectId);
 		// FIXME: 当前仅支持 web，需要考虑支持其他类型。
 		ProjectBuildProfile defaultProfile = projectBuildProfileDao.findByProjectIdAndAppTypeAndNameIgnoreCase(projectId, AppType.WEB, ProjectBuildProfile.DEFAULT_PROFILE_NAME).orElse(null);
 
 		// 过滤出 build 版 default profile 依赖
 		// 只有 build 版才有 profileId 值，dev 版 profileId 的值为 null
-		List<ProjectDependence> allBuildDefaultProfileDeps = allDeps.stream()
+		List<ProjectDependency> allBuildDefaultProfileDeps = allDeps.stream()
 				.filter(dep -> defaultProfile != null && defaultProfile.getId().equals(dep.getProfileId())).collect(Collectors.toList());
 		// 添加标准库
 		this.findProjectBuildDependenceByStandardAndDefaultProfile().ifPresent(dep -> {
@@ -421,21 +422,21 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 	}
 
 	@Override
-	public ProjectDependence update(ProjectDependence dependence) {
-		ProjectDependence savedDependence = projectDependenceDao.save(dependence);
+	public ProjectDependency update(ProjectDependency dependence) {
+		ProjectDependency savedDependence = projectDependenceDao.save(dependence);
 		updateProjectDependenceFile(dependence.getProjectId());
 		return savedDependence;
 	}
 
 	@Override
-	public Optional<ProjectDependence> findById(Integer dependenceId) {
+	public Optional<ProjectDependency> findById(Integer dependenceId) {
 		return projectDependenceDao.findById(dependenceId);
 	}
 	
 	@Override
 	public List<RepoWidgetList> findAllWidgets(Integer projectId) {
 		// 获取项目的所有依赖，包含组件仓库的版本信息
-		List<ProjectDependence> allDependences = projectDependenceDao.findAllByProjectId(projectId);
+		List<ProjectDependency> allDependences = projectDependenceDao.findAllByProjectId(projectId);
 		
 		// 转换为对应的 API 仓库的版本信息
 		return allDependences
@@ -511,10 +512,10 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 	}
 
 	@Override
-	public List<ProjectDependence> findAllByProjectId(Integer repoId, RepositoryResource project) {
+	public List<ProjectDependency> findAllByProjectId(Integer repoId, RepositoryResource project) {
 		// 之前一个仓库中只能创建一个项目，所以直接使用仓库标识获取
 		// 现在一个仓库中能创建多个项目，所以需要联合使用仓库标识和项目标识获取
-		List<ProjectDependence> result = projectDependenceDao.findAllByProjectId(repoId); // TODO: 改为根据 repoId 和 projectId 查询
+		List<ProjectDependency> result = projectDependenceDao.findAllByProjectId(repoId); // TODO: 改为根据 repoId 和 projectId 查询
 		
 		// 将系统使用的标准库依赖添加到最前面
 		// 获取最新的依赖版本号
@@ -532,7 +533,7 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 		componentRepoDao.findByGitRepoUrlAndCreateUserId(stdIdeRepoUrl, createUserId).flatMap(componentRepo -> {
 			return componentRepoVersionService.findLatestVersion(componentRepo.getId());
 		}).ifPresent(componentRepoVersion -> {
-			ProjectDependence stdIdeWidgetRepo = new ProjectDependence();
+			ProjectDependency stdIdeWidgetRepo = new ProjectDependency();
 			stdIdeWidgetRepo.setComponentRepoVersionId(componentRepoVersion.getId());
 			// TODO: 联合使用 repoId 和 projectId
 			stdIdeWidgetRepo.setProjectId(repoId);
@@ -551,7 +552,7 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 	 * 
 	 * @return
 	 */
-	private Optional<ProjectDependence> findProjectBuildDependenceByStandardAndDefaultProfile() {
+	private Optional<ProjectDependency> findProjectBuildDependenceByStandardAndDefaultProfile() {
 		String stdBuildRepoUrl = propertyService.findStringValue(CmPropKey.STD_WIDGET_BUILD_DOJO_GIT_URL, "");
 		Integer createUserId = propertyService.findIntegerValue(CmPropKey.STD_REPO_REGISTER_USER_ID, 1);
 		// 事先要在组件仓库中注册 std-widget-web。
@@ -560,10 +561,28 @@ public class ProjectDependenceServiceImpl implements ProjectDependenceService{
 		return componentRepoDao.findByGitRepoUrlAndCreateUserId(stdBuildRepoUrl, createUserId)
 				.flatMap(componentRepo -> componentRepoVersionService.findLatestVersion(componentRepo.getId()))
 				.map(componentRepoVersion -> {
-			ProjectDependence stdBuildWidgetRepo = new ProjectDependence();
+			ProjectDependency stdBuildWidgetRepo = new ProjectDependency();
 			stdBuildWidgetRepo.setComponentRepoVersionId(componentRepoVersion.getId());
 			return stdBuildWidgetRepo;
 		});
+	}
+
+	@Override
+	public List<ProjectDependencyData> findAllConfigDependencies(Integer projectId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<ProjectDependencyData> findIdeDependencies(RepositoryResource project) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<ProjectDependencyData> findStdIdeDependencies(RepositoryResource project) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

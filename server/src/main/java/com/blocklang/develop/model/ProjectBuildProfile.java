@@ -8,7 +8,9 @@ import javax.persistence.UniqueConstraint;
 
 import com.blocklang.core.model.PartialOperateFields;
 import com.blocklang.develop.constant.AppType;
+import com.blocklang.develop.constant.BuildTarget;
 import com.blocklang.develop.constant.converter.AppTypeConverter;
+import com.blocklang.develop.constant.converter.BuildTargetConverter;
 
 @Entity
 @Table(name = "project_build_profile", 
@@ -26,6 +28,10 @@ public class ProjectBuildProfile extends PartialOperateFields{
 	@Convert(converter = AppTypeConverter.class)
 	@Column(name = "app_type", nullable = false, length = 2)
 	private AppType appType;
+	
+	@Convert(converter = BuildTargetConverter.class)
+	@Column(name = "build_target", length = 32, nullable = false)
+	private BuildTarget buildTarget;
 	
 	@Column(name = "profile_name", length = 64, nullable = false)
 	private String name;
@@ -65,6 +71,14 @@ public class ProjectBuildProfile extends PartialOperateFields{
 
 	public void setAppType(AppType appType) {
 		this.appType = appType;
+	}
+
+	public BuildTarget getBuildTarget() {
+		return buildTarget;
+	}
+
+	public void setBuildTarget(BuildTarget buildTarget) {
+		this.buildTarget = buildTarget;
 	}
 	
 }

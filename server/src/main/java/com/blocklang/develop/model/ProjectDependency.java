@@ -8,8 +8,8 @@ import javax.persistence.Table;
 import com.blocklang.core.model.PartialOperateFields;
 
 @Entity
-@Table(name = "project_dependence", indexes = @Index(columnList = "project_id"))
-public class ProjectDependence extends PartialOperateFields {
+@Table(name = "project_dependency", indexes = @Index(columnList = "project_id"))
+public class ProjectDependency extends PartialOperateFields {
 
 	private static final long serialVersionUID = -8084080967211641885L;
 	

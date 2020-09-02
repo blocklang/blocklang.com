@@ -1,6 +1,6 @@
 package com.blocklang.develop.data;
 
-public class UpdateDependenceParam {
+public class UpdateDependencyParam {
 
 	private Integer componentRepoVersionId;
 

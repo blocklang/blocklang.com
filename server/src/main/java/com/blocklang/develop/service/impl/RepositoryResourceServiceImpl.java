@@ -79,7 +79,7 @@ import com.blocklang.develop.model.Repository;
 import com.blocklang.develop.model.RepositoryCommit;
 import com.blocklang.develop.model.ProjectContext;
 import com.blocklang.develop.model.RepositoryResource;
-import com.blocklang.develop.service.ProjectDependenceService;
+import com.blocklang.develop.service.ProjectDependencyService;
 import com.blocklang.develop.service.RepositoryResourceService;
 import com.blocklang.marketplace.constant.WidgetPropertyValueType;
 import com.blocklang.marketplace.constant.RepoCategory;
@@ -142,7 +142,7 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 	@Autowired
 	private PageFunctionConnectionDao pageFunctionConnectionDao;
 	@Autowired
-	private ProjectDependenceService projectDependenceService;
+	private ProjectDependencyService projectDependenceService;
 	@Autowired
 	private ComponentRepoVersionDao componentRepoVersionDao;
 	@Autowired

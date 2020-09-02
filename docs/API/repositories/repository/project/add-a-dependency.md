@@ -1,6 +1,6 @@
 # 为项目添加一个依赖
 
-为仓库中的一个项目添加依赖，默认依赖 master 分支。需校验依赖是否已添加。
+为仓库中的一个项目添加依赖，默认依赖组件库的 master 分支。需校验依赖是否已添加。
 
 ```text
 POST /repos/{owner}/{repoName}/{projectName}/dependencies
@@ -14,8 +14,7 @@ POST /repos/{owner}/{repoName}/{projectName}/dependencies
 | `repoName`        | `string` | **Required**. 仓库名       |
 | `projectName`     | `string` | **Required**. 项目名称     |
 | `componentRepoId` | `int`    | **Required**. 组件仓库标识 |
-| `profileId` | `int`    | 组件仓库标识 |
-
+| `buildProfileId`  | `int`    | 构建的 profile 标识        |
 
 ## Response
 

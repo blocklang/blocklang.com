@@ -1,7 +1,7 @@
 package com.blocklang.develop.data;
 
 import com.blocklang.develop.model.ProjectBuildProfile;
-import com.blocklang.develop.model.ProjectDependence;
+import com.blocklang.develop.model.ProjectDependency;
 import com.blocklang.marketplace.data.ComponentRepoInfo;
 import com.blocklang.marketplace.model.ApiRepo;
 import com.blocklang.marketplace.model.ApiRepoVersion;
@@ -9,22 +9,22 @@ import com.blocklang.marketplace.model.ComponentRepo;
 import com.blocklang.marketplace.model.ComponentRepoVersion;
 
 // 以后衍生数据类都以 Data 结尾，不再以 Info 结尾
-public class ProjectDependenceData extends ComponentRepoInfo{
+public class ProjectDependencyData extends ComponentRepoInfo{
 
-	private ProjectDependence dependence;
+	private ProjectDependency dependency;
 	private ProjectBuildProfile profile;
 
-	public ProjectDependenceData(ProjectDependence dependence,
+	public ProjectDependencyData(ProjectDependency dependency,
 			ComponentRepo componentRepo, 
 			ComponentRepoVersion componentRepoVersion, 
 			ApiRepo apiRepo, 
 			ApiRepoVersion apiRepoVersion) {
 		super(componentRepo, componentRepoVersion, apiRepo, apiRepoVersion);
-		this.dependence = dependence;
+		this.dependency = dependency;
 	}
 	
-	public ProjectDependence getDependence() {
-		return dependence;
+	public ProjectDependency getDependence() {
+		return dependency;
 	}
 
 	public ProjectBuildProfile getProfile() {

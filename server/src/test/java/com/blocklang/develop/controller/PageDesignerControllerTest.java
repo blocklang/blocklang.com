@@ -34,12 +34,12 @@ import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.test.AbstractControllerTest;
 import com.blocklang.develop.constant.AccessLevel;
 import com.blocklang.develop.constant.RepositoryResourceType;
-import com.blocklang.develop.data.ProjectDependenceData;
+import com.blocklang.develop.data.ProjectDependencyData;
 import com.blocklang.develop.designer.data.PageModel;
 import com.blocklang.develop.model.Repository;
-import com.blocklang.develop.model.ProjectDependence;
+import com.blocklang.develop.model.ProjectDependency;
 import com.blocklang.develop.model.RepositoryResource;
-import com.blocklang.develop.service.ProjectDependenceService;
+import com.blocklang.develop.service.ProjectDependencyService;
 import com.blocklang.develop.service.RepositoryPermissionService;
 import com.blocklang.develop.service.RepositoryResourceService;
 import com.blocklang.develop.service.RepositoryService;
@@ -58,7 +58,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 	@MockBean
 	private RepositoryService repositoryService;
 	@MockBean
-	private ProjectDependenceService projectDependenceService;
+	private ProjectDependencyService projectDependenceService;
 	@MockBean
 	private RepositoryResourceService repositoryResourceService;
 	@MockBean
@@ -127,9 +127,9 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		
 		when(repositoryPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
 		
-		when(projectDependenceService.findIdeDependences(any())).thenReturn(new ArrayList<ProjectDependenceData>());
+		when(projectDependenceService.findIdeDependencies(any())).thenReturn(new ArrayList<ProjectDependencyData>());
 		
-		ProjectDependence dependence = new ProjectDependence();
+		ProjectDependency dependence = new ProjectDependency();
 		ComponentRepo componentRepo = new ComponentRepo();
 		componentRepo.setId(1);
 		componentRepo.setGitRepoUrl("url");
@@ -144,8 +144,8 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		ApiRepo apiRepo = new ApiRepo();
 		apiRepo.setId(2);
 		ApiRepoVersion apiRepoVersion = new ApiRepoVersion();
-		ProjectDependenceData data = new ProjectDependenceData(dependence, componentRepo, componentRepoVersion, apiRepo, apiRepoVersion);
-		when(projectDependenceService.findStdIdeDependences(any())).thenReturn(Collections.singletonList(data));
+		ProjectDependencyData data = new ProjectDependencyData(dependence, componentRepo, componentRepoVersion, apiRepo, apiRepoVersion);
+		when(projectDependenceService.findStdIdeDependencies(any())).thenReturn(Collections.singletonList(data));
 
 		given()
 			.contentType(ContentType.JSON)

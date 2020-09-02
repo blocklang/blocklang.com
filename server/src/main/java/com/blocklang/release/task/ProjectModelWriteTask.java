@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.designer.data.AttachedWidget;
-import com.blocklang.develop.service.ProjectDependenceService;
+import com.blocklang.develop.service.ProjectDependencyService;
 import com.blocklang.develop.service.RepositoryResourceService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -24,10 +24,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class ProjectModelWriteTask extends AbstractTask {
 	
-	private ProjectDependenceService projectDependenceService;
+	private ProjectDependencyService projectDependenceService;
 	private RepositoryResourceService projectResourceService;
 	
-	public ProjectModelWriteTask(AppBuildContext appBuildContext, ProjectDependenceService projectDependenceService, RepositoryResourceService projectResourceService) {
+	public ProjectModelWriteTask(AppBuildContext appBuildContext, ProjectDependencyService projectDependenceService, RepositoryResourceService projectResourceService) {
 		super(appBuildContext);
 		this.projectDependenceService = projectDependenceService;
 		this.projectResourceService = projectResourceService;
@@ -66,7 +66,7 @@ public class ProjectModelWriteTask extends AbstractTask {
 		
 		// 生成 dependences.json 文件
 		appBuildContext.info("开始生成 dependences.json 文件");
-		List<Map<String, Object>> dependences = projectDependenceService.findProjectBuildDependences(appBuildContext.getProjectId()).stream().map(data -> {
+		List<Map<String, Object>> dependences = projectDependenceService.findProjectBuildDependencies(appBuildContext.getProjectId()).stream().map(data -> {
 			Map<String, Object> toMap = new HashMap<String, Object>();
 			toMap.put("name", data.getComponentRepoVersion().getName());
 			toMap.put("version", data.getComponentRepoVersion().getVersion());
@@ -107,7 +107,7 @@ public class ProjectModelWriteTask extends AbstractTask {
 			// 4. widgetName
 			// 5. canHasChildren
 			// 6. properties
-			List<AttachedWidget> widgets = projectResourceService.getPageModel(projectResource.getRepositoryId(), projectResource.getId()).getWidgets();
+			List<AttachedWidget> widgets = projectResourceService.getPageModel(projectResource.getRepositoryId(), projectResource).getWidgets();
 			
 			result.put("pageInfo", pageInfo);
 			result.put("widgets", widgets);

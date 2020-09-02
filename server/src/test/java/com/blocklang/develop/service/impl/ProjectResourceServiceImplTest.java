@@ -53,7 +53,7 @@ import com.blocklang.develop.model.PageDataItem;
 import com.blocklang.develop.model.Repository;
 import com.blocklang.develop.model.RepositoryCommit;
 import com.blocklang.develop.model.ProjectContext;
-import com.blocklang.develop.model.ProjectDependence;
+import com.blocklang.develop.model.ProjectDependency;
 import com.blocklang.develop.model.RepositoryResource;
 import com.blocklang.develop.service.RepositoryResourceService;
 import com.blocklang.develop.service.RepositoryService;
@@ -1126,7 +1126,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		//    所以准备数据时，可跳过这一步
 		Integer projectId = 1;
 		// 7. 将创建的 ide 组件库的一个版本添加为项目依赖
-		ProjectDependence dependence = new ProjectDependence();
+		ProjectDependency dependence = new ProjectDependency();
 		dependence.setProjectId(projectId);
 		dependence.setComponentRepoVersionId(savedComponentRepoVersion.getId());
 		dependence.setCreateUserId(1);
@@ -1255,7 +1255,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		//    所以准备数据时，可跳过这一步
 		Integer projectId = 1;
 		// 7. 将创建的 ide 组件库的一个版本添加为项目依赖
-		ProjectDependence dependence = new ProjectDependence();
+		ProjectDependency dependence = new ProjectDependency();
 		dependence.setProjectId(projectId);
 		dependence.setComponentRepoVersionId(savedComponentRepoVersion.getId());
 		dependence.setCreateUserId(1);
@@ -1379,7 +1379,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		//    所以准备数据时，可跳过这一步
 		Integer projectId = 1;
 		// 7. 将创建的 ide 组件库的一个版本添加为项目依赖
-		ProjectDependence dependence = new ProjectDependence();
+		ProjectDependency dependence = new ProjectDependency();
 		dependence.setProjectId(projectId);
 		dependence.setComponentRepoVersionId(savedComponentRepoVersion.getId());
 		dependence.setCreateUserId(1);
@@ -1534,7 +1534,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		//    所以准备数据时，可跳过这一步
 		Integer projectId = 1;
 		// 7. 将创建的 ide 组件库的一个版本添加为项目依赖
-		ProjectDependence dependence = new ProjectDependence();
+		ProjectDependency dependence = new ProjectDependency();
 		dependence.setProjectId(projectId);
 		dependence.setComponentRepoVersionId(savedComponentRepoVersion.getId());
 		dependence.setCreateUserId(1);
@@ -1735,7 +1735,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		//    所以准备数据时，可跳过这一步
 		Integer projectId = 1;
 		// 7. 将创建的 ide 组件库的一个版本添加为项目依赖
-		ProjectDependence dependence = new ProjectDependence();
+		ProjectDependency dependence = new ProjectDependency();
 		dependence.setProjectId(projectId);
 		dependence.setComponentRepoVersionId(savedComponentRepoVersion.getId());
 		dependence.setCreateUserId(1);
@@ -1927,7 +1927,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		//    所以准备数据时，可跳过这一步
 		Integer projectId = 1;
 		// 7. 将创建的 ide 组件库的一个版本添加为项目依赖
-		ProjectDependence dependence = new ProjectDependence();
+		ProjectDependency dependence = new ProjectDependency();
 		dependence.setProjectId(projectId);
 		dependence.setComponentRepoVersionId(savedComponentRepoVersion.getId());
 		dependence.setCreateUserId(1);
@@ -2139,7 +2139,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		//    所以准备数据时，可跳过这一步
 		Integer projectId = 1;
 		// 7. 将创建的 ide 组件库的一个版本添加为项目依赖
-		ProjectDependence dependence = new ProjectDependence();
+		ProjectDependency dependence = new ProjectDependency();
 		dependence.setProjectId(projectId);
 		dependence.setComponentRepoVersionId(savedComponentRepoVersion.getId());
 		dependence.setCreateUserId(1);
@@ -2244,7 +2244,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		//    所以准备数据时，可跳过这一步
 		Integer projectId = 1;
 		// 7. 将创建的 ide 组件库的一个版本添加为项目依赖
-		ProjectDependence dependence = new ProjectDependence();
+		ProjectDependency dependence = new ProjectDependency();
 		dependence.setProjectId(projectId);
 		dependence.setComponentRepoVersionId(savedComponentRepoVersion.getId());
 		dependence.setCreateUserId(1);
@@ -2367,7 +2367,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		//    所以准备数据时，可跳过这一步
 		Integer projectId = 1;
 		// 7. 将创建的 ide 组件库的一个版本添加为项目依赖
-		ProjectDependence dependence = new ProjectDependence();
+		ProjectDependency dependence = new ProjectDependency();
 		dependence.setProjectId(projectId);
 		dependence.setComponentRepoVersionId(savedComponentRepoVersion.getId());
 		dependence.setCreateUserId(1);

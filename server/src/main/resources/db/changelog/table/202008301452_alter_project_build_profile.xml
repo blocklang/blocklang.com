@@ -11,10 +11,16 @@
 			<column name="repository_id" remarks="仓库标识" type="int" afterColumn="dbid">
 				<constraints nullable="false" />
 			</column>
+			<column name="build_target" remarks="构建的目标平台" type="varchar(32)" afterColumn="app_type">
+				<constraints nullable="false"/>
+			</column>
 		</addColumn>
 		<createIndex tableName="project_build_profile" indexName="idx_project_build_profile_on_repo_id">
 			<column name="repository_id"></column>
 		</createIndex>
+		
+		<dropUniqueConstraint tableName="project_build_profile" constraintName="uk_project_build_profile_on_project_app_name"/>
+		<addUniqueConstraint columnNames="project_id,app_type,build_target,profile_name" tableName="project_build_profile" constraintName="uk_project_build_profile_on_proj_app_target_name"/>
 	</changeSet>
 
 </databaseChangeLog>

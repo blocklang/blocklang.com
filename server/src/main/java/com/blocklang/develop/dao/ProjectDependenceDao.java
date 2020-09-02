@@ -4,12 +4,12 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.blocklang.develop.model.ProjectDependence;
+import com.blocklang.develop.model.ProjectDependency;
 
-public interface ProjectDependenceDao extends JpaRepository<ProjectDependence, Integer> {
+public interface ProjectDependenceDao extends JpaRepository<ProjectDependency, Integer> {
 
-	List<ProjectDependence> findAllByProjectIdAndProfileId(Integer projectId, Integer buildProfileId);
+	List<ProjectDependency> findAllByProjectIdAndProfileId(Integer projectId, Integer buildProfileId);
 
-	List<ProjectDependence> findAllByProjectId(Integer projectId);
+	List<ProjectDependency> findAllByProjectId(Integer projectId);
 
 }

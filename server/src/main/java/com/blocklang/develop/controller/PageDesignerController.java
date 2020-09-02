@@ -28,13 +28,13 @@ import com.blocklang.core.constant.CmPropKey;
 import com.blocklang.core.exception.NoAuthorizationException;
 import com.blocklang.core.exception.ResourceNotFoundException;
 import com.blocklang.core.service.PropertyService;
-import com.blocklang.develop.data.ProjectDependenceData;
+import com.blocklang.develop.data.ProjectDependencyData;
 import com.blocklang.develop.designer.data.Dependence;
 import com.blocklang.develop.designer.data.PageModel;
 import com.blocklang.develop.designer.data.RepoWidgetList;
 import com.blocklang.develop.model.Repository;
 import com.blocklang.develop.model.RepositoryResource;
-import com.blocklang.develop.service.ProjectDependenceService;
+import com.blocklang.develop.service.ProjectDependencyService;
 import com.blocklang.develop.service.RepositoryResourceService;
 import com.blocklang.marketplace.data.MarketplaceStore;
 import com.blocklang.marketplace.model.ComponentRepo;
@@ -49,14 +49,14 @@ import com.blocklang.marketplace.model.ComponentRepo;
 public class PageDesignerController extends AbstractRepositoryController {
 	
 	@Autowired
-	private ProjectDependenceService projectDependenceService;
+	private ProjectDependencyService projectDependenceService;
 	@Autowired
 	private RepositoryResourceService repositoryResourceService;
 	@Autowired
 	private PropertyService propertyService;
 	
 	/**
-	 * 与 {@link ProjectDependenceController#getDependence(Principal, String, String)}} 功能类似，
+	 * 与 {@link ProjectDependencyController#getDependence(Principal, String, String)}} 功能类似，
 	 * 但一个是在项目依赖的维护页面中使用的，一个是在页面设计器中使用的。
 	 * 
 	 * @param principal
@@ -78,8 +78,12 @@ public class PageDesignerController extends AbstractRepositoryController {
 		repositoryPermissionService.canRead(principal, repository).orElseThrow(NoAuthorizationException::new);
 		
 		// 分开读取标准库和普通库
-		List<ProjectDependenceData> dependences= projectDependenceService.findIdeDependences(project);
-		dependences.addAll(projectDependenceService.findStdIdeDependences(project));
+		// 虽然组件库分三种：API，IDE 和 PROD
+		// 但在项目依赖中又分为 dev 和 build 两种依赖，
+		// dev 对应 ide 和 preview 依赖
+		// build 对应 prod 依赖
+		List<ProjectDependencyData> dependences= projectDependenceService.findIdeDependencies(project);
+		dependences.addAll(projectDependenceService.findStdIdeDependencies(project));
 		List<Dependence> result = dependences.stream().map(item -> {
 			Dependence dependence = new Dependence();
 

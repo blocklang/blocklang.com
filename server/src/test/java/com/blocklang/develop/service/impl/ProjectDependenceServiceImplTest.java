@@ -27,7 +27,7 @@ import com.blocklang.core.test.AbstractServiceTest;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.dao.ProjectBuildProfileDao;
 import com.blocklang.develop.dao.ProjectDependenceDao;
-import com.blocklang.develop.data.ProjectDependenceData;
+import com.blocklang.develop.data.ProjectDependencyData;
 import com.blocklang.develop.designer.data.Widget;
 import com.blocklang.develop.designer.data.WidgetCategory;
 import com.blocklang.develop.designer.data.WidgetProperty;
@@ -35,9 +35,9 @@ import com.blocklang.develop.designer.data.RepoWidgetList;
 import com.blocklang.develop.model.Repository;
 import com.blocklang.develop.model.ProjectBuildProfile;
 import com.blocklang.develop.model.ProjectContext;
-import com.blocklang.develop.model.ProjectDependence;
+import com.blocklang.develop.model.ProjectDependency;
 import com.blocklang.develop.model.RepositoryResource;
-import com.blocklang.develop.service.ProjectDependenceService;
+import com.blocklang.develop.service.ProjectDependencyService;
 import com.blocklang.develop.service.RepositoryService;
 import com.blocklang.marketplace.constant.WidgetPropertyValueType;
 import com.blocklang.marketplace.constant.RepoCategory;
@@ -64,7 +64,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 	@Autowired
 	private ProjectDependenceDao projectDependenceDao;
 	@Autowired
-	private ProjectDependenceService projectDependenceService;
+	private ProjectDependencyService projectDependenceService;
 	@Autowired
 	private ProjectBuildProfileDao projectBuildProfileDao;
 	@Autowired
@@ -86,7 +86,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void dev_dependence_exists_that_not_exists() {
-		assertThat(projectDependenceService.devDependenceExists(1, 1)).isFalse();
+		assertThat(projectDependenceService.devDependencyExists(1, 1)).isFalse();
 	}
 	
 	@Test
@@ -106,19 +106,19 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		version.setCreateTime(LocalDateTime.now());
 		ComponentRepoVersion savedComponentRepoVersion = componentRepoVersionDao.save(version);
 		// 为项目添加一个依赖
-		ProjectDependence dependence = new ProjectDependence();
+		ProjectDependency dependence = new ProjectDependency();
 		dependence.setProjectId(projectId);
 		dependence.setComponentRepoVersionId(savedComponentRepoVersion.getId());
 		dependence.setCreateUserId(11);
 		dependence.setCreateTime(LocalDateTime.now());
 		projectDependenceDao.save(dependence);
 		
-		assertThat(projectDependenceService.devDependenceExists(projectId, componentRepoId)).isTrue();
+		assertThat(projectDependenceService.devDependencyExists(projectId, componentRepoId)).isTrue();
 	}
 	
 	@Test
 	public void build_dependence_exists_that_not_exists() {
-		assertThat(projectDependenceService.buildDependenceExists(1, 1, AppType.WEB, ProjectBuildProfile.DEFAULT_PROFILE_NAME)).isFalse();
+		assertThat(projectDependenceService.buildDependencyExists(1, 1, AppType.WEB, ProjectBuildProfile.DEFAULT_PROFILE_NAME)).isFalse();
 	}
 	
 	@Test
@@ -147,7 +147,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		projectBuildProfileDao.save(profile);
 		
 		// 为项目添加一个依赖
-		ProjectDependence dependence = new ProjectDependence();
+		ProjectDependency dependence = new ProjectDependency();
 		dependence.setProjectId(projectId);
 		dependence.setComponentRepoVersionId(savedComponentRepoVersion.getId());
 		dependence.setProfileId(profile.getId());
@@ -155,7 +155,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		dependence.setCreateTime(LocalDateTime.now());
 		projectDependenceDao.save(dependence);
 		
-		assertThat(projectDependenceService.buildDependenceExists(projectId, componentRepoId, AppType.WEB, ProjectBuildProfile.DEFAULT_PROFILE_NAME)).isTrue();
+		assertThat(projectDependenceService.buildDependencyExists(projectId, componentRepoId, AppType.WEB, ProjectBuildProfile.DEFAULT_PROFILE_NAME)).isTrue();
 	}
 	
 	@Test
@@ -170,7 +170,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		assertThat(countRowsInTable("PROJECT_BUILD_PROFILE")).isEqualTo(0);
 		assertThat(countRowsInTable("PROJECT_DEPENDENCE")).isEqualTo(0);
 		
-		ProjectDependence savedDependence = projectDependenceService.save(projectId, componentRepo, userId);
+		ProjectDependency savedDependence = projectDependenceService.save(projectId, componentRepo, userId);
 		
 		assertThat(savedDependence).isNull();
 		
@@ -204,7 +204,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		ProjectDependence savedDependence = projectDependenceService.save(projectId, componentRepo, userId);
+		ProjectDependency savedDependence = projectDependenceService.save(projectId, componentRepo, userId);
 		
 		assertThat(savedDependence.getProfileId()).isNull();
 	}
@@ -250,7 +250,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		ProjectDependence savedDependence = projectDependenceService.save(projectId, componentRepo, userId);
+		ProjectDependency savedDependence = projectDependenceService.save(projectId, componentRepo, userId);
 		
 		assertThat(savedDependence.getProjectId()).isEqualTo(projectId);
 		// 获取最新版本号
@@ -355,7 +355,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void find_project_dependence_no_dependence() {
-		assertThat(projectDependenceService.findProjectDependences(1)).isEmpty();
+		assertThat(projectDependenceService.findAllConfigDependencies(1)).isEmpty();
 	}
 	
 	// 因为当前只支持默认的 Profile，所以不用获取 Profile 信息
@@ -431,7 +431,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		componentRepoVersion.setCreateTime(LocalDateTime.now());
 		ComponentRepoVersion buildRepoVersion = componentRepoVersionDao.save(componentRepoVersion);
 		// 创建一个 dev 依赖（不需创建 Profile）
-		ProjectDependence devDependence = new ProjectDependence();
+		ProjectDependency devDependence = new ProjectDependency();
 		devDependence.setProjectId(projectId);
 		devDependence.setComponentRepoVersionId(devRepoVersion.getId());
 		devDependence.setCreateUserId(11);
@@ -448,7 +448,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		profile.setCreateTime(LocalDateTime.now());
 		projectBuildProfileDao.save(profile);
 		// 2. 为项目添加一个依赖
-		ProjectDependence buildDependence = new ProjectDependence();
+		ProjectDependency buildDependence = new ProjectDependency();
 		buildDependence.setProjectId(projectId);
 		buildDependence.setComponentRepoVersionId(buildRepoVersion.getId());
 		buildDependence.setProfileId(profile.getId());
@@ -456,7 +456,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		buildDependence.setCreateTime(LocalDateTime.now());
 		projectDependenceDao.save(buildDependence);
 
-		List<ProjectDependenceData> dependences = projectDependenceService.findProjectDependences(projectId);
+		List<ProjectDependencyData> dependences = projectDependenceService.findAllConfigDependencies(projectId);
 		
 		assertThat(dependences).hasSize(2);
 		assertThat(dependences).allMatch(dependence -> dependence != null && 
@@ -539,7 +539,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		when(propertyService.findStringValue(CmPropKey.STD_WIDGET_IDE_GIT_URL, "")).thenReturn("valid_git_url");
 		when(propertyService.findIntegerValue(CmPropKey.STD_REPO_REGISTER_USER_ID, 1)).thenReturn(1);
 		// 注意，所有项目都会默认包含标准库
-		List<ProjectDependenceData> dependences = projectDependenceService.findProjectDependences(Integer.MAX_VALUE, true);
+		List<ProjectDependencyData> dependences = projectDependenceService.findProjectDependencies(Integer.MAX_VALUE, true);
 		
 		assertThat(dependences).hasSize(1);
 	}
@@ -548,7 +548,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 	@Test
 	public void findProjectBuildDependences_no_dependence() {
 		int projectId = Integer.MAX_VALUE;
-		assertThat(projectDependenceService.findProjectBuildDependences(projectId)).isEmpty();
+		assertThat(projectDependenceService.findProjectBuildDependencies(projectId)).isEmpty();
 	}
 	
 	@DisplayName("find project's build dependences: should not contains dev dependences")
@@ -624,7 +624,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		componentRepoVersion.setCreateTime(LocalDateTime.now());
 		ComponentRepoVersion buildRepoVersion = componentRepoVersionDao.save(componentRepoVersion);
 		// 创建一个 dev 依赖（不需创建 Profile）
-		ProjectDependence devDependence = new ProjectDependence();
+		ProjectDependency devDependence = new ProjectDependency();
 		devDependence.setProjectId(projectId);
 		devDependence.setComponentRepoVersionId(devRepoVersion.getId());
 		devDependence.setCreateUserId(11);
@@ -641,7 +641,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		profile.setCreateTime(LocalDateTime.now());
 		projectBuildProfileDao.save(profile);
 		// 2. 为项目添加一个依赖
-		ProjectDependence buildDependence = new ProjectDependence();
+		ProjectDependency buildDependence = new ProjectDependency();
 		buildDependence.setProjectId(projectId);
 		buildDependence.setComponentRepoVersionId(buildRepoVersion.getId());
 		buildDependence.setProfileId(profile.getId());
@@ -649,7 +649,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		buildDependence.setCreateTime(LocalDateTime.now());
 		projectDependenceDao.save(buildDependence);
 
-		List<ProjectDependenceData> dependences = projectDependenceService.findProjectBuildDependences(projectId);
+		List<ProjectDependencyData> dependences = projectDependenceService.findProjectBuildDependencies(projectId);
 		
 		assertThat(dependences).hasSize(1);
 		assertThat(dependences.get(0).getComponentRepoVersion().getId()).isEqualTo(buildRepoVersion.getId());
@@ -661,12 +661,12 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 	@Test
 	public void delete_success() {
 		// 为项目添加一个依赖
-		ProjectDependence dependence = new ProjectDependence();
+		ProjectDependency dependence = new ProjectDependency();
 		dependence.setProjectId(1);
 		dependence.setComponentRepoVersionId(2);
 		dependence.setCreateUserId(11);
 		dependence.setCreateTime(LocalDateTime.now());
-		ProjectDependence savedDependence = projectDependenceDao.save(dependence);
+		ProjectDependency savedDependence = projectDependenceDao.save(dependence);
 		assertThat(projectDependenceDao.findById(savedDependence.getId())).isPresent();
 		projectDependenceService.delete(savedDependence.getId());
 		assertThat(projectDependenceDao.findById(savedDependence.getId())).isEmpty();
@@ -722,7 +722,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		devRepoVersion.setCreateTime(LocalDateTime.now());
 		componentRepoVersionDao.save(devRepoVersion);
 		
-		ProjectDependence savedDependence = projectDependenceService.save(savedProject.getId(), devRepo, userId);
+		ProjectDependency savedDependence = projectDependenceService.save(savedProject.getId(), devRepo, userId);
 		
 		// 三、删除添加的依赖
 		projectDependenceService.delete(savedDependence.getId());
@@ -736,12 +736,12 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void update_success() {
-		ProjectDependence dependence = new ProjectDependence();
+		ProjectDependency dependence = new ProjectDependency();
 		dependence.setProjectId(1);
 		dependence.setComponentRepoVersionId(2);
 		dependence.setCreateUserId(11);
 		dependence.setCreateTime(LocalDateTime.now());
-		ProjectDependence savedDependence = projectDependenceDao.save(dependence);
+		ProjectDependency savedDependence = projectDependenceDao.save(dependence);
 		
 		savedDependence.setComponentRepoVersionId(3);
 		
@@ -799,7 +799,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		devRepoVersion.setCreateTime(LocalDateTime.now());
 		componentRepoVersionDao.save(devRepoVersion);
 		
-		ProjectDependence savedDependence = projectDependenceService.save(savedProject.getId(), devRepo, userId);
+		ProjectDependency savedDependence = projectDependenceService.save(savedProject.getId(), devRepo, userId);
 		
 		// 三、修改添加的依赖
 		ComponentRepoVersion newDevRepoVersion = new ComponentRepoVersion();
@@ -837,12 +837,12 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void find_by_id_success() {
-		ProjectDependence dependence = new ProjectDependence();
+		ProjectDependency dependence = new ProjectDependency();
 		dependence.setProjectId(1);
 		dependence.setComponentRepoVersionId(2);
 		dependence.setCreateUserId(11);
 		dependence.setCreateTime(LocalDateTime.now());
-		ProjectDependence savedDependence = projectDependenceDao.save(dependence);
+		ProjectDependency savedDependence = projectDependenceDao.save(dependence);
 		
 		assertThat(projectDependenceService.findById(savedDependence.getId())).isPresent();
 	}
@@ -915,7 +915,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		ComponentRepoVersion savedComponentRepoVersion = componentRepoVersionDao.save(componentRepoVersion);
 		
 		// 将组件仓库添加为项目依赖
-		ProjectDependence dependence = new ProjectDependence();
+		ProjectDependency dependence = new ProjectDependency();
 		dependence.setProjectId(projectId);
 		dependence.setComponentRepoVersionId(savedComponentRepoVersion.getId());
 		dependence.setCreateUserId(1);
@@ -1005,7 +1005,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		ComponentRepoVersion savedComponentRepoVersion = componentRepoVersionDao.save(componentRepoVersion);
 		
 		// 2. 将组件仓库添加为项目依赖
-		ProjectDependence dependence = new ProjectDependence();
+		ProjectDependency dependence = new ProjectDependency();
 		dependence.setProjectId(projectId);
 		dependence.setComponentRepoVersionId(savedComponentRepoVersion.getId());
 		dependence.setCreateUserId(1);
@@ -1027,7 +1027,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		savedComponentRepoVersion = componentRepoVersionDao.save(componentRepoVersion);
 		
 		// 2. 将组件仓库添加为项目依赖
-		dependence = new ProjectDependence();
+		dependence = new ProjectDependency();
 		dependence.setProjectId(projectId);
 		dependence.setComponentRepoVersionId(savedComponentRepoVersion.getId());
 		dependence.setCreateUserId(1);
@@ -1082,7 +1082,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		ComponentRepoVersion savedComponentRepoVersion = componentRepoVersionDao.save(componentRepoVersion);
 		
 		// 将组件仓库添加为项目依赖
-		ProjectDependence dependence = new ProjectDependence();
+		ProjectDependency dependence = new ProjectDependency();
 		dependence.setProjectId(projectId);
 		dependence.setComponentRepoVersionId(savedComponentRepoVersion.getId());
 		dependence.setCreateUserId(1);
@@ -1147,7 +1147,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 		ComponentRepoVersion savedComponentRepoVersion = componentRepoVersionDao.save(componentRepoVersion);
 		
 		// 将组件仓库添加为项目依赖
-		ProjectDependence dependence = new ProjectDependence();
+		ProjectDependency dependence = new ProjectDependency();
 		dependence.setProjectId(projectId);
 		dependence.setComponentRepoVersionId(savedComponentRepoVersion.getId());
 		dependence.setCreateUserId(1);

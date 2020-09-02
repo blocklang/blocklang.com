@@ -17,7 +17,7 @@ import com.blocklang.core.constant.CmPropKey;
 import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.service.PropertyService;
 import com.blocklang.develop.model.Repository;
-import com.blocklang.develop.service.ProjectDependenceService;
+import com.blocklang.develop.service.ProjectDependencyService;
 import com.blocklang.develop.service.RepositoryResourceService;
 import com.blocklang.release.constant.Arch;
 import com.blocklang.release.constant.BuildResult;
@@ -72,7 +72,7 @@ public class BuildServiceImpl implements BuildService {
 	@Autowired
 	private SimpMessagingTemplate messagingTemplate;
 	@Autowired
-	private ProjectDependenceService projectDependenceService;
+	private ProjectDependencyService projectDependenceService;
 	@Autowired
 	private RepositoryResourceService projectResourceService;
 	

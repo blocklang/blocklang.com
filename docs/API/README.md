@@ -32,8 +32,8 @@
 7. [获取最近提交信息](./repositories/repository/get-latest-commit.md)
 8.  [为项目添加一个依赖](./repositories/repository/project/add-a-dependency.md)
 9.  [删除项目的一个依赖](./repositories/repository/project/delete-a-dependency.md)
-10. [获取项目的依赖列表](./repositories/repository/project/list-project-dependences.md)
-11. [更新项目依赖的版本信息](./repositories/repository/project/update-dependence-version.md)
+10. [获取项目的依赖列表](./repositories/repository/project/list-project-dependencies.md)
+11. [更新项目依赖的版本信息](./repositories/repository/project/update-dependency-version.md)
 12. [获取部署配置信息](./repositories/deploy/get-deploy-setting.md)
 
 ## 资源
