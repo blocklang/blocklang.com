@@ -19,19 +19,19 @@ import com.blocklang.develop.model.RepositoryFile;
 import com.blocklang.develop.model.RepositoryResource;
 import com.blocklang.develop.service.RepositoryFileService;
 
-public class ProjectFileServiceImplTest extends AbstractServiceTest{
+public class RepositoryFileServiceImplTest extends AbstractServiceTest{
 
 	@Autowired
-	private RepositoryFileService projectFileService;
+	private RepositoryFileService repositoryFileService;
 	
 	@Autowired
-	private RepositoryResourceDao projectResourceDao;
+	private RepositoryResourceDao repositorytResourceDao;
 	@Autowired
-	private RepositoryFileDao projectFileDao;
+	private RepositoryFileDao repositoryFileDao;
 	
 	@Test
 	public void find_readme_no_data() {
-		Optional<RepositoryFile> fileOption = projectFileService.findReadme(9999);
+		Optional<RepositoryFile> fileOption = repositoryFileService.findReadme(9999);
 		assertThat(fileOption).isEmpty();
 	}
 	
@@ -47,15 +47,15 @@ public class ProjectFileServiceImplTest extends AbstractServiceTest{
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
-		Integer savedProjectResourceId = projectResourceDao.save(resource).getId();
+		Integer savedProjectResourceId = repositorytResourceDao.save(resource).getId();
 		
 		RepositoryFile file = new RepositoryFile();
 		file.setRepositoryResourceId(savedProjectResourceId);
 		file.setContent("# Readme");
 		file.setFileType(FileType.MARKDOWN);
-		projectFileDao.save(file);
+		repositoryFileDao.save(file);
 		
-		Optional<RepositoryFile> fileOption = projectFileService.findReadme(9999);
+		Optional<RepositoryFile> fileOption = repositoryFileService.findReadme(9999);
 		assertThat(fileOption).isPresent();
 	}
 }

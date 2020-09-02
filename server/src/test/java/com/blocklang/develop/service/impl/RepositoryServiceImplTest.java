@@ -34,54 +34,42 @@ import com.blocklang.develop.dao.RepositoryDao;
 import com.blocklang.develop.dao.RepositoryFileDao;
 import com.blocklang.develop.dao.RepositoryResourceDao;
 import com.blocklang.develop.data.GitCommitInfo;
-import com.blocklang.develop.designer.data.AttachedWidget;
-import com.blocklang.develop.designer.data.AttachedWidgetProperty;
-import com.blocklang.develop.designer.data.PageModel;
-import com.blocklang.develop.model.PageWidget;
-import com.blocklang.develop.model.PageWidgetAttrValue;
+import com.blocklang.develop.model.ProjectContext;
 import com.blocklang.develop.model.Repository;
 import com.blocklang.develop.model.RepositoryAuthorization;
-import com.blocklang.develop.model.ProjectContext;
 import com.blocklang.develop.model.RepositoryResource;
 import com.blocklang.develop.service.RepositoryResourceService;
 import com.blocklang.develop.service.RepositoryService;
-import com.blocklang.marketplace.constant.WidgetPropertyValueType;
-import com.blocklang.marketplace.constant.RepoCategory;
-import com.blocklang.marketplace.dao.ApiWidgetPropertyDao;
-import com.blocklang.marketplace.dao.ApiWidgetDao;
 import com.blocklang.marketplace.dao.ApiRepoDao;
 import com.blocklang.marketplace.dao.ApiRepoVersionDao;
-import com.blocklang.marketplace.model.ApiWidget;
-import com.blocklang.marketplace.model.ApiWidgetProperty;
-import com.blocklang.marketplace.model.ApiRepo;
-import com.blocklang.marketplace.model.ApiRepoVersion;
+import com.blocklang.marketplace.dao.ApiWidgetDao;
+import com.blocklang.marketplace.dao.ApiWidgetPropertyDao;
 import com.blocklang.release.dao.AppDao;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class ProjectServiceImplTest extends AbstractServiceTest{
+public class RepositoryServiceImplTest extends AbstractServiceTest{
 	
 	@Autowired
-	private RepositoryService projectService;
+	private RepositoryService repositoryService;
 	@Autowired
-	private RepositoryDao projectDao;
+	private RepositoryDao repositoryDao;
 	@Autowired
 	private UserDao userDao;
 	@Autowired
 	private AppDao appDao;
 	@Autowired
-	private RepositoryResourceService projectResourceService;
+	private RepositoryResourceService repositoryResourceService;
 	@Autowired
-	private RepositoryResourceDao projectResourceDao;
+	private RepositoryResourceDao repositoryResourceDao;
 	@Autowired
 	private PageWidgetDao pageWidgetDao;
 	@Autowired
 	private PageWidgetAttrValueDao pageWidgetAttrValueDao;
 	@Autowired
-	private RepositoryFileDao projectFileDao;
+	private RepositoryFileDao repositoryFileDao;
 	@Autowired
-	private RepositoryAuthorizationDao projectAuthorizationDao;
+	private RepositoryAuthorizationDao repositoryAuthorizationDao;
 	@Autowired
-	private RepositoryCommitDao projectCommitDao;
+	private RepositoryCommitDao repositoryCommitDao;
 	@MockBean
 	private PropertyService propertyService;
 	@Autowired
@@ -95,7 +83,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void find_no_data() {
-		Optional<Repository> projectOption = projectService.find("not-exist-owner", "not-exist-name");
+		Optional<Repository> projectOption = repositoryService.find("not-exist-owner", "not-exist-name");
 		assertThat(projectOption).isEmpty();
 	}
 	
@@ -116,9 +104,9 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		project.setCreateUserId(userId);
 		project.setCreateTime(LocalDateTime.now());
 		
-		projectDao.save(project);
+		repositoryDao.save(project);
 		
-		Optional<Repository> projectOption = projectService.find("user_name", "project_name");
+		Optional<Repository> projectOption = repositoryService.find("user_name", "project_name");
 		assertThat(projectOption).isPresent();
 		assertThat(projectOption.get().getCreateUserName()).isEqualTo("user_name");
 	}
@@ -144,19 +132,19 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		Integer projectId = projectService.createRepository(userInfo, project).getId();
+		Integer projectId = repositoryService.createRepository(userInfo, project).getId();
 		
 		// 断言
 		// 项目基本信息已保存
-		assertThat(projectDao.findById(projectId).get()).hasNoNullFieldsOrPropertiesExcept("lastUpdateUserId", "lastUpdateTime", "avatarUrl", "accessLevel");
+		assertThat(repositoryDao.findById(projectId).get()).hasNoNullFieldsOrPropertiesExcept("lastUpdateUserId", "lastUpdateTime", "avatarUrl", "accessLevel");
 		
 		// 项目授权信息已保存，项目创建者具有 admin 权限
-		assertThat(projectAuthorizationDao.findAllByUserId(userId)).hasSize(1).allMatch(projectAuth -> {
+		assertThat(repositoryAuthorizationDao.findAllByUserId(userId)).hasSize(1).allMatch(projectAuth -> {
 			return projectAuth.getAccessLevel() == AccessLevel.ADMIN && projectAuth.getCreateUserId() == userId;
 		});
 		
 		// 已在项目资源表中登记 README.md 文件
-		RepositoryResource readmeResource = projectResourceDao.findByRepositoryIdAndParentIdAndResourceTypeAndAppTypeAndKeyIgnoreCase(
+		RepositoryResource readmeResource = repositoryResourceDao.findByRepositoryIdAndParentIdAndResourceTypeAndAppTypeAndKeyIgnoreCase(
 				projectId, 
 				Constant.TREE_ROOT_ID, 
 				RepositoryResourceType.FILE,
@@ -174,10 +162,10 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 				"gitStatus");
 		
 		// 已在项目文件表中保存 README.md 文件
-		assertThat(projectFileDao.findByRepositoryResourceId(readmeResource.getId()).get()).hasNoNullFieldsOrProperties();
+		assertThat(repositoryFileDao.findByRepositoryResourceId(readmeResource.getId()).get()).hasNoNullFieldsOrProperties();
 		
 		// 已在项目资源表中登记 BUILD.json 文件
-		RepositoryResource buildConfigResource = projectResourceDao.findByRepositoryIdAndParentIdAndResourceTypeAndAppTypeAndKeyIgnoreCase(
+		RepositoryResource buildConfigResource = repositoryResourceDao.findByRepositoryIdAndParentIdAndResourceTypeAndAppTypeAndKeyIgnoreCase(
 				projectId, 
 				Constant.TREE_ROOT_ID, 
 				RepositoryResourceType.BUILD,
@@ -200,7 +188,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		assertThat(GitUtils.isGitRepo(context.getGitRepositoryDirectory())).isTrue();
 		
 		// 在创建一个仓库时，会执行一个 git commit，此操作也保存在 project_commit 中
-		assertThat(projectCommitDao.findAllByRepositoryIdAndBranchOrderByCommitTimeDesc(projectId, "master").get(0)).hasNoNullFieldsOrPropertiesExcept("fullMessage");
+		assertThat(repositoryCommitDao.findAllByRepositoryIdAndBranchOrderByCommitTimeDesc(projectId, "master").get(0)).hasNoNullFieldsOrPropertiesExcept("fullMessage");
 		
 		// 确认 git 仓库中有 README.md 文件，并比较其内容
 		String expectedReadmeContext = "# project_name\r\n\r\n**TODO: 在这里添加详细介绍，帮助感兴趣的人快速了解您的仓库。**";
@@ -418,7 +406,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void find_can_access_projects_created_no_data() {
-		List<Repository> projects = projectService.findCanAccessRepositoriesByUserId(1);
+		List<Repository> projects = repositoryService.findCanAccessRepositoriesByUserId(1);
 		assertThat(projects).isEmpty();
 	}
 	
@@ -440,7 +428,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		project.setCreateUserId(userId);
 		project.setCreateTime(LocalDateTime.now());
 		
-		Integer savedProjectId = projectDao.save(project).getId();
+		Integer savedProjectId = repositoryDao.save(project).getId();
 		
 		RepositoryAuthorization auth = new RepositoryAuthorization();
 		auth.setRepositoryId(savedProjectId);
@@ -448,12 +436,12 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		auth.setAccessLevel(AccessLevel.ADMIN); // 项目创建者具有管理员权限
 		auth.setCreateTime(LocalDateTime.now());
 		auth.setCreateUserId(userId);
-		projectAuthorizationDao.save(auth);
+		repositoryAuthorizationDao.save(auth);
 		
-		List<Repository> projects = projectService.findCanAccessRepositoriesByUserId(userId);
+		List<Repository> projects = repositoryService.findCanAccessRepositoriesByUserId(userId);
 		assertThat(projects).hasSize(1).allMatch(each -> each.getCreateUserName().equals("user_name"));
 		
-		projects = projectService.findCanAccessRepositoriesByUserId(userId + 1);
+		projects = repositoryService.findCanAccessRepositoriesByUserId(userId + 1);
 		assertThat(projects).isEmpty();
 	}
 	
@@ -469,7 +457,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		project.setCreateTime(LocalDateTime.now());
 		project.setCreateUserName("user_name");
 		
-		Integer savedProjectId = projectDao.save(project).getId();
+		Integer savedProjectId = repositoryDao.save(project).getId();
 		
 		RepositoryAuthorization auth = new RepositoryAuthorization();
 		auth.setRepositoryId(savedProjectId);
@@ -477,7 +465,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		auth.setAccessLevel(AccessLevel.ADMIN);
 		auth.setCreateTime(LocalDateTime.now());
 		auth.setCreateUserId(1);
-		projectAuthorizationDao.save(auth);
+		repositoryAuthorizationDao.save(auth);
 		
 		// 第二条记录
 		project = new Repository();
@@ -489,7 +477,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		project.setCreateTime(LocalDateTime.now());
 		project.setCreateUserName("user_name");
 		
-		savedProjectId = projectDao.save(project).getId();
+		savedProjectId = repositoryDao.save(project).getId();
 		
 		auth = new RepositoryAuthorization();
 		auth.setRepositoryId(savedProjectId);
@@ -497,9 +485,9 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		auth.setAccessLevel(AccessLevel.ADMIN);
 		auth.setCreateTime(LocalDateTime.now());
 		auth.setCreateUserId(1);
-		projectAuthorizationDao.save(auth);
+		repositoryAuthorizationDao.save(auth);
 	
-		List<Repository> projects = projectService.findCanAccessRepositoriesByUserId(1);
+		List<Repository> projects = repositoryService.findCanAccessRepositoriesByUserId(1);
 		assertThat(projects).hasSize(2).isSortedAccordingTo(Comparator.comparing(Repository::getLastActiveTime).reversed());
 	}
 
@@ -524,9 +512,9 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		Repository savedProject = projectService.createRepository(userInfo, project);
+		Repository savedProject = repositoryService.createRepository(userInfo, project);
 		
-		GitCommitInfo commitInfo = projectService.findLatestCommitInfo(savedProject, null).get();
+		GitCommitInfo commitInfo = repositoryService.findLatestCommitInfo(savedProject, null).get();
 		assertThat(commitInfo.getShortMessage()).isEqualTo("First Commit");
 		assertThat(commitInfo.getUserName()).isEqualTo("user_name");
 	}
@@ -552,7 +540,7 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		Repository savedProject = projectService.createRepository(userInfo, project);
+		Repository savedProject = repositoryService.createRepository(userInfo, project);
 		
 		RepositoryResource resource = new RepositoryResource();
 		resource.setKey("group1");
@@ -562,14 +550,14 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		resource.setCreateUserId(userId);
 		resource.setRepositoryId(savedProject.getId());
 		resource.setParentId(Constant.TREE_ROOT_ID);
-		projectResourceService.insert(savedProject, resource);
+		repositoryResourceService.insert(savedProject, resource);
 		
-		assertThat(projectService.findLatestCommitInfo(savedProject, "group1")).isEmpty();
+		assertThat(repositoryService.findLatestCommitInfo(savedProject, "group1")).isEmpty();
 	}
 
 	@Test
 	public void find_by_id_no_data() {
-		Optional<Repository> projectOption = projectService.findById(1);
+		Optional<Repository> projectOption = repositoryService.findById(1);
 		assertThat(projectOption).isEmpty();
 	}
 	
@@ -582,9 +570,9 @@ public class ProjectServiceImplTest extends AbstractServiceTest{
 		project.setCreateUserId(1);
 		project.setCreateTime(LocalDateTime.now());
 		
-		Repository savedProject = projectDao.save(project);
+		Repository savedProject = repositoryDao.save(project);
 		
-		Optional<Repository> projectOption = projectService.findById(savedProject.getId());
+		Optional<Repository> projectOption = repositoryService.findById(savedProject.getId());
 		assertThat(projectOption).isPresent();
 	}
 }

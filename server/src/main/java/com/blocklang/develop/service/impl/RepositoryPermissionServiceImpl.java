@@ -18,7 +18,7 @@ import com.blocklang.develop.service.RepositoryPermissionService;
 
 //read < write < admin
 @Service
-public class ProjectPermissionServiceImpl implements RepositoryPermissionService {
+public class RepositoryPermissionServiceImpl implements RepositoryPermissionService {
 
 	@Autowired
 	private RepositoryAuthorizationDao projectAuthorizationDao;

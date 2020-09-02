@@ -34,8 +34,8 @@ import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.constant.NodeCategory;
 import com.blocklang.develop.constant.NodeLayout;
 import com.blocklang.develop.constant.RepositoryResourceType;
-import com.blocklang.develop.dao.RepositoryCommitDao;
 import com.blocklang.develop.dao.ProjectDependenceDao;
+import com.blocklang.develop.dao.RepositoryCommitDao;
 import com.blocklang.develop.dao.RepositoryResourceDao;
 import com.blocklang.develop.data.UncommittedFile;
 import com.blocklang.develop.designer.data.AttachedWidget;
@@ -50,10 +50,10 @@ import com.blocklang.develop.designer.data.PageEventHandler;
 import com.blocklang.develop.designer.data.PageModel;
 import com.blocklang.develop.designer.data.VisualNode;
 import com.blocklang.develop.model.PageDataItem;
-import com.blocklang.develop.model.Repository;
-import com.blocklang.develop.model.RepositoryCommit;
 import com.blocklang.develop.model.ProjectContext;
 import com.blocklang.develop.model.ProjectDependency;
+import com.blocklang.develop.model.Repository;
+import com.blocklang.develop.model.RepositoryCommit;
 import com.blocklang.develop.model.RepositoryResource;
 import com.blocklang.develop.service.RepositoryResourceService;
 import com.blocklang.develop.service.RepositoryService;
@@ -76,22 +76,22 @@ import com.blocklang.marketplace.model.ComponentRepo;
 import com.blocklang.marketplace.model.ComponentRepoVersion;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class ProjectResourceServiceImplTest extends AbstractServiceTest{
+public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 
 	@Autowired
-	private RepositoryResourceService projectResourceService;
+	private RepositoryResourceService repositoryResourceService;
 	@Autowired
-	private RepositoryResourceDao projectResourceDao;
+	private RepositoryResourceDao repositortResourceDao;
 	@Autowired
 	private MessageSource messageSource;
 	@Autowired
-	private RepositoryService projectService;
+	private RepositoryService repositoryService;
 	@Autowired
 	private UserDao userDao;
 	@MockBean
 	private UserService userService;
 	@Autowired
-	private RepositoryCommitDao projectCommitDao;
+	private RepositoryCommitDao repositoryCommitDao;
 	@MockBean
 	private PropertyService propertyService;
 	@Autowired
@@ -129,9 +129,9 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
 		
-		Integer id = projectResourceService.insert(project, resource).getId();
+		Integer id = repositoryResourceService.insert(project, resource).getId();
 		
-		Optional<RepositoryResource> resourceOption = projectResourceDao.findById(id);
+		Optional<RepositoryResource> resourceOption = repositortResourceDao.findById(id);
 		assertThat(resourceOption).isPresent();
 		assertThat(resourceOption.get().getSeq()).isEqualTo(1);
 	}
@@ -232,9 +232,9 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		when(propertyService.findIntegerValue(CmPropKey.STD_REPO_REGISTER_USER_ID, 1)).thenReturn(1);
 		when(propertyService.findStringValue(CmPropKey.STD_WIDGET_ROOT_NAME, "Page")).thenReturn("Page");
 		
-		Integer pageId = projectResourceService.insert(project, resource).getId();
+		Integer pageId = repositoryResourceService.insert(project, resource).getId();
 		
-		PageModel actualPageModel = projectResourceService.getPageModel(projectId, pageId);
+		PageModel actualPageModel = repositoryResourceService.getPageModel(projectId, pageId);
 		
 		assertThat(actualPageModel.getPageId()).isEqualTo(pageId);
 		assertThat(actualPageModel.getWidgets()).hasSize(1);
@@ -263,7 +263,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void find_children_no_data() {
-		List<RepositoryResource> resources = projectResourceService.findChildren(null, 9999);
+		List<RepositoryResource> resources = repositoryResourceService.findChildren(null, 9999);
 		assertThat(resources).isEmpty();
 	}
 	
@@ -284,7 +284,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
-		projectResourceDao.save(resource);
+		repositortResourceDao.save(resource);
 		
 		resource = new RepositoryResource();
 		resource.setRepositoryId(2);
@@ -296,9 +296,9 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
-		projectResourceDao.save(resource);
+		repositortResourceDao.save(resource);
 		
-		List<RepositoryResource> resources = projectResourceService.findChildren(project, Constant.TREE_ROOT_ID);
+		List<RepositoryResource> resources = repositoryResourceService.findChildren(project, Constant.TREE_ROOT_ID);
 		assertThat(resources).hasSize(1);
 	}
 	
@@ -319,7 +319,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
-		Integer savedResourceId = projectResourceDao.save(resource).getId();
+		Integer savedResourceId = repositortResourceDao.save(resource).getId();
 		
 		resource = new RepositoryResource();
 		resource.setRepositoryId(1);
@@ -331,9 +331,9 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
-		projectResourceDao.save(resource);
+		repositortResourceDao.save(resource);
 		
-		List<RepositoryResource> resources = projectResourceService.findChildren(project, Constant.TREE_ROOT_ID);
+		List<RepositoryResource> resources = repositoryResourceService.findChildren(project, Constant.TREE_ROOT_ID);
 		assertThat(resources).hasSize(1);
 	}
 	
@@ -356,9 +356,9 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
-		projectResourceDao.save(resource).getId();
+		repositortResourceDao.save(resource).getId();
 		
-		List<RepositoryResource> resources = projectResourceService.findChildren(project, Constant.TREE_ROOT_ID);
+		List<RepositoryResource> resources = repositoryResourceService.findChildren(project, Constant.TREE_ROOT_ID);
 		assertThat(resources).hasSize(1);
 		assertThat(resources.get(0).getName()).isEqualTo("key1");
 	}
@@ -382,7 +382,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
-		Integer savedResourceId = projectResourceDao.save(resource).getId();
+		Integer savedResourceId = repositortResourceDao.save(resource).getId();
 		
 		resource = new RepositoryResource();
 		resource.setRepositoryId(projectId);
@@ -394,16 +394,16 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
-		projectResourceDao.save(resource);
+		repositortResourceDao.save(resource);
 		
-		List<RepositoryResource> resources = projectResourceService.findChildren(project, savedResourceId);
+		List<RepositoryResource> resources = repositoryResourceService.findChildren(project, savedResourceId);
 		assertThat(resources).hasSize(1);
 		assertThat(resources.get(0).getKey()).isEqualTo("key2");
 	}
 	
 	@Test
 	public void find_parent_path_at_root() {
-		List<String> pathes = projectResourceService.findParentPathes(-1);
+		List<String> pathes = repositoryResourceService.findParentPathes(-1);
 		assertThat(pathes).isEmpty();
 	}
 	
@@ -419,7 +419,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
-		Integer savedResourceId = projectResourceDao.save(resource).getId();
+		Integer savedResourceId = repositortResourceDao.save(resource).getId();
 		
 		resource = new RepositoryResource();
 		resource.setRepositoryId(1);
@@ -431,7 +431,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
-		savedResourceId = projectResourceDao.save(resource).getId();
+		savedResourceId = repositortResourceDao.save(resource).getId();
 		
 		resource = new RepositoryResource();
 		resource.setRepositoryId(1);
@@ -443,9 +443,9 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
-		savedResourceId = projectResourceDao.save(resource).getId();
+		savedResourceId = repositortResourceDao.save(resource).getId();
 		
-		List<String> pathes = projectResourceService.findParentPathes(savedResourceId);
+		List<String> pathes = repositoryResourceService.findParentPathes(savedResourceId);
 		assertThat(String.join("/", pathes)).isEqualTo("key1/key2/key3");
 	}
 	
@@ -509,7 +509,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 
 	@Test
 	public void find_by_id_no_data() {
-		assertThat(projectResourceService.findById(Integer.MAX_VALUE)).isEmpty();
+		assertThat(repositoryResourceService.findById(Integer.MAX_VALUE)).isEmpty();
 	}
 	
 	@Test
@@ -524,14 +524,14 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
-		Integer savedResourceId = projectResourceDao.save(resource).getId();
+		Integer savedResourceId = repositortResourceDao.save(resource).getId();
 		
-		assertThat(projectResourceService.findById(savedResourceId)).isPresent();
+		assertThat(repositoryResourceService.findById(savedResourceId)).isPresent();
 	}
 	
 	@Test
 	public void find_by_key_at_root_no_data() {
-		assertThat(projectResourceService.findByKey(
+		assertThat(repositoryResourceService.findByKey(
 				Integer.MAX_VALUE, 
 				Constant.TREE_ROOT_ID, 
 				RepositoryResourceType.PAGE, 
@@ -553,9 +553,9 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
-		projectResourceDao.save(resource);
+		repositortResourceDao.save(resource);
 		
-		assertThat(projectResourceService.findByKey(
+		assertThat(repositoryResourceService.findByKey(
 				projectId, 
 				Constant.TREE_ROOT_ID, 
 				RepositoryResourceType.PAGE, 
@@ -565,7 +565,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void find_by_name_at_root_no_data() {
-		assertThat(projectResourceService.findByName(
+		assertThat(repositoryResourceService.findByName(
 				Integer.MAX_VALUE, 
 				Constant.TREE_ROOT_ID, 
 				RepositoryResourceType.PAGE, 
@@ -587,9 +587,9 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
-		projectResourceDao.save(resource);
+		repositortResourceDao.save(resource);
 		
-		assertThat(projectResourceService.findByName(
+		assertThat(repositoryResourceService.findByName(
 				projectId, 
 				Constant.TREE_ROOT_ID, 
 				RepositoryResourceType.PAGE, 
@@ -600,7 +600,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 	@Test
 	public void find_all_pages_web_type_but_no_data() {
 		Integer projectId = Integer.MAX_VALUE;
-		assertThat(projectResourceService.findAllPages(projectId, AppType.WEB)).isEmpty();
+		assertThat(repositoryResourceService.findAllPages(projectId, AppType.WEB)).isEmpty();
 	}
 	
 	@Test
@@ -617,21 +617,21 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
-		projectResourceDao.save(resource);
+		repositortResourceDao.save(resource);
 		
-		assertThat(projectResourceService.findAllPages(projectId, AppType.WEB)).hasSize(1);
+		assertThat(repositoryResourceService.findAllPages(projectId, AppType.WEB)).hasSize(1);
 	}
 	
 	@Test
 	public void find_parent_groups_by_parent_path_is_not_exist() {
-		assertThat(projectResourceService.findParentGroupsByParentPath(null, null)).isEmpty();
-		assertThat(projectResourceService.findParentGroupsByParentPath(null, "")).isEmpty();
+		assertThat(repositoryResourceService.findParentGroupsByParentPath(null, null)).isEmpty();
+		assertThat(repositoryResourceService.findParentGroupsByParentPath(null, "")).isEmpty();
 	}
 	
 	@Test
 	public void find_parent_id_by_parent_path_is_root_path() {
-		assertThat(projectResourceService.findParentGroupsByParentPath(1, null)).isEmpty();
-		assertThat(projectResourceService.findParentGroupsByParentPath(1, "")).isEmpty();
+		assertThat(repositoryResourceService.findParentGroupsByParentPath(1, null)).isEmpty();
+		assertThat(repositoryResourceService.findParentGroupsByParentPath(1, "")).isEmpty();
 	}
 	
 	@Test
@@ -648,9 +648,9 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
-		Integer resourceId = projectResourceDao.save(resource).getId();
+		Integer resourceId = repositortResourceDao.save(resource).getId();
 		
-		List<RepositoryResource> groups = projectResourceService.findParentGroupsByParentPath(projectId, "key1");
+		List<RepositoryResource> groups = repositoryResourceService.findParentGroupsByParentPath(projectId, "key1");
 		assertThat(groups).hasSize(1);
 		assertThat(groups.get(0).getId()).isEqualTo(resourceId);
 	}
@@ -669,7 +669,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
-		Integer resourceId = projectResourceDao.save(resource).getId();
+		Integer resourceId = repositortResourceDao.save(resource).getId();
 		
 		resource = new RepositoryResource();
 		resource.setRepositoryId(projectId);
@@ -681,9 +681,9 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
-		Integer resourceId2 = projectResourceDao.save(resource).getId();
+		Integer resourceId2 = repositortResourceDao.save(resource).getId();
 		
-		List<RepositoryResource> groups = projectResourceService.findParentGroupsByParentPath(projectId, "key1/key2");
+		List<RepositoryResource> groups = repositoryResourceService.findParentGroupsByParentPath(projectId, "key1/key2");
 		assertThat(groups).hasSize(2);
 		assertThat(groups.get(0).getId()).isEqualTo(resourceId);
 		assertThat(groups.get(1).getId()).isEqualTo(resourceId2);
@@ -703,9 +703,9 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
-		projectResourceDao.save(resource).getId();
+		repositortResourceDao.save(resource).getId();
 		
-		assertThat(projectResourceService.findParentGroupsByParentPath(projectId, "key1/key2")).isEmpty();
+		assertThat(repositoryResourceService.findParentGroupsByParentPath(projectId, "key1/key2")).isEmpty();
 	}
 
 	@Test
@@ -729,7 +729,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		Repository savedProject = projectService.createRepository(userInfo, project);
+		Repository savedProject = repositoryService.createRepository(userInfo, project);
 		
 		RepositoryResource resource = new RepositoryResource();
 		resource.setKey("page1");
@@ -740,10 +740,10 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		resource.setCreateUserId(userId);
 		resource.setRepositoryId(savedProject.getId());
 		resource.setParentId(Constant.TREE_ROOT_ID);
-		projectResourceService.insert(savedProject, resource);
+		repositoryResourceService.insert(savedProject, resource);
 		
 		// 有一个未跟踪的文件。
-		List<UncommittedFile> changes = projectResourceService.findChanges(savedProject);
+		List<UncommittedFile> changes = repositoryResourceService.findChanges(savedProject);
 		
 		assertThat(changes).hasSize(1);
 		UncommittedFile file = changes.get(0);
@@ -775,7 +775,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		Repository savedProject = projectService.createRepository(userInfo, project);
+		Repository savedProject = repositoryService.createRepository(userInfo, project);
 		
 		// 有一个未跟踪的文件夹。
 		RepositoryResource resource = new RepositoryResource();
@@ -787,9 +787,9 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		resource.setCreateUserId(userId);
 		resource.setRepositoryId(savedProject.getId());
 		resource.setParentId(Constant.TREE_ROOT_ID);
-		projectResourceService.insert(savedProject, resource);
+		repositoryResourceService.insert(savedProject, resource);
 		
-		List<UncommittedFile> changes = projectResourceService.findChanges(savedProject);
+		List<UncommittedFile> changes = repositoryResourceService.findChanges(savedProject);
 		
 		assertThat(changes).isEmpty();
 	}
@@ -815,7 +815,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		Repository savedProject = projectService.createRepository(userInfo, project);
+		Repository savedProject = repositoryService.createRepository(userInfo, project);
 		
 		// 有一个未跟踪的文件夹。
 		RepositoryResource group1 = new RepositoryResource();
@@ -826,7 +826,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		group1.setCreateUserId(userId);
 		group1.setRepositoryId(savedProject.getId());
 		group1.setParentId(Constant.TREE_ROOT_ID);
-		Integer group1Id = projectResourceService.insert(savedProject, group1).getId();
+		Integer group1Id = repositoryResourceService.insert(savedProject, group1).getId();
 		
 		RepositoryResource group11 = new RepositoryResource();
 		group11.setKey("group11");
@@ -836,7 +836,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		group11.setCreateUserId(userId);
 		group11.setRepositoryId(savedProject.getId());
 		group11.setParentId(group1Id);
-		Integer group11Id = projectResourceService.insert(savedProject, group11).getId();
+		Integer group11Id = repositoryResourceService.insert(savedProject, group11).getId();
 				
 		RepositoryResource page1 = new RepositoryResource();
 		page1.setKey("page111");
@@ -846,10 +846,10 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		page1.setCreateUserId(userId);
 		page1.setRepositoryId(savedProject.getId());
 		page1.setParentId(group11Id);
-		projectResourceService.insert(savedProject, page1);
+		repositoryResourceService.insert(savedProject, page1);
 		
 		// 有一个未跟踪的文件。
-		List<UncommittedFile> changes = projectResourceService.findChanges(savedProject);
+		List<UncommittedFile> changes = repositoryResourceService.findChanges(savedProject);
 		
 		assertThat(changes).hasSize(1);
 		UncommittedFile file = changes.get(0);
@@ -883,7 +883,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		Repository savedProject = projectService.createRepository(userInfo, project);
+		Repository savedProject = repositoryService.createRepository(userInfo, project);
 		
 		RepositoryResource resource = new RepositoryResource();
 		resource.setKey("page1");
@@ -894,11 +894,11 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		resource.setCreateUserId(userId);
 		resource.setRepositoryId(savedProject.getId());
 		resource.setParentId(Constant.TREE_ROOT_ID);
-		projectResourceService.insert(savedProject, resource);
+		repositoryResourceService.insert(savedProject, resource);
 		
-		projectResourceService.stageChanges(savedProject, new String[] {"page1.page.web.json"});
+		repositoryResourceService.stageChanges(savedProject, new String[] {"page1.page.web.json"});
 		// 有一个已跟踪，但未提交的文件。
-		List<UncommittedFile> changes = projectResourceService.findChanges(savedProject);
+		List<UncommittedFile> changes = repositoryResourceService.findChanges(savedProject);
 		
 		assertThat(changes).hasSize(1);
 		
@@ -931,7 +931,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		Repository savedProject = projectService.createRepository(userInfo, project);
+		Repository savedProject = repositoryService.createRepository(userInfo, project);
 		
 		RepositoryResource resource = new RepositoryResource();
 		resource.setKey("page1");
@@ -942,12 +942,12 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		resource.setCreateUserId(userId);
 		resource.setRepositoryId(savedProject.getId());
 		resource.setParentId(Constant.TREE_ROOT_ID);
-		projectResourceService.insert(savedProject, resource);
+		repositoryResourceService.insert(savedProject, resource);
 		
-		projectResourceService.stageChanges(savedProject, new String[] {"page1.page.web.json"});
-		projectResourceService.unstageChanges(savedProject, new String[] {"page1.page.web.json"});
+		repositoryResourceService.stageChanges(savedProject, new String[] {"page1.page.web.json"});
+		repositoryResourceService.unstageChanges(savedProject, new String[] {"page1.page.web.json"});
 		// 有一个已跟踪，但未提交的文件。
-		List<UncommittedFile> changes = projectResourceService.findChanges(savedProject);
+		List<UncommittedFile> changes = repositoryResourceService.findChanges(savedProject);
 		
 		assertThat(changes).hasSize(1);
 		
@@ -980,12 +980,12 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		Repository savedProject = projectService.createRepository(userInfo, project);
+		Repository savedProject = repositoryService.createRepository(userInfo, project);
 		
-		List<UncommittedFile> changes = projectResourceService.findChanges(savedProject);
+		List<UncommittedFile> changes = repositoryResourceService.findChanges(savedProject);
 		assertThat(changes).isEmpty();
 		
-		Assertions.assertThrows(GitEmptyCommitException.class, () -> projectResourceService.commit(userInfo, savedProject, "commit page1"));
+		Assertions.assertThrows(GitEmptyCommitException.class, () -> repositoryResourceService.commit(userInfo, savedProject, "commit page1"));
 	}
 	
 	@Test
@@ -1009,7 +1009,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		Repository savedProject = projectService.createRepository(userInfo, project);
+		Repository savedProject = repositoryService.createRepository(userInfo, project);
 		
 		RepositoryResource resource = new RepositoryResource();
 		resource.setKey("page1");
@@ -1020,15 +1020,15 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		resource.setCreateUserId(userId);
 		resource.setRepositoryId(savedProject.getId());
 		resource.setParentId(Constant.TREE_ROOT_ID);
-		projectResourceService.insert(savedProject, resource);
+		repositoryResourceService.insert(savedProject, resource);
 		
-		projectResourceService.stageChanges(savedProject, new String[] {"page1.page.web.json"});
-		String commitId = projectResourceService.commit(userInfo, savedProject, "commit page1");
+		repositoryResourceService.stageChanges(savedProject, new String[] {"page1.page.web.json"});
+		String commitId = repositoryResourceService.commit(userInfo, savedProject, "commit page1");
 		// 有一个已跟踪，但未提交的文件。
-		List<UncommittedFile> changes = projectResourceService.findChanges(savedProject);
+		List<UncommittedFile> changes = repositoryResourceService.findChanges(savedProject);
 		assertThat(changes).hasSize(0);
 		
-		Optional<RepositoryCommit> commitOption = projectCommitDao.findByRepositoryIdAndBranchAndCommitId(savedProject.getId(), Constants.MASTER, commitId);
+		Optional<RepositoryCommit> commitOption = repositoryCommitDao.findByRepositoryIdAndBranchAndCommitId(savedProject.getId(), Constants.MASTER, commitId);
 		assertThat(commitOption).isPresent();
 	}
 
@@ -1174,9 +1174,9 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		model.setData(Collections.emptyList());
 		model.setFunctions(Collections.emptyList());
 
-		projectResourceService.updatePageModel(null, null, model);
+		repositoryResourceService.updatePageModel(null, null, model);
 		
-		PageModel savedModel = projectResourceService.getPageModel(projectId, pageId);
+		PageModel savedModel = repositoryResourceService.getPageModel(projectId, pageId);
 		
 		assertThat(savedModel).usingRecursiveComparison().isEqualTo(model);
 	}
@@ -1296,9 +1296,9 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		model.setData(Collections.emptyList());
 		model.setFunctions(Collections.emptyList());
 
-		projectResourceService.updatePageModel(null, null, model);
+		repositoryResourceService.updatePageModel(null, null, model);
 		
-		PageModel savedModel = projectResourceService.getPageModel(projectId, pageId);
+		PageModel savedModel = repositoryResourceService.getPageModel(projectId, pageId);
 		
 		// 因为此时的 widgets.properties.id 是在后台生成的 uuid，无法断言，所以忽略掉
 		assertThat(savedModel).usingRecursiveComparison().ignoringFields("widgets.properties.id").isEqualTo(model);
@@ -1452,9 +1452,9 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		// 需要定义一个节点和一个 port（因为事件包含一个输入参数）
 		model.setFunctions(Collections.singletonList(func));
 
-		projectResourceService.updatePageModel(null, null, model);
+		repositoryResourceService.updatePageModel(null, null, model);
 		
-		PageModel savedModel = projectResourceService.getPageModel(projectId, pageId);
+		PageModel savedModel = repositoryResourceService.getPageModel(projectId, pageId);
 		
 		assertThat(savedModel).usingRecursiveComparison().isEqualTo(model);
 	}
@@ -1654,9 +1654,9 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		// 需要定义一个节点和一个 port（因为事件包含一个输入参数）
 		model.setFunctions(Collections.singletonList(func));
 
-		projectResourceService.updatePageModel(null, null, model);
+		repositoryResourceService.updatePageModel(null, null, model);
 		
-		PageModel savedModel = projectResourceService.getPageModel(projectId, pageId);
+		PageModel savedModel = repositoryResourceService.getPageModel(projectId, pageId);
 		
 		assertThat(savedModel).usingRecursiveComparison().ignoringCollectionOrder().isEqualTo(model);
 	}
@@ -1846,9 +1846,9 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		// 需要定义一个节点和一个 port（因为事件包含一个输入参数）
 		model.setFunctions(Collections.singletonList(func));
 
-		projectResourceService.updatePageModel(null, null, model);
+		repositoryResourceService.updatePageModel(null, null, model);
 		
-		PageModel savedModel = projectResourceService.getPageModel(projectId, pageId);
+		PageModel savedModel = repositoryResourceService.getPageModel(projectId, pageId);
 		
 		assertThat(savedModel).usingRecursiveComparison().ignoringCollectionOrder().isEqualTo(model);
 	}
@@ -2065,10 +2065,10 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		// 需要定义一个节点和一个 port（因为事件包含一个输入参数）
 		model.setFunctions(Collections.singletonList(func));
 
-		projectResourceService.updatePageModel(null, null, model);
-		projectResourceService.updatePageModel(null, null, model); // 执行两次，确保之前的数据已彻底删除
+		repositoryResourceService.updatePageModel(null, null, model);
+		repositoryResourceService.updatePageModel(null, null, model); // 执行两次，确保之前的数据已彻底删除
 		
-		PageModel savedModel = projectResourceService.getPageModel(projectId, pageId);
+		PageModel savedModel = repositoryResourceService.getPageModel(projectId, pageId);
 		
 		assertThat(savedModel).usingRecursiveComparison().ignoringCollectionOrder().isEqualTo(model);
 	}
@@ -2169,10 +2169,10 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		
 		model.setWidgets(Collections.singletonList(attachedWidget1));
 		
-		projectResourceService.updatePageModel(null, null, model); // 第一次执行
-		projectResourceService.updatePageModel(null, null, model); // 第二次执行
+		repositoryResourceService.updatePageModel(null, null, model); // 第一次执行
+		repositoryResourceService.updatePageModel(null, null, model); // 第二次执行
 		
-		PageModel savedModel = projectResourceService.getPageModel(projectId, pageId);
+		PageModel savedModel = repositoryResourceService.getPageModel(projectId, pageId);
 		
 		assertThat(savedModel).usingRecursiveComparison().isEqualTo(model);
 	}
@@ -2267,9 +2267,9 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		
 		model.setWidgets(Collections.singletonList(attachedWidget1));
 		
-		projectResourceService.updatePageModel(null, null, model);
+		repositoryResourceService.updatePageModel(null, null, model);
 		
-		PageModel result = projectResourceService.getPageModel(projectId, pageId);
+		PageModel result = repositoryResourceService.getPageModel(projectId, pageId);
 		
 		assertThat(result.getWidgets().get(0).getProperties()).hasSize(1);
 		
@@ -2435,7 +2435,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		ProjectContext context = new ProjectContext("jack", "project", rootFolder.toString());
 		Files.createDirectories(context.getGitRepositoryDirectory());
 		
-		projectResourceService.updatePageModel(project, resource, model);
+		repositoryResourceService.updatePageModel(project, resource, model);
 		
 		ObjectMapper mapper = new ObjectMapper();
 		String mainPageJsonString = Files.readString(context.getGitRepositoryDirectory().resolve(pageKey + ".page.web.json"));
@@ -2467,13 +2467,13 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		model.setWidgets(Collections.emptyList());
 		model.setData(Arrays.asList(item1, item2));
 		
-		projectResourceService.updatePageModel(null, null, model);
+		repositoryResourceService.updatePageModel(null, null, model);
 		
 		// 保存成功后，补上排序号
 		item1.setSeq(1);
 		item2.setSeq(2);
 		
-		PageModel savedModel = projectResourceService.getPageModel(projectId, pageId);
+		PageModel savedModel = repositoryResourceService.getPageModel(projectId, pageId);
 		assertThat(savedModel.getData())
 			.hasSize(2)
 			.usingFieldByFieldElementComparator()
@@ -2486,7 +2486,7 @@ public class ProjectResourceServiceImplTest extends AbstractServiceTest{
 		Integer projectId = 1;
 		Integer pageId = 2;
 		
-		PageModel savedModel = projectResourceService.getPageModel(projectId, pageId);
+		PageModel savedModel = repositoryResourceService.getPageModel(projectId, pageId);
 		assertThat(savedModel.getWidgets()).isEmpty();
 		assertThat(savedModel.getData()).isEmpty();
 		assertThat(savedModel.getFunctions()).isEmpty();
