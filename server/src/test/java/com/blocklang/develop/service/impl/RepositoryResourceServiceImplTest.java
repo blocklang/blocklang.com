@@ -34,7 +34,7 @@ import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.constant.NodeCategory;
 import com.blocklang.develop.constant.NodeLayout;
 import com.blocklang.develop.constant.RepositoryResourceType;
-import com.blocklang.develop.dao.ProjectDependenceDao;
+import com.blocklang.develop.dao.ProjectDependencyDao;
 import com.blocklang.develop.dao.RepositoryCommitDao;
 import com.blocklang.develop.dao.RepositoryResourceDao;
 import com.blocklang.develop.data.UncommittedFile;
@@ -109,7 +109,7 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 	@Autowired
 	private ComponentRepoVersionDao componentRepoVersionDao;
 	@Autowired
-	private ProjectDependenceDao projectDependenceDao;
+	private ProjectDependencyDao projectDependenceDao;
 	
 	@Test
 	public void insert_if_not_set_seq() {

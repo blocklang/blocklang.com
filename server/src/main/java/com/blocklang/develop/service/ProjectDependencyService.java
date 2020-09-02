@@ -28,7 +28,7 @@ public interface ProjectDependencyService {
 	 * 注意：build 依赖中存在 profile
 	 * 
 	 * @param projectId 仓库中某一个项目的标识
-	 * @param buildProfileId build profile 标识，用来区分开不同的目标平台和依赖框架
+	 * @param buildProfileId build profile 标识，用来区分开不同的目标平台和框架
 	 * @param componentRepoId 组件库标识
 	 * @return 只要依赖组件库的任何一个版本，就返回 <code>true</code>；否则返回 <code>false</code>
 	 */

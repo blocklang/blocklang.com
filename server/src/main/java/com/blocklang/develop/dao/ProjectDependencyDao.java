@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.blocklang.develop.model.ProjectDependency;
 
-public interface ProjectDependenceDao extends JpaRepository<ProjectDependency, Integer> {
+public interface ProjectDependencyDao extends JpaRepository<ProjectDependency, Integer> {
 
 	List<ProjectDependency> findAllByProjectIdAndProfileId(Integer projectId, Integer buildProfileId);
 

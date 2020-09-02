@@ -28,9 +28,9 @@ import com.blocklang.release.dao.AppDao;
 import com.blocklang.release.dao.AppReleaseDao;
 import com.blocklang.release.dao.AppReleaseFileDao;
 import com.blocklang.release.dao.AppReleaseRelationDao;
-import com.blocklang.release.dao.GitTagDao;
 import com.blocklang.release.dao.ProjectBuildDao;
 import com.blocklang.release.dao.ProjectReleaseTaskDao;
+import com.blocklang.release.dao.RepositoryTagDao;
 import com.blocklang.release.model.AppRelease;
 import com.blocklang.release.model.AppReleaseFile;
 import com.blocklang.release.model.AppReleaseRelation;
@@ -56,7 +56,7 @@ public class BuildServiceImpl implements BuildService {
 	@Autowired
 	private PropertyService propertyService;
 	@Autowired
-	private GitTagDao gitTagDao;
+	private RepositoryTagDao repositoryTagDao;
 	@Autowired
 	private ProjectBuildDao projectBuildDao;
 	@Autowired
@@ -77,7 +77,7 @@ public class BuildServiceImpl implements BuildService {
 	private RepositoryResourceService projectResourceService;
 	
 	@Override
-	public void build(Repository project, ProjectReleaseTask releaseTask) {
+	public void build(Repository repository, ProjectReleaseTask releaseTask) {
 		StopWatch stopWatch = StopWatch.createStarted();
 
 		// 默认从 11.0.2 开始"
@@ -92,12 +92,12 @@ public class BuildServiceImpl implements BuildService {
 				dataRootPath, 
 				mavenRootPath,
 				templateProjectGitUrl,
-				project.getCreateUserName(),
-				project.getName(),
+				repository.getCreateUserName(),
+				repository.getName(),
 				releaseTask.getVersion(),
-				project.getDescription(),
+				repository.getDescription(),
 				jdkVersion);
-		context.setProjectId(project.getId());
+		context.setProjectId(repository.getId());
 		
 		// 需要存储日志文件名，当读取历史日志时，就可以根据此字段定位到日志文件。
 		releaseTask.setLogFileName(context.getLogFileName());
@@ -109,7 +109,7 @@ public class BuildServiceImpl implements BuildService {
 		context.setTaskId(releaseTask.getId());
 
 		context.info(StringUtils.repeat("=", 60));
-		context.info("开始发布 @{0}/{1} 项目", project.getCreateUserName(), project.getName());
+		context.info("开始发布 @{0}/{1} 项目", repository.getCreateUserName(), repository.getName());
 		
 		boolean success = true;
 		
@@ -169,13 +169,13 @@ public class BuildServiceImpl implements BuildService {
 						// 在数据库中存储 git 标签信息
 						context.info("在数据库中存储 git 标签信息");
 						// 判断数据库中是否已存在标签信息
-						projectTagId = gitTagDao.findByProjectIdAndVersion(project.getId(), releaseTask.getVersion()).map(projectTag -> {
+						projectTagId = repositoryTagDao.findByRepositoryIdAndVersion(repository.getId(), releaseTask.getVersion()).map(projectTag -> {
 							context.info("在数据库表中已存在 {0} 标签信息，开始更新标签信息", context.getTagName());
 							
 							projectTag.setGitTagId(tagId);
 							projectTag.setLastUpdateUserId(releaseTask.getCreateUserId());
 							projectTag.setLastUpdateTime(LocalDateTime.now());
-							Integer savedProjectTagId = gitTagDao.save(projectTag).getId();
+							Integer savedProjectTagId = repositoryTagDao.save(projectTag).getId();
 							
 							context.info("更新完成");
 							return savedProjectTagId;
@@ -183,12 +183,12 @@ public class BuildServiceImpl implements BuildService {
 							context.info("往数据库表中新增 {0} 标签信息", context.getTagName());
 							
 							RepositoryTag projectTag = new RepositoryTag();
-							projectTag.setRepositoryId(project.getId());
+							projectTag.setRepositoryId(repository.getId());
 							projectTag.setVersion(releaseTask.getVersion());
 							projectTag.setGitTagId(tagId);
 							projectTag.setCreateUserId(releaseTask.getCreateUserId());
 							projectTag.setCreateTime(LocalDateTime.now());
-							Integer savedProjectTagId = gitTagDao.save(projectTag).getId();
+							Integer savedProjectTagId = repositoryTagDao.save(projectTag).getId();
 							
 							context.info("新增完成");
 							return savedProjectTagId;
@@ -337,7 +337,7 @@ public class BuildServiceImpl implements BuildService {
 
 		// 构建成功后，存储 APP 发布信息
 		if(success) {
-			saveAppReleaseInfo(project, releaseTask, context);
+			saveAppReleaseInfo(repository, releaseTask, context);
 		}
 		
 		// 更新发布任务的状态

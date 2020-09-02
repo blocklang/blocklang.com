@@ -26,7 +26,7 @@ import com.blocklang.core.service.PropertyService;
 import com.blocklang.core.test.AbstractServiceTest;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.dao.ProjectBuildProfileDao;
-import com.blocklang.develop.dao.ProjectDependenceDao;
+import com.blocklang.develop.dao.ProjectDependencyDao;
 import com.blocklang.develop.data.ProjectDependencyData;
 import com.blocklang.develop.designer.data.Widget;
 import com.blocklang.develop.designer.data.WidgetCategory;
@@ -62,7 +62,7 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 	private PropertyService propertyService;
 	
 	@Autowired
-	private ProjectDependenceDao projectDependenceDao;
+	private ProjectDependencyDao projectDependenceDao;
 	@Autowired
 	private ProjectDependencyService projectDependenceService;
 	@Autowired
@@ -85,8 +85,10 @@ public class ProjectDependenceServiceImplTest extends AbstractServiceTest{
 	private ApiWidgetPropertyDao apiComponentAttrDao;
 	
 	@Test
-	public void dev_dependence_exists_that_not_exists() {
-		assertThat(projectDependenceService.devDependencyExists(1, 1)).isFalse();
+	public void devDependencyExistsThatNotExists() {
+		Integer projectId = 1;
+		Integer componentRepoId = 1;
+		assertThat(projectDependenceService.devDependencyExists(projectId, componentRepoId)).isFalse();
 	}
 	
 	@Test

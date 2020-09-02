@@ -41,7 +41,7 @@ import com.blocklang.release.model.ProjectReleaseTask;
 import com.blocklang.release.model.RepositoryTag;
 import com.blocklang.release.service.BuildService;
 import com.blocklang.release.service.ProjectReleaseTaskService;
-import com.blocklang.release.service.ProjectTagService;
+import com.blocklang.release.service.RepositoryTagService;
 import com.blocklang.release.task.AppBuildContext;
 
 import de.skuzzle.semantic.Version;
@@ -55,7 +55,7 @@ public class ReleaseController {
 	@Autowired
 	private RepositoryService projectService;
 	@Autowired
-	private ProjectTagService projectTagService;
+	private RepositoryTagService projectTagService;
 	@Autowired
 	private ProjectReleaseTaskService projectReleaseTaskService;
 	@Autowired
