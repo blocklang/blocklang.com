@@ -7,19 +7,21 @@
         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
 	<changeSet author="Zhengwei Jin" id="202008301443">
-		<addColumn tableName="project_dependence">
+		<dropPrimaryKey tableName="project_dependence"/>
+		<renameTable newTableName="project_dependency" oldTableName="project_dependence"/>
+		<addPrimaryKey columnNames="dbid" tableName="project_dependency" constraintName="pk_project_dependency" />
+		<renameSequence oldSequenceName="project_dependence_dbid_seq" newSequenceName="project_dependency_dbid_seq"/>
+		<addColumn tableName="project_dependency">
 			<column name="repository_id" remarks="仓库标识" type="int" afterColumn="dbid">
 				<constraints nullable="false" />
 			</column>
 		</addColumn>
-		<renameTable newTableName="project_dependency" oldTableName="project_dependence"/>
 		<createIndex tableName="project_dependency" indexName="idx_project_dependency_on_repo_id">
-			<column name="repository_id"></column>
+			<column name="repository_id" />
 		</createIndex>
 		<dropIndex tableName="project_dependency" indexName="idx_project_dependence_on_project_id"/>
 		<createIndex tableName="project_dependency" indexName="idx_project_dependency_on_project_id">
 			<column name="project_id" />
 		</createIndex>
 	</changeSet>
-
 </databaseChangeLog>
