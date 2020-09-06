@@ -413,10 +413,10 @@ public class ProjectDependencyControllerTest extends AbstractControllerTest{
 		user.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 		
-		ProjectDependency dependence = new ProjectDependency();
-		dependence.setId(10);
-		dependence.setComponentRepoVersionId(2);
-		when(projectDependencyService.save(any())).thenReturn(dependence);
+		ProjectDependency dependency = new ProjectDependency();
+		dependency.setId(10);
+		dependency.setComponentRepoVersionId(2);
+		when(projectDependencyService.save(any(), any(), any())).thenReturn(dependency);
 		
 		AddDependencyParam param = new AddDependencyParam();
 		param.setComponentRepoId(componentRepoId);
@@ -428,13 +428,13 @@ public class ProjectDependencyControllerTest extends AbstractControllerTest{
 			.post("/repos/{owner}/{repoName}/{projectName}/dependencies", owner, repoName, projectName)
 		.then()
 			.statusCode(HttpStatus.SC_CREATED)
-			.body("dependence.id", is(10),
+			.body("dependency.id", is(10),
 					"componentRepo", is(notNullValue()),
 					"componentRepoVersion", is(notNullValue()),
 					"apiRepo", is(notNullValue()),
 					"apiRepoVersion", is(notNullValue()));
 		
-		verify(projectDependencyService).save(any());
+		verify(projectDependencyService).save(any(), any(), any());
 	}
 	
 	@Test
@@ -504,6 +504,7 @@ public class ProjectDependencyControllerTest extends AbstractControllerTest{
 		String projectName = "project1";
 		Integer repositoryId = 1;
 		Integer projectId = 2;
+		AppType appType = AppType.WEB;
 		
 		Repository repository = new Repository();
 		repository.setId(repositoryId);
@@ -512,11 +513,12 @@ public class ProjectDependencyControllerTest extends AbstractControllerTest{
 		
 		RepositoryResource project = new RepositoryResource();
 		project.setId(projectId);
+		project.setAppType(appType);
 		when(repositoryResourceService.findProject(eq(repositoryId), eq(projectName))).thenReturn(Optional.of(project));
 		
 		when(projectDependencyService.findAllConfigDependencies(anyInt())).thenReturn(Collections.emptyList());
-		when(projectDependencyService.findStdDevDependencies(eq(project))).thenReturn(Collections.emptyList());
-		when(projectDependencyService.findStdBuildDependencies(eq(project))).thenReturn(Collections.emptyList());
+		when(projectDependencyService.findStdDevDependencies(eq(projectId), eq(appType))).thenReturn(Collections.emptyList());
+		when(projectDependencyService.findStdBuildDependencies(eq(projectId), eq(appType))).thenReturn(Collections.emptyList());
 		
 		given()
 			.contentType(ContentType.JSON)
@@ -630,7 +632,7 @@ public class ProjectDependencyControllerTest extends AbstractControllerTest{
 			.statusCode(HttpStatus.SC_NO_CONTENT)
 			.body(equalTo(""));
 		
-		verify(projectDependencyService).delete(anyInt());
+		verify(projectDependencyService).delete(eq(repository), eq(project), anyInt());
 	}
 
 	@Test
@@ -740,9 +742,9 @@ public class ProjectDependencyControllerTest extends AbstractControllerTest{
 		user.setId(1);
 		when(userService.findByLoginName(anyString())).thenReturn(Optional.of(user));
 
-		ProjectDependency dependence = new ProjectDependency();
-		dependence.setComponentRepoVersionId(1);
-		when(projectDependencyService.findById(eq(dependencyId))).thenReturn(Optional.of(dependence));
+		ProjectDependency dependency = new ProjectDependency();
+		dependency.setComponentRepoVersionId(1);
+		when(projectDependencyService.findById(eq(dependencyId))).thenReturn(Optional.of(dependency));
 		
 		ComponentRepoVersion version = new ComponentRepoVersion();
 		version.setId(1);
@@ -762,7 +764,7 @@ public class ProjectDependencyControllerTest extends AbstractControllerTest{
 			.body("id", is(1),
 					"version", is("0.2.0"));
 		
-		verify(projectDependencyService).update(any());
+		verify(projectDependencyService).update(eq(repository), eq(project), eq(dependency));
 	}
 
 }
