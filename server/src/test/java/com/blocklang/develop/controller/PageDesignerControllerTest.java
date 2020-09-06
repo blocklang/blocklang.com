@@ -33,6 +33,7 @@ import org.springframework.web.util.NestedServletException;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.test.AbstractControllerTest;
 import com.blocklang.develop.constant.AccessLevel;
+import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.constant.RepositoryResourceType;
 import com.blocklang.develop.data.ProjectDependencyData;
 import com.blocklang.develop.designer.data.PageModel;
@@ -69,7 +70,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		Exception exception = Assertions.assertThrows(NestedServletException.class, () -> given()
 				.contentType(ContentType.JSON)
 				.when()
-					.get("/designer/projects/{projectId}/dependences?repo=api", 1));
+					.get("/designer/projects/{projectId}/dependencies?repo=api", 1));
 		
 		assertThat(exception.getMessage()).endsWith("当前仅支持获取 ide 依赖。");
 	}
@@ -81,7 +82,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/designer/projects/{projectId}/dependences?repo=ide", 1)
+			.get("/designer/projects/{projectId}/dependencies?repo=ide", 1)
 		.then()
 			.statusCode(HttpStatus.SC_NOT_FOUND);
 	}
@@ -105,20 +106,21 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/designer/projects/{projectId}/dependences?repo=ide", projectId)
+			.get("/designer/projects/{projectId}/dependencies?repo=ide", projectId)
 		.then()
 			.statusCode(HttpStatus.SC_FORBIDDEN);
 	}
 	
 	@DisplayName("成功过滤出 IDE 版仓库")
 	@Test
-	public void listProjectDependencesSuccess() {
+	public void listProjectDependenciesSuccess() {
 		Integer repositoryId = 1;
 		Integer projectId = 2;
 		
 		RepositoryResource project = new RepositoryResource();
 		project.setId(projectId);
 		project.setRepositoryId(repositoryId);
+		project.setAppType(AppType.WEB);
 		when(repositoryResourceService.findById(eq(projectId))).thenReturn(Optional.of(project));
 		
 		Repository repository = new Repository();
@@ -145,12 +147,12 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		apiRepo.setId(2);
 		ApiRepoVersion apiRepoVersion = new ApiRepoVersion();
 		ProjectDependencyData data = new ProjectDependencyData(dependence, componentRepo, componentRepoVersion, apiRepo, apiRepoVersion);
-		when(projectDependenceService.findStdDevDependencies(any())).thenReturn(Collections.singletonList(data));
+		when(projectDependenceService.findStdDevDependencies(any(), eq(AppType.WEB))).thenReturn(Collections.singletonList(data));
 
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/designer/projects/{projectId}/dependences?repo=ide", projectId)
+			.get("/designer/projects/{projectId}/dependencies?repo=ide", projectId)
 		.then()
 			.statusCode(HttpStatus.SC_OK)
 			.body("size()", equalTo(1),
@@ -164,40 +166,80 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 	}
 	
 	@Test
-	public void get_project_dependeces_widgets_project_not_exist() {
-		when(repositoryService.findById(anyInt())).thenReturn(Optional.empty());
+	public void getProjectDependenciesWidgetsProjectNotExist() {
+		when(repositoryResourceService.findById(anyInt())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/designer/projects/{projectId}/dependences/widgets", 1)
+			.get("/designer/projects/{projectId}/dependencies/widgets", 1)
 		.then()
 			.statusCode(HttpStatus.SC_NOT_FOUND)
 			.body(equalTo(""));
 	}
 	
 	@Test
-	public void get_project_dependeces_widgets_can_not_read_project() {
-		Repository project = new Repository();
-		project.setId(1);
-		when(repositoryService.findById(anyInt())).thenReturn(Optional.of(project));
+	public void getProjectDependenciesWidgetsRepositoryNotExist() {
+		Integer repositoryId = 1;
+		Integer projectId = 2;
+
+		RepositoryResource project = new RepositoryResource();
+		project.setRepositoryId(repositoryId);
+		project.setId(projectId);
+		
+		when(repositoryResourceService.findById(anyInt())).thenReturn(Optional.of(project));
+		
+		when(repositoryService.findById(anyInt())).thenReturn(Optional.empty());
+		
+		given()
+			.contentType(ContentType.JSON)
+		.when()
+			.get("/designer/projects/{projectId}/dependencies/widgets", 1)
+		.then()
+			.statusCode(HttpStatus.SC_NOT_FOUND)
+			.body(equalTo(""));
+	}
+	
+	@Test
+	public void getProjectDependenciesWidgetsCanNotReadRepository() {
+		Integer repositoryId = 1;
+		Integer projectId = 2;
+
+		RepositoryResource project = new RepositoryResource();
+		project.setRepositoryId(repositoryId);
+		project.setId(projectId);
+		
+		when(repositoryResourceService.findById(anyInt())).thenReturn(Optional.of(project));
+		
+		Repository repository = new Repository();
+		repository.setId(repositoryId);
+		when(repositoryService.findById(anyInt())).thenReturn(Optional.of(repository));
 		
 		when(repositoryPermissionService.canRead(any(), any())).thenReturn(Optional.empty());
 		
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/designer/projects/{projectId}/dependences/widgets", 1)
+			.get("/designer/projects/{projectId}/dependencies/widgets", 1)
 		.then()
 			.statusCode(HttpStatus.SC_FORBIDDEN)
 			.body(equalTo(""));
 	}
 	
 	@Test
-	public void get_project_dependeces_widgets_success() {
-		Repository project = new Repository();
-		project.setId(1);
-		when(repositoryService.findById(anyInt())).thenReturn(Optional.of(project));
+	public void getProjectDependenciesWidgetsSuccess() {
+		Integer repositoryId = 1;
+		Integer projectId = 2;
+
+		RepositoryResource project = new RepositoryResource();
+		project.setRepositoryId(repositoryId);
+		project.setId(projectId);
+		
+		when(repositoryResourceService.findById(anyInt())).thenReturn(Optional.of(project));
+		
+		Repository repository = new Repository();
+		repository.setId(repositoryId);
+		when(repositoryService.findById(anyInt())).thenReturn(Optional.of(repository));
 		
 		when(repositoryPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
 		when(projectDependenceService.findAllWidgets(anyInt())).thenReturn(Collections.emptyList());
@@ -205,7 +247,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		given()
 			.contentType(ContentType.JSON)
 		.when()
-			.get("/designer/projects/{projectId}/dependences/widgets", 1)
+			.get("/designer/projects/{projectId}/dependencies/widgets", 1)
 		.then()
 			.statusCode(HttpStatus.SC_OK)
 			.body(equalTo("[]"));

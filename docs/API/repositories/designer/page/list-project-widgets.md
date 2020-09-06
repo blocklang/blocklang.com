@@ -3,7 +3,7 @@
 查找出项目依赖的 Widget 组件仓库中的 Widget 列表。
 
 ```text
-GET /designer/projects/{projectId}/dependences/widgets
+GET /designer/projects/{projectId}/dependencies/widgets
 ```
 
 ## Parameters

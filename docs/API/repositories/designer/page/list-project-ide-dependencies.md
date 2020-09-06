@@ -7,7 +7,7 @@
 注意：要包含标准库。
 
 ```text
-GET /designer/projects/{projectId}/dependences?repo=ide
+GET /designer/projects/{projectId}/dependencies?repo=ide
 ```
 
 ## Parameters

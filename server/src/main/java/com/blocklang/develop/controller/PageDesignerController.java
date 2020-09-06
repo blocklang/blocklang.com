@@ -49,7 +49,7 @@ import com.blocklang.marketplace.model.ComponentRepo;
 public class PageDesignerController extends AbstractRepositoryController {
 	
 	@Autowired
-	private ProjectDependencyService projectDependenceService;
+	private ProjectDependencyService projectDependencyService;
 	@Autowired
 	private RepositoryResourceService repositoryResourceService;
 	@Autowired
@@ -64,8 +64,8 @@ public class PageDesignerController extends AbstractRepositoryController {
 	 * @param repo
 	 * @return
 	 */
-	@GetMapping("/designer/projects/{projectId}/dependences")
-	public ResponseEntity<List<Dependence>> listProjectDependences(
+	@GetMapping("/designer/projects/{projectId}/dependencies")
+	public ResponseEntity<List<Dependence>> listProjectDependencies(
 			Principal principal,
 			@PathVariable Integer projectId, // 此处的 projectId 就是仓库中的分组 id
 			@RequestParam String repo) {
@@ -82,8 +82,8 @@ public class PageDesignerController extends AbstractRepositoryController {
 		// 但在项目依赖中又分为 dev 和 build 两种依赖，
 		// dev 对应 ide 和 preview 依赖
 		// build 对应 prod 依赖
-		List<ProjectDependencyData> dependences= projectDependenceService.findDevDependencies(projectId);
-		dependences.addAll(projectDependenceService.findStdDevDependencies(projectId, project.getAppType()));
+		List<ProjectDependencyData> dependences= projectDependencyService.findDevDependencies(projectId);
+		dependences.addAll(projectDependencyService.findStdDevDependencies(projectId, project.getAppType()));
 		List<Dependence> result = dependences.stream().map(item -> {
 			Dependence dependence = new Dependence();
 
@@ -108,14 +108,15 @@ public class PageDesignerController extends AbstractRepositoryController {
 	 * 
 	 * @return
 	 */
-	@GetMapping("/designer/projects/{projectId}/dependences/widgets")
-	public ResponseEntity<List<RepoWidgetList>> getProjectDependenceWidgets(
+	@GetMapping("/designer/projects/{projectId}/dependencies/widgets")
+	public ResponseEntity<List<RepoWidgetList>> getProjectDependenciesWidgets(
 			Principal principal,
 			@PathVariable Integer projectId) {
-		Repository project = repositoryService.findById(projectId).orElseThrow(ResourceNotFoundException::new);
-		repositoryPermissionService.canRead(principal, project).orElseThrow(NoAuthorizationException::new);
+		RepositoryResource project = repositoryResourceService.findById(projectId).orElseThrow(ResourceNotFoundException::new);
+		Repository repository = repositoryService.findById(project.getRepositoryId()).orElseThrow(ResourceNotFoundException::new);
+		repositoryPermissionService.canRead(principal, repository).orElseThrow(NoAuthorizationException::new);
 		
-		List<RepoWidgetList> result = projectDependenceService.findAllWidgets(project.getId());
+		List<RepoWidgetList> result = projectDependencyService.findAllWidgets(project.getId());
 		return ResponseEntity.ok(result);
 	}
 	

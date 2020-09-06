@@ -8,7 +8,7 @@
 6. [用户管理](user.md)
 7. [组件](component.md)
 8. [客户端 API](client_api.md)
-9. [项目的依赖](dependence.md)
+9. [项目的依赖](dependency.md)
 10. [页面](page.md)
 11. [设计器](designer.md)
 12. [代码生成](codemods.md)

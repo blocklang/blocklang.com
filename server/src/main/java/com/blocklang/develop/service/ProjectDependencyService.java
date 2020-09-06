@@ -81,7 +81,7 @@ public interface ProjectDependencyService {
 	/**
 	 * 从 API 项目中找出 Widget 类型的项目，然后分组罗列其中的部件
 	 * 
-	 * @param projectId 项目标识
+	 * @param projectId 项目标识，注意不是仓库标识
 	 * @return 先按仓库分组，在根据 category 分组的部件列表
 	 */
 	List<RepoWidgetList> findAllWidgets(Integer projectId);
