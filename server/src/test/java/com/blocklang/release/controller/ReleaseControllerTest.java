@@ -633,7 +633,7 @@ public class ReleaseControllerTest extends AbstractControllerTest{
 		Path logFilePath = new AppBuildContext.LogPathBuilder()
 				.setDataRootPath(dataRootDirectory.toString())
 				.setOwner("jack")
-				.setProjectName("demo_project")
+				.setRepoName("demo_project")
 				.setLogFileName("get_a_release_log_success.log")
 				.build()
 				.getLogFilePath();

@@ -82,8 +82,8 @@ public class PageDesignerController extends AbstractRepositoryController {
 		// 但在项目依赖中又分为 dev 和 build 两种依赖，
 		// dev 对应 ide 和 preview 依赖
 		// build 对应 prod 依赖
-		List<ProjectDependencyData> dependences= projectDependenceService.findIdeDependencies(project);
-		dependences.addAll(projectDependenceService.findStdIdeDependencies(project));
+		List<ProjectDependencyData> dependences= projectDependenceService.findDevDependencies(projectId);
+		dependences.addAll(projectDependenceService.findStdDevDependencies(projectId, project.getAppType()));
 		List<Dependence> result = dependences.stream().map(item -> {
 			Dependence dependence = new Dependence();
 
@@ -100,34 +100,6 @@ public class PageDesignerController extends AbstractRepositoryController {
 			return dependence;
 		}).collect(Collectors.toList());
 		return ResponseEntity.ok(result);
-		
-//		Repository project = repositoryService.findById(projectId).orElseThrow(ResourceNotFoundException::new);
-//		repositoryPermissionService.canRead(principal, project).orElseThrow(NoAuthorizationException::new);
-//
-//		String stdIdeWidgetGitUrl = propertyService.findStringValue(CmPropKey.STD_WIDGET_IDE_GIT_URL)
-//				.orElseThrow(ResourceNotFoundException::new);
-//		
-//		List<Dependence> result = projectDependenceService
-//				.findProjectDependences(project.getId(), true)
-//				.stream()
-//				.filter(item -> item.getComponentRepo().getRepoType().equals(RepoType.IDE))
-//				.map(item -> {
-//					Dependence dependence = new Dependence();
-//
-//					ComponentRepo componentRepo = item.getComponentRepo();
-//					dependence.setId(componentRepo.getId());
-//					dependence.setGitRepoWebsite(componentRepo.getGitRepoWebsite());
-//					dependence.setGitRepoOwner(componentRepo.getGitRepoOwner());
-//					dependence.setGitRepoName(componentRepo.getGitRepoName());
-//					dependence.setCategory(componentRepo.getCategory().getValue());
-//					dependence.setStd(stdIdeWidgetGitUrl.equals(componentRepo.getGitRepoUrl()));
-//					dependence.setVersion(item.getComponentRepoVersion().getVersion());
-//					dependence.setApiRepoId(item.getApiRepo().getId());
-//					
-//					return dependence;
-//				})
-//				.collect(Collectors.toList());
-//		return ResponseEntity.ok(result);
 	}
 	
 	/**

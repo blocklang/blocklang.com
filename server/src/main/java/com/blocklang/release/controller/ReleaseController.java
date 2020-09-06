@@ -221,7 +221,7 @@ public class ReleaseController {
 			logFilePath = new AppBuildContext.LogPathBuilder()
 					.setDataRootPath(dataRootPath)
 					.setOwner(owner)
-					.setProjectName(projectName)
+					.setRepoName(projectName)
 					.setLogFileName(task.getLogFileName())
 					.build()
 					.getLogFilePath();

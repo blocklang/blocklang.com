@@ -34,19 +34,13 @@ import com.blocklang.develop.dao.RepositoryDao;
 import com.blocklang.develop.dao.RepositoryFileDao;
 import com.blocklang.develop.dao.RepositoryResourceDao;
 import com.blocklang.develop.data.GitCommitInfo;
-import com.blocklang.develop.designer.data.PageModel;
 import com.blocklang.develop.model.Repository;
 import com.blocklang.develop.model.RepositoryAuthorization;
 import com.blocklang.develop.model.RepositoryCommit;
-import com.blocklang.develop.model.ProjectContext;
+import com.blocklang.develop.model.RepositoryContext;
 import com.blocklang.develop.model.RepositoryFile;
 import com.blocklang.develop.model.RepositoryResource;
-import com.blocklang.develop.service.RepositoryResourceService;
 import com.blocklang.develop.service.RepositoryService;
-import com.blocklang.release.dao.AppDao;
-import com.blocklang.release.model.App;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class RepositoryServiceImpl implements RepositoryService {
@@ -56,8 +50,6 @@ public class RepositoryServiceImpl implements RepositoryService {
 	@Autowired
 	private RepositoryDao repositoryDao;
 	@Autowired
-	private AppDao appDao;
-	@Autowired
 	private RepositoryFileDao repositoryFileDao;
 	@Autowired
 	private RepositoryAuthorizationDao repositoryAuthorizationDao;
@@ -65,8 +57,6 @@ public class RepositoryServiceImpl implements RepositoryService {
 	private RepositoryCommitDao repositoryCommitDao;
 	@Autowired
 	private PropertyService propertyService;
-	@Autowired
-	private RepositoryResourceService repositoryResourceService;
 	@Autowired
 	private RepositoryResourceDao repositoryResourceDao;
 	
@@ -167,7 +157,7 @@ public class RepositoryServiceImpl implements RepositoryService {
 	// 2. 创建一个 BUILD.json 文件
 	private void createGitRepository(UserInfo user, Repository repository, Map<String, String> files) {
 		propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).ifPresent(rootDir -> {
-			ProjectContext context = new ProjectContext(user.getLoginName(), repository.getName(), rootDir);
+			RepositoryContext context = new RepositoryContext(user.getLoginName(), repository.getName(), rootDir);
 			try {
 				String commitMessage = "First Commit";
 				String commitId = GitUtils
@@ -315,7 +305,7 @@ public class RepositoryServiceImpl implements RepositoryService {
 	@Override
 	public Optional<GitCommitInfo> findLatestCommitInfo(Repository repository, String relativeFilePath) {
 		Optional<GitCommitInfo> commitOption = propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).map(rootDir -> {
-			ProjectContext context = new ProjectContext(repository.getCreateUserName(), repository.getName(), rootDir);
+			RepositoryContext context = new RepositoryContext(repository.getCreateUserName(), repository.getName(), rootDir);
 			RevCommit commit = GitUtils.getLatestCommit(context.getGitRepositoryDirectory(), Objects.toString(relativeFilePath, ""));
 			if(commit == null) {
 				return null;

@@ -106,7 +106,7 @@ public class ProjectDependencyController extends AbstractRepositoryController{
 				project.getId(), 
 				RepositoryResourceType.DEPENDENCE, 
 				project.getAppType(),
-				RepositoryResource.DEPENDENCE_KEY).orElseThrow(ResourceNotFoundException::new);
+				RepositoryResource.DEPENDENCY_KEY).orElseThrow(ResourceNotFoundException::new);
 		
 		Map<String, Object> result = new HashMap<String, Object>();
 		result.put("resourceId", resource.getId());
@@ -183,7 +183,7 @@ public class ProjectDependencyController extends AbstractRepositoryController{
 		projectDependency.setCreateUserId(user.getId());
 		projectDependency.setCreateTime(LocalDateTime.now());
 		
-		ProjectDependency savedProjectDependency = projectDependencyService.save(projectDependency);
+		ProjectDependency savedProjectDependency = projectDependencyService.save(repository, project, projectDependency);
 		ProjectDependencyData result = new ProjectDependencyData(savedProjectDependency, componentRepo, componentRepoVersion, apiRepo, apiRepoVersion);
 		return new ResponseEntity<ProjectDependencyData>(result, HttpStatus.CREATED);
 	}
@@ -200,8 +200,8 @@ public class ProjectDependencyController extends AbstractRepositoryController{
 		
 		List<ProjectDependencyData> result = projectDependencyService.findAllConfigDependencies(project.getId());
 		// 获取标准库
-		result.addAll(projectDependencyService.findStdIdeDependencies(project));
-		result.addAll(projectDependencyService.findStdBuildDependencies(project));
+		result.addAll(projectDependencyService.findStdDevDependencies(project.getId(), project.getAppType()));
+		result.addAll(projectDependencyService.findStdBuildDependencies(project.getId(), project.getAppType()));
 		
 		return ResponseEntity.ok(result);
 	}
@@ -218,11 +218,11 @@ public class ProjectDependencyController extends AbstractRepositoryController{
 		}
 		Repository repository = repositoryService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
 		repositoryPermissionService.canWrite(principal, repository).orElseThrow(NoAuthorizationException::new);
-		repositoryResourceService.findProject(repository.getId(), projectName).orElseThrow(ResourceNotFoundException::new);
+		RepositoryResource project = repositoryResourceService.findProject(repository.getId(), projectName).orElseThrow(ResourceNotFoundException::new);
 		
 		// FIXME: 是否有必要添加 try，如果需要，则用测试用例确认。
 		try {
-			projectDependencyService.delete(dependencyId);
+			projectDependencyService.delete(repository, project, dependencyId);
 		}catch (EmptyResultDataAccessException e) {
 			logger.warn("该依赖已不存在", e);
 		}
@@ -242,14 +242,14 @@ public class ProjectDependencyController extends AbstractRepositoryController{
 		}
 		Repository repository = repositoryService.find(owner, repoName).orElseThrow(ResourceNotFoundException::new);
 		repositoryPermissionService.canWrite(principal, repository).orElseThrow(NoAuthorizationException::new);
-		repositoryResourceService.findProject(repository.getId(), projectName).orElseThrow(ResourceNotFoundException::new);
+		RepositoryResource project = repositoryResourceService.findProject(repository.getId(), projectName).orElseThrow(ResourceNotFoundException::new);
 		
 		UserInfo user = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
 		ProjectDependency dependency = projectDependencyService.findById(dependencyId).orElseThrow(ResourceNotFoundException::new);
 		dependency.setComponentRepoVersionId(param.getComponentRepoVersionId());
 		dependency.setLastUpdateTime(LocalDateTime.now());
 		dependency.setLastUpdateUserId(user.getId());
-		projectDependencyService.update(dependency);
+		projectDependencyService.update(repository, project, dependency);
 		ComponentRepoVersion result = componentRepoVersionService.findById(param.getComponentRepoVersionId()).orElseThrow(ResourceNotFoundException::new);
 		// 因为这里只是版本更新，所以只返回组件仓库的版本信息
 		return new ResponseEntity<ComponentRepoVersion>(result, HttpStatus.CREATED);

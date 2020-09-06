@@ -3,12 +3,19 @@ package com.blocklang.develop.service;
 import java.util.List;
 import java.util.Optional;
 
+import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.data.ProjectDependencyData;
 import com.blocklang.develop.designer.data.RepoWidgetList;
 import com.blocklang.develop.model.ProjectDependency;
+import com.blocklang.develop.model.Repository;
 import com.blocklang.develop.model.RepositoryResource;
-import com.blocklang.marketplace.model.ComponentRepo;
 
+/**
+ * 在 DENPENDENCY.json 文件中，将依赖分为两种： dev 和 build
+ * 
+ * @author jinzw
+ *
+ */
 public interface ProjectDependencyService {
 
 	/**
@@ -34,46 +41,7 @@ public interface ProjectDependencyService {
 	 */
 	Boolean buildDependencyExists(Integer projectId, Integer buildProfileId, Integer componentRepoId);
 
-	/**
-	 * 本方法会将依赖添加到默认的 Profile 下
-	 * 
-	 * @param projectId
-	 * @param componentRepo
-	 * @param user
-	 * @return 如果保存失败则返回 <code>null</code>；否则返回保存后的项目依赖信息
-	 * 
-	 * @deprecated
-	 */
-	ProjectDependency save(Integer repoId, Integer projectId, ComponentRepo componentRepo, Integer createUserId);
-	
-	ProjectDependency save(ProjectDependency dependency);
-
-	/**
-	 * 补充上系统使用的标准库的依赖
-	 * 
-	 * @param repoId 仓库标识
-	 * @param project 仓库中的项目信息
-	 * @return 指定项目的所有依赖，包括标准库
-	 */
-	List<ProjectDependency> findAllByProjectId(Integer repoId, RepositoryResource project);
-	
-	/**
-	 * 注意：返回的依赖中不包含标准库，相当于 {@code this.findProjectDependences(projectId, false)}
-	 * 
-	 * @param projectId
-	 * @return
-	 */
-	List<ProjectDependencyData> findProjectDependencies(Integer repoId, Integer projectId);
-	
-	List<ProjectDependencyData> findProjectBuildDependencies(Integer projectId);
-	
-	/**
-	 * 获取项目的 IDE 依赖，不包含标准库依赖。
-	 * 
-	 * @param project 项目信息
-	 * @return 子项目的依赖列表
-	 */
-	List<ProjectDependencyData> findIdeDependencies(RepositoryResource project);
+	ProjectDependency save(Repository repository, RepositoryResource project, ProjectDependency dependency);
 
 	/**
 	 * 返回子项目所有配置的依赖列表。不包含标准库依赖
@@ -84,19 +52,29 @@ public interface ProjectDependencyService {
 	 * @return 子项目的依赖列表
 	 */
 	List<ProjectDependencyData> findAllConfigDependencies(Integer projectId);
+	
+	/**
+	 * 获取项目的 IDE 依赖，不包含标准库依赖。
+	 * 
+	 * 判断依据是，projectBuildProfileId 的值为 null，则是 IDE 依赖（即 dev 依赖）；如果 projectBuildProfileId 的值不为 null，则是 PROD 依赖（即BUILD依赖）
+	 * 
+	 * @param projectId 项目标识
+	 * @return 子项目的依赖列表
+	 */
+	List<ProjectDependencyData> findDevDependencies(Integer projectId);
 
 	/**
 	 * 获取项目的 IDE 版标准库依赖
-	 * @param project 项目信息
+	 * @param projectId 项目信息标识
 	 * @return 子项目的依赖列表
 	 */
-	List<ProjectDependencyData> findStdIdeDependencies(RepositoryResource project);
+	List<ProjectDependencyData> findStdDevDependencies(Integer projectId, AppType appType);
 	
-	List<ProjectDependencyData> findStdBuildDependencies(RepositoryResource project);
+	List<ProjectDependencyData> findStdBuildDependencies(Integer projectId, AppType appType);
 
-	void delete(Integer dependenceId);
+	void delete(Repository repository, RepositoryResource project, Integer dependencyId);
 
-	ProjectDependency update(ProjectDependency dependency);
+	ProjectDependency update(Repository repository, RepositoryResource project, ProjectDependency dependency);
 
 	Optional<ProjectDependency> findById(Integer dependencyId);
 

@@ -77,7 +77,7 @@ import com.blocklang.develop.model.PageWidget;
 import com.blocklang.develop.model.PageWidgetAttrValue;
 import com.blocklang.develop.model.Repository;
 import com.blocklang.develop.model.RepositoryCommit;
-import com.blocklang.develop.model.ProjectContext;
+import com.blocklang.develop.model.RepositoryContext;
 import com.blocklang.develop.model.RepositoryResource;
 import com.blocklang.develop.service.ProjectDependencyService;
 import com.blocklang.develop.service.RepositoryResourceService;
@@ -173,7 +173,7 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 		String relativeDir = parentResourceId == Constant.TREE_ROOT_ID ? null: String.join("/", this.findParentPathes(parentResourceId));
 		
 		propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).map(rootDir -> {
-			return new ProjectContext(project.getCreateUserName(), project.getName(), rootDir).getGitRepositoryDirectory();
+			return new RepositoryContext(project.getCreateUserName(), project.getName(), rootDir).getGitRepositoryDirectory();
 		}).ifPresent(rootPath -> {
 			Path path = rootPath;
 			if(StringUtils.isNotBlank(relativeDir)) {
@@ -217,18 +217,18 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 		
 		String relativeDir = parentResourceId == Constant.TREE_ROOT_ID ? "": String.join("/", this.findParentPathes(parentResourceId));
 		
-		Optional<ProjectContext> projectContext = propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).map(rootDir -> {
-			return new ProjectContext(project.getCreateUserName(), project.getName(), rootDir);
+		Optional<RepositoryContext> RepositoryContext = propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).map(rootDir -> {
+			return new RepositoryContext(project.getCreateUserName(), project.getName(), rootDir);
 		});
 				
-		List<GitFileInfo> files = projectContext
+		List<GitFileInfo> files = RepositoryContext
 				.map(context -> GitUtils.getFiles(context.getGitRepositoryDirectory(), relativeDir))
 				.orElse(new ArrayList<GitFileInfo>());
 		// 根据文件名关联
 		// fileMap 的 key 不包含父目录
 		Map<String, GitFileInfo> fileMap = files.stream().collect(Collectors.toMap(GitFileInfo::getName, Function.identity()));
 		// fileStatusMap 的 key 中包含父目录，所有父目录
-		Map<String, GitFileStatus> fileStatusMap = projectContext
+		Map<String, GitFileStatus> fileStatusMap = RepositoryContext
 				.map(context -> GitUtils.status(context.getGitRepositoryDirectory(), relativeDir))
 				.orElse(Collections.emptyMap());
 		
@@ -451,7 +451,7 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 	@Override
 	public List<UncommittedFile> findChanges(Repository project) {
 		Map<String, GitFileStatus> fileStatusMap = propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)
-				.map(rootDir -> new ProjectContext(project.getCreateUserName(), project.getName(), rootDir))
+				.map(rootDir -> new RepositoryContext(project.getCreateUserName(), project.getName(), rootDir))
 				.map(context -> GitUtils.status(context.getGitRepositoryDirectory(), ""))
 				.orElse(Collections.emptyMap());
 		
@@ -466,7 +466,7 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 			if(filePath.equalsIgnoreCase(RepositoryResource.README_NAME)) {
 				return true;
 			}
-			if(filePath.equalsIgnoreCase(RepositoryResource.DEPENDENCE_NAME)) {
+			if(filePath.equalsIgnoreCase(RepositoryResource.DEPENDENCY_NAME)) {
 				return true;
 			}
 			
@@ -498,11 +498,11 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 				appType = AppType.UNKNOWN;
 				resourceKey = RepositoryResource.README_KEY;
 				parentPath = "";
-			} else if(filePath.equalsIgnoreCase(RepositoryResource.DEPENDENCE_NAME)) {
+			} else if(filePath.equalsIgnoreCase(RepositoryResource.DEPENDENCY_NAME)) {
 				// DEPENDENCE.json 文件只存在于根目录
 				resourceType = RepositoryResourceType.DEPENDENCE;
 				appType = AppType.UNKNOWN;
-				resourceKey = RepositoryResource.DEPENDENCE_KEY;
+				resourceKey = RepositoryResource.DEPENDENCY_KEY;
 				parentPath = "";
 			}
 			
@@ -554,7 +554,7 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 	public void stageChanges(Repository project, String[] filePathes) {
 		propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)
 		.ifPresent(rootDir -> {
-			ProjectContext context = new ProjectContext(project.getCreateUserName(), project.getName(), rootDir);
+			RepositoryContext context = new RepositoryContext(project.getCreateUserName(), project.getName(), rootDir);
 			GitUtils.add(context.getGitRepositoryDirectory(), filePathes);
 		});
 	}
@@ -563,7 +563,7 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 	public void unstageChanges(Repository project, String[] filePathes) {
 		propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)
 		.ifPresent(rootDir -> {
-			ProjectContext context = new ProjectContext(project.getCreateUserName(), project.getName(), rootDir);
+			RepositoryContext context = new RepositoryContext(project.getCreateUserName(), project.getName(), rootDir);
 			GitUtils.reset(context.getGitRepositoryDirectory(), filePathes);
 		});
 	}
@@ -572,7 +572,7 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 	public String commit(UserInfo user, Repository project, String commitMessage) {
 		String commitId = propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)
 			.map(rootDir -> {
-				ProjectContext context = new ProjectContext(project.getCreateUserName(), project.getName(), rootDir);
+				RepositoryContext context = new RepositoryContext(project.getCreateUserName(), project.getName(), rootDir);
 				return GitUtils.commit(context.getGitRepositoryDirectory(), user.getLoginName(), user.getEmail(), commitMessage);
 			}).orElse(null);
 		
@@ -779,7 +779,7 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 		String relativeDir = parentResourceId == Constant.TREE_ROOT_ID ? null: String.join("/", this.findParentPathes(parentResourceId));
 		
 		propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).map(rootDir -> {
-			return new ProjectContext(user.getLoginName(), project.getName(), rootDir).getGitRepositoryDirectory();
+			return new RepositoryContext(user.getLoginName(), project.getName(), rootDir).getGitRepositoryDirectory();
 		}).ifPresent(rootPath -> {
 			Path path = rootPath;
 			if(StringUtils.isNotBlank(relativeDir)) {
@@ -1193,7 +1193,7 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 
 		// 在 git 仓库中添加文件
 		propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).ifPresent(rootDir -> {
-			ProjectContext context = new ProjectContext(repository.getCreateUserName(), repository.getName(), rootDir);
+			RepositoryContext context = new RepositoryContext(repository.getCreateUserName(), repository.getName(), rootDir);
 			
 			Path projectDir = context
 					.getGitRepositoryDirectory()
@@ -1291,8 +1291,8 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 	private RepositoryResource createDependenceFile(Repository repository, RepositoryResource project) {
 		RepositoryResource dependence = new RepositoryResource();
 		dependence.setRepositoryId(repository.getId());
-		dependence.setKey(RepositoryResource.DEPENDENCE_KEY);
-		dependence.setName(RepositoryResource.DEPENDENCE_NAME);
+		dependence.setKey(RepositoryResource.DEPENDENCY_KEY);
+		dependence.setName(RepositoryResource.DEPENDENCY_NAME);
 		dependence.setResourceType(RepositoryResourceType.DEPENDENCE);
 		dependence.setAppType(project.getAppType());
 		dependence.setParentId(project.getId());
@@ -1369,7 +1369,7 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 
 		// 在 git 仓库中添加文件
 		propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).ifPresent(rootDir -> {
-			ProjectContext context = new ProjectContext(repository.getCreateUserName(), repository.getName(), rootDir);
+			RepositoryContext context = new RepositoryContext(repository.getCreateUserName(), repository.getName(), rootDir);
 			
 			Path projectDir = context
 					.getGitRepositoryDirectory()

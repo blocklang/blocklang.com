@@ -17,13 +17,13 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.util.Assert;
 
-import com.blocklang.develop.model.ProjectContext;
+import com.blocklang.develop.model.RepositoryContext;
 import com.blocklang.release.constant.ReleaseResult;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
 
 import de.skuzzle.semantic.Version;
 
-public class AppBuildContext extends ProjectContext{
+public class AppBuildContext extends RepositoryContext{
 	
 	private static final Logger logger = LoggerFactory.getLogger(AppBuildContext.class);
 
@@ -94,7 +94,7 @@ public class AppBuildContext extends ProjectContext{
 	}
 
 	private Path getProjectRootDirectory() {
-		return Paths.get(this.dataRootPath, "projects", this.owner, this.projectName);
+		return Paths.get(this.dataRootPath, "projects", this.owner, this.repoName);
 	}
 	
 	private Path getProjectRootSourceDirectory() {
@@ -131,13 +131,13 @@ public class AppBuildContext extends ProjectContext{
 		return Paths.get("com", 
 				"blocklang", 
 				this.owner, 
-				this.projectName,
+				this.repoName,
 				this.version,
 				this.getMavenInstallJarFileName());
 	}
 
 	public String getMavenInstallJarFileName() {
-		return this.projectName + "-" + this.version + ".jar";
+		return this.repoName + "-" + this.version + ".jar";
 	}
 	
 	public void setLogFileName(String logFileName) {
@@ -158,7 +158,7 @@ public class AppBuildContext extends ProjectContext{
 		if(startLogTime == null) {
 			startLogTime = LocalDateTime.now();
 		}
-		return this.projectName + 
+		return this.repoName + 
 			"-" + 
 			this.version + 
 			"-" + 
@@ -360,7 +360,7 @@ public class AppBuildContext extends ProjectContext{
 
 		private String dataRootPath;
 		private String owner;
-		private String projectName;
+		private String repoName;
 		private String logFileName;
 		
 		public LogPathBuilder setDataRootPath(String dataRootPath) {
@@ -371,8 +371,8 @@ public class AppBuildContext extends ProjectContext{
 			this.owner = owner;
 			return this;
 		}
-		public LogPathBuilder setProjectName(String projectName) {
-			this.projectName = projectName;
+		public LogPathBuilder setRepoName(String repoName) {
+			this.repoName = repoName;
 			return this;
 		}
 		public LogPathBuilder setLogFileName(String logFileName) {
@@ -383,13 +383,13 @@ public class AppBuildContext extends ProjectContext{
 		public AppBuildContext build() {
 			Assert.hasText(dataRootPath, "存放项目数据的根路径不能为空");
 			Assert.hasText(owner, "项目拥有者的登录名不能为空");
-			Assert.hasText(projectName, "项目名不能为空");
+			Assert.hasText(repoName, "仓库名不能为空");
 			Assert.hasText(logFileName, "日志文件名不能为空");
 			
 			AppBuildContext context = new AppBuildContext();
 			context.setDataRootPath(dataRootPath);
 			context.setOwner(owner);
-			context.setProjectName(projectName);
+			context.setRepoName(repoName);
 			context.setLogFileName(logFileName);
 			
 			return context;

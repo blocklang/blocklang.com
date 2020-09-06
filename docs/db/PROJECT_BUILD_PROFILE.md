@@ -25,4 +25,4 @@
 2. `profile_name` 默认会为每个 `build_target` 生成一个名为 `default` 的 profile，并且不能修改此名
 3. `repository_id` 是冗余字段，方便查出一个仓库中所有项目信息
 4. `project_id` 是冗余字段，方便查出一个项目中所有的 PROD 依赖库的构建配置信息
-5. 当 `app_type` 为 `小程序` 时，`build_target` 的值为：`weapp` 表示 `微信小程序`，`swan` 表示 `百度小程序`，`alipay` 表示 `支付宝小程序`，`tt` 表示 `字节跳动小程序`，`qq` 表示 `QQ小程序`，`jd` 表示 `京东小程序`，`quickapp` 表示 `快应用`
+5. `app_type` 是个冗余字段，当 `app_type` 为 `小程序` 时，`build_target` 的值为：`weapp` 表示 `微信小程序`，`swan` 表示 `百度小程序`，`alipay` 表示 `支付宝小程序`，`tt` 表示 `字节跳动小程序`，`qq` 表示 `QQ小程序`，`jd` 表示 `京东小程序`，`quickapp` 表示 `快应用`

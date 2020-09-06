@@ -6,45 +6,45 @@ import java.nio.file.Paths;
 import org.springframework.util.Assert;
 
 /**
- * 项目级上下文
+ * 仓库级上下文
  * 
  * @author Zhengwei Jin
  *
  */
-public class ProjectContext extends AppGlobalContext{
+public class RepositoryContext extends AppGlobalContext{
 	
 	private static final String GIT_REPO_ROOT_PATH = "gitRepo";
 
 	private Integer projectId;
 	protected String owner;
-	protected String projectName;
+	protected String repoName;
 	protected String description;
 	
-	protected ProjectContext() { }
+	protected RepositoryContext() { }
 	
-	public ProjectContext(String projectName, String dataRootPath) {
+	public RepositoryContext(String repoName, String dataRootPath) {
 		super(dataRootPath);
-		Assert.hasLength(projectName, "项目名不能为空");
+		Assert.hasLength(repoName, "仓库名不能为空");
 		
-		this.projectName = projectName;
+		this.repoName = repoName;
 		this.dataRootPath = dataRootPath;
 	}
 	
-	public ProjectContext(String owner, String projectName, String dataRootPath) {
-		this(projectName, dataRootPath);
+	public RepositoryContext(String owner, String repoName, String dataRootPath) {
+		this(repoName, dataRootPath);
 		Assert.hasLength(owner, "项目拥有者的登录名不能为空");
 		
 		this.owner = owner;
 	}
 	
-	public ProjectContext(String owner, String projectName, String description, String dataRootPath) {
-		this(owner, projectName, dataRootPath);
+	public RepositoryContext(String owner, String repoName, String description, String dataRootPath) {
+		this(owner, repoName, dataRootPath);
 		
 		this.description = description;
 	}
 
 	public Path getGitRepositoryDirectory() {
-		return Paths.get(this.dataRootPath, GIT_REPO_ROOT_PATH, this.owner, this.projectName);
+		return Paths.get(this.dataRootPath, GIT_REPO_ROOT_PATH, this.owner, this.repoName);
 	}
 
 	public Integer getProjectId() {
@@ -59,16 +59,16 @@ public class ProjectContext extends AppGlobalContext{
 		this.owner = owner;
 	}
 
-	protected void setProjectName(String projectName) {
-		this.projectName = projectName;
-	}
-
 	public String getOwner() {
 		return owner;
 	}
+	
+	public String getRepoName() {
+		return repoName;
+	}
 
-	public String getProjectName() {
-		return projectName;
+	public void setRepoName(String repoName) {
+		this.repoName = repoName;
 	}
 
 	public String getDescription() {

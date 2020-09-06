@@ -127,7 +127,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		
 		when(repositoryPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
 		
-		when(projectDependenceService.findIdeDependencies(any())).thenReturn(new ArrayList<ProjectDependencyData>());
+		when(projectDependenceService.findDevDependencies(any())).thenReturn(new ArrayList<ProjectDependencyData>());
 		
 		ProjectDependency dependence = new ProjectDependency();
 		ComponentRepo componentRepo = new ComponentRepo();
@@ -145,7 +145,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		apiRepo.setId(2);
 		ApiRepoVersion apiRepoVersion = new ApiRepoVersion();
 		ProjectDependencyData data = new ProjectDependencyData(dependence, componentRepo, componentRepoVersion, apiRepo, apiRepoVersion);
-		when(projectDependenceService.findStdIdeDependencies(any())).thenReturn(Collections.singletonList(data));
+		when(projectDependenceService.findStdDevDependencies(any())).thenReturn(Collections.singletonList(data));
 
 		given()
 			.contentType(ContentType.JSON)

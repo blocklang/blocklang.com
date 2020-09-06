@@ -51,7 +51,7 @@ public class ProjectModelWriteTask extends AbstractTask {
 		appBuildContext.info("开始生成 project.json 文件");
 		// 生成 project.json 文件
 		Map<String, String> project = new HashMap<String, String>();
-		project.put("name", appBuildContext.getProjectName());
+		project.put("name", appBuildContext.getRepoName());
 		project.put("label", appBuildContext.getDescription());
 		project.put("version", appBuildContext.getVersion());
 		try {

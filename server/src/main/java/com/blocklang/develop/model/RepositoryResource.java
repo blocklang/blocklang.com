@@ -52,8 +52,8 @@ public class RepositoryResource extends PartialOperateFields{
 	public static final String BUILD_NAME = "BUILD.json";
 	public static final Integer BUILD_SEQ = 2;
 	
-	public static final String DEPENDENCE_KEY = "DEPENDENCE";
-	public static final String DEPENDENCE_NAME = "DEPENDENCE.json";
+	public static final String DEPENDENCY_KEY = "DEPENDENCY";
+	public static final String DEPENDENCY_NAME = "DEPENDENCY.json";
 
 	@Column(name = "repository_id", nullable = false)
 	private Integer repositoryId;

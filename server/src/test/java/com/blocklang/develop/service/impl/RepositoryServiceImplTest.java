@@ -34,9 +34,9 @@ import com.blocklang.develop.dao.RepositoryDao;
 import com.blocklang.develop.dao.RepositoryFileDao;
 import com.blocklang.develop.dao.RepositoryResourceDao;
 import com.blocklang.develop.data.GitCommitInfo;
-import com.blocklang.develop.model.ProjectContext;
 import com.blocklang.develop.model.Repository;
 import com.blocklang.develop.model.RepositoryAuthorization;
+import com.blocklang.develop.model.RepositoryContext;
 import com.blocklang.develop.model.RepositoryResource;
 import com.blocklang.develop.service.RepositoryResourceService;
 import com.blocklang.develop.service.RepositoryService;
@@ -184,7 +184,7 @@ public class RepositoryServiceImplTest extends AbstractServiceTest{
 		
 		// git 仓库已创建
 		// 测试时将 projectsRootPath 导向到 junit 的临时文件夹
-		ProjectContext context = new ProjectContext("user_name", "project_name", rootFolder.toString());
+		RepositoryContext context = new RepositoryContext("user_name", "project_name", rootFolder.toString());
 		assertThat(GitUtils.isGitRepo(context.getGitRepositoryDirectory())).isTrue();
 		
 		// 在创建一个仓库时，会执行一个 git commit，此操作也保存在 project_commit 中
@@ -363,7 +363,7 @@ public class RepositoryServiceImplTest extends AbstractServiceTest{
 //		
 //		// git 仓库已创建
 //		// 测试时将 projectsRootPath 导向到 junit 的临时文件夹
-//		ProjectContext context = new ProjectContext("user_name", "project_name", rootFolder.toString());
+//		RepositoryContext context = new RepositoryContext("user_name", "project_name", rootFolder.toString());
 //		assertThat(GitUtils.isGitRepo(context.getGitRepositoryDirectory())).isTrue();
 //		
 //		// 在创建一个仓库时，会执行一个 git commit，此操作也保存在 project_commit 中

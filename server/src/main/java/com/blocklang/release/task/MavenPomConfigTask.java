@@ -35,11 +35,11 @@ public class MavenPomConfigTask extends AbstractTask{
 			
 			Node artifactIdNode = document.selectSingleNode("/project/m:artifactId");
 			// {project}
-			artifactIdNode.setText(appBuildContext.getProjectName());
+			artifactIdNode.setText(appBuildContext.getRepoName());
 			
 			Node nameNode = document.selectSingleNode("/project/m:name");
 			// {project}
-			nameNode.setText(appBuildContext.getProjectName());
+			nameNode.setText(appBuildContext.getRepoName());
 			
 			Node versionNode = document.selectSingleNode("/project/m:version");
 			versionNode.setText(appBuildContext.getVersion());

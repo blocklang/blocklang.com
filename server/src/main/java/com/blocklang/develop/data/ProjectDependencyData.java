@@ -23,7 +23,7 @@ public class ProjectDependencyData extends ComponentRepoInfo{
 		this.dependency = dependency;
 	}
 	
-	public ProjectDependency getDependence() {
+	public ProjectDependency getDependency() {
 		return dependency;
 	}
 

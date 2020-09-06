@@ -50,10 +50,10 @@ import com.blocklang.develop.designer.data.PageEventHandler;
 import com.blocklang.develop.designer.data.PageModel;
 import com.blocklang.develop.designer.data.VisualNode;
 import com.blocklang.develop.model.PageDataItem;
-import com.blocklang.develop.model.ProjectContext;
 import com.blocklang.develop.model.ProjectDependency;
 import com.blocklang.develop.model.Repository;
 import com.blocklang.develop.model.RepositoryCommit;
+import com.blocklang.develop.model.RepositoryContext;
 import com.blocklang.develop.model.RepositoryResource;
 import com.blocklang.develop.service.RepositoryResourceService;
 import com.blocklang.develop.service.RepositoryService;
@@ -224,7 +224,7 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		resource.setCreateTime(LocalDateTime.now());
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
-		ProjectContext context = new ProjectContext("jack", "project", rootFolder.toString());
+		RepositoryContext context = new RepositoryContext("jack", "project", rootFolder.toString());
 		Files.createDirectories(context.getGitRepositoryDirectory());
 		
 		when(propertyService.findStringValue(CmPropKey.STD_WIDGET_API_GIT_URL, "")).thenReturn(stdApiRepoUrl);
@@ -2432,7 +2432,7 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		resource.setResourceType(RepositoryResourceType.PAGE);
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
-		ProjectContext context = new ProjectContext("jack", "project", rootFolder.toString());
+		RepositoryContext context = new RepositoryContext("jack", "project", rootFolder.toString());
 		Files.createDirectories(context.getGitRepositoryDirectory());
 		
 		repositoryResourceService.updatePageModel(project, resource, model);

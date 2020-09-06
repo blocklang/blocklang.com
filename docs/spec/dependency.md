@@ -91,7 +91,7 @@ BlokLang 的跨平台是通过提供不同的运行环境，通过指定页面�
 
 ![依赖图谱](./images/project-dependence-1.png)
 
-## `dependence.json`
+## `dependency.json`
 
 虽然有三个层级，但可将编程语言和开发框架统称为 profile，实际包含两个层级。
 
