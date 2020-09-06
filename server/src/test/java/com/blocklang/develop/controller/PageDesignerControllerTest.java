@@ -59,14 +59,14 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 	@MockBean
 	private RepositoryService repositoryService;
 	@MockBean
-	private ProjectDependencyService projectDependenceService;
+	private ProjectDependencyService projectDependencyService;
 	@MockBean
 	private RepositoryResourceService repositoryResourceService;
 	@MockBean
 	private RepositoryPermissionService repositoryPermissionService;
 	
 	@Test
-	public void listProjectDependencesOnlySupportIdeRepo() {
+	public void listProjectDependenciesOnlySupportIdeRepo() {
 		Exception exception = Assertions.assertThrows(NestedServletException.class, () -> given()
 				.contentType(ContentType.JSON)
 				.when()
@@ -76,7 +76,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 	}
 	
 	@Test
-	public void listProjectDependencesProjectNotExist() {
+	public void listProjectDependenciesProjectNotExist() {
 		when(repositoryResourceService.findById(anyInt())).thenReturn(Optional.empty());
 
 		given()
@@ -88,7 +88,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 	}
 	
 	@Test
-	public void listProjectDependencesProjectExistButCanNotRead() {
+	public void listProjectDependenciesProjectExistButCanNotRead() {
 		Integer repositoryId = 1;
 		Integer projectId = 2;
 		
@@ -129,7 +129,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		
 		when(repositoryPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
 		
-		when(projectDependenceService.findDevDependencies(any())).thenReturn(new ArrayList<ProjectDependencyData>());
+		when(projectDependencyService.findDevDependencies(any())).thenReturn(new ArrayList<ProjectDependencyData>());
 		
 		ProjectDependency dependence = new ProjectDependency();
 		ComponentRepo componentRepo = new ComponentRepo();
@@ -147,7 +147,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		apiRepo.setId(2);
 		ApiRepoVersion apiRepoVersion = new ApiRepoVersion();
 		ProjectDependencyData data = new ProjectDependencyData(dependence, componentRepo, componentRepoVersion, apiRepo, apiRepoVersion);
-		when(projectDependenceService.findStdDevDependencies(any(), eq(AppType.WEB))).thenReturn(Collections.singletonList(data));
+		when(projectDependencyService.findStdDevDependencies(any(), eq(AppType.WEB))).thenReturn(Collections.singletonList(data));
 
 		given()
 			.contentType(ContentType.JSON)
@@ -242,7 +242,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		when(repositoryService.findById(anyInt())).thenReturn(Optional.of(repository));
 		
 		when(repositoryPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
-		when(projectDependenceService.findAllWidgets(anyInt())).thenReturn(Collections.emptyList());
+		when(projectDependencyService.findAllWidgets(anyInt())).thenReturn(Collections.emptyList());
 		
 		given()
 			.contentType(ContentType.JSON)
