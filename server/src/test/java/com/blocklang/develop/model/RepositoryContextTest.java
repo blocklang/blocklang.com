@@ -6,11 +6,11 @@ import java.nio.file.Paths;
 
 import org.junit.jupiter.api.Test;
 
-public class ProjectContextTest {
+public class RepositoryContextTest {
 	
 	@Test
-	public void get_git_repository_directory() {
-		ProjectContext context = new ProjectContext("jack", "app", "c:/blocklang");
+	public void getGitRepositoryDirectory() {
+		RepositoryContext context = new RepositoryContext("jack", "app", "c:/blocklang");
 		
 		assertThat(context.getGitRepositoryDirectory().compareTo(Paths.get("c:/blocklang/gitRepo/jack/app"))).isEqualTo(0);
 	}
