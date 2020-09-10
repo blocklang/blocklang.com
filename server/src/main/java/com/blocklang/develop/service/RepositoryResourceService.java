@@ -21,7 +21,7 @@ import com.blocklang.marketplace.model.ApiWidget;
  */
 public interface RepositoryResourceService {
 
-	RepositoryResource insert(Repository project, RepositoryResource resource);
+	RepositoryResource insert(Repository repository, RepositoryResource resource);
 	
 	RepositoryResource createWebProject(Repository project, RepositoryResource resource);
 	
@@ -64,7 +64,7 @@ public interface RepositoryResourceService {
 	/**
 	 * 在同一层级下，根据 key 查找
 	 * 
-	 * @param projectId
+	 * @param repositoryId
 	 * @param parentId
 	 * @param resourceType
 	 * @param appType
@@ -72,7 +72,7 @@ public interface RepositoryResourceService {
 	 * @return
 	 */
 	Optional<RepositoryResource> findByKey(
-			Integer projectId, 
+			Integer repositoryId, 
 			Integer parentId, 
 			RepositoryResourceType resourceType,
 			AppType appType,
@@ -98,24 +98,26 @@ public interface RepositoryResourceService {
 	Optional<RepositoryResource> findById(Integer resourceId);
 
 	/**
-	 * 只要存在项目标识，则就假定该项目肯定存在
-	 * findParentIdByParentPath 中不校验项目是否存在，
-	 * 在调用此方法前，就应校验过项目是否存在。
+	 * 只要存在仓库标识，则就假定该仓库肯定存在
+	 * findParentIdByParentPath 中不校验仓库是否存在，
+	 * 在调用此方法前，就应校验过仓库是否存在。
 	 * 
-	 * @param projectId
+	 * @param repositoryId
 	 * @param parentPath
 	 * @return 如果有一个分组匹配不上，则返回空数组
 	 */
-	List<RepositoryResource> findParentGroupsByParentPath(Integer projectId, String parentPath);
+	List<RepositoryResource> findParentGroupsByParentPath(Integer repositoryId, String parentPath);
 	
 	/**
-	 * 获取项目中所有页面
+	 * 获取仓库中所有页面。
 	 * 
-	 * @param projectId 项目标识
+	 * FIXME: 是不是应该调整为获取仓库中某一个项目的所有页面呢？
+	 * 
+	 * @param repositoryId 项目标识
 	 * @param appType 程序类型
 	 * @return 页面信息列表
 	 */
-	List<RepositoryResource> findAllPages(Integer projectId, AppType appType);
+	List<RepositoryResource> findAllPages(Integer repositoryId, AppType appType);
 
 	List<UncommittedFile> findChanges(Repository repository);
 
@@ -132,16 +134,15 @@ public interface RepositoryResourceService {
 	 */
 	String commit(UserInfo user, Repository project, String commitMessage);
 
-	void updatePageModel(Repository project, RepositoryResource projectResource, PageModel pageModel);
+	void updatePageModel(Repository repository, RepositoryResource projectResource, PageModel pageModel);
 
 	/**
 	 * 获取页面模型
 	 * 
-	 * @param repoId 仓库标识
 	 * @param page 页面信息
 	 * @return 返回页面模型，不能返回 null，如果页面模型中没有内容，则返回空的 PageModel 对象
 	 */
-	PageModel getPageModel(Integer repoId, RepositoryResource page);
+	PageModel getPageModel(RepositoryResource page);
 
 	/**
 	 * 默认创建的空页面中包含一个 Page 部件

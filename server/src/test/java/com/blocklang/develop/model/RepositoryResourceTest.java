@@ -8,12 +8,13 @@ import com.blocklang.core.constant.Constant;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.constant.RepositoryResourceType;
 
-public class ProjectResourceTest {
+public class RepositoryResourceTest {
 
 	@Test
 	public void is_main_program_success() {
 		RepositoryResource resource = new RepositoryResource();
 		resource.setResourceType(RepositoryResourceType.PAGE);
+		resource.setAppType(AppType.WEB);
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		resource.setKey(RepositoryResource.MAIN_KEY);
 		
@@ -92,20 +93,21 @@ public class ProjectResourceTest {
 		RepositoryResource resource = new RepositoryResource();
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		resource.setResourceType(RepositoryResourceType.PAGE);
+		resource.setAppType(AppType.WEB);
 		resource.setKey(RepositoryResource.MAIN_KEY);
 		
 		assertThat(resource.getIcon()).isEqualTo("fas home");
 	}
 	
 	@Test
-	public void get_icon_home_not_at_root() {
+	public void get_icon_home_at_project_root() {
 		RepositoryResource resource = new RepositoryResource();
 		resource.setParentId(1);
 		resource.setResourceType(RepositoryResourceType.PAGE);
 		resource.setAppType(AppType.WEB);
 		resource.setKey(RepositoryResource.MAIN_KEY);
 		
-		assertThat(resource.getIcon()).isNotEqualTo("fas home");
+		assertThat(resource.getIcon()).isEqualTo("fas home");
 	}
 	
 	@Test

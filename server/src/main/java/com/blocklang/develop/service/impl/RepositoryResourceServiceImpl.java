@@ -160,7 +160,7 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 	
 	//@Transactional
 	@Override
-	public RepositoryResource insert(Repository project, RepositoryResource resource) {
+	public RepositoryResource insert(Repository repository, RepositoryResource resource) {
 		if(resource.getSeq() == null) {
 			Integer nextSeq = repositoryResourceDao.findFirstByRepositoryIdAndParentIdOrderBySeqDesc(resource.getRepositoryId(), resource.getParentId()).map(item -> item.getSeq() + 1).orElse(1);
 			resource.setSeq(nextSeq);
@@ -173,7 +173,7 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 		String relativeDir = parentResourceId == Constant.TREE_ROOT_ID ? null: String.join("/", this.findParentPathes(parentResourceId));
 		
 		propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).map(rootDir -> {
-			return new RepositoryContext(project.getCreateUserName(), project.getName(), rootDir).getGitRepositoryDirectory();
+			return new RepositoryContext(repository.getCreateUserName(), repository.getName(), rootDir).getGitRepositoryDirectory();
 		}).ifPresent(rootPath -> {
 			Path path = rootPath;
 			if(StringUtils.isNotBlank(relativeDir)) {
@@ -370,10 +370,10 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 	}
 
 	@Override
-	public List<RepositoryResource> findParentGroupsByParentPath(Integer projectId, String parentPath) {
+	public List<RepositoryResource> findParentGroupsByParentPath(Integer repositoryId, String parentPath) {
 		List<RepositoryResource> result = new ArrayList<RepositoryResource>();
 		
-		if(projectId == null) {
+		if(repositoryId == null) {
 			return result;
 		}
 		if(StringUtils.isBlank(parentPath)) {
@@ -387,14 +387,15 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 			String key = keys[i];
 			Optional<RepositoryResource> resourceOption;
 			if(i == 0) {
+				// 只支持在仓库的根目录创建 Project，不支持创建 Group
 				resourceOption = repositoryResourceDao.findByRepositoryIdAndParentIdAndResourceTypeAndKeyIgnoreCase(
-						projectId, 
+						repositoryId, 
 						parentId, 
 						RepositoryResourceType.PROJECT, 
 						key);
 			} else {
 				resourceOption = repositoryResourceDao.findByRepositoryIdAndParentIdAndResourceTypeAndKeyIgnoreCase(
-						projectId, 
+						repositoryId, 
 						parentId, 
 						RepositoryResourceType.GROUP, 
 						key);
@@ -594,10 +595,10 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 	}
 
 	@Override
-	public void updatePageModel(Repository project, RepositoryResource projectResource, PageModel pageModel) {
+	public void updatePageModel(Repository repository, RepositoryResource projectResource, PageModel pageModel) {
 		this.updatePageModel(pageModel);
-		if(project != null && projectResource != null) {
-			this.updatePageFileInGit(project, projectResource, pageModel);
+		if(repository != null && projectResource != null) {
+			this.updatePageFileInGit(repository, projectResource, pageModel);
 		}
 	}
 	
@@ -762,14 +763,14 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 		}
 	}
 
-	private void updatePageFileInGit(Repository project, RepositoryResource projectResource, PageModel pageModel) {
+	private void updatePageFileInGit(Repository repository, RepositoryResource projectResource, PageModel pageModel) {
 		// 确保这是一个页面
 		if(!projectResource.isPage()) {
 			logger.warn("往 git 仓库中更新页面模型失败：不是一个有效的页面");
 			return;
 		}
 		
-		UserInfo user = userService.findById(project.getCreateUserId()).orElse(null);
+		UserInfo user = userService.findById(repository.getCreateUserId()).orElse(null);
 		if(user == null) {
 			logger.warn("往 git 仓库中更新页面模型失败：未找到项目创建者的用户信息");
 			return;
@@ -779,7 +780,7 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 		String relativeDir = parentResourceId == Constant.TREE_ROOT_ID ? null: String.join("/", this.findParentPathes(parentResourceId));
 		
 		propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).map(rootDir -> {
-			return new RepositoryContext(user.getLoginName(), project.getName(), rootDir).getGitRepositoryDirectory();
+			return new RepositoryContext(user.getLoginName(), repository.getName(), rootDir).getGitRepositoryDirectory();
 		}).ifPresent(rootPath -> {
 			Path path = rootPath;
 			if(StringUtils.isNotBlank(relativeDir)) {
@@ -800,7 +801,7 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 	
 	// TODO: 此处需要性能优化
 	@Override
-	public PageModel getPageModel(Integer repoId, RepositoryResource page) {
+	public PageModel getPageModel(RepositoryResource page) {
 		Integer pageId = page.getId();
 		PageModel model = new PageModel();
 		model.setPageId(pageId);
@@ -810,7 +811,7 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 			return model;
 		}
 		
-		List<AttachedWidget> widgets = getPageWidgets(repoId, projectInfoOption.get(), pageId);
+		List<AttachedWidget> widgets = getPageWidgets(projectInfoOption.get(), pageId);
 		model.setWidgets(widgets);
 		
 		List<PageDataItem> pageData = getPageData(pageId);
@@ -839,9 +840,9 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 		}
 		
 		RepositoryResource result = null;
-		while(result != null && !result.isProject()) {
+		do {
 			result = repositoryResourceDao.findById(page.getParentId()).orElse(null);
-		}
+		} while (result != null && !result.isProject());
 		
 		if(result == null) {
 			return Optional.empty();
@@ -855,7 +856,7 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 		
 	}
 
-	private List<AttachedWidget> getPageWidgets(Integer repoId, RepositoryResource project, Integer pageId) {
+	private List<AttachedWidget> getPageWidgets(RepositoryResource project, Integer pageId) {
 		List<PageWidget> pageWidgets = pageWidgetDao.findAllByPageIdOrderBySeq(pageId);
 		
 		if(pageWidgets.isEmpty()) {
@@ -863,13 +864,13 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 		}
 		
 		Map<Integer, List<ApiWidget>> cachedAndGroupedWidgets = new HashMap<>();
+
 		// 以下逻辑是用来支持版本升级的
-		
 		// 如果页面模型中存在部件，则获取项目依赖的所有部件列表
 		// 然后根据这个列表来匹配
 		projectDependenceService
 			// 1. 获取项目的所有依赖
-			.findAllByProjectId(repoId, project)
+			.findAllDevDependencies(project.getId(), project.getAppType())
 			.stream()
 			// 2. 找出对应的组件仓库的版本信息，就可获取到 API 仓库的版本信息
 			.flatMap(item -> {
@@ -1466,6 +1467,11 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 		pageModel.setWidgets(Collections.singletonList(rootWidget));
 
 		return pageModel;
+	}
+
+	@Override
+	public Optional<RepositoryResource> findProject(Integer repositoryId, String projectKey) {
+		return repositoryResourceDao.findByRepositoryIdAndParentIdAndResourceTypeAndKeyIgnoreCase(repositoryId, Constant.TREE_ROOT_ID, RepositoryResourceType.PROJECT, projectKey);
 	}
 
 }

@@ -30,6 +30,7 @@ import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.PropertyService;
 import com.blocklang.core.service.UserService;
 import com.blocklang.core.test.AbstractServiceTest;
+import com.blocklang.core.util.JsonUtil;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.develop.constant.NodeCategory;
 import com.blocklang.develop.constant.NodeLayout;
@@ -74,7 +75,6 @@ import com.blocklang.marketplace.model.ApiWidgetEventArg;
 import com.blocklang.marketplace.model.ApiWidgetProperty;
 import com.blocklang.marketplace.model.ComponentRepo;
 import com.blocklang.marketplace.model.ComponentRepoVersion;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 
@@ -109,18 +109,18 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 	@Autowired
 	private ComponentRepoVersionDao componentRepoVersionDao;
 	@Autowired
-	private ProjectDependencyDao projectDependenceDao;
+	private ProjectDependencyDao projectDependencyDao;
 	
 	@Test
-	public void insert_if_not_set_seq() {
-		Integer projectId = Integer.MAX_VALUE;
+	public void insertIfNotSetSeq() {
+		Integer repositoryId = Integer.MAX_VALUE;
 		
-		Repository project = new Repository();
-		project.setName("project");
-		project.setCreateUserName("jack");
+		Repository repository = new Repository();
+		repository.setName("repo1");
+		repository.setCreateUserName("jack1");
 		
 		RepositoryResource resource = new RepositoryResource();
-		resource.setRepositoryId(projectId);
+		resource.setRepositoryId(repositoryId);
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		resource.setAppType(AppType.WEB);
 		resource.setKey("key");
@@ -129,15 +129,14 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
 		
-		Integer id = repositoryResourceService.insert(project, resource).getId();
+		Integer resourceId = repositoryResourceService.insert(repository, resource).getId();
 		
-		Optional<RepositoryResource> resourceOption = repositortResourceDao.findById(id);
-		assertThat(resourceOption).isPresent();
+		Optional<RepositoryResource> resourceOption = repositortResourceDao.findById(resourceId);
 		assertThat(resourceOption.get().getSeq()).isEqualTo(1);
 	}
 	
 	@Test
-	public void insert_empty_page_with_a_root_widget(@TempDir Path rootFolder) throws IOException {
+	public void insertEmptyPageWithARootWidget(@TempDir Path rootFolder) throws IOException {
 		Integer userId = 1;
 		// 创建一个标准库
 		String stdApiRepoUrl = "std-api-widget-url";
@@ -149,6 +148,7 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		stdApiRepo.setGitRepoName("repo_name");
 		stdApiRepo.setCreateUserId(userId);
 		stdApiRepo.setCreateTime(LocalDateTime.now());
+		stdApiRepo.setLastPublishTime(LocalDateTime.now());
 		Integer stdApiRepoId = apiRepoDao.save(stdApiRepo).getId();
 		// 为标准库设置一个版本号
 		// 创建对应的 API 仓库版本信息
@@ -159,6 +159,7 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		apiVersion.setGitTagName("v0.0.1");
 		apiVersion.setCreateUserId(userId);
 		apiVersion.setCreateTime(LocalDateTime.now());
+		apiVersion.setLastPublishTime(LocalDateTime.now());
 		ApiRepoVersion savedApiRepoVersion = apiRepoVersionDao.save(apiVersion);
 
 		// 在标准库中创建一个 Page 部件
@@ -189,54 +190,73 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		repo.setGitRepoOwner("jack");
 		repo.setGitRepoName("repo");
 		repo.setCategory(RepoCategory.WIDGET);
-		repo.setCreateUserId(1);
+		repo.setCreateUserId(userId);
 		repo.setCreateTime(LocalDateTime.now());
 		repo.setRepoType(RepoType.IDE);
+		repo.setLastPublishTime(LocalDateTime.now());
 		ComponentRepo savedComponentRepo = componentRepoDao.save(repo);
 		// 创建一个 ide 版的组件库版本
 		ComponentRepoVersion version = new ComponentRepoVersion();
 		version.setComponentRepoId(savedComponentRepo.getId());
 		version.setApiRepoVersionId(savedApiRepoVersion.getId());
 		version.setName("name");
-		version.setVersion("0.1.0");
-		version.setGitTagName("v0.1.0");
+		version.setVersion("master"); // 标准库只依赖 master 分支
+		version.setGitTagName("refs/heads/master");
 		version.setAppType(AppType.WEB);
 		version.setBuild("dojo");
 		version.setCreateUserId(1);
 		version.setCreateTime(LocalDateTime.now());
+		version.setLastPublishTime(LocalDateTime.now());
 		componentRepoVersionDao.save(version);
 				
-		Integer projectId = Integer.MAX_VALUE;
+		Integer repositoryId = 2;
+		String owner = "jack";
+		String repoName = "repo1";
 		
-		Repository project = new Repository();
-		project.setName("project");
-		project.setCreateUserName("jack");
+		Repository repository = new Repository();
+		repository.setId(repositoryId);
+		repository.setName(repoName);
+		repository.setCreateUserName(owner);
 		
-		RepositoryResource resource = new RepositoryResource();
+		String projectKey = "project1";
+		RepositoryResource project = new RepositoryResource();
+		project.setRepositoryId(repositoryId);
+		project.setParentId(Constant.TREE_ROOT_ID);
+		project.setAppType(AppType.WEB);
+		project.setKey(projectKey);
+		project.setName("project 1");
+		project.setResourceType(RepositoryResourceType.PROJECT);
+		project.setCreateUserId(userId);
+		project.setCreateTime(LocalDateTime.now());
+		project.setSeq(1);
+		Integer projectId = repositortResourceDao.save(project).getId();
+		
+		RepositoryResource page = new RepositoryResource();
 		String pageKey = "key1";
-		resource.setRepositoryId(projectId);
-		resource.setParentId(Constant.TREE_ROOT_ID);
-		resource.setAppType(AppType.WEB);
-		resource.setKey(pageKey);
-		resource.setName("name");
-		resource.setResourceType(RepositoryResourceType.PAGE);
-		resource.setCreateUserId(1);
-		resource.setCreateTime(LocalDateTime.now());
+		page.setRepositoryId(repositoryId);
+		page.setParentId(projectId);
+		page.setAppType(AppType.WEB);
+		page.setKey(pageKey);
+		page.setName("name");
+		page.setResourceType(RepositoryResourceType.PAGE);
+		page.setCreateUserId(1);
+		page.setCreateTime(LocalDateTime.now());
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
-		RepositoryContext context = new RepositoryContext("jack", "project", rootFolder.toString());
-		Files.createDirectories(context.getGitRepositoryDirectory());
+		RepositoryContext context = new RepositoryContext(owner, repoName, rootFolder.toString());
+		Path projectPath = context.getGitRepositoryDirectory().resolve(projectKey);
+		Files.createDirectories(projectPath);
 		
 		when(propertyService.findStringValue(CmPropKey.STD_WIDGET_API_GIT_URL, "")).thenReturn(stdApiRepoUrl);
 		when(propertyService.findStringValue(CmPropKey.STD_WIDGET_IDE_GIT_URL, "")).thenReturn(stdIdeRepoUrl);
 		when(propertyService.findIntegerValue(CmPropKey.STD_REPO_REGISTER_USER_ID, 1)).thenReturn(1);
 		when(propertyService.findStringValue(CmPropKey.STD_WIDGET_ROOT_NAME, "Page")).thenReturn("Page");
 		
-		Integer pageId = repositoryResourceService.insert(project, resource).getId();
+		RepositoryResource pageResource = repositoryResourceService.insert(repository, page);
 		
-		PageModel actualPageModel = repositoryResourceService.getPageModel(projectId, pageId);
+		PageModel actualPageModel = repositoryResourceService.getPageModel(pageResource);
 		
-		assertThat(actualPageModel.getPageId()).isEqualTo(pageId);
+		assertThat(actualPageModel.getPageId()).isEqualTo(pageResource.getId());
 		assertThat(actualPageModel.getWidgets()).hasSize(1);
 		AttachedWidget actualRootWidget = actualPageModel.getWidgets().get(0);
 		assertThat(actualRootWidget.getId()).hasSize(32);
@@ -256,26 +276,28 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		assertThat(actualRootWidgetProperty1.getName()).isEqualTo("prop_name");
 		
 		// 校验 git 中的文件内容
-		ObjectMapper mapper = new ObjectMapper();
-		String mainPageJsonString = Files.readString(context.getGitRepositoryDirectory().resolve(pageKey + ".page.web.json"));
-		assertThat(mapper.readValue(mainPageJsonString, PageModel.class)).usingRecursiveComparison().isEqualTo(actualPageModel);
+		String mainPageJsonString = Files.readString(context.getGitRepositoryDirectory().resolve(projectKey).resolve(pageKey + ".page.web.json"));
+		assertThat(JsonUtil.fromJsonObject(mainPageJsonString, PageModel.class)).usingRecursiveComparison().isEqualTo(actualPageModel);
 	}
 	
 	@Test
-	public void find_children_no_data() {
-		List<RepositoryResource> resources = repositoryResourceService.findChildren(null, 9999);
+	public void findChildrenNoData() {
+		List<RepositoryResource> resources = repositoryResourceService.findChildren(null, 1);
 		assertThat(resources).isEmpty();
 	}
 	
 	@Test
-	public void find_children_at_root_has_two_project_success() {
-		Repository project = new Repository();
-		project.setCreateUserName("jack");
-		project.setName("my-project");
-		project.setId(1);
+	public void findChildrenAtRootHasTwoGroupsSuccess() {
+		Integer repositoryId = 1;
+		String owner = "jack";
+		String repoName = "repo1";
+		Repository repository = new Repository();
+		repository.setCreateUserName(owner);
+		repository.setName(repoName);
+		repository.setId(repositoryId);
 		
 		RepositoryResource resource = new RepositoryResource();
-		resource.setRepositoryId(1);
+		resource.setRepositoryId(repositoryId);
 		resource.setKey("key1");
 		resource.setName("name1");
 		resource.setAppType(AppType.WEB);
@@ -298,19 +320,22 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		resource.setCreateTime(LocalDateTime.now());
 		repositortResourceDao.save(resource);
 		
-		List<RepositoryResource> resources = repositoryResourceService.findChildren(project, Constant.TREE_ROOT_ID);
+		List<RepositoryResource> resources = repositoryResourceService.findChildren(repository, Constant.TREE_ROOT_ID);
 		assertThat(resources).hasSize(1);
 	}
 	
 	@Test
-	public void find_children_at_root_has_one_project_success() {
-		Repository project = new Repository();
-		project.setCreateUserName("jack");
-		project.setName("my-project");
-		project.setId(1);
+	public void findChildrenAtRootHasOneGroupSuccess() {
+		Integer repositoryId = 1;
+		String owner = "jack";
+		String repoName = "repo1";
+		Repository repository = new Repository();
+		repository.setCreateUserName(owner);
+		repository.setName(repoName);
+		repository.setId(repositoryId);
 		
 		RepositoryResource resource = new RepositoryResource();
-		resource.setRepositoryId(1);
+		resource.setRepositoryId(repositoryId);
 		resource.setKey("key1");
 		resource.setName("name1");
 		resource.setAppType(AppType.WEB);
@@ -322,7 +347,7 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		Integer savedResourceId = repositortResourceDao.save(resource).getId();
 		
 		resource = new RepositoryResource();
-		resource.setRepositoryId(1);
+		resource.setRepositoryId(repositoryId);
 		resource.setKey("key2");
 		resource.setName("name2");
 		resource.setAppType(AppType.WEB);
@@ -333,21 +358,23 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		resource.setCreateTime(LocalDateTime.now());
 		repositortResourceDao.save(resource);
 		
-		List<RepositoryResource> resources = repositoryResourceService.findChildren(project, Constant.TREE_ROOT_ID);
+		List<RepositoryResource> resources = repositoryResourceService.findChildren(repository, Constant.TREE_ROOT_ID);
 		assertThat(resources).hasSize(1);
 	}
 	
 	@Test
-	public void find_children_name_is_null_then_set_name_with_key() {
-		Integer projectId = Integer.MAX_VALUE;
+	public void findChildrenNameIsNullThenSetNameWithKey() {
+		Integer repositoryId = 1;
+		String owner = "jack";
+		String repoName = "repo1";
 		
-		Repository project = new Repository();
-		project.setCreateUserName("jack");
-		project.setName("my-project");
-		project.setId(projectId);
+		Repository repository = new Repository();
+		repository.setCreateUserName(owner);
+		repository.setName(repoName);
+		repository.setId(repositoryId);
 		
 		RepositoryResource resource = new RepositoryResource();
-		resource.setRepositoryId(projectId);
+		resource.setRepositoryId(repositoryId);
 		resource.setKey("key1");
 		resource.setName(null);
 		resource.setAppType(AppType.WEB);
@@ -358,22 +385,24 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		resource.setCreateTime(LocalDateTime.now());
 		repositortResourceDao.save(resource).getId();
 		
-		List<RepositoryResource> resources = repositoryResourceService.findChildren(project, Constant.TREE_ROOT_ID);
+		List<RepositoryResource> resources = repositoryResourceService.findChildren(repository, Constant.TREE_ROOT_ID);
 		assertThat(resources).hasSize(1);
 		assertThat(resources.get(0).getName()).isEqualTo("key1");
 	}
 	
 	@Test
-	public void find_children_at_sub_group() {
-		Integer projectId = Integer.MAX_VALUE;
+	public void findChildrenAtSubGroup() {
+		Integer repositoryId = 1;
+		String owner = "jack";
+		String repoName = "repo1";
 		
-		Repository project = new Repository();
-		project.setCreateUserName("jack");
-		project.setName("my-project");
-		project.setId(projectId);
+		Repository repository = new Repository();
+		repository.setCreateUserName(owner);
+		repository.setName(repoName);
+		repository.setId(repositoryId);
 		
 		RepositoryResource resource = new RepositoryResource();
-		resource.setRepositoryId(projectId);
+		resource.setRepositoryId(repositoryId);
 		resource.setKey("key1");
 		resource.setName("name1");
 		resource.setAppType(AppType.WEB);
@@ -385,7 +414,7 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		Integer savedResourceId = repositortResourceDao.save(resource).getId();
 		
 		resource = new RepositoryResource();
-		resource.setRepositoryId(projectId);
+		resource.setRepositoryId(repositoryId);
 		resource.setKey("key2");
 		resource.setName("name2");
 		resource.setAppType(AppType.WEB);
@@ -396,19 +425,19 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		resource.setCreateTime(LocalDateTime.now());
 		repositortResourceDao.save(resource);
 		
-		List<RepositoryResource> resources = repositoryResourceService.findChildren(project, savedResourceId);
+		List<RepositoryResource> resources = repositoryResourceService.findChildren(repository, savedResourceId);
 		assertThat(resources).hasSize(1);
 		assertThat(resources.get(0).getKey()).isEqualTo("key2");
 	}
 	
 	@Test
-	public void find_parent_path_at_root() {
-		List<String> pathes = repositoryResourceService.findParentPathes(-1);
+	public void findParentPathAtRoot() {
+		List<String> pathes = repositoryResourceService.findParentPathes(Constant.TREE_ROOT_ID);
 		assertThat(pathes).isEmpty();
 	}
 	
 	@Test
-	public void find_parent_path_success() {
+	public void findParentPathSuccess() {
 		RepositoryResource resource = new RepositoryResource();
 		resource.setRepositoryId(1);
 		resource.setKey("key1");
@@ -451,9 +480,10 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 	
 	// 因为 getTitle 方法用到了 spring 的国际化帮助类，因为需要注入，所以将测试类放在 service 中
 	@Test
-	public void get_title_main() {
+	public void getTitleMain() {
 		RepositoryResource resource = new RepositoryResource();
 		resource.setParentId(Constant.TREE_ROOT_ID);
+		resource.setAppType(AppType.WEB);
 		resource.setResourceType(RepositoryResourceType.PAGE);
 		resource.setKey(RepositoryResource.MAIN_KEY);
 		resource.setMessageSource(messageSource);
@@ -462,7 +492,7 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 	}
 	
 	@Test
-	public void get_title_page() {
+	public void getTitlePage() {
 		RepositoryResource resource = new RepositoryResource();
 		resource.setResourceType(RepositoryResourceType.PAGE);
 		resource.setMessageSource(messageSource);
@@ -471,7 +501,7 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 	}
 	
 	@Test
-	public void get_title_group() {
+	public void getTitleGroup() {
 		RepositoryResource resource = new RepositoryResource();
 		resource.setResourceType(RepositoryResourceType.GROUP);
 		resource.setMessageSource(messageSource);
@@ -480,7 +510,20 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 	}
 	
 	@Test
-	public void get_title_templet() {
+	public void getTitleProject() {
+		RepositoryResource resource = new RepositoryResource();
+		resource.setResourceType(RepositoryResourceType.PROJECT);
+		resource.setAppType(AppType.MINI_PROGRAM);
+		resource.setMessageSource(messageSource);
+		
+		assertThat(resource.getTitle()).isEqualTo("小程序项目");
+		
+		resource.setAppType(AppType.WEB);
+		assertThat(resource.getTitle()).isEqualTo("Web项目");
+	}
+	
+	@Test
+	public void getTitleTemplet() {
 		RepositoryResource resource = new RepositoryResource();
 		resource.setResourceType(RepositoryResourceType.PAGE_TEMPLET);
 		resource.setMessageSource(messageSource);
@@ -489,7 +532,7 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 	}
 	
 	@Test
-	public void get_title_readme() {
+	public void getTitleReadme() {
 		RepositoryResource resource = new RepositoryResource();
 		resource.setResourceType(RepositoryResourceType.FILE);
 		resource.setKey(RepositoryResource.README_KEY);
@@ -499,7 +542,7 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 	}
 	
 	@Test
-	public void get_title_service() {
+	public void getTitleService() {
 		RepositoryResource resource = new RepositoryResource();
 		resource.setResourceType(RepositoryResourceType.SERVICE);
 		resource.setMessageSource(messageSource);
@@ -508,12 +551,13 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 	}
 
 	@Test
-	public void find_by_id_no_data() {
-		assertThat(repositoryResourceService.findById(Integer.MAX_VALUE)).isEmpty();
+	public void findByIdNoData() {
+		Integer resourceId = 1;
+		assertThat(repositoryResourceService.findById(resourceId)).isEmpty();
 	}
 	
 	@Test
-	public void find_by_id_success() {
+	public void findByIdSuccess() {
 		RepositoryResource resource = new RepositoryResource();
 		resource.setRepositoryId(1);
 		resource.setKey("key1");
@@ -530,9 +574,10 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 	}
 	
 	@Test
-	public void find_by_key_at_root_no_data() {
+	public void findByKeyAtRootNoData() {
+		Integer repositoryId = 1;
 		assertThat(repositoryResourceService.findByKey(
-				Integer.MAX_VALUE, 
+				repositoryId, 
 				Constant.TREE_ROOT_ID, 
 				RepositoryResourceType.PAGE, 
 				AppType.WEB,
@@ -540,11 +585,11 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 	}
 	
 	@Test
-	public void find_by_key_at_root_success() {
-		Integer projectId = Integer.MAX_VALUE;
+	public void findByKeyAtRootSuccess() {
+		Integer repositoryId = 1;
 		
 		RepositoryResource resource = new RepositoryResource();
-		resource.setRepositoryId(projectId);
+		resource.setRepositoryId(repositoryId);
 		resource.setKey("key1");
 		resource.setName("name1");
 		resource.setAppType(AppType.WEB);
@@ -556,7 +601,7 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		repositortResourceDao.save(resource);
 		
 		assertThat(repositoryResourceService.findByKey(
-				projectId, 
+				repositoryId, 
 				Constant.TREE_ROOT_ID, 
 				RepositoryResourceType.PAGE, 
 				AppType.WEB,
@@ -564,9 +609,10 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 	}
 	
 	@Test
-	public void find_by_name_at_root_no_data() {
+	public void findByNameAtRootNoData() {
+		Integer repositoryId = 1;
 		assertThat(repositoryResourceService.findByName(
-				Integer.MAX_VALUE, 
+				repositoryId, 
 				Constant.TREE_ROOT_ID, 
 				RepositoryResourceType.PAGE, 
 				AppType.WEB,
@@ -574,11 +620,11 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 	}
 	
 	@Test
-	public void find_by_name_at_root_success() {
-		Integer projectId = Integer.MAX_VALUE;
+	public void findByNameAtRootSuccess() {
+		Integer repositoryId = 1;
 		
 		RepositoryResource resource = new RepositoryResource();
-		resource.setRepositoryId(projectId);
+		resource.setRepositoryId(repositoryId);
 		resource.setKey("key1");
 		resource.setName("name1");
 		resource.setAppType(AppType.WEB);
@@ -590,7 +636,7 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		repositortResourceDao.save(resource);
 		
 		assertThat(repositoryResourceService.findByName(
-				projectId, 
+				repositoryId, 
 				Constant.TREE_ROOT_ID, 
 				RepositoryResourceType.PAGE, 
 				AppType.WEB,
@@ -598,17 +644,17 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 	}
 
 	@Test
-	public void find_all_pages_web_type_but_no_data() {
-		Integer projectId = Integer.MAX_VALUE;
-		assertThat(repositoryResourceService.findAllPages(projectId, AppType.WEB)).isEmpty();
+	public void findAllPagesWebTypeButNoData() {
+		Integer repositoryId = 1;
+		assertThat(repositoryResourceService.findAllPages(repositoryId, AppType.WEB)).isEmpty();
 	}
 	
 	@Test
-	public void find_all_pages_web_type_success() {
-		Integer projectId = Integer.MAX_VALUE;
+	public void findAllPagesWebTypeSuccess() {
+		Integer repositoryId = 1;
 		
 		RepositoryResource resource = new RepositoryResource();
-		resource.setRepositoryId(projectId);
+		resource.setRepositoryId(repositoryId);
 		resource.setKey("key1");
 		resource.setName("name1");
 		resource.setAppType(AppType.WEB);
@@ -619,52 +665,52 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		resource.setCreateTime(LocalDateTime.now());
 		repositortResourceDao.save(resource);
 		
-		assertThat(repositoryResourceService.findAllPages(projectId, AppType.WEB)).hasSize(1);
+		assertThat(repositoryResourceService.findAllPages(repositoryId, AppType.WEB)).hasSize(1);
 	}
 	
 	@Test
-	public void find_parent_groups_by_parent_path_is_not_exist() {
+	public void findParentGroupsByParentPathIsNotExist() {
 		assertThat(repositoryResourceService.findParentGroupsByParentPath(null, null)).isEmpty();
 		assertThat(repositoryResourceService.findParentGroupsByParentPath(null, "")).isEmpty();
 	}
 	
 	@Test
-	public void find_parent_id_by_parent_path_is_root_path() {
+	public void findParentGroupsByParentPathIsRootPath() {
 		assertThat(repositoryResourceService.findParentGroupsByParentPath(1, null)).isEmpty();
 		assertThat(repositoryResourceService.findParentGroupsByParentPath(1, "")).isEmpty();
 	}
 	
 	@Test
-	public void find_parent_id_by_parent_path_is_one_level() {
-		Integer projectId = Integer.MAX_VALUE;
+	public void findParentGroupsByParentPathIsOneLevel() {
+		Integer repositoryId = 1;
 		
 		RepositoryResource resource = new RepositoryResource();
-		resource.setRepositoryId(projectId);
+		resource.setRepositoryId(repositoryId);
 		resource.setKey("key1");
 		resource.setName("name1");
 		resource.setAppType(AppType.UNKNOWN);
-		resource.setResourceType(RepositoryResourceType.GROUP);
+		resource.setResourceType(RepositoryResourceType.PROJECT);
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
 		Integer resourceId = repositortResourceDao.save(resource).getId();
 		
-		List<RepositoryResource> groups = repositoryResourceService.findParentGroupsByParentPath(projectId, "key1");
+		List<RepositoryResource> groups = repositoryResourceService.findParentGroupsByParentPath(repositoryId, "key1");
 		assertThat(groups).hasSize(1);
 		assertThat(groups.get(0).getId()).isEqualTo(resourceId);
 	}
 	
 	@Test
-	public void find_parent_id_by_parent_path_is_two_level_success() {
-		Integer projectId = Integer.MAX_VALUE;
+	public void findParentGroupsByParentPathIsTwoLevelSuccess() {
+		Integer repositoryId = 1;
 		
 		RepositoryResource resource = new RepositoryResource();
-		resource.setRepositoryId(projectId);
+		resource.setRepositoryId(repositoryId);
 		resource.setKey("key1");
 		resource.setName("name1");
 		resource.setAppType(AppType.UNKNOWN);
-		resource.setResourceType(RepositoryResourceType.GROUP);
+		resource.setResourceType(RepositoryResourceType.PROJECT);
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
@@ -672,7 +718,7 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		Integer resourceId = repositortResourceDao.save(resource).getId();
 		
 		resource = new RepositoryResource();
-		resource.setRepositoryId(projectId);
+		resource.setRepositoryId(repositoryId);
 		resource.setKey("key2");
 		resource.setName("name2");
 		resource.setAppType(AppType.UNKNOWN);
@@ -683,33 +729,33 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		resource.setCreateTime(LocalDateTime.now());
 		Integer resourceId2 = repositortResourceDao.save(resource).getId();
 		
-		List<RepositoryResource> groups = repositoryResourceService.findParentGroupsByParentPath(projectId, "key1/key2");
+		List<RepositoryResource> groups = repositoryResourceService.findParentGroupsByParentPath(repositoryId, "key1/key2");
 		assertThat(groups).hasSize(2);
 		assertThat(groups.get(0).getId()).isEqualTo(resourceId);
 		assertThat(groups.get(1).getId()).isEqualTo(resourceId2);
 	}
 
 	@Test
-	public void find_parent_id_by_parent_path_is_two_level_not_exist() {
-		Integer projectId = Integer.MAX_VALUE;
+	public void findParentGroupsByParentPathIsTwoLevelNotExist() {
+		Integer repositoryId = 1;
 		
 		RepositoryResource resource = new RepositoryResource();
-		resource.setRepositoryId(projectId);
+		resource.setRepositoryId(repositoryId);
 		resource.setKey("key1");
 		resource.setName("name1");
 		resource.setAppType(AppType.UNKNOWN);
-		resource.setResourceType(RepositoryResourceType.GROUP);
+		resource.setResourceType(RepositoryResourceType.PROJECT);
 		resource.setParentId(Constant.TREE_ROOT_ID);
 		resource.setSeq(1);
 		resource.setCreateUserId(1);
 		resource.setCreateTime(LocalDateTime.now());
 		repositortResourceDao.save(resource).getId();
 		
-		assertThat(repositoryResourceService.findParentGroupsByParentPath(projectId, "key1/key2")).isEmpty();
+		assertThat(repositoryResourceService.findParentGroupsByParentPath(repositoryId, "key1/key2")).isEmpty();
 	}
 
 	@Test
-	public void find_changes_success(@TempDir Path rootFolder) throws IOException {
+	public void findChangesSuccess(@TempDir Path rootFolder) throws IOException {
 		UserInfo userInfo = new UserInfo();
 		userInfo.setLoginName("user_name");
 		userInfo.setAvatarUrl("avatar_url");
@@ -718,18 +764,18 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		userInfo.setCreateTime(LocalDateTime.now());
 		Integer userId = userDao.save(userInfo).getId();
 		
-		Repository project = new Repository();
-		project.setName("project_name");
-		project.setIsPublic(true);
-		project.setDescription("description");
-		project.setLastActiveTime(LocalDateTime.now());
-		project.setCreateUserId(userId);
-		project.setCreateTime(LocalDateTime.now());
-		project.setCreateUserName("user_name");
+		Repository repository = new Repository();
+		repository.setName("repoName1");
+		repository.setIsPublic(true);
+		repository.setDescription("description");
+		repository.setLastActiveTime(LocalDateTime.now());
+		repository.setCreateUserId(userId);
+		repository.setCreateTime(LocalDateTime.now());
+		repository.setCreateUserName("user_name");
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		Repository savedProject = repositoryService.createRepository(userInfo, project);
+		Repository savedRepository = repositoryService.createRepository(userInfo, repository);
 		
 		RepositoryResource resource = new RepositoryResource();
 		resource.setKey("page1");
@@ -738,12 +784,12 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		resource.setAppType(AppType.WEB);
 		resource.setCreateTime(LocalDateTime.now());
 		resource.setCreateUserId(userId);
-		resource.setRepositoryId(savedProject.getId());
+		resource.setRepositoryId(savedRepository.getId());
 		resource.setParentId(Constant.TREE_ROOT_ID);
-		repositoryResourceService.insert(savedProject, resource);
+		repositoryResourceService.insert(savedRepository, resource);
 		
 		// 有一个未跟踪的文件。
-		List<UncommittedFile> changes = repositoryResourceService.findChanges(savedProject);
+		List<UncommittedFile> changes = repositoryResourceService.findChanges(savedRepository);
 		
 		assertThat(changes).hasSize(1);
 		UncommittedFile file = changes.get(0);
@@ -755,7 +801,7 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 	}
 	
 	@Test
-	public void find_changes_not_contain_group(@TempDir Path rootFolder) throws IOException {
+	public void findChangesNotContainGroup(@TempDir Path rootFolder) throws IOException {
 		UserInfo userInfo = new UserInfo();
 		userInfo.setLoginName("user_name");
 		userInfo.setAvatarUrl("avatar_url");
@@ -764,18 +810,18 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		userInfo.setCreateTime(LocalDateTime.now());
 		Integer userId = userDao.save(userInfo).getId();
 		
-		Repository project = new Repository();
-		project.setName("project_name");
-		project.setIsPublic(true);
-		project.setDescription("description");
-		project.setLastActiveTime(LocalDateTime.now());
-		project.setCreateUserId(userId);
-		project.setCreateTime(LocalDateTime.now());
-		project.setCreateUserName("user_name");
+		Repository repository = new Repository();
+		repository.setName("repoName1");
+		repository.setIsPublic(true);
+		repository.setDescription("description");
+		repository.setLastActiveTime(LocalDateTime.now());
+		repository.setCreateUserId(userId);
+		repository.setCreateTime(LocalDateTime.now());
+		repository.setCreateUserName("user_name");
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		Repository savedProject = repositoryService.createRepository(userInfo, project);
+		Repository savedRepository = repositoryService.createRepository(userInfo, repository);
 		
 		// 有一个未跟踪的文件夹。
 		RepositoryResource resource = new RepositoryResource();
@@ -785,17 +831,17 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		resource.setAppType(AppType.UNKNOWN);
 		resource.setCreateTime(LocalDateTime.now());
 		resource.setCreateUserId(userId);
-		resource.setRepositoryId(savedProject.getId());
+		resource.setRepositoryId(savedRepository.getId());
 		resource.setParentId(Constant.TREE_ROOT_ID);
-		repositoryResourceService.insert(savedProject, resource);
+		repositoryResourceService.insert(savedRepository, resource);
 		
-		List<UncommittedFile> changes = repositoryResourceService.findChanges(savedProject);
+		List<UncommittedFile> changes = repositoryResourceService.findChanges(savedRepository);
 		
 		assertThat(changes).isEmpty();
 	}
 
 	@Test
-	public void find_changes_exist_two_level_parent_name_path_use_name(@TempDir Path rootFolder) throws IOException {
+	public void findChangesExistTwoLevelParentNamePathUseName(@TempDir Path rootFolder) throws IOException {
 		UserInfo userInfo = new UserInfo();
 		userInfo.setLoginName("user_name");
 		userInfo.setAvatarUrl("avatar_url");
@@ -804,18 +850,18 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		userInfo.setCreateTime(LocalDateTime.now());
 		Integer userId = userDao.save(userInfo).getId();
 		
-		Repository project = new Repository();
-		project.setName("project_name");
-		project.setIsPublic(true);
-		project.setDescription("description");
-		project.setLastActiveTime(LocalDateTime.now());
-		project.setCreateUserId(userId);
-		project.setCreateTime(LocalDateTime.now());
-		project.setCreateUserName("user_name");
+		Repository repository = new Repository();
+		repository.setName("repoName1");
+		repository.setIsPublic(true);
+		repository.setDescription("description");
+		repository.setLastActiveTime(LocalDateTime.now());
+		repository.setCreateUserId(userId);
+		repository.setCreateTime(LocalDateTime.now());
+		repository.setCreateUserName("user_name");
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		Repository savedProject = repositoryService.createRepository(userInfo, project);
+		Repository savedRepository = repositoryService.createRepository(userInfo, repository);
 		
 		// 有一个未跟踪的文件夹。
 		RepositoryResource group1 = new RepositoryResource();
@@ -824,9 +870,9 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		group1.setAppType(AppType.UNKNOWN);
 		group1.setCreateTime(LocalDateTime.now());
 		group1.setCreateUserId(userId);
-		group1.setRepositoryId(savedProject.getId());
+		group1.setRepositoryId(savedRepository.getId());
 		group1.setParentId(Constant.TREE_ROOT_ID);
-		Integer group1Id = repositoryResourceService.insert(savedProject, group1).getId();
+		Integer group1Id = repositoryResourceService.insert(savedRepository, group1).getId();
 		
 		RepositoryResource group11 = new RepositoryResource();
 		group11.setKey("group11");
@@ -834,9 +880,9 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		group11.setAppType(AppType.UNKNOWN);
 		group11.setCreateTime(LocalDateTime.now());
 		group11.setCreateUserId(userId);
-		group11.setRepositoryId(savedProject.getId());
+		group11.setRepositoryId(savedRepository.getId());
 		group11.setParentId(group1Id);
-		Integer group11Id = repositoryResourceService.insert(savedProject, group11).getId();
+		Integer group11Id = repositoryResourceService.insert(savedRepository, group11).getId();
 				
 		RepositoryResource page1 = new RepositoryResource();
 		page1.setKey("page111");
@@ -844,12 +890,12 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		page1.setAppType(AppType.WEB);
 		page1.setCreateTime(LocalDateTime.now());
 		page1.setCreateUserId(userId);
-		page1.setRepositoryId(savedProject.getId());
+		page1.setRepositoryId(savedRepository.getId());
 		page1.setParentId(group11Id);
-		repositoryResourceService.insert(savedProject, page1);
+		repositoryResourceService.insert(savedRepository, page1);
 		
 		// 有一个未跟踪的文件。
-		List<UncommittedFile> changes = repositoryResourceService.findChanges(savedProject);
+		List<UncommittedFile> changes = repositoryResourceService.findChanges(savedRepository);
 		
 		assertThat(changes).hasSize(1);
 		UncommittedFile file = changes.get(0);
@@ -863,7 +909,7 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 	}
 	
 	@Test
-	public void stage_changes_success(@TempDir Path rootFolder) throws IOException {
+	public void stageChangesSuccess(@TempDir Path rootFolder) throws IOException {
 		UserInfo userInfo = new UserInfo();
 		userInfo.setLoginName("user_name");
 		userInfo.setAvatarUrl("avatar_url");
@@ -872,18 +918,18 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		userInfo.setCreateTime(LocalDateTime.now());
 		Integer userId = userDao.save(userInfo).getId();
 		
-		Repository project = new Repository();
-		project.setName("project_name");
-		project.setIsPublic(true);
-		project.setDescription("description");
-		project.setLastActiveTime(LocalDateTime.now());
-		project.setCreateUserId(userId);
-		project.setCreateTime(LocalDateTime.now());
-		project.setCreateUserName("user_name");
+		Repository repository = new Repository();
+		repository.setName("repoName1");
+		repository.setIsPublic(true);
+		repository.setDescription("description");
+		repository.setLastActiveTime(LocalDateTime.now());
+		repository.setCreateUserId(userId);
+		repository.setCreateTime(LocalDateTime.now());
+		repository.setCreateUserName("user_name");
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		Repository savedProject = repositoryService.createRepository(userInfo, project);
+		Repository savedRepository = repositoryService.createRepository(userInfo, repository);
 		
 		RepositoryResource resource = new RepositoryResource();
 		resource.setKey("page1");
@@ -892,13 +938,13 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		resource.setAppType(AppType.WEB);
 		resource.setCreateTime(LocalDateTime.now());
 		resource.setCreateUserId(userId);
-		resource.setRepositoryId(savedProject.getId());
+		resource.setRepositoryId(savedRepository.getId());
 		resource.setParentId(Constant.TREE_ROOT_ID);
-		repositoryResourceService.insert(savedProject, resource);
+		repositoryResourceService.insert(savedRepository, resource);
 		
-		repositoryResourceService.stageChanges(savedProject, new String[] {"page1.page.web.json"});
+		repositoryResourceService.stageChanges(savedRepository, new String[] {"page1.page.web.json"});
 		// 有一个已跟踪，但未提交的文件。
-		List<UncommittedFile> changes = repositoryResourceService.findChanges(savedProject);
+		List<UncommittedFile> changes = repositoryResourceService.findChanges(savedRepository);
 		
 		assertThat(changes).hasSize(1);
 		
@@ -911,7 +957,7 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 	}
 	
 	@Test
-	public void unstage_changes_success(@TempDir Path rootFolder) throws IOException {
+	public void unstageChangesSuccess(@TempDir Path rootFolder) throws IOException {
 		UserInfo userInfo = new UserInfo();
 		userInfo.setLoginName("user_name");
 		userInfo.setAvatarUrl("avatar_url");
@@ -920,18 +966,18 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		userInfo.setCreateTime(LocalDateTime.now());
 		Integer userId = userDao.save(userInfo).getId();
 		
-		Repository project = new Repository();
-		project.setName("project_name");
-		project.setIsPublic(true);
-		project.setDescription("description");
-		project.setLastActiveTime(LocalDateTime.now());
-		project.setCreateUserId(userId);
-		project.setCreateTime(LocalDateTime.now());
-		project.setCreateUserName("user_name");
+		Repository repository = new Repository();
+		repository.setName("repoName1");
+		repository.setIsPublic(true);
+		repository.setDescription("description");
+		repository.setLastActiveTime(LocalDateTime.now());
+		repository.setCreateUserId(userId);
+		repository.setCreateTime(LocalDateTime.now());
+		repository.setCreateUserName("user_name");
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		Repository savedProject = repositoryService.createRepository(userInfo, project);
+		Repository savedRepository = repositoryService.createRepository(userInfo, repository);
 		
 		RepositoryResource resource = new RepositoryResource();
 		resource.setKey("page1");
@@ -940,14 +986,14 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		resource.setAppType(AppType.WEB);
 		resource.setCreateTime(LocalDateTime.now());
 		resource.setCreateUserId(userId);
-		resource.setRepositoryId(savedProject.getId());
+		resource.setRepositoryId(savedRepository.getId());
 		resource.setParentId(Constant.TREE_ROOT_ID);
-		repositoryResourceService.insert(savedProject, resource);
+		repositoryResourceService.insert(savedRepository, resource);
 		
-		repositoryResourceService.stageChanges(savedProject, new String[] {"page1.page.web.json"});
-		repositoryResourceService.unstageChanges(savedProject, new String[] {"page1.page.web.json"});
+		repositoryResourceService.stageChanges(savedRepository, new String[] {"page1.page.web.json"});
+		repositoryResourceService.unstageChanges(savedRepository, new String[] {"page1.page.web.json"});
 		// 有一个已跟踪，但未提交的文件。
-		List<UncommittedFile> changes = repositoryResourceService.findChanges(savedProject);
+		List<UncommittedFile> changes = repositoryResourceService.findChanges(savedRepository);
 		
 		assertThat(changes).hasSize(1);
 		
@@ -960,7 +1006,7 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 	}
 	
 	@Test
-	public void commit_no_stage(@TempDir Path rootFolder) throws IOException {
+	public void commitNoStage(@TempDir Path rootFolder) throws IOException {
 		UserInfo userInfo = new UserInfo();
 		userInfo.setLoginName("user_name");
 		userInfo.setAvatarUrl("avatar_url");
@@ -969,27 +1015,27 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		userInfo.setCreateTime(LocalDateTime.now());
 		Integer userId = userDao.save(userInfo).getId();
 		
-		Repository project = new Repository();
-		project.setName("project_name");
-		project.setIsPublic(true);
-		project.setDescription("description");
-		project.setLastActiveTime(LocalDateTime.now());
-		project.setCreateUserId(userId);
-		project.setCreateTime(LocalDateTime.now());
-		project.setCreateUserName("user_name");
+		Repository repository = new Repository();
+		repository.setName("repoName1");
+		repository.setIsPublic(true);
+		repository.setDescription("description");
+		repository.setLastActiveTime(LocalDateTime.now());
+		repository.setCreateUserId(userId);
+		repository.setCreateTime(LocalDateTime.now());
+		repository.setCreateUserName("user_name");
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		Repository savedProject = repositoryService.createRepository(userInfo, project);
+		Repository savedRepository = repositoryService.createRepository(userInfo, repository);
 		
-		List<UncommittedFile> changes = repositoryResourceService.findChanges(savedProject);
+		List<UncommittedFile> changes = repositoryResourceService.findChanges(savedRepository);
 		assertThat(changes).isEmpty();
 		
-		Assertions.assertThrows(GitEmptyCommitException.class, () -> repositoryResourceService.commit(userInfo, savedProject, "commit page1"));
+		Assertions.assertThrows(GitEmptyCommitException.class, () -> repositoryResourceService.commit(userInfo, savedRepository, "commit page1"));
 	}
 	
 	@Test
-	public void commit_success(@TempDir Path rootFolder) throws IOException {
+	public void commitSuccess(@TempDir Path rootFolder) throws IOException {
 		UserInfo userInfo = new UserInfo();
 		userInfo.setLoginName("user_name");
 		userInfo.setAvatarUrl("avatar_url");
@@ -998,18 +1044,18 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		userInfo.setCreateTime(LocalDateTime.now());
 		Integer userId = userDao.save(userInfo).getId();
 		
-		Repository project = new Repository();
-		project.setName("project_name");
-		project.setIsPublic(true);
-		project.setDescription("description");
-		project.setLastActiveTime(LocalDateTime.now());
-		project.setCreateUserId(userId);
-		project.setCreateTime(LocalDateTime.now());
-		project.setCreateUserName("user_name");
+		Repository repository = new Repository();
+		repository.setName("repoName1");
+		repository.setIsPublic(true);
+		repository.setDescription("description");
+		repository.setLastActiveTime(LocalDateTime.now());
+		repository.setCreateUserId(userId);
+		repository.setCreateTime(LocalDateTime.now());
+		repository.setCreateUserName("user_name");
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		Repository savedProject = repositoryService.createRepository(userInfo, project);
+		Repository savedRepository = repositoryService.createRepository(userInfo, repository);
 		
 		RepositoryResource resource = new RepositoryResource();
 		resource.setKey("page1");
@@ -1018,17 +1064,17 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		resource.setAppType(AppType.WEB);
 		resource.setCreateTime(LocalDateTime.now());
 		resource.setCreateUserId(userId);
-		resource.setRepositoryId(savedProject.getId());
+		resource.setRepositoryId(savedRepository.getId());
 		resource.setParentId(Constant.TREE_ROOT_ID);
-		repositoryResourceService.insert(savedProject, resource);
+		repositoryResourceService.insert(savedRepository, resource);
 		
-		repositoryResourceService.stageChanges(savedProject, new String[] {"page1.page.web.json"});
-		String commitId = repositoryResourceService.commit(userInfo, savedProject, "commit page1");
+		repositoryResourceService.stageChanges(savedRepository, new String[] {"page1.page.web.json"});
+		String commitId = repositoryResourceService.commit(userInfo, savedRepository, "commit page1");
 		// 有一个已跟踪，但未提交的文件。
-		List<UncommittedFile> changes = repositoryResourceService.findChanges(savedProject);
+		List<UncommittedFile> changes = repositoryResourceService.findChanges(savedRepository);
 		assertThat(changes).hasSize(0);
 		
-		Optional<RepositoryCommit> commitOption = repositoryCommitDao.findByRepositoryIdAndBranchAndCommitId(savedProject.getId(), Constants.MASTER, commitId);
+		Optional<RepositoryCommit> commitOption = repositoryCommitDao.findByRepositoryIdAndBranchAndCommitId(savedRepository.getId(), Constants.MASTER, commitId);
 		assertThat(commitOption).isPresent();
 	}
 
@@ -1043,7 +1089,8 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 	// 新创建一个页面模型
 	// 断言返回的页面模型与录入的页面模型，数据和顺序都完全一致。
 	@Test
-	public void updatePageModel_new_widget_with_property() {
+	public void updatePageModelNewWidgetWithProperty() {
+		Integer userId = 1;
 		// 初始化数据
 		// 1. 创建一个 API 仓库，类型为 Widget
 		ApiRepo apiRepo = new ApiRepo();
@@ -1054,15 +1101,17 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		apiRepo.setCategory(RepoCategory.WIDGET);
 		apiRepo.setCreateUserId(1);
 		apiRepo.setCreateTime(LocalDateTime.now());
+		apiRepo.setLastPublishTime(LocalDateTime.now());
 		ApiRepo savedApiRepo = apiRepoDao.save(apiRepo);
 		// 2. 创建一个 API 版本号
 		ApiRepoVersion apiVersion = new ApiRepoVersion();
 		apiVersion.setApiRepoId(savedApiRepo.getId());
 		apiVersion.setName("name");
-		apiVersion.setVersion("0.1.0");
-		apiVersion.setGitTagName("v0.1.0");
+		apiVersion.setVersion("master");
+		apiVersion.setGitTagName("refs/heads/master");
 		apiVersion.setCreateUserId(1);
 		apiVersion.setCreateTime(LocalDateTime.now());
+		apiVersion.setLastPublishTime(LocalDateTime.now());
 		ApiRepoVersion savedApiRepoVersion = apiRepoVersionDao.save(apiVersion);
 		// 3. 在对应的 API 版本下添加两个部件，分别为每一个部件设置一个属性
 		// 3.1 部件1
@@ -1120,24 +1169,32 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		componentRepoVersion.setBuild("build");
 		componentRepoVersion.setCreateUserId(1);
 		componentRepoVersion.setCreateTime(LocalDateTime.now());
+		componentRepoVersion.setLastPublishTime(LocalDateTime.now());
 		ComponentRepoVersion savedComponentRepoVersion = componentRepoVersionDao.save(componentRepoVersion);
 		// 6. 创建一个项目
 		//    为项目添加依赖时，直接使用项目标识即可
 		//    所以准备数据时，可跳过这一步
-		Integer projectId = 1;
+		Integer repositoryId = 1;
+		
+		RepositoryResource project = new RepositoryResource();
+		project.setRepositoryId(repositoryId);
+		project.setParentId(Constant.TREE_ROOT_ID);
+		project.setKey("project1");
+		project.setAppType(AppType.WEB);
+		project.setResourceType(RepositoryResourceType.PROJECT);
+		project.setCreateTime(LocalDateTime.now());
+		project.setCreateUserId(userId);
+		project.setSeq(1);
+		RepositoryResource savedProject = repositortResourceDao.save(project);
+		
 		// 7. 将创建的 ide 组件库的一个版本添加为项目依赖
-		ProjectDependency dependence = new ProjectDependency();
-		dependence.setProjectId(projectId);
-		dependence.setComponentRepoVersionId(savedComponentRepoVersion.getId());
-		dependence.setCreateUserId(1);
-		dependence.setCreateTime(LocalDateTime.now());
-		projectDependenceDao.save(dependence);
-		
-		// 新增页面模型
-		PageModel model = new PageModel();
-		
-		Integer pageId = 1;
-		model.setPageId(pageId);
+		ProjectDependency dependency = new ProjectDependency();
+		dependency.setRepositoryId(repositoryId);
+		dependency.setProjectId(savedProject.getId());
+		dependency.setComponentRepoVersionId(savedComponentRepoVersion.getId());
+		dependency.setCreateUserId(1);
+		dependency.setCreateTime(LocalDateTime.now());
+		projectDependencyDao.save(dependency);
 		
 		AttachedWidget attachedWidget1 = new AttachedWidget();
 		attachedWidget1.setId("1");
@@ -1170,19 +1227,28 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		
 		attachedWidget2.setProperties(Arrays.asList(attachedWidgetProperty21));
 		
+		// 新增页面模型
+		PageModel model = new PageModel();
+		
+		Integer pageId = 1;
+		model.setPageId(pageId);
 		model.setWidgets(Arrays.asList(attachedWidget1, attachedWidget2));
 		model.setData(Collections.emptyList());
 		model.setFunctions(Collections.emptyList());
-
+		
+		RepositoryResource page = new RepositoryResource();
+		page.setId(pageId);
+		page.setParentId(savedProject.getId());
+		
 		repositoryResourceService.updatePageModel(null, null, model);
 		
-		PageModel savedModel = repositoryResourceService.getPageModel(projectId, pageId);
+		PageModel savedModel = repositoryResourceService.getPageModel(page);
 		
 		assertThat(savedModel).usingRecursiveComparison().isEqualTo(model);
 	}
 	
 	@Test
-	public void updatePageModel_new_widget_with_event_not_set_value() {
+	public void updatePageModelNewWidgetWithEventNotSetValue() {
 		// 初始化数据
 		// 1. 创建一个 API 仓库，类型为 Widget
 		ApiRepo apiRepo = new ApiRepo();
@@ -1193,15 +1259,17 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		apiRepo.setCategory(RepoCategory.WIDGET);
 		apiRepo.setCreateUserId(1);
 		apiRepo.setCreateTime(LocalDateTime.now());
+		apiRepo.setLastPublishTime(LocalDateTime.now());
 		ApiRepo savedApiRepo = apiRepoDao.save(apiRepo);
 		// 2. 创建一个 API 版本号
 		ApiRepoVersion apiVersion = new ApiRepoVersion();
 		apiVersion.setApiRepoId(savedApiRepo.getId());
 		apiVersion.setName("name");
-		apiVersion.setVersion("0.1.0");
-		apiVersion.setGitTagName("v0.1.0");
+		apiVersion.setVersion("master");
+		apiVersion.setGitTagName("refs/heads/master");
 		apiVersion.setCreateUserId(1);
 		apiVersion.setCreateTime(LocalDateTime.now());
+		apiVersion.setLastPublishTime(LocalDateTime.now());
 		ApiRepoVersion savedApiRepoVersion = apiRepoVersionDao.save(apiVersion);
 		// 3. 在对应的 API 版本下添加一个部件，并为部件设置一个事件
 		// 部件
@@ -1249,23 +1317,38 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		componentRepoVersion.setBuild("build");
 		componentRepoVersion.setCreateUserId(1);
 		componentRepoVersion.setCreateTime(LocalDateTime.now());
+		componentRepoVersion.setLastPublishTime(LocalDateTime.now());
 		ComponentRepoVersion savedComponentRepoVersion = componentRepoVersionDao.save(componentRepoVersion);
 		// 6. 创建一个项目
 		//    为项目添加依赖时，直接使用项目标识即可
 		//    所以准备数据时，可跳过这一步
-		Integer projectId = 1;
+		Integer repositoryId = 1;
+		Integer userId = 2;
+		
+		RepositoryResource project = new RepositoryResource();
+		project.setRepositoryId(repositoryId);
+		project.setParentId(Constant.TREE_ROOT_ID);
+		project.setKey("project1");
+		project.setAppType(AppType.WEB);
+		project.setResourceType(RepositoryResourceType.PROJECT);
+		project.setCreateTime(LocalDateTime.now());
+		project.setCreateUserId(userId);
+		project.setSeq(1);
+		RepositoryResource savedProject = repositortResourceDao.save(project);
+		
 		// 7. 将创建的 ide 组件库的一个版本添加为项目依赖
 		ProjectDependency dependence = new ProjectDependency();
-		dependence.setProjectId(projectId);
+		dependence.setRepositoryId(repositoryId);
+		dependence.setProjectId(savedProject.getId());
 		dependence.setComponentRepoVersionId(savedComponentRepoVersion.getId());
 		dependence.setCreateUserId(1);
 		dependence.setCreateTime(LocalDateTime.now());
-		projectDependenceDao.save(dependence);
+		projectDependencyDao.save(dependence);
 		
 		// 新增页面模型
 		PageModel model = new PageModel();
 		
-		Integer pageId = 1;
+		Integer pageId = 3;
 		model.setPageId(pageId);
 		
 		AttachedWidget attachedWidget1 = new AttachedWidget();
@@ -1298,7 +1381,10 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 
 		repositoryResourceService.updatePageModel(null, null, model);
 		
-		PageModel savedModel = repositoryResourceService.getPageModel(projectId, pageId);
+		RepositoryResource page = new RepositoryResource();
+		page.setId(pageId);
+		page.setParentId(savedProject.getId());
+		PageModel savedModel = repositoryResourceService.getPageModel(page);
 		
 		// 因为此时的 widgets.properties.id 是在后台生成的 uuid，无法断言，所以忽略掉
 		assertThat(savedModel).usingRecursiveComparison().ignoringFields("widgets.properties.id").isEqualTo(model);
@@ -1306,7 +1392,7 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 	}
 
 	@Test
-	public void updatePageModel_new_widget_with_event_set_value() {
+	public void updatePageModelNewWidgetWithEventSetValue() {
 		// 初始化数据
 		// 1. 创建一个 API 仓库，类型为 Widget
 		ApiRepo apiRepo = new ApiRepo();
@@ -1317,6 +1403,7 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		apiRepo.setCategory(RepoCategory.WIDGET);
 		apiRepo.setCreateUserId(1);
 		apiRepo.setCreateTime(LocalDateTime.now());
+		apiRepo.setLastPublishTime(LocalDateTime.now());
 		ApiRepo savedApiRepo = apiRepoDao.save(apiRepo);
 		// 2. 创建一个 API 版本号
 		ApiRepoVersion apiVersion = new ApiRepoVersion();
@@ -1326,6 +1413,7 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		apiVersion.setGitTagName("v0.1.0");
 		apiVersion.setCreateUserId(1);
 		apiVersion.setCreateTime(LocalDateTime.now());
+		apiVersion.setLastPublishTime(LocalDateTime.now());
 		ApiRepoVersion savedApiRepoVersion = apiRepoVersionDao.save(apiVersion);
 		// 3. 在对应的 API 版本下添加一个部件，并为部件设置一个事件
 		// 部件
@@ -1373,18 +1461,33 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		componentRepoVersion.setBuild("build");
 		componentRepoVersion.setCreateUserId(1);
 		componentRepoVersion.setCreateTime(LocalDateTime.now());
+		componentRepoVersion.setLastPublishTime(LocalDateTime.now());
 		ComponentRepoVersion savedComponentRepoVersion = componentRepoVersionDao.save(componentRepoVersion);
 		// 6. 创建一个项目
 		//    为项目添加依赖时，直接使用项目标识即可
 		//    所以准备数据时，可跳过这一步
-		Integer projectId = 1;
+		Integer repositoryId = 1;
+		Integer userId = 2;
+		
+		RepositoryResource project = new RepositoryResource();
+		project.setRepositoryId(repositoryId);
+		project.setParentId(Constant.TREE_ROOT_ID);
+		project.setKey("project1");
+		project.setAppType(AppType.WEB);
+		project.setResourceType(RepositoryResourceType.PROJECT);
+		project.setCreateTime(LocalDateTime.now());
+		project.setCreateUserId(userId);
+		project.setSeq(1);
+		RepositoryResource savedProject = repositortResourceDao.save(project);
+		
 		// 7. 将创建的 ide 组件库的一个版本添加为项目依赖
-		ProjectDependency dependence = new ProjectDependency();
-		dependence.setProjectId(projectId);
-		dependence.setComponentRepoVersionId(savedComponentRepoVersion.getId());
-		dependence.setCreateUserId(1);
-		dependence.setCreateTime(LocalDateTime.now());
-		projectDependenceDao.save(dependence);
+		ProjectDependency dependency = new ProjectDependency();
+		dependency.setRepositoryId(repositoryId);
+		dependency.setProjectId(savedProject.getId());
+		dependency.setComponentRepoVersionId(savedComponentRepoVersion.getId());
+		dependency.setCreateUserId(1);
+		dependency.setCreateTime(LocalDateTime.now());
+		projectDependencyDao.save(dependency);
 		
 		// 新增页面模型
 		PageModel model = new PageModel();
@@ -1454,14 +1557,17 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 
 		repositoryResourceService.updatePageModel(null, null, model);
 		
-		PageModel savedModel = repositoryResourceService.getPageModel(projectId, pageId);
+		RepositoryResource page = new RepositoryResource();
+		page.setId(pageId);
+		page.setParentId(savedProject.getId());
+		PageModel savedModel = repositoryResourceService.getPageModel(page);
 		
 		assertThat(savedModel).usingRecursiveComparison().isEqualTo(model);
 	}
 	
 	// 没有测试连接线，而是为 set variable 设置一个默认值。
 	@Test
-	public void updatePageModel_new_widget_with_event_has_a_set_variable_node() {
+	public void updatePageModelNewWidgetWithEventHasOneSetVariableNode() {
 		// 初始化数据
 		// 1. 创建一个 API 仓库，类型为 Widget
 		ApiRepo apiRepo = new ApiRepo();
@@ -1472,6 +1578,7 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		apiRepo.setCategory(RepoCategory.WIDGET);
 		apiRepo.setCreateUserId(1);
 		apiRepo.setCreateTime(LocalDateTime.now());
+		apiRepo.setLastPublishTime(LocalDateTime.now());
 		ApiRepo savedApiRepo = apiRepoDao.save(apiRepo);
 		// 2. 创建一个 API 版本号
 		ApiRepoVersion apiVersion = new ApiRepoVersion();
@@ -1481,6 +1588,7 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		apiVersion.setGitTagName("v0.1.0");
 		apiVersion.setCreateUserId(1);
 		apiVersion.setCreateTime(LocalDateTime.now());
+		apiVersion.setLastPublishTime(LocalDateTime.now());
 		ApiRepoVersion savedApiRepoVersion = apiRepoVersionDao.save(apiVersion);
 		// 3. 在对应的 API 版本下添加一个部件，并为部件设置一个事件
 		// 部件
@@ -1528,18 +1636,33 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		componentRepoVersion.setBuild("dojo");
 		componentRepoVersion.setCreateUserId(1);
 		componentRepoVersion.setCreateTime(LocalDateTime.now());
+		componentRepoVersion.setLastPublishTime(LocalDateTime.now());
 		ComponentRepoVersion savedComponentRepoVersion = componentRepoVersionDao.save(componentRepoVersion);
 		// 6. 创建一个项目
 		//    为项目添加依赖时，直接使用项目标识即可
 		//    所以准备数据时，可跳过这一步
-		Integer projectId = 1;
+		Integer repositoryId = 1;
+		Integer userId = 2;
+		
+		RepositoryResource project = new RepositoryResource();
+		project.setRepositoryId(repositoryId);
+		project.setParentId(Constant.TREE_ROOT_ID);
+		project.setKey("project1");
+		project.setAppType(AppType.WEB);
+		project.setResourceType(RepositoryResourceType.PROJECT);
+		project.setCreateTime(LocalDateTime.now());
+		project.setCreateUserId(userId);
+		project.setSeq(1);
+		RepositoryResource savedProject = repositortResourceDao.save(project);
+		
 		// 7. 将创建的 ide 组件库的一个版本添加为项目依赖
 		ProjectDependency dependence = new ProjectDependency();
-		dependence.setProjectId(projectId);
+		dependence.setRepositoryId(repositoryId);
+		dependence.setProjectId(savedProject.getId());
 		dependence.setComponentRepoVersionId(savedComponentRepoVersion.getId());
 		dependence.setCreateUserId(1);
 		dependence.setCreateTime(LocalDateTime.now());
-		projectDependenceDao.save(dependence);
+		projectDependencyDao.save(dependence);
 		
 		// 新增页面模型
 		PageModel model = new PageModel();
@@ -1656,13 +1779,16 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 
 		repositoryResourceService.updatePageModel(null, null, model);
 		
-		PageModel savedModel = repositoryResourceService.getPageModel(projectId, pageId);
+		RepositoryResource page = new RepositoryResource();
+		page.setId(pageId);
+		page.setParentId(savedProject.getId());
+		PageModel savedModel = repositoryResourceService.getPageModel(page);
 		
 		assertThat(savedModel).usingRecursiveComparison().ignoringCollectionOrder().isEqualTo(model);
 	}
 	
 	@Test
-	public void updatePageModel_new_widget_with_event_has_a_get_variable_node() {
+	public void updatePageModelNewWidgetWithEventHasOneGetVariableNode() {
 		// 初始化数据
 		// 1. 创建一个 API 仓库，类型为 Widget
 		ApiRepo apiRepo = new ApiRepo();
@@ -1673,6 +1799,7 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		apiRepo.setCategory(RepoCategory.WIDGET);
 		apiRepo.setCreateUserId(1);
 		apiRepo.setCreateTime(LocalDateTime.now());
+		apiRepo.setLastPublishTime(LocalDateTime.now());
 		ApiRepo savedApiRepo = apiRepoDao.save(apiRepo);
 		// 2. 创建一个 API 版本号
 		ApiRepoVersion apiVersion = new ApiRepoVersion();
@@ -1682,6 +1809,7 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		apiVersion.setGitTagName("v0.1.0");
 		apiVersion.setCreateUserId(1);
 		apiVersion.setCreateTime(LocalDateTime.now());
+		apiVersion.setLastPublishTime(LocalDateTime.now());
 		ApiRepoVersion savedApiRepoVersion = apiRepoVersionDao.save(apiVersion);
 		// 3. 在对应的 API 版本下添加一个部件，并为部件设置一个事件
 		// 部件
@@ -1729,18 +1857,33 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		componentRepoVersion.setBuild("dojo");
 		componentRepoVersion.setCreateUserId(1);
 		componentRepoVersion.setCreateTime(LocalDateTime.now());
+		componentRepoVersion.setLastPublishTime(LocalDateTime.now());
 		ComponentRepoVersion savedComponentRepoVersion = componentRepoVersionDao.save(componentRepoVersion);
 		// 6. 创建一个项目
 		//    为项目添加依赖时，直接使用项目标识即可
 		//    所以准备数据时，可跳过这一步
-		Integer projectId = 1;
+		Integer repositoryId = 1;
+		Integer userId = 2;
+		
+		RepositoryResource project = new RepositoryResource();
+		project.setRepositoryId(repositoryId);
+		project.setParentId(Constant.TREE_ROOT_ID);
+		project.setKey("project1");
+		project.setAppType(AppType.WEB);
+		project.setResourceType(RepositoryResourceType.PROJECT);
+		project.setCreateTime(LocalDateTime.now());
+		project.setCreateUserId(userId);
+		project.setSeq(1);
+		RepositoryResource savedProject = repositortResourceDao.save(project);
+		
 		// 7. 将创建的 ide 组件库的一个版本添加为项目依赖
-		ProjectDependency dependence = new ProjectDependency();
-		dependence.setProjectId(projectId);
-		dependence.setComponentRepoVersionId(savedComponentRepoVersion.getId());
-		dependence.setCreateUserId(1);
-		dependence.setCreateTime(LocalDateTime.now());
-		projectDependenceDao.save(dependence);
+		ProjectDependency dependency = new ProjectDependency();
+		dependency.setRepositoryId(repositoryId);
+		dependency.setProjectId(savedProject.getId());
+		dependency.setComponentRepoVersionId(savedComponentRepoVersion.getId());
+		dependency.setCreateUserId(1);
+		dependency.setCreateTime(LocalDateTime.now());
+		projectDependencyDao.save(dependency);
 		
 		// 新增页面模型
 		PageModel model = new PageModel();
@@ -1848,13 +1991,16 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 
 		repositoryResourceService.updatePageModel(null, null, model);
 		
-		PageModel savedModel = repositoryResourceService.getPageModel(projectId, pageId);
+		RepositoryResource page = new RepositoryResource();
+		page.setId(pageId);
+		page.setParentId(savedProject.getId());
+		PageModel savedModel = repositoryResourceService.getPageModel(page);
 		
 		assertThat(savedModel).usingRecursiveComparison().ignoringCollectionOrder().isEqualTo(model);
 	}
 	
 	@Test
-	public void updatePageModeel_new_widget_with_event_connect_function_declare_node_and_set_variable_node() {
+	public void updatePageModeelNewWidgetWithEventConnectFunctionDeclareNodeAndSetVariableNode() {
 		// 初始化数据
 		// 1. 创建一个 API 仓库，类型为 Widget
 		ApiRepo apiRepo = new ApiRepo();
@@ -1865,6 +2011,7 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		apiRepo.setCategory(RepoCategory.WIDGET);
 		apiRepo.setCreateUserId(1);
 		apiRepo.setCreateTime(LocalDateTime.now());
+		apiRepo.setLastPublishTime(LocalDateTime.now());
 		ApiRepo savedApiRepo = apiRepoDao.save(apiRepo);
 		// 2. 创建一个 API 版本号
 		ApiRepoVersion apiVersion = new ApiRepoVersion();
@@ -1874,6 +2021,7 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		apiVersion.setGitTagName("v0.1.0");
 		apiVersion.setCreateUserId(1);
 		apiVersion.setCreateTime(LocalDateTime.now());
+		apiVersion.setLastPublishTime(LocalDateTime.now());
 		ApiRepoVersion savedApiRepoVersion = apiRepoVersionDao.save(apiVersion);
 		// 3. 在对应的 API 版本下添加一个部件，并为部件设置一个事件
 		// 部件
@@ -1921,18 +2069,33 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		componentRepoVersion.setBuild("build");
 		componentRepoVersion.setCreateUserId(1);
 		componentRepoVersion.setCreateTime(LocalDateTime.now());
+		componentRepoVersion.setLastPublishTime(LocalDateTime.now());
 		ComponentRepoVersion savedComponentRepoVersion = componentRepoVersionDao.save(componentRepoVersion);
 		// 6. 创建一个项目
 		//    为项目添加依赖时，直接使用项目标识即可
 		//    所以准备数据时，可跳过这一步
-		Integer projectId = 1;
+		Integer repositoryId = 1;
+		Integer userId = 2;
+		
+		RepositoryResource project = new RepositoryResource();
+		project.setRepositoryId(repositoryId);
+		project.setParentId(Constant.TREE_ROOT_ID);
+		project.setKey("project1");
+		project.setAppType(AppType.WEB);
+		project.setResourceType(RepositoryResourceType.PROJECT);
+		project.setCreateTime(LocalDateTime.now());
+		project.setCreateUserId(userId);
+		project.setSeq(1);
+		RepositoryResource savedProject = repositortResourceDao.save(project);
+		
 		// 7. 将创建的 ide 组件库的一个版本添加为项目依赖
-		ProjectDependency dependence = new ProjectDependency();
-		dependence.setProjectId(projectId);
-		dependence.setComponentRepoVersionId(savedComponentRepoVersion.getId());
-		dependence.setCreateUserId(1);
-		dependence.setCreateTime(LocalDateTime.now());
-		projectDependenceDao.save(dependence);
+		ProjectDependency dependency = new ProjectDependency();
+		dependency.setRepositoryId(repositoryId);
+		dependency.setProjectId(savedProject.getId());
+		dependency.setComponentRepoVersionId(savedComponentRepoVersion.getId());
+		dependency.setCreateUserId(1);
+		dependency.setCreateTime(LocalDateTime.now());
+		projectDependencyDao.save(dependency);
 		
 		// 新增页面模型
 		PageModel model = new PageModel();
@@ -2068,14 +2231,18 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		repositoryResourceService.updatePageModel(null, null, model);
 		repositoryResourceService.updatePageModel(null, null, model); // 执行两次，确保之前的数据已彻底删除
 		
-		PageModel savedModel = repositoryResourceService.getPageModel(projectId, pageId);
+		RepositoryResource page = new RepositoryResource();
+		page.setId(pageId);
+		page.setParentId(savedProject.getId());
+		
+		PageModel savedModel = repositoryResourceService.getPageModel(page);
 		
 		assertThat(savedModel).usingRecursiveComparison().ignoringCollectionOrder().isEqualTo(model);
 	}
 	
 	// 更新页面模型
 	@Test
-	public void updatePageModel_widgets_update() {
+	public void updatePageModelWidgetsUpdate() {
 		// 初始化数据
 		// 1. 创建一个 API 仓库，类型为 Widget
 		ApiRepo apiRepo = new ApiRepo();
@@ -2086,6 +2253,7 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		apiRepo.setCategory(RepoCategory.WIDGET);
 		apiRepo.setCreateUserId(1);
 		apiRepo.setCreateTime(LocalDateTime.now());
+		apiRepo.setLastPublishTime(LocalDateTime.now());
 		ApiRepo savedApiRepo = apiRepoDao.save(apiRepo);
 		// 2. 创建一个 API 版本号
 		ApiRepoVersion apiVersion = new ApiRepoVersion();
@@ -2095,6 +2263,7 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		apiVersion.setGitTagName("v0.1.0");
 		apiVersion.setCreateUserId(1);
 		apiVersion.setCreateTime(LocalDateTime.now());
+		apiVersion.setLastPublishTime(LocalDateTime.now());
 		ApiRepoVersion savedApiRepoVersion = apiRepoVersionDao.save(apiVersion);
 		// 3. 在对应的 API 版本下添加两个部件，分别为每一个部件设置一个属性
 		//  部件
@@ -2133,18 +2302,33 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		componentRepoVersion.setBuild("dojo");
 		componentRepoVersion.setCreateUserId(1);
 		componentRepoVersion.setCreateTime(LocalDateTime.now());
+		componentRepoVersion.setLastPublishTime(LocalDateTime.now());
 		ComponentRepoVersion savedComponentRepoVersion = componentRepoVersionDao.save(componentRepoVersion);
 		// 6. 创建一个项目
 		//    为项目添加依赖时，直接使用项目标识即可
 		//    所以准备数据时，可跳过这一步
-		Integer projectId = 1;
+		Integer repositoryId = 1;
+		Integer userId = 2;
+		
+		RepositoryResource project = new RepositoryResource();
+		project.setRepositoryId(repositoryId);
+		project.setParentId(Constant.TREE_ROOT_ID);
+		project.setKey("project1");
+		project.setAppType(AppType.WEB);
+		project.setResourceType(RepositoryResourceType.PROJECT);
+		project.setCreateTime(LocalDateTime.now());
+		project.setCreateUserId(userId);
+		project.setSeq(1);
+		RepositoryResource savedProject = repositortResourceDao.save(project);
+		
 		// 7. 将创建的 ide 组件库的一个版本添加为项目依赖
-		ProjectDependency dependence = new ProjectDependency();
-		dependence.setProjectId(projectId);
-		dependence.setComponentRepoVersionId(savedComponentRepoVersion.getId());
-		dependence.setCreateUserId(1);
-		dependence.setCreateTime(LocalDateTime.now());
-		projectDependenceDao.save(dependence);
+		ProjectDependency dependency = new ProjectDependency();
+		dependency.setRepositoryId(repositoryId);
+		dependency.setProjectId(savedProject.getId());
+		dependency.setComponentRepoVersionId(savedComponentRepoVersion.getId());
+		dependency.setCreateUserId(1);
+		dependency.setCreateTime(LocalDateTime.now());
+		projectDependencyDao.save(dependency);
 		
 		// 新增页面模型
 		PageModel model = new PageModel();
@@ -2172,7 +2356,11 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		repositoryResourceService.updatePageModel(null, null, model); // 第一次执行
 		repositoryResourceService.updatePageModel(null, null, model); // 第二次执行
 		
-		PageModel savedModel = repositoryResourceService.getPageModel(projectId, pageId);
+		RepositoryResource page = new RepositoryResource();
+		page.setId(pageId);
+		page.setParentId(savedProject.getId());
+		
+		PageModel savedModel = repositoryResourceService.getPageModel(page);
 		
 		assertThat(savedModel).usingRecursiveComparison().isEqualTo(model);
 	}
@@ -2181,7 +2369,7 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 	// 此时 API 部件属性列表中有新增属性，但是之前存的页面模型中不包含新增属性
 	// 则在查询时要包含新增属性
 	@Test
-	public void updatePageModel_upgrade() {
+	public void updatePageModelUpgrade() {
 		// 初始化数据
 		// 1. 创建一个 API 仓库，类型为 Widget
 		ApiRepo apiRepo = new ApiRepo();
@@ -2192,6 +2380,7 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		apiRepo.setCategory(RepoCategory.WIDGET);
 		apiRepo.setCreateUserId(1);
 		apiRepo.setCreateTime(LocalDateTime.now());
+		apiRepo.setLastPublishTime(LocalDateTime.now());
 		ApiRepo savedApiRepo = apiRepoDao.save(apiRepo);
 		// 2. 创建一个 API 版本号
 		ApiRepoVersion apiVersion = new ApiRepoVersion();
@@ -2201,6 +2390,7 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		apiVersion.setGitTagName("v0.1.0");
 		apiVersion.setCreateUserId(1);
 		apiVersion.setCreateTime(LocalDateTime.now());
+		apiVersion.setLastPublishTime(LocalDateTime.now());
 		ApiRepoVersion savedApiRepoVersion = apiRepoVersionDao.save(apiVersion);
 		// 3. 在对应的 API 版本下添加一个部件，并设置一个属性
 		// 3.1 部件1
@@ -2238,18 +2428,33 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		componentRepoVersion.setBuild("build");
 		componentRepoVersion.setCreateUserId(1);
 		componentRepoVersion.setCreateTime(LocalDateTime.now());
+		componentRepoVersion.setLastPublishTime(LocalDateTime.now());
 		ComponentRepoVersion savedComponentRepoVersion = componentRepoVersionDao.save(componentRepoVersion);
 		// 6. 创建一个项目
 		//    为项目添加依赖时，直接使用项目标识即可
 		//    所以准备数据时，可跳过这一步
-		Integer projectId = 1;
+		Integer repositoryId = 1;
+		Integer userId = 2;
+		
+		RepositoryResource project = new RepositoryResource();
+		project.setRepositoryId(repositoryId);
+		project.setParentId(Constant.TREE_ROOT_ID);
+		project.setKey("project1");
+		project.setAppType(AppType.WEB);
+		project.setResourceType(RepositoryResourceType.PROJECT);
+		project.setCreateTime(LocalDateTime.now());
+		project.setCreateUserId(userId);
+		project.setSeq(1);
+		RepositoryResource savedProject = repositortResourceDao.save(project);
+		
 		// 7. 将创建的 ide 组件库的一个版本添加为项目依赖
-		ProjectDependency dependence = new ProjectDependency();
-		dependence.setProjectId(projectId);
-		dependence.setComponentRepoVersionId(savedComponentRepoVersion.getId());
-		dependence.setCreateUserId(1);
-		dependence.setCreateTime(LocalDateTime.now());
-		projectDependenceDao.save(dependence);
+		ProjectDependency dependency = new ProjectDependency();
+		dependency.setRepositoryId(repositoryId);
+		dependency.setProjectId(savedProject.getId());
+		dependency.setComponentRepoVersionId(savedComponentRepoVersion.getId());
+		dependency.setCreateUserId(1);
+		dependency.setCreateTime(LocalDateTime.now());
+		projectDependencyDao.save(dependency);
 		
 		// 新增页面模型
 		PageModel model = new PageModel();
@@ -2269,7 +2474,10 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		
 		repositoryResourceService.updatePageModel(null, null, model);
 		
-		PageModel result = repositoryResourceService.getPageModel(projectId, pageId);
+		RepositoryResource page = new RepositoryResource();
+		page.setId(pageId);
+		page.setParentId(savedProject.getId());
+		PageModel result = repositoryResourceService.getPageModel(page);
 		
 		assertThat(result.getWidgets().get(0).getProperties()).hasSize(1);
 		
@@ -2284,7 +2492,7 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 	}
 
 	@Test
-	public void updatePageModel_widgets_read_page_file_in_git(@TempDir Path rootFolder) throws IOException {
+	public void updatePageModelWidgetsReadPageFileInGit(@TempDir Path rootFolder) throws IOException {
 		// 初始化数据
 		// 1. 创建一个 API 仓库，类型为 Widget
 		ApiRepo apiRepo = new ApiRepo();
@@ -2295,6 +2503,7 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		apiRepo.setCategory(RepoCategory.WIDGET);
 		apiRepo.setCreateUserId(1);
 		apiRepo.setCreateTime(LocalDateTime.now());
+		apiRepo.setLastPublishTime(LocalDateTime.now());
 		ApiRepo savedApiRepo = apiRepoDao.save(apiRepo);
 		// 2. 创建一个 API 版本号
 		ApiRepoVersion apiVersion = new ApiRepoVersion();
@@ -2304,6 +2513,7 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		apiVersion.setGitTagName("v0.1.0");
 		apiVersion.setCreateUserId(1);
 		apiVersion.setCreateTime(LocalDateTime.now());
+		apiVersion.setLastPublishTime(LocalDateTime.now());
 		ApiRepoVersion savedApiRepoVersion = apiRepoVersionDao.save(apiVersion);
 		// 3. 在对应的 API 版本下添加两个部件，分别为每一个部件设置一个属性
 		// 3.1 部件1
@@ -2361,24 +2571,34 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		componentRepoVersion.setBuild("build");
 		componentRepoVersion.setCreateUserId(1);
 		componentRepoVersion.setCreateTime(LocalDateTime.now());
+		componentRepoVersion.setLastPublishTime(LocalDateTime.now());
 		ComponentRepoVersion savedComponentRepoVersion = componentRepoVersionDao.save(componentRepoVersion);
 		// 6. 创建一个项目
 		//    为项目添加依赖时，直接使用项目标识即可
 		//    所以准备数据时，可跳过这一步
-		Integer projectId = 1;
+		Integer repositoryId = 1;
+		Integer userId = 2;
+		String projectKey = "project1";
+		
+		RepositoryResource project = new RepositoryResource();
+		project.setRepositoryId(repositoryId);
+		project.setParentId(Constant.TREE_ROOT_ID);
+		project.setKey(projectKey);
+		project.setAppType(AppType.WEB);
+		project.setResourceType(RepositoryResourceType.PROJECT);
+		project.setCreateTime(LocalDateTime.now());
+		project.setCreateUserId(userId);
+		project.setSeq(1);
+		RepositoryResource savedProject = repositortResourceDao.save(project);
+		
 		// 7. 将创建的 ide 组件库的一个版本添加为项目依赖
-		ProjectDependency dependence = new ProjectDependency();
-		dependence.setProjectId(projectId);
-		dependence.setComponentRepoVersionId(savedComponentRepoVersion.getId());
-		dependence.setCreateUserId(1);
-		dependence.setCreateTime(LocalDateTime.now());
-		projectDependenceDao.save(dependence);
-		
-		// 新增页面模型
-		PageModel model = new PageModel();
-		
-		Integer pageId = 1;
-		model.setPageId(pageId);
+		ProjectDependency dependency = new ProjectDependency();
+		dependency.setRepositoryId(repositoryId);
+		dependency.setProjectId(savedProject.getId());
+		dependency.setComponentRepoVersionId(savedComponentRepoVersion.getId());
+		dependency.setCreateUserId(1);
+		dependency.setCreateTime(LocalDateTime.now());
+		projectDependencyDao.save(dependency);
 		
 		AttachedWidget attachedWidget1 = new AttachedWidget();
 		attachedWidget1.setId("1");
@@ -2410,41 +2630,60 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		attachedWidgetProperty21.setValueType(WidgetPropertyValueType.STRING.getKey());
 		attachedWidget2.setProperties(Collections.singletonList(attachedWidgetProperty21));
 		
+		// 新增页面模型
+		PageModel model = new PageModel();
+		Integer pageId = 1;
+		model.setPageId(pageId);
 		model.setWidgets(Arrays.asList(attachedWidget1, attachedWidget2));
 
-		Integer userId = 1;
 		UserInfo user = new UserInfo();
 		user.setId(userId);
 		user.setLoginName("jack");
 		when(userService.findById(anyInt())).thenReturn(Optional.of(user));
 		
-		Repository project = new Repository();
-		project.setName("project");
-		project.setCreateUserId(userId);
+		String owner = "jack";
+		String repoName = "repo1";
+		Repository repository = new Repository();
+		repository.setId(repositoryId);
+		repository.setCreateUserName(owner);
+		repository.setCreateUserId(userId);
+		repository.setName(repoName);
 		
 		RepositoryResource resource = new RepositoryResource();
 		String pageKey = "key1";
-		resource.setRepositoryId(projectId);
-		resource.setParentId(Constant.TREE_ROOT_ID);
+		resource.setRepositoryId(repositoryId);
+		resource.setParentId(savedProject.getId());
 		resource.setAppType(AppType.WEB);
 		resource.setKey(pageKey);
 		resource.setName("name");
 		resource.setResourceType(RepositoryResourceType.PAGE);
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
-		RepositoryContext context = new RepositoryContext("jack", "project", rootFolder.toString());
-		Files.createDirectories(context.getGitRepositoryDirectory());
+		RepositoryContext context = new RepositoryContext(owner, repoName, rootFolder.toString());
+		Files.createDirectories(context.getGitRepositoryDirectory().resolve(projectKey));
 		
-		repositoryResourceService.updatePageModel(project, resource, model);
+		repositoryResourceService.updatePageModel(repository, resource, model);
 		
-		ObjectMapper mapper = new ObjectMapper();
-		String mainPageJsonString = Files.readString(context.getGitRepositoryDirectory().resolve(pageKey + ".page.web.json"));
-		assertThat(mapper.readValue(mainPageJsonString, PageModel.class)).usingRecursiveComparison().isEqualTo(model);
+		String mainPageJsonString = Files.readString(context.getGitRepositoryDirectory().resolve(projectKey).resolve(pageKey + ".page.web.json"));
+		assertThat(JsonUtil.fromJsonObject(mainPageJsonString, PageModel.class)).usingRecursiveComparison().isEqualTo(model);
 	}
 
 	@Test
-	public void updatePageModel_data_new() {
-		Integer projectId = 1;
+	public void updatePageModelDataNew() {
+		Integer repositoryId = 1;
+		Integer userId = 2;
+		
+		RepositoryResource project = new RepositoryResource();
+		project.setRepositoryId(repositoryId);
+		project.setParentId(Constant.TREE_ROOT_ID);
+		project.setKey("projectKey");
+		project.setAppType(AppType.WEB);
+		project.setResourceType(RepositoryResourceType.PROJECT);
+		project.setCreateTime(LocalDateTime.now());
+		project.setCreateUserId(userId);
+		project.setSeq(1);
+		RepositoryResource savedProject = repositortResourceDao.save(project);
+		
 		Integer pageId = 2;
 		PageModel model = new PageModel();
 		model.setPageId(pageId);
@@ -2473,7 +2712,11 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		item1.setSeq(1);
 		item2.setSeq(2);
 		
-		PageModel savedModel = repositoryResourceService.getPageModel(projectId, pageId);
+		RepositoryResource page = new RepositoryResource();
+		page.setId(pageId);
+		page.setParentId(savedProject.getId());
+
+		PageModel savedModel = repositoryResourceService.getPageModel(page);
 		assertThat(savedModel.getData())
 			.hasSize(2)
 			.usingFieldByFieldElementComparator()
@@ -2482,14 +2725,51 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 	}
 	
 	@Test
-	public void getPageModel_empty_page() {
-		Integer projectId = 1;
-		Integer pageId = 2;
+	public void getPageModelEmptyPage() {
+		RepositoryResource page = new RepositoryResource();
+		page.setId(1);
 		
-		PageModel savedModel = repositoryResourceService.getPageModel(projectId, pageId);
+		PageModel savedModel = repositoryResourceService.getPageModel(page);
 		assertThat(savedModel.getWidgets()).isEmpty();
 		assertThat(savedModel.getData()).isEmpty();
 		assertThat(savedModel.getFunctions()).isEmpty();
 	}
 	
+	@Test
+	public void findProjectNoData() {
+		Integer repositoryId = 1;
+		String projectKey = "project1";
+		assertThat(repositoryResourceService.findProject(repositoryId, projectKey)).isEmpty();
+	}
+	
+	@Test
+	public void findProjectSuccess() {
+		Integer repositoryId = 1;
+		Integer userId = 2;
+		String projectKey = "project1";
+		
+		RepositoryResource project = new RepositoryResource();
+		project.setRepositoryId(repositoryId);
+		project.setParentId(Constant.TREE_ROOT_ID);
+		project.setKey(projectKey);
+		project.setAppType(AppType.WEB);
+		project.setResourceType(RepositoryResourceType.PROJECT);
+		project.setCreateTime(LocalDateTime.now());
+		project.setCreateUserId(userId);
+		project.setSeq(1);
+		RepositoryResource savedProject = repositortResourceDao.save(project);
+		
+		RepositoryResource page = new RepositoryResource();
+		page.setRepositoryId(repositoryId);
+		page.setParentId(savedProject.getId());
+		page.setKey("page1");
+		page.setAppType(AppType.WEB);
+		page.setResourceType(RepositoryResourceType.PAGE);
+		page.setCreateTime(LocalDateTime.now());
+		page.setCreateUserId(userId);
+		page.setSeq(1);
+		repositortResourceDao.save(project);
+		
+		assertThat(repositoryResourceService.findProject(repositoryId, projectKey)).isPresent();
+	}
 }

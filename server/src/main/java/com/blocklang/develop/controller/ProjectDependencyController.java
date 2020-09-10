@@ -200,8 +200,8 @@ public class ProjectDependencyController extends AbstractRepositoryController{
 		
 		List<ProjectDependencyData> result = projectDependencyService.findAllConfigDependencies(project.getId());
 		// 获取标准库
-		result.addAll(projectDependencyService.findStdDevDependencies(project.getId(), project.getAppType()));
-		result.addAll(projectDependencyService.findStdBuildDependencies(project.getId(), project.getAppType()));
+		result.addAll(projectDependencyService.findStdDevDependencies(project.getAppType()));
+		result.addAll(projectDependencyService.findStdBuildDependencies(project.getAppType()));
 		
 		return ResponseEntity.ok(result);
 	}

@@ -147,7 +147,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		apiRepo.setId(2);
 		ApiRepoVersion apiRepoVersion = new ApiRepoVersion();
 		ProjectDependencyData data = new ProjectDependencyData(dependence, componentRepo, componentRepoVersion, apiRepo, apiRepoVersion);
-		when(projectDependencyService.findStdDevDependencies(any(), eq(AppType.WEB))).thenReturn(Collections.singletonList(data));
+		when(projectDependencyService.findStdDevDependencies(eq(AppType.WEB))).thenReturn(Collections.singletonList(data));
 
 		given()
 			.contentType(ContentType.JSON)
@@ -342,7 +342,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		
 		when(repositoryPermissionService.canRead(any(), any())).thenReturn(Optional.of(AccessLevel.READ));
 		
-		when(repositoryResourceService.getPageModel(anyInt(), any())).thenReturn(new PageModel());
+		when(repositoryResourceService.getPageModel(any())).thenReturn(new PageModel());
 		
 		given()
 			.contentType(ContentType.JSON)

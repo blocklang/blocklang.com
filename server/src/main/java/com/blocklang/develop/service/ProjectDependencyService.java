@@ -65,18 +65,26 @@ public interface ProjectDependencyService {
 
 	/**
 	 * 获取项目的 IDE 版标准库依赖
-	 * @param projectId 项目信息标识
 	 * @return 子项目的依赖列表
 	 */
-	List<ProjectDependencyData> findStdDevDependencies(Integer projectId, AppType appType);
+	List<ProjectDependencyData> findStdDevDependencies(AppType appType);
 	
-	List<ProjectDependencyData> findStdBuildDependencies(Integer projectId, AppType appType);
+	List<ProjectDependencyData> findStdBuildDependencies(AppType appType);
 
 	void delete(Repository repository, RepositoryResource project, Integer dependencyId);
 
 	ProjectDependency update(Repository repository, RepositoryResource project, ProjectDependency dependency);
 
 	Optional<ProjectDependency> findById(Integer dependencyId);
+	
+	/**
+	 * 获取所有配置的 Dev 依赖以及 Dev 的标准依赖。
+	 * 
+	 * @param projectId
+	 * @param appType
+	 * @return
+	 */
+	List<ProjectDependency> findAllDevDependencies(Integer projectId, AppType appType);
 
 	/**
 	 * 从 API 项目中找出 Widget 类型的项目，然后分组罗列其中的部件

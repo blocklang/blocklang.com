@@ -83,7 +83,7 @@ public class PageDesignerController extends AbstractRepositoryController {
 		// dev 对应 ide 和 preview 依赖
 		// build 对应 prod 依赖
 		List<ProjectDependencyData> dependences= projectDependencyService.findDevDependencies(projectId);
-		dependences.addAll(projectDependencyService.findStdDevDependencies(projectId, project.getAppType()));
+		dependences.addAll(projectDependencyService.findStdDevDependencies(project.getAppType()));
 		List<Dependence> result = dependences.stream().map(item -> {
 			Dependence dependence = new Dependence();
 
@@ -129,11 +129,10 @@ public class PageDesignerController extends AbstractRepositoryController {
 			throw new ResourceNotFoundException();
 		}
 		
-		// TODO: 重新设计项目依赖
 		Repository repository = repositoryService.findById(page.getRepositoryId()).orElseThrow(ResourceNotFoundException::new);
 		repositoryPermissionService.canRead(principal, repository).orElseThrow(NoAuthorizationException::new);
 		
-		PageModel result = repositoryResourceService.getPageModel(repository.getId(), page);
+		PageModel result = repositoryResourceService.getPageModel(page);
 		return ResponseEntity.ok(result);
 	}
 	

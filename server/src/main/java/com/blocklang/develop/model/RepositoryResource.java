@@ -298,6 +298,12 @@ public class RepositoryResource extends PartialOperateFields{
 			}
 		} else if(isGroup()) {
 			i18nKey = "resourceTitle.function";
+		} else if(isProject()) {
+			if(appType.equals(AppType.MINI_PROGRAM)) {
+				i18nKey = "resourceTitle.project.miniProgram";
+			} else if(appType.equals(AppType.WEB)) {
+				i18nKey = "resourceTitle.project.web";
+			}
 		} else if(isTemplet()) {
 			i18nKey = "resourceTitle.templet";
 		} else if(isReadme()) {

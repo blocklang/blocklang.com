@@ -9,6 +9,7 @@
 	<changeSet author="Zhengwei Jin" id="202008140844">
 		<dropPrimaryKey tableName="project_file"/>
 		<renameTable newTableName="repository_file" oldTableName="project_file"/>
+		<renameSequence oldSequenceName="project_file_dbid_seq" newSequenceName="repository_file_dbid_seq"/>
 		<setTableRemarks tableName="repository_file" remarks="仓库提交信息"/>
 		<addPrimaryKey columnNames="dbid" tableName="repository_file" constraintName="pk_repository_file" />
 		<renameColumn tableName="repository_file" oldColumnName="project_resource_id" newColumnName="repository_resource_id"/>

@@ -11,6 +11,7 @@
 		<dropUniqueConstraint tableName="project_resource" constraintName="uk_project_resource_on_project_parent_resource_app_key"/>
 		<dropUniqueConstraint tableName="project_resource" constraintName="uk_project_resource_on_project_parent_resource_app_name"/>
 		<renameTable newTableName="repository_resource" oldTableName="project_resource"/>
+		<renameSequence oldSequenceName="project_resource_dbid_seq" newSequenceName="repository_resource_dbid_seq"/>
 		<setTableRemarks tableName="repository_resource" remarks="仓库资源"/>
 		<addPrimaryKey columnNames="dbid" tableName="repository_resource" constraintName="pk_repository_resource" />
 		<renameColumn tableName="repository_resource" oldColumnName="project_id" newColumnName="repository_id"/>

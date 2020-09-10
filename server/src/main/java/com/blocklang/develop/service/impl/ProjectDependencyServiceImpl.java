@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.eclipse.jgit.lib.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -386,7 +387,11 @@ public class ProjectDependencyServiceImpl implements ProjectDependencyService{
 	// 事先要在组件仓库中注册 std-widget-web。
 	// 标准库，永远只使用最新版。
 	@Override
-	public List<ProjectDependencyData> findStdDevDependencies(Integer projectId, AppType appType) {
+	public List<ProjectDependencyData> findStdDevDependencies(AppType appType) {
+		return convert(getStdDevDependencies(appType));
+	}
+
+	private List<ProjectDependency> getStdDevDependencies(AppType appType) {
 		Integer createUserId = propertyService.findIntegerValue(CmPropKey.STD_REPO_REGISTER_USER_ID, 1);
 		String stdDevRepoUrlKey = null;
 		if(AppType.WEB.equals(appType)) {
@@ -396,7 +401,7 @@ public class ProjectDependencyServiceImpl implements ProjectDependencyService{
 		}
 		String stdDevRepoUrl = propertyService.findStringValue(stdDevRepoUrlKey, "");
 		Optional<ProjectDependency> dependencyOption = componentRepoDao.findByGitRepoUrlAndCreateUserId(stdDevRepoUrl, createUserId)
-			.flatMap(componentRepo -> componentRepoVersionService.findByComponentIdAndVersion(componentRepo.getId(), "master")) // 注意，默认只依赖 master 分支
+			.flatMap(componentRepo -> componentRepoVersionService.findByComponentIdAndVersion(componentRepo.getId(), Constants.MASTER)) // 注意，默认只依赖 master 分支
 			.map(componentRepoVersion -> {
 				ProjectDependency dependency = new ProjectDependency();
 				dependency.setComponentRepoVersionId(componentRepoVersion.getId());
@@ -405,12 +410,11 @@ public class ProjectDependencyServiceImpl implements ProjectDependencyService{
 		if(dependencyOption.isEmpty()) {
 			return Collections.emptyList();
 		}
-		
-		return convert(Collections.singletonList(dependencyOption.get()));
+		return Collections.singletonList(dependencyOption.get());
 	}
 
 	@Override
-	public List<ProjectDependencyData> findStdBuildDependencies(Integer projectId, AppType appType) {
+	public List<ProjectDependencyData> findStdBuildDependencies(AppType appType) {
 		Integer createUserId = propertyService.findIntegerValue(CmPropKey.STD_REPO_REGISTER_USER_ID, 1);
 		String stdDevRepoUrlKey = null;
 		if(AppType.WEB.equals(appType)) {
@@ -431,6 +435,14 @@ public class ProjectDependencyServiceImpl implements ProjectDependencyService{
 		}
 		
 		return convert(Collections.singletonList(dependencyOption.get()));
+	}
+
+	@Override
+	public List<ProjectDependency> findAllDevDependencies(Integer projectId, AppType appType) {
+		List<ProjectDependency> dependencies = projectDependencyDao.findAllByProjectIdAndProfileId(projectId, null);
+		// 获取标准库
+		dependencies.addAll(getStdDevDependencies(appType));
+		return dependencies;
 	}
 
 }

@@ -51,7 +51,7 @@
 2. [保存页面模型](./repositories/designer/page/update-a-page-model.md)
 3. [获取项目可用的 Widget 列表](./repositories/designer/page/list-project-widgets.md)
 4. [获取项目可用的 Service 列表](./repositories/designer/page/list-project-services.md)
-5. [获取项目的 IDE 依赖列表](./repositories/designer/page/list-project-ide-dependences.md)
+5. [获取项目的 IDE 依赖列表](./repositories/designer/page/list-project-ide-dependencies.md)
 6. [获取 IDE 项目资源](./repositories/designer/page/get-a-ide-asset.md)
 
 ### 数据服务设计器
