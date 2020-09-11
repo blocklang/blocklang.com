@@ -10,6 +10,7 @@
 		<dropPrimaryKey tableName="project_tag"/>
 		<dropUniqueConstraint tableName="project_tag" constraintName="uk_tag_project_id_version"/>
 		<renameTable newTableName="repository_tag" oldTableName="project_tag"/>
+		<renameSequence oldSequenceName="project_tag_dbid_seq" newSequenceName="repository_tag_dbid_seq"/>
 		<addPrimaryKey columnNames="dbid" tableName="repository_tag" constraintName="pk_repository_tag" />
 		<renameColumn tableName="repository_tag" oldColumnName="project_id" newColumnName="repository_id"/>
 		<setColumnRemarks tableName="repository_tag" columnName="repository_id" remarks="仓库标识"/>

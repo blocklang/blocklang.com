@@ -33,6 +33,7 @@ public class ApiRepoVersionServiceImplTest extends AbstractServiceTest {
 		version.setGitTagName("v0.1.0");
 		version.setCreateUserId(1);
 		version.setCreateTime(LocalDateTime.now());
+		version.setLastPublishTime(LocalDateTime.now());
 		ApiRepoVersion savedVersion = apiRepoVersionDao.save(version);
 		
 		assertThat(apiRepoVersionService.findById(savedVersion.getId())).isPresent();
@@ -54,6 +55,7 @@ public class ApiRepoVersionServiceImplTest extends AbstractServiceTest {
 		master.setGitTagName("refs/heads/master");
 		master.setCreateUserId(1);
 		master.setCreateTime(LocalDateTime.now());
+		master.setLastPublishTime(LocalDateTime.now());
 		apiRepoVersionDao.save(master);
 		
 		assertThat(apiRepoVersionService.findLatestStableVersion(apiRepoId)).isEmpty();
@@ -69,6 +71,7 @@ public class ApiRepoVersionServiceImplTest extends AbstractServiceTest {
 		version1.setVersion("0.1.0");
 		version1.setGitTagName("v0.1.0");
 		version1.setCreateUserId(1);
+		version1.setLastPublishTime(LocalDateTime.now());
 		version1.setCreateTime(LocalDateTime.now());
 		
 		apiRepoVersionDao.save(version1);
@@ -80,6 +83,7 @@ public class ApiRepoVersionServiceImplTest extends AbstractServiceTest {
 		version2.setGitTagName("v0.2.0");
 		version2.setCreateUserId(1);
 		version2.setCreateTime(LocalDateTime.now());
+		version2.setLastPublishTime(LocalDateTime.now());
 		apiRepoVersionDao.save(version2);
 		
 		ApiRepoVersion master = new ApiRepoVersion();
@@ -89,6 +93,7 @@ public class ApiRepoVersionServiceImplTest extends AbstractServiceTest {
 		master.setGitTagName("refs/heads/master");
 		master.setCreateUserId(1);
 		master.setCreateTime(LocalDateTime.now());
+		master.setLastPublishTime(LocalDateTime.now());
 		apiRepoVersionDao.save(master);
 		
 		assertThat(apiRepoVersionService.findLatestStableVersion(apiRepoId).get().getVersion()).isEqualTo("0.2.0");

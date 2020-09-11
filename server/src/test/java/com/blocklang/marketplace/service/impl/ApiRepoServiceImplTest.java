@@ -35,6 +35,7 @@ public class ApiRepoServiceImplTest extends AbstractServiceTest{
 		repo.setCategory(RepoCategory.CLIENT_API);
 		repo.setCreateUserId(1);
 		repo.setCreateTime(LocalDateTime.now());
+		repo.setLastPublishTime(LocalDateTime.now());
 		ApiRepo savedRepo = apiRepoDao.save(repo);
 		
 		assertThat(apiRepoService.findById(savedRepo.getId())).isPresent();

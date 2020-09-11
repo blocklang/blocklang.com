@@ -1,7 +1,6 @@
 package com.blocklang.core.controller;
 
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -33,7 +32,7 @@ public class LoggedUserControllerTest extends AbstractControllerTest{
 		.when()
 			.get("/user")
 		.then()
-			.statusCode(HttpStatus.SC_OK).body(containsString("{}"));
+			.statusCode(HttpStatus.SC_OK).body("status", equalTo("NotLogin"));
 	}
 	
 	// 这个测试只会走 UsernamePasswordAuthenticationToken

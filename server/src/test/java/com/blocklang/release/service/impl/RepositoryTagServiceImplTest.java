@@ -22,78 +22,78 @@ public class RepositoryTagServiceImplTest extends AbstractServiceTest {
 	
 	@Test
 	public void find_no_data() {
-		Optional<RepositoryTag> projectTagOption = repositoryTagService.find(1, "0.1.0");
-		assertThat(projectTagOption).isEmpty();
+		Optional<RepositoryTag> repositoryTagOption = repositoryTagService.find(1, "0.1.0");
+		assertThat(repositoryTagOption).isEmpty();
 	}
 	
 	@Test
 	public void find_success() {
-		RepositoryTag projectTag = new RepositoryTag();
+		RepositoryTag repositoryTag = new RepositoryTag();
 		
-		projectTag.setRepositoryId(1);
-		projectTag.setVersion("0.1.0");
-		projectTag.setGitTagId("i-am-a-git-tag");
-		projectTag.setCreateUserId(2);
-		projectTag.setCreateTime(LocalDateTime.now());
+		repositoryTag.setRepositoryId(1);
+		repositoryTag.setVersion("0.1.0");
+		repositoryTag.setGitTagId("i-am-a-git-tag");
+		repositoryTag.setCreateUserId(2);
+		repositoryTag.setCreateTime(LocalDateTime.now());
 		
-		repositoryTagDao.save(projectTag);
-		Optional<RepositoryTag> projectTagOption = repositoryTagService.find(1, "0.1.0");
-		assertThat(projectTagOption).isPresent();
+		repositoryTagDao.save(repositoryTag);
+		Optional<RepositoryTag> repositoryTagOption = repositoryTagService.find(1, "0.1.0");
+		assertThat(repositoryTagOption).isPresent();
 	}
 	
 	@Test
 	public void find_latest_no_data() {
-		Optional<RepositoryTag> projectTagOption = repositoryTagService.findLatestTag(1);
-		assertThat(projectTagOption).isEmpty();
+		Optional<RepositoryTag> repositoryTagOption = repositoryTagService.findLatestTag(1);
+		assertThat(repositoryTagOption).isEmpty();
 	}
 	
 	@Test
 	public void find_latest_success_one_project_two_version() {
-		RepositoryTag projectTag = new RepositoryTag();
+		RepositoryTag repositoryTag = new RepositoryTag();
 		
-		projectTag.setRepositoryId(1);
-		projectTag.setVersion("0.1.0");
-		projectTag.setGitTagId("i-am-a-git-tag-1");
-		projectTag.setCreateUserId(2);
-		projectTag.setCreateTime(LocalDateTime.now());
+		repositoryTag.setRepositoryId(1);
+		repositoryTag.setVersion("0.1.0");
+		repositoryTag.setGitTagId("i-am-a-git-tag-1");
+		repositoryTag.setCreateUserId(2);
+		repositoryTag.setCreateTime(LocalDateTime.now());
 		
-		repositoryTagDao.save(projectTag);
+		repositoryTagDao.save(repositoryTag);
 		
-		projectTag = new RepositoryTag();
-		projectTag.setRepositoryId(1);
-		projectTag.setVersion("0.1.1");
-		projectTag.setGitTagId("i-am-a-git-tag-2");
-		projectTag.setCreateUserId(2);
-		projectTag.setCreateTime(LocalDateTime.now());
+		repositoryTag = new RepositoryTag();
+		repositoryTag.setRepositoryId(1);
+		repositoryTag.setVersion("0.1.1");
+		repositoryTag.setGitTagId("i-am-a-git-tag-2");
+		repositoryTag.setCreateUserId(2);
+		repositoryTag.setCreateTime(LocalDateTime.now());
 		
-		repositoryTagDao.save(projectTag);
+		repositoryTagDao.save(repositoryTag);
 		
-		Optional<RepositoryTag> projectTagOption = repositoryTagService.findLatestTag(1);
-		assertThat(projectTagOption.get().getVersion()).isEqualTo("0.1.1");
+		Optional<RepositoryTag> repositoryTagOption = repositoryTagService.findLatestTag(1);
+		assertThat(repositoryTagOption.get().getVersion()).isEqualTo("0.1.1");
 	}
 	
 	@Test
 	public void find_latest_success_two_project_one_version() {
-		RepositoryTag projectTag = new RepositoryTag();
+		RepositoryTag repositoryTag = new RepositoryTag();
 		
-		projectTag.setRepositoryId(1);
-		projectTag.setVersion("0.1.0");
-		projectTag.setGitTagId("i-am-a-git-tag-1");
-		projectTag.setCreateUserId(2);
-		projectTag.setCreateTime(LocalDateTime.now());
+		repositoryTag.setRepositoryId(1);
+		repositoryTag.setVersion("0.1.0");
+		repositoryTag.setGitTagId("i-am-a-git-tag-1");
+		repositoryTag.setCreateUserId(2);
+		repositoryTag.setCreateTime(LocalDateTime.now());
 		
-		repositoryTagDao.save(projectTag);
+		repositoryTagDao.save(repositoryTag);
 		
-		projectTag = new RepositoryTag();
-		projectTag.setRepositoryId(2);
-		projectTag.setVersion("0.1.1");
-		projectTag.setGitTagId("i-am-a-git-tag-2");
-		projectTag.setCreateUserId(2);
-		projectTag.setCreateTime(LocalDateTime.now());
+		repositoryTag = new RepositoryTag();
+		repositoryTag.setRepositoryId(2);
+		repositoryTag.setVersion("0.1.1");
+		repositoryTag.setGitTagId("i-am-a-git-tag-2");
+		repositoryTag.setCreateUserId(2);
+		repositoryTag.setCreateTime(LocalDateTime.now());
 		
-		repositoryTagDao.save(projectTag);
+		repositoryTagDao.save(repositoryTag);
 		
-		Optional<RepositoryTag> projectTagOption = repositoryTagService.findLatestTag(1);
-		assertThat(projectTagOption.get().getVersion()).isEqualTo("0.1.0");
+		Optional<RepositoryTag> repositoryTagOption = repositoryTagService.findLatestTag(1);
+		assertThat(repositoryTagOption.get().getVersion()).isEqualTo("0.1.0");
 	}
 }

@@ -41,8 +41,8 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 	public void findAllByGitRepoName_query_is_empty_no_data() {
 		Page<ComponentRepoInfo> result = componentRepoService.findAllByGitRepoName("", PageRequest.of(0, 10));
 		assertThat(result.getContent()).isEmpty();
-		assertThat(result.getTotalPages()).isEqualTo(0);
-		assertThat(result.getSize()).isEqualTo(10);
+		assertThat(result.getTotalPages()).isEqualTo(1);
+		assertThat(result.getSize()).isEqualTo(0);
 		assertThat(result.hasPrevious()).isFalse();
 		assertThat(result.hasNext()).isFalse();
 	}
@@ -58,6 +58,7 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		repo.setCategory(RepoCategory.WIDGET);
 		repo.setCreateUserId(1);
 		repo.setCreateTime(LocalDateTime.now());
+		repo.setLastPublishTime(LocalDateTime.now());
 		componentRepoDao.save(repo);
 		
 		Page<ComponentRepoInfo> result = componentRepoService.findAllByGitRepoName("YOU-REPO", PageRequest.of(0, 10));
@@ -79,6 +80,7 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		repo.setCategory(RepoCategory.WIDGET);
 		repo.setCreateUserId(1);
 		repo.setCreateTime(LocalDateTime.now());
+		repo.setLastPublishTime(LocalDateTime.now());
 		componentRepoDao.save(repo);
 		
 		Page<ComponentRepoInfo> result = componentRepoService.findAllByGitRepoName("re", PageRequest.of(0, 10));
@@ -90,7 +92,7 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 	}
 	
 	@Test
-	public void findAllByGitRepoName_exclude_std_repo() {
+	public void findAllByGitRepoNameIncludeStdRepo() {
 		String gitRepoUrl = "https://github.com/you/you-repo.git";
 		ComponentRepo repo = new ComponentRepo();
 		repo.setGitRepoUrl(gitRepoUrl);
@@ -101,21 +103,23 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		repo.setCategory(RepoCategory.WIDGET);
 		repo.setCreateUserId(1);
 		repo.setCreateTime(LocalDateTime.now());
+		repo.setLastPublishTime(LocalDateTime.now());
 		componentRepoDao.save(repo);
 		
 		when(propertyService.findStringValue(eq(CmPropKey.STD_WIDGET_IDE_GIT_URL), any())).thenReturn(gitRepoUrl);
 		
 		Page<ComponentRepoInfo> result = componentRepoService.findAllByGitRepoName("you-repo", PageRequest.of(0, 10));
-		assertThat(result.getContent()).hasSize(0);
-		assertThat(result.getTotalPages()).isEqualTo(0);
+		assertThat(result.getContent()).hasSize(1);
+		assertThat(result.getContent().get(0).getComponentRepo().isStd()).isTrue();
+		assertThat(result.getTotalPages()).isEqualTo(1);
 		assertThat(result.getSize()).isEqualTo(10);
 		assertThat(result.hasPrevious()).isFalse();
 		assertThat(result.hasNext()).isFalse();
 		
 		result = componentRepoService.findAllByGitRepoName("", PageRequest.of(0, 10));
 		assertThat(result.getContent()).hasSize(0);
-		assertThat(result.getTotalPages()).isEqualTo(0);
-		assertThat(result.getSize()).isEqualTo(10);
+		assertThat(result.getTotalPages()).isEqualTo(1);
+		assertThat(result.getSize()).isEqualTo(0);
 		assertThat(result.hasPrevious()).isFalse();
 		assertThat(result.hasNext()).isFalse();
 	}
@@ -132,6 +136,7 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		repo.setCategory(RepoCategory.WIDGET);
 		repo.setCreateUserId(1);
 		repo.setCreateTime(LocalDateTime.now());
+		repo.setLastPublishTime(LocalDateTime.now());
 		componentRepoDao.save(repo);
 		
 		String gitRepoUrl1 = "https://github.com/you/you-repo-b.git";
@@ -144,6 +149,7 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		repo.setCategory(RepoCategory.WIDGET);
 		repo.setCreateUserId(1);
 		repo.setCreateTime(LocalDateTime.now());
+		repo.setLastPublishTime(LocalDateTime.now());
 		componentRepoDao.save(repo);
 		
 		Pageable pageable = PageRequest.of(0, 10, Sort.by(Direction.ASC, "gitRepoOwner", "gitRepoName"));
@@ -177,6 +183,7 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		repo.setCategory(RepoCategory.WIDGET);
 		repo.setCreateUserId(createUserId);
 		repo.setCreateTime(LocalDateTime.now());
+		repo.setLastPublishTime(LocalDateTime.now());
 		componentRepoDao.save(repo);
 		
 		repo = new ComponentRepo();
@@ -188,6 +195,7 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		repo.setCategory(RepoCategory.WIDGET);
 		repo.setCreateUserId(2);
 		repo.setCreateTime(LocalDateTime.now());
+		repo.setLastPublishTime(LocalDateTime.now());
 		componentRepoDao.save(repo);
 		
 		List<ComponentRepoInfo> componentRepos = componentRepoService.findUserComponentRepos(createUserId);
@@ -207,6 +215,7 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		repo.setCategory(RepoCategory.WIDGET);
 		repo.setCreateUserId(createUserId);
 		repo.setCreateTime(LocalDateTime.now());
+		repo.setLastPublishTime(LocalDateTime.now());
 		componentRepoDao.save(repo);
 		
 		repo = new ComponentRepo();
@@ -218,6 +227,7 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		repo.setCategory(RepoCategory.WIDGET);
 		repo.setCreateUserId(createUserId);
 		repo.setCreateTime(LocalDateTime.now());
+		repo.setLastPublishTime(LocalDateTime.now());
 		componentRepoDao.save(repo);
 		
 		List<ComponentRepoInfo> componentRepos = componentRepoService.findUserComponentRepos(createUserId);
@@ -240,6 +250,7 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		repo.setCategory(RepoCategory.WIDGET);
 		repo.setCreateUserId(createUserId);
 		repo.setCreateTime(LocalDateTime.now());
+		repo.setLastPublishTime(LocalDateTime.now());
 		componentRepoDao.save(repo);
 		
 		when(propertyService.findStringValue(eq(CmPropKey.STD_WIDGET_IDE_GIT_URL), any())).thenReturn(gitRepoUrl);
@@ -267,6 +278,7 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		repo.setCategory(RepoCategory.WIDGET);
 		repo.setCreateUserId(createUserId);
 		repo.setCreateTime(LocalDateTime.now());
+		repo.setLastPublishTime(LocalDateTime.now());
 		componentRepoDao.save(repo);
 		
 		assertThat(componentRepoService.existsByCreateUserIdAndGitRepoUrl(createUserId, gitRepoUrl)).isTrue();
@@ -291,6 +303,7 @@ public class ComponentRepoServiceImplTest extends AbstractServiceTest{
 		repo.setCategory(RepoCategory.WIDGET);
 		repo.setCreateUserId(createUserId);
 		repo.setCreateTime(LocalDateTime.now());
+		repo.setLastPublishTime(LocalDateTime.now());
 		ComponentRepo savedRepo = componentRepoDao.save(repo);
 		
 		assertThat(componentRepoService.findById(savedRepo.getId())).isPresent();

@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,7 @@ import com.blocklang.marketplace.dao.ComponentRepoVersionDao;
 import com.blocklang.marketplace.data.ComponentRepoInfo;
 import com.blocklang.marketplace.model.ComponentRepo;
 import com.blocklang.marketplace.service.ComponentRepoService;
+import com.nimbusds.oauth2.sdk.util.StringUtils;
 
 @Service
 public class ComponentRepoServiceImpl implements ComponentRepoService {
@@ -40,6 +42,10 @@ public class ComponentRepoServiceImpl implements ComponentRepoService {
 	@Override
 	public Page<ComponentRepoInfo> findAllByGitRepoName(String queryGitRepoName, Pageable page) {
 		String version = "master";
+		if(StringUtils.isBlank(queryGitRepoName)) {
+			return Page.empty();
+		}
+		
 		List<String> stdRepos = findAllStdGitRepo();
 		return componentRepoDao.findAllByGitRepoNameContainingIgnoreCase(queryGitRepoName, page).map(componentRepo -> {
 			userService.findById(componentRepo.getCreateUserId()).ifPresent(user -> {

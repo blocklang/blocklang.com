@@ -37,6 +37,7 @@ public class ComponentRepoVersionServiceImplTest extends AbstractServiceTest {
 		version.setBuild("dojo");
 		version.setCreateUserId(1);
 		version.setCreateTime(LocalDateTime.now());
+		version.setLastPublishTime(LocalDateTime.now());
 		ComponentRepoVersion savedVersion = componentRepoVersionDao.save(version);
 		
 		assertThat(componentRepoVersionService.findById(savedVersion.getId())).isPresent();
@@ -61,6 +62,7 @@ public class ComponentRepoVersionServiceImplTest extends AbstractServiceTest {
 		version.setBuild("dojo");
 		version.setCreateUserId(1);
 		version.setCreateTime(LocalDateTime.now());
+		version.setLastPublishTime(LocalDateTime.now());
 		componentRepoVersionDao.save(version);
 		
 		assertThat(componentRepoVersionService.findAllByComponentRepoId(componentRepoId)).hasSize(1);
@@ -85,6 +87,7 @@ public class ComponentRepoVersionServiceImplTest extends AbstractServiceTest {
 		version1.setBuild("dojo");
 		version1.setCreateUserId(1);
 		version1.setCreateTime(LocalDateTime.now());
+		version1.setLastPublishTime(LocalDateTime.now());
 		componentRepoVersionDao.save(version1);
 		
 		ComponentRepoVersion version2 = new ComponentRepoVersion();
@@ -97,6 +100,7 @@ public class ComponentRepoVersionServiceImplTest extends AbstractServiceTest {
 		version2.setBuild("dojo");
 		version2.setCreateUserId(1);
 		version2.setCreateTime(LocalDateTime.now());
+		version2.setLastPublishTime(LocalDateTime.now());
 		componentRepoVersionDao.save(version2);
 		
 		ComponentRepoVersion master = new ComponentRepoVersion();
@@ -109,6 +113,7 @@ public class ComponentRepoVersionServiceImplTest extends AbstractServiceTest {
 		master.setBuild("dojo");
 		master.setCreateUserId(1);
 		master.setCreateTime(LocalDateTime.now());
+		master.setLastPublishTime(LocalDateTime.now());
 		componentRepoVersionDao.save(master);
 		
 		assertThat(componentRepoVersionService.findLatestVersion(componentRepoId).get().getVersion()).isEqualTo("0.2.0");
