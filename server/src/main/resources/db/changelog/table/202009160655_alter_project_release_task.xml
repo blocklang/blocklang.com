@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+	<changeSet author="Zhengwei Jin" id="202009160655">
+		<dropUniqueConstraint tableName="project_release_task" constraintName="UK_RELEASE_TASK_PROJECT_ID_VERSION"/>
+		<addColumn tableName="project_release_task">
+			<column name="repository_id" remarks="仓库标识" type="int">
+				<constraints nullable="false"/>
+			</column>
+			<column name="git_commit_id" remarks="git commit id" type="varchar(64)">
+				<constraints nullable="false"/>
+			</column>
+		</addColumn>
+		<dropNotNullConstraint tableName="project_release_task" columnName="jdk_release_id"/>
+		<dropDefaultValue tableName="project_release_task" columnName="version"/>
+	</changeSet>
+
+</databaseChangeLog>
