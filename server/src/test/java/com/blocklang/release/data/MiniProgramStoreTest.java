@@ -11,9 +11,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-public class ProjectStoreTest {
+import com.blocklang.develop.constant.BuildTarget;
 
-	private ProjectStore store;
+public class MiniProgramStoreTest {
+
+	private MiniProgramStore store;
 	private String rootDataPath;
 	
 	@BeforeEach
@@ -23,9 +25,8 @@ public class ProjectStoreTest {
 		String repositoryName = "repo1";
 		String projectName = "project1";
 		String version = "master";
-		
-		
-		this.store = new ProjectStore(dataRootPath, owner, repositoryName, projectName, version);
+		BuildTarget buildTarget = BuildTarget.WEAPP;
+		this.store = new MiniProgramStore(dataRootPath, owner, repositoryName, projectName, buildTarget, version);
 		this.rootDataPath = rootDir.toString();
 	}
 	
@@ -33,7 +34,7 @@ public class ProjectStoreTest {
 	public void getLogFilePathNoGitShortCommitId() {
 		Path logFilePath = store.getLogFilePath(null);
 		
-		assertThat(logFilePath.getParent().compareTo(Paths.get(this.rootDataPath, "projects/jack/repo1/project1/buildLogs"))).isEqualTo(0);
+		assertThat(logFilePath.getParent().compareTo(Paths.get(this.rootDataPath, "sources/jack/repo1/project1/buildLogs/weapp/default"))).isEqualTo(0);
 		
 		String logFileName = logFilePath.getFileName().toString();
 		assertThat(logFileName).startsWith("master-");
@@ -61,5 +62,17 @@ public class ProjectStoreTest {
 	public void getLogFilePathNotExists() {
 		Path logFilePath = store.getLogFilePath(null);
 		assertThat(logFilePath).doesNotExist();
+	}
+	
+	@Test
+	public void getProjectModelDirectory() {
+		Path projectModelDirectory = store.getProjectModelDirectory();
+		assertThat(projectModelDirectory.compareTo(Paths.get(this.rootDataPath, "models/jack/repo1/project1"))).isEqualTo(0);
+	}
+	
+	@Test
+	public void getProjectSourceDirectory() {
+		Path projectSourceDirectory = store.getProjectSourceDirectory();
+		assertThat(projectSourceDirectory.compareTo(Paths.get(this.rootDataPath, "sources/jack/repo1/project1/source/weapp/default"))).isEqualTo(0);
 	}
 }

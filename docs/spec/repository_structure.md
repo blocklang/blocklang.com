@@ -37,13 +37,13 @@ sources/                                                                        
         {repository_name}/                                                                 - 仓库名
             {project_name}/                                                                - 项目名（以下是**小程序**目录结构）
                 source/                                                                    - 源码
-                    {appType}/                                                             - app 类型
+                    {buildTarget}/                                                         - 要构建的项目类型
                         {profile}/                                                         - 配置依赖和发布目标
                             .git/                                                          - git 仓库
                             RELEASE.json                                                   - 存储当前源码的构建位置，是项目目录的 commit id
                             {app.js}                                                       - 代表项目源码文件
                 buildLogs/                                                                 - 构建日志
-                    {appType}/                                                             - app 类型
+                    {buildTarget}/                                                         - 要构建的项目类型
                         {profile}/                                                         - 配置依赖和发布目标
                             {version}-{yyyy_MM_dd_HH_mm_ss}-{git short commit id}.log      - 日志文件
 ```
@@ -59,6 +59,8 @@ sources/                                                                        
 ```
 
 #### `PROJECT.json`
+
+要包含 appType 信息
 
 ```json
 {
