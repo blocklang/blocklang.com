@@ -1214,14 +1214,7 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 				logger.error("为 main 页面生成 json 文件时出错", e);
 			}
 			
-			// 存储 DEPENDENCE.json 文件，TODO: 保存默认依赖的组件库
-			try {
-				String dependenceJson = "{}";
-				Path dependenceFile = projectDir.resolve(dependence.getFileName());
-				Files.writeString(dependenceFile, dependenceJson, StandardOpenOption.CREATE);
-			} catch (IOException e) {
-				logger.error("生成 DEPENDENCE.json 文件时出错", e);
-			}
+			addProjectDependencyJsonFile(dependence, projectDir);
 			
 			userService.findById(savedProject.getCreateUserId()).ifPresent(user -> {
 				String commitMessage = "Init Web Project";
@@ -1288,7 +1281,13 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 		return repositoryResourceDao.save(app);
 	}
 	
-	
+	/**
+	 * 往数据库中存储 DEPENDENCY.json 文件基本信息
+	 * 
+	 * @param repository 仓库基本信息
+	 * @param project 项目基本信息
+	 * @return DEPENDENCY.json 基本信息
+	 */
 	private RepositoryResource createDependenceFile(Repository repository, RepositoryResource project) {
 		RepositoryResource dependence = new RepositoryResource();
 		dependence.setRepositoryId(repository.getId());
@@ -1305,11 +1304,12 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 	}
 
 	/**
-	 * 初始化以下资源：
+	 * 初始化以下文件：
 	 * <ul>
+	 * <li>PROJECT.json
+	 * <li>DEPENDENCE.json
 	 * <li>app (入口)
 	 * <li>pages/index 页面
-	 * <li>DEPENDENCE.json
 	 * </ul>
 	 */
 	@Override
@@ -1376,66 +1376,110 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 					.getGitRepositoryDirectory()
 					.resolve(savedProject.getKey());
 			
-			String appJson = "{}";
-			try {
-				appJson = JsonUtil.stringify(appModel);
-			} catch (JsonProcessingException e) {
-				logger.error("转换 json 失败", e);
-			}
-			try {
-				Files.createDirectory(projectDir);
-				Path mainPageFile = projectDir.resolve(app.getFileName());
-				Files.writeString(mainPageFile, appJson, StandardOpenOption.CREATE);
-			} catch (IOException e) {
-				logger.error("为 app 生成 json 文件时出错", e);
-			}
+			// PROJECT.json
+			addProjectJsonFile(savedProject, projectDir);
+			// DEPENDENCE.json 文件
+			addProjectDependencyJsonFile(dependence, projectDir);
+			// app 入口页面
+			addAppForMiniProgram(app, appModel, projectDir);
+			// pages/index 页面
+			addIndexPageFile(indexPage, indexPageModel, projectDir);
 			
-			// 存储 DEPENDENCE.json 文件，
-			// TODO: 保存默认依赖的组件库
-			try {
-				String dependenceJson = "{}";
-				Path dependenceFile = projectDir.resolve(dependence.getFileName());
-				Files.writeString(dependenceFile, dependenceJson, StandardOpenOption.CREATE);
-			} catch (IOException e) {
-				logger.error("生成 DEPENDENCE.json 文件时出错", e);
-			}
-			
-			// 生成 pages/index 页面
-			String indexPageJson = "{}";
-			try {
-				indexPageJson = JsonUtil.stringify(indexPageModel);
-			} catch (JsonProcessingException e) {
-				logger.error("转换 json 失败", e);
-			}
-			try {
-				Path pagesDirPath = projectDir.resolve("pages");
-				Files.createDirectory(pagesDirPath);
-				Path indexPageFile = pagesDirPath.resolve(indexPage.getFileName());
-				Files.writeString(indexPageFile, indexPageJson, StandardOpenOption.CREATE);
-			} catch (IOException e) {
-				logger.error("为 pages/index 生成 json 文件时出错", e);
-			}
-			
-			userService.findById(savedProject.getCreateUserId()).ifPresent(user -> {
-				String commitMessage = "Init Mini Program";
-				String commitId = GitUtils
-					.addAllAndCommit(context.getGitRepositoryDirectory(), user.getLoginName(), user.getEmail(), commitMessage);
-				
-				RepositoryCommit commit = new RepositoryCommit();
-				commit.setCommitId(commitId);
-				commit.setCommitUserId(user.getId());
-				commit.setCommitTime(LocalDateTime.now());
-				commit.setRepositoryId(repository.getId());
-				commit.setBranch(Constants.MASTER);
-				commit.setShortMessage(commitMessage);
-				commit.setCreateUserId(user.getId());
-				commit.setCreateTime(LocalDateTime.now());
-				repositoryCommitDao.save(commit);
-			});
+			Path gitRootDirectory = context.getGitRepositoryDirectory();
+			commitAllToGitRepository(repository, savedProject, gitRootDirectory);
 		});
 		return savedProject;
 	}
+	
+	/**
+	 * 在项目的根目录下新增 PROJECT.json 文件。
+	 * 
+	 * <p> 注意：PROJECT.json 文件与数据库中的项目基本信息（ResourceType 为 Project 的资源）对应。
+	 * 所以不需要在数据库表中再存储 PROJECT.json 文件信息。
+	 * 
+	 * @param projectInfo 项目基本详细
+	 * @param projectDirectory 项目的根目录
+	 */
+	private void addProjectJsonFile(RepositoryResource projectInfo, Path projectDirectory) {
+		Map<String, Object> projectJson = new HashMap<>();
+		projectJson.put("id", projectInfo.getId());
+		projectJson.put("key", projectInfo.getKey());
+		projectJson.put("label", projectInfo.getName());
+		projectJson.put("appType", projectInfo.getAppType().getKey());
+		projectJson.put("version", Constants.MASTER);
+		try {
+			String projectJsonString = JsonUtil.stringify(projectJson);
+			Path projectJsonFile = projectDirectory.resolve(RepositoryResource.PROJECT_JSON_NAME);
+			Files.writeString(projectJsonFile, projectJsonString);
+		} catch (IOException e) {
+			logger.error("将 PROJECT.json 转换为 json 字符串时出错", e);
+		}
+	}
 
+	private void addProjectDependencyJsonFile(RepositoryResource dependence, Path projectDirectory) {
+		try {
+			// TODO: 保存默认依赖的组件库
+			String dependenceJson = "{}";
+			Path dependenceFile = projectDirectory.resolve(dependence.getFileName());
+			Files.writeString(dependenceFile, dependenceJson, StandardOpenOption.CREATE);
+		} catch (IOException e) {
+			logger.error("生成 DEPENDENCE.json 文件时出错", e);
+		}
+	}
+	
+	private void addAppForMiniProgram(RepositoryResource appInfo, PageModel appModel, Path projectDirectory) {
+		// 空页面
+		String appJson = "{}";
+		try {
+			appJson = JsonUtil.stringify(appModel);
+		} catch (JsonProcessingException e) {
+			logger.error("转换 json 失败", e);
+		}
+		try {
+			Files.createDirectory(projectDirectory);
+			Path mainPageFile = projectDirectory.resolve(appInfo.getFileName());
+			Files.writeString(mainPageFile, appJson, StandardOpenOption.CREATE);
+		} catch (IOException e) {
+			logger.error("为 app 生成 json 文件时出错", e);
+		}
+	}
+	
+	private void addIndexPageFile(RepositoryResource indexPageInfo, PageModel indexPageModel, Path projectDirectory) {
+		String indexPageJson = "{}";
+		try {
+			indexPageJson = JsonUtil.stringify(indexPageModel);
+		} catch (JsonProcessingException e) {
+			logger.error("转换 json 失败", e);
+		}
+		try {
+			Path pagesDirPath = projectDirectory.resolve("pages");
+			Files.createDirectory(pagesDirPath);
+			Path indexPageFile = pagesDirPath.resolve(indexPageInfo.getFileName());
+			Files.writeString(indexPageFile, indexPageJson, StandardOpenOption.CREATE);
+		} catch (IOException e) {
+			logger.error("为 pages/index 生成 json 文件时出错", e);
+		}
+	}
+	
+	private void commitAllToGitRepository(Repository repositoryInfo, RepositoryResource project, Path gitRepoRootDirectory) {
+		userService.findById(project.getCreateUserId()).ifPresent(user -> {
+			String commitMessage = "Init Mini Program";
+			String commitId = GitUtils
+				.addAllAndCommit(gitRepoRootDirectory, user.getLoginName(), user.getEmail(), commitMessage);
+			
+			RepositoryCommit commit = new RepositoryCommit();
+			commit.setCommitId(commitId);
+			commit.setCommitUserId(user.getId());
+			commit.setCommitTime(LocalDateTime.now());
+			commit.setRepositoryId(repositoryInfo.getId());
+			commit.setBranch(Constants.MASTER);
+			commit.setShortMessage(commitMessage);
+			commit.setCreateUserId(user.getId());
+			commit.setCreateTime(LocalDateTime.now());
+			repositoryCommitDao.save(commit);
+		});
+	}
+	
 	private PageModel createAppModel(Integer pageId, ApiRepo apiRepo, ApiWidget widget) {
 		PageModel pageModel = new PageModel();
 		pageModel.setPageId(pageId);

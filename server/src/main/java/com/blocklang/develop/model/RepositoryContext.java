@@ -13,9 +13,10 @@ import org.springframework.util.Assert;
  */
 public class RepositoryContext extends AppGlobalContext{
 	
-	private static final String GIT_REPO_ROOT_PATH = "gitRepo";
+	// 项目的模型信息都存在 models 目录下。
+	private static final String GIT_REPO_ROOT_PATH = "models";
 
-	private Integer projectId;
+	private Integer repositoryId;
 	protected String owner;
 	protected String repoName;
 	protected String description;
@@ -47,12 +48,12 @@ public class RepositoryContext extends AppGlobalContext{
 		return Paths.get(this.dataRootPath, GIT_REPO_ROOT_PATH, this.owner, this.repoName);
 	}
 
-	public Integer getProjectId() {
-		return projectId;
+	public Integer getRepositoryId() {
+		return repositoryId;
 	}
 
-	public void setProjectId(Integer projectId) {
-		this.projectId = projectId;
+	public void setRepositoryId(Integer repositoryId) {
+		this.repositoryId = repositoryId;
 	}
 
 	protected void setOwner(String owner) {

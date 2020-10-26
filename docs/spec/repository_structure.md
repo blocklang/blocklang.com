@@ -60,11 +60,25 @@ sources/                                                                        
 
 #### `PROJECT.json`
 
-要包含 appType 信息
+本文件用于在 git 仓库中存储项目基本信息，对应在仓库资源表中存储的项目基本信息。所以不需要再在项目资源表中存储 `PROJECT.json` 文件。
+
+结构说明
+
+1. id `number` - 项目标识
+2. key `string` - 项目的 key 值
+3. label `string` - 项目的显示名
+4. appType `string` - 项目对应的 app 类型，如小程序等
+5. version `string` - 模型的版本号，默认为 "master"
+
+示例
 
 ```json
 {
-
+  "id": 1,
+  "key": "",
+  "label": "",
+  "appType": "",
+  "version": ""
 }
 ```
 

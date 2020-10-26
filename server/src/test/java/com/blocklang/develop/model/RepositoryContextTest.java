@@ -12,7 +12,7 @@ public class RepositoryContextTest {
 	public void getGitRepositoryDirectory() {
 		RepositoryContext context = new RepositoryContext("jack", "app", "c:/blocklang");
 		
-		assertThat(context.getGitRepositoryDirectory().compareTo(Paths.get("c:/blocklang/gitRepo/jack/app"))).isEqualTo(0);
+		assertThat(context.getGitRepositoryDirectory().compareTo(Paths.get("c:/blocklang/models/jack/app"))).isEqualTo(0);
 	}
 	
 }
