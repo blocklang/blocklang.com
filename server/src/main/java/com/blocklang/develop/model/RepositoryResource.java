@@ -325,21 +325,32 @@ public class RepositoryResource extends PartialOperateFields{
 		return messageSource.getMessage(i18nKey, null, locale);
 	}
 
+	/**
+	 * 获取文件名，该文件名是在 git 仓库中存储时，使用的文件名。
+	 * 
+	 * @return
+	 */
 	public String getFileName() {
-		if(isPage()) {
-			return this.key + ".page." + this.appType.getValue() + ".json";
+		// 所有资源的名字使用统一后缀 json，因为页面类型信息已经存在模型文件中了。
+//		if(isPage()) {
+//			return this.key + ".page." + this.appType.getValue() + ".json";
+//		}
+//		if(isTemplet()) {
+//			return this.key + ".page.tmpl.json";
+//		}
+//		if(isFile() || isDependence() || isBuildConfig()) {
+//			return this.name;
+//		}
+//		if(isService()) {
+//			return this.key + ".api.json";
+//		}
+//
+//		return "";
+		
+		if(isFile()) {
+			return this.getName();
 		}
-		if(isTemplet()) {
-			return this.key + ".page.tmpl.json";
-		}
-		if(isFile() || isDependence() || isBuildConfig()) {
-			return this.name;
-		}
-		if(isService()) {
-			return this.key + ".api.json";
-		}
-
-		return "";
+		return this.key + ".json";
 	}
 
 	public GitFileStatus getGitStatus() {

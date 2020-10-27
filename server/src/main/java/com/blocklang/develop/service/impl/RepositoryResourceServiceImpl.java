@@ -1122,6 +1122,7 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 		pageInfo.setId(page.getId());
 		pageInfo.setKey(page.getKey());
 		pageInfo.setLabel(page.getName());
+		pageInfo.setResourceType(page.getResourceType().getKey());
 		pageModel.setPageInfo(pageInfo);
 		
 		// 标准库所实现的 API 仓库的地址

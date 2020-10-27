@@ -89,13 +89,16 @@ sources/                                                                        
     "pageInfo": {
         "id": 1,
         "key": "",
-        "label": ""
+        "label": "",
+        "resourceType": "03"
     },
     "widgets": [],
     "data": [],
     "functions": []
 }
 ```
+
+当 `resourceType` 的值为 `03` 时，表示页面。
 
 ### `sources`
 
