@@ -86,11 +86,16 @@ sources/                                                                        
 
 ```json
 {
-    "pageInfo": {},
-    
+    "pageInfo": {
+        "id": 1,
+        "key": "",
+        "label": ""
+    },
+    "widgets": [],
+    "data": [],
+    "functions": []
 }
 ```
-
 
 ### `sources`
 

@@ -66,6 +66,7 @@ import com.blocklang.develop.designer.data.InputSequencePort;
 import com.blocklang.develop.designer.data.NodeConnection;
 import com.blocklang.develop.designer.data.OutputSequencePort;
 import com.blocklang.develop.designer.data.PageEventHandler;
+import com.blocklang.develop.designer.data.PageInfo;
 import com.blocklang.develop.designer.data.PageModel;
 import com.blocklang.develop.designer.data.VisualNode;
 import com.blocklang.develop.model.PageDataItem;
@@ -81,17 +82,17 @@ import com.blocklang.develop.model.RepositoryContext;
 import com.blocklang.develop.model.RepositoryResource;
 import com.blocklang.develop.service.ProjectDependencyService;
 import com.blocklang.develop.service.RepositoryResourceService;
-import com.blocklang.marketplace.constant.WidgetPropertyValueType;
 import com.blocklang.marketplace.constant.RepoCategory;
-import com.blocklang.marketplace.dao.ApiWidgetPropertyDao;
-import com.blocklang.marketplace.dao.ApiWidgetEventArgDao;
-import com.blocklang.marketplace.dao.ApiWidgetDao;
+import com.blocklang.marketplace.constant.WidgetPropertyValueType;
 import com.blocklang.marketplace.dao.ApiRepoDao;
 import com.blocklang.marketplace.dao.ApiRepoVersionDao;
+import com.blocklang.marketplace.dao.ApiWidgetDao;
+import com.blocklang.marketplace.dao.ApiWidgetEventArgDao;
+import com.blocklang.marketplace.dao.ApiWidgetPropertyDao;
 import com.blocklang.marketplace.dao.ComponentRepoVersionDao;
+import com.blocklang.marketplace.model.ApiRepo;
 import com.blocklang.marketplace.model.ApiWidget;
 import com.blocklang.marketplace.model.ApiWidgetEventArg;
-import com.blocklang.marketplace.model.ApiRepo;
 import com.blocklang.marketplace.service.ApiRepoVersionService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -166,7 +167,7 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 			resource.setSeq(nextSeq);
 		}
 		RepositoryResource result = repositoryResourceDao.save(resource);
-		PageModel pageModel = this.createPageModelWithStdPage(result.getId());
+		PageModel pageModel = this.createPageModelWithStdPage(result);
 		
 		// 在 git 仓库中添加文件
 		Integer parentResourceId = resource.getParentId();
@@ -1113,9 +1114,15 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 	}
 	
 	@Override
-	public PageModel createPageModelWithStdPage(Integer pageId) {
+	public PageModel createPageModelWithStdPage(RepositoryResource page) {
 		PageModel pageModel = new PageModel();
-		pageModel.setPageId(pageId);
+		pageModel.setPageId(page.getId());
+		
+		PageInfo pageInfo = new PageInfo();
+		pageInfo.setId(page.getId());
+		pageInfo.setKey(page.getKey());
+		pageInfo.setLabel(page.getName());
+		pageModel.setPageInfo(pageInfo);
 		
 		// 标准库所实现的 API 仓库的地址
 		String stdApiRepoUrl = propertyService.findStringValue(CmPropKey.STD_WIDGET_API_GIT_URL, "");
@@ -1188,7 +1195,7 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 		// 生成入口模块：Main 页面
 		RepositoryResource mainPage = createMainPageForWebProject(repository, savedProject);
 		// 创建空页面，默认为空页面添加根节点，包括 Page 部件及其属性。
-		PageModel pageModel = createPageModelWithStdPage(mainPage.getId());
+		PageModel pageModel = createPageModelWithStdPage(mainPage);
 		// 生成 DEPENDENCE.json 文件
 		RepositoryResource dependence = createDependenceFile(repository, savedProject);
 

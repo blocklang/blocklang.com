@@ -147,10 +147,10 @@ public interface RepositoryResourceService {
 	/**
 	 * 默认创建的空页面中包含一个 Page 部件
 	 * 
-	 * @param pageId
-	 * @return
+	 * @param page 页面基本信息
+	 * @return 页面模型
 	 */
-	PageModel createPageModelWithStdPage(Integer pageId);
+	PageModel createPageModelWithStdPage(RepositoryResource page);
 
 	/**
 	 * 获取项目基本信息，一个仓库的根目录下可存放多个项目。

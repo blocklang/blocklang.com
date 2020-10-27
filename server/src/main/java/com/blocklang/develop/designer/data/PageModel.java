@@ -14,6 +14,7 @@ import com.blocklang.develop.model.PageDataItem;
 public class PageModel {
 
 	private Integer pageId;
+	private PageInfo pageInfo;
 	private List<AttachedWidget> widgets = new ArrayList<AttachedWidget>();
 	private List<PageDataItem> data = new ArrayList<PageDataItem>();
 	private List<PageEventHandler> functions = new ArrayList<PageEventHandler>();
@@ -24,6 +25,14 @@ public class PageModel {
 
 	public void setPageId(Integer pageId) {
 		this.pageId = pageId;
+	}
+
+	public PageInfo getPageInfo() {
+		return pageInfo;
+	}
+
+	public void setPageInfo(PageInfo pageInfo) {
+		this.pageInfo = pageInfo;
 	}
 
 	public List<AttachedWidget> getWidgets() {

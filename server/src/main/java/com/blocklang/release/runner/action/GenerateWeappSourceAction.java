@@ -5,7 +5,7 @@ import java.nio.file.Path;
 import com.blocklang.core.runner.common.AbstractAction;
 import com.blocklang.core.runner.common.CliCommand;
 import com.blocklang.core.runner.common.ExecutionContext;
-import com.blocklang.release.data.ProjectStore;
+import com.blocklang.release.data.MiniProgramStore;
 
 /**
  * 生成微信小程序源代码
@@ -15,11 +15,11 @@ import com.blocklang.release.data.ProjectStore;
  */
 public class GenerateWeappSourceAction extends AbstractAction{
 	
-	private ProjectStore store;
+	private MiniProgramStore store;
 
 	public GenerateWeappSourceAction(ExecutionContext context) {
 		super(context);
-		this.store = context.getValue(ExecutionContext.STORE, ProjectStore.class);
+		this.store = context.getValue(ExecutionContext.STORE, MiniProgramStore.class);
 	}
 
 	/**
@@ -29,17 +29,23 @@ public class GenerateWeappSourceAction extends AbstractAction{
 	 * <code>mp --type weapp --model-dir ./your/model/root/dir</code>
 	 * </p>
 	 * 
-	 * 不设置 <code>--model-dir</code> 时，说明存放模型的根目录就是在当前工作目录下。
+	 * 此命令有两个目录：
+	 * 
+	 * <ol>
+	 * <li>在当前工作目录生成源代码
+	 * <li>从模型目录读取模型数据
+	 * </ol>
 	 * 
 	 * @return 执行成功，则返回 <code>true</code>；否则返回 <code>false</code>
 	 */
 	@Override
 	public boolean run() {
 		logger.info("开始生成微信小程序源码");
-		Path workingDirectory = store.getProjectDirectory();
+		Path sourceDirectory = store.getProjectSourceDirectory();
 		CliCommand cli = new CliCommand(logger);
-		
-		String[] commands = {"mp", "--type", "weapp"};
-		return cli.run(workingDirectory, commands);
+
+		String modelPath = store.getProjectModelDirectory().toString();
+		String[] commands = {"mp", "--type", "weapp", "--model-dir", modelPath};
+		return cli.run(sourceDirectory, commands);
 	}
 }
