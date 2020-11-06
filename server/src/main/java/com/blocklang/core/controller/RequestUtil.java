@@ -15,5 +15,16 @@ public abstract class RequestUtil {
 		return header != null && HttpCustomHeader.VALUE_FETCH_API.equals(header);
 	}
 
+	public static boolean isGit(HttpServletRequest request) {
+		String userAgent = request.getHeader("user-agent");
+		if(userAgent == null) {
+			return false;
+		}
+		
+		if(userAgent.startsWith("git")) {
+			return true;
+		}
+		return false;
+	}
 	
 }

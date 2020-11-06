@@ -19,14 +19,14 @@ import { ValidateStatus, PageAppType, ResourceType } from '../../../constant';
 
 export interface NewWebProjectProperties {
 	owner: string;
-	repository: string;
+	repoName: string;
 }
 
 const factory = create({ store, i18n }).properties<NewWebProjectProperties>();
 
 export default factory(function NewWebProject({ properties, middleware: { store, i18n } }) {
 	const { messages } = i18n.localize(bundle);
-	const { owner, repository } = properties();
+	const { owner, repoName } = properties();
 	const { get, path, executor } = store;
 
 	const { loginName } = get(path('user'));
@@ -42,7 +42,7 @@ export default factory(function NewWebProject({ properties, middleware: { store,
 	if (!repositoryResource && !isLoading) {
 		executor(initForNewGroupProcess)({
 			owner,
-			repo: repository,
+			repo: repoName,
 		});
 	}
 	if (!isLoaded) {

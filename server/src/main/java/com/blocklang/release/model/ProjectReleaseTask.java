@@ -7,30 +7,40 @@ import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
 
 import com.blocklang.core.model.PartialOperateFields;
+import com.blocklang.develop.constant.BuildTarget;
 import com.blocklang.release.constant.ReleaseResult;
 import com.blocklang.release.constant.converter.ReleaseResultConverter;
 
 @Entity
-@Table(name = "project_release_task", uniqueConstraints = @UniqueConstraint(columnNames = { "project_id", "version" }))
+@Table(name = "project_release_task")
 public class ProjectReleaseTask extends PartialOperateFields{
 
 	private static final long serialVersionUID = -2695309681346878878L;
+	
+	@Column(name = "repository_id", nullable = false)
+	private Integer repositoryId;
 
 	@Column(name = "project_id", nullable = false)
 	private Integer projectId;
 	
-	@Column(name = "version", nullable = false, length = 32)
+	@Column(name = "git_commit_id", nullable = false)
+	private String commitId;
+	
+	@Column(name = "version", length = 32, nullable = false)
 	private String version;
+	
+	@Convert(converter = ReleaseResultConverter.class)
+	@Column(name = "build_target")
+	private BuildTarget buildTarget;
 	
 	@Column(nullable = false, length = 64)
 	private String title;
 	
 	private String description;
 	
-	@Column(name = "jdk_release_id", nullable = false)
+	@Column(name = "jdk_release_id")
 	private Integer jdkReleaseId;
 	
 	@Column(name = "start_time", nullable = false)
@@ -158,5 +168,29 @@ public class ProjectReleaseTask extends PartialOperateFields{
 	public void setLogFileName(String logFileName) {
 		this.logFileName = logFileName;
 	}
-	
+
+	public Integer getRepositoryId() {
+		return repositoryId;
+	}
+
+	public void setRepositoryId(Integer repositoryId) {
+		this.repositoryId = repositoryId;
+	}
+
+	public String getCommitId() {
+		return commitId;
+	}
+
+	public void setCommitId(String commitId) {
+		this.commitId = commitId;
+	}
+
+	public BuildTarget getBuildTarget() {
+		return buildTarget;
+	}
+
+	public void setBuildTarget(BuildTarget buildTarget) {
+		this.buildTarget = buildTarget;
+	}
+
 }

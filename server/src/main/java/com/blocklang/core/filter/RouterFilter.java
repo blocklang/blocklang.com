@@ -62,6 +62,19 @@ public class RouterFilter implements Filter{
 			return;
 		}
 		
+		// 如果是从 git 客户端发出的请求，则不做任何处理
+		if(RequestUtil.isGit(httpServletRequest)) {
+			httpServletRequest.getHeaderNames().asIterator().forEachRemaining(name -> System.out.println(name + " = " + httpServletRequest.getHeader(name)));
+			String servletPath = httpServletRequest.getServletPath();
+			if(StringUtils.isBlank(servletPath)) {
+				servletPath = httpServletRequest.getRequestURI();
+			}
+			System.out.println("method: " + httpServletRequest.getMethod());
+			String urlRewrite = "/git/" + servletPath;
+			request.getRequestDispatcher(urlRewrite).forward(request, response);
+			return;
+		}
+		
 		String servletPath = httpServletRequest.getServletPath();
 		if(StringUtils.isBlank(servletPath)) {
 			servletPath = httpServletRequest.getRequestURI();

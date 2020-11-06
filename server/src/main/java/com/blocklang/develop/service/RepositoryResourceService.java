@@ -126,6 +126,7 @@ public interface RepositoryResourceService {
 	void unstageChanges(Repository repository, String[] filePathes);
 
 	/**
+	 * 提交变更的模型
 	 * 
 	 * @param user
 	 * @param project
@@ -160,4 +161,12 @@ public interface RepositoryResourceService {
 	 * @return 项目基本信息
 	 */
 	Optional<RepositoryResource> findProject(Integer repositoryId, String projectKey);
+	
+	/**
+	 * 获取一个仓库下的所有项目
+	 * 
+	 * @param repositoryId 仓库标识
+	 * @return 项目列表，没有项目时返回空列表
+	 */
+	List<RepositoryResource> findAllProject(Integer repositoryId);
 }

@@ -11,6 +11,8 @@ public interface ExecutionContext {
 	// 如果 gitUrl 有值，则优先使用此值；否则使用 publishTask 中的 gitUrl
 	public static final String GIT_URL = "gitUrl";
 	
+	public static final String STORE = "store";
+	
 	public String getGitUrl();
 
 	void setLogger(CliLogger logger);

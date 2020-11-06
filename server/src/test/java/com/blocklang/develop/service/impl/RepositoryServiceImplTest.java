@@ -97,18 +97,18 @@ public class RepositoryServiceImplTest extends AbstractServiceTest{
 		userInfo.setCreateTime(LocalDateTime.now());
 		Integer userId = userDao.save(userInfo).getId();
 		
-		Repository project = new Repository();
-		project.setName("project_name");
-		project.setIsPublic(true);
-		project.setLastActiveTime(LocalDateTime.now());
-		project.setCreateUserId(userId);
-		project.setCreateTime(LocalDateTime.now());
+		Repository repository = new Repository();
+		repository.setName("project_name");
+		repository.setIsPublic(true);
+		repository.setLastActiveTime(LocalDateTime.now());
+		repository.setCreateUserId(userId);
+		repository.setCreateTime(LocalDateTime.now());
 		
-		repositoryDao.save(project);
+		repositoryDao.save(repository);
 		
-		Optional<Repository> projectOption = repositoryService.find("user_name", "project_name");
-		assertThat(projectOption).isPresent();
-		assertThat(projectOption.get().getCreateUserName()).isEqualTo("user_name");
+		Optional<Repository> repositoryOption = repositoryService.find("user_name", "project_name");
+		assertThat(repositoryOption).isPresent();
+		assertThat(repositoryOption.get().getCreateUserName()).isEqualTo("user_name");
 	}
 	
 	@Test
@@ -121,22 +121,22 @@ public class RepositoryServiceImplTest extends AbstractServiceTest{
 		userInfo.setCreateTime(LocalDateTime.now());
 		Integer userId = userDao.save(userInfo).getId();
 		
-		Repository project = new Repository();
-		project.setName("project_name");
-		project.setIsPublic(true);
-		project.setDescription("description");
-		project.setLastActiveTime(LocalDateTime.now());
-		project.setCreateUserId(userId);
-		project.setCreateTime(LocalDateTime.now());
-		project.setCreateUserName("user_name");
+		Repository repository = new Repository();
+		repository.setName("project_name");
+		repository.setIsPublic(true);
+		repository.setDescription("description");
+		repository.setLastActiveTime(LocalDateTime.now());
+		repository.setCreateUserId(userId);
+		repository.setCreateTime(LocalDateTime.now());
+		repository.setCreateUserName("user_name");
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		Integer projectId = repositoryService.createRepository(userInfo, project).getId();
+		Integer repositoryId = repositoryService.createRepository(userInfo, repository).getId();
 		
 		// 断言
 		// 项目基本信息已保存
-		assertThat(repositoryDao.findById(projectId).get()).hasNoNullFieldsOrPropertiesExcept("lastUpdateUserId", "lastUpdateTime", "avatarUrl", "accessLevel");
+		assertThat(repositoryDao.findById(repositoryId).get()).hasNoNullFieldsOrPropertiesExcept("lastUpdateUserId", "lastUpdateTime", "avatarUrl", "accessLevel");
 		
 		// 项目授权信息已保存，项目创建者具有 admin 权限
 		assertThat(repositoryAuthorizationDao.findAllByUserId(userId)).hasSize(1).allMatch(projectAuth -> {
@@ -145,7 +145,7 @@ public class RepositoryServiceImplTest extends AbstractServiceTest{
 		
 		// 已在项目资源表中登记 README.md 文件
 		RepositoryResource readmeResource = repositoryResourceDao.findByRepositoryIdAndParentIdAndResourceTypeAndAppTypeAndKeyIgnoreCase(
-				projectId, 
+				repositoryId, 
 				Constant.TREE_ROOT_ID, 
 				RepositoryResourceType.FILE,
 				AppType.UNKNOWN,
@@ -166,7 +166,7 @@ public class RepositoryServiceImplTest extends AbstractServiceTest{
 		
 		// 已在项目资源表中登记 BUILD.json 文件
 		RepositoryResource buildConfigResource = repositoryResourceDao.findByRepositoryIdAndParentIdAndResourceTypeAndAppTypeAndKeyIgnoreCase(
-				projectId, 
+				repositoryId, 
 				Constant.TREE_ROOT_ID, 
 				RepositoryResourceType.BUILD,
 				AppType.UNKNOWN,
@@ -188,7 +188,7 @@ public class RepositoryServiceImplTest extends AbstractServiceTest{
 		assertThat(GitUtils.isGitRepo(context.getGitRepositoryDirectory())).isTrue();
 		
 		// 在创建一个仓库时，会执行一个 git commit，此操作也保存在 project_commit 中
-		assertThat(repositoryCommitDao.findAllByRepositoryIdAndBranchOrderByCommitTimeDesc(projectId, "master").get(0)).hasNoNullFieldsOrPropertiesExcept("fullMessage");
+		assertThat(repositoryCommitDao.findAllByRepositoryIdAndBranchOrderByCommitTimeDesc(repositoryId, "master").get(0)).hasNoNullFieldsOrPropertiesExcept("fullMessage");
 		
 		// 确认 git 仓库中有 README.md 文件，并比较其内容
 		String expectedReadmeContext = "# project_name\r\n\r\n**TODO: 在这里添加详细介绍，帮助感兴趣的人快速了解您的仓库。**";
@@ -406,8 +406,8 @@ public class RepositoryServiceImplTest extends AbstractServiceTest{
 	
 	@Test
 	public void find_can_access_projects_created_no_data() {
-		List<Repository> projects = repositoryService.findCanAccessRepositoriesByUserId(1);
-		assertThat(projects).isEmpty();
+		List<Repository> repos = repositoryService.findCanAccessRepositoriesByUserId(1);
+		assertThat(repos).isEmpty();
 	}
 	
 	@Test
@@ -420,47 +420,47 @@ public class RepositoryServiceImplTest extends AbstractServiceTest{
 		userInfo.setCreateTime(LocalDateTime.now());
 		Integer userId = userDao.save(userInfo).getId();
 		
-		Repository project = new Repository();
-		project.setName("project_name");
-		project.setIsPublic(true);
-		project.setDescription("description");
-		project.setLastActiveTime(LocalDateTime.now());
-		project.setCreateUserId(userId);
-		project.setCreateTime(LocalDateTime.now());
+		Repository repository = new Repository();
+		repository.setName("project_name");
+		repository.setIsPublic(true);
+		repository.setDescription("description");
+		repository.setLastActiveTime(LocalDateTime.now());
+		repository.setCreateUserId(userId);
+		repository.setCreateTime(LocalDateTime.now());
 		
-		Integer savedProjectId = repositoryDao.save(project).getId();
+		Integer savedRepositoryId = repositoryDao.save(repository).getId();
 		
 		RepositoryAuthorization auth = new RepositoryAuthorization();
-		auth.setRepositoryId(savedProjectId);
+		auth.setRepositoryId(savedRepositoryId);
 		auth.setUserId(userId);
 		auth.setAccessLevel(AccessLevel.ADMIN); // 项目创建者具有管理员权限
 		auth.setCreateTime(LocalDateTime.now());
 		auth.setCreateUserId(userId);
 		repositoryAuthorizationDao.save(auth);
 		
-		List<Repository> projects = repositoryService.findCanAccessRepositoriesByUserId(userId);
-		assertThat(projects).hasSize(1).allMatch(each -> each.getCreateUserName().equals("user_name"));
+		List<Repository> repos = repositoryService.findCanAccessRepositoriesByUserId(userId);
+		assertThat(repos).hasSize(1).allMatch(each -> each.getCreateUserName().equals("user_name"));
 		
-		projects = repositoryService.findCanAccessRepositoriesByUserId(userId + 1);
-		assertThat(projects).isEmpty();
+		repos = repositoryService.findCanAccessRepositoriesByUserId(userId + 1);
+		assertThat(repos).isEmpty();
 	}
 	
 	@Test
 	public void find_can_access_projects_order_by_last_active_time_desc() {
 		// 第一条记录
-		Repository project = new Repository();
-		project.setName("project_name");
-		project.setIsPublic(true);
-		project.setDescription("description");
-		project.setLastActiveTime(LocalDateTime.now());
-		project.setCreateUserId(1);
-		project.setCreateTime(LocalDateTime.now());
-		project.setCreateUserName("user_name");
+		Repository repository = new Repository();
+		repository.setName("project_name");
+		repository.setIsPublic(true);
+		repository.setDescription("description");
+		repository.setLastActiveTime(LocalDateTime.now());
+		repository.setCreateUserId(1);
+		repository.setCreateTime(LocalDateTime.now());
+		repository.setCreateUserName("user_name");
 		
-		Integer savedProjectId = repositoryDao.save(project).getId();
+		Integer savedRepositoryId = repositoryDao.save(repository).getId();
 		
 		RepositoryAuthorization auth = new RepositoryAuthorization();
-		auth.setRepositoryId(savedProjectId);
+		auth.setRepositoryId(savedRepositoryId);
 		auth.setUserId(1);
 		auth.setAccessLevel(AccessLevel.ADMIN);
 		auth.setCreateTime(LocalDateTime.now());
@@ -468,19 +468,19 @@ public class RepositoryServiceImplTest extends AbstractServiceTest{
 		repositoryAuthorizationDao.save(auth);
 		
 		// 第二条记录
-		project = new Repository();
-		project.setName("project_name_2");
-		project.setIsPublic(true);
-		project.setDescription("description");
-		project.setLastActiveTime(LocalDateTime.now().plusSeconds(1));
-		project.setCreateUserId(1);
-		project.setCreateTime(LocalDateTime.now());
-		project.setCreateUserName("user_name");
+		repository = new Repository();
+		repository.setName("project_name_2");
+		repository.setIsPublic(true);
+		repository.setDescription("description");
+		repository.setLastActiveTime(LocalDateTime.now().plusSeconds(1));
+		repository.setCreateUserId(1);
+		repository.setCreateTime(LocalDateTime.now());
+		repository.setCreateUserName("user_name");
 		
-		savedProjectId = repositoryDao.save(project).getId();
+		savedRepositoryId = repositoryDao.save(repository).getId();
 		
 		auth = new RepositoryAuthorization();
-		auth.setRepositoryId(savedProjectId);
+		auth.setRepositoryId(savedRepositoryId);
 		auth.setUserId(1);
 		auth.setAccessLevel(AccessLevel.ADMIN);
 		auth.setCreateTime(LocalDateTime.now());
@@ -501,20 +501,20 @@ public class RepositoryServiceImplTest extends AbstractServiceTest{
 		userInfo.setCreateTime(LocalDateTime.now());
 		Integer userId = userDao.save(userInfo).getId();
 		
-		Repository project = new Repository();
-		project.setName("project_name");
-		project.setIsPublic(true);
-		project.setDescription("description");
-		project.setLastActiveTime(LocalDateTime.now());
-		project.setCreateUserId(userId);
-		project.setCreateTime(LocalDateTime.now());
-		project.setCreateUserName("user_name");
+		Repository repository = new Repository();
+		repository.setName("project_name");
+		repository.setIsPublic(true);
+		repository.setDescription("description");
+		repository.setLastActiveTime(LocalDateTime.now());
+		repository.setCreateUserId(userId);
+		repository.setCreateTime(LocalDateTime.now());
+		repository.setCreateUserName("user_name");
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		Repository savedProject = repositoryService.createRepository(userInfo, project);
+		Repository savedRepository = repositoryService.createRepository(userInfo, repository);
 		
-		GitCommitInfo commitInfo = repositoryService.findLatestCommitInfo(savedProject, null).get();
+		GitCommitInfo commitInfo = repositoryService.findLatestCommitInfo(savedRepository, null).get();
 		assertThat(commitInfo.getShortMessage()).isEqualTo("First Commit");
 		assertThat(commitInfo.getUserName()).isEqualTo("user_name");
 	}
@@ -529,18 +529,18 @@ public class RepositoryServiceImplTest extends AbstractServiceTest{
 		userInfo.setCreateTime(LocalDateTime.now());
 		Integer userId = userDao.save(userInfo).getId();
 		
-		Repository project = new Repository();
-		project.setName("project_name");
-		project.setIsPublic(true);
-		project.setDescription("description");
-		project.setLastActiveTime(LocalDateTime.now());
-		project.setCreateUserId(userId);
-		project.setCreateTime(LocalDateTime.now());
-		project.setCreateUserName("user_name");
+		Repository repository = new Repository();
+		repository.setName("project_name");
+		repository.setIsPublic(true);
+		repository.setDescription("description");
+		repository.setLastActiveTime(LocalDateTime.now());
+		repository.setCreateUserId(userId);
+		repository.setCreateTime(LocalDateTime.now());
+		repository.setCreateUserName("user_name");
 		
 		when(propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH)).thenReturn(Optional.of(rootFolder.toString()));
 		
-		Repository savedProject = repositoryService.createRepository(userInfo, project);
+		Repository savedRepository = repositoryService.createRepository(userInfo, repository);
 		
 		RepositoryResource resource = new RepositoryResource();
 		resource.setKey("group1");
@@ -548,31 +548,31 @@ public class RepositoryServiceImplTest extends AbstractServiceTest{
 		resource.setAppType(AppType.UNKNOWN);
 		resource.setCreateTime(LocalDateTime.now());
 		resource.setCreateUserId(userId);
-		resource.setRepositoryId(savedProject.getId());
+		resource.setRepositoryId(savedRepository.getId());
 		resource.setParentId(Constant.TREE_ROOT_ID);
-		repositoryResourceService.insert(savedProject, resource);
+		repositoryResourceService.insert(savedRepository, resource);
 		
-		assertThat(repositoryService.findLatestCommitInfo(savedProject, "group1")).isEmpty();
+		assertThat(repositoryService.findLatestCommitInfo(savedRepository, "group1")).isEmpty();
 	}
 
 	@Test
 	public void find_by_id_no_data() {
-		Optional<Repository> projectOption = repositoryService.findById(1);
-		assertThat(projectOption).isEmpty();
+		Optional<Repository> repositoryOption = repositoryService.findById(1);
+		assertThat(repositoryOption).isEmpty();
 	}
 	
 	@Test
 	public void find_by_id_success() {
-		Repository project = new Repository();
-		project.setName("project_name");
-		project.setIsPublic(true);
-		project.setLastActiveTime(LocalDateTime.now());
-		project.setCreateUserId(1);
-		project.setCreateTime(LocalDateTime.now());
+		Repository repository = new Repository();
+		repository.setName("project_name");
+		repository.setIsPublic(true);
+		repository.setLastActiveTime(LocalDateTime.now());
+		repository.setCreateUserId(1);
+		repository.setCreateTime(LocalDateTime.now());
 		
-		Repository savedProject = repositoryDao.save(project);
+		Repository savedRepository = repositoryDao.save(repository);
 		
-		Optional<Repository> projectOption = repositoryService.findById(savedProject.getId());
-		assertThat(projectOption).isPresent();
+		Optional<Repository> repositoryOption = repositoryService.findById(savedRepository.getId());
+		assertThat(repositoryOption).isPresent();
 	}
 }

@@ -1,7 +1,6 @@
 package com.blocklang.release.data;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 /**
  * 创建发行版时使用的参数
@@ -17,8 +16,9 @@ public class NewReleaseTaskParam {
 	private String title;
 	private String description;
 	// 如果用户没有设置，则获取系统支持的最新 jdk
-	@NotNull(message = "{NotNull.jdkReleaseId}")
+	//@NotNull(message = "{NotNull.jdkReleaseId}")
 	private Integer jdkReleaseId;
+	private String buildTarget;
 
 	public String getVersion() {
 		return version;
@@ -50,6 +50,14 @@ public class NewReleaseTaskParam {
 
 	public void setJdkReleaseId(Integer jdkReleaseId) {
 		this.jdkReleaseId = jdkReleaseId;
+	}
+
+	public String getBuildTarget() {
+		return buildTarget;
+	}
+
+	public void setBuildTarget(String buildTarget) {
+		this.buildTarget = buildTarget;
 	}
 
 	@Override

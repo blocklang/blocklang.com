@@ -1,5 +1,6 @@
 package com.blocklang.release.service.impl;
 
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -15,10 +16,16 @@ import org.springframework.stereotype.Service;
 
 import com.blocklang.core.constant.CmPropKey;
 import com.blocklang.core.git.GitUtils;
+import com.blocklang.core.runner.common.CliLogger;
+import com.blocklang.core.runner.common.DefaultExecutionContext;
+import com.blocklang.core.runner.common.ExecutionContext;
+import com.blocklang.core.runner.common.TaskLogger;
 import com.blocklang.core.service.PropertyService;
 import com.blocklang.develop.model.Repository;
+import com.blocklang.develop.model.RepositoryResource;
 import com.blocklang.develop.service.ProjectDependencyService;
 import com.blocklang.develop.service.RepositoryResourceService;
+import com.blocklang.develop.service.RepositoryService;
 import com.blocklang.release.constant.Arch;
 import com.blocklang.release.constant.BuildResult;
 import com.blocklang.release.constant.ReleaseMethod;
@@ -29,14 +36,18 @@ import com.blocklang.release.dao.AppReleaseDao;
 import com.blocklang.release.dao.AppReleaseFileDao;
 import com.blocklang.release.dao.AppReleaseRelationDao;
 import com.blocklang.release.dao.ProjectBuildDao;
+import com.blocklang.release.dao.ProjectReleaseDao;
 import com.blocklang.release.dao.ProjectReleaseTaskDao;
 import com.blocklang.release.dao.RepositoryTagDao;
+import com.blocklang.release.data.MiniProgramStore;
 import com.blocklang.release.model.AppRelease;
 import com.blocklang.release.model.AppReleaseFile;
 import com.blocklang.release.model.AppReleaseRelation;
 import com.blocklang.release.model.ProjectBuild;
+import com.blocklang.release.model.ProjectRelease;
 import com.blocklang.release.model.ProjectReleaseTask;
 import com.blocklang.release.model.RepositoryTag;
+import com.blocklang.release.runner.action.GenerateWeappSourceAction;
 import com.blocklang.release.service.BuildService;
 import com.blocklang.release.task.AppBuildContext;
 import com.blocklang.release.task.ClientDistCopyTask;
@@ -46,7 +57,6 @@ import com.blocklang.release.task.GitSyncProjectTemplateTask;
 import com.blocklang.release.task.GitTagTask;
 import com.blocklang.release.task.MavenInstallTask;
 import com.blocklang.release.task.MavenPomConfigTask;
-import com.blocklang.release.task.ProjectModelWriteTask;
 import com.blocklang.release.task.ProjectTemplateCopyTask;
 import com.blocklang.release.task.YarnTask;
 
@@ -74,7 +84,11 @@ public class BuildServiceImpl implements BuildService {
 	@Autowired
 	private ProjectDependencyService projectDependenceService;
 	@Autowired
-	private RepositoryResourceService projectResourceService;
+	private RepositoryResourceService repositoryResourceService;
+	@Autowired
+	private RepositoryService repositoryService;
+	@Autowired
+	private ProjectReleaseDao projectReleaseDao;
 	
 	@Override
 	public void build(Repository repository, ProjectReleaseTask releaseTask) {
@@ -97,7 +111,7 @@ public class BuildServiceImpl implements BuildService {
 				releaseTask.getVersion(),
 				repository.getDescription(),
 				jdkVersion);
-		context.setProjectId(repository.getId());
+		context.setRepositoryId(repository.getId());
 		
 		// 需要存储日志文件名，当读取历史日志时，就可以根据此字段定位到日志文件。
 		releaseTask.setLogFileName(context.getLogFileName());
@@ -202,8 +216,8 @@ public class BuildServiceImpl implements BuildService {
 			context.info(StringUtils.repeat("-", 45));
 			context.info("三、开始准备项目模型数据");
 			// 生成模型信息
-			ProjectModelWriteTask projectModelWriteTask = new ProjectModelWriteTask(context, projectDependenceService, projectResourceService);
-			success = projectModelWriteTask.run().isPresent();
+			//ProjectModelWriteTask projectModelWriteTask = new ProjectModelWriteTask(context, projectDependenceService, repositoryResourceService);
+			//success = projectModelWriteTask.run().isPresent();
 			
 			if(success) {
 				context.info("完成");
@@ -421,5 +435,149 @@ public class BuildServiceImpl implements BuildService {
 	public void asyncBuild(Repository project, ProjectReleaseTask releaseTask) {
 		this.build(project, releaseTask);
 	}
+	
+	
+
+	// 只往日志文件中写，不往 websocket 中写
+	// TODO: 如果项目正在构建，另一位用户重新发起构建请求，则不应重复构建
+	// 或者在界面上显示构建状态，并失效 git clone 操作
+	@Override
+	public void buildProject(Repository repository, RepositoryResource project, ProjectReleaseTask releaseTask, MiniProgramStore store) {
+		StopWatch stopWatch = StopWatch.createStarted();
+		String gitShortCommitId = null;
+		
+		Path logFilePath = store.getLogFilePath(gitShortCommitId);
+		CliLogger logger = new TaskLogger(logFilePath);
+		
+		// 添加日志文件信息
+		String logFileName = logFilePath.getFileName().toString();
+		releaseTask.setLogFileName(logFileName);
+		projectReleaseTaskDao.save(releaseTask);
+		
+		ExecutionContext context = new DefaultExecutionContext();
+		context.setLogger(logger);
+		context.putValue(ExecutionContext.STORE, store);
+		context.putValue(ExecutionContext.PUBLISH_TASK, releaseTask);
+		
+		boolean success = runTask(context);
+		
+		ReleaseResult releaseResult = success ? ReleaseResult.PASSED : ReleaseResult.FAILED;
+		releaseTask.setReleaseResult(releaseResult);
+		projectReleaseTaskDao.save(releaseTask);
+		
+		// 只有构建成功后，才记录发布信息
+		if(success) {
+			saveOrUpdateProjectRelease(releaseTask);
+		}
+		
+		stopWatch.stop();
+		long seconds = stopWatch.getTime(TimeUnit.SECONDS);
+		logger.info(success ? "发布成功" : "发布失败");
+		logger.info("共耗时 {0} 秒", seconds);
+		
+	}
+	
+	private void saveOrUpdateProjectRelease(ProjectReleaseTask releaseTask) {
+		projectReleaseDao.findByRepositoryIdAndProjectIdAndVersionAndBuildTarget(
+				releaseTask.getRepositoryId(), 
+				releaseTask.getProjectId(), 
+				releaseTask.getVersion(), 
+				releaseTask.getBuildTarget()).ifPresentOrElse(release -> {
+					release.setCommitId(releaseTask.getCommitId());
+					release.setLastUpdateUserId(releaseTask.getCreateUserId());
+					release.setLastUpdateTime(LocalDateTime.now());
+					projectReleaseDao.save(release);
+				}, () -> {
+					ProjectRelease release = new ProjectRelease();
+					release.setRepositoryId(releaseTask.getRepositoryId());
+					release.setProjectId(releaseTask.getProjectId());
+					release.setBuildTarget(releaseTask.getBuildTarget());
+					release.setVersion(releaseTask.getVersion());
+					release.setCommitId(releaseTask.getCommitId());
+					release.setCreateUserId(releaseTask.getCreateUserId());
+					release.setCreateTime(LocalDateTime.now());
+					projectReleaseDao.save(release);
+				});
+	}
+
+	private boolean runTask(ExecutionContext context) {
+		GenerateWeappSourceAction generateWeappSource = new GenerateWeappSourceAction(context);
+		if(!generateWeappSource.run()) {
+			return false;
+		}
+		return true;
+	}
+
+	
+	@Async
+	@Override
+	public void asyncBuildProject(Repository repository, RepositoryResource project, ProjectReleaseTask releaseTask, MiniProgramStore store) {
+		this.buildProject(repository, project, releaseTask, store);
+	}
+	
+
+//	boolean success = true;
+//	Optional<Repository> repositoryOption = repositoryService.find(owner, repoName);
+//	Repository repository = null;
+//	if(repositoryOption.isEmpty()) {
+//		logger.error("@{0}/{1} 仓库不存在", owner, repoName);
+//		success = false;
+//	} else {
+//		repository = repositoryOption.get();
+//	}
+//
+//	Optional<RepositoryResource> projectOption = null;
+//	RepositoryResource project = null;
+//	if(success) {
+//		Integer repositoryId = repositoryOption.get().getId();
+//		projectOption = repositoryResourceService.findProject(repositoryId, projectName);
+//		if(projectOption.isEmpty()) {
+//			logger.error("@{0}/{1} 仓库下不存在 {2} 项目", owner, repoName, projectName);
+//			success = false;
+//		} else {
+//			project = projectOption.get();
+//		}
+//	}
+//	
+//	if(success) {
+//		ProjectReleaseTask task = new ProjectReleaseTask();
+//		task.setRepositoryId(repository.getId());
+//		task.setProjectId(project.getId());
+//		task.setVersion("master");
+//		task.setTitle("发布 master 分支");
+//		task.setStartTime(LocalDateTime.now());
+//		task.setReleaseResult(ReleaseResult.STARTED);
+//		task.setCreateTime(LocalDateTime.now());
+//		task.setCreateUserId(loginUserId);
+//		ProjectReleaseTask savedTask = projectReleaseTaskDao.save(task);
+//	}
+//	
+//	if(success) {
+//		logger.info(StringUtils.repeat("=", 60));
+//		logger.info("开始发布 @{0}/{1}/{2} 项目", owner, repoName, projectName);
+//	}
+//	
+//	if(success) {
+//		logger.info(StringUtils.repeat("-", 45));
+//		logger.info("一、开始准备项目模型数据");
+//		// 生成模型信息
+//		ProjectModelWriteTask projectModelWriteTask = new ProjectModelWriteTask(context, projectDependenceService, repositoryResourceService);
+//		success = projectModelWriteTask.run().isPresent();
+//		
+//		if(success) {
+//			logger.info("完成");
+//		}else {
+//			logger.error("失败");
+//		}
+//	}
+//	// projectReleaseTaskDao
+//	
+//	
+//	// 如果是小程序
+//	// 1. 生成数据模型
+//	// 2. 根据数据模型生成源码
+//	// 3. commit 到 master 分支
+//	
+//	
 	
 }

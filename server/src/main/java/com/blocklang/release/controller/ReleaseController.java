@@ -11,6 +11,7 @@ import java.util.Optional;
 
 import javax.validation.Valid;
 
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,18 +29,26 @@ import com.blocklang.core.constant.CmPropKey;
 import com.blocklang.core.exception.InvalidRequestException;
 import com.blocklang.core.exception.NoAuthorizationException;
 import com.blocklang.core.exception.ResourceNotFoundException;
+import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.PropertyService;
 import com.blocklang.core.service.UserService;
 import com.blocklang.core.util.LogFileReader;
+import com.blocklang.develop.constant.BuildTarget;
 import com.blocklang.develop.model.Repository;
+import com.blocklang.develop.model.RepositoryResource;
+import com.blocklang.develop.service.RepositoryPermissionService;
+import com.blocklang.develop.service.RepositoryResourceService;
 import com.blocklang.develop.service.RepositoryService;
 import com.blocklang.release.constant.ReleaseResult;
 import com.blocklang.release.data.CheckReleaseVersionParam;
+import com.blocklang.release.data.MiniProgramStore;
 import com.blocklang.release.data.NewReleaseTaskParam;
+import com.blocklang.release.model.ProjectRelease;
 import com.blocklang.release.model.ProjectReleaseTask;
 import com.blocklang.release.model.RepositoryTag;
 import com.blocklang.release.service.BuildService;
+import com.blocklang.release.service.ProjectReleaseService;
 import com.blocklang.release.service.ProjectReleaseTaskService;
 import com.blocklang.release.service.RepositoryTagService;
 import com.blocklang.release.task.AppBuildContext;
@@ -53,9 +62,15 @@ public class ReleaseController {
 	private static final Logger logger = LoggerFactory.getLogger(ReleaseController.class);
 	
 	@Autowired
-	private RepositoryService projectService;
+	private RepositoryService repositoryService;
+	@Autowired
+	private RepositoryPermissionService repositoryPermissionService;
+	@Autowired
+	private RepositoryResourceService repositoryResourceService;
 	@Autowired
 	private RepositoryTagService projectTagService;
+	@Autowired
+	private ProjectReleaseService projectReleaseService;
 	@Autowired
 	private ProjectReleaseTaskService projectReleaseTaskService;
 	@Autowired
@@ -65,6 +80,66 @@ public class ReleaseController {
 	@Autowired
 	private PropertyService propertyService;
 	
+	@PostMapping("/repos/{owner}/{repoName}/{projectName}/releases")
+	public ResponseEntity<ProjectReleaseTask> newRelease(
+			Principal principal,
+			@PathVariable("owner") String owner,
+			@PathVariable("repoName") String repoName,
+			@PathVariable("projectName") String projectName,
+			@RequestBody NewReleaseTaskParam releaseTaskParam) {
+		Repository repository = repositoryService.find(owner, repoName).orElseThrow(ResourceNotFoundException::new);
+		repositoryPermissionService.canWrite(principal, repository).orElseThrow(NoAuthorizationException::new);
+		RepositoryResource project = repositoryResourceService.findProject(repository.getId(), projectName).orElseThrow(ResourceNotFoundException::new);
+		UserInfo currentUser = userService.findByLoginName(principal.getName()).orElseThrow(NoAuthorizationException::new);
+		
+		Optional<ProjectRelease> projectReleaseOption = projectReleaseService.findByRepositoryIdAndProjectIdAndVersionAndBuildTarget(repository.getId(), project.getId(), releaseTaskParam.getVersion(), BuildTarget.fromKey(releaseTaskParam.getBuildTarget()));
+		// 判断是否已发布过，如果已发布过，则不再发布
+		// 1. 获取项目目录的最新 commit id
+		
+		String dataRootPath = propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH, "");
+		MiniProgramStore store = new MiniProgramStore(
+				dataRootPath, 
+				repository.getCreateUserName(), 
+				repository.getName(), 
+				project.getKey(),
+				BuildTarget.fromKey(releaseTaskParam.getBuildTarget()),
+				releaseTaskParam.getVersion());
+		
+		RevCommit latestCommit = GitUtils.getLatestCommit(store.getModelRepositoryDirectory(), project.getKey());
+		if(latestCommit == null) {
+			throw new ResourceNotFoundException();
+		}
+		ProjectRelease projectRelease = null;
+		if(projectReleaseOption.isPresent()) {
+			projectRelease = projectReleaseOption.get();
+			if(projectRelease.getCommitId().equals(latestCommit.getName())) {
+				// 没有最新要发布的内容，不启动发布流程
+				return ResponseEntity.ok(new ProjectReleaseTask());
+			}
+		}
+		
+		// TODO: 如果项目正在发布，则不启动发布任务
+		
+		ProjectReleaseTask task = new ProjectReleaseTask();
+		task.setRepositoryId(repository.getId());
+		task.setProjectId(project.getId());
+		task.setVersion(releaseTaskParam.getVersion());
+		task.setTitle(releaseTaskParam.getTitle());
+		task.setDescription(releaseTaskParam.getDescription());
+		task.setJdkReleaseId(releaseTaskParam.getJdkReleaseId());
+		task.setStartTime(LocalDateTime.now());
+		task.setReleaseResult(ReleaseResult.STARTED);
+		task.setCreateTime(LocalDateTime.now());
+		task.setCreateUserId(currentUser.getId());
+		task.setCommitId(latestCommit.getName());
+		task.setBuildTarget(BuildTarget.fromKey(releaseTaskParam.getBuildTarget()));
+		ProjectReleaseTask savedTask = projectReleaseTaskService.save(task);
+		
+		buildService.buildProject(repository, project, savedTask, store);
+		return new ResponseEntity<ProjectReleaseTask>(savedTask, HttpStatus.CREATED);
+	}
+	
+	@Deprecated
 	@PostMapping("/projects/{owner}/{projectName}/releases")
 	public ResponseEntity<ProjectReleaseTask> newRelease(
 			Principal principal,
@@ -139,7 +214,7 @@ public class ReleaseController {
 			}
 			
 			// 获取项目基本信息
-			project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
+			project = repositoryService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
 			
 			Optional<RepositoryTag> latestTagOption = projectTagService.findLatestTag(project.getId());
 			// 获取项目的 git 标签信息
@@ -173,7 +248,7 @@ public class ReleaseController {
 			@PathVariable("owner") String owner,
 			@PathVariable("projectName") String projectName) {
 		
-		Repository project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
+		Repository project = repositoryService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
 		
 		List<ProjectReleaseTask> releases = projectReleaseTaskService.findAllByProjectId(project.getId());
 		return ResponseEntity.ok(releases);
@@ -184,7 +259,7 @@ public class ReleaseController {
 			@PathVariable("owner") String owner,
 			@PathVariable("projectName") String projectName) {
 		
-		Repository project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
+		Repository project = repositoryService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
 		
 		Long count = projectReleaseTaskService.count(project.getId());
 		Map<String, Long> result = new HashMap<String, Long>();
@@ -198,7 +273,7 @@ public class ReleaseController {
 			@PathVariable("projectName") String projectName,
 			@PathVariable("version") String version) {
 
-		Repository project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
+		Repository project = repositoryService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
 		
 		return projectReleaseTaskService.findByProjectIdAndVersion(project.getId(), version).map((task) -> {
 			return ResponseEntity.ok(task);
@@ -212,7 +287,7 @@ public class ReleaseController {
 			@PathVariable("projectName") String projectName,
 			@PathVariable("version") String version) {
 
-		Repository project = projectService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
+		Repository project = repositoryService.find(owner, projectName).orElseThrow(ResourceNotFoundException::new);
 		ProjectReleaseTask task = projectReleaseTaskService.findByProjectIdAndVersion(project.getId(), version).orElseThrow(ResourceNotFoundException::new);
 		
 		Path logFilePath = null;

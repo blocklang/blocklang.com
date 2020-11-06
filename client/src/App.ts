@@ -60,9 +60,9 @@ export default class App extends WidgetBase {
 					renderer: (matchDetails) => {
 						const { params, queryParams } = matchDetails;
 						if (queryParams.type === 'web') {
-							return w(NewWebProject, { owner: params.owner, repository: params.repository });
+							return w(NewWebProject, { owner: params.owner, repoName: params.repo });
 						} else if (queryParams.type === 'miniprogram') {
-							return w(NewMiniProgram, { owner: params.owner, repository: params.repository });
+							return w(NewMiniProgram, { owner: params.owner, repoName: params.repo });
 						}
 					},
 				}),
@@ -86,7 +86,7 @@ export default class App extends WidgetBase {
 					id: 'view-repo-build',
 					renderer: (matchDetails) => {
 						const { params } = matchDetails;
-						return w(ViewRepositoryBuild, { owner: params.owner, repository: params.repository });
+						return w(ViewRepositoryBuild, { owner: params.owner, repoName: params.repo });
 					},
 				}),
 				w(Route, {

@@ -1526,4 +1526,9 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 		return repositoryResourceDao.findByRepositoryIdAndParentIdAndResourceTypeAndKeyIgnoreCase(repositoryId, Constant.TREE_ROOT_ID, RepositoryResourceType.PROJECT, projectKey);
 	}
 
+	@Override
+	public List<RepositoryResource> findAllProject(Integer repositoryId) {
+		return repositoryResourceDao.findAllByRepositoryIdAndResourceType(repositoryId, RepositoryResourceType.PROJECT);
+	}
+
 }

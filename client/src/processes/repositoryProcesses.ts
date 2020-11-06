@@ -334,6 +334,9 @@ export const initForViewRepositoryGroupProcess = createProcess('init-for-view-re
 	getLatestCommitInfoCommand,
 ]);
 
+export const getRepositoryProcess = createProcess('get-repository', [getRepositoryCommand]);
+export const getRepositoryGroupChildrenProcess = createProcess('get-repository-group-children', [getRepositoryGroupInfoCommand]);
+
 export const initForViewCommitChangesProcess = createProcess('init-for-view-commit-changes', [
 	startInitForViewCommitChangesCommand,
 ]);

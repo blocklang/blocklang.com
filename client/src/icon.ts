@@ -39,6 +39,7 @@ import { faCube } from '@fortawesome/free-solid-svg-icons/faCube';
 import { faPlayCircle } from '@fortawesome/free-solid-svg-icons/faPlayCircle';
 import { faFolderOpen } from '@fortawesome/free-solid-svg-icons/faFolderOpen';
 import { faTags } from '@fortawesome/free-solid-svg-icons/faTags';
+import { faClipboard } from '@fortawesome/free-solid-svg-icons/faClipboard';
 
 export function init(): void {
 	library.add(
@@ -80,6 +81,7 @@ export function init(): void {
 		faCube,
 		faPlayCircle,
 		faFolderOpen,
-		faTags
+		faTags,
+		faClipboard
 	);
 }

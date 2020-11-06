@@ -15,4 +15,6 @@ public interface ProjectReleaseTaskService {
 
 	Optional<ProjectReleaseTask> findByProjectIdAndVersion(Integer projectId, String version);
 
+	boolean isBuilding(Integer projectId, String version);
+
 }

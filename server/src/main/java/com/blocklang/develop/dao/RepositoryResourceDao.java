@@ -39,4 +39,6 @@ public interface RepositoryResourceDao extends JpaRepository<RepositoryResource,
 
 	List<RepositoryResource> findAllByRepositoryIdAndAppTypeAndResourceType(Integer repositoryId, AppType appType, RepositoryResourceType resourceType);
 
+	List<RepositoryResource> findAllByRepositoryIdAndResourceType(Integer repositoryId, RepositoryResourceType resourceType);
+
 }

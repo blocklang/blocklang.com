@@ -10,7 +10,7 @@ APP 的构建是基于git tag 标识的版本信息，在发布过程中会为�
 TODO: 添加用户访问限制，如果用户请求过于频繁，则提示用户在多长时间之后再访问。
 
 ```text
-POST /projects/{owner}/{projectName}/releases
+POST /repos/{owner}/{repoName}/{projectName}/releases
 ```
 
 ## Parameters
@@ -21,6 +21,7 @@ POST /projects/{owner}/{projectName}/releases
 | `title`       | `string` | **Required**. 发行版标题           |
 | `description` | `string` | 发行版描述                         |
 | `jdkAppId`    | `int`    | jdk 的 APP 标识                    |
+| `buildTarget` | `string` | 构建目标，如构建为微信小程序       |
 
 ## Response
 
@@ -34,9 +35,9 @@ Status: 422 Unprocessable Entity
 
 1. `version` 不能为空字符串
 2. `title` 不能为空字符串
-3. `jdkAppId` 必须选定一个 JDK
-4. `version` 必须是一个有效的语义化标签
-5. `version` 已被占用
+3. `jdkAppId` 只有当 buildTarget 使用了 jdk 时，才必须选定一个 JDK
+4. `version` 必须是一个有效的语义化标签，或者 “master"
+5. `version` 已被占用，除了 “master” 可以重复发布之外，其他语义化版本不允许重复发布
 6. `version` 的值要大于上一个版本
 
 创建成功
@@ -45,14 +46,15 @@ Status: 422 Unprocessable Entity
 Status: 201 CREATED
 ```
 
-| Name            | Type     | Description           |
-| --------------- | -------- | --------------------- |
-| `id`            | `int`    | 发行版标识            |
-| `projectId`     | `int`    | 项目标识              |
-| `version`       | `string` | 语义化版本，如 v0.1.0 |
-| `title`         | `string` | 发行版标题            |
-| `description`   | `string` | 发行版描述            |
-| `jdkAppId`      | `string` | JDK APP 标识          |
-| `startTime`     | `string` | 发布开始时间          |
-| `endTime`       | `string` | 发布开始时间          |
-| `releaseResult` | `string` | 发布结果              |
+| Name            | Type     | Description                  |
+| --------------- | -------- | ---------------------------- |
+| `id`            | `int`    | 发行版标识                   |
+| `projectId`     | `int`    | 项目标识                     |
+| `version`       | `string` | 语义化版本，如 v0.1.0        |
+| `title`         | `string` | 发行版标题                   |
+| `description`   | `string` | 发行版描述                   |
+| `jdkAppId`      | `string` | JDK APP 标识                 |
+| `startTime`     | `string` | 发布开始时间                 |
+| `endTime`       | `string` | 发布开始时间                 |
+| `releaseResult` | `string` | 发布结果                     |
+| `buildTarget`   | `string` | 构建目标，如构建为微信小程序 |

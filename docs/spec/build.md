@@ -39,7 +39,8 @@ BlockLang
                               |--- deployLogs
     |--- gitRepo
             |--- {owner}
-                     |--- {project_name}
+                     |--- {repository_name}
+                                 |--- {project_name}
     |--- apps
             |--- {app_name}
                      |--- {version}

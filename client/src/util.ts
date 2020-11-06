@@ -1,5 +1,5 @@
 import * as object from '@dojo/framework/shim/object';
-import { ProgrammingLanguage, RepoCategory, RepoType } from './constant';
+import { ProgrammingLanguage, RepoCategory, RepoType, PageAppType } from './constant';
 
 /**
  * 确认 json 对象是否为空，即等于 `{}`
@@ -47,4 +47,17 @@ export function getRepoTypeName(repoType: RepoType) {
 	if (repoType === RepoType.IDE) {
 		return 'IDE';
 	}
+}
+
+export function getAppTypeName(appType: PageAppType) {
+	if(appType === PageAppType.Web) {
+		return 'Web';
+	}
+	if(appType === PageAppType.Mobile) {
+		return '移动端';
+	}
+	if(appType === PageAppType.MiniProgram) {
+		return '小程序';
+	}
+	return '未知';
 }

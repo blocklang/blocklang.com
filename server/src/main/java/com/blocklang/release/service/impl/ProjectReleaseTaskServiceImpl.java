@@ -11,6 +11,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 import com.blocklang.core.service.UserService;
+import com.blocklang.release.constant.ReleaseResult;
 import com.blocklang.release.dao.AppDao;
 import com.blocklang.release.dao.AppReleaseDao;
 import com.blocklang.release.dao.ProjectReleaseTaskDao;
@@ -72,6 +73,15 @@ public class ProjectReleaseTaskServiceImpl implements ProjectReleaseTaskService 
 			setJdkAndUserInfo(task);
 			return task;
 		});
+	}
+
+	@Override
+	public boolean isBuilding(Integer projectId, String version) {
+		Optional<ProjectReleaseTask> option = projectReleaseTaskDao.findFirstByProjectIdAndVersionOrderByIdDesc(projectId, version);
+		if(option.isEmpty()) {
+			return false;
+		}
+		return option.get().getReleaseResult().equals(ReleaseResult.STARTED);
 	}
 
 }

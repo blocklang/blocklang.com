@@ -14,6 +14,15 @@ public interface ProjectReleaseTaskDao extends JpaRepository<ProjectReleaseTask,
 
 	Long countByProjectId(Integer projectId);
 
+	/**
+	 * @deprecated 一个项目的同一个版本会发布多次，返回 Optional 不合适
+	 * 
+	 * @param projectId
+	 * @param version
+	 * @return
+	 */
 	Optional<ProjectReleaseTask> findByProjectIdAndVersion(Integer projectId, String version);
+
+	Optional<ProjectReleaseTask> findFirstByProjectIdAndVersionOrderByIdDesc(Integer projectId, String version);
 
 }

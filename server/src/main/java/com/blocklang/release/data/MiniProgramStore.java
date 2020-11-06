@@ -130,5 +130,12 @@ public class MiniProgramStore extends ProjectStore{
 				.resolve(buildTarget.getKey())
 				.resolve(profile);
 	}
+	
+	public Path getModelRepositoryDirectory() {
+		return Paths.get(this.getDataRootPath())
+				.resolve("models")
+				.resolve(this.getOwner())
+				.resolve(this.getRepositoryName());
+	}
 
 }
