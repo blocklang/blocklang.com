@@ -105,7 +105,7 @@ export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderPro
 
 		const { messages } = this._localizedMessages;
 
-		const rootClasses = [css.root, c.navbar, c.navbar_expand_lg, c.navbar_dark, c.bg_dark];
+		const rootClasses = [css.root, c.navbar, c.navbar_expand_lg, c.navbar_light, c.bg_light];
 
 		let docsMenuActive = false;
 		let marketplaceMenuActive = false;

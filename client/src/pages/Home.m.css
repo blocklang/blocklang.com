@@ -30,3 +30,15 @@
 .lead {
 	font-size: 1.5rem;
 }
+
+.free::before {
+	content: '——————————';
+	margin-left: 11px;
+	margin-right: 11px;
+}
+
+.free::after {
+	content: '——————————';
+	margin-left: 11px;
+	margin-right: 11px;
+}

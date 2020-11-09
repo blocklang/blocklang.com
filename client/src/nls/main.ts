@@ -14,7 +14,8 @@ export default {
 		logout: '退出',
 		// home
 		blockLangIntro: '快速拼装小程序',
-		blockLangDescription: '在这里<br/>小程序是拖拽出来滴<br/>并可发布到微信小程序、抖音小程序等多个平台',
+		blockLangDescription: '在这里<br/>小程序是拖拽出来滴<br/>支持微信小程序、抖音小程序等多个平台',
+		free: '免费使用',
 		// private home
 		canAccessProjectsCardTitle: '仓库',
 		noProjectMessage: '请创建您的第一个仓库',
