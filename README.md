@@ -73,6 +73,8 @@ BlockLang 平台由以下项目组成：
 * [blocklang/designer-core](https://github.com/blocklang/designer-core) - 存放设计器的通用功能
 * [blocklang/page-designer](https://github.com/blocklang/page-designer) - 可视化的页面设计器
 * [blocklang/codemods](https://github.com/blocklang/codemods) - 生成客户端代码工具
+  * [blocklang/cli-mini-program](https://github.com/blocklang/cli-mini-program) - 生成小程序源码
+  * [blocklang/cli-harmony-os](https://github.com/blocklang/cli-harmony-os) - 生成鸿蒙 OS 源码
 
 需要往 BlockLang 组件市场注册的项目：
 
