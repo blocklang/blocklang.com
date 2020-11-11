@@ -322,16 +322,16 @@ export default class ViewRepository extends ThemedMixin(I18nMixin(WidgetBase))<V
 			{ classes: [c.btn_group, c.btn_group_sm], role: 'group' },
 			disabled
 				? [
-						v(
-							'a',
-							{
-								key: 'web',
-								classes: [c.btn, c.btn_outline_secondary, c.disabled],
-								tabIndex: -1,
-								'aria-disabled': 'true',
-							},
-							[`${messages.createWebProject}`]
-						),
+						// v(
+						// 	'a',
+						// 	{
+						// 		key: 'web',
+						// 		classes: [c.btn, c.btn_outline_secondary, c.disabled],
+						// 		tabIndex: -1,
+						// 		'aria-disabled': 'true',
+						// 	},
+						// 	[`${messages.createWebProject}`]
+						// ),
 						v(
 							'a',
 							{
@@ -344,20 +344,20 @@ export default class ViewRepository extends ThemedMixin(I18nMixin(WidgetBase))<V
 						),
 				  ]
 				: [
-						w(
-							Link,
-							{
-								key: 'web',
-								classes: [c.btn, c.btn_outline_secondary],
-								to: 'new-project',
-								params: {
-									owner: repository.createUserName,
-									repository: repository.name,
-									type: 'web',
-								},
-							},
-							[`${messages.createWebProject}`]
-						),
+						// w(
+						// 	Link,
+						// 	{
+						// 		key: 'web',
+						// 		classes: [c.btn, c.btn_outline_secondary],
+						// 		to: 'new-project',
+						// 		params: {
+						// 			owner: repository.createUserName,
+						// 			repository: repository.name,
+						// 			type: 'web',
+						// 		},
+						// 	},
+						// 	[`${messages.createWebProject}`]
+						// ),
 						w(
 							Link,
 							{
