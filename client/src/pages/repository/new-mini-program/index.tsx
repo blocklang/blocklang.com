@@ -207,7 +207,7 @@ export default factory(function NewMiniProgram({ properties, middleware: { store
 				{saveFailedErrors && (
 					<div classes={[c.alert, c.alert_danger, c.alert_dismissible]} role="alert">
 						<h4 classes={[c.alert_heading]}>保存失败！</h4>
-						<p>{saveFailedErrors.globalErrors[0]}</p>
+						<p innerHTML={saveFailedErrors.globalErrors[0]}></p>
 					</div>
 				)}
 				<form classes={[c.needs_validation]} novalidate="novalidate">

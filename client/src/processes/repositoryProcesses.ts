@@ -100,8 +100,8 @@ const saveRepositoryCommand = commandFactory(async ({ path, get }) => {
 	return [
 		replace(path('repository'), json),
 		// 清空输入参数
-		replace(path('repositoryParam'), undefined),
-		...linkTo(path, 'view-repo', { owner, project: repositoryParam.name }),
+		remove(path('repositoryParam')),
+		...linkTo(path, 'view-repo', { owner, repo: repositoryParam.name }),
 	];
 });
 
@@ -335,7 +335,9 @@ export const initForViewRepositoryGroupProcess = createProcess('init-for-view-re
 ]);
 
 export const getRepositoryProcess = createProcess('get-repository', [getRepositoryCommand]);
-export const getRepositoryGroupChildrenProcess = createProcess('get-repository-group-children', [getRepositoryGroupInfoCommand]);
+export const getRepositoryGroupChildrenProcess = createProcess('get-repository-group-children', [
+	getRepositoryGroupInfoCommand,
+]);
 
 export const initForViewCommitChangesProcess = createProcess('init-for-view-commit-changes', [
 	startInitForViewCommitChangesCommand,

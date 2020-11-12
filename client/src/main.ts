@@ -178,12 +178,12 @@ router.on('outlet', ({ outlet, action }) => {
 					// 因为 dojo5 route 不支持通配符，所以此处自己实现
 					// 注意，pathname 是以 / 开头的
 					pagePath = global.window.location.pathname.substring(
-						`/${outlet.params.owner}/${outlet.params.project}/pages/`.length
+						`/${outlet.params.owner}/${outlet.params.repo}/pages/`.length
 					);
 				}
 				initForViewRepositoryPageProcess(store)({
 					owner: outlet.params.owner,
-					project: outlet.params.project,
+					repo: outlet.params.repo,
 					pagePath,
 				});
 				break;
