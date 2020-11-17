@@ -18,6 +18,7 @@ public enum AppType {
 	// mobile 支持 native 和小程序等
 	MOBILE("02", "mobile", IconClass.MOBILE, "手机端"),
 	MINI_PROGRAM("03", "miniProgram", IconClass.WECHAT, "小程序"),
+	HARMONYOS("04", "harmonyOS", IconClass.HARMONYOS, "鸿蒙应用"),
 
 	UNKNOWN("99", "", "", "Unknown");
 

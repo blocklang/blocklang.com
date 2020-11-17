@@ -13,8 +13,8 @@ export default {
 		userHome: '个人主页',
 		logout: '退出',
 		// home
-		blockLangIntro: '快速拼装小程序',
-		blockLangDescription: '在这里<br/>小程序是拖拽出来滴<br/>支持微信小程序、抖音小程序等多个平台',
+		blockLangIntro: '软件拼装工厂',
+		blockLangDescription: '你也可以开发华为鸿蒙应用',
 		free: '免费使用',
 		// private home
 		canAccessProjectsCardTitle: '仓库',
@@ -69,6 +69,8 @@ export default {
 		// view project
 		createWebProject: '创建 Web 项目',
 		createMiniProgram: '创建小程序',
+		createHarmonyOS: '创建鸿蒙项目',
+
 		latestCommitLabel: '最近提交于',
 		releaseLabel: '发布',
 		deployLabel: '部署',

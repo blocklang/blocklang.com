@@ -22,6 +22,7 @@ export enum PageAppType {
 	Web = '01',
 	Mobile = '02',
 	MiniProgram = '03',
+	HarmonyOS = '04',
 	// Android = '02',
 	// iOS = '03',
 	// WechatMiniApp = '04',

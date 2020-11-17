@@ -31,8 +31,9 @@ import ViewRepositoryPageContainer from './containers/repository/ViewRepositoryP
 import ViewRepositoryTempletContainer from './containers/repository/ViewRepositoryTempletContainer';
 import ViewRepositoryServiceContainer from './containers/repository/ViewRepositoryServiceContainer';
 import FooterContainer from './containers/FooterContainer';
-import NewWebProject from './pages/repository/new-web-rpoject';
+import NewWebProject from './pages/repository/new-web-project';
 import NewMiniProgram from './pages/repository/new-mini-program';
+import NewHarmonyOSProject from './pages/repository/new-harmonyos-project';
 import ViewRepositoryBuild from './pages/repository/view-repository-build';
 import * as icon from './icon';
 
@@ -63,6 +64,8 @@ export default class App extends WidgetBase {
 							return w(NewWebProject, { owner: params.owner, repoName: params.repo });
 						} else if (queryParams.type === 'miniprogram') {
 							return w(NewMiniProgram, { owner: params.owner, repoName: params.repo });
+						} else if (queryParams.type === 'harmonyOS') {
+							return w(NewHarmonyOSProject, { owner: params.owner, repoName: params.repo });
 						}
 					},
 				}),
