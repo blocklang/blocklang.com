@@ -110,5 +110,5 @@
 	<include file="db/changelog/table/202009160655_alter_project_release_task.xml"/>
 	<include file="db/changelog/table/202010281409_alter_project_release_task.xml"/>
 	<include file="db/changelog/table/202010281430_create_project_release.xml"/>
-	
+	<include file="db/changelog/table/202011250623_alter_repository_resource.xml"/>
 </databaseChangeLog>

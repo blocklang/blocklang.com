@@ -18,6 +18,7 @@
 | resource_desc | 资源描述 | varchar | 64   |        |      | 是   |
 | resource_type | 资源类型 | char    | 2    |        |      | 否   |
 | app_type      | 程序类型 | char    | 2    |        |      | 否   |
+| device_type   | 设备类型 | char    | 2    |        |      | 是   |
 | parent_id     | 父标识   | int     |      | -1     |      | 否   |
 | seq           | 排序     | int     |      |        |      | 否   |
 
@@ -37,4 +38,5 @@
 6. `app_type` 的值为：`01` 表示 `web`，`02` 表示 `mobile`，`03` 表示 `miniProgram`，`99` 表示 `unknown(不属于任何 APP，如 README.md 文件)`
 7. `parent_id` 其中的值为 `-1` 时，表示顶级节点
 8. `seq` 是在同一层级排序，不是全表范围内排序，从 1 开始排
-9. 唯一索引 `UK_REPO_RESOURCE_ON_PROJECT_PARENT_RESOURCE_APP_KEY` 中没有包含 `app_type`，因为规范仓库结构后，不允许同一个目录下 `app_type` 不同，但 `resource_key` 相同的情况出现。
+9. 唯一索引 `UK_REPO_RESOURCE_ON_PROJECT_PARENT_RESOURCE_APP_KEY` 中没有包含 `app_type`，因为规范仓库结构后，不允许同一个目录下 `app_type` 不同，但 `resource_key` 相同的情况出现
+10. `device_type` 的值为: `01` 表示 `Phone`，`02` 表示 `Car`，`03` 表示 `TV`，`04` 表示 `Wearable`，`05` 表示 `Lite Wearable`，`06` 表示 `Smart Vision`

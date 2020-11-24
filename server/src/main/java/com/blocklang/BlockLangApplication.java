@@ -12,6 +12,14 @@ public class BlockLangApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(BlockLangApplication.class, args);
+		
+		onStartUpSuccess();
+	}
+
+	private static void onStartUpSuccess() {
+		System.out.println();
+		System.out.println("Block Lang 启动成功！");
+		System.out.println();
 	}
 	
 }

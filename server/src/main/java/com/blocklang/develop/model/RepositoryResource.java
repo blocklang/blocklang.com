@@ -18,9 +18,11 @@ import com.blocklang.core.constant.Constant;
 import com.blocklang.core.constant.GitFileStatus;
 import com.blocklang.core.model.PartialOperateFields;
 import com.blocklang.develop.constant.AppType;
+import com.blocklang.develop.constant.DeviceType;
 import com.blocklang.develop.constant.IconClass;
 import com.blocklang.develop.constant.RepositoryResourceType;
 import com.blocklang.develop.constant.converter.AppTypeConverter;
+import com.blocklang.develop.constant.converter.DeviceTypeConverter;
 import com.blocklang.develop.constant.converter.RepositoryResourceTypeConverter;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
 
@@ -78,6 +80,10 @@ public class RepositoryResource extends PartialOperateFields{
 	@Convert(converter = AppTypeConverter.class)
 	@Column(name = "app_type", nullable = false, length = 2)
 	private AppType appType;
+	
+	@Convert(converter = DeviceTypeConverter.class)
+	@Column(name = "device_type", nullable = false, length = 2)
+	private DeviceType deviceType;
 	
 	@Column(name = "parent_id", nullable = false)
 	private Integer parentId = Constant.TREE_ROOT_ID;
@@ -142,6 +148,14 @@ public class RepositoryResource extends PartialOperateFields{
 
 	public void setAppType(AppType appType) {
 		this.appType = appType;
+	}
+
+	public DeviceType getDeviceType() {
+		return deviceType;
+	}
+
+	public void setDeviceType(DeviceType deviceType) {
+		this.deviceType = deviceType;
 	}
 
 	public Integer getParentId() {
