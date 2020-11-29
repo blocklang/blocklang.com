@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.3.3.RELEASE</version>
+		<version>2.4.0</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.blocklang</groupId>
@@ -17,6 +17,11 @@
 
 	<properties>
 		<java.version>14</java.version>
+		<jgit.version>5.9.0.202009080501-r</jgit.version>
+		<semantic-version.version>2.1.0</semantic-version.version>
+		<sentry-spring-boot-starter.version>3.2.0</sentry-spring-boot-starter.version>
+		<json-schema-validator.version>1.0.45</json-schema-validator.version>
+		<spring-format.version>0.0.25</spring-format.version>
 	</properties>
 
 	<dependencies>
@@ -71,27 +76,27 @@
 		<dependency>
 			<groupId>org.eclipse.jgit</groupId>
 			<artifactId>org.eclipse.jgit</artifactId>
-			<version>5.8.1.202007141445-r</version>
+			<version>${jgit.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jgit</groupId>
 			<artifactId>org.eclipse.jgit.http.server</artifactId>
-			<version>5.8.1.202007141445-r</version>
+			<version>${jgit.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>de.skuzzle</groupId>
 			<artifactId>semantic-version</artifactId>
-			<version>2.1.0</version>
+			<version>${semantic-version.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.sentry</groupId>
-			<artifactId>sentry-spring</artifactId>
-			<version>1.7.30</version>
+			<artifactId>sentry-spring-boot-starter</artifactId>
+			<version>${sentry-spring-boot-starter.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.networknt</groupId>
 			<artifactId>json-schema-validator</artifactId>
-			<version>1.0.43</version>
+			<version>${json-schema-validator.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -119,19 +124,16 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/io.rest-assured/spring-mock-mvc -->
 		<dependency>
 			<groupId>io.rest-assured</groupId>
 			<artifactId>spring-mock-mvc</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.module/jackson-module-jaxb-annotations -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.module</groupId>
 			<artifactId>jackson-module-jaxb-annotations</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-test -->
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-test</artifactId>
@@ -152,6 +154,11 @@
 				<configuration>
 					<argLine>-Dfile.encoding=UTF-8</argLine>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>io.spring.javaformat</groupId>
+				<artifactId>spring-javaformat-maven-plugin</artifactId>
+				<version>${spring-format.version}</version>
 			</plugin>
 		</plugins>
 	</build>
