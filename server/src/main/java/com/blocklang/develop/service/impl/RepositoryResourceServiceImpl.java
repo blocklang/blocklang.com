@@ -143,7 +143,7 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 	@Autowired
 	private PageFunctionConnectionDao pageFunctionConnectionDao;
 	@Autowired
-	private ProjectDependencyService projectDependenceService;
+	private ProjectDependencyService projectDependencyService;
 	@Autowired
 	private ComponentRepoVersionDao componentRepoVersionDao;
 	@Autowired
@@ -317,7 +317,7 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 		
 		while(resourceId != Constant.TREE_ROOT_ID) {
 			resourceId = repositoryResourceDao.findById(resourceId).map(resource -> {
-				if(resource.isDependence()) {
+				if(resource.isDependency()) {
 					pathes.add(0, resource.getName());
 				} else {
 					pathes.add(0, resource.getKey());
@@ -501,8 +501,8 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 				resourceKey = RepositoryResource.README_KEY;
 				parentPath = "";
 			} else if(filePath.equalsIgnoreCase(RepositoryResource.DEPENDENCY_NAME)) {
-				// DEPENDENCE.json 文件只存在于根目录
-				resourceType = RepositoryResourceType.DEPENDENCE;
+				// DEPENDENCY.json 文件只存在于根目录
+				resourceType = RepositoryResourceType.DEPENDENCY;
 				appType = AppType.UNKNOWN;
 				resourceKey = RepositoryResource.DEPENDENCY_KEY;
 				parentPath = "";
@@ -869,7 +869,7 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 		// 以下逻辑是用来支持版本升级的
 		// 如果页面模型中存在部件，则获取项目依赖的所有部件列表
 		// 然后根据这个列表来匹配
-		projectDependenceService
+		projectDependencyService
 			// 1. 获取项目的所有依赖
 			.findAllDevDependencies(project.getId(), project.getAppType())
 			.stream()
@@ -1178,7 +1178,7 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 	 * 初始化以下资源：
 	 * <ul>
 	 * <li>Main 页面
-	 * <li>DEPENDENCE.json
+	 * <li>DEPENDENCY.json
 	 * </ul>
 	 */
 	@Override
@@ -1197,8 +1197,8 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 		RepositoryResource mainPage = createMainPageForWebProject(repository, savedProject);
 		// 创建空页面，默认为空页面添加根节点，包括 Page 部件及其属性。
 		PageModel pageModel = createPageModelWithStdPage(mainPage);
-		// 生成 DEPENDENCE.json 文件
-		RepositoryResource dependence = createDependenceFile(repository, savedProject);
+		// 生成 DEPENDENCY.json 文件
+		RepositoryResource dependency = createDependencyFile(repository, savedProject);
 
 		// 在 git 仓库中添加文件
 		propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).ifPresent(rootDir -> {
@@ -1222,7 +1222,7 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 				logger.error("为 main 页面生成 json 文件时出错", e);
 			}
 			
-			addProjectDependencyJsonFile(dependence, projectDir);
+			addProjectDependencyJsonFile(dependency, projectDir);
 			
 			userService.findById(savedProject.getCreateUserId()).ifPresent(user -> {
 				String commitMessage = "Init Web Project";
@@ -1305,26 +1305,26 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 	 * @param project 项目基本信息
 	 * @return DEPENDENCY.json 基本信息
 	 */
-	private RepositoryResource createDependenceFile(Repository repository, RepositoryResource project) {
-		RepositoryResource dependence = new RepositoryResource();
-		dependence.setRepositoryId(repository.getId());
-		dependence.setKey(RepositoryResource.DEPENDENCY_KEY);
-		dependence.setName(RepositoryResource.DEPENDENCY_NAME);
-		dependence.setResourceType(RepositoryResourceType.DEPENDENCE);
-		dependence.setAppType(project.getAppType());
-		dependence.setParentId(project.getId());
-		dependence.setSeq(2); // 排在 Main 页面之后
-		dependence.setCreateUserId(project.getCreateUserId());
-		dependence.setCreateTime(LocalDateTime.now());
+	private RepositoryResource createDependencyFile(Repository repository, RepositoryResource project) {
+		RepositoryResource dependency = new RepositoryResource();
+		dependency.setRepositoryId(repository.getId());
+		dependency.setKey(RepositoryResource.DEPENDENCY_KEY);
+		dependency.setName(RepositoryResource.DEPENDENCY_NAME);
+		dependency.setResourceType(RepositoryResourceType.DEPENDENCY);
+		dependency.setAppType(project.getAppType());
+		dependency.setParentId(project.getId());
+		dependency.setSeq(2); // 排在 Main 页面之后
+		dependency.setCreateUserId(project.getCreateUserId());
+		dependency.setCreateTime(LocalDateTime.now());
 		
-		return repositoryResourceDao.save(dependence);
+		return repositoryResourceDao.save(dependency);
 	}
 
 	/**
 	 * 初始化以下文件：
 	 * <ul>
 	 * <li>PROJECT.json
-	 * <li>DEPENDENCE.json
+	 * <li>DEPENDENCY.json
 	 * <li>app (入口)
 	 * <li>pages/index 页面
 	 * </ul>
@@ -1353,8 +1353,8 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 		PageModel appModel = createAppModel(app.getId(), apiRepo, appWidget);
 		this.updatePageModel(appModel);
 		
-		// 生成 DEPENDENCE.json 文件
-		RepositoryResource dependence = createDependenceFile(repository, savedProject);
+		// 生成 DEPENDENCY.json 文件
+		RepositoryResource dependency = createDependencyFile(repository, savedProject);
 
 		// 添加 pages/index 页面
 		// 1. 先创建 pages 分组
@@ -1400,8 +1400,8 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 			
 			// PROJECT.json
 			addProjectJsonFile(savedProject, projectDir);
-			// DEPENDENCE.json 文件
-			addProjectDependencyJsonFile(dependence, projectDir);
+			// DEPENDENCY.json 文件
+			addProjectDependencyJsonFile(dependency, projectDir);
 			// app 入口页面
 			addAppFile(app, appModel, projectDir);
 			// pages/index 页面
@@ -1438,8 +1438,8 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 		PageModel appModel = createAppModel(app.getId(), apiRepo, appWidget);
 		this.updatePageModel(appModel);
 		
-		// 生成 DEPENDENCE.json 文件
-		RepositoryResource dependence = createDependenceFile(repository, savedProject);
+		// 生成 DEPENDENCY.json 文件
+		RepositoryResource dependency = createDependencyFile(repository, savedProject);
 
 		// 添加 pages/index 页面
 		// 1. 先创建 pages 分组
@@ -1488,8 +1488,8 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 			
 			// PROJECT.json
 			addProjectJsonFile(savedProject, projectDir);
-			// DEPENDENCE.json 文件
-			addProjectDependencyJsonFile(dependence, projectDir);
+			// DEPENDENCY.json 文件
+			addProjectDependencyJsonFile(dependency, projectDir);
 			// app 入口页面
 			addAppFile(app, appModel, projectDir);
 			// pages/index 页面
@@ -1529,14 +1529,14 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 		}
 	}
 
-	private void addProjectDependencyJsonFile(RepositoryResource dependence, Path projectDirectory) {
+	private void addProjectDependencyJsonFile(RepositoryResource dependency, Path projectDirectory) {
 		try {
 			// TODO: 保存默认依赖的组件库
-			String dependenceJson = "{}";
-			Path dependenceFile = projectDirectory.resolve(dependence.getFileName());
-			Files.writeString(dependenceFile, dependenceJson, StandardOpenOption.CREATE);
+			String dependencyJson = "{}";
+			Path dependencyFile = projectDirectory.resolve(dependency.getFileName());
+			Files.writeString(dependencyFile, dependencyJson, StandardOpenOption.CREATE);
 		} catch (IOException e) {
-			logger.error("生成 DEPENDENCE.json 文件时出错", e);
+			logger.error("生成 DEPENDENCY.json 文件时出错", e);
 		}
 	}
 	

@@ -18,7 +18,7 @@ import { getHeaders } from '../../../processes/utils';
 import watch from '@dojo/framework/core/decorators/watch';
 
 import * as SockJS from 'sockjs-client';
-import { Client, IFrame } from '@stomp/stompjs';
+import { Client, IFrame, IStompSocket } from '@stomp/stompjs';
 import Spinner from '../../../widgets/spinner';
 
 export interface ViewComponentRepoPublishTaskProperties {
@@ -27,9 +27,9 @@ export interface ViewComponentRepoPublishTaskProperties {
 }
 
 @theme(css)
-export default class ViewComponentRepoPublishTask extends ThemedMixin(I18nMixin(WidgetBase))<
-	ViewComponentRepoPublishTaskProperties
-> {
+export default class ViewComponentRepoPublishTask extends ThemedMixin(
+	I18nMixin(WidgetBase)
+)<ViewComponentRepoPublishTaskProperties> {
 	private _localizedMessages = this.localizeBundle(messageBundle);
 	private _logLoaded: boolean = false;
 
@@ -46,7 +46,7 @@ export default class ViewComponentRepoPublishTask extends ThemedMixin(I18nMixin(
 
 		this._wsClient = new Client({});
 		this._wsClient.webSocketFactory = function () {
-			return new SockJS('/release-console');
+			return new SockJS('/release-console') as IStompSocket;
 		};
 		this._wsClient.onStompError = (frame: IFrame) => {
 			console.log('Broker reported error: ' + frame.headers['message']);

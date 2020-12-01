@@ -215,8 +215,8 @@ public class RepositoryServiceImpl implements RepositoryService {
 //	// 生成 README.md 文件
 //	String readmeContent = "# "+ project.getName() + "\r\n" + "\r\n" + "**TODO: 在这里添加项目介绍，帮助感兴趣的人快速了解您的项目。**";
 //	ProjectResource readme = createReadmeFile(project.getId(), readmeContent, createTime, createUserId);
-//	// 生成 DEPENDENCE.json 文件
-//	ProjectResource dependence = createDependeceFile(project.getId(), createTime, createUserId);
+//	// 生成 DEPENDENCY.json 文件
+//	ProjectResource dependency = createDependeceFile(project.getId(), createTime, createUserId);
 //	
 //	// 创建 git 仓库
 //	propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).ifPresent(rootDir -> {
@@ -235,7 +235,7 @@ public class RepositoryServiceImpl implements RepositoryService {
 //				.beginInit(context.getGitRepositoryDirectory(), user.getLoginName(), user.getEmail())
 //				.addFile(readme.getFileName(), readmeContent)
 //				.addFile(mainPage.getFileName(), mainPageJsonString)
-//				.addFile(dependence.getFileName(), "{ }") // 默认为空的 json 对象，做美化排版
+//				.addFile(dependency.getFileName(), "{ }") // 默认为空的 json 对象，做美化排版
 //				.commit(commitMessage);
 //			
 //			ProjectCommit commit = new ProjectCommit();

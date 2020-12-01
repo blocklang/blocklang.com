@@ -84,7 +84,7 @@ export default {
 		commitHelp: '暂存更改之后才能提交',
 		commitMessageTip: '提交信息',
 
-		// edit project dependence
+		// edit project dependency
 		componentSearchForProjectPlaceholder: '在组件市场搜索',
 
 		// list release

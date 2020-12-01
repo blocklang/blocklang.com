@@ -33,7 +33,7 @@ import {
 	initForListMyComponentReposProcess,
 	initForComponentRepoPublishTask,
 } from './processes/componentRepoProcess';
-import { initForViewProjectDependenceProcess } from './processes/projectDependenceProcesses';
+import { initForViewProjectDependencyProcess } from './processes/projectDependencyProcesses';
 import { DocumentTitleOptions } from '@dojo/framework/routing/interfaces';
 
 const store = new Store<State>();
@@ -105,9 +105,9 @@ function setDocumentTitle(titleOptions: DocumentTitleOptions): string | undefine
 	if (id === 'view-repo-readme') {
 		return `${repository.createUserName}/${repository.name}/README`;
 	}
-	if (id === 'view-project-dependence') {
+	if (id === 'view-project-dependency') {
 		const repositoryResource = get(path('repositoryResource'));
-		return `${repository.createUserName}/${repository.name}/${repositoryResource.fullPath}DEPENDENCE`;
+		return `${repository.createUserName}/${repository.name}/${repositoryResource.fullPath}DEPENDENCY`;
 	}
 	if (id === 'view-repo-page') {
 		const repositoryResource = get(path('repositoryResource'));
@@ -187,7 +187,7 @@ router.on('outlet', ({ outlet, action }) => {
 					pagePath,
 				});
 				break;
-			case 'view-project-dependence':
+			case 'view-project-dependency':
 				if (outlet.isExact()) {
 					parentPath = outlet.params.parentPath;
 				} else {
@@ -197,7 +197,7 @@ router.on('outlet', ({ outlet, action }) => {
 						`/${outlet.params.owner}/${outlet.params.project}/groups/`.length
 					);
 				}
-				initForViewProjectDependenceProcess(store)({
+				initForViewProjectDependencyProcess(store)({
 					owner: outlet.params.owner,
 					project: outlet.params.project,
 					parentPath,

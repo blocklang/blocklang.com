@@ -73,7 +73,7 @@ public class ProjectDependencyController extends AbstractRepositoryController{
 	private ApiRepoVersionService apiRepoVersionService;
 
 	/**
-	 * 获取项目的 dependence 资源信息。一个仓库中可存放多个项目，每个项目包含一个依赖配置。
+	 * 获取项目的 dependency 资源信息。一个仓库中可存放多个项目，每个项目包含一个依赖配置。
 	 * 
 	 * 注意，这里重点是资源信息，不是依赖详情。
 	 * 
@@ -104,7 +104,7 @@ public class ProjectDependencyController extends AbstractRepositoryController{
 		RepositoryResource resource = repositoryResourceService.findByKey(
 				repository.getId(), 
 				project.getId(), 
-				RepositoryResourceType.DEPENDENCE, 
+				RepositoryResourceType.DEPENDENCY, 
 				project.getAppType(),
 				RepositoryResource.DEPENDENCY_KEY).orElseThrow(ResourceNotFoundException::new);
 		
@@ -143,7 +143,7 @@ public class ProjectDependencyController extends AbstractRepositoryController{
 		if(RepoType.IDE.equals(componentRepo.getRepoType())) {
 			if(projectDependencyService.devDependencyExists(project.getId(), param.getComponentRepoId())){
 				logger.error("项目已依赖该组件仓库");
-				bindingResult.rejectValue("componentRepoId", "Duplicated.dependence");
+				bindingResult.rejectValue("componentRepoId", "Duplicated.dependency");
 				throw new InvalidRequestException(bindingResult);
 			}
 		} else if(RepoType.PROD.equals(componentRepo.getRepoType())) {
@@ -157,7 +157,7 @@ public class ProjectDependencyController extends AbstractRepositoryController{
 						param.getBuildProfileId(),
 						param.getComponentRepoId())){
 					logger.error("项目已依赖该组件仓库");
-					bindingResult.rejectValue("componentRepoId", "Duplicated.dependence");
+					bindingResult.rejectValue("componentRepoId", "Duplicated.dependency");
 					throw new InvalidRequestException(bindingResult);
 				}
 			}
@@ -207,7 +207,7 @@ public class ProjectDependencyController extends AbstractRepositoryController{
 	}
 	
 	@DeleteMapping("/repos/{owner}/{repoName}/{projectName}/dependencies/{dependencyId}")
-	public ResponseEntity<?> deleteDependence(
+	public ResponseEntity<?> deleteDependency(
 			Principal principal,
 			@PathVariable String owner,
 			@PathVariable String repoName,

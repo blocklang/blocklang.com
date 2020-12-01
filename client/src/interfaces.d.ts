@@ -359,7 +359,7 @@ interface ComponentRepoUrlInputValidation {
 	componentRepoUrlErrorMessage?: string;
 }
 
-interface ProjectDependence {
+interface ProjectDependency {
 	id: number;
 	repoId: number;
 	projectId: number;
@@ -367,8 +367,8 @@ interface ProjectDependence {
 	profileId: number;
 }
 
-interface ProjectDependenceData extends ComponentRepoInfo {
-	dependence: ProjectDependence;
+interface ProjectDependencyData extends ComponentRepoInfo {
+	dependency: ProjectDependency;
 	// 当前依赖的版本
 	componentRepoVersion: ComponentRepoVersion;
 	apiRepoVersion: ApiRepoVersion;
@@ -378,10 +378,10 @@ interface ProjectDependenceData extends ComponentRepoInfo {
 	loadVersionsErrorMessage?: string;
 }
 
-interface ProjectDependenceResource {
+interface ProjectDependencyResource {
 	resourceId: number;
 	pathes: RepositoryResourceGroup[];
-	dependences: ProjectDependenceData[];
+	dependencies: ProjectDependencyData[];
 }
 
 export interface State {
@@ -410,8 +410,8 @@ export interface State {
 	readme: string;
 	userDeployInfo: DeployInfo;
 
-	// project dependences
-	projectDependenceResource: ProjectDependenceResource;
+	// project dependencies
+	projectDependencyResource: ProjectDependencyResource;
 	searchedComponentRepos: ComponentRepoInfo[];
 
 	unstagedChanges: UncommittedFile[];
@@ -419,7 +419,7 @@ export interface State {
 	commitMessageParam: CommitMessageParam;
 	commitMessageInputValidation: CommitMessageInputValidation;
 
-	selectedDependenceVersions: ComponentRepoVersion[];
+	selectedDependencyVersions: ComponentRepoVersion[];
 
 	// new page
 	appTypes: AppType[];

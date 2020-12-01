@@ -17,7 +17,7 @@ public enum RepositoryResourceType {
 	PAGE_TEMPLET("05", "页面模板"),
 	FILE("06", "文件"),
 	SERVICE("07", "服务"), // REST API
-	DEPENDENCE("08", "项目依赖"),
+	DEPENDENCY("08", "项目依赖"),
 	BUILD("09", "Build配置信息");
 
 	private final String key;

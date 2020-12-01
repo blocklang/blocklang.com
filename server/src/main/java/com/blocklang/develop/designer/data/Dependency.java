@@ -6,7 +6,7 @@ package com.blocklang.develop.designer.data;
  * @author jinzw
  *
  */
-public class Dependence {
+public class Dependency {
 	private Integer id;
 	private String gitRepoWebsite;
 	private String gitRepoOwner;

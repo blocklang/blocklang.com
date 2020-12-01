@@ -13,7 +13,7 @@ import { ValidateStatus, PublishType, ReleaseResult } from '../../../constant';
 import { UrlPayload } from '../../../processes/interfaces';
 import Moment from '../../../widgets/moment';
 import Exception from '../../error/Exception';
-import { Client, IFrame } from '@stomp/stompjs';
+import { Client, IFrame, IStompSocket } from '@stomp/stompjs';
 import * as SockJS from 'sockjs-client';
 import {
 	getRepoCategoryName,
@@ -54,7 +54,7 @@ export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBas
 		this._wsClient = new Client({});
 
 		this._wsClient.webSocketFactory = function () {
-			return new SockJS('/release-console');
+			return new SockJS('/release-console') as IStompSocket;
 		};
 
 		this._wsClient.onStompError = function (frame: IFrame) {

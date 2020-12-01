@@ -131,7 +131,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		
 		when(projectDependencyService.findDevDependencies(any())).thenReturn(new ArrayList<ProjectDependencyData>());
 		
-		ProjectDependency dependence = new ProjectDependency();
+		ProjectDependency dependency = new ProjectDependency();
 		ComponentRepo componentRepo = new ComponentRepo();
 		componentRepo.setId(1);
 		componentRepo.setGitRepoUrl("url");
@@ -146,7 +146,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		ApiRepo apiRepo = new ApiRepo();
 		apiRepo.setId(2);
 		ApiRepoVersion apiRepoVersion = new ApiRepoVersion();
-		ProjectDependencyData data = new ProjectDependencyData(dependence, componentRepo, componentRepoVersion, apiRepo, apiRepoVersion);
+		ProjectDependencyData data = new ProjectDependencyData(dependency, componentRepo, componentRepoVersion, apiRepo, apiRepoVersion);
 		when(projectDependencyService.findStdDevDependencies(eq(AppType.WEB))).thenReturn(Collections.singletonList(data));
 
 		given()

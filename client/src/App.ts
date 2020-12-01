@@ -26,7 +26,7 @@ import ListComponentRepoContainer from './containers/marketplace/ListComponentRe
 import ListMyComponentRepoContainer from './containers/user/settings/ListMyComponentRepoContainer';
 import ViewComponentRepoPublishTaskContainer from './containers/user/settings/ViewComponentRepoPublishTaskContainer';
 import ViewRepositoryReadmeContainer from './containers/repository/ViewRepositoryReadmeContainer';
-import ViewProjectDependenceContainer from './containers/repository/ViewProjectDependenceContainer';
+import ViewProjectDependencyContainer from './containers/repository/ViewProjectDependencyContainer';
 import ViewRepositoryPageContainer from './containers/repository/ViewRepositoryPageContainer';
 import ViewRepositoryTempletContainer from './containers/repository/ViewRepositoryTempletContainer';
 import ViewRepositoryServiceContainer from './containers/repository/ViewRepositoryServiceContainer';
@@ -93,9 +93,9 @@ export default class App extends WidgetBase {
 					},
 				}),
 				w(Route, {
-					key: 'view-project-dependence',
-					id: 'view-project-dependence',
-					renderer: () => w(ViewProjectDependenceContainer, {}),
+					key: 'view-project-dependency',
+					id: 'view-project-dependency',
+					renderer: () => w(ViewProjectDependencyContainer, {}),
 				}),
 				w(Route, {
 					key: 'view-repo-page',

@@ -23,7 +23,7 @@ Service 仓库只提供一个 API 仓库，不需要提供 IDE 版和 PROD 版�
 
 有关 `host` 和 `basePath` 的配置
 
-1. 在开发阶段，在 `DEPENDENCE.json` 文件中配置（不要放在 git 仓库中配置，因为 git 仓库中存的是规范，而这两个参数应归到实例范围）
+1. 在开发阶段，在 `DEPENDENCY.json` 文件中配置（不要放在 git 仓库中配置，因为 git 仓库中存的是规范，而这两个参数应归到实例范围）
 2. 在部署阶段，在部署面板中配置
 3. `basePath` 的默认值为 `/`
 

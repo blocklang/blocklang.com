@@ -37,10 +37,10 @@ export default class ViewRepositoryPage extends ThemedMixin(I18nMixin(WidgetBase
 			permission: { canRead: canReadPage(repository.accessLevel), canWrite: canEditPage(repository.accessLevel) },
 			pathes: groups,
 			urls: {
-				fetchApiRepoWidgets: `/designer/projects/${projectId}/dependences/widgets`,
+				fetchApiRepoWidgets: `/designer/projects/${projectId}/dependencies/widgets`,
 				fetchPageModel: `/designer/pages/${pageId}/model`,
 				savePageModel: `/designer/pages/${pageId}/model`,
-				fetchIdeDependenceInfos: `/designer/projects/${projectId}/dependences?repo=ide`,
+				fetchIdeDependencyInfos: `/designer/projects/${projectId}/dependencies?repo=ide`,
 				externalScriptAndCssWebsite: '', // 不能为 "/"
 				fetchApiRepoServices: '',
 				fetchApiRepoFunctions: '',

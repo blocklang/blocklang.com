@@ -12,7 +12,7 @@ export enum ResourceType {
 	PageTemplet = '05',
 	File = '06',
 	Service = '07',
-	Dependence = '08',
+	Dependency = '08',
 	Build = '09',
 }
 

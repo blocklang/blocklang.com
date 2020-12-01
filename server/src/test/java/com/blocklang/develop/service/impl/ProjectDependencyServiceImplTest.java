@@ -225,11 +225,11 @@ public class ProjectDependencyServiceImplTest extends AbstractServiceTest{
 		Path projectPath = repositoryContext.getGitRepositoryDirectory().resolve(projectName);
 		Files.createDirectories(projectPath);
 		
-		ProjectDependency savedDependence = projectDependencyService.save(repository, project, dependency);
-		assertThat(savedDependence.getRepositoryId()).isEqualTo(repositoryId);
-		assertThat(savedDependence.getProjectId()).isEqualTo(projectId);
-		assertThat(savedDependence.getComponentRepoVersionId()).isEqualTo(savedComponentRepoVersion.getId());
-		assertThat(savedDependence.getProfileId()).isEqualTo(profileId);
+		ProjectDependency savedDependency = projectDependencyService.save(repository, project, dependency);
+		assertThat(savedDependency.getRepositoryId()).isEqualTo(repositoryId);
+		assertThat(savedDependency.getProjectId()).isEqualTo(projectId);
+		assertThat(savedDependency.getComponentRepoVersionId()).isEqualTo(savedComponentRepoVersion.getId());
+		assertThat(savedDependency.getProfileId()).isEqualTo(profileId);
 	
 		Path projectDependencyPath = projectPath.resolve(RepositoryResource.DEPENDENCY_NAME);
 		assertThat(projectDependencyPath).exists();
@@ -309,11 +309,11 @@ public class ProjectDependencyServiceImplTest extends AbstractServiceTest{
 		Path projectPath = repositoryContext.getGitRepositoryDirectory().resolve(projectName);
 		Files.createDirectories(projectPath);
 		
-		ProjectDependency savedDependence = projectDependencyService.save(repository, project, dependency);
-		assertThat(savedDependence.getRepositoryId()).isEqualTo(repositoryId);
-		assertThat(savedDependence.getProjectId()).isEqualTo(projectId);
-		assertThat(savedDependence.getComponentRepoVersionId()).isEqualTo(savedComponentRepoVersion.getId());
-		assertThat(savedDependence.getProfileId()).isEqualTo(buildProfileId);
+		ProjectDependency savedDependency = projectDependencyService.save(repository, project, dependency);
+		assertThat(savedDependency.getRepositoryId()).isEqualTo(repositoryId);
+		assertThat(savedDependency.getProjectId()).isEqualTo(projectId);
+		assertThat(savedDependency.getComponentRepoVersionId()).isEqualTo(savedComponentRepoVersion.getId());
+		assertThat(savedDependency.getProfileId()).isEqualTo(buildProfileId);
 	
 		Path projectDependencyPath = projectPath.resolve(RepositoryResource.DEPENDENCY_NAME);
 		assertThat(projectDependencyPath).exists();
@@ -411,13 +411,13 @@ public class ProjectDependencyServiceImplTest extends AbstractServiceTest{
 		componentRepoVersion.setLastPublishTime(LocalDateTime.now());
 		ComponentRepoVersion buildRepoVersion = componentRepoVersionDao.save(componentRepoVersion);
 		// 创建一个 dev 依赖（不需创建 Profile）
-		ProjectDependency devDependence = new ProjectDependency();
-		devDependence.setRepositoryId(repositoryId);
-		devDependence.setProjectId(projectId);
-		devDependence.setComponentRepoVersionId(devRepoVersion.getId());
-		devDependence.setCreateUserId(11);
-		devDependence.setCreateTime(LocalDateTime.now());
-		projectDependencyDao.save(devDependence);
+		ProjectDependency devDependency = new ProjectDependency();
+		devDependency.setRepositoryId(repositoryId);
+		devDependency.setProjectId(projectId);
+		devDependency.setComponentRepoVersionId(devRepoVersion.getId());
+		devDependency.setCreateUserId(11);
+		devDependency.setCreateTime(LocalDateTime.now());
+		projectDependencyDao.save(devDependency);
 		
 		// 创建一个 build 依赖（需创建默认的 Profile）
 		// 1. 为项目的 web 页面添加一个默认的 Profile
@@ -537,13 +537,13 @@ public class ProjectDependencyServiceImplTest extends AbstractServiceTest{
 		componentRepoVersion.setLastPublishTime(LocalDateTime.now());
 		ComponentRepoVersion buildRepoVersion = componentRepoVersionDao.save(componentRepoVersion);
 		// 创建一个 IDE 依赖（不需创建 Profile）
-		ProjectDependency devDependence = new ProjectDependency();
-		devDependence.setRepositoryId(repositoryId);
-		devDependence.setProjectId(projectId);
-		devDependence.setComponentRepoVersionId(devRepoVersion.getId());
-		devDependence.setCreateUserId(11);
-		devDependence.setCreateTime(LocalDateTime.now());
-		projectDependencyDao.save(devDependence);
+		ProjectDependency devDependency = new ProjectDependency();
+		devDependency.setRepositoryId(repositoryId);
+		devDependency.setProjectId(projectId);
+		devDependency.setComponentRepoVersionId(devRepoVersion.getId());
+		devDependency.setCreateUserId(11);
+		devDependency.setCreateTime(LocalDateTime.now());
+		projectDependencyDao.save(devDependency);
 		
 		// 创建一个 PROD 依赖（需创建默认的 Profile）
 		// 1. 为项目的 web 页面添加一个默认的 Profile
@@ -765,16 +765,16 @@ public class ProjectDependencyServiceImplTest extends AbstractServiceTest{
 		Path projectPath = repositoryContext.getGitRepositoryDirectory().resolve(projectName);
 		Files.createDirectories(projectPath);
 		
-		ProjectDependency savedDependence = projectDependencyService.save(repository, project, dependency);
+		ProjectDependency savedDependency = projectDependencyService.save(repository, project, dependency);
 		
 		// 删除添加的依赖
-		projectDependencyService.delete(repository, project, savedDependence.getId());
+		projectDependencyService.delete(repository, project, savedDependency.getId());
 		
-		assertThat(projectDependencyDao.findById(savedDependence.getId())).isEmpty();
+		assertThat(projectDependencyDao.findById(savedDependency.getId())).isEmpty();
 		
-		// 断言 DEPENDENCE.json 文件的内容为 “{ }”
+		// 断言 DEPENDENCY.json 文件的内容为 “{ }”
 		// 不直接转换为 java 对象判断，而是判断文本，这样可以断言美化后的 json
-		// 在 git 仓库中获取 DEPENDENCE.json 文件
+		// 在 git 仓库中获取 DEPENDENCY.json 文件
 		Path projectDependencyPath = projectPath.resolve(RepositoryResource.DEPENDENCY_NAME);
 		String dependencyFileContent = Files.readString(projectDependencyPath);
 		assertThat(dependencyFileContent).isEqualTo("{ }");
@@ -861,7 +861,7 @@ public class ProjectDependencyServiceImplTest extends AbstractServiceTest{
 		
 		projectDependencyService.update(repository, project, savedDependency);
 		
-		// 断言 DEPENDENCE.json 文件的内容
+		// 断言 DEPENDENCY.json 文件的内容
 		// 在 git 仓库中获取 DEPENDENCY.json 文件
 		String dependencyFileContent = Files.readString(projectPath.resolve(RepositoryResource.DEPENDENCY_NAME));
 		Map jsonObject = JsonUtil.fromJsonObject(dependencyFileContent, Map.class);
@@ -886,9 +886,9 @@ public class ProjectDependencyServiceImplTest extends AbstractServiceTest{
 		dependency.setComponentRepoVersionId(3);
 		dependency.setCreateUserId(11);
 		dependency.setCreateTime(LocalDateTime.now());
-		ProjectDependency savedDependence = projectDependencyDao.save(dependency);
+		ProjectDependency savedDependency = projectDependencyDao.save(dependency);
 		
-		assertThat(projectDependencyService.findById(savedDependence.getId())).isPresent();
+		assertThat(projectDependencyService.findById(savedDependency.getId())).isPresent();
 	}
 	
 	@Test

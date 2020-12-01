@@ -29,7 +29,7 @@ import com.blocklang.core.exception.NoAuthorizationException;
 import com.blocklang.core.exception.ResourceNotFoundException;
 import com.blocklang.core.service.PropertyService;
 import com.blocklang.develop.data.ProjectDependencyData;
-import com.blocklang.develop.designer.data.Dependence;
+import com.blocklang.develop.designer.data.Dependency;
 import com.blocklang.develop.designer.data.PageModel;
 import com.blocklang.develop.designer.data.RepoWidgetList;
 import com.blocklang.develop.model.Repository;
@@ -56,7 +56,7 @@ public class PageDesignerController extends AbstractRepositoryController {
 	private PropertyService propertyService;
 	
 	/**
-	 * 与 {@link ProjectDependencyController#getDependence(Principal, String, String)}} 功能类似，
+	 * 与 {@link ProjectDependencyController#getDependency(Principal, String, String)}} 功能类似，
 	 * 但一个是在项目依赖的维护页面中使用的，一个是在页面设计器中使用的。
 	 * 
 	 * @param principal
@@ -65,7 +65,7 @@ public class PageDesignerController extends AbstractRepositoryController {
 	 * @return
 	 */
 	@GetMapping("/designer/projects/{projectId}/dependencies")
-	public ResponseEntity<List<Dependence>> listProjectDependencies(
+	public ResponseEntity<List<Dependency>> listProjectDependencies(
 			Principal principal,
 			@PathVariable Integer projectId, // 此处的 projectId 就是仓库中的分组 id
 			@RequestParam String repo) {
@@ -82,22 +82,22 @@ public class PageDesignerController extends AbstractRepositoryController {
 		// 但在项目依赖中又分为 dev 和 build 两种依赖，
 		// dev 对应 ide 和 preview 依赖
 		// build 对应 prod 依赖
-		List<ProjectDependencyData> dependences= projectDependencyService.findDevDependencies(projectId);
-		dependences.addAll(projectDependencyService.findStdDevDependencies(project.getAppType()));
-		List<Dependence> result = dependences.stream().map(item -> {
-			Dependence dependence = new Dependence();
+		List<ProjectDependencyData> dependencies= projectDependencyService.findDevDependencies(projectId);
+		dependencies.addAll(projectDependencyService.findStdDevDependencies(project.getAppType()));
+		List<Dependency> result = dependencies.stream().map(item -> {
+			Dependency dependency = new Dependency();
 
 			ComponentRepo componentRepo = item.getComponentRepo();
-			dependence.setId(componentRepo.getId());
-			dependence.setGitRepoWebsite(componentRepo.getGitRepoWebsite());
-			dependence.setGitRepoOwner(componentRepo.getGitRepoOwner());
-			dependence.setGitRepoName(componentRepo.getGitRepoName());
-			dependence.setCategory(componentRepo.getCategory().getValue());
-			dependence.setStd(componentRepo.isStd());
-			dependence.setVersion(item.getComponentRepoVersion().getVersion());
-			dependence.setApiRepoId(item.getApiRepo().getId());
+			dependency.setId(componentRepo.getId());
+			dependency.setGitRepoWebsite(componentRepo.getGitRepoWebsite());
+			dependency.setGitRepoOwner(componentRepo.getGitRepoOwner());
+			dependency.setGitRepoName(componentRepo.getGitRepoName());
+			dependency.setCategory(componentRepo.getCategory().getValue());
+			dependency.setStd(componentRepo.isStd());
+			dependency.setVersion(item.getComponentRepoVersion().getVersion());
+			dependency.setApiRepoId(item.getApiRepo().getId());
 			
-			return dependence;
+			return dependency;
 		}).collect(Collectors.toList());
 		return ResponseEntity.ok(result);
 	}

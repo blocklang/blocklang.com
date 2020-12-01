@@ -5,7 +5,7 @@
 这些 Service 对应 RESTful API，是已经部署完成，可直接通过 ajax 或 fetch 访问。
 
 ```text
-GET /designer/projects/{projectId}/dependences/services
+GET /designer/projects/{projectId}/dependencies/services
 ```
 
 ## Parameters

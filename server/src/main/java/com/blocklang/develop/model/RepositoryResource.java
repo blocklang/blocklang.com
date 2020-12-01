@@ -255,8 +255,8 @@ public class RepositoryResource extends PartialOperateFields{
 		return RepositoryResourceType.FILE.equals(this.resourceType);
 	}
 	
-	public Boolean isDependence() {
-		return RepositoryResourceType.DEPENDENCE.equals(this.resourceType);
+	public Boolean isDependency() {
+		return RepositoryResourceType.DEPENDENCY.equals(this.resourceType);
 	}
 	
 	public Boolean isBuildConfig() {
@@ -287,8 +287,8 @@ public class RepositoryResource extends PartialOperateFields{
 		if(isService()) {
 			return IconClass.SERVICE;
 		}
-		if(isDependence()) {
-			return IconClass.DEPENDENCE;
+		if(isDependency()) {
+			return IconClass.DEPENDENCY;
 		}
 		if(isBuildConfig()) {
 			return IconClass.BUILD;
@@ -352,7 +352,7 @@ public class RepositoryResource extends PartialOperateFields{
 //		if(isTemplet()) {
 //			return this.key + ".page.tmpl.json";
 //		}
-//		if(isFile() || isDependence() || isBuildConfig()) {
+//		if(isFile() || isDependency() || isBuildConfig()) {
 //			return this.name;
 //		}
 //		if(isService()) {

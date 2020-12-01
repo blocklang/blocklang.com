@@ -6,7 +6,7 @@ import watch from '@dojo/framework/core/decorators/watch';
 import messageBundle from '../../nls/main';
 
 import * as SockJS from 'sockjs-client';
-import { Client, IFrame } from '@stomp/stompjs';
+import { Client, IFrame, IStompSocket } from '@stomp/stompjs';
 import { v, w } from '@dojo/framework/core/vdom';
 
 import * as c from '@blocklang/bootstrap-classes';
@@ -50,7 +50,7 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 		this._wsClient = new Client({});
 
 		this._wsClient.webSocketFactory = function () {
-			return new SockJS('/release-console');
+			return new SockJS('/release-console') as IStompSocket;
 		};
 
 		this._wsClient.onStompError = function (frame: IFrame) {

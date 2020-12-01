@@ -239,7 +239,7 @@ public class ProjectDependencyControllerTest extends AbstractControllerTest{
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/repos/{owner}/{repoName}/{projectName}/dependences", owner, repoName, projectName)
+			.post("/repos/{owner}/{repoName}/{projectName}/dependencies", owner, repoName, projectName)
 		.then()
 			.statusCode(HttpStatus.SC_NOT_FOUND);
 	}
@@ -270,7 +270,7 @@ public class ProjectDependencyControllerTest extends AbstractControllerTest{
 			.contentType(ContentType.JSON)
 			.body(param)
 		.when()
-			.post("/repos/{owner}/{repoName}/{projectName}/dependences", owner, repoName, projectName)
+			.post("/repos/{owner}/{repoName}/{projectName}/dependencies", owner, repoName, projectName)
 		.then()
 			.statusCode(HttpStatus.SC_NOT_FOUND);
 	}

@@ -1337,13 +1337,13 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		RepositoryResource savedProject = repositortResourceDao.save(project);
 		
 		// 7. 将创建的 ide 组件库的一个版本添加为项目依赖
-		ProjectDependency dependence = new ProjectDependency();
-		dependence.setRepositoryId(repositoryId);
-		dependence.setProjectId(savedProject.getId());
-		dependence.setComponentRepoVersionId(savedComponentRepoVersion.getId());
-		dependence.setCreateUserId(1);
-		dependence.setCreateTime(LocalDateTime.now());
-		projectDependencyDao.save(dependence);
+		ProjectDependency dependency = new ProjectDependency();
+		dependency.setRepositoryId(repositoryId);
+		dependency.setProjectId(savedProject.getId());
+		dependency.setComponentRepoVersionId(savedComponentRepoVersion.getId());
+		dependency.setCreateUserId(1);
+		dependency.setCreateTime(LocalDateTime.now());
+		projectDependencyDao.save(dependency);
 		
 		// 新增页面模型
 		PageModel model = new PageModel();
@@ -1656,13 +1656,13 @@ public class RepositoryResourceServiceImplTest extends AbstractServiceTest{
 		RepositoryResource savedProject = repositortResourceDao.save(project);
 		
 		// 7. 将创建的 ide 组件库的一个版本添加为项目依赖
-		ProjectDependency dependence = new ProjectDependency();
-		dependence.setRepositoryId(repositoryId);
-		dependence.setProjectId(savedProject.getId());
-		dependence.setComponentRepoVersionId(savedComponentRepoVersion.getId());
-		dependence.setCreateUserId(1);
-		dependence.setCreateTime(LocalDateTime.now());
-		projectDependencyDao.save(dependence);
+		ProjectDependency dependency = new ProjectDependency();
+		dependency.setRepositoryId(repositoryId);
+		dependency.setProjectId(savedProject.getId());
+		dependency.setComponentRepoVersionId(savedComponentRepoVersion.getId());
+		dependency.setCreateUserId(1);
+		dependency.setCreateTime(LocalDateTime.now());
+		projectDependencyDao.save(dependency);
 		
 		// 新增页面模型
 		PageModel model = new PageModel();

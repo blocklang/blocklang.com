@@ -71,7 +71,7 @@ public interface RepositoryResourceService {
 	/**
 	 * 获取资源的父路径，包含当前资源，如果是根目录，则返回空数组。
 	 * 
-	 * 注意，本方法返回的数组中最后一个元素是 <code>resourceId</code> 对应的资源 key 或 name (只用于 dependences.json 文件)
+	 * 注意，本方法返回的数组中最后一个元素是 <code>resourceId</code> 对应的资源 key 或 name (只用于 dependency.json 文件)
 	 * 
 	 * @param resourceId
 	 * @return

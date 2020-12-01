@@ -82,7 +82,7 @@ public class BuildServiceImpl implements BuildService {
 	@Autowired
 	private SimpMessagingTemplate messagingTemplate;
 	@Autowired
-	private ProjectDependencyService projectDependenceService;
+	private ProjectDependencyService projectDependencyService;
 	@Autowired
 	private RepositoryResourceService repositoryResourceService;
 	@Autowired
@@ -216,7 +216,7 @@ public class BuildServiceImpl implements BuildService {
 			context.info(StringUtils.repeat("-", 45));
 			context.info("三、开始准备项目模型数据");
 			// 生成模型信息
-			//ProjectModelWriteTask projectModelWriteTask = new ProjectModelWriteTask(context, projectDependenceService, repositoryResourceService);
+			//ProjectModelWriteTask projectModelWriteTask = new ProjectModelWriteTask(context, projectDependencyService, repositoryResourceService);
 			//success = projectModelWriteTask.run().isPresent();
 			
 			if(success) {
@@ -561,7 +561,7 @@ public class BuildServiceImpl implements BuildService {
 //		logger.info(StringUtils.repeat("-", 45));
 //		logger.info("一、开始准备项目模型数据");
 //		// 生成模型信息
-//		ProjectModelWriteTask projectModelWriteTask = new ProjectModelWriteTask(context, projectDependenceService, repositoryResourceService);
+//		ProjectModelWriteTask projectModelWriteTask = new ProjectModelWriteTask(context, projectDependencyService, repositoryResourceService);
 //		success = projectModelWriteTask.run().isPresent();
 //		
 //		if(success) {

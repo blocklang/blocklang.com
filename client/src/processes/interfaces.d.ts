@@ -110,21 +110,21 @@ export interface QueryPayload {
 	query: string;
 }
 
-export interface ProjectDependenceWithProjectPathPayload extends RepositoryPathPayload {
+export interface ProjectDependencyWithProjectPathPayload extends RepositoryPathPayload {
 	project: string;
 	componentRepoId: number;
 }
 
-export interface ProjectDependenceIdPayload extends RepositoryPathPayload, IdPayload {
+export interface ProjectDependencyIdPayload extends RepositoryPathPayload, IdPayload {
 	project: string;
 }
 
-export interface ProjectDependenceVersionPayload extends RepositoryPathPayload {
-	dependenceId: number;
+export interface ProjectDependencyVersionPayload extends RepositoryPathPayload {
+	dependencyId: number;
 	componentRepoVersionId: number;
 }
 
-export interface ProjectDependencePayload {
-	dependenceId: number;
+export interface ProjectDependencyPayload {
+	dependencyId: number;
 	componentRepoId: number;
 }

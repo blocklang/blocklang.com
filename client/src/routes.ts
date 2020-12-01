@@ -61,9 +61,9 @@ export default [
 		id: 'view-repo-build',
 	},
 	{
-		path: '{owner}/{repo}/{project}/dependence',
-		outlet: 'view-project-dependence',
-		id: 'view-project-dependence',
+		path: '{owner}/{repo}/{project}/dependency',
+		outlet: 'view-project-dependency',
+		id: 'view-project-dependency',
 	},
 	{
 		path: '{owner}/{repo}/pages/{path}',

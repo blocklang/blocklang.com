@@ -3,7 +3,7 @@
 项目资源分类和 URL
 
 1. README 文件 - `{owner}/{project}/readme`
-2. DEPENDENCE 文件 - `{owner}/{project}/dependence`
+2. DEPENDENCY 文件 - `{owner}/{project}/dependency`
 3. 页面 - `{owner}/{project}/pages/{path}`
 4. 页面模板 - `{owner}/{project}/templets/{path}`
 5. 服务 - `{owner}/{project}/services/{path}`

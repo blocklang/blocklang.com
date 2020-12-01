@@ -92,7 +92,7 @@ public class ProjectDependencyServiceImpl implements ProjectDependencyService{
 		
 		return componentRepoVersions.stream()
 				.anyMatch(version -> devDependencies.stream()
-						.anyMatch(dependence -> version.getId().equals(dependence.getComponentRepoVersionId())));
+						.anyMatch(dependency -> version.getId().equals(dependency.getComponentRepoVersionId())));
 	}
 	
 	@Override
@@ -101,21 +101,21 @@ public class ProjectDependencyServiceImpl implements ProjectDependencyService{
 		if(componentRepoVersions.isEmpty()) {
 			return false;
 		}
-		List<ProjectDependency> devDependences = projectDependencyDao.findAllByProjectIdAndProfileId(projectId, buildProfileId);
-		if(devDependences.isEmpty()) {
+		List<ProjectDependency> devDependencies = projectDependencyDao.findAllByProjectIdAndProfileId(projectId, buildProfileId);
+		if(devDependencies.isEmpty()) {
 			return false;
 		}
 		
 		return componentRepoVersions.stream()
-				.anyMatch(version -> devDependences.stream()
-						.anyMatch(dependence -> version.getId().equals(dependence.getComponentRepoVersionId())));
+				.anyMatch(version -> devDependencies.stream()
+						.anyMatch(dependency -> version.getId().equals(dependency.getComponentRepoVersionId())));
 	}
 	
 	@Override
 	public ProjectDependency save(Repository repository, RepositoryResource project, ProjectDependency dependency) {
-		ProjectDependency savedDependence = projectDependencyDao.save(dependency);
+		ProjectDependency savedDependency = projectDependencyDao.save(dependency);
 		updateProjectDependencyFile(repository, project);
-		return savedDependence;
+		return savedDependency;
 	}
 	
 	//```json
@@ -254,14 +254,14 @@ public class ProjectDependencyServiceImpl implements ProjectDependencyService{
 		}
 	}
 
-	private List<ProjectDependencyData> convert(List<ProjectDependency> dependences) {
-		return dependences.stream().map(dependence -> {
+	private List<ProjectDependencyData> convert(List<ProjectDependency> dependencies) {
+		return dependencies.stream().map(dependency -> {
 			ComponentRepoVersion componentRepoVersion = null;
 			ComponentRepo componentRepo = null;
 			ApiRepo apiRepo = null;
 			ApiRepoVersion apiRepoVersion = null;
 			
-			componentRepoVersion = componentRepoVersionDao.findById(dependence.getComponentRepoVersionId()).orElse(null);
+			componentRepoVersion = componentRepoVersionDao.findById(dependency.getComponentRepoVersionId()).orElse(null);
 			if(componentRepoVersion != null) {
 				componentRepo = componentRepoDao.findById(componentRepoVersion.getComponentRepoId()).orElse(null);
 				apiRepoVersion = apiRepoVersionDao.findById(componentRepoVersion.getApiRepoVersionId()).orElse(null);
@@ -270,14 +270,14 @@ public class ProjectDependencyServiceImpl implements ProjectDependencyService{
 				apiRepo = apiRepoDao.findById(apiRepoVersion.getApiRepoId()).orElse(null);
 			}
 			
-			return new ProjectDependencyData(dependence, componentRepo, componentRepoVersion, apiRepo, apiRepoVersion);
+			return new ProjectDependencyData(dependency, componentRepo, componentRepoVersion, apiRepo, apiRepoVersion);
 		}).collect(Collectors.toList());
 	}
 
 	@Override
-	public void delete(Repository repository, RepositoryResource project, Integer dependenceId) {
-		projectDependencyDao.findById(dependenceId).ifPresent(dependence -> {
-			projectDependencyDao.delete(dependence);
+	public void delete(Repository repository, RepositoryResource project, Integer dependencyId) {
+		projectDependencyDao.findById(dependencyId).ifPresent(dependency -> {
+			projectDependencyDao.delete(dependency);
 			updateProjectDependencyFile(repository, project);
 		});
 	}
@@ -290,17 +290,17 @@ public class ProjectDependencyServiceImpl implements ProjectDependencyService{
 	}
 
 	@Override
-	public Optional<ProjectDependency> findById(Integer dependenceId) {
-		return projectDependencyDao.findById(dependenceId);
+	public Optional<ProjectDependency> findById(Integer dependencyId) {
+		return projectDependencyDao.findById(dependencyId);
 	}
 	
 	@Override
 	public List<RepoWidgetList> findAllWidgets(Integer projectId) {
 		// 获取项目的所有依赖，包含组件仓库的版本信息
-		List<ProjectDependency> allDependences = projectDependencyDao.findAllByProjectId(projectId);
+		List<ProjectDependency> allDependencies = projectDependencyDao.findAllByProjectId(projectId);
 		
 		// 转换为对应的 API 仓库的版本信息
-		return allDependences
+		return allDependencies
 			.stream()
 			.flatMap(item -> componentRepoVersionDao.findById(item.getComponentRepoVersionId()).stream())
 			.map(item -> item.getApiRepoVersionId())

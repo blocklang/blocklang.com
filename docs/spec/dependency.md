@@ -1,8 +1,8 @@
 # 项目的依赖
 
-犹如 Maven 项目在 `pom.xml` 中定义依赖，JavaScript 项目在 `package.json` 中定义依赖，BlockLang 项目则在 `dependence.json` 中定义项目的依赖。
+犹如 Maven 项目在 `pom.xml` 中定义依赖，JavaScript 项目在 `package.json` 中定义依赖，BlockLang 项目则在 `dependency.json` 中定义项目的依赖。
 
-每一个 BlockLang 项目的根目录下，都有一个用于定义项目依赖的 `dependence.json` 文件。
+每一个 BlockLang 项目的根目录下，都有一个用于定义项目依赖的 `dependency.json` 文件。
 
 项目依赖的对象是在组件市场中注册的组件库。
 

@@ -18,7 +18,7 @@ import 'highlight.js/styles/github.css';
 import * as c from '@blocklang/bootstrap-classes';
 import * as css from './ListRelease.m.css';
 import * as SockJS from 'sockjs-client';
-import { Client, IFrame } from '@stomp/stompjs';
+import { Client, IFrame, IStompSocket } from '@stomp/stompjs';
 import { ReleaseResult } from '../../constant';
 import { canRelease } from '../../permission';
 
@@ -40,7 +40,7 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 		this._wsClient = new Client({});
 
 		this._wsClient.webSocketFactory = function () {
-			return new SockJS('/release-console');
+			return new SockJS('/release-console') as IStompSocket;
 		};
 
 		this._wsClient.onStompError = function (frame: IFrame) {
