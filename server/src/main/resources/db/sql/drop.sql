@@ -46,6 +46,7 @@ drop table api_service_request_body;
 drop table api_service_response;
 drop table api_service_schema;
 drop table api_schema;
+drop table project_release;
 
 drop table databasechangelog;
 drop table databasechangeloglock;

@@ -38,7 +38,12 @@
 		"appType": {
 			"type": "string",
 			"description": "App 类型",
-			"enum": ["web", "miniProgram", "android", "ios", "wechat", "alipay", "quickapp"]
+			"enum": ["web", "miniProgram", "harmonyOS", "android", "ios", "wechat", "alipay", "quickapp"]
+		},
+		"build": {
+			"type": "string",
+			"description": "build tool",
+			"enum": ["dojo", "react", "vue"]
 		},
 		"std": {
 			"type": "boolean",

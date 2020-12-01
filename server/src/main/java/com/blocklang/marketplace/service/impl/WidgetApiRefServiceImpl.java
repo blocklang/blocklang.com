@@ -8,6 +8,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.blocklang.core.git.GitUtils;
 import com.blocklang.marketplace.apirepo.RefData;
 import com.blocklang.marketplace.apirepo.apiobject.ApiObject;
 import com.blocklang.marketplace.apirepo.apiobject.widget.data.WidgetData;
@@ -42,13 +43,17 @@ public class WidgetApiRefServiceImpl extends AbstractApiRefService implements Wi
 	@Transactional
 	public <T extends ApiObject> void save(Integer apiRepoId, RefData<T> refData) {
 		ApiRepoVersion apiRepoVersion = saveApiRepoVersion(apiRepoId, refData);
-		if(refData.getShortRefName().equals("master")) {
+		String shortRefName = refData.getShortRefName();
+		
+		if(GitUtils.isDefaultBranch(shortRefName)) {
 			clearRefSchemas(apiRepoVersion.getId());
 			clearRefApis(apiRepoVersion.getId());
 		}
 		saveSchemas(apiRepoVersion, refData.getSchemas(), refData.getCreateUserId());
 		saveApiWidgets(apiRepoVersion, refData);
 	}
+
+	
 	
 	@Override
 	public void clearRefApis(Integer apiRepoVersionId) {

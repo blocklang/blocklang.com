@@ -20,3 +20,6 @@ server:
   compression:
     enabled: true
     mime-types: application/json,application/xml,text/html,text/xml,text/plain,application/javascript,text/css,image/jpg,image/png,image/gif
+sentry:
+  dsn: https://5b1b2c3984754abdb799ef4c4596a0a0@sentry.io/1462944
+  exception-resolver-order: 2147483647

@@ -13,7 +13,8 @@ public abstract class Resources {
 		"svg",
 		"woff", 
 		"json",
-		"ico"
+		"ico",
+		"png"
 	};
 	
 	/**

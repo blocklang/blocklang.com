@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +19,7 @@ import com.blocklang.marketplace.dao.ComponentRepoDao;
 import com.blocklang.marketplace.dao.ComponentRepoVersionDao;
 import com.blocklang.marketplace.data.ComponentRepoInfo;
 import com.blocklang.marketplace.model.ComponentRepo;
+import com.blocklang.marketplace.model.ComponentRepoVersion;
 import com.blocklang.marketplace.service.ComponentRepoService;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
 
@@ -41,11 +41,6 @@ public class ComponentRepoServiceImpl implements ComponentRepoService {
 	
 	@Override
 	public Page<ComponentRepoInfo> findAllByGitRepoName(String queryGitRepoName, Pageable page) {
-		String version = "master";
-		if(StringUtils.isBlank(queryGitRepoName)) {
-			return Page.empty();
-		}
-		
 		List<String> stdRepos = findAllStdGitRepo();
 		return componentRepoDao.findAllByGitRepoNameContainingIgnoreCase(queryGitRepoName, page).map(componentRepo -> {
 			userService.findById(componentRepo.getCreateUserId()).ifPresent(user -> {
@@ -54,7 +49,7 @@ public class ComponentRepoServiceImpl implements ComponentRepoService {
 			});
 			
 			componentRepo.setStd(stdRepos.stream().anyMatch(gitUrl -> gitUrl.equals(componentRepo.getGitRepoUrl())));
-			return getComponentRepoVersionAndApiRepoVersion(version, componentRepo, stdRepos);
+			return getComponentRepoDefaultBranchAndApiRepoDefaultBranch(componentRepo, stdRepos);
 		});
 	}
 
@@ -78,23 +73,26 @@ public class ComponentRepoServiceImpl implements ComponentRepoService {
 
 	@Override
 	public List<ComponentRepoInfo> findUserComponentRepos(Integer userId) {
-		var version = "master";
 		List<String> stdRepos = findAllStdGitRepo();
 		return componentRepoDao
 				.findAllByCreateUserIdOrderByGitRepoName(userId)
 				.stream()
 				.map(componentRepo -> {
 					componentRepo.setStd(stdRepos.stream().anyMatch(gitUrl -> gitUrl.equals(componentRepo.getGitRepoUrl())));
-					return getComponentRepoVersionAndApiRepoVersion(version, componentRepo, stdRepos);
+					return getComponentRepoDefaultBranchAndApiRepoDefaultBranch(componentRepo, stdRepos);
 				})
 				.collect(Collectors.toList());
 	}
 
-	private ComponentRepoInfo getComponentRepoVersionAndApiRepoVersion(String version, ComponentRepo componentRepo, List<String> stdRepos) {
+	private ComponentRepoInfo getComponentRepoDefaultBranchAndApiRepoDefaultBranch(ComponentRepo componentRepo, List<String> stdRepos) {
+		String[] defaultBranches = {"master", "main"}; // 支持 master 和 main 两种默认分支
 		ComponentRepoInfo componentRepoInfo = new ComponentRepoInfo();
 		componentRepoInfo.setComponentRepo(componentRepo);
-		componentRepoVersionDao.findByComponentRepoIdAndVersion(componentRepo.getId(), version)
-			.ifPresent(componentRepoVersion -> {
+		
+		for(String defaultBranch : defaultBranches) {
+			Optional<ComponentRepoVersion> componentRepoVersionOption = componentRepoVersionDao.findByComponentRepoIdAndVersion(componentRepo.getId(), defaultBranch);
+			if(componentRepoVersionOption.isPresent()) {
+				ComponentRepoVersion componentRepoVersion = componentRepoVersionOption.get();
 				componentRepoInfo.setComponentRepoVersion(componentRepoVersion);
 				apiRepoVersionDao.findById(componentRepoVersion.getApiRepoVersionId())
 					.ifPresent(apiRepoVersion -> {
@@ -105,7 +103,11 @@ public class ComponentRepoServiceImpl implements ComponentRepoService {
 								componentRepoInfo.setApiRepo(apiRepo);
 							});
 					});
-			});
+				
+				break;
+			}
+		}
+		
 		return componentRepoInfo;
 	}
 

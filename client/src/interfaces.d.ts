@@ -10,6 +10,7 @@ import {
 	PageAppType,
 	RepoType,
 	LoginStatus,
+	DeviceType,
 } from './constant';
 import { IconName } from '@fortawesome/fontawesome-svg-core';
 
@@ -237,6 +238,7 @@ interface GroupParam {
 	parentId: number;
 	appType: PageAppType;
 	resourceType: ResourceType;
+	deviceType: DeviceType;
 }
 
 interface GroupInputValidation {

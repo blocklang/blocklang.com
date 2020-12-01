@@ -14,7 +14,12 @@ import com.fasterxml.jackson.annotation.JsonValue;
  */
 public enum DeviceType {
 
-	PHONE("01", "Phone");
+	PHONE("01", "Phone"),
+	CAR("02", "Car"),
+	TV("03", "TV"),
+	WEARABLE("04", "Wearable"),
+	LITE_WEARABLE("05", "Lite Wearable"),
+	SMART_VISION("06", "Smart Vision");
 	
 	private final String key;
 	private final String value;

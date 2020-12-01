@@ -1,29 +1,40 @@
 package com.blocklang.marketplace.apirepo;
 
+import java.io.IOException;
 import java.util.List;
 
+import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.runner.common.CliLogger;
 import com.blocklang.marketplace.apirepo.schema.RefSchemaParser;
 import com.blocklang.marketplace.data.MarketplaceStore;
 
 public class MasterParser extends RefParser {
-	private static final String REF = "refs/heads/master";
-	private static final String REF_SHORT_NAME = "master";
+	private static final String REF = "refs/heads/";
+	private String defaultBranchName;
 
 	public MasterParser(List<String> tags, 
 		MarketplaceStore store, 
 		CliLogger logger) {
 		super(tags, store, logger);
 
-		setFullRefName(REF);
-		setShortRefName(REF_SHORT_NAME);
+		try {
+			this.defaultBranchName = GitUtils.getDefaultBranch(store.getRepoSourceDirectory());
+		} catch (IOException e) {
+			logger.error("获取默认分支失败");
+		}
+		setFullRefName(REF + defaultBranchName);
+		setShortRefName(defaultBranchName);
 	}
 
 	@Override
 	public ParseResult run() {
 		setup();
 		
-		logger.info("开始解析 master 分支");
+		if(this.defaultBranchName == null) {
+			return ParseResult.FAILED;
+		}
+		
+		logger.info("开始解析 " + defaultBranchName + " 分支");
 		
 		// 解析 schema
 		var refSchemaParser = new RefSchemaParser(store, logger, fullRefName, shortRefName, tags);

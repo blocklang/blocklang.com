@@ -1,5 +1,6 @@
 package com.blocklang.marketplace.service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,10 +21,10 @@ public interface PersistApiRepoService {
 	Class<? extends ApiObject> getApiObjectClass();
 
 	/**
-	 * 尝试保存 git 仓库中所有 tag 和 master 分支的 API 对象。
+	 * 尝试保存 git 仓库中所有 tag 和 master/main 分支的 API 对象。
 	 * 
 	 * 注意，如果某一个 tag 保存失败，则需要回滚此 tag 中的所有数据；
-	 * 但依然会尝试保存后续 tag 和 master 分支中的数据。
+	 * 但依然会尝试保存后续 tag 和 master/main 分支中的数据。
 	 * 
 	 * @param context
 	 * @return 如果全部保存成功就返回 true，否则返回 false。
@@ -81,26 +82,33 @@ public interface PersistApiRepoService {
 			}
 		}
 		
-		// 存储 master 分支，每次发布时都要全部更新 master 分支
+		// 存储 master/main 默认分支，每次发布时都要全部更新 master/main 分支
+		String defaultBranch = null;
 		try {
-			reader.setup(gitUrl, "master", "refs/heads/master", 
+			defaultBranch = GitUtils.getDefaultBranch(store.getRepoSourceDirectory());
+			if(defaultBranch == null) {
+				success = false;
+				logger.error("没有找到 master/main 默认分支");
+				return success;
+			}
+			
+			reader.setup(gitUrl, defaultBranch, "refs/heads/" + defaultBranch, 
 					publishTask.getCreateUserId());
 			RefData<? extends ApiObject> refData = reader.read();
 			if (refData.isInvalidData()) {
-				logger.error("{0} 读取 API 数据失败", "refs/heads/master");
-				success = false;
+				logger.error("{0} 读取 API 数据失败", "refs/heads/" + defaultBranch);
+				success = false; 
 			} else {
 				ApiRepo apiRepo = saveApoRepo(refData);
 				this.getPersistApiRefService().save(apiRepo.getId(), refData);
 			}
-		} catch (DataAccessException e) {
+		} catch (DataAccessException | IOException e ) {
 			success = false;
 			logger.error(e);
-			logger.error("master 分支中的 API 存储失败");
+			logger.error(defaultBranch + " 分支中的 API 存储失败");
 		}
 		
 		return success;
-		
 	}
 	
 	PersistApiRefService getPersistApiRefService();

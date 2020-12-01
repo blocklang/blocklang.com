@@ -1273,6 +1273,14 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 	}
 	
 	private RepositoryResource createAppForMiniProgram(Repository repository, RepositoryResource project) {
+		return createApp(repository, project);
+	}
+	
+	private RepositoryResource createAppForHarmonyOSLiteWearableProject(Repository repository, RepositoryResource project) {
+		return createApp(repository, project);
+	}
+
+	private RepositoryResource createApp(Repository repository, RepositoryResource project) {
 		RepositoryResource app = new RepositoryResource();
 		
 		// TODO: 定义一个 APP 组件，跟 Page 组件类似，但是不能包含子部件
@@ -1282,6 +1290,7 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 		app.setResourceType(RepositoryResourceType.PAGE);
 		app.setParentId(project.getId());
 		app.setAppType(project.getAppType());
+		app.setDeviceType(project.getDeviceType());
 		app.setSeq(1);
 		app.setCreateUserId(project.getCreateUserId());
 		app.setCreateTime(LocalDateTime.now());
@@ -1383,18 +1392,114 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 			Path projectDir = context
 					.getGitRepositoryDirectory()
 					.resolve(savedProject.getKey());
+			try {
+				Files.createDirectory(projectDir);
+			} catch (IOException e) {
+				logger.error("创建文件夹时出错", e);
+			}
 			
 			// PROJECT.json
 			addProjectJsonFile(savedProject, projectDir);
 			// DEPENDENCE.json 文件
 			addProjectDependencyJsonFile(dependence, projectDir);
 			// app 入口页面
-			addAppForMiniProgram(app, appModel, projectDir);
+			addAppFile(app, appModel, projectDir);
 			// pages/index 页面
 			addIndexPageFile(indexPage, indexPageModel, projectDir);
 			
 			Path gitRootDirectory = context.getGitRepositoryDirectory();
-			commitAllToGitRepository(repository, savedProject, gitRootDirectory);
+			commitAllToGitRepository(repository, savedProject, gitRootDirectory, "初始化小程序项目");
+		});
+		return savedProject;
+	}
+	
+	@Override
+	public RepositoryResource createHarmonyOSLiteWearableProject(
+			Repository repository, 
+			RepositoryResource project,
+			ApiRepo apiRepo, 
+			ApiWidget appWidget, 
+			ApiWidget pageWidget) {
+		// 创建项目资源
+		if(project.getSeq() == null) {
+			Integer nextSeq = repositoryResourceDao
+				.findFirstByRepositoryIdAndParentIdOrderBySeqDesc(project.getRepositoryId(), project.getParentId())
+				.map(item -> item.getSeq() + 1)
+				.orElse(1);
+			project.setSeq(nextSeq);
+		}
+		RepositoryResource savedProject = repositoryResourceDao.save(project);
+		
+		// 生成入口模块：app
+		RepositoryResource app = createAppForHarmonyOSLiteWearableProject(repository, savedProject);
+		// 有一个特殊的资源，没有 ui，只需要配置属性。
+		// 创建空页面，默认为空页面添加根节点，包括 Page 部件及其属性。
+		// TODO: 将 APP 部件设计为显示所有属性和事件的样式；或者在其中显示 App 字样和使用说明等
+		PageModel appModel = createAppModel(app.getId(), apiRepo, appWidget);
+		this.updatePageModel(appModel);
+		
+		// 生成 DEPENDENCE.json 文件
+		RepositoryResource dependence = createDependenceFile(repository, savedProject);
+
+		// 添加 pages/index 页面
+		// 1. 先创建 pages 分组
+		RepositoryResource pagesDir = new RepositoryResource();
+		pagesDir.setRepositoryId(repository.getId());
+		pagesDir.setKey("pages");
+		pagesDir.setName("pages");
+		pagesDir.setResourceType(RepositoryResourceType.GROUP);
+		pagesDir.setParentId(savedProject.getId());
+		pagesDir.setAppType(project.getAppType());
+		pagesDir.setDeviceType(project.getDeviceType());
+		pagesDir.setSeq(3);
+		pagesDir.setCreateUserId(project.getCreateUserId());
+		pagesDir.setCreateTime(LocalDateTime.now());
+		repositoryResourceDao.save(pagesDir);
+		// 2. 再创建 index 页面
+		RepositoryResource indexPage = new RepositoryResource();
+		indexPage.setRepositoryId(repository.getId());
+		indexPage.setKey("index");
+		indexPage.setName("index");
+		indexPage.setResourceType(RepositoryResourceType.PAGE);
+		indexPage.setParentId(pagesDir.getId());
+		indexPage.setAppType(project.getAppType());
+		indexPage.setDeviceType(project.getDeviceType());
+		indexPage.setSeq(4);
+		indexPage.setCreateUserId(project.getCreateUserId());
+		indexPage.setCreateTime(LocalDateTime.now());
+		repositoryResourceDao.save(indexPage);
+		
+		PageModel indexPageModel = createAppModel(app.getId(), apiRepo, pageWidget);
+		this.updatePageModel(indexPageModel);
+
+		// 在 git 仓库中添加文件
+		propertyService.findStringValue(CmPropKey.BLOCKLANG_ROOT_PATH).ifPresent(rootDir -> {
+			RepositoryContext context = new RepositoryContext(repository.getCreateUserName(), repository.getName(), rootDir);
+			
+			Path projectDir = context
+					.getGitRepositoryDirectory()
+					.resolve(savedProject.getKey());
+			
+			try {
+				Files.createDirectory(projectDir);
+			} catch (IOException e) {
+				logger.error("创建文件夹时出错", e);
+			}
+			
+			// PROJECT.json
+			addProjectJsonFile(savedProject, projectDir);
+			// DEPENDENCE.json 文件
+			addProjectDependencyJsonFile(dependence, projectDir);
+			// app 入口页面
+			addAppFile(app, appModel, projectDir);
+			// pages/index 页面
+			addIndexPageFile(indexPage, indexPageModel, projectDir);
+			
+			Path gitRootDirectory = context.getGitRepositoryDirectory();
+			commitAllToGitRepository(repository, savedProject, gitRootDirectory, "初始化鸿蒙轻量级智能穿戴项目");
+			
+			// TODO: commit 之后就触发自动生成代码功能
+			
 		});
 		return savedProject;
 	}
@@ -1435,7 +1540,7 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 		}
 	}
 	
-	private void addAppForMiniProgram(RepositoryResource appInfo, PageModel appModel, Path projectDirectory) {
+	private void addAppFile(RepositoryResource appInfo, PageModel appModel, Path projectDirectory) {
 		// 空页面
 		String appJson = "{}";
 		try {
@@ -1444,7 +1549,6 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 			logger.error("转换 json 失败", e);
 		}
 		try {
-			Files.createDirectory(projectDirectory);
 			Path mainPageFile = projectDirectory.resolve(appInfo.getFileName());
 			Files.writeString(mainPageFile, appJson, StandardOpenOption.CREATE);
 		} catch (IOException e) {
@@ -1469,9 +1573,8 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 		}
 	}
 	
-	private void commitAllToGitRepository(Repository repositoryInfo, RepositoryResource project, Path gitRepoRootDirectory) {
+	private void commitAllToGitRepository(Repository repositoryInfo, RepositoryResource project, Path gitRepoRootDirectory, String commitMessage) {
 		userService.findById(project.getCreateUserId()).ifPresent(user -> {
-			String commitMessage = "Init Mini Program";
 			String commitId = GitUtils
 				.addAllAndCommit(gitRepoRootDirectory, user.getLoginName(), user.getEmail(), commitMessage);
 			

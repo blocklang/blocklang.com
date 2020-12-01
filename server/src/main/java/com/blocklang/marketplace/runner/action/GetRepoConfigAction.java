@@ -78,7 +78,7 @@ public class GetRepoConfigAction extends AbstractAction{
 		// 1. 获取所有 tag 中的 blocklang.json 文件内容
 		List<Pair<String, GitBlobInfo>> blocklangContents = readConfigFromTagsAndMasterBranch();
 		if(blocklangContents.isEmpty()) {
-			logger.error("在 git 仓库中没有找到 master 分支");
+			logger.error("在 git 仓库中没有找到 master/main 分支");
 			return false;
 		}
 
@@ -201,9 +201,16 @@ public class GetRepoConfigAction extends AbstractAction{
 				})
 				.collect(Collectors.toList());
 		
+		// 因为 github 的默认分支名从 master 修改为 main，所以这里先从 master 分支中读取，如果读不到则从 main 分支中读取
+		
 		String master = "refs/heads/master";
 		GitBlobInfo masterBlocklangContent = GitUtils.getBlob(this.sourceDirectory, master, MarketplaceStore.BLOCKLANG_JSON).orElse(null);
+		if(masterBlocklangContent == null) {
+			master = "refs/heads/main";
+			masterBlocklangContent = GitUtils.getBlob(this.sourceDirectory, master, MarketplaceStore.BLOCKLANG_JSON).orElse(null);
+		}
 		blocklangContents.add(Pair.of(master, masterBlocklangContent));
+		
 		return blocklangContents;
 	}
 

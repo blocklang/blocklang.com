@@ -1,5 +1,6 @@
 package com.blocklang.marketplace.runner.action;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,6 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 public class PersistComponentRepoAction extends AbstractAction{
 
+	private String defaultBranch;
 	private GitRepoPublishTask publishTask;
 	private MarketplaceStore store;
 	
@@ -26,6 +28,11 @@ public class PersistComponentRepoAction extends AbstractAction{
 		super(context);
 		this.publishTask = context.getValue(ExecutionContext.PUBLISH_TASK, GitRepoPublishTask.class);
 		this.store = context.getValue(ExecutionContext.MARKETPLACE_STORE, MarketplaceStore.class);
+		try {
+			this.defaultBranch = GitUtils.getDefaultBranch(store.getRepoSourceDirectory());
+		} catch (IOException e) {
+			
+		}
 	}
 
 	@Override
@@ -56,16 +63,20 @@ public class PersistComponentRepoAction extends AbstractAction{
 				})
 				.collect(Collectors.toList());
 		
+		if(this.defaultBranch == null) {
+			logger.error("在 git 仓库中没有找到 master/main 分支");
+			return false;
+		}
 		// 读取 master 分支
 		RefData data = new RefData();
-		data.setFullRefName("refs/heads/master");
-		data.setShortRefName("master");
+		data.setFullRefName("refs/heads/" + this.defaultBranch);
+		data.setShortRefName(this.defaultBranch);
 		data.setCreateUserId(publishTask.getCreateUserId());
 		data.setGitUrl(publishTask.getGitUrl());
 		
 		RepoConfigJson repoConfig;
 		try {
-			String configContent = GitUtils.getBlob(store.getRepoSourceDirectory(), "refs/heads/master", "blocklang.json")
+			String configContent = GitUtils.getBlob(store.getRepoSourceDirectory(), "refs/heads/" + this.defaultBranch, "blocklang.json")
 					.get().getContent();
 			repoConfig = JsonUtil.fromJsonObject(configContent, RepoConfigJson.class);
 			data.setRepoConfig(repoConfig);

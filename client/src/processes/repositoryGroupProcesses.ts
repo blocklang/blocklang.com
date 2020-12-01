@@ -18,6 +18,10 @@ const startInitForNewGroupCommand = commandFactory(({ path }) => {
 	];
 });
 
+const deviceTypeInputCommand = commandFactory<{ deviceType: string }>(({ path, payload: { deviceType } }) => {
+	return [replace(path('groupParam', 'deviceType'), deviceType.trim())];
+});
+
 const groupKeyInputCommand = commandFactory<GroupKeyPayload>(
 	async ({ path, payload: { owner, repo, parentId, key } }) => {
 		const trimedKey = key.trim();
@@ -141,6 +145,7 @@ export const initForNewGroupProcess = createProcess('init-for-new-group', [
 	startInitForNewGroupCommand,
 	[getRepositoryCommand, getResourceParentPathCommand],
 ]);
+export const deviceTypeInputProcess = createProcess('device-type-input', [deviceTypeInputCommand]);
 export const groupKeyInputProcess = createProcess('group-key-input', [groupKeyInputCommand]);
 export const groupNameInputProcess = createProcess('group-name-input', [groupNameInputCommand]);
 export const groupDescriptionInputProcess = createProcess('group-description-input', [groupDescriptionInputCommand]);

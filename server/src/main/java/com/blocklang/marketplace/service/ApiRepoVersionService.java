@@ -32,10 +32,10 @@ public interface ApiRepoVersionService {
 	Optional<ApiRepoVersion> findLatestStableVersion(Integer apiRepoId);
 
 	/**
-	 * 获取 Api 仓库的 master 版本信息。
+	 * 获取 Api 仓库的 master/main 分支信息。
 	 * 
 	 * @param apiRepoId Api 仓库标识
-	 * @return master 版的版本信息
+	 * @return master/main 分支信息
 	 */
 	Optional<ApiRepoVersion> findMasterVersion(Integer apiRepoId);
 }

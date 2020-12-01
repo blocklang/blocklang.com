@@ -399,4 +399,31 @@ public class GitUtils {
 		return describe.execute(gitRepoPath);
 	}
 
+	/**
+	 * 仓库的默认分支名，要么是 master，要么是 main。
+	 * 
+	 * @param gitRepoPath
+	 * @return
+	 * @throws IOException
+	 */
+	public static String getDefaultBranch(Path gitRepoPath) throws IOException {
+		// 先获取
+		Path gitDir = gitRepoPath.resolve(Constants.DOT_GIT);
+		try (Repository repo = FileRepositoryBuilder.create(gitDir.toFile())){
+			Ref ref = repo.exactRef("refs/heads/master");
+			if(ref != null) {
+				return "master";
+			}
+			ref = repo.exactRef("refs/heads/main");
+			if(ref != null) {
+				return "main";
+			}
+			return null;
+		}
+	}
+	
+	public static boolean isDefaultBranch(String shortRefName) {
+		return shortRefName.equals("master") || shortRefName.equals("main");
+	}
+	
 }

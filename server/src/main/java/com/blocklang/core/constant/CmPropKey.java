@@ -42,6 +42,14 @@ public abstract class CmPropKey {
 	public static final String STD_MINI_PROGRAM_COMPONENT_APP_NAME = "std.mini.program.app.name";
 	public static final String STD_MINI_PROGRAM_COMPONENT_PAGE_NAME = "std.mini.program.page.name";
 	
+	// 鸿蒙应用的标准库
+	// 1. Lite Wearable
+	public static final String STD_HARMONYOS_LITE_WEARABLE_UI_API_GIT_URL = "std.harmonyos.lite.wearable.ui.api.git.url";
+	public static final String STD_HARMONYOS_LITE_WEARABLE_UI_IDE_GIT_URL = "std.harmonyos.lite.wearable.ui.ide.git.url";
+	public static final String STD_HARMONYOS_LITE_WEARABLE_UI_PROD_GIT_URL = "std.harmonyos.lite.wearable.ui.prod.git.url";
+	public static final String STD_HARMONYOS_LITE_WEARABLE_UI_APP_NAME = "std.harmonyos.lite.wearable.app.name";
+	public static final String STD_HARMONYOS_LITE_WEARABLE_UI_PAGE_NAME = "std.harmonyos.lite.wearable.page.name";
+	
 	
 	// dojo 版的标准库
 	public static final String STD_WIDGET_BUILD_DOJO_GIT_URL = "std.widget.build.dojo.git.url";

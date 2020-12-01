@@ -38,6 +38,7 @@ import com.blocklang.marketplace.data.MarketplaceStore;
  */
 public class BuildIdeRepoAction extends AbstractAction {
 	
+	private String defaultBranch;
 	private Boolean buildMaster = true;
 	
 	private MarketplaceStore store;
@@ -86,6 +87,14 @@ public class BuildIdeRepoAction extends AbstractAction {
 		// TODO: 优化，存储 master 分支对应的 commit 标识，如果 commit 标识没有变化，则不要重新发布
 		// 构建 master 分支
 		// 因为最后 build 的是 master 分支，自然要切换回 master 分支，所以不再单独处理，如果此逻辑有变化，则切记最后要切换回 master 分支
+		
+		try {
+			defaultBranch = GitUtils.getDefaultBranch(store.getRepoSourceDirectory());
+		} catch (IOException e) {
+			logger.error("未能从 git 仓库中获取到 master/main 默认分支");
+			logger.error(e);
+			return false;
+		}
 		if(buildMaster) {
 			buildMaster();
 		}
@@ -160,12 +169,12 @@ public class BuildIdeRepoAction extends AbstractAction {
 	}
 
 	private void buildMaster() {
-		logger.info("开始构建 master 分支");
+		logger.info("开始构建 " + this.defaultBranch + " 分支");
 		
 		// 如果当前不在 master 分支下，则先切换到 master 分支
 		try {
 			Path sourceDirectory = store.getRepoSourceDirectory();
-			GitUtils.checkout(sourceDirectory, "master");
+			GitUtils.checkout(sourceDirectory, defaultBranch);
 		} catch (RuntimeException e) {
 			logger.error(e);
 			success = false;
@@ -188,10 +197,9 @@ public class BuildIdeRepoAction extends AbstractAction {
 		// master 分支必须重新 build
 		// 将 build/output/dist 文件夹下的内容复制到 package/master/ 文件夹下
 		// 如果 master 文件夹已存在，则先删除 master 文件夹
-		String version = "master";
-		logger.info("将 build/output/dist/ 文件夹下的内容复制到 package/{0}/ 文件夹下", version);
+		logger.info("将 build/output/dist/ 文件夹下的内容复制到 package/{0}/ 文件夹下", defaultBranch);
 		try {
-			Path packageMasterDirectory = store.getPackageVersionDirectory(version);
+			Path packageMasterDirectory = store.getPackageVersionDirectory(defaultBranch);
 			FileSystemUtils.deleteRecursively(packageMasterDirectory);
 			FileSystemUtils.copyRecursively(store.getOutputDistDirectory(), packageMasterDirectory);
 			logger.info("{0} 复制完成", CliLogger.ANSWER);
@@ -227,7 +235,7 @@ public class BuildIdeRepoAction extends AbstractAction {
 	private void ensureCheckoutMaster() {
 		try {
 			Path sourceDirectory = store.getRepoSourceDirectory();
-			GitUtils.checkout(sourceDirectory, "master");
+			GitUtils.checkout(sourceDirectory, defaultBranch);
 		} catch (RuntimeException e) {
 			logger.error(e);
 		}

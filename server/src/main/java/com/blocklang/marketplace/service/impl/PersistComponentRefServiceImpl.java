@@ -9,6 +9,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.blocklang.core.git.GitUtils;
 import com.blocklang.core.util.GitUrlSegment;
 import com.blocklang.develop.constant.AppType;
 import com.blocklang.marketplace.componentrepo.RefData;
@@ -58,7 +59,8 @@ public class PersistComponentRefServiceImpl implements PersistComponentRepoServi
 		}
 		
 		Optional<ComponentRepoVersion> repoVersionOption = componentRepoVersionDao.findByComponentRepoIdAndVersion(repoId, refData.getShortRefName());
-		if(refData.getShortRefName().equals("master")) {
+
+		if(GitUtils.isDefaultBranch(refData.getShortRefName())) {
 			if(repoVersionOption.isPresent()) {
 				ComponentRepoVersion repoVersion = repoVersionOption.get();
 				updateComponentVersion(repoVersion, refData);
@@ -104,7 +106,8 @@ public class PersistComponentRefServiceImpl implements PersistComponentRepoServi
 	}
 
 	private Integer getApiRepoVersionId(RefData refData) {
-		Optional<ApiRepo> apiRepoOption = apiRepoDao.findByGitRepoUrlAndCreateUserId(refData.getGitUrl(), refData.getCreateUserId());
+		String apiRepoGitUrl = refData.getRepoConfig().getApi().getGit();
+		Optional<ApiRepo> apiRepoOption = apiRepoDao.findByGitRepoUrlAndCreateUserId(apiRepoGitUrl, refData.getCreateUserId());
 		if(apiRepoOption.isEmpty()) {
 			return null;
 		}

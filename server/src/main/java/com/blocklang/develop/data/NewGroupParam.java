@@ -10,6 +10,7 @@ public class NewGroupParam {
 	private Integer parentId;
 	private String appType;
 	private String resourceType;
+	private String deviceType;
 	
 	public String getKey() {
 		return key;
@@ -46,6 +47,12 @@ public class NewGroupParam {
 	}
 	public void setResourceType(String resourceType) {
 		this.resourceType = resourceType;
+	}
+	public String getDeviceType() {
+		return deviceType;
+	}
+	public void setDeviceType(String deviceType) {
+		this.deviceType = deviceType;
 	}
 	
 }

@@ -51,8 +51,7 @@ import com.blocklang.core.util.GitUrlSegment;
  *                             index.json
  *                         __schemas__
  *                             {schema_timestamp}
- *                                     index.json
- *                         
+ *                                 index.json
  * </pre>
  * 
  * @author Zhengwei Jin

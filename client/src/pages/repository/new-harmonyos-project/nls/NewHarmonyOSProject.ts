@@ -4,6 +4,7 @@ const messages = {
 	privateRepositoryTitle: '私有仓库',
 	// 页面专用
 	newHarmonyOSProject: '创建鸿蒙项目',
+	deviceTypeLabel: '设备',
 	projectKeyLabel: '名称',
 	projectKeyHelp: '在 url 中使用，要简短易记。只允许字母、数字、中划线(-)、下划线(_)等。',
 	projectNameLabel: '备注',

@@ -30,9 +30,9 @@ public interface RepositoryResourceService {
 	 * 
 	 * @param repository 仓库信息
 	 * @param project 小程序项目的基本信息
-	 * @param apiRepo Api 仓库
-	 * @param appWidget Api 仓库中的 App 部件
-	 * @param pageWidget Api 仓库中的 Page 部件
+	 * @param apiRepo API 仓库
+	 * @param appWidget API 仓库中的 App 部件
+	 * @param pageWidget API 仓库中的 Page 部件
 	 * @return 小程序项目的基本信息
 	 */
 	RepositoryResource createMiniProgram(
@@ -42,6 +42,23 @@ public interface RepositoryResourceService {
 			ApiWidget appWidget, 
 			ApiWidget pageWidget);
 
+	/**
+	 * 创建鸿蒙的 Lite Wearable 项目
+	 * 
+	 * @param repository 仓库信息
+	 * @param project 鸿蒙 Lite Wearable 项目的基本信息
+	 * @param apiRepo API 仓库
+	 * @param appWidget API 仓库中的 App 部件
+	 * @param pageWidget API 仓库中的 Page 部件
+	 * @return 鸿蒙 Lite Wearable 项目的基本信息
+	 */
+	RepositoryResource createHarmonyOSLiteWearableProject(
+			Repository repository, 
+			RepositoryResource project,
+			ApiRepo apiRepo, 
+			ApiWidget appWidget, 
+			ApiWidget pageWidget);
+	
 	/**
 	 * 获取项目结构，其中包含模块的提交信息
 	 * 

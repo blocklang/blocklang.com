@@ -1,0 +1,55 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+	
+	<changeSet author="Zhengwei Jin" id="202011260658">
+		<insert tableName="cm_property">
+			<column name="dbid" valueNumeric="30" />
+			<column name="prop_key" value="std.harmonyos.lite.wearable.ui.api.git.url" />
+			<column name="prop_value" value="https://github.com/blocklang-marketplace/api-harmonyos-lite-wearable-ui.git" />
+			<column name="prop_desc" value="鸿蒙应用 Lite Wearable UI 标准库 - api 仓库的 URL" />
+			<column name="parent_id" valueNumeric="-1" />
+			<column name="data_type" value="01" />
+			<column name="is_valid" valueBoolean="true" />
+		</insert>
+		<insert tableName="cm_property">
+			<column name="dbid" valueNumeric="31" />
+			<column name="prop_key" value="std.harmonyos.lite.wearable.ui.ide.git.url" />
+			<column name="prop_value" value="https://github.com/blocklang-marketplace/ide-harmonyos-lite-wearable-ui.git" />
+			<column name="prop_desc" value="鸿蒙应用 Lite Wearable UI 标准库 - ide 仓库的 URL" />
+			<column name="parent_id" valueNumeric="-1" />
+			<column name="data_type" value="01" />
+			<column name="is_valid" valueBoolean="true" />
+		</insert>
+		<insert tableName="cm_property">
+			<column name="dbid" valueNumeric="32" />
+			<column name="prop_key" value="std.harmonyos.lite.wearable.ui.prod.git.url" />
+			<column name="prop_value" value="https://github.com/blocklang-marketplace/harmonyos-lite-wearable-ui.git" />
+			<column name="prop_desc" value="鸿蒙应用 Lite Wearable UI 标准库 - prod 仓库的 URL" />
+			<column name="parent_id" valueNumeric="-1" />
+			<column name="data_type" value="01" />
+			<column name="is_valid" valueBoolean="true" />
+		</insert>
+		<insert tableName="cm_property">
+			<column name="dbid" valueNumeric="33" />
+			<column name="prop_key" value="std.harmonyos.lite.wearable.app.name" />
+			<column name="prop_value" value="App" />
+			<column name="prop_desc" value="App 组件" />
+			<column name="parent_id" valueNumeric="-1" />
+			<column name="data_type" value="01" />
+			<column name="is_valid" valueBoolean="true" />
+		</insert>
+		<insert tableName="cm_property">
+			<column name="dbid" valueNumeric="34" />
+			<column name="prop_key" value="std.harmonyos.lite.wearable.page.name" />
+			<column name="prop_value" value="Page" />
+			<column name="prop_desc" value="Page 组件" />
+			<column name="parent_id" valueNumeric="-1" />
+			<column name="data_type" value="01" />
+			<column name="is_valid" valueBoolean="true" />
+		</insert>
+	</changeSet>
+</databaseChangeLog>

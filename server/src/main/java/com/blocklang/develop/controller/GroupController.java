@@ -36,6 +36,7 @@ import com.blocklang.core.exception.ResourceNotFoundException;
 import com.blocklang.core.model.UserInfo;
 import com.blocklang.core.service.PropertyService;
 import com.blocklang.develop.constant.AppType;
+import com.blocklang.develop.constant.DeviceType;
 import com.blocklang.develop.constant.RepositoryResourceType;
 import com.blocklang.develop.data.CheckGroupKeyParam;
 import com.blocklang.develop.data.CheckGroupNameParam;
@@ -376,6 +377,69 @@ public class GroupController extends AbstractRepositoryController{
 				
 				// 在 service 中默认依赖小程序的 API 库的 master，且不允许删除该依赖
 				savedProjectResource = repositoryResourceService.createMiniProgram(repository, resource, apiRepo, appWidget, pageWidget);
+			} else if (param.getAppType().equals(AppType.HARMONYOS.getKey())) {
+				// 创建鸿蒙应用
+				// 1. Lite Wearable
+				if(DeviceType.LITE_WEARABLE.getKey().equals(param.getDeviceType())) {
+					String apiGitUrl = propertyService
+							.findStringValue(CmPropKey.STD_HARMONYOS_LITE_WEARABLE_UI_API_GIT_URL)
+							.orElseGet(() -> {
+								bindingResult.reject("NotExist.std.repo.url");
+								return null;
+							});
+					Integer userId = propertyService
+							.findIntegerValue(CmPropKey.STD_REPO_REGISTER_USER_ID)
+							.orElseGet(() -> {
+								bindingResult.reject("NotExist.std.register.user.id");
+								return null;
+							});
+					// 是否在组件市场注册了 Lite Wearable 的 API 库
+					var apiRepo = apiRepoService
+							.findByGitUrlAndCreateUserId(apiGitUrl, userId)
+							.orElseGet(() -> {
+								bindingResult.reject("NotExist.std.api.repo", new Object[] {apiGitUrl}, null);
+								return null;
+							});
+					if(bindingResult.hasErrors()) {
+						throw new InvalidRequestException(bindingResult);
+					}
+					var apiRepoVersion = apiRepoVersionService
+							.findMasterVersion(apiRepo.getId())
+							.orElseGet(() -> {
+								bindingResult.reject("NotExist.std.api.repo.master");
+								return null;
+							});
+					if(bindingResult.hasErrors()) {
+						throw new InvalidRequestException(bindingResult);
+					}
+					// Lite Wearable 的 API 库中是否存在 APP 组件
+					String appWidgetName = propertyService
+							.findStringValue(CmPropKey.STD_HARMONYOS_LITE_WEARABLE_UI_APP_NAME)
+							.orElseGet(() -> {
+								bindingResult.reject("NotExist.std.app.name");
+								return null;
+							});
+					ApiWidget appWidget = apiWidgetService
+							.findByApiRepoVersionIdAndNameIgnoreCase(apiRepoVersion.getId(), appWidgetName)
+							.orElseThrow(ResourceNotFoundException::new);
+					// 小程序的 API 库中是否存在 Page 组件
+					String pageWidgetName = propertyService
+							.findStringValue(CmPropKey.STD_HARMONYOS_LITE_WEARABLE_UI_PAGE_NAME)
+							.orElseGet(() -> {
+								bindingResult.reject("NotExist.std.page.name");
+								return null;
+							});
+					ApiWidget pageWidget = apiWidgetService
+							.findByApiRepoVersionIdAndNameIgnoreCase(apiRepoVersion.getId(), pageWidgetName)
+							.orElseThrow(ResourceNotFoundException::new);
+					
+					if(bindingResult.hasErrors()) {
+						throw new InvalidRequestException(bindingResult);
+					}
+					
+					// 在 service 中默认依赖 HarmonyOS Lite Wearable API 库的 master，且不允许删除该依赖
+					savedProjectResource = repositoryResourceService.createHarmonyOSLiteWearableProject(repository, resource, apiRepo, appWidget, pageWidget);
+				}
 			}
 			
 			savedProjectResource.setMessageSource(messageSource);

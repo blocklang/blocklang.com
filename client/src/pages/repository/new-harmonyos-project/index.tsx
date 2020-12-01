@@ -6,6 +6,7 @@ import * as css from './new-harmonyos-project.m.css';
 import bundle from './nls/NewHarmonyOSProject';
 import Exception from '../../error/Exception';
 import {
+	deviceTypeInputProcess,
 	groupKeyInputProcess,
 	groupNameInputProcess,
 	initForNewGroupProcess,
@@ -15,7 +16,9 @@ import Spinner from '../../../widgets/spinner';
 import RepositoryHeader from '../../widgets/RepositoryHeader';
 import { canNewGroup } from '../../../permission';
 import Link from '@dojo/framework/routing/Link';
-import { PageAppType, ResourceType, ValidateStatus } from '../../../constant';
+import { DeviceType, PageAppType, ResourceType, ValidateStatus } from '../../../constant';
+
+const liteWearableSelectedImg = require('../../../assets/devices/lite-wearable-selected.png');
 
 export interface NewHarmonyOSProjectProperties {
 	owner: string;
@@ -76,6 +79,23 @@ export default factory(function NewHarmonyOSProject({ properties, middleware: { 
 					</li>
 				</ol>
 			</nav>
+		);
+	}
+
+	function renderDeviceType() {
+		executor(deviceTypeInputProcess)({ deviceType: DeviceType.LiteWearable });
+		return (
+			<div classes={[c.form_group]}>
+				<label for="deviceType">{messages.deviceTypeLabel}</label>
+				<div>
+					<ul classes={[c.list_group, 'list-group-horizontal']}>
+						<li classes={[c.list_group_item]}>
+							<img src={liteWearableSelectedImg} classes={[]} styles={{ width: '100px' }}></img>
+							<div classes={[c.text_center]}>Lite Wearable</div>
+						</li>
+					</ul>
+				</div>
+			</div>
 		);
 	}
 
@@ -208,6 +228,7 @@ export default factory(function NewHarmonyOSProject({ properties, middleware: { 
 					</div>
 				)}
 				<form classes={[c.needs_validation]} novalidate="novalidate">
+					{renderDeviceType()}
 					{renderKeyInput()}
 					{renderNameInput()}
 					<hr />

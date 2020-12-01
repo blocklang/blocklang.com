@@ -53,7 +53,11 @@ public class ApiRepoVersionServiceImpl implements ApiRepoVersionService {
 
 	@Override
 	public Optional<ApiRepoVersion> findMasterVersion(Integer apiRepoId) {
-		return apiRepoVersionDao.findByApiRepoIdAndVersion(apiRepoId, Constants.MASTER);
+		Optional<ApiRepoVersion> optional = apiRepoVersionDao.findByApiRepoIdAndVersion(apiRepoId, Constants.MASTER);
+		if(optional.isPresent()) {
+			return optional;
+		}
+		return apiRepoVersionDao.findByApiRepoIdAndVersion(apiRepoId, "main");
 	}
 
 }

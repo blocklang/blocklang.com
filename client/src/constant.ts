@@ -16,6 +16,15 @@ export enum ResourceType {
 	Build = '09',
 }
 
+export enum DeviceType {
+	Phone = '01',
+	Car = '02',
+	TV = '03',
+	Wearable = '04',
+	LiteWearable = '05',
+	SmartVision = '06',
+}
+
 // 因为 AppType 主要用于 Page，所以在名称前加上 Page
 // 避免与 interfaces.d.ts 中的 AppType 重名
 export enum PageAppType {
