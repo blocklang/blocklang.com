@@ -517,7 +517,7 @@ public class ProjectDependencyControllerTest extends AbstractControllerTest{
 		when(repositoryResourceService.findProject(eq(repositoryId), eq(projectName))).thenReturn(Optional.of(project));
 		
 		when(projectDependencyService.findAllConfigDependencies(anyInt())).thenReturn(Collections.emptyList());
-		when(projectDependencyService.findStdDevDependencies(eq(appType))).thenReturn(Collections.emptyList());
+		when(projectDependencyService.findStdDevDependencies(eq(appType), any())).thenReturn(Collections.emptyList());
 		when(projectDependencyService.findStdBuildDependencies(eq(appType))).thenReturn(Collections.emptyList());
 		
 		given()

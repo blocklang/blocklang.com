@@ -7,10 +7,13 @@ import { initForViewRepositoryGroupProcess } from '../../processes/repositoryPro
 function getProperties(store: Store<State>): ViewRepositoryPageProperties {
 	const { get, path } = store;
 
+	console.log('container', get(path('repositoryResource')));
+
 	return {
 		loginUser: get(path('user')),
 		repository: get(path('repository')),
 		resource: get(path('repositoryResource')),
+		projectId: get(path('project', 'id')),
 		groups: get(path('parentGroups')),
 		onGotoGroup: initForViewRepositoryGroupProcess(store),
 	};

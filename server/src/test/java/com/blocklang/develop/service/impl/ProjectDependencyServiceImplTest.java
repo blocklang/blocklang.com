@@ -636,7 +636,7 @@ public class ProjectDependencyServiceImplTest extends AbstractServiceTest{
 		when(propertyService.findStringValue(CmPropKey.STD_MINI_PROGRAM_COMPONENT_IDE_GIT_URL, "")).thenReturn(stdDevGitUrl);
 		when(propertyService.findIntegerValue(CmPropKey.STD_REPO_REGISTER_USER_ID, 1)).thenReturn(1);
 		// 注意，所有项目都会默认包含标准库
-		List<ProjectDependencyData> dependencies = projectDependencyService.findStdDevDependencies(appType);
+		List<ProjectDependencyData> dependencies = projectDependencyService.findStdDevDependencies(appType, null);
 		
 		assertThat(dependencies).hasSize(1);
 	}

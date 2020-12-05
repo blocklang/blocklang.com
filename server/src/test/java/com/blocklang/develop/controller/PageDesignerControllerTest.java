@@ -147,7 +147,7 @@ public class PageDesignerControllerTest extends AbstractControllerTest {
 		apiRepo.setId(2);
 		ApiRepoVersion apiRepoVersion = new ApiRepoVersion();
 		ProjectDependencyData data = new ProjectDependencyData(dependency, componentRepo, componentRepoVersion, apiRepo, apiRepoVersion);
-		when(projectDependencyService.findStdDevDependencies(eq(AppType.WEB))).thenReturn(Collections.singletonList(data));
+		when(projectDependencyService.findStdDevDependencies(eq(AppType.WEB), any())).thenReturn(Collections.singletonList(data));
 
 		given()
 			.contentType(ContentType.JSON)

@@ -280,6 +280,7 @@ public class GroupController extends AbstractRepositoryController{
 			resource.setRepositoryId(repository.getId());
 			resource.setParentId(param.getParentId());
 			resource.setAppType(AppType.fromKey(param.getAppType()));
+			resource.setDeviceType(DeviceType.fromKey(param.getDeviceType()));
 			resource.setKey(key);
 			resource.setName(param.getName() == null ? null : param.getName().trim());
 			if(param.getDescription() != null) {
@@ -303,6 +304,7 @@ public class GroupController extends AbstractRepositoryController{
 			resource.setRepositoryId(repository.getId());
 			resource.setParentId(param.getParentId());
 			resource.setAppType(AppType.fromKey(param.getAppType()));
+			resource.setDeviceType(DeviceType.fromKey(param.getDeviceType()));
 			resource.setKey(key);
 			resource.setName(param.getName() == null ? null : param.getName().trim());
 			resource.setResourceType(RepositoryResourceType.fromKey(param.getResourceType()));

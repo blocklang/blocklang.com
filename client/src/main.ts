@@ -76,11 +76,11 @@ function setDocumentTitle(titleOptions: DocumentTitleOptions): string | undefine
 	}
 	let repository = get(path('repository'));
 	if (!repository) {
-		debugger;
 		if (params.owner && params.repo) {
 			// FIXME: 在这里触发，会导致执行两次初始化请求
 			// 这个函数中只支持静态同步设置 title 信息
-			initForViewRepositoryProcess(store)({ owner: params.owner, repo: params.repo });
+			// 不要在此处调用此函数，因为有一定概率会导致加载页面时，初始化数据不准确
+			// initForViewRepositoryProcess(store)({ owner: params.owner, repo: params.repo });
 			repository = get(path('repository'));
 		}
 	}
@@ -150,7 +150,6 @@ router.on('outlet', ({ outlet, action }) => {
 				initForNewRepositoryProcess(store)({});
 				break;
 			case 'view-repo':
-				debugger;
 				initForViewRepositoryProcess(store)({ owner: outlet.params.owner, repo: outlet.params.repo });
 				initForViewCommitChangesProcess(store)({ owner: outlet.params.owner, repo: outlet.params.repo });
 				break;
@@ -194,11 +193,12 @@ router.on('outlet', ({ outlet, action }) => {
 					// 因为 dojo5 route 不支持通配符，所以此处自己实现
 					// 注意，pathname 是以 / 开头的
 					parentPath = global.window.location.pathname.substring(
-						`/${outlet.params.owner}/${outlet.params.project}/groups/`.length
+						`/${outlet.params.owner}/${outlet.params.repo}/${outlet.params.project}/groups/`.length
 					);
 				}
 				initForViewProjectDependencyProcess(store)({
 					owner: outlet.params.owner,
+					repo: outlet.params.repo,
 					project: outlet.params.project,
 					parentPath,
 				});

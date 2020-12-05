@@ -56,6 +56,7 @@ Status: 200 OK
 
 ```json
 {
+    "projectId": 1,
     "repositoryResource": {},
     "parentGroups": []
 }

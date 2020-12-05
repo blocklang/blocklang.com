@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import com.blocklang.core.constant.CmPropKey;
 import com.blocklang.core.service.PropertyService;
 import com.blocklang.develop.constant.AppType;
+import com.blocklang.develop.constant.DeviceType;
 import com.blocklang.develop.dao.ProjectBuildProfileDao;
 import com.blocklang.develop.dao.ProjectDependencyDao;
 import com.blocklang.develop.data.ProjectDependencyData;
@@ -387,26 +388,41 @@ public class ProjectDependencyServiceImpl implements ProjectDependencyService{
 	// 事先要在组件仓库中注册 std-widget-web。
 	// 标准库，永远只使用最新版。
 	@Override
-	public List<ProjectDependencyData> findStdDevDependencies(AppType appType) {
-		return convert(getStdDevDependencies(appType));
+	public List<ProjectDependencyData> findStdDevDependencies(AppType appType, DeviceType deviceType) {
+		return convert(getStdDevDependencies(appType, deviceType));
 	}
 
-	private List<ProjectDependency> getStdDevDependencies(AppType appType) {
+	private List<ProjectDependency> getStdDevDependencies(AppType appType, DeviceType deviceType) {
 		Integer createUserId = propertyService.findIntegerValue(CmPropKey.STD_REPO_REGISTER_USER_ID, 1);
 		String stdDevRepoUrlKey = null;
 		if(AppType.WEB.equals(appType)) {
 			stdDevRepoUrlKey = CmPropKey.STD_WIDGET_IDE_GIT_URL;
 		} else if(AppType.MINI_PROGRAM.equals(appType)) {
 			stdDevRepoUrlKey = CmPropKey.STD_MINI_PROGRAM_COMPONENT_IDE_GIT_URL;
+		} else if(AppType.HARMONYOS.equals(appType)) {
+			if(DeviceType.LITE_WEARABLE.equals(deviceType)) {
+				stdDevRepoUrlKey = CmPropKey.STD_HARMONYOS_LITE_WEARABLE_UI_IDE_GIT_URL;
+			}
 		}
 		String stdDevRepoUrl = propertyService.findStringValue(stdDevRepoUrlKey, "");
-		Optional<ProjectDependency> dependencyOption = componentRepoDao.findByGitRepoUrlAndCreateUserId(stdDevRepoUrl, createUserId)
-			.flatMap(componentRepo -> componentRepoVersionService.findByComponentIdAndVersion(componentRepo.getId(), Constants.MASTER)) // 注意，默认只依赖 master 分支
-			.map(componentRepoVersion -> {
-				ProjectDependency dependency = new ProjectDependency();
-				dependency.setComponentRepoVersionId(componentRepoVersion.getId());
-				return dependency;
-			});
+		
+		String[] defaultBranches = {"master", "main"};
+		
+		Optional<ProjectDependency> dependencyOption = Optional.empty();
+		for(String defaultBranch : defaultBranches) {
+			dependencyOption = componentRepoDao.findByGitRepoUrlAndCreateUserId(stdDevRepoUrl, createUserId)
+					.flatMap(componentRepo -> componentRepoVersionService.findByComponentIdAndVersion(componentRepo.getId(), defaultBranch))
+					.map(componentRepoVersion -> {
+						ProjectDependency dependency = new ProjectDependency();
+						dependency.setComponentRepoVersionId(componentRepoVersion.getId());
+						return dependency;
+					});
+			
+			if(dependencyOption.isPresent()) {
+				break;
+			}
+		}
+		
 		if(dependencyOption.isEmpty()) {
 			return Collections.emptyList();
 		}
@@ -438,10 +454,10 @@ public class ProjectDependencyServiceImpl implements ProjectDependencyService{
 	}
 
 	@Override
-	public List<ProjectDependency> findAllDevDependencies(Integer projectId, AppType appType) {
+	public List<ProjectDependency> findAllDevDependencies(Integer projectId, AppType appType, DeviceType deviceType) {
 		List<ProjectDependency> dependencies = projectDependencyDao.findAllByProjectIdAndProfileId(projectId, null);
 		// 获取标准库
-		dependencies.addAll(getStdDevDependencies(appType));
+		dependencies.addAll(getStdDevDependencies(appType, deviceType));
 		return dependencies;
 	}
 

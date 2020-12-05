@@ -16,15 +16,14 @@ export interface RepositoryHeaderProperties extends ThemedProperties {
 export const ThemedBase = ThemedMixin(WidgetBase);
 
 @theme(css)
-export class RepositoryHeaderBase<P extends RepositoryHeaderProperties = RepositoryHeaderProperties> extends ThemedBase<
-	P
-> {
+export class RepositoryHeaderBase<
+	P extends RepositoryHeaderProperties = RepositoryHeaderProperties
+> extends ThemedBase<P> {
 	protected render() {
 		const {
 			repository: { name, isPublic, createUserName },
 			privateRepositoryTitle,
 		} = this.properties;
-		debugger;
 		return v('div', { classes: [c.mt_4, c.mb_3] }, [
 			v('nav', { classes: [c.d_inline_flex], 'aria-label': 'breadcrumb' }, [
 				v('ol', { classes: [css.repositoryHeader, c.breadcrumb] }, [

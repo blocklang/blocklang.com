@@ -117,6 +117,7 @@ export interface RepositoryResource extends ResourceBased {
 	description: string;
 	resourceType: ResourceType;
 	appType: PageAppType;
+	deviceType: DeviceType;
 	parentId: number;
 	seq: number;
 	createTime: string;
@@ -400,6 +401,9 @@ export interface State {
 	repositoryInputValidation: RepositoryInputValidation;
 	repository: Repository;
 	canAccessRepos: Repository[];
+
+	// project
+	project: RepositoryResource;
 
 	// resource
 	repositoryResource: RepositoryResource; // 当前选中的仓库资源，可以是分组

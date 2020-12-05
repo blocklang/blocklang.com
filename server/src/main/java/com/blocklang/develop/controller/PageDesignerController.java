@@ -83,7 +83,7 @@ public class PageDesignerController extends AbstractRepositoryController {
 		// dev 对应 ide 和 preview 依赖
 		// build 对应 prod 依赖
 		List<ProjectDependencyData> dependencies= projectDependencyService.findDevDependencies(projectId);
-		dependencies.addAll(projectDependencyService.findStdDevDependencies(project.getAppType()));
+		dependencies.addAll(projectDependencyService.findStdDevDependencies(project.getAppType(), project.getDeviceType()));
 		List<Dependency> result = dependencies.stream().map(item -> {
 			Dependency dependency = new Dependency();
 

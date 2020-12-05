@@ -8,23 +8,20 @@ import { findIndex } from '@dojo/framework/shim/array';
 
 const startInitForViewProjectDependencyCommand = commandFactory(({ path }) => {
 	return [
-		replace(path('repositoryResource'), undefined),
-		replace(path('pagedComponentRepoInfos'), undefined),
-		replace(path('projectDependencyResource'), undefined),
+		remove(path('repositoryResource')),
+		remove(path('pagedComponentRepoInfos')),
+		remove(path('projectDependencyResource')),
 	];
 });
 
 export const getProjectDependencyResourceCommand = commandFactory(
-	async ({ path, payload: { owner, repo, parentPath = '' } }) => {
-		const response = await fetch(`${baseUrl}/repos/${owner}/${repo}/dependency`, {
+	async ({ path, payload: { owner, repo, project, parentPath = '' } }) => {
+		const response = await fetch(`${baseUrl}/repos/${owner}/${repo}/${project}/dependency`, {
 			headers: getHeaders(),
 		});
 		const json = await response.json();
 		if (!response.ok) {
-			return [
-				replace(path('projectDependencyResource'), undefined),
-				replace(path('repositoryResource'), undefined),
-			];
+			return [remove(path('projectDependencyResource')), remove(path('repositoryResource'))];
 		}
 		return [
 			replace(path('projectDependencyResource'), json),
@@ -48,10 +45,7 @@ const getComponentReposCommand = commandFactory(async ({ path, payload: { query 
 	});
 	const json = await response.json();
 	if (!response.ok) {
-		return [
-			replace(path('pagedComponentRepoInfos'), undefined),
-			replace(path('marketplacePageStatusCode'), response.status),
-		];
+		return [remove(path('pagedComponentRepoInfos')), replace(path('marketplacePageStatusCode'), response.status)];
 	}
 
 	return [replace(path('pagedComponentRepoInfos'), json)];
@@ -78,8 +72,8 @@ const addDependencyCommand = commandFactory<ProjectDependencyWithProjectPathPayl
 );
 
 const deleteDependencyCommand = commandFactory<ProjectDependencyIdPayload>(
-	async ({ at, get, path, payload: { owner, project, id: dependencyId } }) => {
-		const response = await fetch(`${baseUrl}/repos/${owner}/${project}/dependencies/${dependencyId}`, {
+	async ({ at, get, path, payload: { owner, repo, project, id: dependencyId } }) => {
+		const response = await fetch(`${baseUrl}/repos/${owner}/${repo}/${project}/dependencies/${dependencyId}`, {
 			method: 'DELETE',
 			headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
 		});
@@ -95,8 +89,9 @@ const deleteDependencyCommand = commandFactory<ProjectDependencyIdPayload>(
 	}
 );
 
-const getProjectDependenciesCommand = commandFactory(async ({ path, payload: { owner, project } }) => {
-	const response = await fetch(`${baseUrl}/projects/${owner}/${project}/dependencies`, {
+// TODO: 在此处要定位到项目
+const getProjectDependenciesCommand = commandFactory(async ({ path, payload: { owner, repo, project } }) => {
+	const response = await fetch(`${baseUrl}/repos/${owner}/${repo}/${project}/dependencies`, {
 		headers: getHeaders(),
 	});
 	const json = await response.json();
@@ -140,8 +135,8 @@ const getDependencyVersionsCommand = commandFactory(
 );
 
 const updateDependencyVersionCommand = commandFactory(
-	async ({ at, get, path, payload: { owner, project, dependencyId, componentRepoVersionId } }) => {
-		const response = await fetch(`${baseUrl}/projects/${owner}/${project}/dependencies/${dependencyId}`, {
+	async ({ at, get, path, payload: { owner, repo, project, dependencyId, componentRepoVersionId } }) => {
+		const response = await fetch(`${baseUrl}/projects/${owner}/${repo}/${project}/dependencies/${dependencyId}`, {
 			method: 'PUT',
 			headers: { ...getHeaders(), 'Content-type': 'application/json;charset=UTF-8' },
 			body: JSON.stringify({

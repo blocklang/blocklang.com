@@ -3,6 +3,7 @@ package com.blocklang.develop.data;
 import javax.validation.constraints.NotBlank;
 
 import com.blocklang.develop.constant.AppType;
+import com.blocklang.develop.constant.DeviceType;
 
 public class NewPageParam {
 
@@ -12,6 +13,8 @@ public class NewPageParam {
 	private String description;
 	private Integer parentId; // parentId
 	private String appType;
+	private String deviceType;
+	
 	public String getKey() {
 		return key;
 	}
@@ -41,6 +44,12 @@ public class NewPageParam {
 	}
 	public void setAppType(String appType) {
 		this.appType = appType;
+	}
+	public DeviceType getDeviceType() {
+		return DeviceType.fromKey(deviceType);
+	}
+	public void setDeviceType(String deviceType) {
+		this.deviceType = deviceType;
 	}
 	
 }

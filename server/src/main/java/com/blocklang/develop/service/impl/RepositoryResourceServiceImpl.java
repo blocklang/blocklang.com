@@ -332,13 +332,13 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 
 	@Override
 	public Optional<RepositoryResource> findByKey(
-			Integer projectId, 
+			Integer repositoryId, 
 			Integer parentId, 
 			RepositoryResourceType resourceType,
 			AppType appType,
 			String key) {
 		return repositoryResourceDao.findByRepositoryIdAndParentIdAndResourceTypeAndAppTypeAndKeyIgnoreCase(
-				projectId, 
+				repositoryId, 
 				parentId, 
 				resourceType,
 				appType,
@@ -871,7 +871,7 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 		// 然后根据这个列表来匹配
 		projectDependencyService
 			// 1. 获取项目的所有依赖
-			.findAllDevDependencies(project.getId(), project.getAppType())
+			.findAllDevDependencies(project.getId(), project.getAppType(), project.getDeviceType())
 			.stream()
 			// 2. 找出对应的组件仓库的版本信息，就可获取到 API 仓库的版本信息
 			.flatMap(item -> {
@@ -1312,6 +1312,7 @@ public class RepositoryResourceServiceImpl implements RepositoryResourceService 
 		dependency.setName(RepositoryResource.DEPENDENCY_NAME);
 		dependency.setResourceType(RepositoryResourceType.DEPENDENCY);
 		dependency.setAppType(project.getAppType());
+		dependency.setDeviceType(project.getDeviceType());
 		dependency.setParentId(project.getId());
 		dependency.setSeq(2); // 排在 Main 页面之后
 		dependency.setCreateUserId(project.getCreateUserId());

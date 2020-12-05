@@ -122,6 +122,8 @@ export const getRepositoryCommand = commandFactory(async ({ path, payload: { own
 
 export const getRepositoryGroupInfoCommand = commandFactory(
 	async ({ path, payload: { owner, repo, parentPath = '' } }) => {
+		console.log('getRepositoryGroupInfoCommand', 'parentPath', parentPath);
+
 		const response = await fetch(`${baseUrl}/repos/${owner}/${repo}/groups/${parentPath}`, {
 			headers: getHeaders(),
 		});

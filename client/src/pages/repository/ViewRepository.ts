@@ -234,7 +234,6 @@ export default class ViewRepository extends ThemedMixin(I18nMixin(WidgetBase))<V
 	}
 
 	private _renderCommitButtonGroup() {
-		debugger;
 		if (!this._isLogined()) {
 			return;
 		}

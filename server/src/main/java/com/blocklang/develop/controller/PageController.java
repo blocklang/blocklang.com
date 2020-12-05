@@ -243,6 +243,7 @@ public class PageController extends AbstractRepositoryController {
 		resource.setRepositoryId(repository.getId());
 		resource.setParentId(parentId);
 		resource.setAppType(param.getAppType());
+		resource.setDeviceType(param.getDeviceType());
 		resource.setKey(key);
 		resource.setName(param.getName() == null ? null : param.getName().trim());
 		if(param.getDescription() != null) {
@@ -291,10 +292,16 @@ public class PageController extends AbstractRepositoryController {
 		// 所有 resource 的 AppType 都取 project 的 AppType 的值
 		String pageKey = pathes[pathes.length - 1];
 		Integer parentGroupId = Constant.TREE_ROOT_ID;
+		Integer projectId = null;
 		if(!parentGroups.isEmpty()) {
 			parentGroupId = parentGroups.get(parentGroups.size() - 1).getId();
 			
-			AppType appType = parentGroups.get(0).getAppType();
+			RepositoryResource firstResource = parentGroups.get(0);
+			if(firstResource.isProject()) {
+				projectId = firstResource.getId();
+			}
+			
+			AppType appType = firstResource.getAppType();
 			RepositoryResourceType resourceType = RepositoryResourceType.PAGE;
 			RepositoryResource repositoryResource = repositoryResourceService.findByKey(
 					repository.getId(), 
@@ -309,6 +316,7 @@ public class PageController extends AbstractRepositoryController {
 			List<Map<String, String>> stripedParentGroups = RepositoryResourcePathUtil.combinePathes(parentGroups);
 			
 			Map<String, Object> result = new HashMap<>();
+			result.put("projectId", projectId);
 			result.put("repositoryResource", repositoryResource);
 			result.put("parentGroups", stripedParentGroups);
 			
@@ -329,6 +337,7 @@ public class PageController extends AbstractRepositoryController {
 		List<Map<String, String>> stripedParentGroups = RepositoryResourcePathUtil.combinePathes(parentGroups);
 		
 		Map<String, Object> result = new HashMap<>();
+		result.put("projectId", projectId);
 		result.put("repositoryResource", repositoryResource);
 		result.put("parentGroups", stripedParentGroups);
 		

@@ -32,6 +32,8 @@ export const getResourceParentPathCommand = commandFactory(
 			return [remove(path('repositoryResource')), replace(path('parentGroups'), [])];
 		}
 
+		console.log('getResourceParentPathCommand', 'id', json.id, 'fullPath', parentPath);
+
 		return [
 			replace(path('repositoryResource', 'id'), json.id),
 			replace(path('repositoryResource', 'fullPath'), parentPath),
@@ -175,13 +177,17 @@ const getPageBaseInfoCommand = commandFactory(async ({ path, get, payload: { own
 	});
 	const json = await response.json();
 	if (!response.ok) {
-		return [replace(path('repositoryResource'), undefined), replace(path('parentGroups'), [])];
+		return [remove(path('repositoryResource')), replace(path('parentGroups'), []), remove(path('project', 'id'))];
 	}
 
 	const repositoryResource = json.repositoryResource;
 	repositoryResource['fullPath'] = pagePath;
 
-	return [replace(path('repositoryResource'), repositoryResource), replace(path('parentGroups'), json.parentGroups)];
+	return [
+		replace(path('repositoryResource'), repositoryResource),
+		replace(path('parentGroups'), json.parentGroups),
+		replace(path('project', 'id'), json.projectId),
+	];
 });
 
 export const initForNewPageProcess = createProcess('init-for-new-page', [

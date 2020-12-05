@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.blocklang.develop.constant.AppType;
+import com.blocklang.develop.constant.DeviceType;
 import com.blocklang.develop.data.ProjectDependencyData;
 import com.blocklang.develop.designer.data.RepoWidgetList;
 import com.blocklang.develop.model.ProjectDependency;
@@ -67,7 +68,7 @@ public interface ProjectDependencyService {
 	 * 获取项目的 IDE 版标准库依赖
 	 * @return 子项目的依赖列表
 	 */
-	List<ProjectDependencyData> findStdDevDependencies(AppType appType);
+	List<ProjectDependencyData> findStdDevDependencies(AppType appType, DeviceType deviceType);
 	
 	List<ProjectDependencyData> findStdBuildDependencies(AppType appType);
 
@@ -84,7 +85,7 @@ public interface ProjectDependencyService {
 	 * @param appType
 	 * @return
 	 */
-	List<ProjectDependency> findAllDevDependencies(Integer projectId, AppType appType);
+	List<ProjectDependency> findAllDevDependencies(Integer projectId, AppType appType, DeviceType deviceType);
 
 	/**
 	 * 从 API 项目中找出 Widget 类型的项目，然后分组罗列其中的部件
