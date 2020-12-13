@@ -46,7 +46,7 @@ export default class Footer extends ThemedMixin(I18nMixin(WidgetBase))<FooterPro
 						{
 							href:
 								'//shang.qq.com/wpa/qunwpa?idkey=c20cdcd9c2570f0ba969283808b34d983a4d6d7b7bc83f41ead9417e5e4b6c2d',
-							classes: [c.ml_2, c.text_muted],
+							classes: [c.ms_2, c.text_muted],
 							target: '_blank',
 							title: '诚邀志同道合的编程手艺人',
 						},

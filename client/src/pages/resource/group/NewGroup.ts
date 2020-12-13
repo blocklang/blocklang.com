@@ -111,7 +111,7 @@ export default class NewGroup extends ThemedMixin(I18nMixin(WidgetBase))<NewGrou
 						{
 							to: 'view-repo',
 							params: { owner: repository.createUserName, repo: repository.name },
-							classes: [c.font_weight_bold],
+							classes: [c.fw_bold],
 						},
 						[`${repository.name}`]
 					),
@@ -148,7 +148,7 @@ export default class NewGroup extends ThemedMixin(I18nMixin(WidgetBase))<NewGrou
 			inputClasses.push(c.is_invalid);
 		}
 
-		return v('div', { classes: [c.form_group] }, [
+		return v('div', { classes: [c.mb_3] }, [
 			v('label', { for: 'key' }, [
 				`${groupKeyLabel}`,
 				v('small', { classes: [c.text_muted] }, [`${requiredLabel}`]),
@@ -184,7 +184,7 @@ export default class NewGroup extends ThemedMixin(I18nMixin(WidgetBase))<NewGrou
 			inputClasses.push(c.is_invalid);
 		}
 
-		return v('div', { classes: [c.form_group] }, [
+		return v('div', { classes: [c.mb_3] }, [
 			v('label', { for: 'name' }, [`${groupNameLabel}`]),
 			v('div', { classes: [c.input_group] }, [
 				v('input', {
@@ -208,7 +208,7 @@ export default class NewGroup extends ThemedMixin(I18nMixin(WidgetBase))<NewGrou
 			messages: { pageDescriptionLabel },
 		} = this._localizedMessages;
 
-		return v('div', { classes: [c.form_group] }, [
+		return v('div', { classes: [c.mb_3] }, [
 			v('label', { for: 'description' }, [`${pageDescriptionLabel}`]),
 			v('textarea', {
 				classes: [c.form_control],

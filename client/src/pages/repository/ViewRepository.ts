@@ -117,7 +117,7 @@ export default class ViewRepository extends ThemedMixin(I18nMixin(WidgetBase))<V
 			v('div', { classes: [c.mt_2] }, [
 				v('div', { classes: [c.d_flex, c.justify_content_between, c.align_items_center] }, [
 					v('strong', [`${messages.stagedChangesLabel}`]),
-					v('span', { classes: [c.badge, c.badge_secondary] }, [`${stagedChanges.length}`]),
+					v('span', { classes: [c.badge, c.bg_secondary] }, [`${stagedChanges.length}`]),
 				]),
 				v('table', { classes: [c.table, c.table_hover, c.table_borderless, c.mt_1] }, [
 					v(
@@ -135,7 +135,7 @@ export default class ViewRepository extends ThemedMixin(I18nMixin(WidgetBase))<V
 			v('div', { classes: [c.mt_2] }, [
 				v('div', { classes: [c.d_flex, c.justify_content_between, c.align_items_center] }, [
 					v('strong', [`${messages.unstagedChangesLabel}`]),
-					v('span', { classes: [c.badge, c.badge_secondary] }, [`${unstagedChanges.length}`]),
+					v('span', { classes: [c.badge, c.bg_secondary] }, [`${unstagedChanges.length}`]),
 				]),
 				v('table', { classes: [c.table, c.table_hover, c.table_borderless, c.mt_1] }, [
 					v(
@@ -150,7 +150,7 @@ export default class ViewRepository extends ThemedMixin(I18nMixin(WidgetBase))<V
 				]),
 			]),
 			v('form', { classes: [c.needs_validation, c.mb_3], novalidate: 'novalidate' }, [
-				v('div', { classes: [c.form_group, c.position_relative] }, [
+				v('div', { classes: [c.mb_3, c.position_relative] }, [
 					v('textarea', {
 						classes: inputClasses,
 						rows: 3,
@@ -172,7 +172,7 @@ export default class ViewRepository extends ThemedMixin(I18nMixin(WidgetBase))<V
 					},
 					[`${messages.commitLabel}`]
 				),
-				v('small', { classes: [c.text_muted, c.ml_2] }, [`${messages.commitHelp}`]),
+				v('small', { classes: [c.text_muted, c.ms_2] }, [`${messages.commitHelp}`]),
 			]),
 		]);
 	}
@@ -282,9 +282,7 @@ export default class ViewRepository extends ThemedMixin(I18nMixin(WidgetBase))<V
 					[
 						w(FontAwesomeIcon, { icon: 'code-branch' }),
 						` ${messages.commitLabel} `,
-						changeCount > 0
-							? v('span', { classes: [c.badge, c.badge_light] }, [`${changeCount}`])
-							: undefined,
+						changeCount > 0 ? v('span', { classes: [c.badge, c.bg_light] }, [`${changeCount}`]) : undefined,
 					]
 				),
 			]
@@ -636,7 +634,7 @@ class StagedChangesItem extends ThemedMixin(I18nMixin(WidgetBase))<StagedChangeP
 					gitStatus === GitFileStatus.Removed
 						? v('del', [`${uncommittedFile.resourceName}`])
 						: v('span', [`${uncommittedFile.resourceName}`]),
-					v('small', { classes: [c.text_muted, c.ml_1] }, [`${uncommittedFile.parentNamePath}`]),
+					v('small', { classes: [c.text_muted, c.ms_1] }, [`${uncommittedFile.parentNamePath}`]),
 				]),
 			]),
 			v('td', { classes: [css.operator] }, [
@@ -707,7 +705,7 @@ class UnstagedChangesItem extends ThemedMixin(I18nMixin(WidgetBase))<UnstagedCha
 					gitStatus === GitFileStatus.Deleted
 						? v('del', [`${uncommittedFile.resourceName}`])
 						: v('span', [`${uncommittedFile.resourceName}`]),
-					v('small', { classes: [c.text_muted, c.ml_1] }, [`${uncommittedFile.parentNamePath}`]),
+					v('small', { classes: [c.text_muted, c.ms_1] }, [`${uncommittedFile.parentNamePath}`]),
 				]),
 			]),
 			v('td', { classes: [css.operator] }, [

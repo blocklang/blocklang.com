@@ -12,8 +12,7 @@ import * as c from '@blocklang/bootstrap-classes';
 import { getAppTypeName } from '../../../util';
 import FontAwesomeIcon from '@blocklang/dojo-fontawesome/FontAwesomeIcon';
 import * as copy from 'copy-to-clipboard';
-import "popper.js";
-import * as $ from 'jquery';
+import Tooltip from 'bootstrap/js/dist/tooltip';
 
 export interface ViewRepositoryBuildProperties {
 	owner: string;
@@ -23,9 +22,9 @@ export interface ViewRepositoryBuildProperties {
 const factory = create({ store, i18n, icache }).properties<ViewRepositoryBuildProperties>();
 
 export default factory(function ViewRepositoryBuild({ properties, middleware: { store, i18n, icache } }) {
-	const {messages: mainMessage} = i18n.localize(mainBundle);
+	const { messages: mainMessage } = i18n.localize(mainBundle);
 	const { messages } = i18n.localize(bundle);
-	
+
 	console.log(messages);
 
 	const { get, path, executor } = store;
@@ -36,72 +35,77 @@ export default factory(function ViewRepositoryBuild({ properties, middleware: { 
 	}
 
 	const { owner, repoName } = properties();
-	console.log(owner, repoName)
-	const repository = get(path("repository"));
-	if(!repository) {
-		executor(getRepositoryProcess)({owner, repo: repoName});
+	console.log(owner, repoName);
+	const repository = get(path('repository'));
+	if (!repository) {
+		executor(getRepositoryProcess)({ owner, repo: repoName });
 		return;
 	}
 
-	const childResources = get(path("childResources"));
-	if(!childResources) {
-		executor(getRepositoryGroupChildrenProcess)({owner, repo: repoName});
+	const childResources = get(path('childResources'));
+	if (!childResources) {
+		executor(getRepositoryGroupChildrenProcess)({ owner, repo: repoName });
 		return;
 	}
 
 	// TODO: 正在加载
 	return (
 		<div classes={[c.container]}>
-			<RepositoryHeader repository={repository} privateRepositoryTitle={mainMessage.privateRepositoryTitle}/>
-		
-			<div classes={[c.font_weight_bolder, c.mb_2]}>项目发布</div>
+			<RepositoryHeader repository={repository} privateRepositoryTitle={mainMessage.privateRepositoryTitle} />
+
+			<div classes={[c.fw_bolder, c.mb_2]}>项目发布</div>
 			<div>
-				{
-					childResources.filter(item => item.resourceType === ResourceType.Project)
-						.map(item => <div classes={[c.card]}>
+				{childResources
+					.filter((item) => item.resourceType === ResourceType.Project)
+					.map((item) => (
+						<div classes={[c.card]}>
 							<div classes={[c.card_header]}>
-								<span classes={[c.font_weight_bold]}>{item.key}</span>  {getAppTypeName(item.appType)}
+								<span classes={[c.fw_bold]}>{item.key}</span> {getAppTypeName(item.appType)}
 							</div>
 							<ul classes={[c.list_group, c.list_group_flush]}>
 								<li classes={[c.list_group_item]}>
-									<form classes={[c.form_group]}>
+									<form classes={[c.mb_3]}>
 										<label for="gitUrl">微信小程序</label>
 										<div classes={[c.input_group]}>
-											<div classes={[c.input_group_prepend]}>
+											<div classes={[c.input_group_text]}>
 												<span classes={[c.input_group_text]}>使用 git 克隆源码</span>
 											</div>
-											<input 
-												type="text" 
-												classes={[c.form_control]} 
-												id="gitUrl" 
-												readOnly 
-												value={`https://blocklang.com/${owner}/${repoName}/${item.key}/weapp.git`} 
-												styles={{width: "600px"}}/>
-											<div classes={[c.input_group_append]}>
-												<button 
+											<input
+												type="text"
+												classes={[c.form_control]}
+												id="gitUrl"
+												readOnly
+												value={`https://blocklang.com/${owner}/${repoName}/${item.key}/weapp.git`}
+												styles={{ width: '600px' }}
+											/>
+											<div classes={[c.input_group_text]}>
+												<button
 													id="copyButton"
-													type="button" 
+													type="button"
 													classes={[c.btn, c.btn_outline_secondary]}
-													data-toggle="tooltip"
+													data-bs-toggle="tooltip"
 													data-placement="top"
-													onmouseout={()=>{
-														($('#copyButton') as any).tooltip('dispose');
+													onmouseout={(event: MouseEvent<HTMLButtonElement>) => {
+														const tooltip = new Tooltip(event.target);
+														tooltip.dispose();
 													}}
-													onclick={()=>{
-														copy(`https://blocklang.com/${owner}/${repoName}/${item.key}/weapp.git`);
-														($('#copyButton') as any).tooltip({title: "已复制"});
-														($('#copyButton') as any).tooltip('show');
-													}}>
-													<FontAwesomeIcon icon="clipboard"/>
+													onclick={(event: MouseEvent<HTMLButtonElement>) => {
+														copy(
+															`https://blocklang.com/${owner}/${repoName}/${item.key}/weapp.git`
+														);
+														const tooltip = new Tooltip(event.target, { title: '已复制' });
+														tooltip.show();
+													}}
+												>
+													<FontAwesomeIcon icon="clipboard" />
 												</button>
 											</div>
 										</div>
 									</form>
-									 
 								</li>
 							</ul>
-						</div>)
-				}
+						</div>
+					))}
 			</div>
 		</div>
 	);

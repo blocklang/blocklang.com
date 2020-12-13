@@ -103,7 +103,7 @@ export default class NewPage extends ThemedMixin(I18nMixin(WidgetBase))<NewPageP
 						{
 							to: 'view-repo',
 							params: { owner: repository.createUserName, repo: repository.name },
-							classes: [c.font_weight_bold],
+							classes: [c.fw_bold],
 						},
 						[`${repository.name}`]
 					),
@@ -140,7 +140,7 @@ export default class NewPage extends ThemedMixin(I18nMixin(WidgetBase))<NewPageP
 			inputClasses.push(c.is_invalid);
 		}
 
-		return v('div', { classes: [c.form_group] }, [
+		return v('div', { classes: [c.mb_3] }, [
 			v('label', { for: 'key' }, [
 				`${pageKeyLabel}`,
 				v('small', { classes: [c.text_muted] }, [`${requiredLabel}`]),
@@ -177,7 +177,7 @@ export default class NewPage extends ThemedMixin(I18nMixin(WidgetBase))<NewPageP
 			inputClasses.push(c.is_invalid);
 		}
 
-		return v('div', { classes: [c.form_group] }, [
+		return v('div', { classes: [c.mb_3] }, [
 			v('label', { for: 'name' }, [`${pageNameLabel}`]),
 			v('div', { classes: [c.input_group] }, [
 				v('input', {
@@ -204,7 +204,7 @@ export default class NewPage extends ThemedMixin(I18nMixin(WidgetBase))<NewPageP
 
 		const { appTypes } = this.properties;
 
-		return v('div', { classes: [c.form_group] }, [
+		return v('div', { classes: [c.mb_3] }, [
 			v('label', [`${pageTypeLabel}`]),
 			v('div', { classes: [c.input_group] }, [
 				...appTypes.map((item, index) => {
@@ -232,7 +232,7 @@ export default class NewPage extends ThemedMixin(I18nMixin(WidgetBase))<NewPageP
 			messages: { pageDescriptionLabel },
 		} = this._localizedMessages;
 
-		return v('div', { classes: [c.form_group] }, [
+		return v('div', { classes: [c.mb_3] }, [
 			v('label', { for: 'description' }, [`${pageDescriptionLabel}`]),
 			v('textarea', {
 				classes: [c.form_control],

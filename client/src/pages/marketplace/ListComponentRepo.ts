@@ -69,7 +69,7 @@ export default class ListComponentRepo extends ThemedMixin(I18nMixin(WidgetBase)
 
 		return v('div', { classes: [c.mt_5, c.mb_3] }, [
 			// 标题
-			v('h1', { classes: [c.text_center, c.font_weight_light] }, [`${messages.marketplaceTitle}`]),
+			v('h1', { classes: [c.text_center, c.fw_light] }, [`${messages.marketplaceTitle}`]),
 			v('div', { classes: [c.row, c.mt_3] }, [
 				v('div', { classes: [c.mx_auto, c.col_sm_12, c.col_lg_6] }, [
 					v('input', {
@@ -109,11 +109,11 @@ export default class ListComponentRepo extends ThemedMixin(I18nMixin(WidgetBase)
 	private _renderEmptyComponentRepo() {
 		const { messages } = this._localizedMessages;
 
-		return v('div', { classes: [c.jumbotron, c.mx_auto, c.text_center, c.mt_3], styles: { maxWidth: '544px' } }, [
+		return v('div', { classes: [c.bg_light, c.mx_auto, c.text_center, c.mt_3], styles: { maxWidth: '544px' } }, [
 			w(FontAwesomeIcon, { icon: 'puzzle-piece', size: '2x', classes: [c.text_muted] }),
 			v('h3', { classes: [c.mt_3] }, [`${messages.noComponentTitle}`]),
 			v('p', [
-				v('ol', { classes: [c.text_left] }, [
+				v('ol', { classes: [c.text_start] }, [
 					v('li', [`${messages.noComponentTipLine1}`]),
 					v('li', [`${messages.noComponentTipLine2}`]),
 					v('li', [`${messages.noComponentTipLine3}`]),
@@ -147,11 +147,11 @@ export default class ListComponentRepo extends ThemedMixin(I18nMixin(WidgetBase)
 
 		return v('li', { classes: [c.list_group_item] }, [
 			v('div', {}, [
-				v('span', { classes: [c.font_weight_bold, c.mr_3] }, [
+				v('span', { classes: [c.fw_bold, c.me_3] }, [
 					v('img', {
 						width: 20,
 						height: 20,
-						classes: [c.avatar, c.mr_1],
+						classes: [c.avatar, c.me_1],
 						src: `${componentRepo.createUserAvatarUrl}`,
 					}),
 					`${componentRepo.createUserName} / ${componentRepoVersion.name}`,
@@ -160,13 +160,13 @@ export default class ListComponentRepo extends ThemedMixin(I18nMixin(WidgetBase)
 					? v(
 							'span',
 							{
-								classes: [c.badge, c.badge_info, c.ml_1],
+								classes: [c.badge, c.bg_info, c.ms_1],
 								title: '项目的默认依赖',
 							},
 							['标准库']
 					  )
 					: undefined,
-				v('span', { classes: [c.badge, c.badge_info, c.ml_1] }, [`${getRepoTypeName(componentRepo.repoType)}`]),
+				v('span', { classes: [c.badge, c.bg_info, c.ms_1] }, [`${getRepoTypeName(componentRepo.repoType)}`]),
 			]),
 			componentRepoVersion.description &&
 				v('p', { itemprop: 'description', classes: [c.text_muted, c.mb_0] }, [
@@ -181,7 +181,7 @@ export default class ListComponentRepo extends ThemedMixin(I18nMixin(WidgetBase)
 							target: '_blank',
 							href: `${apiRepo.gitRepoUrl}`,
 							title: '跳转到 API 仓库',
-							classes: [c.mr_1],
+							classes: [c.me_1],
 						},
 						[`${apiRepo.gitRepoOwner}/${apiRepo.gitRepoName}`]
 					),
@@ -195,23 +195,23 @@ export default class ListComponentRepo extends ThemedMixin(I18nMixin(WidgetBase)
 							target: '_blank',
 							href: `${componentRepo.gitRepoUrl}`,
 							title: '跳转到组件仓库',
-							classes: [c.mr_1],
+							classes: [c.me_1],
 						},
 						[`${componentRepo.gitRepoOwner}/${componentRepo.gitRepoName}`]
 					),
 				]),
 			]),
 			v('small', { classes: [c.text_muted] }, [
-				v('span', { classes: [c.mr_3] }, [
+				v('span', { classes: [c.me_3] }, [
 					w(FontAwesomeIcon, {
 						icon: componentRepoVersion.icon.split(' ') as [IconPrefix, IconName],
-						classes: [c.mr_1],
+						classes: [c.me_1],
 					}),
 					`${componentRepoVersion.title}`,
 				]),
-				v('span', { classes: [c.mr_3] }, [
+				v('span', { classes: [c.me_3] }, [
 					v('span', {
-						classes: [css.repoLanguageColor, c.mr_1],
+						classes: [css.repoLanguageColor, c.me_1],
 						styles: {
 							backgroundColor: `${getProgramingLanguageColor(componentRepoVersion.language)}`,
 						},
@@ -220,13 +220,13 @@ export default class ListComponentRepo extends ThemedMixin(I18nMixin(WidgetBase)
 						`${getProgramingLanguageName(componentRepoVersion.language)}`,
 					]),
 				]),
-				v('span', { classes: [c.mr_3] }, [`${getRepoCategoryName(componentRepo.category)}`]),
-				v('span', { classes: [c.mr_3], title: '使用次数' }, [
-					w(FontAwesomeIcon, { icon: 'cube', classes: [c.mr_1] }),
+				v('span', { classes: [c.me_3] }, [`${getRepoCategoryName(componentRepo.category)}`]),
+				v('span', { classes: [c.me_3], title: '使用次数' }, [
+					w(FontAwesomeIcon, { icon: 'cube', classes: [c.me_1] }),
 					'0',
 				]),
 				v('span', {}, [
-					w(FontAwesomeIcon, { icon: 'clock', classes: [c.mr_1] }),
+					w(FontAwesomeIcon, { icon: 'clock', classes: [c.me_1] }),
 					'最近发布 · ',
 					w(Moment, { datetime: componentRepo.lastPublishTime }),
 				]),

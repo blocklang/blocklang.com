@@ -37,11 +37,11 @@ export default class LatestCommitInfo extends ThemedMixin(I18nMixin(WidgetBase))
 			},
 			[
 				// 最近提交的用户信息
-				w(Link, { to: 'profile', params: { user: latestCommitInfo.userName }, classes: [c.mr_2] }, [
+				w(Link, { to: 'profile', params: { user: latestCommitInfo.userName }, classes: [c.me_2] }, [
 					v('img', {
 						width: 20,
 						height: 20,
-						classes: [c.avatar, c.mr_1],
+						classes: [c.avatar, c.me_1],
 						src: `${latestCommitInfo.avatarUrl}`,
 					}),
 					`${latestCommitInfo.userName}`,
@@ -50,7 +50,7 @@ export default class LatestCommitInfo extends ThemedMixin(I18nMixin(WidgetBase))
 				v('span', [`${latestCommitInfo.shortMessage}`]),
 				' ',
 				// 最近提交时间
-				v('span', { classes: [c.float_right] }, [
+				v('span', { classes: [c.float_end] }, [
 					`${messages.latestCommitLabel}`,
 					w(Moment, { datetime: latestCommitInfo.commitTime }),
 				]),

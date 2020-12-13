@@ -106,9 +106,9 @@ export default class NewRelease extends ThemedMixin(I18nMixin(WidgetBase))<NewRe
 			inputClasses.push(c.is_invalid);
 		}
 
-		return v('div', { classes: [c.form_group] }, [
+		return v('div', { classes: [c.mb_3] }, [
 			v('div', { classes: [c.input_group] }, [
-				v('div', { classes: [c.input_group_prepend] }, [v('span', { classes: [c.input_group_text] }, ['v'])]),
+				v('div', { classes: [c.input_group_text] }, [v('span', { classes: [c.input_group_text] }, ['v'])]),
 				v('input', {
 					classes: inputClasses,
 					type: 'text',
@@ -135,7 +135,7 @@ export default class NewRelease extends ThemedMixin(I18nMixin(WidgetBase))<NewRe
 
 	private _renderJdkSelect() {
 		const { jdks = [] } = this.properties;
-		return v('div', { classes: [c.form_group] }, [
+		return v('div', { classes: [c.mb_3] }, [
 			v('label', { for: 'selJdk' }, ['JDK']),
 			v(
 				'select',
@@ -163,7 +163,7 @@ export default class NewRelease extends ThemedMixin(I18nMixin(WidgetBase))<NewRe
 			messages: { requiredLabel, releaseTitle },
 		} = this._localizedMessages;
 
-		return v('div', { classes: [c.form_group, c.position_relative] }, [
+		return v('div', { classes: [c.mb_3, c.position_relative] }, [
 			v('label', { for: 'txtTitle' }, [
 				`${releaseTitle}`,
 				v('small', { classes: [c.text_muted] }, [` ${requiredLabel}`]),
@@ -187,7 +187,7 @@ export default class NewRelease extends ThemedMixin(I18nMixin(WidgetBase))<NewRe
 			messages: { releaseDescription },
 		} = this._localizedMessages;
 
-		return v('div', { classes: [c.form_group] }, [
+		return v('div', { classes: [c.mb_3] }, [
 			v('label', { for: 'txtDescription' }, [`${releaseDescription}`]),
 			v('textarea', {
 				classes: [c.form_control],

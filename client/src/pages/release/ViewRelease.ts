@@ -303,7 +303,7 @@ export default class ViewRelease extends ThemedMixin(I18nMixin(WidgetBase))<View
 
 		return v('section', { classes: [c.border, borderColorClass, c.mb_4, css.borderLeft] }, [
 			v('div', { classes: [c.row] }, [
-				v('div', { classes: [c.col_3, c.text_right, c.py_4] }, [
+				v('div', { classes: [c.col_3, c.text_end, c.py_4] }, [
 					v('ul', { classes: [c.list_unstyled, c.mt_2] }, [
 						v('li', { classes: [c.mb_1] }, [
 							w(FontAwesomeIcon, { icon: 'tag', classes: [c.text_muted] }),

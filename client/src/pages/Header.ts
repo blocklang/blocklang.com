@@ -69,16 +69,16 @@ export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderPro
 					[v('img', { classes: [c.avatar], src: `${loggedAvatarUrl}`, width: 20, height: 20 })]
 				),
 				v('div', { classes: [css.menu, c.dropdown_menu], 'aria-labelledby': 'dropdownUser' }, [
-					v('p', { classes: [c.pl_4, c.py_1, c.mb_0, c.text_muted] }, [v('strong', [`${loggedUsername}`])]),
+					v('p', { classes: [c.ps_4, c.py_1, c.mb_0, c.text_muted] }, [v('strong', [`${loggedUsername}`])]),
 					v('div', { classes: [c.dropdown_divider] }),
 					w(Link, { to: 'profile', params: { user: `${loggedUsername}` }, classes: [c.dropdown_item] }, [
-						w(FontAwesomeIcon, { icon: 'user', classes: [c.mr_2] }),
+						w(FontAwesomeIcon, { icon: 'user', classes: [c.me_2] }),
 						`${messages.userHome}`,
 					]),
 					v('div', { classes: [c.dropdown_divider] }),
 
 					w(Link, { to: 'settings-profile', classes: [c.dropdown_item] }, [
-						w(FontAwesomeIcon, { icon: 'cog', classes: [c.mr_2] }),
+						w(FontAwesomeIcon, { icon: 'cog', classes: [c.me_2] }),
 						`${messages.userSetting}`,
 					]),
 					v(
@@ -88,7 +88,7 @@ export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderPro
 							href: `${baseUrl}/logout`,
 							onclick: this._onLogout,
 						},
-						[w(FontAwesomeIcon, { icon: 'sign-out-alt', classes: [c.mr_2] }), `${messages.logout}`]
+						[w(FontAwesomeIcon, { icon: 'sign-out-alt', classes: [c.me_2] }), `${messages.logout}`]
 					),
 				]),
 			]),
@@ -132,7 +132,7 @@ export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderPro
 					[v('span', { classes: [c.navbar_toggler_icon] })]
 				),
 				v('div', { classes: [c.collapse, c.navbar_collapse], id: 'navbarSupportedContent' }, [
-					v('ul', { classes: [c.navbar_nav, c.mr_auto] }, [
+					v('ul', { classes: [c.navbar_nav, c.me_auto] }, [
 						v('li', { classes: [c.nav_item] }, [
 							w(
 								Link,
@@ -157,7 +157,7 @@ export default class Header extends ThemedMixin(I18nMixin(WidgetBase))<HeaderPro
 					]),
 					v(
 						'ul',
-						{ classes: [c.navbar_nav, c.ml_auto] },
+						{ classes: [c.navbar_nav, c.ms_auto] },
 						isAuthenticated ? this._authenticatedMenu() : this._unauthenticatedMenu()
 					),
 				]),

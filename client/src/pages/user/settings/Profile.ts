@@ -114,7 +114,7 @@ export default class Profile extends ThemedMixin(I18nMixin(WidgetBase))<ProfileP
 			profile: { nickname = '' },
 		} = this.properties;
 		const { messages } = this._localizedMessages;
-		return v('div', { classes: [c.form_group] }, [
+		return v('div', { classes: [c.mb_3] }, [
 			v('label', { for: 'nickname' }, [`${messages.nickName}`]),
 			v('input', {
 				type: 'text',
@@ -133,7 +133,7 @@ export default class Profile extends ThemedMixin(I18nMixin(WidgetBase))<ProfileP
 			profile: { email },
 		} = this.properties;
 		const { messages } = this._localizedMessages;
-		return v('div', { classes: [c.form_group] }, [
+		return v('div', { classes: [c.mb_3] }, [
 			v('label', { for: 'email' }, [`${messages.email}`]),
 			v('input', {
 				type: 'text',
@@ -153,7 +153,7 @@ export default class Profile extends ThemedMixin(I18nMixin(WidgetBase))<ProfileP
 		} = this.properties;
 		const { messages } = this._localizedMessages;
 
-		return v('div', { classes: [c.form_group] }, [
+		return v('div', { classes: [c.mb_3] }, [
 			v('label', { for: 'websiteUrl' }, [`${messages.websiteUrl}`]),
 			v('input', {
 				type: 'text',
@@ -173,7 +173,7 @@ export default class Profile extends ThemedMixin(I18nMixin(WidgetBase))<ProfileP
 		} = this.properties;
 		const { messages } = this._localizedMessages;
 
-		return v('div', { classes: [c.form_group] }, [
+		return v('div', { classes: [c.mb_3] }, [
 			v('label', { for: 'company' }, [`${messages.company}`]),
 			v('input', {
 				type: 'text',
@@ -191,7 +191,7 @@ export default class Profile extends ThemedMixin(I18nMixin(WidgetBase))<ProfileP
 			profile: { location = '' },
 		} = this.properties;
 		const { messages } = this._localizedMessages;
-		return v('div', { classes: [c.form_group] }, [
+		return v('div', { classes: [c.mb_3] }, [
 			v('label', { for: 'location' }, [`${messages.location}`]),
 			v('input', {
 				type: 'text',
@@ -209,7 +209,7 @@ export default class Profile extends ThemedMixin(I18nMixin(WidgetBase))<ProfileP
 			profile: { bio = '' },
 		} = this.properties;
 		const { messages } = this._localizedMessages;
-		return v('div', { classes: [c.form_group] }, [
+		return v('div', { classes: [c.mb_3] }, [
 			v('label', { for: 'bio' }, [`${messages.bio}`]),
 			v('textarea', {
 				classes: [c.form_control],

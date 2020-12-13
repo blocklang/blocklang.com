@@ -33,7 +33,7 @@ export class RepositoryHeaderBase<
 							: w(FontAwesomeIcon, {
 									icon: 'lock',
 									size: 'xs',
-									classes: [c.text_muted, c.mr_1],
+									classes: [c.text_muted, c.me_1],
 									title: `${privateRepositoryTitle}`,
 							  }),
 						w(Link, { to: 'profile', params: { user: createUserName } }, [`${createUserName}`]),

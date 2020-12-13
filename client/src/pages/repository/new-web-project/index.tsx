@@ -89,7 +89,7 @@ export default factory(function NewWebProject({ properties, middleware: { store,
 		}
 
 		return (
-			<div classes={[c.form_group]}>
+			<div classes={[c.mb_3]}>
 				<label for="key">
 					{messages.projectKeyLabel}
 					<small classes={c.text_muted}>{`${messages.requiredLabel}`}</small>
@@ -130,7 +130,7 @@ export default factory(function NewWebProject({ properties, middleware: { store,
 		}
 
 		return (
-			<div classes={[c.form_group]}>
+			<div classes={[c.mb_3]}>
 				<label for="name">{messages.projectNameLabel}</label>
 				<div classes={[c.input_group]}>
 					<input

@@ -16,9 +16,9 @@ export interface ProjectResourceBreadcrumbProperties {
 }
 
 @theme(css)
-export default class ProjectResourceBreadcrumb extends ThemedMixin(I18nMixin(WidgetBase))<
-	ProjectResourceBreadcrumbProperties
-> {
+export default class ProjectResourceBreadcrumb extends ThemedMixin(
+	I18nMixin(WidgetBase)
+)<ProjectResourceBreadcrumbProperties> {
 	protected render() {
 		const { repository, pathes = [] } = this.properties;
 
@@ -31,7 +31,7 @@ export default class ProjectResourceBreadcrumb extends ThemedMixin(I18nMixin(Wid
 						{
 							to: 'view-repo',
 							params: { owner: repository.createUserName, repo: repository.name },
-							classes: [c.font_weight_bold],
+							classes: [c.fw_bold],
 						},
 						[`${repository.name}`]
 					),
@@ -42,7 +42,7 @@ export default class ProjectResourceBreadcrumb extends ThemedMixin(I18nMixin(Wid
 					} else {
 						// 如果是最后一个元素
 						return v('li', { classes: [c.breadcrumb_item, c.active] }, [
-							v('strong', { classes: [c.pr_2] }, [`${item.name}`]),
+							v('strong', { classes: [c.pe_2] }, [`${item.name}`]),
 						]);
 					}
 				}),

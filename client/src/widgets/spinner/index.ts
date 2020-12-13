@@ -52,7 +52,7 @@ export class SpinnerBase<P extends SpinnerProperties = SpinnerProperties> extend
 		}
 
 		return v('div', { classes: [c.d_flex, c.justify_content_center, c.my_3] }, [
-			v('div', { classes, role: 'status' }, [v('span', { classes: [c.sr_only] }, ['Loading...'])]),
+			v('div', { classes, role: 'status' }, [v('span', { classes: [c.visually_hidden] }, ['Loading...'])]),
 		]);
 	}
 }

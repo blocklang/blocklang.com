@@ -108,7 +108,7 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 					[`${releaseText}`]
 				),
 			]),
-			v('div', { classes: [c.jumbotron, c.mx_auto, c.text_center], styles: { maxWidth: '544px' } }, [
+			v('div', { classes: [c.bg_light, c.mx_auto, c.text_center], styles: { maxWidth: '544px' } }, [
 				w(FontAwesomeIcon, { icon: 'tag', size: '2x', classes: [c.text_muted] }),
 				v('h3', { classes: [c.mt_3] }, [`${noReleaseTitle}`]),
 				v('p', {}, [`${noReleaseTip}`]),
@@ -235,7 +235,7 @@ export default class ListRelease extends ThemedMixin(I18nMixin(WidgetBase))<List
 		}
 
 		return v('div', { classes: [c.row] }, [
-			v('div', { classes: [c.d_none, c.d_md_block, c.col_12, c.col_md_3, c.text_right, c.py_4] }, [
+			v('div', { classes: [c.d_none, c.d_md_block, c.col_12, c.col_md_3, c.text_end, c.py_4] }, [
 				v('ul', { classes: [c.list_unstyled, c.mt_2] }, [
 					v('li', { classes: [c.mb_1] }, [
 						w(FontAwesomeIcon, { icon: 'tag', classes: [c.text_muted] }),

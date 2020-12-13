@@ -129,7 +129,7 @@ export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBas
 		}
 
 		return v('form', { classes: [c.needs_validation, c.mb_4], novalidate: 'novalidate' }, [
-			v('div', { classes: [c.form_group] }, [
+			v('div', { classes: [c.mb_3] }, [
 				v('div', { classes: [c.input_group] }, [
 					v('input', {
 						type: 'text',
@@ -139,13 +139,13 @@ export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBas
 						'aria-describedby': 'btn-addon',
 						oninput: this._onComponentRepoUrlInput,
 						onkeydown: (event: KeyboardEvent<HTMLInputElement>) => {
-							if (event.keyCode === 13 /* 敲回车 */) {
+							if (event.code === 'Enter' /* 敲回车 */) {
 								event.preventDefault();
 								this._publishComponentRepo();
 							}
 						},
 					}),
-					v('div', { classes: [c.input_group_append] }, [
+					v('div', { classes: [c.input_group_text] }, [
 						v(
 							'button',
 							{
@@ -195,7 +195,7 @@ export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBas
 			const filterPublishTask = publishTasks.filter((task) => task.publishResult === ReleaseResult.Started);
 			if (filterPublishTask.length > 0) {
 				return v('div', { classes: [c.mb_4] }, [
-					v('h6', { classes: c.font_weight_normal }, ['正在发布']),
+					v('h6', { classes: c.fw_normal }, ['正在发布']),
 					v(
 						'ul',
 						{ classes: [c.list_group, c.mt_2] },
@@ -215,28 +215,26 @@ export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBas
 			v(
 				'div',
 				{
-					classes: [c.spinner_border, c.spinner_border_sm, c.text_warning, c.mr_2, c.mt_1],
+					classes: [c.spinner_border, c.spinner_border_sm, c.text_warning, c.me_2, c.mt_1],
 					role: 'status',
 				},
-				[v('span', { classes: [c.sr_only] }, ['发布中……'])]
+				[v('span', { classes: [c.visually_hidden] }, ['发布中……'])]
 			),
 			v('div', { classes: [c.flex_grow_1] }, [
 				v('div', {}, [
-					v('a', { href: `${task.gitUrl}`, classes: [c.font_weight_bold], target: '_blank' }, [
-						`${task.gitUrl}`,
-					]),
+					v('a', { href: `${task.gitUrl}`, classes: [c.fw_bold], target: '_blank' }, [`${task.gitUrl}`]),
 					w(
 						Link,
 						{
 							to: 'view-component-repo-publish-task',
 							params: { taskId: `${task.id}` },
-							classes: [c.float_right],
+							classes: [c.float_end],
 						},
 						['发布日志']
 					),
 				]),
 				v('div', { classes: [c.text_muted, c.mt_2] }, [
-					v('span', { classes: [c.mr_2], title: '任务编号' }, [`#${task.seq}`]),
+					v('span', { classes: [c.me_2], title: '任务编号' }, [`#${task.seq}`]),
 					v('span', {}, [
 						w(FontAwesomeIcon, { icon: 'clock' }),
 						task.publishType === PublishType.New
@@ -276,12 +274,12 @@ export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBas
 
 		return v(
 			'div',
-			{ key: 'empty', classes: [c.jumbotron, c.mx_auto, c.text_center, c.mt_5], styles: { maxWidth: '544px' } },
+			{ key: 'empty', classes: [c.bg_light, c.mx_auto, c.text_center, c.mt_5], styles: { maxWidth: '544px' } },
 			[
 				w(FontAwesomeIcon, { icon: 'puzzle-piece', size: '2x', classes: [c.text_muted] }),
 				v('h3', { classes: [c.mt_3] }, [`${messages.noComponentTitle}`]),
 				v('p', [
-					v('ol', { classes: [c.text_left] }, [
+					v('ol', { classes: [c.text_start] }, [
 						v('li', [`${messages.noComponentTipLine1}`]),
 						v('li', [`${messages.noComponentTipLine2}`]),
 						v('li', [`${messages.noComponentTipLine3}`]),
@@ -295,7 +293,7 @@ export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBas
 		const { componentRepoInfos } = this.properties;
 
 		return v('div', { key: 'repos' }, [
-			v('h6', { classes: [c.font_weight_normal] }, ['已发布']),
+			v('h6', { classes: [c.fw_normal] }, ['已发布']),
 			v(
 				'ul',
 				{ classes: [c.list_group, c.mt_2] },
@@ -305,12 +303,12 @@ export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBas
 					return v('li', { classes: [c.list_group_item] }, [
 						v('div', {}, [
 							v('div', {}, [
-								v('span', { classes: [c.font_weight_bold, c.mr_3] }, [`${componentRepoVersion.name}`]),
+								v('span', { classes: [c.fw_bold, c.me_3] }, [`${componentRepoVersion.name}`]),
 								componentRepo.std
 									? v(
 											'span',
 											{
-												classes: [c.badge, c.badge_info, c.ml_1],
+												classes: [c.badge, c.bg_info, c.ms_1],
 												title: '项目的默认依赖',
 											},
 											['标准库']
@@ -319,7 +317,7 @@ export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBas
 								v(
 									'span',
 									{
-										classes: [c.badge, c.badge_info, c.ml_1],
+										classes: [c.badge, c.bg_info, c.ms_1],
 										title: '与 BlockLang 设计器集成',
 									},
 									[`${getRepoTypeName(componentRepo.repoType)}`]
@@ -338,7 +336,7 @@ export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBas
 											target: '_blank',
 											href: `${apiRepo.gitRepoUrl}`,
 											title: '跳转到 API 仓库',
-											classes: [c.mr_1],
+											classes: [c.me_1],
 										},
 										[`${apiRepo.gitRepoOwner}/${apiRepo.gitRepoName}`]
 									),
@@ -352,23 +350,23 @@ export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBas
 											target: '_blank',
 											href: `${componentRepo.gitRepoUrl}`,
 											title: '跳转到组件仓库',
-											classes: [c.mr_1],
+											classes: [c.me_1],
 										},
 										[`${componentRepo.gitRepoOwner}/${componentRepo.gitRepoName}`]
 									),
 								]),
 							]),
 							v('small', { classes: [c.text_muted] }, [
-								v('span', { classes: [c.mr_3] }, [
+								v('span', { classes: [c.me_3] }, [
 									w(FontAwesomeIcon, {
 										icon: componentRepoVersion.icon.split(' ') as [IconPrefix, IconName],
-										classes: [c.mr_1],
+										classes: [c.me_1],
 									}),
 									`${componentRepoVersion.title}`,
 								]),
-								v('span', { classes: [c.mr_3] }, [
+								v('span', { classes: [c.me_3] }, [
 									v('span', {
-										classes: [css.repoLanguageColor, c.mr_1],
+										classes: [css.repoLanguageColor, c.me_1],
 										styles: {
 											backgroundColor: `${getProgramingLanguageColor(
 												componentRepoVersion.language
@@ -379,13 +377,13 @@ export default class ListMyComponentRepo extends ThemedMixin(I18nMixin(WidgetBas
 										`${getProgramingLanguageName(componentRepoVersion.language)}`,
 									]),
 								]),
-								v('span', { classes: [c.mr_3] }, [`${getRepoCategoryName(componentRepo.category)}`]),
-								v('span', { classes: [c.mr_3], title: '使用次数' }, [
-									w(FontAwesomeIcon, { icon: 'cube', classes: [c.mr_1] }),
+								v('span', { classes: [c.me_3] }, [`${getRepoCategoryName(componentRepo.category)}`]),
+								v('span', { classes: [c.me_3], title: '使用次数' }, [
+									w(FontAwesomeIcon, { icon: 'cube', classes: [c.me_1] }),
 									'0',
 								]),
 								v('span', {}, [
-									w(FontAwesomeIcon, { icon: 'clock', classes: [c.mr_1] }),
+									w(FontAwesomeIcon, { icon: 'clock', classes: [c.me_1] }),
 									'最近发布 · ',
 									w(Moment, { datetime: componentRepo.lastPublishTime }),
 								]),

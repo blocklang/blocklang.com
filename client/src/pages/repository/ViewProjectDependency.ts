@@ -142,7 +142,7 @@ export default class ViewProjectDependency extends ThemedMixin(I18nMixin(WidgetB
 		} = this._localizedMessages;
 
 		return v('form', {}, [
-			v('div', { classes: [c.form_group] }, [
+			v('div', { classes: [c.mb_3] }, [
 				v('input', {
 					type: 'text',
 					classes: [c.form_control],
@@ -181,7 +181,7 @@ export default class ViewProjectDependency extends ThemedMixin(I18nMixin(WidgetB
 						classes: [c.btn, c.btn_link, c.btn_sm, css.btnLink],
 						onclick: this._onClearSearchText,
 					},
-					[w(FontAwesomeIcon, { icon: 'times', classes: [c.mr_1] }), '清空搜索条件']
+					[w(FontAwesomeIcon, { icon: 'times', classes: [c.me_1] }), '清空搜索条件']
 				),
 			]),
 		]);
@@ -310,7 +310,7 @@ export default class ViewProjectDependency extends ThemedMixin(I18nMixin(WidgetB
 			v('div', {}, [v('strong', ['API'])]),
 			v(
 				'div',
-				{ classes: [c.pl_4, c.border_left] },
+				{ classes: [c.ps_4, c.border_start] },
 				groupedApiRepos.map((item) =>
 					v('div', {}, [
 						// 当前只支持 git
@@ -321,15 +321,15 @@ export default class ViewProjectDependency extends ThemedMixin(I18nMixin(WidgetB
 								target: '_blank',
 								href: `${item.apiRepo.gitRepoUrl}`,
 								title: '跳转到 API 仓库',
-								classes: [c.ml_1],
+								classes: [c.ms_1],
 							},
 							[`${item.apiRepo.gitRepoOwner}/${item.apiRepo.gitRepoName}`]
 						),
 						v(
 							'span',
-							{ classes: [c.ml_3] },
+							{ classes: [c.ms_3] },
 							item.apiRepoVersions.map((version) =>
-								v('span', { classes: [c.mr_1, c.badge, c.badge_secondary] }, [`${version.version}`])
+								v('span', { classes: [c.me_1, c.badge, c.bg_secondary] }, [`${version.version}`])
 							)
 						),
 					])
@@ -376,11 +376,11 @@ export default class ViewProjectDependency extends ThemedMixin(I18nMixin(WidgetB
 		for (const key in groupedDependencies) {
 			const values = groupedDependencies[key];
 			vnodes.push(
-				v('div', { classes: [c.pl_4, c.border_left] }, [
+				v('div', { classes: [c.ps_4, c.border_start] }, [
 					v('div', {}, [`${key}`]),
 					v(
 						'div',
-						{ classes: [c.pl_4, c.border_left] },
+						{ classes: [c.ps_4, c.border_start] },
 						values.map((item) =>
 							w(DependencyRow, {
 								repository,
@@ -424,24 +424,24 @@ class ComponentRepoItem extends ThemedMixin(I18nMixin(WidgetBase))<ComponentRepo
 		return v('li', { classes: [c.list_group_item] }, [
 			// 如果组件库未安装，则显示“使用”按钮，否则显示“已用”文本
 			v('div', {}, [
-				v('span', { classes: [c.font_weight_bold, c.mr_2] }, [
+				v('span', { classes: [c.fw_bold, c.me_2] }, [
 					v('img', {
 						width: 20,
 						height: 20,
-						classes: [c.avatar, c.mr_1],
+						classes: [c.avatar, c.me_1],
 						src: `${componentRepo.createUserAvatarUrl}`,
 					}),
 					`${componentRepo.createUserName} / ${componentRepoVersion.name}`,
 				]),
-				v('span', { classes: [c.badge, c.badge_info, c.ml_3], title: '与 BlockLang 设计器集成' }, [
+				v('span', { classes: [c.badge, c.bg_info, c.ms_3], title: '与 BlockLang 设计器集成' }, [
 					`${componentRepo.repoType}`,
 				]),
 				used
-					? v('span', { classes: [c.float_right, c.text_info] }, ['已用'])
+					? v('span', { classes: [c.float_end, c.text_info] }, ['已用'])
 					: v(
 							'button',
 							{
-								classes: [c.btn, c.btn_secondary, c.btn_sm, c.float_right],
+								classes: [c.btn, c.btn_secondary, c.btn_sm, c.float_end],
 								onclick: this._onAddDependency,
 							},
 							['使用']
@@ -459,7 +459,7 @@ class ComponentRepoItem extends ThemedMixin(I18nMixin(WidgetBase))<ComponentRepo
 							target: '_blank',
 							href: `${apiRepo.gitRepoUrl}`,
 							title: '跳转到 API 仓库',
-							classes: [c.mr_1],
+							classes: [c.me_1],
 						},
 						[`${apiRepo.gitRepoOwner}/${apiRepo.gitRepoName}`]
 					),
@@ -473,23 +473,23 @@ class ComponentRepoItem extends ThemedMixin(I18nMixin(WidgetBase))<ComponentRepo
 							target: '_blank',
 							href: `${componentRepo.gitRepoUrl}`,
 							title: '跳转到组件仓库',
-							classes: [c.mr_1],
+							classes: [c.me_1],
 						},
 						[`${componentRepo.gitRepoOwner}/${componentRepo.gitRepoName}`]
 					),
 				]),
 			]),
 			v('small', { classes: [c.text_muted] }, [
-				v('span', { classes: [c.mr_3] }, [
+				v('span', { classes: [c.me_3] }, [
 					w(FontAwesomeIcon, {
 						icon: componentRepoVersion.icon.split(' ') as [IconPrefix, IconName],
-						classes: [c.mr_1],
+						classes: [c.me_1],
 					}),
 					`${componentRepoVersion.title}`,
 				]),
-				v('span', { classes: [c.mr_3] }, [
+				v('span', { classes: [c.me_3] }, [
 					v('span', {
-						classes: [css.repoLanguageColor, c.mr_1],
+						classes: [css.repoLanguageColor, c.me_1],
 						styles: {
 							backgroundColor: `${getProgramingLanguageColor(componentRepoVersion.language)}`,
 						},
@@ -498,13 +498,13 @@ class ComponentRepoItem extends ThemedMixin(I18nMixin(WidgetBase))<ComponentRepo
 						`${getProgramingLanguageName(componentRepoVersion.language)}`,
 					]),
 				]),
-				v('span', { classes: [c.mr_3] }, [`${getRepoCategoryName(componentRepo.category)}`]),
-				v('span', { classes: [c.mr_3], title: '使用次数' }, [
-					w(FontAwesomeIcon, { icon: 'cube', classes: [c.mr_1] }),
+				v('span', { classes: [c.me_3] }, [`${getRepoCategoryName(componentRepo.category)}`]),
+				v('span', { classes: [c.me_3], title: '使用次数' }, [
+					w(FontAwesomeIcon, { icon: 'cube', classes: [c.me_1] }),
 					'0',
 				]),
 				v('span', {}, [
-					w(FontAwesomeIcon, { icon: 'clock', classes: [c.mr_1] }),
+					w(FontAwesomeIcon, { icon: 'clock', classes: [c.me_1] }),
 					'最近发布 · ',
 					w(Moment, { datetime: componentRepo.lastPublishTime }),
 				]),
@@ -549,11 +549,11 @@ class DependencyRow extends ThemedMixin(I18nMixin(WidgetBase))<DependencyRowProp
 					target: '_blank',
 					href: `${dependency.apiRepo.gitRepoUrl}`,
 					title: '跳转到组件仓库',
-					classes: [c.ml_1],
+					classes: [c.ms_1],
 				},
 				[`${dependency.componentRepo.gitRepoOwner}/${dependency.componentRepo.gitRepoName}`]
 			),
-			v('span', { classes: [c.ml_3] }, [
+			v('span', { classes: [c.ms_3] }, [
 				v('span', { classes: [c.dropdown] }, [
 					v(
 						'button',
@@ -574,7 +574,7 @@ class DependencyRow extends ThemedMixin(I18nMixin(WidgetBase))<DependencyRowProp
 					),
 				]),
 			]),
-			v('button', { type: 'button', classes: [c.close, c.float_right], onclick: this._onDeleteDependency }, [
+			v('button', { type: 'button', classes: [c.close, c.float_end], onclick: this._onDeleteDependency }, [
 				v('span', { 'aria-hidden': 'true', innerHTML: '&times;' }),
 			]),
 		]);

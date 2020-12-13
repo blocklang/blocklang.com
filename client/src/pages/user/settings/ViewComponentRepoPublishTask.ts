@@ -274,19 +274,19 @@ export default class ViewComponentRepoPublishTask extends ThemedMixin(
 		}
 
 		return v('div', { classes: [c.d_flex, c.border, borderColorClass, c.rounded, c.p_2, c.mb_4] }, [
-			v('div', { classes: [c.mr_2, resultClasses] }, [w(FontAwesomeIcon, { icon, spin })]),
+			v('div', { classes: [c.me_2, resultClasses] }, [w(FontAwesomeIcon, { icon, spin })]),
 
 			v('div', { classes: [c.flex_grow_1] }, [
 				v('div', {}, [
-					v('a', { href: `${publishTask.gitUrl}`, classes: [c.font_weight_bold, c.mr_3], target: '_blank' }, [
+					v('a', { href: `${publishTask.gitUrl}`, classes: [c.fw_bold, c.me_3], target: '_blank' }, [
 						`${publishTask.gitUrl}`,
 					]),
 					v('span', { classes: [resultClasses] }, [`${resultText}`]),
 				]),
 				v('div', { classes: [c.text_muted, c.mt_2] }, [
-					v('span', { classes: [c.mr_2], title: '任务编号' }, [`#${publishTask.seq}`]),
+					v('span', { classes: [c.me_2], title: '任务编号' }, [`#${publishTask.seq}`]),
 					v('span', {}, [
-						w(FontAwesomeIcon, { icon: 'clock', classes: [c.mr_1] }),
+						w(FontAwesomeIcon, { icon: 'clock', classes: [c.me_1] }),
 						w(Moment, { datetime: publishTask.startTime }),
 					]),
 				]),

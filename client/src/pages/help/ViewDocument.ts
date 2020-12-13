@@ -28,7 +28,7 @@ export default class ViewDocument extends ThemedMixin(I18nMixin(WidgetBase))<Vie
 
 		return v('div', { classes: [css.root, c.container] }, [
 			v('div', { classes: [c.row, c.mt_4] }, [
-				v('div', { classes: [c.col_2, c.border_right] }, [
+				v('div', { classes: [c.col_2, c.border_end] }, [
 					v('ul', { classes: [c.nav, c.flex_column] }, [
 						v('li', { classes: [c.nav_item] }, [
 							w(

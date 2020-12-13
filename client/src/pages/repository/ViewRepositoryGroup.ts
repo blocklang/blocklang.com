@@ -95,7 +95,7 @@ export default class ViewRepositoryGroup extends ThemedMixin(I18nMixin(WidgetBas
 		const { messages } = this._localizedMessages;
 		const { repository, path } = this.properties;
 
-		return v('div', { classes: [c.btn_group, c.btn_group_sm, c.mr_2], role: 'group' }, [
+		return v('div', { classes: [c.btn_group, c.btn_group_sm, c.me_2], role: 'group' }, [
 			w(
 				Link,
 				{
@@ -153,7 +153,7 @@ export default class ViewRepositoryGroup extends ThemedMixin(I18nMixin(WidgetBas
 
 		return v('tr', [
 			v('td', { classes: [css.icon] }, []),
-			v('td', { colspan: '4', classes: [c.pl_1] }, [
+			v('td', { colspan: '4', classes: [c.ps_1] }, [
 				w(GoToParentGroupLink, { repository, parentGroups: groups, onGoToGroup: this._onGoToGroup }),
 			]),
 		]);

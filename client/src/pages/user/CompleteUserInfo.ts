@@ -66,7 +66,7 @@ export default class CompleteUserInfo extends ThemedMixin(I18nMixin(WidgetBase))
 				v('hr'),
 			]),
 			v('form', { classes: [c.needs_validation], novalidate: true }, [
-				v('div', { classes: [c.form_group] }, [
+				v('div', { classes: [c.mb_3] }, [
 					v('label', { for: 'loginName' }, [`${messages.loginName}`]),
 					v('div', { classes: [c.input_group] }, [
 						v('input', {

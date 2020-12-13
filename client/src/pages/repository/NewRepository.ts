@@ -77,18 +77,18 @@ export default class NewRepository extends ThemedMixin(I18nMixin(WidgetBase))<Ne
 			inputClasses.push(c.is_invalid);
 		}
 
-		return v('div', { classes: [c.form_group] }, [
+		return v('div', { classes: [c.mb_3] }, [
 			v('label', { for: 'repositoryName' }, [
 				messages.repositoryNameLabel,
 				v('small', { classes: [c.text_muted] }, [` ${messages.requiredLabel}`]),
 			]),
 			v('div', { classes: [c.input_group] }, [
-				v('div', { classes: [c.input_group_prepend] }, [
+				v('div', { classes: [c.input_group_text] }, [
 					v('span', { classes: [c.input_group_text] }, [
 						v(
 							'img',
 							{
-								classes: [c.avatar, c.mr_1],
+								classes: [c.avatar, c.me_1],
 								src: `${loggedAvatarUrl}`,
 								width: 20,
 								height: 20,
@@ -125,7 +125,7 @@ export default class NewRepository extends ThemedMixin(I18nMixin(WidgetBase))<Ne
 		return v(
 			'div',
 			{
-				classes: [c.form_group],
+				classes: [c.mb_3],
 			},
 			[
 				v('label', { for: 'repositoryDesc' }, [messages.repositoryDescLabel]),

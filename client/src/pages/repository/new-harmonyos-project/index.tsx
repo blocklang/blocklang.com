@@ -85,7 +85,7 @@ export default factory(function NewHarmonyOSProject({ properties, middleware: { 
 	function renderDeviceType() {
 		executor(deviceTypeInputProcess)({ deviceType: DeviceType.LiteWearable });
 		return (
-			<div classes={[c.form_group]}>
+			<div classes={[c.mb_3]}>
 				<label for="deviceType">{messages.deviceTypeLabel}</label>
 				<div>
 					<ul classes={[c.list_group, 'list-group-horizontal']}>
@@ -108,7 +108,7 @@ export default factory(function NewHarmonyOSProject({ properties, middleware: { 
 		}
 
 		return (
-			<div classes={[c.form_group]}>
+			<div classes={[c.mb_3]}>
 				<label for="key">
 					{messages.projectKeyLabel}
 					<small classes={c.text_muted}>{`${messages.requiredLabel}`}</small>
@@ -149,7 +149,7 @@ export default factory(function NewHarmonyOSProject({ properties, middleware: { 
 		}
 
 		return (
-			<div classes={[c.form_group]}>
+			<div classes={[c.mb_3]}>
 				<label for="name">{messages.projectNameLabel}</label>
 				<div classes={[c.input_group]}>
 					<input

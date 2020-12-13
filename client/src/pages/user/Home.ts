@@ -29,7 +29,7 @@ export default class Home extends ThemedMixin(I18nMixin(WidgetBase))<HomePropert
 					v('div', { classes: [c.card] }, [
 						v('div', { classes: [c.card_header] }, [
 							`${messages.canAccessProjectsCardTitle}`,
-							w(Link, { to: 'new-repo', classes: [c.float_right], title: `${messages.newRepository}` }, [
+							w(Link, { to: 'new-repo', classes: [c.float_end], title: `${messages.newRepository}` }, [
 								w(FontAwesomeIcon, { icon: 'plus' }),
 							]),
 						]),
